@@ -5,12 +5,24 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 economist.com
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+import cookielib
+import re
 from collections import OrderedDict
 
-import re
-import cookielib
+from calibre.ebooks.BeautifulSoup import NavigableString, Tag
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class NoArticles(Exception):
+    pass
+
+
+def process_url(url, print_version=True):
+    if print_version:
+        url += '/print'
+    if url.startswith('/'):
+        url = 'https://www.economist.com' + url
+    return url
 
 
 class Economist(BasicNewsRecipe):
@@ -20,9 +32,11 @@ class Economist(BasicNewsRecipe):
 
     __author__ = "Kovid Goyal"
     INDEX = 'https://www.economist.com/printedition'
-    description = ('Global news and current affairs from a European'
-                   ' perspective. Best downloaded on Friday mornings (GMT)')
-    extra_css      = '''
+    description = (
+        'Global news and current affairs from a European'
+        ' perspective. Best downloaded on Friday mornings (GMT)'
+    )
+    extra_css = '''
         .headline {font-size: x-large;}
         h2 { font-size: small;  }
         h1 { font-size: medium;  }
@@ -45,17 +59,22 @@ class Economist(BasicNewsRecipe):
     oldest_article = 7.0
     resolve_internal_links = True
     remove_tags = [
-        dict(name=['script', 'noscript', 'title',
-                   'iframe', 'cf_floatingcontent']),
-        dict(attrs={'class': ['dblClkTrk', 'ec-article-info',
-                              'share_inline_header', 'related-items',
-                              'main-content-container', 'ec-topic-widget']}),
-        {'class': lambda x: x and 'share-links-header' in x},
+        dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
+        dict(
+            attrs={
+                'class': [
+                    'dblClkTrk', 'ec-article-info', 'share_inline_header',
+                    'related-items', 'main-content-container', 'ec-topic-widget'
+                ]
+            }
+        ),
+        {
+            'class': lambda x: x and 'share-links-header' in x
+        },
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
-    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
-                           lambda x:'</html>')]
+    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL), lambda x: '</html>')]
 
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
@@ -68,30 +87,81 @@ class Economist(BasicNewsRecipe):
         # Add a cookie indicating we have accepted Economist's cookie
         # policy (needed when running from some European countries)
         ck = cookielib.Cookie(
-            version=0, name='notice_preferences', value='2:', port=None,
-            port_specified=False, domain='.economist.com',
-            domain_specified=False, domain_initial_dot=True, path='/',
-            path_specified=False, secure=False, expires=None, discard=False,
-            comment=None, comment_url=None, rest={'HttpOnly': None},
-            rfc2109=False)
+            version=0,
+            name='notice_preferences',
+            value='2:',
+            port=None,
+            port_specified=False,
+            domain='.economist.com',
+            domain_specified=False,
+            domain_initial_dot=True,
+            path='/',
+            path_specified=False,
+            secure=False,
+            expires=None,
+            discard=False,
+            comment=None,
+            comment_url=None,
+            rest={'HttpOnly': None},
+            rfc2109=False
+        )
         br.cookiejar.set_cookie(ck)
+        br.set_handle_gzip(True)
         return br
 
     def parse_index(self):
-        return self.economist_parse_index()
-
-    def economist_parse_index(self):
         # return [('Articles', [{'title':'test',
         # 'url':'https://www.economist.com/news/americas/21699494-guide-cutting-corners-way-jos'}])]
-        soup = self.index_to_soup(self.INDEX)
-        div = soup.find('div', attrs={'class': 'issue-image'})
-        if div is not None:
-            img = div.find('img', src=True)
-            if img is not None:
-                self.cover_url = re.sub('thumbnail', 'full', img['src'])
+        raw = self.index_to_soup(self.INDEX, raw=True)
+        # with open('/t/raw.html', 'wb') as f:
+        #     f.write(raw)
+        soup = self.index_to_soup(raw)
+        ans = self.economist_parse_index(soup)
+        if not ans:
+            raise NoArticles(
+                'Could not find any articles, either the '
+                'economist.com server is having trouble and you should '
+                'try later or the website format has changed and the '
+                'recipe needs to be updated.'
+            )
+        return ans
+
+    def economist_parse_index(self, soup):
+        img = soup.find(attrs={'class': 'print-edition__cover-widget__image'})
+        if img is not None:
+            self.cover_url = process_url(img['src'], False)
+        else:
+            div = soup.find('div', attrs={'class': 'issue-image'})
+            if div is not None:
+                img = div.find('img', src=True)
+                if img is not None:
+                    self.cover_url = re.sub('thumbnail', 'full', img['src'])
+        sections = soup.findAll(
+            'div', attrs={'class': 'list__title',
+                          'data-reactid': True}
+        )
+        if sections:
+            feeds = []
+            for section in sections:
+                articles = []
+                secname = self.tag_to_string(section)
+                self.log(secname)
+                for a in section.findNextSiblings('a', href=True):
+                    title = (
+                        self.tag_to_string(
+                            a.find(attrs={'class': 'print-edition__link-title'})
+                        ) or self.tag_to_string(a)
+                    )
+                    articles.append({'title': title, 'url': process_url(a['href'])})
+                    self.log(' ', title, articles[-1]['url'])
+                if articles:
+                    feeds.append((secname, articles))
+            return feeds
+        self.economist_parse_old_index(soup)
+
+    def economist_parse_old_index(self, soup):
         feeds = OrderedDict()
-        for section in soup.findAll(attrs={'class': lambda x: x and 'section' in
-                                           x}):
+        for section in soup.findAll(attrs={'class': lambda x: x and 'section' in x}):
             h4 = section.find('h4')
             if h4 is None:
                 continue
@@ -116,8 +186,12 @@ class Economist(BasicNewsRecipe):
                     if title:
                         title = prefix + title
                         self.log('\tFound article:', title)
-                        articles.append({'title': title, 'url': url,
-                                         'description': '', 'date': ''})
+                        articles.append({
+                            'title': title,
+                            'url': url,
+                            'description': '',
+                            'date': ''
+                        })
 
             if articles:
                 if section_title not in feeds:
@@ -125,11 +199,6 @@ class Economist(BasicNewsRecipe):
                 feeds[section_title] += articles
 
         ans = [(key, val) for key, val in feeds.iteritems()]
-        if not ans:
-            raise Exception('Could not find any articles, either the '
-                            'economist.com server is having trouble and you should '
-                            'try later or the website format has changed and the '
-                            'recipe needs to be updated.')
         return ans
 
     def eco_find_image_tables(self, soup):
