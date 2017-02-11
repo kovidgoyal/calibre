@@ -253,6 +253,20 @@ HANDLE open_named_pipe(LPWSTR pipename) {
     return ans;
 }
 
+typedef HRESULT (__stdcall *app_uid_func)(PCWSTR app_uid);
+
+bool set_app_uid(LPWSTR app_uid) {
+    // Not available on vista so we have to load the function dynamically
+    bool ok = false;
+    HINSTANCE dll = LoadLibraryW(L"Shell32.dll");
+    if (dll != NULL) {
+        app_uid_func f = (app_uid_func)GetProcAddress(dll, "SetCurrentProcessExplicitAppUserModelID");
+        if (f != NULL) ok = f(app_uid) == S_OK;
+        FreeLibrary(dll); dll = NULL;
+    }
+    return ok;
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     char buf[257] = {0}, secret[SECRET_SIZE + 1] = {0};
     size_t key_size = 0;
@@ -332,10 +346,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         return write_bytes(pipe, echo_sz, echo_buf) ? 0 : 1;
     }
 	if (app_uid != NULL) {
-		if (SetCurrentProcessExplicitAppUserModelID(app_uid) != S_OK) {
-			// do nothing since this is not critical
-		}
-	}
+        // dont check return status as failure is not critical
+        set_app_uid(app_uid);
+    }
+	
     set_dpi_aware();
     return show_dialog(pipe, secret, parent, save_dialog, title, folder, filename, save_path, multiselect, confirm_overwrite, only_dirs, no_symlinks, file_types, num_file_types, default_extension);
 }
