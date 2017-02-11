@@ -707,59 +707,35 @@ class NYTimes(BasicNewsRecipe):
         return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
     def parse_headline_index(self):
-
         soup = self.index_to_soup(
             'http://www.nytimes.com/pages/todaysheadlines/')
-
-        section_name = 'Unknown Section'
         pubdate = strftime('%a, %d %b')
-        for td_col in soup.findAll('td'):
-            h6_sec_name = td_col.find('h6')
-            if h6_sec_name is not None:
-                new_section_name = self.tag_to_string(
-                    h6_sec_name, use_alt=False)
-                new_section_name = re.sub(r'^ *$', '', new_section_name)
-                if new_section_name == '':
-                    continue
-                section_name = new_section_name
+        section = None
+        articles = []
+        feeds = []
+        for h6 in soup.findAll('h6'):
+            section = self.tag_to_string(h6).strip()
+            articles = []
+            table = h6.parent.findNextSibling('table')
+            if table is None:
                 continue
-            atag = td_col.find('a')
-            if atag is not None:
-                h4tag = None
-                for h4tag in atag.findNextSiblings('h4'):
-                    break
-                if h4tag is None:
+            for a in table.findAll('a', attrs={'class':'headURL'}):
+                title = self.tag_to_string(a)
+                url = a['href'].partition('?')[0]
+                if self.exclude_url(url) or (self.filterDuplicates and url in self.url_list):
                     continue
-                author = self.tag_to_string(h4tag, use_alt=False)
-                try:
-                    url = re.sub(r'\?.*', '', atag['href'])
-                except:
-                    continue
-                if self.exclude_url(url):
-                    continue
-                if '?' in url:
-                    url += '&pagewanted=all'
-                else:
-                    url += '?pagewanted=all'
-                if self.filterDuplicates:
-                    if url in self.url_list:
-                        continue
                 self.url_list.append(url)
-                title = self.tag_to_string(atag, use_alt=False).strip()
-                desc = atag.parent.find('p')
-                if desc is not None:
-                    description = self.tag_to_string(desc, use_alt=False)
-                else:
-                    description = ''
-                if section_name not in self.articles:
-                    self.ans.append(section_name)
-                    self.articles[section_name] = []
-                print('Title ' + title + ' author ' + author)
-                self.articles[section_name].append(dict(
-                    title=title, url=url, date=pubdate, description=description, author=author, content=''))
-
-        self.ans = [(k, self.articles[k])
-                    for k in self.ans if k in self.articles]
+                desc = ''
+                h4 = a.findNextSibling('h4')
+                if h4 is not None:
+                    desc += self.tag_to_string(h4)
+                p = a.findNextSibling('p')
+                if p is not None:
+                    desc += ' ' + self.tag_to_string(p)
+                articles.append({'title':title, 'url':url + '?pagewanted=all', 'date':pubdate, 'description':desc})
+            if articles:
+                feeds.append((section, articles))
+        self.ans = feeds
         return self.filter_ans(self.ans)
 
     def parse_index(self):
