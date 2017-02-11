@@ -147,17 +147,17 @@ class Economist(BasicNewsRecipe):
                 secname = self.tag_to_string(section)
                 self.log(secname)
                 for a in section.findNextSiblings('a', href=True):
-                    title = (
-                        self.tag_to_string(
-                            a.find(attrs={'class': 'print-edition__link-title'})
-                        ) or self.tag_to_string(a)
-                    )
+                    spans = a.findAll('span')
+                    if len(spans) == 2:
+                        title = '{}: {}'.format(*map(self.tag_to_string, spans))
+                    else:
+                        title = self.tag_to_string(a)
                     articles.append({'title': title, 'url': process_url(a['href'])})
                     self.log(' ', title, articles[-1]['url'])
                 if articles:
                     feeds.append((secname, articles))
             return feeds
-        self.economist_parse_old_index(soup)
+        return self.economist_parse_old_index(soup)
 
     def economist_parse_old_index(self, soup):
         feeds = OrderedDict()
