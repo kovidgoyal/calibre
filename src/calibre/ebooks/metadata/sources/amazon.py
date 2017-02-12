@@ -12,12 +12,13 @@ from threading import Thread
 from Queue import Queue, Empty
 
 
-from calibre import as_unicode, random_user_agent
+from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.short_uuid import uuid4
 
 
 class CaptchaError(Exception):
@@ -830,8 +831,14 @@ class Amazon(Source):
                 return key
 
     @property
-    def user_agent(self):
-        return random_user_agent(allow_ie=False)
+    def browser(self):
+        if self._browser is None:
+            self._browser = br = browser(user_agent=random_user_agent(allow_ie=False))
+            br.set_handle_gzip(True)
+            br.addheaders += [('Accept', '*/*')]
+            r = 'www.google.com/search'
+            br.addheaders += [('Referer', 'https://{}?q=kindle&gws_rd=cr&ei={}'.format(r, uuid4()))]
+        return self._browser.clone_browser()
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
