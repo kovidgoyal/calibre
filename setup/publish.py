@@ -12,16 +12,6 @@ from setup import Command, __version__, require_clean_git, require_git_master
 from setup.upload import installers
 from setup.parallel_build import parallel_build
 
-def require_matching_kernel():
-    # docker does not work if the installed kernel version does not match the
-    # running kernel version
-    running_kernel = subprocess.check_output(['uname', '-r']).decode('utf-8')[:-len('-ARCH')-1]
-    for line in subprocess.check_output(['pacman', '-Qs', 'linux']).decode('utf-8').splitlines():
-        if line.startswith('local/linux '):
-            installed_kernel = line.split(' ')[1]
-    if running_kernel != installed_kernel:
-        raise SystemExit('docker requires the installed kernel to match running kernel. %r != %r' % (installed_kernel, running_kernel))
-
 class Stage1(Command):
 
     description = 'Stage 1 of the publish process'
@@ -135,7 +125,6 @@ class Publish(Command):
     sub_commands = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', ]
 
     def pre_sub_commands(self, opts):
-        require_matching_kernel()
         require_git_master()
         require_clean_git()
 
