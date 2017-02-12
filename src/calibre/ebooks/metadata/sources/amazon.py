@@ -18,7 +18,6 @@ from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.short_uuid import uuid4
 
 
 class CaptchaError(Exception):
@@ -835,9 +834,10 @@ class Amazon(Source):
         if self._browser is None:
             self._browser = br = browser(user_agent=random_user_agent(allow_ie=False))
             br.set_handle_gzip(True)
-            br.addheaders += [('Accept', '*/*')]
-            r = 'www.google.com/search'
-            br.addheaders += [('Referer', 'https://{}?q=kindle&gws_rd=cr&ei={}'.format(r, uuid4()))]
+            br.addheaders += [
+                ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'),
+                ('Upgrade-Insecure-Requests', '1'),
+            ]
         return self._browser.clone_browser()
 
     def save_settings(self, *args, **kwargs):
