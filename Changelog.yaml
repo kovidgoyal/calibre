@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 2.79.0
+- version: 2.79.1
   date: 2017-02-10
 
   new features:
@@ -31,6 +31,8 @@
     - title: "Conversion: Log options that are different from the defaults separately, for easy reference"
 
   bug fixes:
+    - title: "2.79.1 fixes a regression in 2.79.0 that broke the file open dialogs on windows vista"
+
     - title: "Conversion: Fix regression that broke conversion of some epub files when using the 'Remove first image' option."
       tickets: [1660699]
 
