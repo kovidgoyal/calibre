@@ -12,7 +12,7 @@ from threading import Thread
 from Queue import Queue, Empty
 
 
-from calibre import as_unicode
+from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
@@ -831,8 +831,7 @@ class Amazon(Source):
 
     @property
     def user_agent(self):
-        # IE 11 - windows 7
-        return 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+        return random_user_agent(allow_ie=False)
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
