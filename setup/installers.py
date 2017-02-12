@@ -30,7 +30,10 @@ def build_single(which, bitness, shutdown=True):
     dist = os.path.join(build_calibre, 'build', which)
     if bitness:
         dist = os.path.join(dist, bitness)
-    dist = os.path.join(dist, 'dist')
+    for q in 'dist sw/dist'.split():
+        if os.path.exists(os.path.join(dist, q)):
+            dist = os.path.join(dist, q)
+            break
     for x in os.listdir(dist):
         print(x)
         dest = os.path.join(base, 'dist', x)
