@@ -604,7 +604,7 @@ class CustomRecipes(Dialog):
     def load_recipe(self):
         files = choose_files(self, 'recipe loader dialog',
             _('Choose a recipe file'),
-            filters=[(_('Recipes'), ['.py', '.recipe'])],
+            filters=[(_('Recipes'), ['py', 'recipe'])],
             all_files=False, select_only_single_file=True)
         if files:
             path = files[0]
@@ -660,6 +660,7 @@ class CustomRecipes(Dialog):
         src = src.replace('BasicUserRecipe', 'AdvancedUserRecipe')
         self.advanced_recipe.recipe_source = src
         self.stack.setCurrentIndex(2)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
