@@ -264,8 +264,8 @@ class ConvertAction(InterfaceAction):
             with open(temp_files[-1].name, 'rb') as data:
                 db.add_format(book_id, fmt, data, index_is_id=True)
             self.gui.book_converted.emit(book_id, fmt)
-            self.gui.status_bar.show_message(job.description +
-                    (' completed'), 2000)
+            self.gui.status_bar.show_message(job.description + ' ' +
+                    _('completed'), 2000)
         finally:
             for f in temp_files:
                 try:
