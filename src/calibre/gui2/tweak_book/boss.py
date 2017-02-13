@@ -482,7 +482,7 @@ class Boss(QObject):
             for path in sorted(files, key=numeric_sort_key):
                 name = files[path]
                 i = 0
-                while c.exists(name) or c.manifest_has_name(name):
+                while c.exists(name) or c.manifest_has_name(name) or c.has_name_case_insensitive(name):
                     i += 1
                     name, ext = name.rpartition('.')[0::2]
                     name = '%s_%d.%s' % (name, i, ext)
