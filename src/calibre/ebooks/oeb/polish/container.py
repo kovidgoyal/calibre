@@ -326,9 +326,9 @@ class Container(ContainerBase):  # {{{
         if '..' in name:
             raise ValueError('Names are not allowed to have .. in them')
         href = self.name_to_href(name, self.opf_name)
-        if self.has_name(name) or self.manifest_has_name(name):
+        if self.has_name_case_insensitive(name) or self.manifest_has_name(name):
             if not modify_name_if_needed:
-                raise ValueError(('A file with the name %s already exists' % name) if self.has_name(name) else
+                raise ValueError(('A file with the name %s already exists' % name) if self.has_name_case_insensitive(name) else
                                  ('An item with the href %s already exists in the manifest' % href))
             base, ext = name.rpartition('.')[::2]
             c = 0
@@ -336,7 +336,7 @@ class Container(ContainerBase):  # {{{
                 c += 1
                 q = '%s-%d.%s' % (base, c, ext)
                 href = self.name_to_href(q, self.opf_name)
-                if not self.has_name(q) and not self.manifest_has_name(q):
+                if not self.has_name_case_insensitive(q) and not self.manifest_has_name(q):
                     name = q
                     break
         path = self.name_to_abspath(name)
@@ -507,6 +507,15 @@ class Container(ContainerBase):  # {{{
     def has_name(self, name):
         ''' Return True iff a file with the same canonical name as that specified exists. Unlike :meth:`exists` this method is always case-sensitive. '''
         return name and name in self.name_path_map
+
+    def has_name_case_insensitive(self, name):
+        if not name:
+            return False
+        name = name.lower()
+        for q in self.name_path_map:
+            if q.lower() == name:
+                return True
+        return False
 
     def relpath(self, path, base=None):
         '''Convert an absolute path (with os separators) to a path relative to
