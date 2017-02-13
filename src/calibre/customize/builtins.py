@@ -1808,7 +1808,7 @@ class StorePublioStore(StoreBase):
 
 class StoreRW2010Store(StoreBase):
     name = 'RW2010'
-    description = u'Polski serwis self-publishingowy. Pliki PDF, EPUB i MOBI. Maksymalna cena utworu nie przekracza u nas 10 złotych!'
+    description = u'Polski serwis self-publishingowy. Pliki PDF, EPUB i MOBI.'
     actual_plugin = 'calibre.gui2.store.stores.rw2010_plugin:RW2010Store'
     author = u'Tomasz Długosz'
 
