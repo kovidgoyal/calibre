@@ -8,6 +8,7 @@ from elementmaker import E
 from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
 from book_list.router import push_state
+from book_list.library_data import current_library_id
 
 
 panel_handlers = {}
@@ -72,4 +73,7 @@ apply_url_state.back_from_current = def back_from_current(current_query):
             q.panel = q.panel.rpartition('^')[0]
         else:
             q = {'panel':'book_list'}
+            lid = current_library_id()
+            if lid:
+                q.library_id = lid
     return q
