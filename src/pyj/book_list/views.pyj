@@ -43,15 +43,15 @@ def clear_grid():
     book_list_data.init_grid(container.lastChild.previousSibling)
 
 
-def show_book_details():
-    pass
+def show_book_details(book_id):
+    show_panel('book_details', {'book_id':book_id})
 
 
 def render_id(book_id):
     l = book_list_data.shown_book_ids.length
     book_list_data.shown_book_ids.add(book_id)
     if l < book_list_data.shown_book_ids.length:
-        return book_list_data.render_book(book_id, show_book_details.bind(book_id))
+        return book_list_data.render_book(book_id, show_book_details.bind(None, book_id))
 
 
 def render_ids(book_ids):

@@ -12,10 +12,10 @@ from modals import error_dialog
 from widgets import create_spinner, create_button
 from date import format_date
 from session import get_interface_data
-from utils import fmt_sidx, parse_url_params
+from utils import fmt_sidx, parse_url_params, conditional_timeout
 
 from book_list.router import back
-from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url
+from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status
 from book_list.top_bar import create_top_bar, set_title, add_button
 from book_list.ui import set_panel_handler
 from book_list.views import search
@@ -409,22 +409,52 @@ def fetch_metadata(container_id, book_id):
         create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
     ))
 
-def init(container_id):
+
+def create_book_details(container):
     q = parse_url_params()
     current_book_id = q.book_id
-    container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Book details'), action=back, icon='close')
     if current_book_id is undefined or current_book_id is None:
         no_book(container)
         return
-    container.appendChild(E.div())
     current_book_id = int(current_book_id)
+    container_id = container.parentNode.id
     if current_book_id is not 0 and book_metadata(current_book_id):
         render_book(container_id, current_book_id)
     else:
         if current_book_id is 0:
             add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
         fetch_metadata(container_id, current_book_id)
+
+
+def check_for_books_loaded():
+    container = this
+    if load_status.loading:
+        conditional_timeout(container.id, 5, check_for_books_loaded)
+        return
+    container = container.lastChild
+    clear(container)
+    if not load_status.ok:
+        err = E.div()
+        err.innerHTML = load_status.error_html
+        container.appendChild(E.div(
+            style='margin: 1ex 1em',
+            E.div(_('Failed to load books from calibre library, with error:')),
+            err,
+            E.div(
+                style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
+                E.a(onclick=back, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+            ),
+        )
+        return
+    create_book_details(container)
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Book details'), action=back, icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME))
+    container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
 set_panel_handler('book_details', init)

@@ -10,7 +10,7 @@ from utils import parse_url_params
 from book_list.globals import get_session_data
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
-library_data = {}
+library_data = {'metadata':{}}
 
 
 def current_library_id():
