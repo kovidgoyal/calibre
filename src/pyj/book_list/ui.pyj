@@ -66,7 +66,10 @@ def apply_url_state(state):
 
 apply_url_state.back_from_current = def back_from_current(current_query):
     q = current_query
-    if q.panel and '^' in q.panel:
-        q = {k:q[k] for k in q}
-        q.panel = q.panel.rpartition('^')[0]
+    if q.panel:
+        if '^' in q.panel:
+            q = {k:q[k] for k in q}
+            q.panel = q.panel.rpartition('^')[0]
+        else:
+            q = {'panel':'book_list'}
     return q
