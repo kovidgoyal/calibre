@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 7  # Needed for dynamic plugin loading
+store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -54,19 +54,19 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="content"]//li[@class="product "]'):
+            for data in doc.xpath('//div[@class="products-list-wrapper"]//li[@class="product "]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[@class="title"]//a/@href')).split(r'?q=')[0]
+                id = ''.join(data.xpath('.//div[@class="cover-wrapper"]//a/@href')).split(r'?q=')[0]
                 if not id:
                     continue
 
                 price = ''.join(data.xpath('.//div[@class="information"]//div[@class="price"]/text()'))
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
-                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
-                author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a/text()'))
-                formats = [form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a/text()')]
+                title = ''.join(data.xpath('.//div[@class="title"]/a//text()'))
+                author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a//text()'))
+                formats = [form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a//text()')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@class="protection"]/text()')))
 
                 counter -= 1
@@ -76,7 +76,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = re.sub('\.',',',price.strip())
-                s.detail_item = 'http://virtualo.pl' + id.strip().split('http://')[0]
+                s.detail_item = 'http://virtualo.pl' + id
                 s.formats = ', '.join(formats).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED
 
