@@ -18,7 +18,7 @@ from book_list.cover_grid import cover_grid_css, create_item as create_cover_gri
 from book_list.top_bar import create_top_bar, add_button
 from book_list.router import back
 from book_list.ui import set_panel_handler, show_panel
-from book_list.library_data import load_status, ensure_current_library_data, library_data, current_sorted_field, loaded_books_query, url_books_query
+from book_list.library_data import load_status, ensure_current_library_data, library_data, current_sorted_field, loaded_books_query, url_books_query, current_library_id
 from book_list.item_list import create_item_list, create_item
 
 ALLOWED_MODES = {'cover_grid'}
@@ -158,6 +158,7 @@ def create_books_list(container):
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
     add_button(container.parentNode, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort Books'))
+    add_button(container.parentNode, icon='ellipsis-v', action=show_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
 
 
 def check_for_books_loaded():
@@ -242,5 +243,23 @@ def search(query, replace=False):
 
 # }}}
 
+# More actions {{{
+
+def create_more_actions_panel(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
+    items = [
+        create_item(_('Book List Mode'), subtitle=_('Change how the list of books is displayed')),
+        create_item(_('A Random Book'), subtitle=_('Choose a random book from the library'), action=def():
+                    query = {'library_id': current_library_id(), 'book_id':'0'}
+                    show_panel('book_details', query=query, replace=True)
+        ),
+    ]
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
+
+# }}}
+
 set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)
+set_panel_handler('book_list^more_actions', create_more_actions_panel)
