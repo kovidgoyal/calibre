@@ -128,7 +128,7 @@ class ThumbnailCache:
     def get(self, book_id, width, height, callback):
         url = thumbnail_url(book_id, width, height)
         item = self.cache.get(url)
-        if item is None:
+        if not item:
             img = new Image()
             item = {'img':img, 'load_type':None, 'callbacks':v'[callback]'}
             img.onerror = self.load_finished.bind(None, item, 'error')
