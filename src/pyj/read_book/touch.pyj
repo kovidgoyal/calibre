@@ -3,7 +3,7 @@
 from __python__ import hash_literals, bound_methods
 
 from read_book.globals import get_boss
-from book_list.globals import get_boss as book_list_boss
+from book_list.globals import get_read_ui
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 5  # pixels
@@ -255,7 +255,7 @@ class BookTouchHandler(TouchHandler):
                 return
             gesture.type = 'show-chrome'
         if self.for_side_margin:
-            book_list_boss().read_ui.view.forward_gesture(gesture)
+            get_read_ui().view.forward_gesture(gesture)
         else:
             get_boss().handle_gesture(gesture)
 
