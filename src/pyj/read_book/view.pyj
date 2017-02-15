@@ -265,6 +265,20 @@ class View:
     def hide_loading(self):
         self.overlay.hide_loading_message()
 
+    def parse_cfi(self, encoded_cfi, book):
+        name = cfi = None
+        if encoded_cfi and encoded_cfi.startswith('epubcfi(/'):
+            cfi = encoded_cfi[len('epubcfi(/'):-1]
+            snum, rest = cfi.partition('/')[::2]
+            try:
+                snum = int(snum)
+            except Exception:
+                print('Invalid spine number in CFI:', snum)
+            if jstype(snum) is 'number':
+                name = book.manifest.spine[(int(snum) // 2) - 1] or name
+                cfi =  '/' + rest
+        return name, cfi
+
     def display_book(self, book):
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
@@ -278,16 +292,10 @@ class View:
             cfi = q.bookpos
         elif book.last_read_position and book.last_read_position[unkey]:
             cfi = book.last_read_position[unkey]
-        if cfi and cfi.startswith('epubcfi(/'):
-            cfi = cfi[len('epubcfi(/'):-1]
-            snum, rest = cfi.partition('/')[::2]
-            try:
-                snum = int(snum)
-            except Exception:
-                print('Invalid spine number in CFI:', snum)
-            if jstype(snum) == 'number':
-                name = book.manifest.spine[(int(snum) // 2) - 1] or name
-                pos.type, pos.cfi = 'cfi', '/' + rest
+        cfiname, internal_cfi = self.parse_cfi(cfi, book)
+        if cfiname and internal_cfi:
+            name = cfiname
+            pos.type, pos.cfi = 'cfi', internal_cfi
         self.show_name(name, initial_position=pos)
 
     def redisplay_book(self):
@@ -322,6 +330,14 @@ class View:
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
+
+    def goto_bookpos(self, bookpos):
+        cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
+        if cfiname and internal_cfi:
+            pos = {}
+            name = cfiname
+            pos.type, pos.cfi = 'cfi', internal_cfi
+            self.show_name(name, initial_position=pos)
 
     def goto_named_destination(self, name, frag):
         if self.currently_showing.name is name:
