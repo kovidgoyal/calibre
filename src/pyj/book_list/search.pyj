@@ -15,9 +15,10 @@ from session import get_interface_data
 from book_list.library_data import library_data, current_library_id
 from book_list.ui import show_panel
 from book_list.router import back
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import create_top_bar, add_button
 from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
+from book_list.prefs import prefs_panel_handler
 
 apply_search = None
 
@@ -413,16 +414,7 @@ def create_search_panel(container):
     refresh()
 
 
-
-def init(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
-    container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Search for books'), action=back, icon='close')
-    container.appendChild(E.div(class_=CLASS_NAME))
-    create_search_panel(container.lastChild)
-
+# Tag browser prefrences {{{
 
 def get_prefs():
     return [
@@ -476,3 +468,18 @@ def get_prefs():
         },
 
     ]
+
+def tb_config_panel_handler():
+    return prefs_panel_handler(_('Configure Tag Browser'), get_prefs)
+# }}}
+
+
+def init(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Search for books'), action=back, icon='close')
+    add_button(container, icon='cogs', action=show_panel.bind(None, 'book_list^search^prefs'), tooltip=_('Configure Tag Browser'))
+    container.appendChild(E.div(class_=CLASS_NAME))
+    create_search_panel(container.lastChild)

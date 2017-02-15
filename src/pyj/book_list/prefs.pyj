@@ -2,12 +2,14 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import clear
+from dom import clear, ensure_id
 from elementmaker import E
-from book_list.globals import get_session_data
 from widgets import create_button
 from gettext import gettext as _
 
+from book_list.globals import get_session_data
+from book_list.top_bar import create_top_bar
+from book_list.router import back
 # from book_list.theme import get_font_size, get_color
 
 pp_counter = 0
@@ -169,73 +171,69 @@ class LineEdit(ConfigItem):
     def from_ui(self):
         return self.control.value or ''
 
-class PrefsPanel:
+state = {}
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal iv_counter
-        pp_counter += 1
-        self.container_id = 'prefs-panel-' + pp_counter
+def onfocus(name):
+    return def(ev):
+        c = document.getElementById(state.container_id)
+        div = c.querySelector('div[data-name="{}"]'.format(name))
+        div.lastChild.style.display = 'block'
+
+
+def create_prefs_widget(container, prefs_data):
+    nonlocal state
+    state = {}
+    state.container_id = ensure_id(container)
+    state.widgets = []
+    clear(container)
+
+    for item in prefs_data:
         div = E.div(
-            id=self.container_id, style='display:none',
+            style='margin-bottom:1ex; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+            title=item.tooltip,
+            data_name=item.name,
+            E.div(),
+            E.div(
+                item.tooltip or '',
+                style='font-size:0.8rem; font-style: italic; margin-top:1ex; display:none'
+            )
         )
-        book_list_container.appendChild(div)
-        self.widgets = []
-
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
-
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
-
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
-
-    def init(self, data):
-        c = self.container
-        clear(c)
-        self.widgets = []
-
-        def onfocus(name):
-            return def(ev):
-                c = self.container
-                div = c.querySelector('div[data-name="{}"]'.format(name))
-                div.lastChild.style.display = 'block'
-
-        for item in data:
-            div = E.div(
-                style='margin-bottom:1ex; padding: 1ex 1em; border-bottom: solid 1px currentColor',
-                title=item.tooltip,
-                data_name=item.name,
-                E.div(),
-                E.div(
-                    item.tooltip or '',
-                    style='font-size:0.8rem; font-style: italic; margin-top:1ex; display:none'
-                )
+        container.appendChild(div)
+        val = get_session_data().get(item.name)
+        if item.from_storage:
+            val = item.from_storage(val)
+        if item.choices:
+            cls = Choices
+        elif val is True or val is False:
+            cls = CheckBox
+        elif jstype(val) is 'number':
+            cls = SpinBox
+        else:
+            cls = LineEdit
+        state.widgets.push((new cls(item, div.firstChild, onfocus(item.name))).initialize())
+    if state.widgets.length:
+        container.appendChild(
+            E.div(
+                style='margin:1ex 1em; padding: 1em; text-align:center',
+                create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
             )
-            c.appendChild(div)
-            val = get_session_data().get(item.name)
-            if item.from_storage:
-                val = item.from_storage(val)
-            if item.choices:
-                cls = Choices
-            elif val is True or val is False:
-                cls = CheckBox
-            elif jstype(val) is 'number':
-                cls = SpinBox
-            else:
-                cls = LineEdit
-            self.widgets.append((new cls(item, div.firstChild, onfocus(item.name))).initialize())
-        if self.widgets.length:
-            c.appendChild(
-                E.div(
-                    style='margin:1ex 1em; padding: 1em; text-align:center',
-                    create_button(_('Restore default settings'), 'refresh', self.reset_to_defaults.bind(self))
-                )
-            )
+        )
 
-    def reset_to_defaults(self):
-        for w in self.widgets:
-            w.reset_to_default()
+
+def reset_to_defaults():
+    for w in state.widgets:
+        w.reset_to_default()
+
+
+def prefs_panel_handler(title, get_prefs_data, on_close=None, icon='close'):
+
+    def close_action():
+        if on_close is not None:
+            on_close()
+        back()
+
+    return def init_prefs_panel(container_id):  # noqa:unused-local
+        container = document.getElementById(container_id)
+        create_top_bar(container, title, action=close_action, icon=icon)
+        container.appendChild(E.div())
+        create_prefs_widget(container.lastChild, get_prefs_data())

@@ -20,7 +20,7 @@ from book_list.router import back
 from book_list.ui import set_panel_handler, show_panel
 from book_list.library_data import load_status, ensure_current_library_data, library_data, current_sorted_field, loaded_books_query, url_books_query, current_library_id
 from book_list.item_list import create_item_list, create_item
-from book_list.search import init as init_search_panel, set_apply_search
+from book_list.search import init as init_search_panel, set_apply_search, tb_config_panel_handler
 
 ALLOWED_MODES = {'cover_grid'}
 DEFAULT_MODE = 'cover_grid'
@@ -267,4 +267,5 @@ def create_more_actions_panel(container_id):
 set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)
 set_panel_handler('book_list^search', init_search_panel)
+set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
 set_panel_handler('book_list^more_actions', create_more_actions_panel)
