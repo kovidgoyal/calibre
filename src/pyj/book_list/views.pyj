@@ -5,7 +5,7 @@ from __python__ import hash_literals
 import traceback
 
 from ajax import ajax_send
-from dom import add_extra_css, clear, ensure_id, set_css
+from dom import add_extra_css, clear, ensure_id, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
@@ -22,11 +22,15 @@ from book_list.library_data import load_status, ensure_current_library_data, lib
 from book_list.item_list import create_item_list, create_item
 from book_list.search import init as init_search_panel, set_apply_search, tb_config_panel_handler
 
+CLASS_NAME = 'book-list-container'
 ALLOWED_MODES = {'cover_grid'}
 DEFAULT_MODE = 'cover_grid'
 
 add_extra_css(def():
-    ans = cover_grid_css.call()
+    sel = '.' + CLASS_NAME + ' '
+    ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
+    ans += build_rule(sel + '[data-component="top_message"] a', color='blue')
+    ans += cover_grid_css.call()
     return ans
 )
 
@@ -34,12 +38,16 @@ book_list_data = {
     'container_id': None, 'shown_book_ids': set(), 'mode': None, 'fetching_more_books': None,
 }
 
+def component(name):
+    return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
+
 
 def clear_grid():
     container = document.getElementById(book_list_data.container_id)
     # We replace the div entirely so that any styles associated with it are also removed
-    container.removeChild(container.lastChild.previousSibling)
-    container.insertBefore(E.div(), container.lastChild)
+    e = component('book_list')
+    container.insertBefore(E.div(data_component='book_list'), e)
+    container.removeChild(e)
     book_list_data.shown_book_ids = set()
     book_list_data.init_grid(container.lastChild.previousSibling)
 
@@ -57,7 +65,7 @@ def render_id(book_id):
 
 def render_ids(book_ids):
     book_ids = book_ids or library_data.search_result.book_ids
-    div = document.getElementById(book_list_data.container_id).lastChild.previousSibling
+    div = component('book_list')
     for book_id in book_ids:
         child = render_id(book_id)
         if child is not None:
@@ -81,7 +89,7 @@ def apply_view_mode(mode=DEFAULT_MODE):
 # More button {{{
 
 def update_fetching_status():
-    more = document.getElementById(book_list_data.container_id).lastChild
+    more = component('more_button')
     if book_list_data.fetching_more_books:
         more.firstChild.style.display = 'none'
         more.lastChild.style.display = 'block'
@@ -148,14 +156,28 @@ def create_more_button(more):
 
 # }}}
 
+def show_top_message():
+    container = component('top_message')
+    if library_data.search_result?.query:
+        text = _('Showing books matching: {} ')
+        if not library_data.search_result.total_num:
+            text = _('No books matching: {} ')
+        container.appendChild(E.span(
+            E.span(text.format(library_data.search_result.query)),
+            E.a(_('Clear'), href='javascript:void(0)', onclick=def():search();, class_='simple-link', title=_('Clear this search'))
+        ))
+    else:
+        container.style.display = 'none'
 
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
     book_list_data.shown_book_ids = set()
     book_list_data.mode = None
     abort_get_more_books(True)
-    container.appendChild(E.div(style='display:none'))
-    container.appendChild(E.div()), container.appendChild(E.div())
+    container.appendChild(E.div(data_component='top_message'))
+    container.appendChild(E.div(data_component='book_list'))
+    container.appendChild(E.div(data_component='more_button'))
+    show_top_message()
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
     add_button(container.parentNode, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
@@ -194,7 +216,7 @@ def init(container_id):
     title = interface_data.library_map[lid]
     update_window_title(title)
     create_top_bar(container, title=title, action=back, icon='home')
-    container.appendChild(E.div())
+    container.appendChild(E.div(class_=CLASS_NAME))
     container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
