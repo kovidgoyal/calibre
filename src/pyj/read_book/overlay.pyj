@@ -5,7 +5,8 @@ from __python__ import hash_literals, bound_methods
 from dom import clear, set_css, unique_id, svgicon, build_rule, add_extra_css
 from elementmaker import E
 from book_list.theme import get_color
-from book_list.globals import get_boss
+from book_list.globals import get_read_ui
+from book_list.router import home
 from widgets import create_spinner, create_button
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
@@ -85,11 +86,10 @@ class DeleteBook:  # {{{
             if errmsg:
                 view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
             else:
-                book_id = book.key[1]
                 if self.reload_book:
-                    get_boss().reload_book()
+                    get_read_ui().reload_book()
                 else:
-                    get_boss().return_to_book_list(book_id)
+                    home()
         )
 
     def cancel(self):
@@ -150,7 +150,7 @@ class MainOverlay:
 
             E.div( # actions
                 E.ul(
-                    ac(_('Home'), _('Return to list of books'), self.return_to_book_list, 'home'),
+                    ac(_('Home'), _('Return to list of books'), def(): home();, 'home'),
                     ac(_('Back'), None, self.back, 'arrow-left'),
                     ac(_('Forward'), None, self.forward, 'arrow-right'),
                 ),
@@ -202,11 +202,6 @@ class MainOverlay:
         if self.timer is not None:
             clearInterval(self.timer)
         self.timer = None
-
-    def return_to_book_list(self):
-        view = self.overlay.view
-        book_id = view.book.key[1]
-        get_boss().return_to_book_list(book_id)
 
     def back(self):
         window.history.back()
@@ -260,7 +255,7 @@ class PrefsOverlay: # {{{
     def on_hide(self):
         if self.changes_occurred:
             self.changes_occurred = False
-            get_boss().redisplay_book()
+            get_read_ui().redisplay_book()
 
 # }}}
 

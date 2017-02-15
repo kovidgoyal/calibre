@@ -82,3 +82,6 @@ def back():
         else:
             q = {}
         push_state(q, replace=True)
+
+def home(replace=False):
+    push_state({})
