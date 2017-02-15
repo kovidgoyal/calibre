@@ -156,14 +156,15 @@ def add_to_search(node, search_type, anded):
     render_search_expression()
 
 
+def remove_expression(node_id):
+    v'delete state.active_nodes[node_id]'
+    render_search_expression()
+
+
 def render_search_expression():
-    def remove_expression(node_id):
-        return def():
-            v'delete state.active_nodes[node_id]'
-            render_search_expression()
-    parts = []
+    parts = v'[]'
     container = document.getElementById(state.container_id)
-    sic = component(container, 'tag_browser')
+    sic = component(container, 'search_expression')
     clear(sic)
     for node_id in Object.keys(state.active_nodes):
         search_type, anded = state.active_nodes[node_id]
@@ -173,7 +174,7 @@ def render_search_expression():
         if expr:
             c = E.li(svgicon('remove'), '\xa0' + name)
             sic.appendChild(c)
-            c.addEventListener('click', remove_expression(node_id))
+            c.addEventListener('click', remove_expression.bind(None, node_id))
             if parts.length:
                 expr = ('and' if anded else 'or') + ' ' + expr
             parts.push(expr)
@@ -182,10 +183,6 @@ def render_search_expression():
 
 
 def menu_clicked(i):
-
-    def add_to_search(node, search_type):
-        return def():
-            add_to_search(node, search_type)
 
     def create_details(container, hide_modal):
         node = node_for_path().children[i]
@@ -229,7 +226,7 @@ def menu_clicked(i):
                 E.img(src='{}/{}.png'.format(interface_data.icon_path, search_type), style='max-height: 2.5ex'),
                 E.span('\xa0' + text)
             )
-            li.addEventListener('click', add_to_search(node, search_type))
+            li.addEventListener('click', add_to_search.bind(None, node, search_type))
             li.addEventListener('click', hide_modal)
             ul.appendChild(li)
         f = E.form(
@@ -391,7 +388,7 @@ def create_search_panel(container):
     search_bar = create_search_bar(execute_search, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
     set_css(search_bar, flex_grow='10', margin_right='0.5em')
     search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
-    search_container.appendChild(E.ul(class_='search-items'))
+    search_container.appendChild(E.ul(class_='search-items', data_component='search_expression'))
 
     # Build loading panel
     loading_panel = component(container, 'loading')
