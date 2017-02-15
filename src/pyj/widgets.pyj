@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css
+from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
 from elementmaker import E
 
 from book_list.theme import get_color
@@ -44,8 +44,6 @@ create_spinner.style += create_keyframes('spin', 'from { transform: rotate(0deg)
 
 # Breadcrumbs {{{
 
-id_counter = 0
-
 class Breadcrumbs:
 
     STYLE_RULES =  build_rule(
@@ -81,11 +79,9 @@ class Breadcrumbs:
 
 
     def __init__(self, container):
-        nonlocal id_counter id_counter += 1
-        container.setAttribute('id', container.getAttribute('id') or ('calibre-breadcrumbs-' + id_counter))
+        self.container_id = ensure_id(container, 'calibre-breadcrumbs-')
         container.classList.add('calibre-breadcrumbs')
         clear(container)
-        self.container_id = container.getAttribute('id')
 
     @property
     def container(self):

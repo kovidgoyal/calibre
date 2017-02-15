@@ -145,6 +145,8 @@ default_interface_data = {
     'allow_console_print':False,
     'default_library_id': None,
     'library_map': None,
+    'icon_map': {},
+    'icon_path': '',
 }
 
 def get_interface_data():

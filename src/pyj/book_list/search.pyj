@@ -4,14 +4,26 @@ from __python__ import hash_literals
 
 from ajax import ajax
 from complete import create_search_bar
-from dom import clear, set_css, build_rule, svgicon, add_extra_css
+from dom import clear, set_css, build_rule, svgicon, add_extra_css, ensure_id
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, create_spinner, Breadcrumbs
 from modals import show_modal
 from utils import rating_to_stars
-from book_list.globals import get_boss, get_session_data
+from session import get_interface_data
+
+from book_list.library_data import library_data, current_library_id
+from book_list.ui import show_panel
+from book_list.router import back
+from book_list.top_bar import create_top_bar
+from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
+
+apply_search = None
+
+def set_apply_search(func):
+    nonlocal apply_search
+    apply_search = func
 
 sp_counter = 0
 CLASS_NAME = 'book-search-panel'
@@ -36,447 +48,431 @@ add_extra_css(def():
     return style
 )
 
-class SearchPanel:
+state = {}
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal sp_counter
-        sp_counter += 1
-        self.container_id = 'search-panel-' + sp_counter
-        self.interface_data = interface_data
-        self.tag_path = []
+def component(container, name):
+    return container.querySelector(f'[data-component="{name}"]')
 
-        div = E.div(
-            id=self.container_id, style='display:none', class_=CLASS_NAME,
-            E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
-            E.div(
-                E.div(),
-                E.ol(style="display:none"), # breadcrumbs container
-                E.div(style="display:none") # tag browser container
-            )
-        )
-        book_list_container.appendChild(div)
 
-        # Build search input
-        search_container = div.firstChild
-        search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
-        search_bar = create_search_bar(self.execute_search.bind(self), 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
-        set_css(search_bar, flex_grow='10', margin_right='0.5em')
-        search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
-        search_container.appendChild(E.ul(class_='search-items'))
+def icon_for_node(node):
+    interface_data = get_interface_data()
+    ans = interface_data.icon_map[node.data.category] or 'column.png'
+    return interface_data.icon_path + '/' + ans
 
-        # Build loading panel
-        loading_panel = div.lastChild.firstChild
-        loading_panel.appendChild(E.div(
-            create_spinner(), '\xa0' + _('Fetching data for the tag browser, please wait') + '…',
-            style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
-        )
-        self.breadcrumbs = Breadcrumbs(self.breadcrumbs_container)
-        self.initial_load_started = False
-        self.currently_loading = None
-        self.tag_browser_data = None
-        self.node_id_map = {}
-        self.active_nodes = {}
 
-    def init(self):
-        tb = self.search_control
-        # We dont focus the search box because on mobile that will cause the
-        # keyboard to popup and obscure the rest of the page
-        # tb.focus()
-        tb.value = ''
-        self.tag_path = []
-        self.active_nodes = {}
-        if not self.initial_load_started:
-            self.initial_load_started = True
-            self.refresh()
-        else:
-            self.render_tag_browser()
+def node_for_path(path):
+    path = path or state.tag_path
+    ans = state.tag_browser_data
+    for child_index in path:
+        ans = ans.children[child_index]
+    return ans
 
-    def refresh(self):
-        if self.currently_loading is not None:
-            self.currently_loading.abort()
-            self.currently_loading = None
-        sd = get_session_data()
-        query = {'library_id': self.interface_data.library_id}
-        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
-            query[k] = sd.get(k) + ''
-        xhr = ajax('interface-data/tag-browser', self.on_data_fetched.bind(self), query=query, bypass_cache=False)
-        xhr.send()
-        self.currently_loading = xhr
 
-    def on_data_fetched(self, end_type, xhr, ev):
-        self.currently_loading = None
-        if end_type is 'abort':
-            return
+def execute_search(text):
+    container = document.getElementById(state.container_id)
+    search_control = container.querySelector('input[name="search-books"]')
+    text = text or search_control.value or ''
+    apply_search(text)
 
-        parent = self.container.lastChild
-        if parent.lastChild.style.display is 'none':
-            parent.firstChild.style.display = 'none'
-            parent.lastChild.style.display = 'block'
-        container = self.tb_container
-        clear(container)
 
-        def show_error(error_html):
-            ediv = E.div()
-            container.appendChild(ediv)
-            ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
+def search_expression_for_item(node, node_state):
+    item = node.data
+    if item.is_searchable is False or not node_state or node_state is 'clear':
+        return ''
 
-        def process_node(node):
-            self.node_id_map[node.id] = node
-            node.data = item_map[node.id]
+    search_state = {'plus':'true', 'plusplus':'.true', 'minus':'false', 'minusminus':'.false'}[node_state]
+    stars = rating_to_stars(3, True)
+
+    if item.is_category:
+        category = item.category
+
+        if item.is_first_letter:
+            letters_seen = {}
             for child in node.children:
-                child.parent = node
-                process_node(child)
-
-        if end_type is 'load':
-            try:
-                tag_browser_data = JSON.parse(xhr.responseText)
-            except Exception as err:
-                show_error(err + '')
-                return
-            item_map = tag_browser_data.item_map
-            self.tag_browser_data = tag_browser_data.root
-            self.node_id_map = {}
-            self.active_nodes = {}
-            process_node(self.tag_browser_data)
-            self.render_tag_browser(container)
-        else:
-            show_error(xhr.error_html)
-
-    def node_for_path(self, path):
-        path = path or self.tag_path
-        ans = self.tag_browser_data
-        for child_index in path:
-            ans = ans.children[child_index]
-        return ans
-
-    def render_tag_browser(self, container=None):
-        container = container or self.tb_container
-        clear(container)
-        set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
-        self.render_children(container, self.node_for_path().children)
-        self.render_breadcrumbs()
-
-    def icon_for_node(self, node):
-        ans = self.interface_data.icon_map[node.data.category] or 'column.png'
-        return self.interface_data.icon_path + '/' + ans
-
-    def render_children(self, container, children):
-
-        def click_handler(func, i):
-            return def():
-                func.call(self, i)
-
-        for i, node in enumerate(children):
-            data = node.data
-            tooltip = ''
-            if data.count is not undefined:
-                tooltip += '\n' + _('Number of books in this category: {}').format(data.count)
-            if data.avg_rating is not undefined:
-                tooltip += '\n' + _('Average rating for books in this category: {:.1f}').format(data.avg_rating)
-            div = E.div(
-                    title=tooltip.lstrip(),
-                    style="display:flex; align-items: stretch",
-                    E.div(class_='tag-name',
-                        style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
-                        E.img(src=self.icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
-                        '\xa0' + data.name
-                    ),
-                    E.div(class_='tag-menu',
-                        style='padding: 1ex; display:flex; align-items:center',
-                        E.div(svgicon('angle-down'))
-                    )
-            )
-            set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
-            div.firstChild.addEventListener('click', click_handler(self.node_clicked, i))
-            div.lastChild.addEventListener('click', click_handler(self.menu_clicked, i))
-            container.appendChild(div)
-
-    def render_breadcrumbs(self):
-        container = self.breadcrumbs_container
-        if not self.tag_path.length:
-            container.style.display = 'none'
-            return
-        container.style.display = 'inline-block'
-        self.breadcrumbs.reset()
-
-        def onclick(i):
-            return def(ev):
-                self.tag_path = self.tag_path[:i+1]
-                self.render_tag_browser()
-                ev.preventDefault()
-                return True
-
-        def create_breadcrumb(index=-1, item=None):
-            li = self.breadcrumbs.add_crumb(onclick(index))
-            if item:
-                li.appendChild(E.span(item.name))
-            else:
-                li.appendChild(svgicon('home', '2.2ex', '2.2ex'))
-
-        create_breadcrumb()
-        parent = self.tag_browser_data
-        for i, index in enumerate(self.tag_path):
-            parent = parent.children[index]
-            create_breadcrumb(i, parent.data)
-
-    def search_expression_for_item(self, node, state):
-        item = node.data
-        if item.is_searchable is False or not state or state is 'clear':
-            return ''
-
-        search_state = {'plus':'true', 'plusplus':'.true', 'minus':'false', 'minusminus':'.false'}[state]
-        stars = rating_to_stars(3, True)
-
-        if item.is_category:
-            category = item.category
-
-            if item.is_first_letter:
-                letters_seen = {}
-                for child in node.children:
-                    if child.data.sort:
-                        letters_seen[child.data.sort[0]] = True
-                letters_seen = Object.keys(letters_seen)
-                if letters_seen.length:
-                    charclass = letters_seen.join('')
-                    if category is 'authors':
-                        expr = r'author_sort:"~(^[{0}])|(&\s*[{0}])"'.format(charclass)
-                    elif category is 'series':
-                        expr = r'series_sort:"~^[{0}]"'.format(charclass)
-                    else:
-                        expr = r'{0}:"~^[{1}]"'.format(category, charclass)
+                if child.data.sort:
+                    letters_seen[child.data.sort[0]] = True
+            letters_seen = Object.keys(letters_seen)
+            if letters_seen.length:
+                charclass = letters_seen.join('')
+                if category is 'authors':
+                    expr = r'author_sort:"~(^[{0}])|(&\s*[{0}])"'.format(charclass)
+                elif category is 'series':
+                    expr = r'series_sort:"~^[{0}]"'.format(charclass)
                 else:
-                    expr = '{}:false'.format(category)
-
-            elif category is 'news':
-                expr = 'tags:"={}"'.format(item.name)
-
+                    expr = r'{0}:"~^[{1}]"'.format(category, charclass)
             else:
-                return '{}:{}'.format(category, search_state)
+                expr = '{}:false'.format(category)
 
-            if 'false' in search_state:
-                expr = '(not ' + expr + ')'
-            return expr
+        elif category is 'news':
+            expr = 'tags:"={}"'.format(item.name)
 
-        category = 'tags' if item.category is 'news' else item.category
-        if item.name and item.name[0] in stars:
-            # Assume ratings
-            rnum = item.name.length
-            if item.name.endswith(stars[-1]):
-                rnum = '{}.5'.format(rnum - 1)
-            expr = '{}:{}'.format(category, rnum)
         else:
-            fm = self.interface_data.field_metadata[item.category]
-            suffix = ':' if fm and fm.is_csp else ''
-            name = item.original_name or item.name or item.sort
-            if not name:
-                return ''
-            name = str.replace(name, '"', r'\"')
-            if name[0] is '.':
-                name = '.' + name
-            if search_state is 'plusplus' or search_state is 'minusminus':
-                name = '.' + name
-            expr = '{}:"={}{}"'.format(category, name, suffix)
+            return '{}:{}'.format(category, search_state)
 
         if 'false' in search_state:
             expr = '(not ' + expr + ')'
         return expr
 
-    def node_clicked(self, i):
-        node = self.node_for_path().children[i]
-        if node.children and node.children.length:
-            self.tag_path.append(i)
-            self.render_tag_browser()
-        else:
-            expr = self.search_expression_for_item(node, 'plus')
-            self.execute_search(expr)
+    category = 'tags' if item.category is 'news' else item.category
+    if item.name and item.name[0] in stars:
+        # Assume ratings
+        rnum = item.name.length
+        if item.name.endswith(stars[-1]):
+            rnum = '{}.5'.format(rnum - 1)
+        expr = '{}:{}'.format(category, rnum)
+    else:
+        interface_data = get_interface_data()
+        fm = interface_data.field_metadata[item.category]
+        suffix = ':' if fm and fm.is_csp else ''
+        name = item.original_name or item.name or item.sort
+        if not name:
+            return ''
+        name = str.replace(name, '"', r'\"')
+        if name[0] is '.':
+            name = '.' + name
+        if search_state is 'plusplus' or search_state is 'minusminus':
+            name = '.' + name
+        expr = '{}:"={}{}"'.format(category, name, suffix)
 
-    def menu_clicked(self, i):
+    if 'false' in search_state:
+        expr = '(not ' + expr + ')'
+    return expr
 
-        def add_to_search(node, search_type):
-            return def():
-                self.add_to_search(node, search_type)
+def node_clicked(i):
+    node = node_for_path().children[i]
+    if node.children and node.children.length:
+        state.tag_path.append(i)
+        render_tag_browser()
+    else:
+        expr = search_expression_for_item(node, 'plus')
+        execute_search(expr)
 
-        def create_details(container, hide_modal):
-            node = self.node_for_path().children[i]
-            data = node.data
-            name = data.original_name or data.name or data.sort
-            items = []
-            if data.count is not undefined:
-                items.append(_('Count: ') + data.count)
-            if data.avg_rating is not undefined:
-                items.append(_('Rating: {:.1f}').format(data.avg_rating))
-            suffix = ''
-            if items.length:
-                suffix = ' [' + items.join(' ') + ']'
 
-            title = E.h2(
-                style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
-                E.img(src=self.icon_for_node(node), style='height:2ex'),
-                E.span('\xa0' + name + suffix)
-            )
-            container.appendChild(title)
-            container.appendChild(E.div(
-                style='margin-top:1ex; margin-bottom: 1ex',
-                _('Search for books based on this category (a search term will be added to the search box)')
-            ))
+def add_to_search(node, search_type, anded):
+    if anded is undefined or anded is None:
+        anded = get_session_data().get('and_search_terms')
+    state.active_nodes[node.id] = [search_type, anded]
+    render_search_expression()
 
-            ul = E.ul(style='list-style:none; overflow:hidden', class_='tb-action-list')
-            container.appendChild(ul)
-            items = [
-                (_('Books matching this category'), 'plus'),
-                (_('Books that do not match this category'), 'minus'),
-            ]
-            if node.data.is_hierarchical is 5:
-                items.extend([
-                    (_('Books that match this category and all sub-categories'), 'plusplus'),
-                    (_('Books that do not match this category or any of its sub-categories'), 'minusminus'),
-                ])
-            for text, search_type in items:
-                li = E.li(
-                    style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
-                    E.img(src='{}/{}.png'.format(self.interface_data.icon_path, search_type), style='max-height: 2.5ex'),
-                    E.span('\xa0' + text)
-                )
-                li.addEventListener('click', add_to_search(node, search_type))
-                li.addEventListener('click', hide_modal)
-                ul.appendChild(li)
-            f = E.form(
-                    style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex; display:flex; align-items:center',
-                    E.span(_('Add to the search expression with:')),
-                    E.input(type='radio', name='expr_join', value='OR', checked=''),
-                    E.span('\xa0OR\xa0'),
-                    E.input(type='radio', name='expr_join', value='AND'),
-                    E.span('\xa0AND')
-            )
-            and_control = f.lastChild.previousSibling
-            and_control.checked = get_session_data().get('and_search_terms')
-            container.appendChild(f)
-            and_control.addEventListener('change', def(ev):
-                get_session_data().set('and_search_terms', bool(ev.target.checked))
-            )
-            f.firstChild.nextSibling.addEventListener('change', def(ev):
-                get_session_data().set('and_search_terms', not ev.target.checked)
-            )
-        show_modal(create_details)
 
-    def add_to_search(self, node, search_type, anded):
-        if anded is undefined or anded is None:
-            anded = get_session_data().get('and_search_terms')
-        self.active_nodes[node.id] = [search_type, anded]
-        self.render_search_expression()
+def render_search_expression():
+    def remove_expression(node_id):
+        return def():
+            v'delete state.active_nodes[node_id]'
+            render_search_expression()
+    parts = []
+    container = document.getElementById(state.container_id)
+    sic = component(container, 'tag_browser')
+    clear(sic)
+    for node_id in Object.keys(state.active_nodes):
+        search_type, anded = state.active_nodes[node_id]
+        node = state.node_id_map[node_id]
+        expr = search_expression_for_item(node, search_type)
+        name = node.data.original_name or node.data.name or node.data.sort or ''
+        if expr:
+            c = E.li(svgicon('remove'), '\xa0' + name)
+            sic.appendChild(c)
+            c.addEventListener('click', remove_expression(node_id))
+            if parts.length:
+                expr = ('and' if anded else 'or') + ' ' + expr
+            parts.push(expr)
+    search_control = container.querySelector('input[name="search-books"]')
+    search_control.value = parts.join(' ')
 
-    def render_search_expression(self):
-        def remove_expression(node_id):
-            return def():
-                v'delete self.active_nodes[node_id]'
-                self.render_search_expression()
-        parts = []
-        container = self.search_items_container
-        clear(container)
-        for node_id in Object.keys(self.active_nodes):
-            search_type, anded = self.active_nodes[node_id]
-            node = self.node_id_map[node_id]
-            expr = self.search_expression_for_item(node, search_type)
-            name = node.data.original_name or node.data.name or node.data.sort or ''
-            if expr:
-                c = E.li(svgicon('remove'), '\xa0' + name)
-                container.appendChild(c)
-                c.addEventListener('click', remove_expression(node_id))
-                if parts.length:
-                    expr = ('and' if anded else 'or') + ' ' + expr
-                parts.push(expr)
-        self.search_control.value = parts.join(' ')
 
-    def get_prefs(self):
-        return [
-            {
-                'name': 'sort_tags_by',
-                'text': _('Sort tags by'),
-                'choices': [('name', _('Name')), ('popularity', _('Popularity (number of books)')), ('rating', _('Average rating'))],
-                'tooltip': _('Change how the tags/authors/etc. are sorted in the Tag Browser'),
-            },
+def menu_clicked(i):
 
-            {
-                'name':'partition_method',
-                'text':_('Tags browser category partitioning method'),
-                'choices':[('first letter', _('First Letter')), ('disable', _('Disable')), ('partition', _('Partition'))],
-                'tooltip':_('Choose how tag browser subcategories are displayed when'
-                            ' there are more items than the limit. Select by first'
-                            ' letter to see an A, B, C list. Choose partitioned to'
-                            ' have a list of fixed-sized groups. Set to disabled'
-                            ' if you never want subcategories.'),
-            },
+    def add_to_search(node, search_type):
+        return def():
+            add_to_search(node, search_type)
 
-            {
-                'name':'collapse_at',
-                'text':_('Collapse when more items than'),
-                'min': 5, 'max':10000, 'step':5,
-                'from_storage':int, 'to_storage':int,
-                'tooltip': _('If a Tag Browser category has more than this number of items, it is divided'
-                             ' up into subcategories. If the partition method is set to disable, this value is ignored.'),
-            },
+    def create_details(container, hide_modal):
+        node = node_for_path().children[i]
+        data = node.data
+        name = data.original_name or data.name or data.sort
+        items = []
+        if data.count is not undefined:
+            items.append(_('Count: ') + data.count)
+        if data.avg_rating is not undefined:
+            items.append(_('Rating: {:.1f}').format(data.avg_rating))
+        suffix = ''
+        if items.length:
+            suffix = ' [' + items.join(' ') + ']'
 
-            {
-                'name': 'dont_collapse',
-                'text': _('Categories not to partition'),
-                'tooltip': _('A comma-separated list of categories in which items containing'
-                             ' periods are displayed in the tag browser trees. For example, if'
-                             " this box contains 'tags' then tags of the form 'Mystery.English'"
-                             " and 'Mystery.Thriller' will be displayed with English and Thriller"
-                             " both under 'Mystery'. If 'tags' is not in this box,"
-                             ' then the tags will be displayed each on their own line.'),
-            },
-
-            {
-                'name': 'hide_empty_categories',
-                'text': _('Hide empty categories (columns)'),
-                'from_storage': def(x): return x.toLowerCase() is 'yes';,
-                'to_storage': def(x): return 'yes' if x else 'no';,
-                'tooltip':_('When checked, calibre will automatically hide any category'
-                            ' (a column, custom or standard) that has no items to show. For example, some'
-                            ' categories might not have values when using virtual libraries. Checking this'
-                            ' box will cause these empty categories to be hidden.'),
-            },
-
-        ]
-
-    def apply_prefs(self):
-        container = self.tb_container
-        clear(container)
-        container.appendChild(E.div(
-            style='margin: 1ex 1em',
-            _('Reloading tag browser with updated settings, please wait...'))
+        title = E.h2(
+            style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
+            E.img(src=icon_for_node(node), style='height:2ex'),
+            E.span('\xa0' + name + suffix)
         )
-        self.refresh()
+        container.appendChild(title)
+        container.appendChild(E.div(
+            style='margin-top:1ex; margin-bottom: 1ex',
+            _('Search for books based on this category (a search term will be added to the search box)')
+        ))
 
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
+        ul = E.ul(style='list-style:none; overflow:hidden', class_='tb-action-list')
+        container.appendChild(ul)
+        items = [
+            (_('Books matching this category'), 'plus'),
+            (_('Books that do not match this category'), 'minus'),
+        ]
+        if node.data.is_hierarchical is 5:
+            items.extend([
+                (_('Books that match this category and all sub-categories'), 'plusplus'),
+                (_('Books that do not match this category or any of its sub-categories'), 'minusminus'),
+            ])
+        interface_data = get_interface_data()
+        for text, search_type in items:
+            li = E.li(
+                style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
+                E.img(src='{}/{}.png'.format(interface_data.icon_path, search_type), style='max-height: 2.5ex'),
+                E.span('\xa0' + text)
+            )
+            li.addEventListener('click', add_to_search(node, search_type))
+            li.addEventListener('click', hide_modal)
+            ul.appendChild(li)
+        f = E.form(
+                style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex; display:flex; align-items:center',
+                E.span(_('Add to the search expression with:')),
+                E.input(type='radio', name='expr_join', value='OR', checked=''),
+                E.span('\xa0OR\xa0'),
+                E.input(type='radio', name='expr_join', value='AND'),
+                E.span('\xa0AND')
+        )
+        and_control = f.lastChild.previousSibling
+        and_control.checked = get_session_data().get('and_search_terms')
+        container.appendChild(f)
+        and_control.addEventListener('change', def(ev):
+            get_session_data().set('and_search_terms', bool(ev.target.checked))
+        )
+        f.firstChild.nextSibling.addEventListener('change', def(ev):
+            get_session_data().set('and_search_terms', not ev.target.checked)
+        )
+    show_modal(create_details)
 
-    @property
-    def breadcrumbs_container(self):
-        return self.tb_container.previousSibling
 
-    @property
-    def tb_container(self):
-        return self.container.lastChild.lastChild
+def render_children(container, children):
+    for i, node in enumerate(children):
+        data = node.data
+        tooltip = ''
+        if data.count is not undefined:
+            tooltip += '\n' + _('Number of books in this category: {}').format(data.count)
+        if data.avg_rating is not undefined:
+            tooltip += '\n' + _('Average rating for books in this category: {:.1f}').format(data.avg_rating)
+        div = E.div(
+                title=tooltip.lstrip(),
+                style="display:flex; align-items: stretch",
+                E.div(class_='tag-name',
+                    style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
+                    E.img(src=icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
+                    '\xa0' + data.name
+                ),
+                E.div(class_='tag-menu',
+                    style='padding: 1ex; display:flex; align-items:center',
+                    E.div(svgicon('angle-down'))
+                )
+        )
+        set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
+        div.firstChild.addEventListener('click', node_clicked.bind(i))
+        div.lastChild.addEventListener('click', menu_clicked.bind(i))
+        container.appendChild(div)
 
-    @property
-    def search_control(self):
-        return self.container.querySelector('input[name="search-books"]')
+def render_breadcrumbs():
+    container = state.breadcrumbs.container
+    if not state.tag_path.length:
+        container.style.display = 'none'
+        return
+    container.style.display = 'inline-block'
+    state.breadcrumbs.reset()
 
-    @property
-    def search_items_container(self):
-        return self.container.firstChild.lastChild
+    def onclick(i):
+        return def(ev):
+            state.tag_path = state.tag_path[:i+1]
+            render_tag_browser()
+            ev.preventDefault()
+            return True
 
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
+    def create_breadcrumb(index=-1, item=None):
+        li = state.breadcrumbs.add_crumb(onclick(index))
+        if item:
+            li.appendChild(E.span(item.name))
+        else:
+            li.appendChild(svgicon('home', '2.2ex', '2.2ex'))
 
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
+    create_breadcrumb()
+    parent = state.tag_browser_data
+    for i, index in enumerate(state.tag_path):
+        parent = parent.children[index]
+        create_breadcrumb(i, parent.data)
 
-    def execute_search(self, text=''):
-        text = text or self.search_control.value or ''
-        get_boss().ui.books_view.change_search(text)
+def render_tag_browser():
+    container = document.getElementById(state.container_id).lastChild.lastChild
+    clear(container)
+    set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
+    render_children(container, node_for_path().children)
+    render_breadcrumbs()
+
+
+def on_data_fetched(end_type, xhr, ev):
+    state.currently_loading = None
+    if end_type is 'abort':
+        return
+    container = document.getElementById(state.container_id)
+    if not container:
+        return
+
+    loading_panel = component(container, 'loading')
+    loading_panel.style.display = 'none'
+    container = component(container, 'tag_browser')
+    container.style.display = 'block'
+    clear(container)
+
+    def show_error(error_html):
+        ediv = E.div()
+        container.appendChild(ediv)
+        ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
+
+    def process_node(node):
+        state.node_id_map[node.id] = node
+        node.data = item_map[node.id]
+        for child in node.children:
+            child.parent = node
+            process_node(child)
+
+    if end_type is 'load':
+        try:
+            tag_browser_data = JSON.parse(xhr.responseText)
+        except Exception as err:
+            show_error(err + '')
+            return
+        item_map = tag_browser_data.item_map
+        state.tag_browser_data = tag_browser_data.root
+        state.node_id_map = {}
+        state.active_nodes = {}
+        process_node(state.tag_browser_data)
+        render_tag_browser()
+    else:
+        show_error(xhr.error_html)
+
+
+def refresh():
+    if state.currently_loading is not None:
+        state.currently_loading.abort()
+        state.currently_loading = None
+    sd = get_session_data()
+    query = {'library_id': current_library_id()}
+    for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
+        query[k] = sd.get(k) + ''
+    xhr = ajax('interface-data/tag-browser', on_data_fetched, query=query, bypass_cache=False)
+    xhr.send()
+    state.currently_loading = xhr
+
+
+def create_search_panel(container):
+    nonlocal state
+    state = {}
+    container.classList.add(CLASS_NAME)
+    # search input container
+    container.appendChild(E.div(
+        data_component='search',
+        style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"
+    ))
+    container.appendChild(E.div(
+        E.div(data_component='loading'),
+        E.ol(style="display:none", data_component='breadcrumbs'),
+        E.div(style="display:none", data_component='tag_browser')
+    ))
+
+    # Build search input
+    # We dont focus the search box because on mobile that will cause the
+    # keyboard to popup and obscure the rest of the page
+    search_container = component(container, 'search')
+    search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
+    search_bar = create_search_bar(execute_search, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
+    set_css(search_bar, flex_grow='10', margin_right='0.5em')
+    search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
+    search_container.appendChild(E.ul(class_='search-items'))
+
+    # Build loading panel
+    loading_panel = component(container, 'loading')
+    loading_panel.appendChild(E.div(
+        create_spinner(), '\xa0' + _('Fetching data for the tag browser, please wait') + '…',
+        style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
+    )
+
+    # Build breadcrumbs
+    state.breadcrumbs = Breadcrumbs(component(container, 'breadcrumbs'))
+
+    # Init state
+    state.currently_loading = None
+    state.tag_browser_data = None
+    state.node_id_map = {}
+    state.active_nodes = {}
+    state.tag_path = []
+    state.container_id = ensure_id(container)
+    refresh()
+
+
+
+def init(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Search for books'), action=back, icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME))
+    create_search_panel(container.lastChild)
+
+
+def get_prefs():
+    return [
+        {
+            'name': 'sort_tags_by',
+            'text': _('Sort tags by'),
+            'choices': [('name', _('Name')), ('popularity', _('Popularity (number of books)')), ('rating', _('Average rating'))],
+            'tooltip': _('Change how the tags/authors/etc. are sorted in the Tag Browser'),
+        },
+
+        {
+            'name':'partition_method',
+            'text':_('Tags browser category partitioning method'),
+            'choices':[('first letter', _('First Letter')), ('disable', _('Disable')), ('partition', _('Partition'))],
+            'tooltip':_('Choose how tag browser subcategories are displayed when'
+                        ' there are more items than the limit. Select by first'
+                        ' letter to see an A, B, C list. Choose partitioned to'
+                        ' have a list of fixed-sized groups. Set to disabled'
+                        ' if you never want subcategories.'),
+        },
+
+        {
+            'name':'collapse_at',
+            'text':_('Collapse when more items than'),
+            'min': 5, 'max':10000, 'step':5,
+            'from_storage':int, 'to_storage':int,
+            'tooltip': _('If a Tag Browser category has more than this number of items, it is divided'
+                            ' up into subcategories. If the partition method is set to disable, this value is ignored.'),
+        },
+
+        {
+            'name': 'dont_collapse',
+            'text': _('Categories not to partition'),
+            'tooltip': _('A comma-separated list of categories in which items containing'
+                            ' periods are displayed in the tag browser trees. For example, if'
+                            " this box contains 'tags' then tags of the form 'Mystery.English'"
+                            " and 'Mystery.Thriller' will be displayed with English and Thriller"
+                            " both under 'Mystery'. If 'tags' is not in this box,"
+                            ' then the tags will be displayed each on their own line.'),
+        },
+
+        {
+            'name': 'hide_empty_categories',
+            'text': _('Hide empty categories (columns)'),
+            'from_storage': def(x): return x.toLowerCase() is 'yes';,
+            'to_storage': def(x): return 'yes' if x else 'no';,
+            'tooltip':_('When checked, calibre will automatically hide any category'
+                        ' (a column, custom or standard) that has no items to show. For example, some'
+                        ' categories might not have values when using virtual libraries. Checking this'
+                        ' box will cause these empty categories to be hidden.'),
+        },
+
+    ]
