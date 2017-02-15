@@ -6,7 +6,10 @@ from gettext import gettext as _
 from encodings import base64encode, base64decode
 from modals import error_dialog
 
+from book_list.library_data import current_library_id
 from book_list.router import is_reading_book
+
+current_library_id
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
@@ -128,7 +131,7 @@ class DB:
         # The key has to be a JavaScript array as otherwise it cannot be stored
         # into indexed db, because the RapydScript list has properties that
         # refer to non-serializable objects like functions.
-        key = v'[self.interface_data.library_id, book_id, fmt]'
+        key = v'[current_library_id(), book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
             proceed(result or {
                 'key':key,

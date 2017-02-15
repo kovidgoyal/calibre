@@ -6,6 +6,7 @@ from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from utils import html_escape
+from session import get_interface_data
 
 from modals import error_dialog, warning_dialog
 from book_list.globals import get_session_data, main_js, get_translations
@@ -269,7 +270,7 @@ class View:
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
         pos = {'replace_history':True}
-        unkey = username_key(self.ui.interface_data.username)
+        unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
         cfi = None
         q = parse_url_params()
@@ -355,8 +356,8 @@ class View:
 
     def on_update_cfi(self, data):
         self.currently_showing.bookpos = data.cfi
-        push_state(self.url_data, replace=data.replace_history, mode=read_book_mode)
-        unkey = username_key(self.ui.interface_data.username)
+        push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
+        unkey = username_key(get_interface_data().username)
         if not self.book.last_read_position:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi

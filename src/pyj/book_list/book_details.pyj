@@ -14,7 +14,7 @@ from date import format_date
 from session import get_interface_data
 from utils import fmt_sidx, parse_url_params, conditional_timeout
 
-from book_list.router import back
+from book_list.router import back, open_book
 from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status
 from book_list.top_bar import create_top_bar, set_title, add_button
 from book_list.ui import set_panel_handler
@@ -311,7 +311,7 @@ def preferred_format(book_id):
 
 
 def read_format(book_id, fmt):
-    get_boss().read_book(self.current_book_id, fmt, self.interface_data.metadata[self.current_book_id])
+    open_book(book_id, fmt)
 
 
 def read_book(book_id):

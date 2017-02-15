@@ -48,11 +48,11 @@ def apply_url(ignore_handler):
         handler(data)
 
 
-history_count = 0
+def open_book(book_id, fmt, replace=False):
+    push_state({'book_id':book_id, 'fmt':fmt}, replace=replace, mode=read_book_mode)
 
 
 def push_state(query, replace=False, mode='book_list', call_handler=True):
-    nonlocal history_count
     query = {k:query[k] for k in query}
     if mode is not 'book_list':
         query.mode = mode
@@ -61,19 +61,18 @@ def push_state(query, replace=False, mode='book_list', call_handler=True):
         window.history.replaceState(None, '', query)
     else:
         window.history.pushState(None, '', query)
-        history_count += 1
+        push_state.history_count += 1
     apply_url(not call_handler)
 
+push_state.history_count = 0
 
 def on_pop_state(ev):
-    nonlocal history_count
-    history_count = max(0, history_count - 1)
+    push_state.history_count = max(0, push_state.history_count - 1)
     apply_url()
 
 
 def back():
-    nonlocal history_count
-    if history_count > 0:
+    if push_state.history_count > 0:
         window.history.back()
     else:
         cq = get_current_query()

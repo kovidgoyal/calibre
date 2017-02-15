@@ -13,6 +13,7 @@ from utils import human_readable, debounce
 from book_list.constants import read_book_container_id
 from read_book.db import get_db
 from book_list.router import update_window_title
+from book_list.library_data import library_data, current_library_id
 from read_book.view import View
 
 RENDER_VERSION = __RENDER_VERSION__
@@ -21,6 +22,7 @@ MATHJAX_VERSION = "__MATHJAX_VERSION__"
 class ReadUI:
 
     def __init__(self):
+        self.base_url_data = {}
         self.current_metadata = {'title': _('Unknown book')}
         self.current_book_id = None
         self.manifest_xhr = None
@@ -72,7 +74,7 @@ class ReadUI:
         a = div.lastChild.firstChild
         if self.current_book_id:
             a.setAttribute('href', encode_query({
-                'library_id':self.interface_data.library_id,
+                'library_id':current_library_id(),
                 'book-id': (self.current_book_id + ''),
                 'panel':'book-details'
             }))
@@ -106,7 +108,7 @@ class ReadUI:
 
     def reload_book(self):
         book_id = self.base_url_data.book_id
-        metadata = self.metadata or self.interface_data.metadata[book_id]
+        metadata = self.metadata or library_data.metadata[book_id]
         self.load_book(book_id, self.base_url_data.fmt, metadata, True)
 
     def redisplay_book(self):
@@ -136,7 +138,7 @@ class ReadUI:
 
     def start_load(self, book_id, fmt, metadata, force_reload):
         self.current_book_id = book_id
-        metadata = metadata or self.interface_data.metadata[book_id]
+        metadata = metadata or library_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
         update_window_title('', self.current_metadata.title)
         self.init_ui()
@@ -406,4 +408,13 @@ class ReadUI:
         self.view.display_book(book)
 
     def apply_url_state(self, current_query):
-        pass
+        same = True
+        current_state = self.url_data
+        for k in v"['book_id', 'fmt']":
+            if str(current_query[k]) is not str(current_state[k]):
+                same = False
+                break
+        if same:
+            pass  # TODO: Implement this to move book position if different from current
+        else:
+            self.load_book(int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
