@@ -11,6 +11,7 @@ from utils import conditional_timeout
 from book_list.globals import get_db
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
+from book_list.router import update_window_title
 
 
 def show_recent():
@@ -22,6 +23,7 @@ def show_recent():
 
 
 def init(container_id):
+    update_window_title()
     container = document.getElementById(container_id)
     create_top_bar(container, run_animation=True)
     interface_data = get_interface_data()
