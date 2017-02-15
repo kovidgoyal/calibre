@@ -70,9 +70,10 @@ def node_for_path(path):
 
 
 def execute_search(text):
-    container = document.getElementById(state.container_id)
-    search_control = container.querySelector('input[name="search-books"]')
-    text = text or search_control.value or ''
+    if not text:
+        container = document.getElementById(state.container_id)
+        search_control = container.querySelector('input[name="search-books"]')
+        text = search_control.value or ''
     apply_search(text)
 
 
@@ -122,8 +123,7 @@ def search_expression_for_item(node, node_state):
             rnum = '{}.5'.format(rnum - 1)
         expr = '{}:{}'.format(category, rnum)
     else:
-        interface_data = get_interface_data()
-        fm = interface_data.field_metadata[item.category]
+        fm = library_data.field_metadata[item.category]
         suffix = ':' if fm and fm.is_csp else ''
         name = item.original_name or item.name or item.sort
         if not name:
@@ -274,8 +274,8 @@ def render_children(container, children):
                 )
         )
         set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
-        div.firstChild.addEventListener('click', node_clicked.bind(i))
-        div.lastChild.addEventListener('click', menu_clicked.bind(i))
+        div.firstChild.addEventListener('click', node_clicked.bind(None, i))
+        div.lastChild.addEventListener('click', menu_clicked.bind(None, i))
         container.appendChild(div)
 
 def render_breadcrumbs():
@@ -333,12 +333,12 @@ def on_data_fetched(end_type, xhr, ev):
         container.appendChild(ediv)
         ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
 
-    def process_node(node):
+    def process_node(node, item_map):
         state.node_id_map[node.id] = node
         node.data = item_map[node.id]
         for child in node.children:
             child.parent = node
-            process_node(child)
+            process_node(child, item_map)
 
     if end_type is 'load':
         try:
@@ -346,11 +346,10 @@ def on_data_fetched(end_type, xhr, ev):
         except Exception as err:
             show_error(err + '')
             return
-        item_map = tag_browser_data.item_map
         state.tag_browser_data = tag_browser_data.root
         state.node_id_map = {}
         state.active_nodes = {}
-        process_node(state.tag_browser_data)
+        process_node(state.tag_browser_data, tag_browser_data.item_map)
         render_tag_browser()
     else:
         show_error(xhr.error_html)

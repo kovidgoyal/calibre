@@ -25,6 +25,7 @@ def url_books_query(sd):
     return {
         'library_id': lid,
         'sort': q.sort or sd.get_library_option(lid, 'sort'),
+        'search': q.search,
     }
 
 
@@ -36,6 +37,7 @@ def loaded_books_query():
     return {
         'library_id': sr.library_id if sr else None,
         'sort': sort,
+        'search': sr?.query
     }
 
 

@@ -241,7 +241,12 @@ def create_sort_panel(container_id):
 # Searching {{{
 
 def search(query, replace=False):
-    pass
+    q = loaded_books_query()
+    if query:
+        q.search = query
+    else:
+        v'delete q.search'
+    show_panel('book_list', query=q, replace=replace)
 
 set_apply_search(def(query): search(query, True);)
 
