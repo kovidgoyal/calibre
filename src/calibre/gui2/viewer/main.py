@@ -1113,6 +1113,8 @@ class EbookViewer(MainWindow):
             action.trigger()
             return
         if key == 'Focus Search':
+            if not self.tool_bar.isVisible():
+                self.toggle_toolbars()
             self.search.setFocus(Qt.OtherFocusReason)
             return
         if not self.view.handle_key_press(event):
