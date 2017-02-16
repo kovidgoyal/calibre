@@ -1092,11 +1092,15 @@ class SpellCheck(Dialog):
                     in_user_dictionary = dictionaries.word_in_user_dictionary(*w)
             suggestions = dictionaries.suggestions(*w)
             self.suggested_list.clear()
+            word_suggested = False
             for i, s in enumerate(suggestions):
                 item = QListWidgetItem(s, self.suggested_list)
                 if i == 0:
                     self.suggested_list.setCurrentItem(item)
                     self.suggested_word.setText(s)
+                    word_suggested = True
+            if not word_suggested:
+                self.suggested_word.setText(current_word)
 
         prefix = b.unign_text if ignored else b.ign_text
         b.setText(prefix + ' ' + current_word)
