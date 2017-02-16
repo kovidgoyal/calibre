@@ -248,6 +248,9 @@ class EbookViewer(MainWindow):
             QTimer.singleShot(50, file_events.flush)
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
+        tts = self.view.shortcuts.get_shortcuts('Show/hide controls')
+        if tts:
+            self.toggle_toolbar_action.setText(self.toggle_toolbar_action.text() + '\t' + tts[0])
         self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
         self.toolbar_hidden = None
@@ -1107,6 +1110,7 @@ class EbookViewer(MainWindow):
             'Reload': self.action_reload,
             'Table of Contents': self.action_table_of_contents,
             'Print': self.action_print,
+            'Show/hide controls': self.toggle_toolbar_action,
         }.get(key, None)
         if action is not None:
             event.accept()

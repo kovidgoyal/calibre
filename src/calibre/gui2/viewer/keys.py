@@ -95,4 +95,7 @@ SHORTCUTS = {
 
         'Print': (['Ctrl+P'],
                      _('Print the current book')),
+
+        'Show/hide controls': (['Ctrl+F11'],
+            _('Show/hide controls')),
 }
