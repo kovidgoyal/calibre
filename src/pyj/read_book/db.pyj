@@ -146,7 +146,7 @@ class DB:
                 'manifest': None,
                 'cover_width': None,
                 'cover_height': None,
-                'cover_fname': None,
+                'cover_name': None,
                 'last_read_position': {},
             })
         )
@@ -181,7 +181,7 @@ class DB:
             blob = Blob([data], {'type':'image/jpeg'})
         url = window.URL.createObjectURL(blob)
         img = new Image()
-        book.cover_fname = fname
+        book.cover_name = name
         proceeded = False
 
         def done():
@@ -238,7 +238,7 @@ class DB:
             'Failed to read the file {0} for the book {1} from the database').format(name, book.metadata.title)
         self.do_op(['files'], key, err, def (result):
             if not result:
-                self.show_error(_('Cannot read book'), err)
+                self.show_error(_('Cannot read file from book'), err)
                 return
             fdata = book.stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'

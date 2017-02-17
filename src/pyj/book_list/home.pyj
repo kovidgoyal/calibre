@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import ensure_id
+from dom import ensure_id, add_extra_css, build_rule
 from elementmaker import E
 from session import get_interface_data
 from gettext import gettext as _
@@ -11,15 +11,56 @@ from utils import conditional_timeout
 from book_list.globals import get_db
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
-from book_list.router import update_window_title
+from book_list.router import update_window_title, open_book
+
+
+CLASS_NAME = 'home-page'
+
+add_extra_css(def():
+    ans = ''
+    sel = '.' + CLASS_NAME + ' '
+    ans += build_rule(sel + 'h2', padding='1em')
+    sel += '.recently-read img'
+    ans += build_rule(sel, max_width='25vw', height='auto')
+    return ans
+)
+
+
+def show_cover(blob, name, mt, book):
+    img = document.getElementById(this)
+    if not img:
+        return
+    img.onload = def():
+        window.URL.revokeObjectURL(this.src)
+    img.src = window.URL.createObjectURL(blob)
+
+
+def read_book(library_id, book_id, fmt):
+    open_book(book_id, fmt, library_id)
 
 
 def show_recent_stage2(books):
     container = document.getElementById(this)
-    if not container:
+    if not container or not books.length:
         return
+    container.style.display = 'block'
+    container.appendChild(E.h2(_(
+        'Continue reading')))
+    container.appendChild(E.div(style='display:flex'))
+    images = container.lastChild
+    db = get_db()
     for book in books:
-        print(book.key, book.metadata.title, book.last_read)
+        img = E.img(
+            alt=_('{} by {}').format(book.metadata.title, book.metadata.authors.join(' & '))
+        )
+        img_id = ensure_id(img)
+        images.appendChild(E.div(style='margin: 0 1em',
+            E.a(img, href='javascript: void(0)', title=img.alt,
+                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2])
+            ),
+        ))
+        if book.cover_name:
+            db.get_file(book, book.cover_name, show_cover.bind(img_id))
 
 
 def show_recent():
@@ -34,11 +75,12 @@ def show_recent():
 def init(container_id):
     update_window_title()
     container = document.getElementById(container_id)
+    container.classList.add(CLASS_NAME)
     create_top_bar(container, run_animation=True)
     interface_data = get_interface_data()
 
     # Recent books
-    recent = E.div(style='display:none')
+    recent = E.div(style='display:none', class_='recently-read')
     recent_container_id = ensure_id(recent)
     container.appendChild(recent)
     conditional_timeout(recent_container_id, 5, show_recent)
