@@ -645,7 +645,7 @@ class NYTimes(BasicNewsRecipe):
                 continue
             try:
                 soup = self.index_to_soup(
-                    'http://www.nytimes.com/pages/' + index_url + '/index.html')
+                    'https://www.nytimes.com/pages/' + index_url + '/index.html')
             except:
                 continue
             print 'Index URL: ' + 'http://www.nytimes.com/pages/' + index_url + '/index.html'
@@ -675,7 +675,7 @@ class NYTimes(BasicNewsRecipe):
     def parse_todays_index(self):
 
         soup = self.index_to_soup(
-            'http://www.nytimes.com/pages/todayspaper/index.html')
+            'https://www.nytimes.com/pages/todayspaper/index.html')
         skipping = False
         # Find each article
         for div in soup.findAll(True,
@@ -708,7 +708,7 @@ class NYTimes(BasicNewsRecipe):
 
     def parse_headline_index(self):
         soup = self.index_to_soup(
-            'http://www.nytimes.com/pages/todaysheadlines/')
+            'https://www.nytimes.com/pages/todaysheadlines/')
         pubdate = strftime('%a, %d %b')
         section = None
         articles = []
