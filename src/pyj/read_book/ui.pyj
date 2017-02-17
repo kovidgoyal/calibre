@@ -145,7 +145,7 @@ class ReadUI:
         if jstype(self.db) is 'string':
             self.show_error(_('Cannot read book'), self.db)
             return
-        self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self, force_reload))
+        self.db.get_book(current_library_id(), book_id, fmt, metadata, self.got_book.bind(self, force_reload))
 
     def got_book(self, force_reload, book):
         if not book.manifest or book.manifest.version is not RENDER_VERSION or not book.is_complete:

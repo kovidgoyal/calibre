@@ -6,12 +6,10 @@ from gettext import gettext as _
 from encodings import base64encode, base64decode
 from modals import error_dialog
 
-from book_list.library_data import current_library_id
 from book_list.router import is_reading_book
 
-current_library_id
 
-def upgrade_schema(idb, old_version, new_version):
+def upgrade_schema(idb, old_version, new_version, transaction):
     print('upgrade_schema:', old_version, new_version)
     if not idb.objectStoreNames.contains('books'):
         idb.createObjectStore('books', {'keyPath':'key'})
@@ -21,6 +19,11 @@ def upgrade_schema(idb, old_version, new_version):
         idb.createObjectStore('mathjax')
     if not idb.objectStoreNames.contains('objects'):
         idb.createObjectStore('objects', {'keyPath':'key'})
+
+    # Create indices
+    books_store = transaction.objectStore('books')
+    if not books_store.indexNames.contains('last_read_index'):
+        books_store.createIndex('last_read_index', 'last_read')
 
 def file_store_name(book, name):
     return book.book_hash + ' ' + name
@@ -33,7 +36,7 @@ def get_error_details(event):
         desc = desc.errorCode
 
 DB_NAME = 'calibre-books-db-testing'  # TODO: Remove test suffix and change version back to 1
-DB_VERSION = 2
+DB_VERSION = 3
 
 class DB:
 
@@ -60,7 +63,7 @@ class DB:
         request = window.indexedDB.open(DB_NAME, DB_VERSION)
 
         request.onupgradeneeded = def(event):
-            upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
+            upgrade_schema(event.target.result, event.oldVersion, event.newVersion, event.target.transaction)
 
         request.onblocked = def(event):
             self.initialize_error_msg = _('Please close all other browser tabs with calibre open')
@@ -126,12 +129,12 @@ class DB:
         req.onerror = def(event):
             self.display_error(error_msg, event)
 
-    def get_book(self, book_id, fmt, metadata, proceed):
+    def get_book(self, library_id, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
         # The key has to be a JavaScript array as otherwise it cannot be stored
         # into indexed db, because the RapydScript list has properties that
         # refer to non-serializable objects like functions.
-        key = v'[current_library_id(), book_id, fmt]'
+        key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
             proceed(result or {
                 'key':key,
@@ -261,6 +264,23 @@ class DB:
                 cursor.continue()
             else:
                 proceed(data)
+
+    def get_recently_read_books(self, proceed, limit):
+        limit = limit or 3
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('last_read_index').openCursor(None, 'prev')
+        books = v'[]'
+        c.onerror = def(event):
+            err = _('Failed to read recent books from local storage')
+            self.display_error(err, event)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                books.push(cursor.value)
+            if books.length >= limit or not cursor:
+                proceed(books)
+                return
+            if cursor:
+                cursor.continue()
 
     def delete_book(self, book, proceed):
         c = self.idb.transaction(['books', 'files'], 'readwrite')

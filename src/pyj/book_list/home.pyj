@@ -14,12 +14,21 @@ from book_list.ui import set_default_panel_handler, show_panel
 from book_list.router import update_window_title
 
 
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container:
+        return
+    for book in books:
+        print(book.key, book.metadata.title, book.last_read)
+
+
 def show_recent():
     container = this
     db = get_db()
     if not db.initialized:
         conditional_timeout(container.id, 5, show_recent)
         return
+    db.get_recently_read_books(show_recent_stage2.bind(container.id))
 
 
 def init(container_id):
