@@ -9,6 +9,7 @@ from gettext import gettext as _
 from utils import conditional_timeout
 
 from book_list.globals import get_db
+from book_list.cover_grid import BORDER_RADIUS
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
 from book_list.router import update_window_title, open_book
@@ -18,10 +19,12 @@ CLASS_NAME = 'home-page'
 
 add_extra_css(def():
     ans = ''
-    sel = '.' + CLASS_NAME + ' '
-    ans += build_rule(sel + 'h2', padding='1em')
+    sel = f'.{CLASS_NAME} '
+    ans += build_rule(f'{sel} h2', padding='1em', font_size='1.5em')
     sel += '.recently-read img'
-    ans += build_rule(sel, max_width='25vw', height='auto')
+    ans += build_rule(sel, max_width='25vw', height='auto', border_radius=f'{BORDER_RADIUS}px')
+    ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
+    ans += build_rule(f'{sel}:active', transform='scale(2)')
     return ans
 )
 
@@ -44,8 +47,10 @@ def show_recent_stage2(books):
     if not container or not books.length:
         return
     container.style.display = 'block'
+    container.style.borderBottom = 'solid 1px currentColor'
+    container.style.paddingBottom = '1em'
     container.appendChild(E.h2(_(
-        'Continue reading')))
+        'Continue reading…')))
     container.appendChild(E.div(style='display:flex'))
     images = container.lastChild
     db = get_db()
@@ -87,7 +92,7 @@ def init(container_id):
 
     # Choose library
     cl = E.div(
-        E.h2(_('Choose the calibre library to browse...'))
+        E.h2(_('Choose the calibre library to browse…'))
     )
     container.appendChild(cl)
     lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
