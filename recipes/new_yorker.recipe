@@ -11,7 +11,7 @@ class NewYorker(BasicNewsRecipe):
     title = u'New Yorker Magazine'
     description = u'Content from the New Yorker website'
 
-    masthead_url = 'http://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
+    masthead_url = 'https://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
 
     url_list = []
     language = 'en'
@@ -27,18 +27,18 @@ class NewYorker(BasicNewsRecipe):
     needs_subscription = 'optional'
     keep_only_tags = [
         dict(itemprop=['headline', 'alternativeHeadline', 'author', 'articleBody']),
-        dict(id=['featured-item']),
+        dict(id=['featured-item', 'article-content']),
     ]
     remove_tags = [
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'content-ad-wrapper', 'social-hover'})}),
+            {'content-ad-wrapper', 'social-hover', 'background-image'})}),
         dict(id=['newsletter-signup']),
-
+        dict(name='meta link'.split()),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup(
-            'http://www.newyorker.com/magazine?intcid=magazine')
+            'https://www.newyorker.com/magazine?intcid=magazine')
         ph = soup.find(
             'div', attrs={'class': lambda x: x and 'cover-info' in x.split()})
         if ph is not None:
@@ -69,11 +69,14 @@ class NewYorker(BasicNewsRecipe):
             if p is not None:
                 desc += '. \n' + self.tag_to_string(p)
 
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
+            self.log('  ', title)
+            self.log('    ', url)
+            if desc:
+                self.log('    ', desc)
             articles.append({'title': title, 'url': url, 'date': '',
                              'description': desc})
+        if articles:
+            feeds.append((current_section, articles))
 
         return feeds
 
