@@ -7,6 +7,7 @@ from elementmaker import E
 from session import get_interface_data
 from gettext import gettext as _
 from utils import conditional_timeout
+from widgets import create_button
 
 from book_list.globals import get_db
 from book_list.cover_grid import BORDER_RADIUS
@@ -20,7 +21,7 @@ CLASS_NAME = 'home-page'
 add_extra_css(def():
     ans = ''
     sel = f'.{CLASS_NAME} '
-    ans += build_rule(f'{sel} h2', padding='1em', font_size='1.5em')
+    ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
     sel += '.recently-read img'
     ans += build_rule(sel, max_width='25vw', height='auto', border_radius=f'{BORDER_RADIUS}px')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
@@ -91,18 +92,19 @@ def init(container_id):
     conditional_timeout(recent_container_id, 5, show_recent)
 
     # Choose library
-    cl = E.div(
-        E.h2(_('Choose the calibre library to browse…'))
-    )
-    container.appendChild(cl)
+    container.appendChild(E.h2(_('Choose the calibre library to browse…')))
+    container.appendChild(E.div(style='display: flex'))
+    cl = container.lastChild
     lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
     for library_id in lids:
         library_name = interface_data.library_map[library_id]
         if library_name:
-            cl.appendChild(E.div(E.a(library_name, href='javascript: void(0)', title=library_name, data_lid=library_id, onclick=def(ev):
-                lib_id = ev.currentTarget.dataset.lid
-                show_panel('book_list', {'library_id': lib_id})
-            )))
+            cl.appendChild(
+                create_button(library_name, icon='library', action=def(ev):
+                    lib_id = ev.currentTarget.dataset.lid
+                    show_panel('book_list', {'library_id': lib_id})
+            ))
+            cl.lastChild.style.margin = '1ex 1rem'
 
 
 set_default_panel_handler(init)
