@@ -12,7 +12,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
 
 
 class TheAtlantic(BasicNewsRecipe):
@@ -26,18 +28,43 @@ class TheAtlantic(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'article-header article-body article-magazine article-cover-content lead-img'),
+            'article-header article-body article-magazine article-cover-content article-cover-extra lead-img '
+        ),
+        {
+            'name': ['img']
+        },
     ]
     remove_tags = [
-        {'name': ['meta', 'link', 'noscript']},
-        {'attrs': {'class': ['offset-wrapper', 'ad-boxfeatures-wrapper']}},
-        {'attrs': {'class': lambda x: x and 'article-tools' in x}},
-        {'src': lambda x: x and 'spotxchange.com' in x},
+        classes(
+            'social-kit-top letter-writer-info callout secondary-byline embed-wrapper offset-wrapper boxtop-most-popular'
+        ),
+        {
+            'name': ['meta', 'link', 'noscript', 'aside', 'h3']
+        },
+        {
+            'attrs': {
+                'class': ['offset-wrapper', 'boxtop-most-popular']
+            }
+        },
+        {
+            'attrs': {
+                'class': lambda x: x and 'article-tools' in x
+            }
+        },
+        {
+            'src': lambda x: x and 'spotxchange.com' in x
+        },
     ]
     remove_tags_after = classes('article-body')
 
     no_stylesheets = True
     remove_attributes = ['style']
+    extra_css = '''
+        .credit { text-align: right; font-size: 75%; display: block }
+        .figcaption { font-size: 75% }
+        .caption { font-size: 75% }
+        .lead-img { display: block }
+    '''
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -45,14 +72,18 @@ class TheAtlantic(BasicNewsRecipe):
         return br
 
     def preprocess_raw_html(self, raw, url):
-        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding=unicode)
+        return html.tostring(
+            html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False),
+            method='html',
+            encoding=unicode
+        )
 
     def print_version(self, url):
         return url + '?single_page=true'
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split()[0]
         return soup
 
     def parse_index(self):
@@ -79,21 +110,28 @@ class TheAtlantic(BasicNewsRecipe):
                     if url.startswith('/'):
                         url = 'http://www.theatlantic.com' + url
                     li = a.findParent(
-                        'li', attrs={'class': lambda x: x and 'article' in x.split()})
+                        'li',
+                        attrs={'class': lambda x: x and 'article' in x.split()}
+                    )
                     desc = ''
                     dek = li.find(
-                        attrs={'class': lambda x: x and 'dek' in x.split()})
+                        attrs={'class': lambda x: x and 'dek' in x.split()}
+                    )
                     if dek is not None:
                         desc += self.tag_to_string(dek)
                     byline = li.find(
-                        attrs={'class': lambda x: x and 'byline' in x.split()})
+                        attrs={'class': lambda x: x and 'byline' in x.split()}
+                    )
                     if byline is not None:
                         desc += ' -- ' + self.tag_to_string(byline)
                     self.log('\t', title, 'at', url)
                     if desc:
                         self.log('\t\t', desc)
-                    current_articles.append(
-                        {'title': title, 'url': url, 'description': desc})
+                    current_articles.append({
+                        'title': title,
+                        'url': url,
+                        'description': desc
+                    })
         if current_articles:
             feeds.append((current_section, current_articles))
         return feeds
