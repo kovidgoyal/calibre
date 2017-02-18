@@ -255,7 +255,7 @@ class CACerts(Command):  # {{{
 # }}}
 
 
-class RecentUAs(Command):
+class RecentUAs(Command):  # {{{
 
     description = 'Get updated list of recent browser user agents'
     UA_PATH = os.path.join(Command.RESOURCES, 'common-user-agents.txt')
@@ -289,6 +289,7 @@ class RecentUAs(Command):
             raise RuntimeError('Failed to download list of common user agents')
         with open(self.UA_PATH, 'wb') as f:
             f.write('\n'.join(lines).encode('ascii'))
+# }}}
 
 
 class RapydScript(Command):  # {{{
