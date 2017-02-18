@@ -325,6 +325,7 @@ class Overlay:
     def hide(self):
         while self.panels.length:
             self.hide_current_panel()
+        self.container.style.display = 'none'
 
     def delete_book(self):
         self.hide_current_panel()

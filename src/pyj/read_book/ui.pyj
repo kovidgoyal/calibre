@@ -414,6 +414,7 @@ class ReadUI:
             if str(current_query[k]) is not str(current_state[k]):
                 same = False
                 break
+        self.view.overlay.hide()
         if same:
             if current_state.bookpos is not current_query.bookpos and current_query.bookpos:
                 self.view.goto_bookpos(current_query.bookpos)
