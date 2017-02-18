@@ -63,6 +63,35 @@ class NetworkReply(QNetworkReply):
         self.finished.emit()
 
 
+class NotFound(QNetworkReply):
+
+    def __init__(self, parent, request):
+        QNetworkReply.__init__(self, parent)
+        self.setOpenMode(QNetworkReply.ReadOnly | QNetworkReply.Unbuffered)
+        self.setHeader(QNetworkRequest.ContentTypeHeader, 'application/octet-stream')
+        self.setHeader(QNetworkRequest.ContentLengthHeader, 0)
+        self.setRequest(request)
+        self.setUrl(request.url())
+        QTimer.singleShot(0, self.finalize_reply)
+
+    def bytesAvailable(self):
+        return 0
+
+    def isSequential(self):
+        return True
+
+    def abort(self):
+        pass
+
+    def readData(self, maxlen):
+        return b''
+
+    def finalize_reply(self):
+        self.setAttribute(QNetworkRequest.HttpStatusCodeAttribute, 404)
+        self.setAttribute(QNetworkRequest.HttpReasonPhraseAttribute, "Not Found")
+        self.finished.emit()
+
+
 def normpath(p):
     return os.path.normcase(os.path.abspath(p))
 
@@ -151,6 +180,7 @@ class NetworkAccessManager(QNetworkAccessManager):
                 except Exception:
                     import traceback
                     self.load_error.emit(name, traceback.format_exc())
-        if DEBUG:
-            prints('URL not found in book: %r' % qurl.toString())
+            if DEBUG:
+                prints('URL not found in book: %r' % qurl.toString())
+            return NotFound(self, request)
         return QNetworkAccessManager.createRequest(self, operation, request)
