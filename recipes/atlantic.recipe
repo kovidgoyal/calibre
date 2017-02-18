@@ -26,19 +26,25 @@ class TheAtlantic(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'article-header article-body article-magazine article-cover-content lead-img'),
-    ]
+            'article-header article-body article-magazine article-cover-content article-cover-extra lead-img '),
+            {'name': ['img']},
+		]
     remove_tags = [
-        {'name': ['meta', 'link', 'noscript']},
-        {'attrs': {'class': ['offset-wrapper', 'ad-boxfeatures-wrapper']}},
+        classes( 'social-kit-top letter-writer-info callout secondary-byline embed-wrapper offset-wrapper boxtop-most-popular'),
+        {'name': ['meta', 'link', 'noscript', 'aside', 'h3']},
+        {'attrs': {'class': ['offset-wrapper', 'boxtop-most-popular']}},
         {'attrs': {'class': lambda x: x and 'article-tools' in x}},
         {'src': lambda x: x and 'spotxchange.com' in x},
     ]
     remove_tags_after = classes('article-body')
-
+	
     no_stylesheets = True
     remove_attributes = ['style']
-
+    extra_css = '''
+                .credit { text-align: right; font-size: 75%; display: block }
+				.figcaption { font-size: 75% }
+				.caption { font-size: 75% }
+				.lead-img { display: block }'''
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.set_cookie('inEuropeanUnion', '0', '.theatlantic.com')
@@ -51,8 +57,8 @@ class TheAtlantic(BasicNewsRecipe):
         return url + '?single_page=true'
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset']
         return soup
 
     def parse_index(self):
