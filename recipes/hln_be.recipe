@@ -35,4 +35,52 @@ class HLN_be(BasicNewsRecipe):
         dict(name='article', attrs={'class': 'article art_detail'}),
     ]
 
-    feeds = [(u'Articles', u'http://www.hln.be/rss.xml')]
+    feeds = [
+        (u'Alle nieuws', u'http://www.hln.be/rss.xml'),
+        (u'Binnenland', u'http://www.hln.be/nieuws/binnenland/rss.xml'),
+        (u'Buitenland', u'http://www.hln.be/nieuws/buitenland/rss.xml'),
+        (u'Sport nieuws', u'http://www.hln.be/sport/rss.xml'),
+        (u'Voetbal', u'http://www.hln.be/sport/voetbal/rss.xml'),
+        (u'Wielrennen', u'http://www.hln.be/sport/wielrennen/rss.xml'),
+        (u'Tennis', u'http://www.hln.be/sport/tennis/rss.xml'),
+        (u'Formule 1', u'http://www.hln.be/sport/formule1/rss.xml'),
+        (u'Auto en Motor sport', u'http://www.hln.be/sport/automotorsport/rss.xml'),
+        (u'Meer sport', u'http://www.hln.be/sport/meersport/rss.xml'),
+        (u'Timeout', u'http://www.hln.be/sport/timeout/rss.xml'),
+        (u'You', u'http://www.hln.be/you/rss.xml'),
+        (u'Fit & Gezond', u'http://www.hln.be/you/fitgezond/rss.xml'),
+        (u'Sex & Relaties', u'http://www.hln.be/you/seksrelaties/rss.xml'),
+        (u'Je Carrière', u'http://www.hln.be/you/carriere/rss.xml'), (
+            u'Psycho', u'http://www.hln.be/you/psycho/rss.xml'
+        ), (u'Je Kinderen', u'http://www.hln.be/you/kinderen/rss.xml'),
+        (u'Lekker Eten', u'http://www.hln.be/you/lekkereten/rss.xml'), (
+            u'Style', u'http://www.hln.be/you/style/rss.xml'
+        ), (u'Celebrities', u'http://www.hln.be/stars/celebrities/rss.xml'), (
+            u'Film', u'http://www.hln.be/stars/film/rss.xml'
+        ), (u'Royalty', u'http://www.hln.be/stars/royalty/rss.xml'), (
+            u'Kunst & Literatuur', u'http://www.hln.be/stars/kunstliteratuur/rss.xml'
+        ), (u'TV', u'http://www.hln.be/stars/tv/rss.xml'), (
+            u'Reizen', u'http://www.hln.be/reizen/rss.xml'
+        ), (u'Planet', u'http://www.hln.be/planet/rss.xml'), (
+            u'Extreme Aarde', u'http://www.hln.be/planet/extremeaarde/rss.xml'
+        ), (u'Global Warming', u'http://www.hln.be/planet/globalwarming/rss.xml'), (
+            u'Ecotips', u'http://www.hln.be/planet/ecotips/rss.xml'
+        ), (u'Dieren', u'hhttp://www.hln.be/planet/dieren/rss.xml'), (
+            u'Milieu', u'http://www.hln.be/planet/milieu/rss.xml'
+        ), (u'Auto', u'http://www.hln.be/auto/rss.xml'), (
+            u'iHLN', u'http://www.hln.be/ihln/rss.xml'
+        ), (u'Multimedia', u'http://www.hln.be/ihln/multimedia/rss.xml'), (
+            u'Internet', u'http://www.hln.be/ihln/internet/rss.xml'
+        ), (u'Games', u'http://www.hln.be/ihln/games/rss.xml'), (
+            u'Geld', u'http://www.hln.be/geld/rss.xml'
+        ), (u'Economie', u'http://www.hln.be/geld/economie/rss.xml'), (
+            u'Consument', u'http://www.hln.be/geld/consument/rss.xml'
+        ), (u'Bizar', u'http://www.hln.be/bizar/rss.xml'), (
+            u'Wetenschap', u'http://www.hln.be/wetenschap/rss.xml'
+        ), (u'Muziek', u'http://www.hln.be/muziek/rss.xml'),
+        (u'Muziek nieuws', u'http://www.hln.be/muziek/nieuws/rss.xml'), (
+            u'Festivals en concerten',
+            u'http://www.hln.be/muziek/festivalsconcerten/rss.xml'
+        ), (u'Nieuwe platen', u'http://www.hln.be/muziek/nieuweplaten/rss.xml'),
+        (u'Geld', u'http://www.hln.be/geld/rss.xml')
+    ]
