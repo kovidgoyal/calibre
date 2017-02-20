@@ -173,8 +173,8 @@ class Formatter(TemplateFormatter):
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
-        to_lowercase=False, safe_format=True, last_has_extension=True):
-
+        to_lowercase=False, safe_format=True, last_has_extension=True,
+        single_dir=False):
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
@@ -252,6 +252,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if replace_whitespace:
         components = [re.sub(r'\s', '_', x) for x in components]
 
+    if single_dir:
+        components = components[-1:]
     return shorten_components_to(length, components, last_has_extension=last_has_extension)
 
 
@@ -292,13 +294,11 @@ def get_path_components(opts, mi, book_id, path_length):
             ascii_filename if opts.asciiize else sanitize_file_name_unicode,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace, safe_format=False,
-            last_has_extension=False)
+            last_has_extension=False, single_dir=opts.single_dir)
     except Exception, e:
         raise ValueError(_('Failed to calculate path for '
             'save to disk. Template: %(templ)s\n'
             'Error: %(err)s')%dict(templ=opts.template, err=e))
-    if opts.single_dir:
-        components = components[-1:]
     if not components:
         raise ValueError(_('Template evaluation resulted in no'
             ' path components. Template: %s')%opts.template)
