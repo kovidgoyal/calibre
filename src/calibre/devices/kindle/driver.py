@@ -335,7 +335,7 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
     description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite/Voyage eBook reader.')
 
-    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
     # On the Touch, there's also .asc files, but not using the same basename
     # (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in
@@ -415,7 +415,7 @@ class KINDLE2(KINDLE):
         return vals
 
     def formats_to_scan_for(self):
-        ans = USBMS.formats_to_scan_for(self) | {'azw3'}
+        ans = USBMS.formats_to_scan_for(self) | {'azw3', 'kfx'}
         return ans
 
     def books(self, oncard=None, end_session=True):
@@ -563,7 +563,7 @@ class KINDLE_FIRE(KINDLE2):
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
-    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]
