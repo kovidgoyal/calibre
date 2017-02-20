@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2016, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -43,9 +43,9 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/szukaj,strona' + str(page) + '.html?q=' + urllib.quote(query) + '&sections=EMAGAZINE&sections=MINIBOOK&sections=EBOOK', timeout=timeout)) as f:  # noqa
+            with closing(br.open('http://www.publio.pl/e-booki,strona' + str(page) + '.html?q=' + urllib.quote(query), timeout=timeout)) as f:  # noqa
                 doc = html.fromstring(f.read())
-                for data in doc.xpath('//div[@class="product-tile"]'):
+                for data in doc.xpath('//div[@class="products-list"]//div[@class="product-tile"]'):
                     if counter <= 0:
                         break
 
@@ -54,7 +54,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                         continue
 
                     cover_url = ''.join(data.xpath('.//img[@class="product-tile-cover-photo"]/@src'))
-                    title = ''.join(data.xpath('.//h3[@class="product-tile-title"]/a/span[1]/text()'))
+                    title = ''.join(data.xpath('.//span[@class="product-tile-title-long"]/text()'))
                     author = ', '.join(data.xpath('.//span[@class="product-tile-author"]/a/text()'))
                     price = ''.join(data.xpath('.//div[@class="product-tile-price-wrapper "]/a/ins/text()'))
                     # formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
