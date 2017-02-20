@@ -493,7 +493,8 @@ that does not come from a well known relay. The most robust way to setup email s
 
   * Create a free GMX account at `GMX <https://www.gmx.com>`_.
   * Goto :guilabel:`Preferences->Sharing by Email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
-  * calibre will then use GMX to send the mail.
+  * Log into your GMX account on the website and enable SMTP sending
+  * calibre will then be able to use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
     on your Amazon Kindle page to allow email sent from your GMX email
     address. Also note that Amazon does not allow email delivery of AZW3 and
