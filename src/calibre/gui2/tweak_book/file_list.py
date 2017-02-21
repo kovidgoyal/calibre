@@ -1,34 +1,39 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import os, posixpath
+import os
+import posixpath
 from binascii import hexlify
-from collections import OrderedDict, defaultdict, Counter
+from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 
 import sip
 from PyQt5.Qt import (
-    QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
-    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
-    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QInputDialog,
-    QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem, QCheckBox)
+    QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout, QIcon,
+    QInputDialog, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMenu, QPainter,
+    QPixmap, QRadioButton, QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate,
+    Qt, QTimer, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from calibre import human_readable, sanitize_file_name_unicode, plugins
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
-from calibre.ebooks.oeb.polish.replace import get_recommended_folders
+from calibre import human_readable, plugins, sanitize_file_name_unicode
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
-    get_cover_page_name, get_raster_cover_name, is_raster_image)
-from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text, choose_save_file
-from calibre.gui2.tweak_book import current_container, tprefs, editors
+    get_cover_page_name, get_raster_cover_name, is_raster_image
+)
+from calibre.ebooks.oeb.polish.replace import get_recommended_folders
+from calibre.gui2 import (
+    choose_files, choose_save_file, elided_text, error_dialog, question_dialog
+)
+from calibre.gui2.tweak_book import (
+    CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
+)
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
+
 
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
@@ -209,6 +214,17 @@ class FileList(QTreeWidget):
                 'images':'view-image.png',
             }.iteritems()}
         self.itemActivated.connect(self.item_double_clicked)
+
+    def mimeTypes(self):
+        ans = QTreeWidget.mimeTypes(self)
+        ans.append(CONTAINER_DND_MIMETYPE)
+        return ans
+
+    def mimeData(self, indices):
+        ans = QTreeWidget.mimeData(self, indices)
+        names = (idx.data(0, NAME_ROLE) for idx in indices if idx.data(0, MIME_ROLE))
+        ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join(filter(None, names)).encode('utf-8'))
+        return ans
 
     @property
     def current_name(self):

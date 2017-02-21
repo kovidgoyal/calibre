@@ -1,33 +1,46 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import re, importlib
-import textwrap, unicodedata
+import importlib
+import os
+import re
+import textwrap
+import unicodedata
 from future_builtins import map
 
-import regex
 from PyQt5.Qt import (
-    QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
-    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, QColor,
-    QColorDialog, QTimer, pyqtSignal)
+    QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
+    QPlainTextEdit, QRect, QSize, Qt, QTextEdit, QTextFormat, QTimer, QToolTip,
+    QWidget, pyqtSignal
+)
 
+import regex
 from calibre import prepare_string_for_xml
-from calibre.gui2.tweak_book import tprefs, TOP, current_container
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.replace import get_recommended_folders
+from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.gui2.tweak_book import (
+    CONTAINER_DND_MIMETYPE, TOP, current_container, tprefs
+)
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
-    SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
-from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
-from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+    LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY, SYNTAX_PROPERTY,
+    store_locale
+)
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.snippets import SnippetManager
-from calibre.gui2.tweak_book.widgets import PlainTextEdit, PARAGRAPH_SEPARATOR
+from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from calibre.gui2.tweak_book.editor.themes import (
+    get_theme, theme_color, theme_format
+)
+from calibre.gui2.tweak_book.widgets import PARAGRAPH_SEPARATOR, PlainTextEdit
 from calibre.spell.break_iterator import index_of
-from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
+from calibre.utils.icu import (
+    capitalize, lower, safe_chr, string_length, swapcase, upper
+)
+from calibre.utils.img import image_to_data
 from calibre.utils.titlecase import titlecase
 
 
@@ -109,6 +122,83 @@ class TextEdit(PlainTextEdit):
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
+
+    def get_droppable_files(self, md):
+
+        def is_mt_ok(mt):
+            return self.syntax == 'html' and (
+                mt in OEB_DOCS or mt in OEB_STYLES or mt.startswith('image/')
+            )
+
+        if md.hasFormat(CONTAINER_DND_MIMETYPE):
+            for line in bytes(md.data(CONTAINER_DND_MIMETYPE)).decode('utf-8').splitlines():
+                mt = current_container().mime_map.get(line, 'application/octet-stream')
+                if is_mt_ok(mt):
+                    yield line, mt, True
+            return
+        for qurl in md.urls():
+            if qurl.isLocalFile() and os.access(qurl.toLocalFile(), os.R_OK):
+                path = qurl.toLocalFile()
+                mt = guess_type(path)
+                if is_mt_ok(mt):
+                    yield path, mt, False
+
+    def canInsertFromMimeData(self, md):
+        if md.hasText() or (md.hasHtml() and self.syntax == 'html') or md.hasImage():
+            return True
+        elif tuple(self.get_droppable_files(md)):
+            return True
+        return False
+
+    def insertFromMimeData(self, md):
+        files = tuple(self.get_droppable_files(md))
+        base = self.highlighter.doc_name or None
+
+        def get_name(name):
+            return get_recommended_folders(current_container(), (name,))[name] + '/' + name
+
+        def get_href(name):
+            return current_container().name_to_href(name, base)
+
+        def insert_text(text):
+            c = self.textCursor()
+            c.insertText(text)
+            self.setTextCursor(c)
+
+        def add_file(name, data, mt=None):
+            from calibre.gui2.tweak_book.boss import get_boss
+            name = current_container().add_file(name, data, media_type=mt, modify_name_if_needed=True)
+            get_boss().refresh_file_list()
+            return name
+
+        if files:
+            for path, mt, is_name in files:
+                if is_name:
+                    name = path
+                else:
+                    name = get_name(os.path.basename(path))
+                    with lopen(path, 'rb') as f:
+                        name = add_file(name, f.read(), mt)
+                href = get_href(name)
+                if mt.startswith('image/'):
+                    self.insert_image(href)
+                elif mt in OEB_STYLES:
+                    insert_text('<link href="{}" rel="stylesheet" type="text/css"/>'.format(href))
+                elif mt in OEB_DOCS:
+                    self.insert_hyperlink(href, name)
+            return
+        if md.hasImage():
+            img = md.imageData()
+            if img.isValid():
+                data = image_to_data(img, fmt='PNG')
+                name = add_file(get_name('dropped_image.png', data))
+                self.insert_image(get_href(name))
+                return
+        if md.hasHtml():
+            insert_text(md.html())
+            return
+        if md.hasText():
+            return insert_text(md.text())
 
     @dynamic_property
     def is_modified(self):
