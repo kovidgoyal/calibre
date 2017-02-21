@@ -22,6 +22,7 @@ from read_book.ui import ReadUI
 # Register the various panels
 import book_list.home  # noqa: unused-import
 import book_list.views # noqa: unused-import
+import book_list.local_books # noqa: unused-import
 import book_list.book_details # noqa: unused-import
 
 

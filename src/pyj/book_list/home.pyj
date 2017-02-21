@@ -67,6 +67,12 @@ def show_recent_stage2(books):
         ))
         if book.cover_name:
             db.get_file(book, book.cover_name, show_cover.bind(img_id))
+    container.appendChild(E.div(style='margin: 1rem 1rem',
+        create_button(
+            _('Browse all previously downloaded books…'),
+            action=def():
+                pass
+    )))
 
 
 def show_recent():
