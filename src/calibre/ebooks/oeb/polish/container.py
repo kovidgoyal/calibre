@@ -333,6 +333,7 @@ class Container(ContainerBase):  # {{{
         return name in all_names
 
     def make_name_unique(self, name):
+        ''' Ensure that `name` does not already exist in this book. If it does, return a modified version that does not exist. '''
         counter = count()
         while self.has_name_case_insensitive(name) or self.manifest_has_name(name):
             c = next(counter) + 1
