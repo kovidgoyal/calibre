@@ -1,20 +1,19 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from dom import ensure_id, add_extra_css, build_rule
 from elementmaker import E
-from session import get_interface_data
 from gettext import gettext as _
-from utils import conditional_timeout
-from widgets import create_button
 
-from book_list.globals import get_db
 from book_list.cover_grid import BORDER_RADIUS
+from book_list.globals import get_db
+from book_list.router import open_book, update_window_title
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
-from book_list.router import update_window_title, open_book
-
+from dom import add_extra_css, build_rule, ensure_id
+from session import get_interface_data
+from utils import conditional_timeout
+from widgets import create_button
 
 CLASS_NAME = 'home-page'
 
@@ -71,7 +70,7 @@ def show_recent_stage2(books):
         create_button(
             _('Browse all previously downloaded books…'),
             action=def():
-                pass
+                show_panel('local_books')
     )))
 
 

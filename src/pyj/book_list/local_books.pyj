@@ -1,11 +1,16 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
+from gettext import gettext as _
+
+from book_list.router import back
+from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 
 
 def init(container_id):
-    pass
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Downloaded books'), action=back, icon='home')
 
 set_panel_handler('local_books', init)
