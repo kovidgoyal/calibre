@@ -238,8 +238,7 @@ class Factory(QObject):
             self.prune_dead_refs()
             self.status_notifiers.append(weakref.ref(ans))
             return ans
-        if iswindows or isosx:
-            return QSystemTrayIcon(parent)
+        return QSystemTrayIcon(parent)
 
     def bus_disconnected(self):
         self._bus = None
