@@ -6,7 +6,6 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.library_data import thumbnail_cache, book_metadata
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 300
@@ -46,21 +45,19 @@ def on_img_load(img, load_type):
     if not div:
         return
     if load_type is not 'load':
-        metadata = book_metadata(int(img.dataset.bookId))
-        if metadata:
-            clear(div)
-            div.appendChild(E.div(
-                E.h2(metadata.title, style='text-align:center; font-size:larger; font-weight: bold'),
-                E.div(_('by'), style='text-align: center'),
-                E.h2(metadata.authors.join(' & '), style='text-align:center; font-size:larger; font-weight: bold')
-            ))
-            set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+        clear(div)
+        div.appendChild(E.div(
+            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
+            E.div(_('by'), style='text-align: center'),
+            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
+        ))
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
-def create_item(book_id, show_book_details):
-    metadata = book_metadata(book_id)
+def create_item(book_id, metadata, create_image, show_book_details):
     authors = metadata.authors.join(' & ')
-    img = thumbnail_cache.get(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
     img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
+    img.dataset.title, img.dataset.authors = metadata.title, authors
     ans = E.div(img, data_book_id=str(book_id), onclick=show_book_details)
     return ans
 
