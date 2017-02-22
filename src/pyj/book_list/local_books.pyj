@@ -2,15 +2,142 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
 from gettext import gettext as _
 
-from book_list.router import back
+from book_list.cover_grid import (
+    append_item as cover_grid_append_item, create_item as create_cover_grid_item,
+    init as init_cover_grid
+)
+from book_list.globals import get_db, get_session_data
+from book_list.router import back, open_book
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
+from book_list.views import ALLOWED_MODES, DEFAULT_MODE
+from dom import clear, ensure_id
+from utils import conditional_timeout
+
+CLASS_NAME = 'local-books-list'
+
+book_list_data = {}
+
+def component(name):
+    return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
+
+
+def clear_grid():
+    container = document.getElementById(book_list_data.container_id)
+    # We replace the div entirely so that any styles associated with it are also removed
+    e = component('book_list')
+    bl = E.div(data_component='book_list')
+    container.insertBefore(bl, e)
+    container.removeChild(e)
+    book_list_data.init_grid(bl)
+
+
+def read_book(key):
+    library_id, book_id, fmt = key
+    open_book(book_id, fmt, library_id)
+
+
+def show_cover(blob, name, mt, book):
+    img = document.getElementById(this)
+    if img:
+        img.src = window.URL.createObjectURL(blob)
+
+
+def create_image(book_idx, max_width, max_height, on_load):
+    img = new Image()
+    img.onerror = def():
+        if this.src:
+            window.URL.revokeObjectURL(this.src)
+        on_load(this, 'error')
+    img.onload = def():
+        if this.src:
+            window.URL.revokeObjectURL(this.src)
+        on_load(this, 'load')
+    book = book_list_data.book_data[book_idx]
+    if book?.metadata:
+        img.setAttribute('alt', _('{} by {}').format(
+            book.metadata.title, book.metadata.authors.join(' & ')))
+    if book?.cover_name:
+        img_id = ensure_id(img, 'local-cover-')
+        get_db().get_file(book, book.cover_name, show_cover.bind(img_id))
+    return img
+
+
+def render_book(book_idx):
+    book = book_list_data.book_data[book_idx]
+    return book_list_data.render_book(book_idx, book.metadata, create_image, read_book.bind(None, book.key))
+
+
+def render_books(books):
+    div = component('book_list')
+    books = books or book_list_data.books
+    for book_idx in books:
+        child = render_book(book_idx)
+        if child is not None:
+            book_list_data.append_item(div, child)
+
+
+def apply_view_mode(mode=DEFAULT_MODE):
+    if book_list_data.mode is mode:
+        return
+    if mode not in ALLOWED_MODES:
+        mode = DEFAULT_MODE
+    book_list_data.mode = mode
+    if mode is 'cover_grid':
+        book_list_data.render_book = create_cover_grid_item
+        book_list_data.init_grid = init_cover_grid
+        book_list_data.append_item = cover_grid_append_item
+    clear_grid()
+    render_books()
+
+
+def create_books_list(container, books):
+    book_list_data.container_id = ensure_id(container)
+    book_list_data.book_data = {i:book for i, book in enumerate(books)}
+    book_list_data.books = list(range(books.length))
+    book_list_data.mode = None
+    book_list_data.thumbnail_cache = {}
+    container.appendChild(E.div(data_component='book_list'))
+    apply_view_mode(get_session_data().get('view_mode'))
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container:
+        return
+    clear(container)
+    if not books.length:
+        container.appendChild(E.div(
+            style='margin: 1rem 1rem',
+            _('No downloaded books present')
+        ))
+        return
+    create_books_list(container, books)
+
+def show_recent():
+    container = this
+    db = get_db()
+    if not db.initialized:
+        conditional_timeout(container.id, 5, show_recent)
+        return
+    db.get_recently_read_books(show_recent_stage2.bind(container.id), 200)
 
 
 def init(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Downloaded books'), action=back, icon='home')
+    # book list
+    recent = E.div(class_=CLASS_NAME)
+    recent_container_id = ensure_id(recent)
+    container.appendChild(recent)
+    recent.appendChild(E.div(
+        style='margin: 1rem 1rem',
+        _('Loading downloaded books from storage, please wait...')
+    ))
+    conditional_timeout(recent_container_id, 5, show_recent)
+
+
 
 set_panel_handler('local_books', init)
