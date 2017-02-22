@@ -207,9 +207,10 @@ class View:
 
     def send_message(self, action, **data):
         data.action = action
+        msg = {'data':data, 'encrypted':self.encrypted_communications}
         if self.encrypted_communications:
-            data = messenger.encrypt(data)
-        self.iframe.contentWindow.postMessage(data, '*')
+            msg.data = messenger.encrypt(data)
+        self.iframe.contentWindow.postMessage(msg, '*')
 
     def handle_message(self, event):
         if event.source is not self.iframe.contentWindow:
@@ -231,7 +232,11 @@ class View:
     def on_iframe_ready(self, data):
         messenger.reset()
         self.send_message('initialize', secret=messenger.secret, translations=get_translations())
+        self.encrypted_communications = True
         self.iframe_ready = True
+        self.do_pending_load()
+
+    def do_pending_load(self):
         if self.pending_load:
             data = self.pending_load
             self.pending_load = None
@@ -281,9 +286,13 @@ class View:
 
     def display_book(self, book):
         self.overlay.hide()
+        self.search_overlay.hide()
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
+        # Ensure the iframe is cleared so that no state is persisted between
+        # book loads
+        self.iframe_ready = False
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
@@ -385,13 +394,17 @@ class View:
 
     def show_spine_item(self, resource_data):
         self.loaded_resources = resource_data
-        # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
-        self.init_iframe()
-        # Now wait for iframe to message that it is ready
         self.pending_load = resource_data
+        if self.iframe_ready:
+            self.do_pending_load()
+        else:
+            self.init_iframe()
 
     def show_spine_item_stage2(self, resource_data):
         self.currently_showing.loading = False
+        # We cannot encrypt this message because the resource data contains
+        # Blob objects which do not survive encryption
+        self.encrypted_communications = False
         self.send_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,

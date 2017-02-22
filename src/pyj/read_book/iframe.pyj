@@ -36,6 +36,8 @@ class IframeBoss:
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
         self.encrypted_communications = False
+        self.blob_url_map = {}
+        self.content_ready = False
         window.addEventListener('message', self.handle_message, False)
         window.addEventListener('load', def():
             if not self.ready_sent:
@@ -58,8 +60,11 @@ class IframeBoss:
     def handle_message(self, event):
         if event.source is not window.parent:
             return
-        data = event.data
-        if self.encrypted_communications:
+        msg = event.data
+        data = msg.data
+        if msg.encrypted:
+            # We cannot use self.encrypted_communications as the 'display'
+            # message has to be unencrypted as it transports Blob objects
             try:
                 data = JSON.parse(self.gcm_from_parent.decrypt(data))
             except Exception as e:
@@ -82,8 +87,14 @@ class IframeBoss:
         if data.translations:
             install(data.translations)
         window.onerror = self.onerror
+        window.addEventListener('scroll', debounce(self.onscroll, 1000))
+        window.addEventListener('resize', debounce(self.onresize, 500))
+        window.addEventListener('wheel', self.onwheel)
+        window.addEventListener('keydown', self.onkeydown)
+        document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
         create_touch_handlers()
         self.color_scheme = data.color_scheme
+        self.encrypted_communications = True
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         console.log(error_object)
@@ -97,7 +108,7 @@ class IframeBoss:
             console.log('There was an error in the iframe unhandled exception handler')
 
     def display(self, data):
-        self.encrypted_communications = True
+        self.content_ready = False
         self.book = current_book.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
@@ -121,7 +132,9 @@ class IframeBoss:
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
-        root_data, self.mathjax = finalize_resources(self.book, data.name, data.resource_data)
+        for name in self.blob_url_map:
+            window.URL.revokeObjectURL(self.blob_url_map[name])
+        root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
 
     def handle_gesture(self, gesture):
@@ -181,10 +194,7 @@ class IframeBoss:
 
     def content_loaded_stage2(self):
         self.connect_links()
-        window.addEventListener('scroll', debounce(self.onscroll, 1000))
-        window.addEventListener('resize', debounce(self.onresize, 500))
-        window.addEventListener('wheel', self.onwheel)
-        window.addEventListener('keydown', self.onkeydown)
+        self.content_ready = True
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
@@ -198,10 +208,6 @@ class IframeBoss:
             elif ipos.type is 'search':
                 self.find(ipos.search_data, True)
         self.onscroll()
-        document.documentElement.addEventListener('contextmenu', def(ev):
-            ev.preventDefault()
-            self.send_message('show_chrome')
-        )
         self.send_message('content_loaded')
 
     def update_cfi(self):
@@ -221,25 +227,34 @@ class IframeBoss:
         self.send_message('update_toc_position', visible_anchors=visible_anchors)
 
     def onscroll(self):
-        self.update_cfi()
-        self.update_toc_position()
+        if self.content_ready:
+            self.update_cfi()
+            self.update_toc_position()
 
     def onresize(self):
-        if current_layout_mode() is not 'flow':
-            self.do_layout()
-        if self.last_cfi:
-            cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
-            if cfi:
-                paged_jump_to_cfi('/' + cfi)
-        self.update_cfi()
-        self.update_toc_position()
+        if self.content_ready:
+            if current_layout_mode() is not 'flow':
+                self.do_layout()
+            if self.last_cfi:
+                cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+                if cfi:
+                    paged_jump_to_cfi('/' + cfi)
+            self.update_cfi()
+            self.update_toc_position()
 
     def onwheel(self, evt):
-        evt.preventDefault()
-        self.handle_wheel(evt)
+        if self.content_ready:
+            evt.preventDefault()
+            self.handle_wheel(evt)
 
     def onkeydown(self, evt):
-        self.handle_keydown(evt)
+        if self.content_ready:
+            self.handle_keydown(evt)
+
+    def oncontextmenu(self, evt):
+        if self.content_ready:
+            evt.preventDefault()
+            self.send_message('show_chrome')
 
     def send_message(self, action, **data):
         data.action = action

@@ -159,7 +159,7 @@ def finalize_resources(book, root_name, resource_data):
         for name in resolved:
             v'delete resource_data[name]'
 
-    return root_data, mathjax
+    return root_data, mathjax, blob_url_map
 
 js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
