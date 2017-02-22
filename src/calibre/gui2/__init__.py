@@ -1413,6 +1413,10 @@ def secure_web_page(qwebpage_or_qwebsettings):
     settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
     settings.setAttribute(QWebSettings.NotificationsEnabled, False)
     settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
+    settings.setAttribute(QWebSettings.OfflineStorageDatabaseEnabled, False)
+    settings.setAttribute(QWebSettings.LocalStorageEnabled, False)
+    QWebSettings.setOfflineStorageDefaultQuota(0)
+    QWebSettings.setOfflineStoragePath(None)
     return settings
 
 
