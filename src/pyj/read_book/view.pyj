@@ -197,7 +197,7 @@ class View:
     def create_src_doc(self):
         iframe_script = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
         main_js(None)
-        self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
+        self.src_doc = LOADING_DOC.replace(
             '__BS__', _('Bootstrapping book reader...')).replace(
             '__SCRIPT__', iframe_script)
 
