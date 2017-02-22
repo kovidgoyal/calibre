@@ -128,6 +128,17 @@ CREATE TABLE tags ( id   INTEGER PRIMARY KEY,
                             name TEXT NOT NULL COLLATE NOCASE,
                             UNIQUE (name)
                              );
+CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
+	book INTEGER NOT NULL,
+	format TEXT NOT NULL COLLATE NOCASE,
+	user TEXT NOT NULL,
+	device TEXT NOT NULL,
+	cfi TEXT NOT NULL,
+	epoch REAL NOT NULL,
+	extra TEXT DEFAULT '',
+	UNIQUE(user, device, book, format)
+);
+
 CREATE VIEW meta AS
         SELECT id, title,
                (SELECT sortconcat(bal.id, name) FROM books_authors_link AS bal JOIN authors ON(author = authors.id) WHERE book = books.id) authors,
@@ -278,6 +289,7 @@ CREATE INDEX conversion_options_idx_a ON conversion_options (format COLLATE NOCA
 CREATE INDEX conversion_options_idx_b ON conversion_options (book);
 CREATE INDEX custom_columns_idx ON custom_columns (label);
 CREATE INDEX data_idx ON data (book);
+CREATE INDEX lrp_idx ON last_read_positions (book);
 CREATE INDEX formats_idx ON data (format);
 CREATE INDEX languages_idx ON languages (lang_code COLLATE NOCASE);
 CREATE INDEX publishers_idx ON publishers (name COLLATE NOCASE);
@@ -293,6 +305,7 @@ CREATE TRIGGER books_delete_trg
                 DELETE FROM books_tags_link WHERE book=OLD.id;
                 DELETE FROM books_languages_link WHERE book=OLD.id;
                 DELETE FROM data WHERE book=OLD.id;
+                DELETE FROM last_read_positions WHERE book=OLD.id;
                 DELETE FROM comments WHERE book=OLD.id;
                 DELETE FROM conversion_options WHERE book=OLD.id;
                 DELETE FROM books_plugin_data WHERE book=OLD.id;
@@ -334,6 +347,22 @@ CREATE TRIGGER fkc_data_insert
         END;
 CREATE TRIGGER fkc_data_update
         BEFORE UPDATE OF book ON data
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_lrp_insert
+        BEFORE INSERT ON last_read_positions
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_lrp_update
+        BEFORE UPDATE OF book ON last_read_positions
         BEGIN
             SELECT CASE
                 WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
@@ -546,4 +575,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=22;
+pragma user_version=23;
