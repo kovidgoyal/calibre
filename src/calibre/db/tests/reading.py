@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import datetime
 from io import BytesIO
+from time import time
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
@@ -667,4 +668,16 @@ class ReadingTest(BaseTest):
         ):
             self.assertEqual(books, cache.find_identical_books(mi))
             self.assertEqual(books, find_identical_books(mi, data))
+    # }}}
+
+    def test_last_read_positions(self):  # {{{
+        cache = self.init_cache(self.library_path)
+        self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
+        self.assertRaises(Exception, cache.set_last_read_position, 12, 'x', cfi='c')
+        epoch = time()
+        cache.set_last_read_position(1, 'EPUB', 'user', 'device', 'cFi', epoch)
+        self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
+        self.assertEqual(cache.get_last_read_positions(1, 'ePuB', 'user'), [{'epoch':epoch, 'device':'device', 'cfi':'cFi'}])
+        cache.set_last_read_position(1, 'EPUB', 'user', 'device')
+        self.assertFalse(cache.get_last_read_positions(1, 'ePuB', 'user'))
     # }}}

@@ -12,6 +12,7 @@ from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
 from future_builtins import zip
+from time import time
 
 from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
@@ -2130,6 +2131,30 @@ class Cache(object):
                         self.fields['size'].table.update_sizes({book_id: max_size})
             if report_progress is not None:
                 report_progress(i+1, len(book_ids), mi)
+
+    @read_api
+    def get_last_read_positions(self, book_id, fmt, user):
+        fmt = fmt.upper()
+        ans = []
+        for device, cfi, epoch in self.backend.execute(
+                'SELECT device,cfi,epoch FROM last_read_positions WHERE book=? AND format=? AND user=?',
+                (book_id, fmt, user)):
+            ans.append({'device':device, 'cfi': cfi, 'epoch':epoch})
+        return ans
+
+    @write_api
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None):
+        fmt = fmt.upper()
+        device = device or '_'
+        user = user or '_'
+        if not cfi:
+            self.backend.execute(
+                'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
+                (book_id, fmt, user, device))
+        else:
+            self.backend.execute(
+                'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch) VALUES (?,?,?,?,?,?)',
+                (book_id, fmt, user, device, cfi, epoch or time()))
 
     @read_api
     def export_library(self, library_key, exporter, progress=None, abort=None):
