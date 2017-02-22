@@ -18,7 +18,7 @@ from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_library_data
+from calibre.srv.utils import get_library_data, get_db
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -177,6 +177,46 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
         if e.errno != errno.ENOENT:
             raise
         raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
+
+
+@endpoint('/book-get-last-read-position/{library_id}/{+which}', postprocess=json)
+def get_last_read_position(ctx, rd, library_id, which):
+    '''
+    Get last read position data for the specified books, where which is of the form:
+    book_id1-fmt1_book_id2-fmt2,...
+    '''
+    db = get_db(ctx, rd, library_id)
+    user = rd.username or None
+    ans = {}
+    allowed_book_ids = ctx.allowed_book_ids(rd, db)
+    for item in which.split('_'):
+        book_id, fmt = item.partition('-')[::2]
+        try:
+            book_id = int(book_id)
+        except Exception:
+            continue
+        if book_id not in allowed_book_ids:
+            continue
+        key = '{}:{}'.format(book_id, fmt)
+        ans[key] = db.get_last_read_positions(book_id, fmt, user)
+    return ans
+
+
+@endpoint('/book-set-last-read-position/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',))
+def set_last_read_position(ctx, rd, library_id, book_id, fmt):
+    db = get_db(ctx, rd, library_id)
+    user = rd.username or None
+    allowed_book_ids = ctx.allowed_book_ids(rd, db)
+    if book_id not in allowed_book_ids:
+        raise HTTPNotFound('No book with id {} found'.format(book_id))
+    try:
+        data = jsonlib.load(rd.request_body_file)
+        device, cfi = data['device'], data['cfi']
+    except Exception:
+        raise HTTPNotFound('Invalid data')
+    device = device
+    cfi = cfi or None
+    db.set_last_read_position(book_id, fmt, user, device, cfi)
 
 
 mathjax_lock = Lock()
