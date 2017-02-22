@@ -1,8 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
+
+from uuid import short_uuid
 
 from ajax import ajax_send
+
 
 defaults = {
     # Book list settings
@@ -44,6 +47,7 @@ is_local_setting = {
     'current_color_scheme': True,
     'base_font_size': True,
 }
+
 
 def storage_available(which):
     which = which or 'localStorage'
@@ -133,6 +137,18 @@ def local_storage():
     if not local_storage.storage:
         local_storage.storage = SessionData('calibre-local-')
     return local_storage.storage
+
+
+def get_device_uuid():
+    if not get_device_uuid.ans:
+        s = local_storage()
+        ans = s.get('device_uuid')
+        if not ans:
+            ans = short_uuid()
+            s.set('device_uuid', ans)
+        get_device_uuid.ans = ans
+    return get_device_uuid.ans
+
 
 default_interface_data = {
     'username': None,
