@@ -29,12 +29,12 @@ class FinancialTimes(BasicNewsRecipe):
     needs_subscription = True
     encoding = 'utf8'
     publication_type = 'newspaper'
-    LOGIN = 'https://accounts.ft.com/login?location=http%3A%2F%2Fwww.ft.com%2Fhome%2Fuk'
-    INDEX = 'http://www.ft.com/international-edition'
-    PREFIX = 'http://www.ft.com'
+    handle_gzip = True
+    LOGIN = 'https://accounts.ft.com/login?location=https%3A%2F%2Fwww.ft.com%2Fhome%2Fuk'
+    INDEX = 'https://www.ft.com/international-edition'
 
     keep_only_tags = [
-        classes('article__header--wrapper article__time-byline article__body n-content-image')
+        classes('article__header--wrapper article__time-byline article__body n-content-image barrier-grid__heading')
     ]
 
     remove_tags = [
@@ -48,7 +48,7 @@ class FinancialTimes(BasicNewsRecipe):
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
-            br.select_form(name='login')
+            br.select_form(name='enter-email-form')
             br['email'] = self.username
             br['password'] = self.password
             br.submit()
