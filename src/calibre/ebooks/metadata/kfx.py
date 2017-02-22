@@ -38,6 +38,7 @@ DT_STRING = 8           # unicode
 DT_STRUCT = 11          # tuple
 DT_LIST = 12            # list
 DT_OBJECT = 13          # dict of property/value pairs
+DT_TYPED_DATA = 14      # type, name, value
 
 # property names (non-unicode strings to distinguish them from ION strings in this program)
 # These are place holders. The correct property names are unknown.
@@ -52,7 +53,7 @@ METADATA_PROPERTIES = {
     b'P10' : "languages",
     b'P153': "title",
     b'P154': "description",
-    b'P222': "authors",
+    b'P222': "author",
     b'P232': "publisher",
 }
 
@@ -217,6 +218,12 @@ class PackedIon(PackedData):
 
             return result
 
+        if data_type == DT_TYPED_DATA:
+            ion = PackedIon(self.extract(data_len))
+            ion.unpack_number()
+            ion.unpack_number()
+            return ion.unpack_typed_value()
+
         # ignore unknown types
         self.advance(data_len)
         return None
@@ -289,7 +296,7 @@ def read_metadata_kfx(stream, read_cover=True):
         return ans
 
     title = get('title') or _('Unknown')
-    authors = get('authors', False) or [_('Unknown')]
+    authors = get('author', False) or [_('Unknown')]
     auth_pat = re.compile(r'([^,]+?)\s*,\s+([^,]+)$')
 
     def fix_author(x):
@@ -298,8 +305,13 @@ def read_metadata_kfx(stream, read_cover=True):
             if m is not None:
                 return m.group(2) + ' ' + m.group(1)
         return x
+        
+    unique_authors = []     # remove duplicates while retaining order
+    for f in [fix_author(x) for x in authors]:
+        if f not in unique_authors:
+            unique_authors.append(f)
 
-    mi = Metadata(title, [fix_author(x) for x in authors])
+    mi = Metadata(title, unique_authors)
     if has('author'):
         mi.author_sort = get('author')
     if has('ASIN'):
