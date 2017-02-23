@@ -52,6 +52,11 @@ def in_paged_mode():
 col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
 is_full_screen_layout = False
 
+def reset_paged_mode_globals():
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
+    is_full_screen_layout = _in_paged_mode = False
+
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
     sw = document.body.scrollWidth

@@ -21,7 +21,7 @@ from read_book.paged_mode import (
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
     jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
     scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs,
-    snap_to_selection
+    snap_to_selection, reset_paged_mode_globals
 )
 from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
@@ -112,6 +112,7 @@ class IframeBoss:
         self.book = current_book.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
+        reset_paged_mode_globals()
         set_layout_mode('flow' if FORCE_FLOW_MODE else data.settings.read_mode)
         if current_layout_mode() is 'flow':
             self.do_layout = flow_layout
