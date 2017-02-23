@@ -177,8 +177,8 @@ class USBMS(CLI, Device):
     def formats_to_scan_for(self):
         return set(self.settings().format_map) | set(self.FORMATS)
 
-    def is_a_book_file(self, filename, path, prefix):
-        return False
+    def is_allowed_book_file(self, filename, path, prefix):
+        return True
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -222,7 +222,7 @@ class USBMS(CLI, Device):
 
         def update_booklist(filename, path, prefix):
             changed = False
-            if path_to_ext(filename) in all_formats or self.is_a_book_file(filename, path, prefix):
+            if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):

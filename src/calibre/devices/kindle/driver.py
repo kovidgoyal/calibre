@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Amazon's Kindle
 '''
 
-import datetime, os, re, sys, json, hashlib, shutil
+import datetime, os, re, sys, json, hashlib
 
 from calibre.constants import DEBUG
 from calibre.devices.kindle.bookmark import Bookmark
@@ -36,10 +36,6 @@ Adding a book to a collection on the Kindle does not change the book file at all
 (i.e. it is binary identical). Therefore collection information is not stored in
 file metadata.
 '''
-
-
-def get_kfx_path(path):
-    return os.path.dirname(os.path.dirname(path)).rpartition('.')[0] + '.kfx'
 
 
 class KINDLE(USBMS):
@@ -86,40 +82,30 @@ class KINDLE(USBMS):
         ' Click "Show details" to see the list of books.'
     )
 
-    def is_a_book_file(self, filename, path, prefix):
+    def is_allowed_book_file(self, filename, path, prefix):
         lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2].replace('\\', '/')
-        return lpath.endswith('.sdr/assets/metadata.kfx')
-
-    def delete_single_book(self, path):
-        if path.replace('\\', '/').endswith('.sdr/assets/metadata.kfx'):
-            kfx_path = get_kfx_path(path)
-            if DEBUG:
-                prints('Kindle driver: Attempting to delete kfx: %r -> %r' % (path, kfx_path))
-            if os.path.exists(kfx_path):
-                os.unlink(kfx_path)
-            sdr_path = kfx_path.rpartition('.')[0] + '.sdr'
-            if os.path.exists(sdr_path):
-                shutil.rmtree(sdr_path)
-            try:
-                os.removedirs(os.path.dirname(kfx_path))
-            except Exception:
-                pass
-
-        else:
-            return USBMS.delete_single_book(self, path)
+        return '.sdr/' not in lpath
 
     @classmethod
     def metadata_from_path(cls, path):
-        if path.replace('\\', '/').endswith('.sdr/assets/metadata.kfx'):
+        if path.endswith('.kfx'):
             from calibre.ebooks.metadata.kfx import read_metadata_kfx
             try:
-                with lopen(path, 'rb') as f:
-                    mi = read_metadata_kfx(f)
+                kfx_path = path
+                with lopen(kfx_path, 'rb') as f:
+                    if f.read(8) != b'\xeaDRMION\xee':
+                        f.seek(0)
+                        mi = read_metadata_kfx(f)
+                    else:
+                        kfx_path = os.path.join(path.rpartition('.')[0] + '.sdr', 'assets', 'metadata.kfx')
+                        with lopen(kfx_path, 'rb') as mf:
+                            mi = read_metadata_kfx(mf)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                path = get_kfx_path(path)
-                mi = cls.metadata_from_formats([get_kfx_path(path)])
+                if DEBUG:
+                    prints('failed kfx path:', kfx_path)
+                mi = cls.metadata_from_formats([path])
         else:
             mi = cls.metadata_from_formats([path])
         if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
