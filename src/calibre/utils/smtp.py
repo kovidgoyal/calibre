@@ -18,16 +18,23 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     assert text or attachment_data
 
     from email.mime.multipart import MIMEMultipart
-    from email.utils import formatdate, make_msgid
+    from email.utils import formatdate
     from email import encoders
+    import uuid
 
     outer = MIMEMultipart()
     outer['Subject'] = subject
     outer['To'] = to
     outer['From'] = from_
     outer['Date'] = formatdate(localtime=True)
-    outer['Message-Id'] = make_msgid()
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
+
+    # generate a Message-Id for this email
+    msgid_domain = from_.partition("@")[2]
+    if not msgid_domain:
+        # from address didn't provide a domain, let's make a best guess
+        msgid_domain = safe_localhost()
+    outer['Message-Id'] = "<{0}@{1}>".format(uuid.uuid4(), msgid_domain)
 
     if text is not None:
         from email.mime.text import MIMEText
