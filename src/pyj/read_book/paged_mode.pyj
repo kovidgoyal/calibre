@@ -51,11 +51,13 @@ def in_paged_mode():
     return _in_paged_mode
 col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
 is_full_screen_layout = False
+current_scroll_animation = None
 
 def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, current_scroll_animation
     col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
     is_full_screen_layout = _in_paged_mode = False
+    current_scroll_animation = None
 
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
@@ -247,7 +249,6 @@ def scroll_to_fraction(frac):
     xpos = Math.floor(document.body.scrollWidth * frac)
     scroll_to_xpos(xpos)
 
-current_scroll_animation = None
 
 def animated_scroll(pos, duration=1000, notify=True):
     # Scroll the window to X-position pos in an animated fashion over

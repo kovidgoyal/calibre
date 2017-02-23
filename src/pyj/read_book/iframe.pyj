@@ -109,6 +109,7 @@ class IframeBoss:
 
     def display(self, data):
         self.content_ready = False
+        self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
