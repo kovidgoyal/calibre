@@ -652,7 +652,7 @@ CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
     device TEXT NOT NULL,
     cfi TEXT NOT NULL,
     epoch REAL NOT NULL,
-    extra TEXT DEFAULT '',
+    pos_frac REAL NOT NULL DEFAULT 0,
     UNIQUE(user, device, book, format)
 );
 DROP INDEX IF EXISTS lrp_idx;
