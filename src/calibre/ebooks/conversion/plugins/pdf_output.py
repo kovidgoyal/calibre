@@ -10,7 +10,7 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import islinux
+from calibre.constants import islinux, iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
@@ -126,6 +126,7 @@ class PDFOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.split import Split
         # Turn off hinting in WebKit (requires a patched build of QtWebKit)
         os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
+        self.filtered_font_warnings = set()
         try:
             # split on page breaks, as the JS code to convert page breaks to
             # column breaks will not work because of QWebSettings.LocalContentCanAccessFileUrls
@@ -168,8 +169,8 @@ class PDFOutput(OutputFormatPlugin):
             item = oeb.manifest.ids[cover_id]
             self.cover_data = item.data
 
-    def handle_embedded_fonts(self):
-        ''' Make sure all fonts are embeddable. '''
+    def process_fonts(self):
+        ''' Make sure all fonts are embeddable. Also remove some fonts that causes problems. '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
 
@@ -199,6 +200,19 @@ class PDFOutput(OutputFormatPlugin):
                         if nraw != raw:
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
+                elif iswindows and rule.type == rule.STYLE_RULE:
+                    from tinycss.fonts3 import parse_font_family, serialize_font_family
+                    s = rule.style
+                    f = s.getProperty(u'font-family')
+                    if f is not None:
+                        font_families = parse_font_family(f.propertyValue.cssText)
+                        ff = [x for x in font_families if x.lower() != u'courier']
+                        if len(ff) != len(font_families):
+                            if 'courier' not in self.filtered_font_warnings:
+                                # See https://bugs.launchpad.net/bugs/1665835
+                                self.filtered_font_warnings.add(u'courier')
+                                self.log.warn(u'Removing courier font family as it does not render on windows')
+                            f.propertyValue.cssText = serialize_font_family(ff or [u'monospace'])
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
@@ -211,7 +225,7 @@ class PDFOutput(OutputFormatPlugin):
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
-        self.handle_embedded_fonts()
+        self.process_fonts()
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
