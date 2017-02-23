@@ -126,6 +126,13 @@ def layout(is_single_page):
         # cover, if so we treat it specially.
         single_screen = (document.body.scrollHeight < window.innerHeight + 75)
         first_layout = True
+        has_svg = document.getElementsByTagName('svg').length > 0
+        imgs = document.getElementsByTagName('img')
+        only_img = imgs.length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
+        if only_img and window.getComputedStyle(imgs[0]).zIndex < 0:
+            # Needed for some stupidly coded fixed layout EPUB comics, see for
+            # instance: https://bugs.launchpad.net/calibre/+bug/1667357
+            imgs[0].style.zIndex = '0'
         if not single_screen and cps > 1:
             num = cps - 1
             elems = document.querySelectorAll('body > *')
@@ -182,8 +189,6 @@ def layout(is_single_page):
         # width 100% are wider than body and lead to a blank page after the
         # current page (when cols_per_screen == 1). Similarly img elements
         # with height=100% overflow the first column
-        has_svg = document.getElementsByTagName('svg').length > 0
-        only_img = document.getElementsByTagName('img').length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
         is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth < 2*ww + 10)
         if is_single_page:
             is_full_screen_layout = True
