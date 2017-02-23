@@ -202,7 +202,7 @@ def layout(is_single_page):
         if ncols is not Math.floor(ncols):
             n = Math.floor(ncols)
             dw = n*col_width + (n-1)*gap
-            data = {'col_with':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
+            data = {'col_width':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
             return data
     data = check_column_widths()
     if data:
