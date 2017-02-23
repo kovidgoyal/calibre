@@ -13,6 +13,29 @@ import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
 
 
+def safe_localhost():
+    # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
+    # if that can't be calculated, that we should use a domain literal
+    # instead (essentially an encoded IP address like [A.B.C.D]).
+    fqdn = socket.getfqdn()
+    if '.' in fqdn:
+        # Some mail servers have problems with non-ascii local hostnames, see
+        # https://bugs.launchpad.net/bugs/1256549
+        try:
+            local_hostname = idna.ToASCII(force_unicode(fqdn))
+        except:
+            local_hostname = 'localhost.localdomain'
+    else:
+        # We can't find an fqdn hostname, so use a domain literal
+        addr = '127.0.0.1'
+        try:
+            addr = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            pass
+        local_hostname = '[%s]' % addr
+    return local_hostname
+
+
 def get_msgid_domain(from_):
     from email.utils import parseaddr
     try:
@@ -77,29 +100,6 @@ def get_mx(host, verbose=0):
     answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
-
-
-def safe_localhost():
-    # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
-    # if that can't be calculated, that we should use a domain literal
-    # instead (essentially an encoded IP address like [A.B.C.D]).
-    fqdn = socket.getfqdn()
-    if '.' in fqdn:
-        # Some mail servers have problems with non-ascii local hostnames, see
-        # https://bugs.launchpad.net/bugs/1256549
-        try:
-            local_hostname = idna.ToASCII(force_unicode(fqdn))
-        except:
-            local_hostname = 'localhost.localdomain'
-    else:
-        # We can't find an fqdn hostname, so use a domain literal
-        addr = '127.0.0.1'
-        try:
-            addr = socket.gethostbyname(socket.gethostname())
-        except socket.gaierror:
-            pass
-        local_hostname = '[%s]' % addr
-    return local_hostname
 
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
