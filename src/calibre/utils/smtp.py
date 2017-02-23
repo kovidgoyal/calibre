@@ -18,7 +18,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     assert text or attachment_data
 
     from email.mime.multipart import MIMEMultipart
-    from email.utils import formatdate
+    from email.utils import formatdate, parseaddr
     from email import encoders
     import uuid
 
@@ -30,7 +30,12 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     # generate a Message-Id for this email
-    msgid_domain = from_.partition("@")[2]
+    # Parse out the address from the From line, and then the domain from that
+    from_email = parseaddr(from_)[1]
+    msgid_domain = from_email.partition("@")[2].strip()
+    if msgid_domain.endswith(">"):
+        # This can sometimes sneak through parseaddr if the input is malformed
+        msgid_domain = msgid_domain[:-1]
     if not msgid_domain:
         # from address didn't provide a domain, let's make a best guess
         msgid_domain = safe_localhost()
