@@ -122,6 +122,7 @@ class TXT2TXTZ(FileTypePlugin):
             # No images so just import the TXT file.
             return path_to_ebook
 
+
 plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract,]
 # }}}
 
@@ -443,6 +444,7 @@ class ZipMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
+
 
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and
                                         x.__name__.endswith('MetadataReader')]
@@ -1061,6 +1063,7 @@ class ActionPluginUpdater(InterfaceActionBase):
     description = _('Get new calibre plugins or update your existing ones')
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
@@ -1341,6 +1344,7 @@ class Misc(PreferencesPlugin):
     name_order = 3
     config_widget = 'calibre.gui2.preferences.misc'
     description = _('Miscellaneous advanced configuration')
+
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
@@ -1899,6 +1903,7 @@ class XinXiiStore(StoreBase):
     headquarters = 'DE'
     formats = ['EPUB', 'PDF']
 
+
 plugins += [
     StoreArchiveOrgStore,
     StoreBubokPublishingStore,
@@ -2009,4 +2014,3 @@ if __name__ == '__main__':
         ''')])
     except subprocess.CalledProcessError:
         raise SystemExit(1)
-
