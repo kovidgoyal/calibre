@@ -211,12 +211,11 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
         raise HTTPNotFound('No book with id {} found'.format(book_id))
     try:
         data = jsonlib.load(rd.request_body_file)
-        device, cfi = data['device'], data['cfi']
+        device, cfi, pos_frac = data['device'], data['cfi'], data['pos_frac']
     except Exception:
         raise HTTPNotFound('Invalid data')
-    device = device
-    cfi = cfi or None
-    db.set_last_read_position(book_id, fmt, user, device, cfi)
+    db.set_last_read_position(
+        book_id, fmt, user=user, device=device, cfi=cfi or None, pos_frac=pos_frac)
 
 
 mathjax_lock = Lock()
