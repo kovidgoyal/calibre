@@ -319,6 +319,8 @@ def next_screen_location():
         if cols_left < cols_per_screen:
             return -1  # Only blank, dummy pages left
     limit = document.body.scrollWidth - window.innerWidth
+    if limit < col_and_gap:
+        return -1
     if ans > limit:
         ans = limit if window.pageXOffset < limit else -1
     return ans
