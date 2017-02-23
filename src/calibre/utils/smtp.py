@@ -13,6 +13,19 @@ import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
 
 
+def get_msgid_domain(from_):
+    from email.utils import parseaddr
+    try:
+        # Parse out the address from the From line, and then the domain from that
+        from_email = parseaddr(from_)[1]
+        msgid_domain = from_email.partition('@')[2].strip()
+        # This can sometimes sneak through parseaddr if the input is malformed
+        msgid_domain = msgid_domain.rstrip('>').strip()
+    except Exception:
+        msgid_domain = ''
+    return msgid_domain or safe_localhost()
+
+
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
     assert text or attachment_data
@@ -20,12 +33,14 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     from email.mime.multipart import MIMEMultipart
     from email.utils import formatdate
     from email import encoders
+    import uuid
 
     outer = MIMEMultipart()
     outer['Subject'] = subject
     outer['To'] = to
     outer['From'] = from_
     outer['Date'] = formatdate(localtime=True)
+    outer['Message-Id'] = "<{}@{}>".format(uuid.uuid4(), get_msgid_domain())
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:
