@@ -2,25 +2,30 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import io
-import sys
+import os
 import subprocess
+import sys
 import tarfile
 
-def vcvars(is64bit=True):  # {{{
+try:
     import _winreg as winreg
+except ImportError:
+    import winreg
+is64bit = os.environ.get('PLATFORM') != 'x86'
+
+
+def vcvars():  # {{{
     RegOpenKeyEx = winreg.OpenKeyEx
     RegEnumValue = winreg.EnumValue
     RegError = winreg.error
 
-    HKEYS = (winreg.HKEY_USERS,
-            winreg.HKEY_CURRENT_USER,
-            winreg.HKEY_LOCAL_MACHINE,
-            winreg.HKEY_CLASSES_ROOT)
+    HKEYS = (
+        winreg.HKEY_USERS, winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE,
+        winreg.HKEY_CLASSES_ROOT
+    )
     VS_BASE = r"Software\Wow6432Node\Microsoft\VisualStudio\%0.1f"
 
     def get_reg_value(path, key):
@@ -65,7 +70,9 @@ def vcvars(is64bit=True):  # {{{
         try:
             productdir = get_reg_value(r"%s\Setup\VC" % vsbase, "productdir")
         except KeyError:
-            raise SystemExit("Unable to find Visual Studio product directory in the registry")
+            raise SystemExit(
+                "Unable to find Visual Studio product directory in the registry"
+            )
 
         if not productdir:
             raise SystemExit("No productdir found")
@@ -86,8 +93,7 @@ def vcvars(is64bit=True):  # {{{
         if is64bit and 'PROGRAMFILES(x86)' not in os.environ:
             os.environ['PROGRAMFILES(x86)'] = os.environ['PROGRAMFILES'] + ' (x86)'
         result = {}
-        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             stdout, stderr = popen.communicate()
             if popen.wait() != 0:
@@ -128,13 +134,23 @@ def vcvars(is64bit=True):  # {{{
         for i, p in enumerate(tuple(paths)):
             if os.path.exists(os.path.join(p, 'MSBuild.exe')):
                 if '.net' in p.lower():
-                    paths.insert(i, r'C:\Program Files (x86)\MSBuild\14.0\bin' + (r'\amd64' if is64bit else ''))
+                    paths.insert(
+                        i, r'C:\Program Files (x86)\MSBuild\14.0\bin' +
+                        (r'\amd64' if is64bit else '')
+                    )
                     env["PATH"] = os.pathsep.join(paths)
                 break
 
-        return {k: g(k) for k in 'PATH LIB INCLUDE LIBPATH WINDOWSSDKDIR VS140COMNTOOLS UCRTVERSION UNIVERSALCRTSDKDIR'.split()}
+        return {
+            k: g(k)
+            for k in
+            'PATH LIB INCLUDE LIBPATH WINDOWSSDKDIR VS140COMNTOOLS UCRTVERSION UNIVERSALCRTSDKDIR'.
+            split()
+        }
 
     return query_vcvarsall()
+
+
 # }}}
 
 
@@ -142,11 +158,12 @@ def printf(*args, **kw):
     print(*args, **kw)
     sys.stdout.flush()
 
+
 def sw():
-    sw=os.environ['SW']
+    sw = os.environ['SW']
     os.makedirs(sw)
     os.chdir(sw)
-    url =  'https://download.calibre-ebook.com/travis/win-64.tar.xz'
+    url = 'https://download.calibre-ebook.com/travis/win-64.tar.xz'
     printf('Downloading', url)
     tarball = subprocess.check_output(['curl.exe', '-fsSL', url])
     with tarfile.open(fileobj=io.BytesIO(tarball)) as tf:
@@ -164,13 +181,16 @@ def sanitize_path():
                 executables.remove(x)
     sw = os.environ['SW']
     paths = r'{0}\private\python\DLLs {0}\private\python\Lib\site-packages\pywin32_system32 {0}\bin {0}\qt\bin C:\Windows\System32'.format(
-        sw).split() + needed_paths
+        sw
+    ).split() + needed_paths
     os.environ[b'PATH'] = os.pathsep.join(paths).encode('ascii')
+
 
 def vcenv():
     env = os.environ.copy()
     env.update(vcvars())
-    return {str(k):str(v) for k, v in env.items()}
+    return {str(k): str(v) for k, v in env.items()}
+
 
 def build():
     sanitize_path()
@@ -179,12 +199,14 @@ def build():
     p = subprocess.Popen(cmd, env=vcenv())
     raise SystemExit(p.wait())
 
+
 def test():
     sanitize_path()
     cmd = [sys.executable, 'setup.py', 'test']
     printf(*cmd)
     p = subprocess.Popen(cmd)
     raise SystemExit(p.wait())
+
 
 def main():
     q = sys.argv[-1]
@@ -198,6 +220,7 @@ def main():
         if len(sys.argv) == 1:
             raise SystemExit('Usage: win-ci.py sw|build|test')
         raise SystemExit('%r is not a valid action' % sys.argv[-1])
+
 
 if __name__ == '__main__':
     main()
