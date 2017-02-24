@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
 __license__ = 'GPL v3'
 __copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -34,6 +36,7 @@ class FinancialTimes_rss(BasicNewsRecipe):
     handle_gzip = True
     LOGIN = 'https://www.ft.com/login?location=/'
     INDEX = 'https://www.ft.com'
+    LOGOUT = 'https://myaccount.ft.com/logout'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -42,9 +45,14 @@ class FinancialTimes_rss(BasicNewsRecipe):
             br.open(self.LOGIN)
             br.select_form(name='enter-email-form')
             br['email'] = self.username
+            br.submit()
+            br.select_form(name='enter-password-form')
             br['password'] = self.password
             br.submit()
         return br
+
+    def cleanup(self):
+        self.browser.open(self.LOGOUT)
 
     keep_only_tags = [
         classes('article__header--wrapper article__time-byline article__body n-content-image barrier-grid__heading')
