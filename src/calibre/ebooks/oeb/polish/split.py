@@ -257,7 +257,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
 
 def multisplit(container, name, xpath, before=True):
     '''
-    Split the specified file at multiple locations (all tags that match the specified XPath expression. See also: :func:`split`.
+    Split the specified file at multiple locations (all tags that match the specified XPath expression). See also: :func:`split`.
     Splitting automatically migrates all links and references to the affected
     files.
 
@@ -500,4 +500,3 @@ def merge(container, category, names, master):
         merge_css(container, names, master)
 
     container.dirty(master)
-
