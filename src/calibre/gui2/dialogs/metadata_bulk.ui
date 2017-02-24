@@ -18,6 +18,42 @@
     <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QCheckBox" name="refresh_book_list">
+       <property name="toolTip">
+        <string>If enabled, the book list will be re-sorted and any existing
+search or Virtual Library will be refreshed after the edit
+is completed. This can be slow on large libraries.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Refresh book list after edit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="button_box">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="box_title">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QScrollArea" name="scrollArea">
      <property name="frameShape">
@@ -61,30 +97,50 @@
            <string>&amp;Basic metadata</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="10" column="3">
-            <widget class="QCheckBox" name="apply_pubdate">
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_10">
              <property name="text">
-              <string>&amp;Apply date</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>&amp;Author(s): </string>
+              <string>&amp;Date:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
              <property name="buddy">
-              <cstring>authors</cstring>
+              <cstring>adddate</cstring>
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="EditWithComplete" name="authors">
-             <property name="editable">
-              <bool>true</bool>
+           <item row="9" column="3">
+            <widget class="QCheckBox" name="apply_adddate">
+             <property name="text">
+              <string>&amp;Apply date</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>P&amp;ublished:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>pubdate</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QToolButton" name="tag_editor_button">
+             <property name="toolTip">
+              <string>Open Tag Editor</string>
+             </property>
+             <property name="text">
+              <string>Open Tag Editor</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
              </property>
             </widget>
            </item>
@@ -112,26 +168,6 @@
              </item>
             </layout>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Author s&amp;ort: </string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>author_sort</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="EnLineEdit" name="author_sort">
-             <property name="toolTip">
-              <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
@@ -145,113 +181,60 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_3">
+           <item row="18" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="3">
+            <widget class="QCheckBox" name="apply_rating">
              <property name="text">
-              <string>&amp;Publisher: </string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>publisher</cstring>
+              <string>&amp;Apply rating</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
-            <widget class="EditWithComplete" name="publisher">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="3">
-            <widget class="QCheckBox" name="clear_pub">
-             <property name="toolTip">
-              <string>If checked, the publisher will be cleared</string>
-             </property>
-             <property name="text">
-              <string>&amp;Clear pub</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Add ta&amp;gs: </string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>tags</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="EditWithComplete" name="tags">
-             <property name="toolTip">
-              <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="3">
-            <widget class="QToolButton" name="tag_editor_button">
-             <property name="toolTip">
-              <string>Open Tag Editor</string>
-             </property>
-             <property name="text">
-              <string>Open Tag Editor</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../../../../resources/images.qrc">
-               <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>&amp;Remove tags:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>remove_tags</cstring>
-             </property>
-            </widget>
+           <item row="13" column="0" colspan="4">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QCheckBox" name="remove_conversion_settings">
+               <property name="toolTip">
+                <string>Remove stored conversion settings for the selected books.
+
+Future conversion of these books will use the default settings.</string>
+               </property>
+               <property name="text">
+                <string>Remove &amp;stored conversion settings for the selected books</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="restore_original">
+               <property name="toolTip">
+                <string>When doing a same format to same format conversion,
+for e.g., EPUB to EPUB, calibre saves the original EPUB
+ as ORIGINAL_EPUB. This option tells calibre to restore
+ the EPUB from ORIGINAL_EPUB. Useful if you did a bulk
+ conversion of a large number of books and something went wrong.</string>
+               </property>
+               <property name="text">
+                <string>Restore pre conversion &amp;originals, if available</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="6" column="2">
             <widget class="EditWithComplete" name="remove_tags">
              <property name="toolTip">
               <string>Comma separated list of tags to remove from the books. </string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="3">
-            <widget class="QCheckBox" name="remove_all_tags">
-             <property name="toolTip">
-              <string>Check this box to remove all tags from the books.</string>
-             </property>
-             <property name="text">
-              <string>Remove &amp;all</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>&amp;Series:</string>
-             </property>
-             <property name="textFormat">
-              <enum>Qt::PlainText</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>series</cstring>
              </property>
             </widget>
            </item>
@@ -282,6 +265,180 @@
               <number>40</number>
              </property>
             </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>&amp;Remove tags:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>remove_tags</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Add ta&amp;gs: </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>tags</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Author s&amp;ort: </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>author_sort</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="RatingEditor" name="rating"/>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>&amp;Series:</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>series</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>&amp;Languages:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>languages</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="2">
+            <widget class="LanguagesEdit" name="languages"/>
+           </item>
+           <item row="11" column="3">
+            <widget class="QCheckBox" name="clear_languages">
+             <property name="text">
+              <string>Remove &amp;all</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&amp;Publisher: </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>publisher</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QDateTimeEdit" name="pubdate">
+               <property name="displayFormat">
+                <string>MMM yyyy</string>
+               </property>
+               <property name="calendarPopup">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="clear_pubdate_button">
+               <property name="toolTip">
+                <string>Clear published date</string>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="10" column="3">
+            <widget class="QCheckBox" name="apply_pubdate">
+             <property name="text">
+              <string>&amp;Apply date</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>&amp;Author(s): </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>authors</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="EditWithComplete" name="authors">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QDateTimeEdit" name="adddate">
+               <property name="displayFormat">
+                <string>d MMM yyyy</string>
+               </property>
+               <property name="calendarPopup">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="clear_adddate_button">
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="7" column="3">
             <widget class="QCheckBox" name="clear_series">
@@ -363,207 +520,48 @@ from the value in the box</string>
              </item>
             </layout>
            </item>
-           <item row="9" column="0">
-            <widget class="QLabel" name="label_10">
+           <item row="4" column="3">
+            <widget class="QCheckBox" name="clear_pub">
+             <property name="toolTip">
+              <string>If checked, the publisher will be cleared</string>
+             </property>
              <property name="text">
-              <string>&amp;Date:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>adddate</cstring>
+              <string>&amp;Clear pub</string>
              </property>
             </widget>
            </item>
-           <item row="16" column="0" colspan="3">
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QPushButton" name="button_config_cover_gen">
-               <property name="toolTip">
-                <string>Control how the default generated covers are created</string>
-               </property>
-               <property name="text">
-                <string>Configure co&amp;ver generation</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="comments_button">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Set the co&amp;mments for all selected books</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item row="9" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QDateTimeEdit" name="adddate">
-               <property name="displayFormat">
-                <string>d MMM yyyy</string>
-               </property>
-               <property name="calendarPopup">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="clear_adddate_button">
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../../../../resources/images.qrc">
-                 <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="9" column="3">
-            <widget class="QCheckBox" name="apply_adddate">
-             <property name="text">
-              <string>&amp;Apply date</string>
+           <item row="5" column="2">
+            <widget class="EditWithComplete" name="tags">
+             <property name="toolTip">
+              <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>P&amp;ublished:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>pubdate</cstring>
+           <item row="4" column="2">
+            <widget class="EditWithComplete" name="publisher">
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="10" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QDateTimeEdit" name="pubdate">
-               <property name="displayFormat">
-                <string>MMM yyyy</string>
-               </property>
-               <property name="calendarPopup">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="clear_pubdate_button">
-               <property name="toolTip">
-                <string>Clear published date</string>
-               </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../../../../resources/images.qrc">
-                 <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>&amp;Languages:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>languages</cstring>
+           <item row="2" column="2">
+            <widget class="EnLineEdit" name="author_sort">
+             <property name="toolTip">
+              <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
              </property>
             </widget>
            </item>
-           <item row="11" column="2">
-            <widget class="LanguagesEdit" name="languages"/>
-           </item>
-           <item row="11" column="3">
-            <widget class="QCheckBox" name="clear_languages">
+           <item row="6" column="3">
+            <widget class="QCheckBox" name="remove_all_tags">
+             <property name="toolTip">
+              <string>Check this box to remove all tags from the books.</string>
+             </property>
              <property name="text">
               <string>Remove &amp;all</string>
              </property>
             </widget>
            </item>
            <item row="12" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Remove &amp;format:</string>
-             </property>
-             <property name="buddy">
-              <cstring>remove_format</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QComboBox" name="remove_format">
-               <property name="maximumSize">
-                <size>
-                 <width>120</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="restore_original">
-               <property name="toolTip">
-                <string>When doing a same format to same format conversion,
-for e.g., EPUB to EPUB, calibre saves the original EPUB
- as ORIGINAL_EPUB. This option tells calibre to restore
- the EPUB from ORIGINAL_EPUB. Useful if you did a bulk
- conversion of a large number of books and something went wrong.</string>
-               </property>
-               <property name="text">
-                <string>Restore pre conversion &amp;originals, if available</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="13" column="0">
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -579,7 +577,7 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
              </property>
             </spacer>
            </item>
-           <item row="14" column="0" colspan="3">
+           <item row="15" column="0" colspan="4">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QCheckBox" name="change_title_to_title_case">
@@ -602,34 +600,9 @@ title and author are swapped before the title case is set</string>
                </property>
               </widget>
              </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="remove_conversion_settings">
-               <property name="toolTip">
-                <string>Remove stored conversion settings for the selected books.
-
-Future conversion of these books will use the default settings.</string>
-               </property>
-               <property name="text">
-                <string>Remove &amp;stored conversion settings for the selected books</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
-           <item row="15" column="0" colspan="3">
+           <item row="16" column="0" colspan="4">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
               <string>Change &amp;cover</string>
@@ -682,28 +655,45 @@ as that of the first selected book.</string>
              </layout>
             </widget>
            </item>
-           <item row="17" column="0">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="3" column="2">
-            <widget class="RatingEditor" name="rating"/>
-           </item>
-           <item row="3" column="3">
-            <widget class="QCheckBox" name="apply_rating">
-             <property name="text">
-              <string>&amp;Apply rating</string>
-             </property>
-            </widget>
+           <item row="17" column="0" colspan="4">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QPushButton" name="button_config_cover_gen">
+               <property name="toolTip">
+                <string>Control how the default generated covers are created</string>
+               </property>
+               <property name="text">
+                <string>Configure co&amp;ver generation</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="comments_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Set the co&amp;mments for all selected books</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -1136,7 +1126,7 @@ not multiple and the destination field is multiple</string>
              <item>
               <widget class="QLabel" name="xlabel_412">
                <property name="text">
-                <string>values starting a&amp;t</string>
+                <string>val&amp;ues starting at</string>
                </property>
                <property name="buddy">
                 <cstring>starting_from</cstring>
@@ -1191,8 +1181,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>210</width>
-                <height>66</height>
+                <width>922</width>
+                <height>268</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1248,42 +1238,6 @@ not multiple and the destination field is multiple</string>
      </widget>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="box_title">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_8">
-     <item>
-      <widget class="QCheckBox" name="refresh_book_list">
-       <property name="toolTip">
-        <string>If enabled, the book list will be re-sorted and any existing
-search or Virtual Library will be refreshed after the edit
-is completed. This can be slow on large libraries.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Refresh book list after edit</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="button_box">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -1337,11 +1291,9 @@ is completed. This can be slow on large libraries.</string>
   <tabstop>apply_pubdate</tabstop>
   <tabstop>languages</tabstop>
   <tabstop>clear_languages</tabstop>
-  <tabstop>remove_format</tabstop>
   <tabstop>restore_original</tabstop>
   <tabstop>change_title_to_title_case</tabstop>
   <tabstop>update_title_sort</tabstop>
-  <tabstop>remove_conversion_settings</tabstop>
   <tabstop>cover_generate</tabstop>
   <tabstop>cover_remove</tabstop>
   <tabstop>cover_from_fmt</tabstop>

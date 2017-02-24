@@ -57,8 +57,8 @@ def get_cover_data(stream, ext):  # {{{
 
 
 Settings = namedtuple('Settings',
-    'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
-    'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
+    'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
+    'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
     'restore_original comments generate_cover_settings')
 
@@ -223,10 +223,6 @@ class MyBlockingBusy(QDialog):  # {{{
             if cdata:
                 cache.set_cover({bid:cdata for bid in self.ids if bid != book_id})
 
-        # Formats
-        if args.do_remove_format:
-            cache.remove_formats({bid:(args.remove_format,) for bid in self.ids})
-
         if args.restore_original:
             for book_id in self.ids:
                 formats = cache.formats(book_id)
@@ -340,11 +336,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.remove_tags.update_items_cache(all_tags)
 
         self.initialize_combos()
-
-        for f in sorted(self.db.all_formats()):
-            self.remove_format.addItem(f)
-
-        self.remove_format.setCurrentIndex(-1)
 
         self.series.currentIndexChanged[int].connect(self.series_changed)
         self.rating.currentIndexChanged.connect(lambda:self.apply_rating.setChecked(True))
@@ -1019,8 +1010,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_series_restart = self.series_numbering_restarts.isChecked()
         series_start_value = self.series_start_number.value()
         series_increment = self.series_increment.value()
-        do_remove_format = self.remove_format.currentIndex() > -1
-        remove_format = unicode(self.remove_format.currentText())
         do_swap_ta = self.swap_title_and_author.isChecked()
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
@@ -1048,7 +1037,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             cover_action = 'clone'
 
         args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
-                do_autonumber, do_remove_format, remove_format, do_swap_ta,
+                do_autonumber, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, series_increment, do_title_case, cover_action, clear_series, clear_pub,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
