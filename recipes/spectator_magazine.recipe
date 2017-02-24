@@ -35,6 +35,8 @@ class Spectator(BasicNewsRecipe):
         articles = []
         for div in div.findAll('div', id=lambda x: x and x.startswith('post-')):
             h2 = div.find('h2', attrs={'class': class_sel('term-item__title')})
+            if h2 is None:
+                h2 = div.find(attrs={'class': class_sel('news-listing__title')})
             title = self.tag_to_string(h2)
             a = h2.find('a')
             url = a['href']
@@ -47,7 +49,7 @@ class Spectator(BasicNewsRecipe):
         return sectitle, articles
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.spectator.co.uk/magazine/')
+        soup = self.index_to_soup('https://www.spectator.co.uk/magazine/')
         a = soup.find('a', attrs={'class': 'issue-details__cover-link'})
         self.timefmt = a['title']
         self.cover_url = a['href']
