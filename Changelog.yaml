@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title:
 
+- version: 2.80.0
+  date: 2017-02-24
+
+  new features:
+    - title: "Add support for sideloading of KFX files created with the third-party KFX calibre plugin"
+      tickets: [1666040]
+
+    - title: "Edit book: Allow drag and drop of image files, stylesheets and html files into the editor to insert the appropriate <img> and <link> tags and add the files to the book automatically."
+
+    - title: "Kobo driver: Add support for updated firmware"
+
+    - title: "Edit Book: Spell Check: If there are no suggestions fill the suggested word box with the original word."
+      tickets: [1664284]
+
+    - title: "Viewer: add a shortcut (Ctrl+F11) to show/hide toolbars."
+      tickets: [1664077]
+
+  bug fixes:
+    - title: "PDF Output: Fix courier font not being rendered when converting on windows."
+      tickets: [1665835]
+
+    - title: "E-mail delivery: Add a Message-ID header when sending emails. Reduces probability of mails sent from calibre being marked as spam"
+
+    - title: "Save to disk: Fix path shortening being applied to entire save template even when saving to singe directory."
+      tickets: [1665964]
+
+    - title: "Get Books: Update the Virualo and Publi store plugins for website changes"
+
+    - title: "Viewer: Fix regression that caused slow opening of some books with missing font/css/image files"
+
+    - title: "Viewer: Pressing Ctrl+F in fullscreen mode should show the controls."
+      tickets: [1664076]
+
+    - title: "Edit book: Do not allow creating multiple new files whose names differ only by case."
+      tickets: [1664027]
+
+    - title: "Viewer: Use heuristics to try to detect comics encoded as fixed layout EPUBs to ensure they are displayed as intended."
+      tickets: [1667357]
+
+  improved recipes:
+    - The Atlantic
+    - The Financial Times
+
+  new recipes:
+    - title: Various new and improved Belgian news sources
+      author: erkfuizfeuadjfjzefzfuzeff
+
 - version: 2.79.1
   date: 2017-02-10
 
