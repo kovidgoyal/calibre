@@ -402,3 +402,10 @@ the ``suppress_result_dialog`` attribute on your function, like this:
         ...
 
     replace.suppress_result_dialog = True
+
+
+More examples
+----------------
+
+More useful examples, contributed by calibre users, can be found in the
+`calibre Editor forum <https://www.mobileread.com/forums/showthread.php?t=237181>`_.
