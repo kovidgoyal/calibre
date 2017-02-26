@@ -32,10 +32,12 @@ else:
     from future_builtins import map
     from urlparse import urlparse
     import httplib
+
     def encode_for_subprocess(x):
         if isinstance(x, unicode):
             x = x.encode(enc)
         return x
+
 
 class TerminalController:  # {{{
     BOL = ''             #: Move the cursor to the beginning of the line
@@ -166,6 +168,7 @@ class TerminalController:  # {{{
         else:
             return getattr(self, s[2:-1])
 
+
 class ProgressBar:
     BAR = '%3d%% ${GREEN}[${BOLD}%s%s${NORMAL}${GREEN}]${NORMAL}\n'
     HEADER = '${BOLD}${CYAN}%s${NORMAL}\n\n'
@@ -203,6 +206,7 @@ class ProgressBar:
             out.flush()
 # }}}
 
+
 def prints(*args, **kwargs):  # {{{
     f = kwargs.get('file', sys.stdout.buffer if py3 else sys.stdout)
     end = kwargs.get('end', b'\n')
@@ -219,6 +223,7 @@ def prints(*args, **kwargs):  # {{{
     if py3 and f is sys.stdout.buffer:
         f.flush()
 # }}}
+
 
 class Reporter:  # {{{
 
@@ -244,12 +249,14 @@ class Reporter:  # {{{
                 traceback.print_exc()
 # }}}
 
+
 # Downloading {{{
 
 def clean_cache(cache, fname):
     for x in os.listdir(cache):
         if fname not in x:
             os.remove(os.path.join(cache, x))
+
 
 def check_signature(dest, signature):
     if not os.path.exists(dest):
@@ -261,11 +268,13 @@ def check_signature(dest, signature):
     if m.hexdigest().encode('ascii') == signature:
         return raw
 
+
 class URLOpener(urllib.FancyURLopener):
 
     def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
         ''' 206 means partial content, ignore it '''
         pass
+
 
 def do_download(dest):
     prints('Will download and install', os.path.basename(dest))
@@ -299,6 +308,7 @@ def do_download(dest):
         print ('Download failed, try again later')
         raise SystemExit(1)
     prints('Downloaded %s bytes'%os.path.getsize(dest))
+
 
 def download_tarball():
     fname = 'calibre-%s-i686.%s'%(calibre_version, 'txz')
@@ -341,6 +351,7 @@ def download_tarball():
     return raw
 # }}}
 
+
 # Get tarball signature securely {{{
 
 def get_proxies(debug=True):
@@ -365,6 +376,7 @@ def get_proxies(debug=True):
         prints('Using proxies:', repr(proxies))
     return proxies
 
+
 class HTTPError(ValueError):
 
     def __init__(self, url, code):
@@ -374,8 +386,10 @@ class HTTPError(ValueError):
         self.code = code
         self.url = url
 
+
 class CertificateError(ValueError):
     pass
+
 
 def _dnsname_match(dn, hostname, max_wildcards=1):
     """Matching according to RFC 6125, section 6.4.3
@@ -425,6 +439,7 @@ def _dnsname_match(dn, hostname, max_wildcards=1):
 
     pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
     return pat.match(hostname)
+
 
 def match_hostname(cert, hostname):
     """Verify that *cert* (in decoded format as returned by
@@ -476,6 +491,7 @@ def match_hostname(cert, hostname):
     else:
         raise CertificateError("no appropriate commonName or "
             "subjectAltName fields were found")
+
 
 if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
@@ -544,6 +560,7 @@ nR0=
 -----END CERTIFICATE-----
 '''
 
+
 def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=None):
     '''
     Download the resource pointed to by url using https securely (verify server
@@ -602,6 +619,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
             return response.read()
 # }}}
 
+
 def extract_tarball(raw, destdir):
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
@@ -614,6 +632,7 @@ def extract_tarball(raw, destdir):
         if p.wait() != 0:
             prints('Extracting of application files failed with error code: %s' % p.returncode)
             raise SystemExit(1)
+
 
 def get_tarball_info():
     global signature, calibre_version
@@ -637,10 +656,12 @@ def download_and_extract(destdir):
     print('Extracting files to %s ...'%destdir)
     extract_tarball(raw, destdir)
 
+
 def check_version():
     global calibre_version
     if calibre_version == '%version':
         calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
+
 
 def run_installer(install_dir, isolated, bin_dir, share_dir):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
@@ -669,8 +690,10 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         prints('Run "%s/calibre" to start calibre' % destdir)
     return 0
 
+
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
     run_installer(install_dir, isolated, bin_dir, share_dir)
+
 
 try:
     __file__
