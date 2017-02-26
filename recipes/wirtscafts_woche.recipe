@@ -16,7 +16,6 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     publisher = 'Verlagsgruppe Handelsblatt GmbH / Redaktion WirtschaftsWoche Online'
     category = 'business, economy, news, Germany'
     publication_type = 'weekly magazine'
-    language = 'de'
     oldest_article = 7
     max_articles_per_feed = 100
     simultaneous_downloads = 20
@@ -41,7 +40,7 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     conversion_options = {'smarten_punctuation': True,
                           'authors': publisher,
                           'publisher': publisher}
-    language = 'de_DE'
+    language = 'de'
     encoding = 'UTF-8'
     cover_source = 'https://kaufhaus.handelsblatt.com/downloads/wirtschaftswoche-emagazin-p1952.html'
     masthead_url = 'http://www.wiwo.de/images/wiwo_logo/5748610/1-formatOriginal.png'
