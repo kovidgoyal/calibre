@@ -1015,6 +1015,7 @@ class Container(ContainerBase):  # {{{
     def commit(self, outpath=None, keep_parsed=False):
         '''
         Commit all dirtied parsed objects to the filesystem and write out the ebook file at outpath.
+
         :param output: The path to write the saved ebook file to. If None, the path of the original book file is used.
         :param keep_parsed: If True the parsed representations of committed items are kept in the cache.
         '''
