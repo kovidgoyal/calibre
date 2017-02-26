@@ -8,7 +8,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
-import ssl, socket
+import ssl, socket, stat
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
@@ -691,7 +691,38 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
     return 0
 
 
-def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
+def check_umask():
+    # A bad umask can cause system breakage because of bugs in xdg-mime
+    # See https://www.mobileread.com/forums/showthread.php?t=277803
+    mask = os.umask(18)  # 18 = 022
+    os.umask(mask)
+    forbid_user_read = mask & stat.S_IRUSR
+    forbid_group_read = mask & stat.S_IRGRP
+    forbid_other_read = mask & stat.S_IROTH
+    if forbid_user_read or forbid_group_read or forbid_other_read:
+        prints(
+            'WARNING: Your current umask disallows reading of files by some users,'
+            ' this can cause system breakage when running the installer because'
+            ' of bugs in common system utilities.'
+        )
+        while True:
+            q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
+            if q in 'f i a'.split():
+                break
+            prints('Response', q, 'not understood')
+        if q == 'f':
+            mask = mask & ~stat.S_IRUSR & ~stat.S_IRGRP & ~stat.S_IROTH
+            os.umask(mask)
+            prints('umask changed to: {:03o}'.format(mask))
+        elif q == 'i':
+            prints('Ignoring bad umask and proceeding anyway, you have been warned!')
+        else:
+            raise SystemExit('The system umask is unsuitable, aborting')
+
+
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
+    if not ignore_umask:
+        check_umask()
     run_installer(install_dir, isolated, bin_dir, share_dir)
 
 
