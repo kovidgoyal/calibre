@@ -128,7 +128,6 @@ class NYTimes(BasicNewsRecipe):
 
     tech_feeds = [
         (u'Tech - News', u'http://pogue.blogs.nytimes.com/feed/'),
-        (u'Tech - Bits', u'http://bits.blogs.nytimes.com/feed/'),
         (u'Tech - Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
         (u'Tech - Open', u'http://open.blogs.nytimes.com/feed/')
     ]
@@ -499,6 +498,21 @@ class NYTimes(BasicNewsRecipe):
         thumbnail = div.find('div', 'thumbnail')
         if thumbnail:
             thumbnail.extract()
+        return self.handle_base_article(div)
+
+    # Handle '<article>' in world, u.s., etc
+    def handle_article_tag(self, div):
+        thumbnail = div.find('figure', 'media photo')
+        if not thumbnail:
+            thumbnail = div.find('div', 'thumb')
+        if thumbnail:
+            thumbnail.extract()     
+        div = div.find('div', 'story-body')
+        if not div:
+          return;
+        return self.handle_base_article(div)
+
+    def handle_base_article(self, div):
         a = div.find('a', href=True)
         if not a:
             return
@@ -648,10 +662,12 @@ class NYTimes(BasicNewsRecipe):
                     'https://www.nytimes.com/pages/' + index_url + '/index.html')
             except:
                 continue
-            print 'Index URL: ' + 'http://www.nytimes.com/pages/' + index_url + '/index.html'
+            print 'Index URL: ' + 'https://www.nytimes.com/pages/' + index_url + '/index.html'
 
             self.key = sec_title
             # Find each article
+            for div in soup.findAll('article'):
+                self.handle_article_tag(div)
             for div in soup.findAll(True, attrs={
                     'class': ['section-headline', 'ledeStory', 'story', 'story headline', 'sectionHeader', 'headlinesOnly multiline flush']}):
                 if div['class'] in ['story', 'story headline', 'storyHeader']:
