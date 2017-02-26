@@ -240,7 +240,7 @@ The ``match`` argument
 
 The ``match`` argument represents the currently found match. It is a
 `python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
-It's most useful method is ``group()`` which can be used to get the matched
+Its most useful method is ``group()`` which can be used to get the matched
 text corresponding to individual capture groups in the search regular
 expression.
 
@@ -271,7 +271,7 @@ The ``dictionaries`` argument
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This represents the collection of dictionaries used for spell checking the
-current book. It's most useful method is ``dictionaries.recognized(word)``
+current book. Its most useful method is ``dictionaries.recognized(word)``
 which will return ``True`` if the passed in word is recognized by the dictionary
 for the current book's language.
 
