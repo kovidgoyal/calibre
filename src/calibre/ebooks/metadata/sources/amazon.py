@@ -1076,7 +1076,9 @@ class Amazon(Source):
                         matches.append(url)
                     break
         if not matches and root.xpath('//form[@action="/errors/validateCaptcha"]'):
-            raise CaptchaError('Amazon returned a CAPTCHA page, probably because you downloaded too many books. Wait for some time and try again.')
+            raise CaptchaError('Amazon returned a CAPTCHA page. Recently Amazon has begun using statistical'
+                               ' profiling to block access to its website. As such this metadata plugin is'
+                               ' unlikely to ever work reliably.')
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
