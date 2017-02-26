@@ -721,7 +721,7 @@ def check_umask():
 
 
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
-    if not ignore_umask:
+    if not ignore_umask and not isolated:
         check_umask()
     run_installer(install_dir, isolated, bin_dir, share_dir)
 
