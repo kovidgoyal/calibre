@@ -836,7 +836,11 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.position() - len(suffix))
         self.setTextCursor(c)
 
-    def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False):
+    def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1):
+        if width <= 0:
+            width = 1200
+        if height <= 0:
+            height = 1600
         c = self.textCursor()
         template, alt = 'url(%s)', ''
         left = min(c.position(), c.anchor)
@@ -849,9 +853,9 @@ class TextEdit(PlainTextEdit):
                 template =  '''\
 <div style="page-break-before:always; page-break-after:always; page-break-inside:avoid">\
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" \
-version="1.1" width="100%%" height="100%%" viewBox="0 0 1200 1600" preserveAspectRatio="{}">\
-<image width="1200" height="1600" xlink:href="%s"/>\
-</svg></div>'''.format('xMidYMid meet' if preserve_aspect_ratio else 'none')
+version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectRatio="{a}">\
+<image width="{w}" height="{h}" xlink:href="%s"/>\
+</svg></div>'''.format(w=width, h=height, a='xMidYMid meet' if preserve_aspect_ratio else 'none')
             else:
                 alt = _('Image')
                 template = '<img alt="{0}" src="%s" />'.format(alt)

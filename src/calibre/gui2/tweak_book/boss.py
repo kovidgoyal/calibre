@@ -48,6 +48,7 @@ from calibre.gui2.tweak_book.widgets import (
     InsertSemantics, BusyCursor, InsertTag, FilterCSS, AddCover)
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
+from calibre.utils.imghdr import identify
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -861,7 +862,8 @@ class Boss(QObject):
                         self.refresh_file_list()
                         chosen_name = chosen_image_is_external[0]
                     href = current_container().name_to_href(chosen_name, edname)
-                    ed.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_ar)
+                    fmt, width, height = identify(current_container().raw_data(chosen_name, decode=False))
+                    ed.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_ar, width=width, height=height)
             elif action[0] == 'insert_hyperlink':
                 self.commit_all_editors_to_container()
                 d = InsertLink(current_container(), edname, initial_text=ed.get_smart_selection(), parent=self.gui)
