@@ -164,6 +164,7 @@ class TextEdit(PlainTextEdit):
             c = self.textCursor()
             c.insertText(text)
             self.setTextCursor(c)
+            self.ensureCursorVisible()
 
         def add_file(name, data, mt=None):
             from calibre.gui2.tweak_book.boss import get_boss
@@ -186,19 +187,21 @@ class TextEdit(PlainTextEdit):
                     insert_text('<link href="{}" rel="stylesheet" type="text/css"/>'.format(href))
                 elif mt in OEB_DOCS:
                     self.insert_hyperlink(href, name)
+            self.ensureCursorVisible()
             return
         if md.hasImage():
             img = md.imageData()
-            if img.isValid():
+            if img is not None and img.isValid():
                 data = image_to_data(img, fmt='PNG')
                 name = add_file(get_name('dropped_image.png', data))
                 self.insert_image(get_href(name))
+                self.ensureCursorVisible()
                 return
+        if md.hasText():
+            return insert_text(md.text())
         if md.hasHtml():
             insert_text(md.html())
             return
-        if md.hasText():
-            return insert_text(md.text())
 
     @dynamic_property
     def is_modified(self):
