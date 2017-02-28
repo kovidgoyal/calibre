@@ -20,31 +20,61 @@ def common_user_agents():
     return user_agent_data()['common_user_agents']
 
 
+def all_firefox_versions(limit=7):
+    return user_agent_data()['firefox_versions'][:limit]
+
+
 def random_firefox_version():
-    versions = user_agent_data()['firefox_versions'][:7]
-    return random.choice(versions)
+    return random.choice(all_firefox_versions())
 
 
 def random_desktop_platform():
     return random.choice(user_agent_data()['desktop_platforms'])
 
 
-def random_firefox_ua():
+def render_firefox_ua(platform, version):
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
     return 'Mozilla/5.0 ({p}; rv:{ver}) Gecko/20100101 Firefox/{ver}'.format(
-        p=random_desktop_platform(), ver=random_firefox_version())
+        p=platform, ver=version)
+
+
+def random_firefox_ua():
+    render_firefox_ua(random_desktop_platform(), random_firefox_version())
+
+
+def all_chrome_versions(limit=7):
+    return user_agent_data()['chrome_versions'][:limit]
 
 
 def random_chrome_version():
-    versions = user_agent_data()['chrome_versions'][:7]
-    return random.choice(versions)
+    return random.choice(all_chrome_versions())
+
+
+def render_chrome_ua(platform, version):
+    return 'Mozilla/5.0 ({p}) AppleWebKit/{wv} (KHTML, like Gecko) Chrome/{cv} Safari/{wv}'.format(
+        p=platform, wv=version['webkit_version'], cv=version['chrome_version'])
 
 
 def random_chrome_ua():
-    v = random_chrome_version()
-    return 'Mozilla/5.0 ({p}) AppleWebKit/{wv} (KHTML, like Gecko) Chrome/{cv} Safari/{wv}'.format(
-        p=random_desktop_platform(), wv=v['webkit_version'], cv=v['chrome_version'])
+    return render_chrome_ua(random_desktop_platform(), random_chrome_version())
+
+
+def all_user_agents():
+    ans = getattr(all_user_agents, 'ans', None)
+    if ans is None:
+        uas = []
+        g = globals()
+        platforms = user_agent_data()['desktop_platforms']
+        for b in ('chrome', 'firefox'):
+            versions = g['all_%s_versions' % b]()
+            func = g['render_%s_ua' % b]
+            for v in versions:
+                for p in platforms:
+                    uas.append(func(p, v))
+        random.shuffle(uas)
+        ans = all_user_agents.ans = tuple(uas)
+    return ans
 
 
 def random_user_agent():
-    return random.choice((random_chrome_ua, random_firefox_ua))()
+    return random.choice(all_user_agents())
