@@ -53,19 +53,23 @@ class Browser(B):
     def https_handler(self):
         return self._ua_handlers['https']
 
+    def set_current_header(self, header, value):
+        found = False
+        q = header.lower()
+        for i, (k, v) in enumerate(tuple(self.addheaders)):
+            if k.lower() == q:
+                self.addheaders[i] = value
+                found = True
+        if not found:
+            self.addheaders.append((header, value))
+
     def current_user_agent(self):
         for k, v in self.addheaders:
             if k.lower() == 'user-agent':
                 return v
 
-    def change_user_agent(self, newval):
-        found = False
-        for i, (k, v) in enumerate(tuple(self.addheaders)):
-            if k.lower() == 'user-agent':
-                self.addheaders[i] = newval
-                found = True
-        if not found:
-            self.addheaders.append(('User-agent', newval))
+    def set_user_agent(self, newval):
+        self.set_current_header('User-agent', newval)
 
     def set_handle_refresh(self, *args, **kwargs):
         B.set_handle_refresh(self, *args, **kwargs)
