@@ -59,6 +59,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     description = XPath('descendant::dc:description')
     language = XPath('descendant::dc:language')
     rating = XPath('descendant::gd:rating[@average]')
+    # print(etree.tostring(entry_, pretty_print=True))
 
     def get_text(extra, x):
         try:
@@ -170,14 +171,14 @@ class GoogleBooks(Source):
     capabilities = frozenset({'identify', 'cover'})
     touched_fields = frozenset({
         'title', 'authors', 'tags', 'pubdate', 'comments', 'publisher',
-        'identifier:isbn', 'rating', 'identifier:google', 'languages'
+        'identifier:isbn', 'identifier:google', 'languages'
     })
     supports_gzip_transfer_encoding = True
     cached_cover_url_is_reliable = False
 
     GOOGLE_COVER = 'https://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
-    DUMMY_IMAGE_MD5 = frozenset({'0de4383ebad0adad5eeb8975cd796657'})
+    DUMMY_IMAGE_MD5 = frozenset({'0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'})
 
     def get_book_url(self, identifiers):  # {{{
         goog = identifiers.get('google', None)
@@ -262,19 +263,22 @@ class GoogleBooks(Source):
             log.info('No cover found')
             return
 
-        if abort.is_set():
-            return
         br = self.browser
-        log('Downloading cover from:', cached_url)
-        try:
-            cdata = br.open_novisit(cached_url, timeout=timeout).read()
-            if cdata:
-                if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
-                    log.warning('Google returned a dummy image, ignoring')
-                else:
-                    result_queue.put((self, cdata))
-        except:
-            log.exception('Failed to download cover from:', cached_url)
+        for candidate in (0, 1):
+            if abort.is_set():
+                return
+            url = cached_url + '&zoom={}'.format(candidate)
+            log('Downloading cover from:', cached_url)
+            try:
+                cdata = br.open_novisit(url, timeout=timeout).read()
+                if cdata:
+                    if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
+                        log.warning('Google returned a dummy image, ignoring')
+                    else:
+                        result_queue.put((self, cdata))
+                        break
+            except Exception:
+                log.exception('Failed to download cover from:', cached_url)
 
     # }}}
 
@@ -406,4 +410,5 @@ if __name__ == '__main__':  # tests {{{
             }, [title_test('Flatland', exact=False)]),
         ]
     )
+
 # }}}
