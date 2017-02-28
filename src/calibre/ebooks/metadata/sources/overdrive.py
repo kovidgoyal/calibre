@@ -26,6 +26,8 @@ base_url = 'https://search.overdrive.com/'
 class OverDrive(Source):
 
     name = 'Overdrive'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Overdrive\'s Content Reserve')
 
     capabilities = frozenset(['identify', 'cover'])

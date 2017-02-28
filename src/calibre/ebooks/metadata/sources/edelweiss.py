@@ -165,6 +165,8 @@ class Worker(Thread):  # {{{
 class Edelweiss(Source):
 
     name = 'Edelweiss'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Edelweiss - A catalog updated by book publishers')
 
     capabilities = frozenset(['identify', 'cover'])

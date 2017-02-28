@@ -19,6 +19,8 @@ BASE_URL = 'https://isbndb.com/api/books.xml?access_key=%s&page_number=1&results
 class ISBNDB(Source):
 
     name = 'ISBNDB'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata from isbndb.com')
 
     capabilities = frozenset(['identify'])

@@ -13,6 +13,8 @@ from calibre.ebooks.metadata.sources.base import Source
 class OpenLibrary(Source):
 
     name = 'Open Library'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from The Open Library')
 
     capabilities = frozenset(['cover'])

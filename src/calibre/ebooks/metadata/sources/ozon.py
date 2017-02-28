@@ -22,6 +22,8 @@ from calibre.ebooks.metadata.book.base import Metadata
 
 class Ozon(Source):
     name = 'OZON.ru'
+    minimum_calibre_version = (2, 80, 0)
+    version = (1, 0, 0)
     description = _('Downloads metadata and covers from OZON.ru (updated)')
 
     capabilities = frozenset(['identify', 'cover'])

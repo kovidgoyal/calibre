@@ -163,6 +163,8 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
     capabilities = frozenset({'identify', 'cover'})
