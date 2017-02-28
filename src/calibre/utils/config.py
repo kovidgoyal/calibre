@@ -286,6 +286,12 @@ class XMLConfig(dict):
 
         self.refresh()
 
+    def mtime(self):
+        try:
+            return os.path.getmtime(self.file_path)
+        except EnvironmentError:
+            return 0
+
     def raw_to_object(self, raw):
         return plistlib.readPlistFromString(raw)
 

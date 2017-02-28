@@ -57,6 +57,8 @@ def update_plugin(name):
 
 def main(report_error, report_action=prints):
     try:
+        if time.time() - cache.mtime() < UPDATE_INTERVAL:
+            return
         try:
             report_action('Fetching metadata source hashes...')
             needed = update_needed()
@@ -77,9 +79,6 @@ def main(report_error, report_action=prints):
 
 def update_sources(wait_for_completion=False):
     if update_sources.worker is not None:
-        return False
-    epoch = cache.get('last_update', 0)
-    if time.time() - epoch < UPDATE_INTERVAL:
         return False
     update_sources.errors = errs = []
     update_sources.worker = t = Thread(
