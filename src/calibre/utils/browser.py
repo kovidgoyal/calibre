@@ -53,6 +53,20 @@ class Browser(B):
     def https_handler(self):
         return self._ua_handlers['https']
 
+    def current_user_agent(self):
+        for k, v in self.addheaders:
+            if k.lower() == 'user-agent':
+                return v
+
+    def change_user_agent(self, newval):
+        found = False
+        for i, (k, v) in enumerate(tuple(self.addheaders)):
+            if k.lower() == 'user-agent':
+                self.addheaders[i] = newval
+                found = True
+        if not found:
+            self.addheaders.append(('User-agent', newval))
+
     def set_handle_refresh(self, *args, **kwargs):
         B.set_handle_refresh(self, *args, **kwargs)
         self._clone_actions['set_handle_refresh'] = ('set_handle_refresh',
@@ -131,6 +145,7 @@ class Browser(B):
             func(*args, **kwargs)
         return clone
 
+
 if __name__ == '__main__':
     from calibre import browser
     from pprint import pprint
@@ -142,5 +157,3 @@ if __name__ == '__main__':
     assert orig._ua_handlers['_cookies'].cookiejar is \
             clone._ua_handlers['_cookies'].cookiejar
     assert orig.addheaders == clone.addheaders
-
-
