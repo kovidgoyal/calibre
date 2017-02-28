@@ -257,38 +257,14 @@ class CACerts(Command):  # {{{
 
 class RecentUAs(Command):  # {{{
 
-    description = 'Get updated list of recent browser user agents'
-    UA_PATH = os.path.join(Command.RESOURCES, 'common-user-agents.txt')
-
-    def get_list(self):
-        if is_ci:
-            # Dont hammer the server from CI
-            return [
-                 # IE 11 - windows 10
-                 'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko',
-                 # IE 11 - windows 8.1
-                 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-                 # IE 11 - windows 8
-                 'Mozilla/5.0 (Windows NT 6.2; Trident/7.0; rv:11.0) like Gecko',
-                 # IE 11 - windows 7
-                 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',
-                 # 32bit IE 11 on 64 bit win 10
-                 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko',
-                 # 32bit IE 11 on 64 bit win 8.1
-                 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
-                 # 32bit IE 11 on 64 bit win 7
-                 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-        ]
-        raw = download_securely('https://techblog.willshouse.com/2012/01/03/most-common-user-agents/').decode('utf-8')
-        lines = re.search(r'<textarea.+"get-the-list".+>([^<]+)</textarea>', raw).group(1).splitlines()
-        return [x.strip() for x in lines if x.strip()]
+    description = 'Get updated list of common browser user agents'
+    UA_PATH = os.path.join(Command.RESOURCES, 'user-agent-data.json')
 
     def run(self, opts):
-        lines = self.get_list()[:10]
-        if not lines:
-            raise RuntimeError('Failed to download list of common user agents')
+        from setup.browser_data import get_data
+        data = get_data()
         with open(self.UA_PATH, 'wb') as f:
-            f.write('\n'.join(lines).encode('ascii'))
+            f.write(json.dumps(data, indent=2))
 # }}}
 
 

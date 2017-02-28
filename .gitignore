@@ -26,7 +26,7 @@ resources/content-server/locales.zip
 resources/content-server/mathjax.zip.xz
 resources/content-server/mathjax.version
 resources/mozilla-ca-certs.pem
-resources/common-user-agents.txt
+resources/user-agent-data.json
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
 tags
