@@ -60,7 +60,7 @@ class WhereBox(QComboBox):
             <dt><b>All text files</b></dt>
             <dd>Search in all text (HTML) files</dd>
             <dt><b>Selected files</b></dt>
-            <dd>Search in the files currently selected in the Files Browser</dd>
+            <dd>Search in the files currently selected in the File Browser</dd>
             <dt><b>Open files</b></dt>
             <dd>Search in the files currently open in the editor</dd>
             </dl>'''))
