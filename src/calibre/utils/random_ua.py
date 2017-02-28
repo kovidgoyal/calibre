@@ -20,7 +20,7 @@ def common_user_agents():
     return user_agent_data()['common_user_agents']
 
 
-def all_firefox_versions(limit=7):
+def all_firefox_versions(limit=10):
     return user_agent_data()['firefox_versions'][:limit]
 
 
@@ -42,7 +42,7 @@ def random_firefox_ua():
     render_firefox_ua(random_desktop_platform(), random_firefox_version())
 
 
-def all_chrome_versions(limit=7):
+def all_chrome_versions(limit=10):
     return user_agent_data()['chrome_versions'][:limit]
 
 
