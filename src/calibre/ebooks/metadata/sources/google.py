@@ -350,6 +350,7 @@ class GoogleBooks(Source):
             log.error('Insufficient metadata to construct query')
             return
         br = self.browser
+        self.log('Making query:', query)
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
         except Exception as e:
@@ -382,13 +383,11 @@ class GoogleBooks(Source):
         # throttles requests returning 403 Forbidden errors
         self.get_all_details(br, log, entries, abort, result_queue, timeout)
 
-        return None
-
     # }}}
 
 
 if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
+    # To run these test use: calibre-debug src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (
         test_identify_plugin, title_test, authors_test
     )
