@@ -21,9 +21,9 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, numeric_version
 
-builtin_names = frozenset([p.name for p in builtin_plugins])
+builtin_names = frozenset(p.name for p in builtin_plugins)
 
 
 class NameConflict(ValueError):
@@ -615,6 +615,18 @@ def all_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, Source):
             yield plugin
+
+
+def patch_metadata_plugins(possibly_updated_plugins):
+    patches = {}
+    for i, plugin in enumerate(_initialized_plugins):
+        if isinstance(plugin, Source) and plugin.name in builtin_names:
+            pup = possibly_updated_plugins.get(plugin.name)
+            if pup is not None:
+                if pup.version > plugin.version and pup.minimum_calibre_version <= numeric_version:
+                    patches[i] = pup
+    for i, pup in patches.iteritems():
+        _initialized_plugins[i] = pup
 # }}}
 
 # Viewer plugins {{{

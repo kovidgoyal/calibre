@@ -13,6 +13,8 @@ from threading import Thread
 
 from calibre import as_unicode, prints
 from calibre.constants import DEBUG
+from calibre.customize.ui import patch_metadata_plugins
+from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
 
@@ -24,6 +26,25 @@ UPDATE_INTERVAL = 24 * 60 * 60
 def debug_print(*args, **k):
     if DEBUG:
         prints(*args, **k)
+
+
+def load_plugin(src):
+    src = src.encode('utf-8')
+    ns = {}
+    exec src in ns
+    for x in ns.itervalues():
+        if isinstance(x, type) and issubclass(x, Source) and x is not Source:
+            return x
+
+
+def patch_plugins():
+    patches = {}
+    for name, val in cache.iteritems():
+        if name != 'hashes':
+            p = load_plugin(val)
+            if p is not None:
+                patches[p.name] = p
+    patch_metadata_plugins(patches)
 
 
 def update_needed():
