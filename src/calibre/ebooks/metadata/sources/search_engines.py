@@ -114,7 +114,7 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
 
 def ddg_develop():
     br = browser()
-    for result in ddg_search('heroes abercrombie'.split(), 'amazon.com', dump_raw='/t/raw.html', br=br):
+    for result in ddg_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
