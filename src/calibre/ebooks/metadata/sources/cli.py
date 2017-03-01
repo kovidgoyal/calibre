@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
+from calibre.ebooks.metadata.sources.update import patch_plugins
 
 
 def option_parser():
@@ -50,6 +51,7 @@ def main(args=sys.argv):
     buf = BytesIO()
     log = create_log(buf)
     abort = Event()
+    patch_plugins()
 
     authors = []
     if opts.authors:
@@ -92,6 +94,6 @@ def main(args=sys.argv):
 
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
-

@@ -476,6 +476,8 @@ class MetadataSingleDialogBase(QDialog):
             fw.setFocus(Qt.OtherFocusReason)
 
     def fetch_metadata(self, *args):
+        from calibre.ebooks.metadata.sources.update import update_sources
+        update_sources()
         d = FullFetch(self.cover.pixmap(), self)
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
@@ -516,6 +518,8 @@ class MetadataSingleDialogBase(QDialog):
                 gui=gui, never_shutdown=True)
 
     def download_cover(self, *args):
+        from calibre.ebooks.metadata.sources.update import update_sources
+        update_sources()
         from calibre.gui2.metadata.single_download import CoverFetch
         d = CoverFetch(self.cover.pixmap(), self)
         ret = d.start(self.title.current_val, self.authors.current_val,
@@ -1140,6 +1144,7 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
     finally:
         # possible workaround for bug reports of occasional ghost edit metadata dialog on windows
         d.deleteLater()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application as QApplication
