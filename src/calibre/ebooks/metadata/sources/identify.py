@@ -386,7 +386,7 @@ def identify(log, abort,  # {{{
 
     log('Running identify query with parameters:')
     log(kwargs)
-    log('Using plugins:', ', '.join([p.name for p in plugins]))
+    log('Using plugins:', ', '.join(['%s %s' % (p.name, p.version) for p in plugins]))
     log('The log from individual plugins is below')
 
     workers = [Worker(p, kwargs, abort) for p in plugins]
@@ -455,8 +455,7 @@ def identify(log, abort,  # {{{
         results[plugin] = presults = filtered_results
 
         plog = logs[plugin].getvalue().strip()
-        log('\n'+'*'*30, plugin.name, '*'*30)
-        log('Request extra headers:', plugin.browser.addheaders)
+        log('\n'+'*'*30, plugin.name, '%s' % (plugin.version,), '*'*30)
         log('Found %d results'%len(presults))
         time_spent = getattr(plugin, 'dl_time_spent', None)
         if time_spent is None:
