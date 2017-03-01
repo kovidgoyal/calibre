@@ -51,7 +51,7 @@ class Spectator(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('https://www.spectator.co.uk/magazine/')
         a = soup.find('a', attrs={'class': 'issue-details__cover-link'})
-        self.timefmt = a['title']
+        self.timefmt = ' [%s]' % a['title']
         self.cover_url = a['href']
         if self.cover_url.startswith('//'):
             self.cover_url = 'http:' + self.cover_url
