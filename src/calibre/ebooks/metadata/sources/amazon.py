@@ -25,6 +25,10 @@ class CaptchaError(Exception):
     pass
 
 
+class SearchFailed(ValueError):
+    pass
+
+
 ua_index = -1
 
 
@@ -1097,16 +1101,65 @@ class Amazon(Source):
         return matches[:3]
     # }}}
 
+    def search_amazon(self, br, testing, log, abort, title, authors, identifiers, timeout):
+        import html5lib
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.ebooks.chardet import xml_to_unicode
+        matches = []
+        query, domain = self.create_query(log, title=title, authors=authors,
+                identifiers=identifiers)
+        if query is None:
+            log.error('Insufficient metadata to construct query')
+            raise SearchFailed()
+        try:
+            raw = br.open_novisit(query, timeout=timeout).read().strip()
+        except Exception as e:
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                log.error('Query malformed: %r'%query)
+                raise SearchFailed()
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
+                msg = _('Amazon timed out. Try again later.')
+                log.error(msg)
+            else:
+                msg = 'Failed to make identify query: %r'%query
+                log.exception(msg)
+            raise SearchFailed()
+
+        raw = clean_ascii_chars(xml_to_unicode(raw,
+            strip_encoding_pats=True, resolve_entities=True)[0])
+
+        if testing:
+            import tempfile
+            with tempfile.NamedTemporaryFile(prefix='amazon_results_',
+                    suffix='.html', delete=False) as f:
+                f.write(raw.encode('utf-8'))
+            print ('Downloaded html for results page saved in', f.name)
+
+        matches = []
+        found = '<title>404 - ' not in raw
+
+        if found:
+            try:
+                root = html5lib.parse(raw, treebuilder='lxml',
+                        namespaceHTMLElements=False)
+            except Exception:
+                msg = 'Failed to parse amazon page for query: %r'%query
+                log.exception(msg)
+                raise SearchFailed()
+
+        matches = self.parse_results_page(root, domain)
+
+        return matches, query, domain
+
     def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
             identifiers={}, timeout=30):
         '''
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
         '''
-        from calibre.utils.cleantext import clean_ascii_chars
-        from calibre.ebooks.chardet import xml_to_unicode
-        from lxml.html import tostring
-        import html5lib
 
         testing = getattr(self, 'running_a_test', False)
 
@@ -1127,60 +1180,10 @@ class Amazon(Source):
                         return
                     except Exception:
                         log.exception('get_details failed for url: %r'%durl)
-
-        query, domain = self.create_query(log, title=title, authors=authors,
-                identifiers=identifiers)
-        if query is None:
-            log.error('Insufficient metadata to construct query')
-            return
         try:
-            raw = br.open_novisit(query, timeout=timeout).read().strip()
-        except Exception as e:
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                log.error('Query malformed: %r'%query)
-                return
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
-                msg = _('Amazon timed out. Try again later.')
-                log.error(msg)
-            else:
-                msg = 'Failed to make identify query: %r'%query
-                log.exception(msg)
-            return as_unicode(msg)
-
-        raw = clean_ascii_chars(xml_to_unicode(raw,
-            strip_encoding_pats=True, resolve_entities=True)[0])
-
-        if testing:
-            import tempfile
-            with tempfile.NamedTemporaryFile(prefix='amazon_results_',
-                    suffix='.html', delete=False) as f:
-                f.write(raw.encode('utf-8'))
-            print ('Downloaded html for results page saved in', f.name)
-
-        matches = []
-        found = '<title>404 - ' not in raw
-
-        if found:
-            try:
-                root = html5lib.parse(raw, treebuilder='lxml',
-                        namespaceHTMLElements=False)
-            except:
-                msg = 'Failed to parse amazon page for query: %r'%query
-                log.exception(msg)
-                return msg
-
-                errmsg = root.xpath('//*[@id="errorMessage"]')
-                if errmsg:
-                    msg = tostring(errmsg, method='text', encoding=unicode).strip()
-                    log.error(msg)
-                    # The error is almost always a not found error
-                    found = False
-
-        if found:
-            matches = self.parse_results_page(root, domain)
+            matches, query, domain = self.search_amazon(br, testing, log, abort, title, authors, identifiers, timeout)
+        except SearchFailed:
+            return
 
         if abort.is_set():
             return
