@@ -100,7 +100,7 @@ def update_plugin(name, updated, expected_hash):
     updated[name] = plugin, h
 
 
-def main(report_error, report_action=prints):
+def main(report_error=prints, report_action=prints):
     try:
         if time.time() - cache.mtime() < UPDATE_INTERVAL:
             report_action('Metadata sources cache was recently updated not updating again')
