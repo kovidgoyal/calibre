@@ -72,7 +72,7 @@ def patch_plugins():
 
 
 def update_needed():
-    needed = set()
+    needed = {}
     current_hashes = cache.get('hashes', {})
     hashes = get_https_resource_securely(
         'https://code.calibre-ebook.com/metadata-sources/hashes.json')
@@ -80,18 +80,22 @@ def update_needed():
     hashes = json.loads(hashes)
     for k, v in hashes.iteritems():
         if current_hashes.get(k) != v:
-            needed.add(k)
+            needed[k] = v
     remove = set(current_hashes) - set(hashes)
     if remove:
-        for k in remove:
-            current_hashes.pop(k, None)
-        cache['hashes'] = current_hashes
+        with cache:
+            for k in remove:
+                current_hashes.pop(k, None)
+                del cache[k]
+            cache['hashes'] = current_hashes
     return needed
 
 
-def update_plugin(name, updated):
+def update_plugin(name, updated, expected_hash):
     raw = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/' + name)
     h = hashlib.sha1(raw).hexdigest()
+    if h != expected_hash:
+        raise ValueError('Actual hash did not match expected hash, probably an update occurred while downloading')
     plugin = bz2.decompress(raw).decode('utf-8')
     updated[name] = plugin, h
 
@@ -111,10 +115,10 @@ def main(report_error, report_action=prints):
         if not needed:
             return
         updated = {}
-        for name in needed:
+        for name, expected_hash in needed.iteritems():
             report_action('Updating metadata source {}...'.format(name))
             try:
-                update_plugin(name, updated)
+                update_plugin(name, updated, expected_hash)
             except Exception as e:
                 report_error('Failed to get plugin {} with error: {}'.format(
                     name, as_unicode(e)))
