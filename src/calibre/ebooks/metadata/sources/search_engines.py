@@ -84,7 +84,7 @@ def wayback_machine_cached_url(url, br=None):
     q = quote_term(url)
     br = br or browser()
     data = query(br, 'https://archive.org/wayback/available?url=' +
-                 q, 'wayback', parser=json.loads)
+                 q, 'wayback', parser=json.loads, limit=0.25)
     try:
         closest = data['archived_snapshots']['closest']
     except KeyError:
