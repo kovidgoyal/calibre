@@ -13,6 +13,12 @@ from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class NoArticles(Exception):
     pass
 
@@ -55,6 +61,11 @@ class Economist(BasicNewsRecipe):
             margin: 0px 0px 10px 15px;
             padding: 7px 0px 9px;
         }
+        .flytitle-and-title__flytitle {
+            display: block;
+            font-size: smaller;
+            color: red;
+        }
         '''
     oldest_article = 7.0
     resolve_internal_links = True
@@ -63,21 +74,18 @@ class Economist(BasicNewsRecipe):
         dict(attrs={
                 'class': [
                     'dblClkTrk', 'ec-article-info', 'share_inline_header',
-                    'related-items', 'main-content-container', 'ec-topic-widget', 
+                    'related-items', 'main-content-container', 'ec-topic-widget',
                     'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
-                    'blog-post__foot-note'
+                    'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
                 ]
             }
         ),
-        dict(attrs={'class': lambda x: x and 'share-links-header' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'teaser--wrapped' in x.split()}),
+        classes('share-links-header teaser--wrapped'),
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
     preprocess_regexps = [
       (re.compile('</html>.*', re.DOTALL), lambda x: '</html>'),
-      (re.compile('<h1 class="flytitle-and-title__body".*?><span class="flytitle-and-title__flytitle".*?>',re.DOTALL|re.IGNORECASE), lambda x: '<h2><br />'),
-      (re.compile('</span><span class="flytitle-and-title__title".*?>',re.DOTALL|re.IGNORECASE), lambda x: '</h2><h1><span class="flytitle-and-title__title">')      
     ]
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
