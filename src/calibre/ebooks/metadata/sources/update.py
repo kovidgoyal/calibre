@@ -11,8 +11,9 @@ import sys
 import time
 from threading import Thread
 
+import calibre.ebooks.metadata.sources.search_engines as builtin_search_engines
 from calibre import as_unicode, prints
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, numeric_version
 from calibre.customize.ui import patch_metadata_plugins
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import JSONConfig
@@ -21,6 +22,12 @@ from calibre.utils.https import get_https_resource_securely
 cache = JSONConfig('metadata-sources-cache.json')
 
 UPDATE_INTERVAL = 24 * 60 * 60
+
+current_search_engines = builtin_search_engines
+
+
+def search_engines_module():
+    return current_search_engines
 
 
 def debug_print(*args, **k):
@@ -37,13 +44,30 @@ def load_plugin(src):
             return x
 
 
+def patch_search_engines(src):
+    global current_search_engines
+    src = src.encode('utf-8')
+    ns = {}
+    exec src in ns
+    mcv = ns.get('minimum_calibre_version')
+    if mcv is None or mcv > numeric_version:
+        return
+    cv = ns.get('current_version')
+    if cv is None or cv <= builtin_search_engines.current_version:
+        return
+    current_search_engines = ns
+
+
 def patch_plugins():
     patches = {}
     for name, val in cache.iteritems():
-        if name != 'hashes':
-            p = load_plugin(val)
-            if p is not None:
-                patches[p.name] = p
+        if name == 'hashes':
+            continue
+        if name == 'search_engines':
+            patch_search_engines(val)
+        p = load_plugin(val)
+        if p is not None:
+            patches[p.name] = p
     patch_metadata_plugins(patches)
 
 
@@ -65,15 +89,11 @@ def update_needed():
     return needed
 
 
-def update_plugin(name):
+def update_plugin(name, updated):
     raw = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/' + name)
     h = hashlib.sha1(raw).hexdigest()
-    plugin = bz2.decompress(raw)
-    hashes = cache.get('hashes', {})
-    hashes[name] = h
-    with cache:
-        cache['hashes'] = hashes
-        cache[name] = plugin
+    plugin = bz2.decompress(raw).decode('utf-8')
+    updated[name] = plugin, h
 
 
 def main(report_error, report_action=prints):
@@ -88,13 +108,25 @@ def main(report_error, report_action=prints):
             report_error(
                 'Failed to get metadata sources hashes with error: {}'.format(as_unicode(e)))
             return
+        if not needed:
+            return
+        updated = {}
         for name in needed:
             report_action('Updating metadata source {}...'.format(name))
             try:
-                update_plugin(name)
+                update_plugin(name, updated)
             except Exception as e:
                 report_error('Failed to get plugin {} with error: {}'.format(
                     name, as_unicode(e)))
+                break
+        else:
+            hashes = cache.get('hashes', {})
+            for name in updated:
+                hashes[name] = updated[name][1]
+            with cache:
+                cache['hashes'] = hashes
+                for name in updated:
+                    cache[name] = updated[name][0]
     finally:
         update_sources.worker = None
 
