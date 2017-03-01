@@ -12,16 +12,20 @@ from threading import Thread
 from Queue import Queue, Empty
 
 
-from calibre import as_unicode, browser, random_user_agent
+from calibre import as_unicode, browser
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.random_ua import all_user_agents, accept_header_for_ua
 
 
 class CaptchaError(Exception):
     pass
+
+
+ua_index = -1
 
 
 def parse_details_page(url, log, timeout, browser, domain):
@@ -104,7 +108,7 @@ class Worker(Thread):  # Get details {{{
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
         self.relevance, self.plugin = relevance, plugin
-        self.browser = browser.clone_browser()
+        self.browser = browser
         self.cover_url = self.amazon_id = self.isbn = None
         self.domain = domain
         from lxml.html import tostring
@@ -299,7 +303,6 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
-
         if self.preparsed_root is None:
             raw, root, selector = parse_details_page(self.url, self.log, self.timeout, self.browser, self.domain)
         else:
@@ -833,14 +836,18 @@ class Amazon(Source):
 
     @property
     def browser(self):
-        if self._browser is None:
-            self._browser = br = browser(user_agent=random_user_agent(allow_ie=False))
-            br.set_handle_gzip(True)
-            br.addheaders += [
-                ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'),
-                ('Upgrade-Insecure-Requests', '1'),
-            ]
-        return self._browser.clone_browser()
+        global ua_index
+        all_uas = all_user_agents()
+        ua_index = (ua_index + 1) % len(all_uas)
+        ua = all_uas[ua_index]
+        self._browser = br = browser(user_agent=ua)
+        br.set_handle_gzip(True)
+        br.addheaders += [
+            ('Accept', accept_header_for_ua(ua)),
+            ('Upgrade-insecure-requests', '1'),
+            ('Referer', self.referrer_for_domain()),
+        ]
+        return br
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
@@ -865,20 +872,23 @@ class Amazon(Source):
                     return domain, val
         return None, None
 
+    def referrer_for_domain(self, domain=None):
+        domain = domain or self.domain
+        if domain == 'uk':
+            return 'https://www.amazon.co.uk/'
+        if domain == 'br':
+            return 'https://www.amazon.com.br/'
+        if domain == 'au':
+            return 'https://www.amazon.com.au/'
+        return 'https://www.amazon.%s/'%domain
+
     def _get_book_url(self, identifiers):  # {{{
         domain, asin = self.get_domain_and_asin(identifiers, extra_domains=('in', 'au', 'ca'))
         if domain and asin:
             url = None
-            if domain == 'com':
-                url = 'https://amzn.com/'+asin
-            elif domain == 'uk':
-                url = 'https://www.amazon.co.uk/dp/'+asin
-            elif domain == 'br':
-                url = 'https://www.amazon.com.br/dp/'+asin
-            elif domain == 'au':
-                url = 'https://www.amazon.com.au/dp/' + asin
-            else:
-                url = 'https://www.amazon.%s/dp/%s'%(domain, asin)
+            r = self.referrer_for_domain(domain)
+            if r is not None:
+                url = r + 'dp/' + asin
             if url:
                 idtype = 'amazon' if domain == 'com' else 'amazon_'+domain
                 return domain, idtype, asin, url
@@ -1082,9 +1092,9 @@ class Amazon(Source):
                                ' profiling to block access to its website. As such this metadata plugin is'
                                ' unlikely to ever work reliably.')
 
-        # Keep only the top 5 matches as the matches are sorted by relevance by
+        # Keep only the top 3 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
-        return matches[:5]
+        return matches[:3]
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
@@ -1099,9 +1109,11 @@ class Amazon(Source):
         import html5lib
 
         testing = getattr(self, 'running_a_test', False)
-        br = self.browser
 
         udata = self._get_book_url(identifiers)
+        br = self.browser
+        if testing:
+            print('User-agent:', br.current_user_agent())
         if udata is not None:
             # Try to directly get details page instead of running a search
             domain, idtype, asin, durl = udata
@@ -1121,8 +1133,6 @@ class Amazon(Source):
         if query is None:
             log.error('Insufficient metadata to construct query')
             return
-        if testing:
-            print ('Using user agent for amazon: %s'%self.user_agent)
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
         except Exception as e:
@@ -1179,6 +1189,7 @@ class Amazon(Source):
             if identifiers and title and authors:
                 log('No matches found with identifiers, retrying using only'
                         ' title and authors. Query: %r'%query)
+                time.sleep(1)
                 return self.identify(log, result_queue, abort, title=title,
                         authors=authors, timeout=timeout)
             log.error('No matches found with query: %r'%query)
@@ -1188,9 +1199,11 @@ class Amazon(Source):
                             testing=testing) for i, url in enumerate(matches)]
 
         for w in workers:
-            w.start()
             # Don't send all requests at the same time
-            time.sleep(0.1)
+            time.sleep(1)
+            w.start()
+            if abort.is_set():
+                return
 
         while not abort.is_set():
             a_worker_is_alive = False
@@ -1216,6 +1229,8 @@ class Amazon(Source):
                     identifiers=identifiers)
             if abort.is_set():
                 return
+            if abort.is_set():
+                return
             results = []
             while True:
                 try:
@@ -1234,10 +1249,10 @@ class Amazon(Source):
 
         if abort.is_set():
             return
-        br = self.browser
         log('Downloading cover from:', cached_url)
         try:
-            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            time.sleep(1)
+            cdata = self.browser.open_novisit(cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)

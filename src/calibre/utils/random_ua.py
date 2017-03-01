@@ -78,3 +78,9 @@ def all_user_agents():
 
 def random_user_agent():
     return random.choice(all_user_agents())
+
+
+def accept_header_for_ua(ua):
+    if 'Firefox/' in ua:
+        return 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    return 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
