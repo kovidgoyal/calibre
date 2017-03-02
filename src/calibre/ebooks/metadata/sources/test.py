@@ -132,6 +132,10 @@ def init_test(tdir_name):
     return tdir, lf, log, abort
 
 
+def dump_log(lf):
+    prints(open(lf, 'rb').read().decode('utf-8'))
+
+
 def test_identify(tests):  # {{{
     '''
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -184,6 +188,7 @@ def test_identify(tests):  # {{{
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            dump_log(lf)
             raise SystemExit(1)
 
         if results[0] is not possibles[0]:
@@ -273,6 +278,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            dump_log(lf)
             raise SystemExit(1)
 
         good = [x for x in possibles if plugin.test_fields(x) is
@@ -319,4 +325,3 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
     if os.stat(lf).st_size > 10:
         prints('There were some errors/warnings, see log', lf)
 # }}}
-
