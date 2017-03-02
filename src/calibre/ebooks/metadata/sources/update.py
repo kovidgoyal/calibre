@@ -14,7 +14,6 @@ from threading import Thread
 import calibre.ebooks.metadata.sources.search_engines as builtin_search_engines
 from calibre import as_unicode, prints
 from calibre.constants import DEBUG, numeric_version
-from calibre.customize.ui import patch_metadata_plugins
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
@@ -59,6 +58,7 @@ def patch_search_engines(src):
 
 
 def patch_plugins():
+    from calibre.customize.ui import patch_metadata_plugins
     patches = {}
     for name, val in cache.iteritems():
         if name == 'hashes':

@@ -46,12 +46,12 @@ def parse_html(raw):
     return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
 
 
-def query(br, url, key, dump_raw=None, limit=1, parser=parse_html):
+def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60):
     delta = monotonic() - last_visited[key]
     if delta < limit and delta > 0:
         time.sleep(delta)
     try:
-        raw = br.open_novisit(url).read()
+        raw = br.open_novisit(url, timeout=timeout).read()
     finally:
         last_visited[key] = monotonic()
     if dump_raw is not None:
@@ -80,20 +80,29 @@ def ddg_href(url):
     return url
 
 
-def wayback_machine_cached_url(url, br=None):
+def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     q = quote_term(url)
     br = br or browser()
     data = query(br, 'https://archive.org/wayback/available?url=' +
-                 q, 'wayback', parser=json.loads, limit=0.25)
+                 q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
     try:
         closest = data['archived_snapshots']['closest']
     except KeyError:
-        return
-    if closest['available']:
-        return closest['url']
+        pass
+    else:
+        if closest['available']:
+            return closest['url']
+    from pprint import pformat
+    log('Response from wayback machine:', pformat(data))
 
 
-def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None):
+def wayback_url_processor(url):
+    if url.startswith('/'):
+        url = 'https://web.archive.org' + url
+    return url
+
+
+def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
     terms = map(ddg_term, terms)
     terms = [quote_term(t) for t in terms]
@@ -104,7 +113,7 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
         q=q, kp=1 if safe_search else -1)
     log('Making ddg query: ' + url)
     br = br or browser()
-    root = query(br, url, 'ddg', dump_raw)
+    root = query(br, url, 'ddg', dump_raw, timeout=timeout)
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
         ans.append(Result(ddg_href(a.get('href')), etree.tostring(
