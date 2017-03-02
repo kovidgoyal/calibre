@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+import re
 import time
 from collections import defaultdict, namedtuple
 from future_builtins import map
@@ -99,7 +100,13 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
 
 def wayback_url_processor(url):
     if url.startswith('/'):
-        url = 'https://web.archive.org' + url
+        # Use original URL instead of absolutizing to wayback URL as wayback is
+        # slow
+        m = re.search('https?:', url)
+        if m is None:
+            url = 'https://web.archive.org' + url
+        else:
+            url = url[m.start():]
     return url
 
 
