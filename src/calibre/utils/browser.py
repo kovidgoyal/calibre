@@ -53,15 +53,22 @@ class Browser(B):
     def https_handler(self):
         return self._ua_handlers['https']
 
-    def set_current_header(self, header, value):
+    def set_current_header(self, header, value=None):
         found = False
         q = header.lower()
+        remove = []
         for i, (k, v) in enumerate(tuple(self.addheaders)):
             if k.lower() == q:
-                self.addheaders[i] = (header, value)
-                found = True
+                if value:
+                    self.addheaders[i] = (header, value)
+                    found = True
+                else:
+                    remove.append(i)
         if not found:
             self.addheaders.append((header, value))
+        if remove:
+            for i in reversed(remove):
+                del self.addheaders[i]
 
     def current_user_agent(self):
         for k, v in self.addheaders:
