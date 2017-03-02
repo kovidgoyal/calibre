@@ -397,7 +397,7 @@ class RecursiveFetcher(object):
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
             itype = what(None, data)
-            if itype is None and b'<svg' in data[:1024]:
+            if itype == 'svg' or (itype is None and b'<svg' in data[:1024]):
                 # SVG image
                 imgpath = os.path.join(diskpath, fname+'.svg')
                 with self.imagemap_lock:
