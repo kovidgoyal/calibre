@@ -87,11 +87,10 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
                  q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
     try:
         closest = data['archived_snapshots']['closest']
-    except KeyError:
-        pass
-    else:
         if closest['available']:
             return closest['url']
+    except Exception:
+        pass
     from pprint import pformat
     log('Response from wayback machine:', pformat(data))
 
