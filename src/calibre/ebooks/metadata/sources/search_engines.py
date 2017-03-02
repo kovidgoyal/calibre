@@ -27,6 +27,10 @@ last_visited = defaultdict(lambda: 0)
 Result = namedtuple('Result', 'url title cached_url')
 
 
+def tostring(elem):
+    return etree.tostring(elem, encoding=unicode, method='text', with_tail=False)
+
+
 def browser():
     ua = random_user_agent(allow_ie=False)
     br = _browser(user_agent=ua)
@@ -124,8 +128,7 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     root = query(br, url, 'ddg', dump_raw, timeout=timeout)
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
-        ans.append(Result(ddg_href(a.get('href')), etree.tostring(
-            a, encoding=unicode, method='text', with_tail=False), None))
+        ans.append(Result(ddg_href(a.get('href')), tostring(a), None))
     return ans
 
 
@@ -173,14 +176,56 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
         # (March 2017)
         cached_url = 'http://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
             q=q, d=d, w=w)
-        ans.append(Result(ddg_href(a.get('href')), etree.tostring(
-            a, encoding=unicode, method='text', with_tail=False), cached_url))
+        ans.append(Result(a.get('href'), tostring(a), cached_url))
     return ans
 
 
 def bing_develop():
     br = browser()
     for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
+        if '/dp/' in result.url:
+            print(result.title)
+            print(' ', result.url)
+            print(' ', result.cached_url)
+            print()
+# }}}
+
+# Google {{{
+
+
+def google_term(t):
+    t = t.replace('"', '')
+    if t in {'OR', 'AND', 'NOT'}:
+        t = t.lower()
+    return t
+
+
+def google_url_processor(url):
+    return url
+
+
+def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+    terms = map(google_term, terms)
+    terms = [quote_term(t) for t in terms]
+    if site is not None:
+        terms.append(quote_term(('site:' + site)))
+    q = '+'.join(terms)
+    url = 'https://www.google.com/search?q={q}'.format(q=q)
+    log('Making google query: ' + url)
+    br = br or browser()
+    root = query(br, url, 'google', dump_raw, timeout=timeout)
+    ans = []
+    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="g"]'):
+        a = div.xpath('descendant::h3[@class="r"]/a[@href]')[0]
+        c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
+        cached_url = c.get('href')
+        ans.append(Result(a.get('href'), tostring(a), cached_url))
+    return ans
+
+
+def google_develop():
+    br = browser()
+    for result in google_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
