@@ -174,6 +174,16 @@ class Log(object):
     def __exit__(self, *args):
         self.filter_level = self.orig_filter_level
 
+    def flush(self):
+        for o in self.outputs:
+            if hasattr(o, 'flush'):
+                o.flush()
+
+    def close(self):
+        for o in self.outputs:
+            if hasattr(o, 'close'):
+                o.close()
+
 
 class DevNull(Log):
 

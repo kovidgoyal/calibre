@@ -188,6 +188,7 @@ def test_identify(tests):  # {{{
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            log.close()
             dump_log(lf)
             raise SystemExit(1)
 
@@ -228,6 +229,9 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
 
     times = []
     for kwargs, test_funcs in tests:
+        log('#'*80)
+        log('### Running test with:', kwargs)
+        log('#'*80)
         prints('Running test with:', kwargs)
         rq = Queue()
         args = (log, rq, abort)
@@ -278,6 +282,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            log.close()
             dump_log(lf)
             raise SystemExit(1)
 
