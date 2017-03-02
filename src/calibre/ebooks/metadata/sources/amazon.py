@@ -1247,25 +1247,20 @@ class Amazon(Source):
         log('User-agent:', br.current_user_agent())
         if testing:
             print('User-agent:', br.current_user_agent())
-        if udata is not None:
+        if udata is not None and not USE_SEARCH_ENGINE:
             # Try to directly get details page instead of running a search
+            # Cannot use search engine as the directly constructed URL is
+            # usually redirected to a full URL by amazon, which is therefore
+            # not cached
             domain, idtype, asin, durl = udata
-            cover_url_processor = None
-            if USE_SEARCH_ENGINE:
-                se = search_engines_module()
-                durl = se.wayback_machine_cached_url(
-                    durl, br, timeout=timeout, log=log)
-                cover_url_processor = se.wayback_url_processor
-            if durl is None:
-                log('Failed to get cached URL for asin:', asin)
-            else:
+            if durl is not None:
                 preparsed_root = parse_details_page(
                     durl, log, timeout, br, domain)
                 if preparsed_root is not None:
                     qasin = parse_asin(preparsed_root[1], log, durl)
                     if qasin == asin:
                         w = Worker(durl, result_queue, br, log, 0, domain,
-                                   self, testing=testing, preparsed_root=preparsed_root, cover_url_processor=cover_url_processor)
+                                   self, testing=testing, preparsed_root=preparsed_root)
                         try:
                             w.get_details()
                             return
