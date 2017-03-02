@@ -1221,7 +1221,9 @@ class Amazon(Source):
         matches = []
         se = search_engines_module()
         urlproc = se.bing_url_processor
-        for result in se.bing_search(terms, site, log=log, br=br, timeout=timeout):
+        results, qurl = se.bing_search(terms, site, log=log, br=br, timeout=timeout)
+        br.set_current_header('Referer', qurl)
+        for result in results:
             if abort.is_set():
                 return matches, terms, domain, None
 

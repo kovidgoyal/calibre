@@ -129,12 +129,12 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
         ans.append(Result(ddg_href(a.get('href')), tostring(a), None))
-    return ans
+    return ans, url
 
 
 def ddg_develop():
     br = browser()
-    for result in ddg_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
+    for result in ddg_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
@@ -177,12 +177,12 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
         cached_url = 'http://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
             q=q, d=d, w=w)
         ans.append(Result(a.get('href'), tostring(a), cached_url))
-    return ans
+    return ans, url
 
 
 def bing_develop():
     br = browser()
-    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
+    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
@@ -220,12 +220,12 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
         c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
         cached_url = c.get('href')
         ans.append(Result(a.get('href'), tostring(a), cached_url))
-    return ans
+    return ans, url
 
 
 def google_develop():
     br = browser()
-    for result in google_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
+    for result in google_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
