@@ -10,7 +10,7 @@ from Queue import Empty, Queue
 from threading import Thread
 from urlparse import urlparse
 
-from calibre import as_unicode, browser
+from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
@@ -47,7 +47,7 @@ def parse_details_page(url, log, timeout, browser, domain):
         attr = getattr(e, 'args', [None])
         attr = attr if attr else [None]
         if isinstance(attr[0], socket.timeout):
-            msg = 'Amazon timed out. Try again later.'
+            msg = 'Details page timed out. Try again later.'
             log.error(msg)
         else:
             msg = 'Failed to make details query: %r' % url
@@ -873,16 +873,27 @@ class Amazon(Source):
     @property
     def browser(self):
         global ua_index
-        all_uas = all_user_agents()
-        ua_index = (ua_index + 1) % len(all_uas)
-        ua = all_uas[ua_index]
-        self._browser = br = browser(user_agent=ua)
-        br.set_handle_gzip(True)
-        br.addheaders += [
-            ('Accept', accept_header_for_ua(ua)),
-            ('Upgrade-insecure-requests', '1'),
-            ('Referer', self.referrer_for_domain()),
-        ]
+        if USE_SEARCH_ENGINE:
+            if self._browser is None:
+                ua = random_user_agent(allow_ie=False)
+                self._browser = br = browser(user_agent=ua)
+                br.set_handle_gzip(True)
+                br.addheaders += [
+                    ('Accept', accept_header_for_ua(ua)),
+                    ('Upgrade-insecure-requests', '1'),
+                ]
+            br = self._browser
+        else:
+            all_uas = all_user_agents()
+            ua_index = (ua_index + 1) % len(all_uas)
+            ua = all_uas[ua_index]
+            self._browser = br = browser(user_agent=ua)
+            br.set_handle_gzip(True)
+            br.addheaders += [
+                ('Accept', accept_header_for_ua(ua)),
+                ('Upgrade-insecure-requests', '1'),
+                ('Referer', self.referrer_for_domain()),
+            ]
         return br
 
     def save_settings(self, *args, **kwargs):
@@ -1260,7 +1271,7 @@ class Amazon(Source):
                     qasin = parse_asin(preparsed_root[1], log, durl)
                     if qasin == asin:
                         w = Worker(durl, result_queue, br, log, 0, domain,
-                                   self, testing=testing, preparsed_root=preparsed_root)
+                                   self, testing=testing, preparsed_root=preparsed_root, timeout=timeout)
                         try:
                             w.get_details()
                             return
@@ -1287,7 +1298,7 @@ class Amazon(Source):
             log.error('No matches found with query: %r' % query)
             return
 
-        workers = [Worker(url, result_queue, br, log, i, domain, self, testing=testing,
+        workers = [Worker(url, result_queue, br, log, i, domain, self, testing=testing, timeout=timeout,
                           cover_url_processor=cover_url_processor) for i, url in enumerate(matches)]
 
         for w in workers:
@@ -1371,26 +1382,12 @@ if __name__ == '__main__':  # tests {{{
              series_test('Craft Sequence', 1)]
         ),
 
-        (   # A kindle edition that does not appear in the search results when searching by ASIN
-            {'identifiers': {'amazon': 'B004JHY6OG'}},
-            [title_test(
-                'The Heroes: A First Law Novel (First Law World 2)', exact=True)]
-        ),
-
         (  # + in title and uses id="main-image" for cover
             {'identifiers': {'amazon': '1933988770'}},
             [title_test(
                 'C++ Concurrency in Action: Practical Multithreading', exact=True)]
         ),
 
-
-        (  # noscript description
-            {'identifiers': {'amazon': '0756407117'}},
-            [title_test(
-                "Throne of the Crescent Moon"),
-             comments_test('Makhslood'), comments_test('Dhamsawaat'),
-             ]
-        ),
 
         (  # Different comments markup, using Book Description section
             {'identifiers': {'amazon': '0982514506'}},
@@ -1429,7 +1426,16 @@ if __name__ == '__main__':  # tests {{{
              authors_test(['F. Scott Fitzgerald'])]
         ),
 
-    ]  # }}}
+    ]
+    if not USE_SEARCH_ENGINE:
+        com_tests.append(
+        (   # A kindle edition that does not appear in the search results when searching by ASIN
+            {'identifiers': {'amazon': 'B004JHY6OG'}},
+            [title_test(
+                'The Heroes: A First Law Novel (First Law World 2)', exact=True)]
+        ))
+
+    # }}}
 
     de_tests = [  # {{{
         (
