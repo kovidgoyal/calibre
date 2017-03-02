@@ -292,6 +292,12 @@ class XMLConfig(dict):
         except EnvironmentError:
             return 0
 
+    def touch(self):
+        try:
+            os.utime(self.file_path, None)
+        except EnvironmentError:
+            pass
+
     def raw_to_object(self, raw):
         return plistlib.readPlistFromString(raw)
 

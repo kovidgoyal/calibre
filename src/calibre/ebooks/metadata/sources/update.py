@@ -20,7 +20,7 @@ from calibre.utils.https import get_https_resource_securely
 
 cache = JSONConfig('metadata-sources-cache.json')
 
-UPDATE_INTERVAL = 24 * 60 * 60
+UPDATE_INTERVAL = 12 * 60 * 60
 
 current_search_engines = builtin_search_engines
 
@@ -113,6 +113,7 @@ def main(report_error=prints, report_action=prints):
                 'Failed to get metadata sources hashes with error: {}'.format(as_unicode(e)))
             return
         if not needed:
+            cache.touch()
             return
         updated = {}
         for name, expected_hash in needed.iteritems():
