@@ -14,9 +14,9 @@ from urlparse import parse_qs
 from lxml import etree
 
 import html5lib
-from calibre import browser as _browser, prints
+from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
-from calibre.utils.random_ua import random_user_agent, accept_header_for_ua
+from calibre.utils.random_ua import accept_header_for_ua
 
 current_version = (1, 0, 0)
 minimum_calibre_version = (2, 80, 0)
@@ -27,7 +27,7 @@ Result = namedtuple('Result', 'url title cached_url')
 
 
 def browser():
-    ua = random_user_agent()
+    ua = random_user_agent(allow_ie=False)
     br = _browser(user_agent=ua)
     br.set_handle_gzip(True)
     br.addheaders += [
@@ -64,11 +64,13 @@ def quote_term(x):
     return quote_plus(x.encode('utf-8')).decode('utf-8')
 
 
+# DDG + Wayback machine {{{
+
 def ddg_term(t):
     t = t.replace('"', '')
     if t.lower() in {'map', 'news'}:
         t = '"' + t + '"'
-    if t in {'OR', 'AND'}:
+    if t in {'OR', 'AND', 'NOT'}:
         t = t.lower()
     return t
 
@@ -128,3 +130,62 @@ def ddg_develop():
             print(' ', result.url)
             print(' ', wayback_machine_cached_url(result.url, br))
             print()
+# }}}
+
+# Bing {{{
+
+
+def bing_term(t):
+    t = t.replace('"', '')
+    if t in {'OR', 'AND', 'NOT'}:
+        t = t.lower()
+    return t
+
+
+def bing_url_processor(url):
+    return url
+
+
+def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+    # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
+    terms = map(bing_term, terms)
+    terms = [quote_term(t) for t in terms]
+    if site is not None:
+        terms.append(quote_term(('site:' + site)))
+    q = '+'.join(terms)
+    url = 'https://www.bing.com/search?q={q}'.format(q=q)
+    log('Making bing query: ' + url)
+    br = br or browser()
+    root = query(br, url, 'bing', dump_raw, timeout=timeout)
+    ans = []
+    for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
+        a = li.xpath('descendant::h2/a[@href]')[0]
+        div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
+        d, w = div.get('u').split('|')[-2:]
+        # The bing cache does not have a valid https certificate currently
+        # (March 2017)
+        cached_url = 'http://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
+            q=q, d=d, w=w)
+        ans.append(Result(ddg_href(a.get('href')), etree.tostring(
+            a, encoding=unicode, method='text', with_tail=False), cached_url))
+    return ans
+
+
+def bing_develop():
+    br = browser()
+    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br):
+        if '/dp/' in result.url:
+            print(result.title)
+            print(' ', result.url)
+            print(' ', result.cached_url)
+            print()
+# }}}
+
+
+def resolve_url(url):
+    prefix, rest = url.partition(':')[::2]
+    if prefix == 'bing':
+        return bing_url_processor(rest)
+    if prefix == 'wayback':
+        return wayback_url_processor(rest)
+    return url

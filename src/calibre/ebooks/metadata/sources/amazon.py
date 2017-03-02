@@ -28,7 +28,7 @@ class SearchFailed(ValueError):
 
 
 ua_index = -1
-USE_SEARCH_ENGINE = False
+USE_SEARCH_ENGINE = True
 
 
 def parse_details_page(url, log, timeout, browser, domain):
@@ -1218,9 +1218,10 @@ class Amazon(Source):
                                           identifiers=identifiers, for_amazon=False)
         site = self.referrer_for_domain(
             domain)[len('https://'):].partition('/')[0]
-        se = search_engines_module()
         matches = []
-        for result in se.ddg_search(terms, site, log=log, br=br, timeout=timeout):
+        se = search_engines_module()
+        cover_url_prefix = 'bing'
+        for result in se.bing_search(terms, site, log=log, br=br, timeout=timeout):
             if abort.is_set():
                 return matches, terms, domain, None
 
@@ -1241,7 +1242,7 @@ class Amazon(Source):
                 log('Skipping non-book result:', result)
         if not matches:
             log('No search engine results for terms:', ' '.join(terms))
-        return matches, terms, domain, se.wayback_url_processor
+        return matches, terms, domain, lambda x: (cover_url_prefix + ':' + x)
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
@@ -1261,7 +1262,7 @@ class Amazon(Source):
         if udata is not None and not USE_SEARCH_ENGINE:
             # Try to directly get details page instead of running a search
             # Cannot use search engine as the directly constructed URL is
-            # usually redirected to a full URL by amazon, which is therefore
+            # usually redirected to a full URL by amazon, and is therefore
             # not cached
             domain, idtype, asin, durl = udata
             if durl is not None:
@@ -1353,10 +1354,16 @@ class Amazon(Source):
         if abort.is_set():
             return
         log('Downloading cover from:', cached_url)
+        br = self.browser
+        se = search_engines_module()
+        url = se.resolve_url(cached_url)
+        if USE_SEARCH_ENGINE:
+            br = br.clone_browser()
+            br.set_current_header('Referer', self.referrer_for_domain(self.domain))
         try:
             time.sleep(1)
-            cdata = self.browser.open_novisit(
-                cached_url, timeout=timeout).read()
+            cdata = br.open_novisit(
+                url, timeout=timeout).read()
             result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
