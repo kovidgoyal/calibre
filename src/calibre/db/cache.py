@@ -563,7 +563,7 @@ class Cache(object):
             slow filesystem access is done. The cache values could be out of date
             if access was performed to the filesystem outside of this API.
 
-        :param update_db: If ``True`` The max_size field of the database is updates for this book.
+        :param update_db: If ``True`` The max_size field of the database is updated for this book.
         '''
         if not fmt:
             return {}
