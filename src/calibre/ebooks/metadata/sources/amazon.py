@@ -1220,7 +1220,7 @@ class Amazon(Source):
             domain)[len('https://'):].partition('/')[0]
         matches = []
         se = search_engines_module()
-        cover_url_prefix = 'bing'
+        urlproc = se.bing_url_processor
         for result in se.bing_search(terms, site, log=log, br=br, timeout=timeout):
             if abort.is_set():
                 return matches, terms, domain, None
@@ -1242,7 +1242,7 @@ class Amazon(Source):
                 log('Skipping non-book result:', result)
         if not matches:
             log('No search engine results for terms:', ' '.join(terms))
-        return matches, terms, domain, lambda x: (cover_url_prefix + ':' + x)
+        return matches, terms, domain, urlproc
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
@@ -1355,15 +1355,13 @@ class Amazon(Source):
             return
         log('Downloading cover from:', cached_url)
         br = self.browser
-        se = search_engines_module()
-        url = se.resolve_url(cached_url)
         if USE_SEARCH_ENGINE:
             br = br.clone_browser()
             br.set_current_header('Referer', self.referrer_for_domain(self.domain))
         try:
             time.sleep(1)
             cdata = br.open_novisit(
-                url, timeout=timeout).read()
+                cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
