@@ -152,6 +152,7 @@ def test_identify(tests):  # {{{
     times = []
 
     for kwargs, test_funcs in tests:
+        log('')
         log('#'*80)
         log('### Running test with:', kwargs)
         log('#'*80)
@@ -170,6 +171,8 @@ def test_identify(tests):  # {{{
 
         for i, mi in enumerate(results):
             prints('*'*30, 'Relevance:', i, '*'*30)
+            if mi.rating:
+                mi.rating *= 2
             prints(mi)
             prints('\nCached cover URLs    :',
                     [x[0].name for x in get_cached_cover_urls(mi)])
@@ -205,8 +208,8 @@ def test_identify(tests):  # {{{
 # }}}
 
 
-def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
-        fail_missing_meta=True):  # {{{
+def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
+        fail_missing_meta=True):
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -229,6 +232,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
 
     times = []
     for kwargs, test_funcs in tests:
+        log('')
         log('#'*80)
         log('### Running test with:', kwargs)
         log('#'*80)
@@ -264,6 +268,8 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
 
         for i, mi in enumerate(results):
             prints('*'*30, 'Relevance:', i, '*'*30)
+            if mi.rating:
+                mi.rating *= 2
             prints(mi)
             prints('\nCached cover URL    :',
                     plugin.get_cached_cover_url(mi.identifiers))
