@@ -58,7 +58,7 @@ class Browser(B):
         q = header.lower()
         for i, (k, v) in enumerate(tuple(self.addheaders)):
             if k.lower() == q:
-                self.addheaders[i] = value
+                self.addheaders[i] = (header, value)
                 found = True
         if not found:
             self.addheaders.append((header, value))
