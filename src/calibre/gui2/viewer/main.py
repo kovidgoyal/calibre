@@ -264,7 +264,7 @@ class EbookViewer(MainWindow):
         self.clear_recent_history_action = QAction(
                 _('Clear list of recently opened books'), self)
         self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
-        self.build_recent_menu()
+        self.open_history_menu.aboutToShow.connect(self.build_recent_menu)
         self.open_history_menu.triggered.connect(self.open_recent)
 
         for x in ('tool_bar', 'tool_bar2'):
@@ -332,7 +332,6 @@ class EbookViewer(MainWindow):
 
     def clear_recent_history(self, *args):
         vprefs.set('viewer_open_history', [])
-        self.build_recent_menu()
 
     def build_recent_menu(self):
         m = self.open_history_menu
@@ -350,9 +349,11 @@ class EbookViewer(MainWindow):
                 count += 1
 
     def continue_reading(self):
-        actions = self.open_history_menu.actions()[2:]
-        if actions:
-            actions[0].trigger()
+        recent = vprefs.get('viewer_open_history', [])
+        if recent:
+            for path in recent:
+                if os.path.exists(path):
+                    self.load_ebook(path)
 
     def shutdown(self):
         if self.isFullScreen() and not self.view.document.start_in_fullscreen:
@@ -1010,7 +1011,6 @@ class EbookViewer(MainWindow):
                 except Exception:
                     import traceback
                     traceback.print_exc()
-            self.build_recent_menu()
             self.view.set_book_data(self.iterator)
 
             self.footnotes_dock.close()
