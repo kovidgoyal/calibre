@@ -1408,7 +1408,7 @@ if __name__ == '__main__':  # tests {{{
         (  # # in title
             {'title': 'Expert C# 2008 Business Objects',
              'authors': ['Lhotka']},
-            [title_test('Expert C# 2008 Business Objects'),
+            [title_test('Expert C#'),
              authors_test(['Rockford Lhotka'])
              ]
         ),
