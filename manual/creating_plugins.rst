@@ -151,7 +151,7 @@ calibre's plugin loading system defines a couple of built-in functions that allo
 Enabling user configuration of your plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To allow users to configure your plugin, you must define three methods in your base plugin class, '**is_customizable**, **config_widget** and **save_settings** as shown below:
+To allow users to configure your plugin, you must define three methods in your base plugin class, **is_customizable**, **config_widget** and **save_settings** as shown below:
 
 .. literalinclude:: plugin_examples/interface_demo/__init__.py
   :pyobject: InterfacePluginDemo.is_customizable
