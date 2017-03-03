@@ -170,13 +170,18 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     ans = []
     for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
         a = li.xpath('descendant::h2/a[@href]')[0]
-        div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
+        title = tostring(a)
+        try:
+            div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
+        except IndexError:
+            log('Ignoring', title, 'as it has no cached page')
+            continue
         d, w = div.get('u').split('|')[-2:]
         # The bing cache does not have a valid https certificate currently
         # (March 2017)
         cached_url = 'http://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
             q=q, d=d, w=w)
-        ans.append(Result(a.get('href'), tostring(a), cached_url))
+        ans.append(Result(a.get('href'), title, cached_url))
     return ans, url
 
 
@@ -217,15 +222,20 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     ans = []
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="g"]'):
         a = div.xpath('descendant::h3[@class="r"]/a[@href]')[0]
-        c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
+        title = tostring(a)
+        try:
+            c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
+        except IndexError:
+            log('Ignoring', title, 'as it has no cached page')
+            continue
         cached_url = c.get('href')
-        ans.append(Result(a.get('href'), tostring(a), cached_url))
+        ans.append(Result(a.get('href'), title, cached_url))
     return ans, url
 
 
 def google_develop():
     br = browser()
-    for result in google_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
+    for result in google_search('1423146786'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
