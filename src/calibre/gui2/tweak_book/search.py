@@ -1,35 +1,39 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import json, copy
-from functools import partial
+import copy
+import json
 from collections import OrderedDict
+from functools import partial
 
 from PyQt5.Qt import (
-    QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
-    QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
-    QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
-    QAbstractListModel, QModelIndex, QMenu, QItemSelection, QStackedLayout, QScrollArea)
+    QAbstractListModel, QApplication, QCheckBox, QComboBox, QFont, QFrame,
+    QGridLayout, QHBoxLayout, QIcon, QItemSelection, QLabel, QLineEdit, QListView,
+    QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QSizePolicy,
+    QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton,
+    QVBoxLayout, QWidget, pyqtSignal
+)
 
 import regex
-
 from calibre import prepare_string_for_xml
-from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_file
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
-from calibre.gui2.widgets2 import HistoryComboBox, FlowLayout
-from calibre.gui2.tweak_book import tprefs, editors, current_container
+from calibre.gui2.tweak_book import current_container, editors, tprefs
+from calibre.gui2.tweak_book.editor.snippets import (
+    KEY, MODIFIER, SnippetTextEdit, find_matching_snip, parse_template,
+    string_length
+)
 from calibre.gui2.tweak_book.function_replace import (
-    FunctionBox, functions as replace_functions, FunctionEditor, remove_function, Function)
+    Function, FunctionBox, FunctionEditor, functions as replace_functions,
+    remove_function
+)
 from calibre.gui2.tweak_book.widgets import BusyCursor
-from calibre.gui2.tweak_book.editor.snippets import find_matching_snip, parse_template, string_length, SnippetTextEdit, MODIFIER, KEY
-
+from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
+
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | regex.UNICODE
 
@@ -538,6 +542,63 @@ class SearchesModel(QAbstractListModel):
     def rowCount(self, parent=QModelIndex()):
         return len(self.filtered_searches)
 
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def flags(self, index):
+        ans = QAbstractListModel.flags(self, index)
+        if index.isValid():
+            ans |= Qt.ItemIsDragEnabled
+        else:
+            ans |= Qt.ItemIsDropEnabled
+        return ans
+
+    def mimeTypes(self):
+        return ['x-calibre/searches-rows', 'application/vnd.text.list']
+
+    def mimeData(self, indices):
+        ans = QMimeData()
+        names, rows = [], []
+        for i in indices:
+            if i.isValid():
+                names.append(i.data())
+                rows.append(i.row())
+        ans.setData('x-calibre/searches-rows', ','.join(map(str, rows)).encode('ascii'))
+        ans.setData('application/vnd.text.list', '\n'.join(names).encode('utf-8'))
+        return ans
+
+    def dropMimeData(self, data, action, row, column, parent):
+        if parent.isValid() or action != Qt.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
+            return False
+        rows = map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(','))
+        rows.sort()
+        moved_searches = [self.searches[self.filtered_searches[r]] for r in rows]
+        moved_searches_q = {id(s) for s in moved_searches}
+        insert_at = max(0, min(row, len(self.filtered_searches)))
+        while insert_at < len(self.filtered_searches):
+            s = self.searches[self.filtered_searches[insert_at]]
+            if id(s) in moved_searches_q:
+                insert_at += 1
+            else:
+                break
+        insert_before = id(self.searches[self.filtered_searches[insert_at]]) if insert_at < len(self.filtered_searches) else None
+        visible_searches = {id(self.searches[self.filtered_searches[r]]) for r in self.filtered_searches}
+        unmoved_searches = list(filter(lambda s:id(s) not in moved_searches_q, self.searches))
+        if insert_before is None:
+            searches = unmoved_searches + moved_searches
+        else:
+            idx = {id(x):i for i, x in enumerate(unmoved_searches)}[insert_before]
+            searches = unmoved_searches[:idx] + moved_searches + unmoved_searches[idx:]
+        filtered_searches = []
+        for i, s in enumerate(searches):
+            if id(s) in visible_searches:
+                filtered_searches.append(i)
+        self.modelAboutToBeReset.emit()
+        self.searches, self.filtered_searches = searches, filtered_searches
+        self.modelReset.emit()
+        tprefs['saved_searches'] = self.searches
+        return True
+
     def data(self, index, role):
         try:
             if role == Qt.DisplayRole:
@@ -835,6 +896,8 @@ class SavedSearches(QWidget):
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
         searches.setAlternatingRowColors(True)
+        searches.setDragEnabled(True), searches.setAcceptDrops(True), searches.setDragDropMode(searches.InternalMove)
+        searches.setDropIndicatorShown(True)
         h.addLayout(stack, stretch=10)
         self.v = v = QVBoxLayout()
         h.addLayout(v)
