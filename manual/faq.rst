@@ -606,9 +606,9 @@ Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When you first run calibre, it will ask you for a folder in which to store your books. Whenever you add a book to calibre, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Note that the contents of this folder are automatically managed by calibre, **do not** add any files/folders manually to this folder, as they may be automatically deleted. If you want to add a file associated to a particular book, use the top right area of :guilabel:`Edit metadata` dialog to do so. Then, calibre will automatically put that file into the correct folder and move it around when the title/author changes.
 
-Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder This file is is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
+Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder. This file is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
 
-The library folder and all it's contents make up what is called a calibre library. You can have multiple such libraries. To manage the libraries, click the calibre icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
+The library folder and all its contents make up what is called a calibre library. You can have multiple such libraries. To manage the libraries, click the calibre icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on a book and selecting the :guilabel:`Copy to library` action.
 

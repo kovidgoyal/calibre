@@ -534,7 +534,7 @@ class DevicePlugin(Plugin):
 
     def startup(self):
         '''
-        Called when calibre is is starting the device. Do any initialization
+        Called when calibre is starting the device. Do any initialization
         required. Note that multiple instances of the class can be instantiated,
         and thus __init__ can be called multiple times, but only one instance
         will have this method called. This method is called on the device
@@ -772,6 +772,7 @@ class CurrentlyConnectedDevice(object):
     @property
     def device(self):
         return self._device
+
 
 # A device driver can check if a device is currently connected to calibre using
 # the following code::
