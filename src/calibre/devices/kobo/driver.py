@@ -1036,7 +1036,7 @@ class KOBO(USBMS):
         them as much grief as it does me :-)
 
         This has to make a temporary copy of the book files with a
-        epub extension to allow Calibre's normal processing to
+        epub extension to allow calibre's normal processing to
         deal with the file appropriately
         '''
         for idx, path in enumerate(paths):
