@@ -1026,7 +1026,10 @@ class Amazon(Source):
             terms.append(asin)
         elif isbn is not None:
             q['field-isbn'] = isbn
-            terms.append(isbn)
+            if len(isbn) == 13:
+                terms.extend('({} OR {}-{})'.format(isbn, isbn[:3], isbn[3:]).split())
+            else:
+                terms.append(isbn)
         else:
             # Only return book results
             q['search-alias'] = {'br': 'digital-text',
@@ -1448,7 +1451,7 @@ if __name__ == '__main__':  # tests {{{
         (
             {'identifiers': {'isbn': '9783453314979'}},
             [title_test('Die letzten Wächter: Roman',
-                        exact=False), authors_test(['Sergej Lukianenko', 'Christiane Pöhlmann'])
+                        exact=False), authors_test(['Sergej Lukianenko'])
              ]
 
         ),
@@ -1486,7 +1489,7 @@ if __name__ == '__main__':  # tests {{{
         (
             {'identifiers': {'isbn': '8483460831'}},
             [title_test('Tiempos Interesantes',
-                        exact=True), authors_test(['Terry Pratchett'])
+                        exact=False), authors_test(['Terry Pratchett'])
              ]
 
         ),
