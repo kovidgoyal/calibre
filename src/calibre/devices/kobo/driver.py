@@ -108,7 +108,7 @@ class KOBO(USBMS):
         _('Upload Black and White Covers'),
         _('Show expired books') +
         ':::'+_('A bug in an earlier version left non kepubs book records'
-                ' in the database.  With this option Calibre will show the '
+                ' in the database.  With this option calibre will show the '
                 'expired records and allow you to delete them with '
                 'the new delete logic.'),
         _('Show Previews') +
