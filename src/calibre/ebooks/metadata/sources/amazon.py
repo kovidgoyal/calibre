@@ -28,7 +28,6 @@ class SearchFailed(ValueError):
 
 
 ua_index = -1
-USE_SEARCH_ENGINE = True
 
 
 def parse_details_page(url, log, timeout, browser, domain):
@@ -844,10 +843,25 @@ class Amazon(Source):
         'ca': _('Canada'),
     }
 
+    SERVERS = {
+        'auto': _('Choose server automatically'),
+        'amazon': _('Amazon servers'),
+        'bing': _('Bing search cache'),
+        'google': _('Google search cache'),
+        'wayback': _('Wayback machine cache (slow)'),
+    }
+
     options = (
-        Option('domain', 'choices', 'com', _('Amazon website to use:'),
+        Option('domain', 'choices', 'com', _('Amazon country website to use:'),
                _('Metadata from Amazon will be fetched using this '
                  'country\'s Amazon website.'), choices=AMAZON_DOMAINS),
+        Option('server', 'choices', 'auto', _('Server to get data from:'),
+               _(
+                   'Amazon has started blocking attempts to download'
+                   ' metadata from its servers. To get around this problem,'
+                   ' calibre can fetch the Amazon data from many different'
+                   ' places where it is cached. Choose the source you prefer.'
+               ), choices=SERVERS),
     )
 
     def __init__(self, *args, **kwargs):
@@ -873,7 +887,7 @@ class Amazon(Source):
     @property
     def browser(self):
         global ua_index
-        if USE_SEARCH_ENGINE:
+        if self.use_search_engine:
             if self._browser is None:
                 ua = random_user_agent(allow_ie=False)
                 self._browser = br = browser(user_agent=ua)
@@ -962,6 +976,20 @@ class Amazon(Source):
             domain = 'com'
 
         return domain
+
+    @property
+    def server(self):
+        x = getattr(self, 'testing_server', None)
+        if x is not None:
+            return x
+        server = self.prefs['server']
+        if server not in self.SERVERS:
+            server = 'auto'
+        return server
+
+    @property
+    def use_search_engine(self):
+        return self.server != 'amazon'
 
     def clean_downloaded_metadata(self, mi):
         docase = (
@@ -1223,8 +1251,14 @@ class Amazon(Source):
             domain)[len('https://'):].partition('/')[0]
         matches = []
         se = search_engines_module()
-        urlproc = se.bing_url_processor
-        results, qurl = se.bing_search(terms, site, log=log, br=br, timeout=timeout)
+        server = self.server
+        if server in ('auto', 'bing'):
+            urlproc, sfunc = se.bing_url_processor, se.bing_search
+        elif server == 'google':
+            urlproc, sfunc = se.google_url_processor, se.google_search
+        elif server == 'wayback':
+            urlproc, sfunc = se.wayback_url_processor, se.ddg_search
+        results, qurl = sfunc(terms, site, log=log, br=br, timeout=timeout)
         br.set_current_header('Referer', qurl)
         for result in results:
             if abort.is_set():
@@ -1264,7 +1298,7 @@ class Amazon(Source):
         log('User-agent:', br.current_user_agent())
         if testing:
             print('User-agent:', br.current_user_agent())
-        if udata is not None and not USE_SEARCH_ENGINE:
+        if udata is not None and not self.use_search_engine:
             # Try to directly get details page instead of running a search
             # Cannot use search engine as the directly constructed URL is
             # usually redirected to a full URL by amazon, and is therefore
@@ -1284,7 +1318,7 @@ class Amazon(Source):
                         except Exception:
                             log.exception(
                                 'get_details failed for url: %r' % durl)
-        func = self.search_search_engine if USE_SEARCH_ENGINE else self.search_amazon
+        func = self.search_search_engine if self.use_search_engine else self.search_amazon
         try:
             matches, query, domain, cover_url_processor = func(
                 br, testing, log, abort, title, authors, identifiers, timeout)
@@ -1360,7 +1394,7 @@ class Amazon(Source):
             return
         log('Downloading cover from:', cached_url)
         br = self.browser
-        if USE_SEARCH_ENGINE:
+        if self.use_search_engine:
             br = br.clone_browser()
             br.set_current_header('Referer', self.referrer_for_domain(self.domain))
         try:
@@ -1437,13 +1471,6 @@ if __name__ == '__main__':  # tests {{{
         ),
 
     ]
-    if not USE_SEARCH_ENGINE:
-        com_tests.append(
-        (   # A kindle edition that does not appear in the search results when searching by ASIN
-            {'identifiers': {'amazon': 'B004JHY6OG'}},
-            [title_test(
-                'The Heroes: A First Law Novel (First Law World 2)', exact=True)]
-        ))
 
     # }}}
 
@@ -1568,13 +1595,16 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    def do_test(domain, start=0, stop=None):
+    def do_test(domain, start=0, stop=None, server='auto'):
         tests = globals().get(domain + '_tests')
         if stop is None:
             stop = len(tests)
         tests = tests[start:stop]
-        test_identify_plugin(Amazon.name, tests, modify_plugin=lambda
-                             p: (setattr(p, 'testing_domain', domain), setattr(p, 'touched_fields', p.touched_fields - {'tags'})))
+        test_identify_plugin(Amazon.name, tests, modify_plugin=lambda p: (
+            setattr(p, 'testing_domain', domain),
+            setattr(p, 'touched_fields', p.touched_fields - {'tags'}),
+            setattr(p, 'testing_server', server),
+        ))
 
     do_test('com')
     # do_test('de')
