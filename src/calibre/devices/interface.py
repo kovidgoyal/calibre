@@ -93,7 +93,7 @@ class DevicePlugin(Plugin):
     #: managing a blacklist of devices, a list of ejected devices and so forth.
     #: calibre will periodically call the detect_managed_devices() method and
     #: if it returns a detected device, calibre will call open(). open() will
-    #: be called every time a device is returned even is previous calls to open()
+    #: be called every time a device is returned even if previous calls to open()
     #: failed, therefore the driver must maintain its own blacklist of failed
     #: devices. Similarly, when ejecting, calibre will call eject() and then
     #: assuming the next call to detect_managed_devices() returns None, it will
