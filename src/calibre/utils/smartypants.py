@@ -385,41 +385,6 @@ tags_to_skip_regex = re.compile(r"<(/)?(style|pre|code|kbd|script|math)[^>]*>", 
 self_closing_regex = re.compile(r'/\s*>$')
 
 
-def verify_installation(request):
-    return 1
-    # assert the plugin is functional
-
-
-def cb_story(args):
-    global default_smartypants_attr
-
-    try:
-        forbidden_flavours = args["entry"]["smartypants_forbidden_flavours"]
-    except KeyError:
-        forbidden_flavours = ["rss"]
-
-    try:
-        attributes = args["entry"]["smartypants_attributes"]
-    except KeyError:
-        attributes = default_smartypants_attr
-
-    if attributes is None:
-        attributes = default_smartypants_attr
-
-    entryData = args["entry"].getData()
-
-    try:
-        if args["request"]["flavour"] in forbidden_flavours:
-            return
-    except KeyError:
-        if "&lt;" in args["entry"]["body"][0:15]:  # sniff the stream
-            return  # abort if it looks like escaped HTML.  FIXME
-
-    # FIXME: make these configurable, perhaps?
-    args["entry"]["body"] = smartyPants(entryData, attributes)
-    args["entry"]["title"] = smartyPants(args["entry"]["title"], attributes)
-
-
 # interal functions below here
 
 def smartyPants(text, attr=default_smartypants_attr):
