@@ -376,8 +376,6 @@ smartypants.py license::
 
 """
 
-default_smartypants_attr = "1"
-
 import re
 
 # style added by Kovid
@@ -387,9 +385,52 @@ self_closing_regex = re.compile(r'/\s*>$')
 
 # interal functions below here
 
-def smartyPants(text, attr=default_smartypants_attr):
-    convert_quot = False  # should we translate &quot; entities into normal quotes?
+def parse_attr(attr):
+    do_dashes = do_backticks = do_quotes = do_ellipses = do_stupefy = 0
 
+    if attr == "1":
+        do_quotes    = 1
+        do_backticks = 1
+        do_dashes    = 1
+        do_ellipses  = 1
+    elif attr == "2":
+        # Do everything, turn all options on, use old school dash shorthand.
+        do_quotes    = 1
+        do_backticks = 1
+        do_dashes    = 2
+        do_ellipses  = 1
+    elif attr == "3":
+        # Do everything, turn all options on, use inverted old school dash shorthand.
+        do_quotes    = 1
+        do_backticks = 1
+        do_dashes    = 3
+        do_ellipses  = 1
+    elif attr == "-1":
+        # Special "stupefy" mode.
+        do_stupefy   = 1
+    else:
+        for c in attr:
+            if c == "q":
+                do_quotes = 1
+            elif c == "b":
+                do_backticks = 1
+            elif c == "B":
+                do_backticks = 2
+            elif c == "d":
+                do_dashes = 1
+            elif c == "D":
+                do_dashes = 2
+            elif c == "i":
+                do_dashes = 3
+            elif c == "e":
+                do_ellipses = 1
+            else:
+                pass
+                # ignore unknown option
+    return do_dashes, do_backticks, do_quotes, do_ellipses, do_stupefy
+
+
+def smartyPants(text, attr='1'):
     # Parse attributes:
     # 0 : do nothing
     # 1 : set all
@@ -403,60 +444,17 @@ def smartyPants(text, attr=default_smartypants_attr):
     # D : old school dashes
     # i : inverted old school dashes
     # e : ellipses
-    # w : convert &quot; entities to " for Dreamweaver users
-
-    skipped_tag_stack = []
-    do_dashes = "0"
-    do_backticks = "0"
-    do_quotes = "0"
-    do_ellipses = "0"
-    do_stupefy = "0"
 
     if attr == "0":
         # Do nothing.
         return text
-    elif attr == "1":
-        do_quotes    = "1"
-        do_backticks = "1"
-        do_dashes    = "1"
-        do_ellipses  = "1"
-    elif attr == "2":
-        # Do everything, turn all options on, use old school dash shorthand.
-        do_quotes    = "1"
-        do_backticks = "1"
-        do_dashes    = "2"
-        do_ellipses  = "1"
-    elif attr == "3":
-        # Do everything, turn all options on, use inverted old school dash shorthand.
-        do_quotes    = "1"
-        do_backticks = "1"
-        do_dashes    = "3"
-        do_ellipses  = "1"
-    elif attr == "-1":
-        # Special "stupefy" mode.
-        do_stupefy   = "1"
-    else:
-        for c in attr:
-            if c == "q":
-                do_quotes = "1"
-            elif c == "b":
-                do_backticks = "1"
-            elif c == "B":
-                do_backticks = "2"
-            elif c == "d":
-                do_dashes = "1"
-            elif c == "D":
-                do_dashes = "2"
-            elif c == "i":
-                do_dashes = "3"
-            elif c == "e":
-                do_ellipses = "1"
-            elif c == "w":
-                convert_quot = "1"
-            else:
-                pass
-                # ignore unknown option
 
+    do_dashes, do_backticks, do_quotes, do_ellipses, do_stupefy = parse_attr(attr)
+    dashes_func = {1: educateDashes, 2: educateDashesOldSchool, 3: educateDashesOldSchoolInverted}.get(do_dashes, lambda x: x)
+    backticks_func = {1: educateBackticks, 2: lambda x: educateSingleBackticks(educateBackticks(x))}.get(do_backticks, lambda x: x)
+    ellipses_func = {1: educateEllipses}.get(do_ellipses, lambda x: x)
+    stupefy_func = {1: stupefyEntities}.get(do_stupefy, lambda x: x)
+    skipped_tag_stack = []
     tokens = _tokenize(text)
     result = []
     in_pre = False
@@ -495,28 +493,13 @@ def smartyPants(text, attr=default_smartypants_attr):
             if not in_pre:
                 t = processEscapes(t)
 
-                if convert_quot != "0":
-                    t = re.sub('&quot;', '"', t)
-
-                if do_dashes != "0":
-                    if do_dashes == "1":
-                        t = educateDashes(t)
-                    if do_dashes == "2":
-                        t = educateDashesOldSchool(t)
-                    if do_dashes == "3":
-                        t = educateDashesOldSchoolInverted(t)
-
-                if do_ellipses != "0":
-                    t = educateEllipses(t)
-
+                t = re.sub('&quot;', '"', t)
+                t = dashes_func(t)
+                t = ellipses_func(t)
                 # Note: backticks need to be processed before quotes.
-                if do_backticks != "0":
-                    t = educateBackticks(t)
+                t = backticks_func(t)
 
-                if do_backticks == "2":
-                    t = educateSingleBackticks(t)
-
-                if do_quotes != "0":
+                if do_quotes is not 0:
                     if t == "'":
                         # Special case: single-character ' token
                         if re.match("\S", prev_token_last_char):
@@ -534,8 +517,7 @@ def smartyPants(text, attr=default_smartypants_attr):
                         # Normal case:
                         t = educateQuotes(t)
 
-                if do_stupefy == "1":
-                    t = stupefyEntities(t)
+                t = stupefy_func(t)
 
             prev_token_last_char = last_char
             result.append(t)
