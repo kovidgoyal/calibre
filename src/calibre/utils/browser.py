@@ -22,8 +22,9 @@ class ModernHTTPSHandler(HTTPSHandler):
             if cert_file:
                 self.ssl_context.load_cert_chain(cert_file, key_file)
 
-        def conn_factory(hostport):
-            return httplib.HTTPSConnection(hostport, context=self.ssl_context)
+        def conn_factory(hostport, **kw):
+            kw['context'] = self.ssl_context
+            return httplib.HTTPSConnection(hostport, **kw)
         return self.do_open(conn_factory, req)
 
 
