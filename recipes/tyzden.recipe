@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 #
-# Copyright 2014 - 2016 Martin Račák <rakyi@riseup.net>
+# Copyright 2014 - 2017 Martin Račák <rakyi@riseup.net>
 # Copyright 2011 Miroslav Vasko <zemiak@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,12 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __license__ = 'GPL v3'
-__copyright__ = ('2014 - 2015 Martin Račák <martin.racak@riseup.net>,'
+__copyright__ = ('2014 - 2017 Martin Račák <martin.racak@riseup.net>,'
                  '2011 Miroslav Vasko <zemiak@gmail.com>')
 
-'''
-.týždeň - iný pohľad na spoločnosť
-'''
+import re
 
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -39,102 +37,90 @@ class Tyzden(BasicNewsRecipe):
     needs_subscription = 'optional'
     use_embedded_content = False
     no_stylesheets = True
-    base_url = 'http://www.tyzden.sk'
-    piano_param = '?piano_d=1'
-    issue_url = base_url + '/casopis/'
+    issue_url = 'http://www.tyzden.sk/casopis/'
+
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'detail__title article__title'}),
-        dict(name='div', attrs={'class': 'article'}),
+        dict(name='div', attrs={'class': 'section__content section__content--archive'}),
+        dict(name='article', attrs={'class': re.compile(r'\barticle\b')}),
     ]
-    extra_css = """*, *::before, *::after {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
+
+    extra_css = """.theme-highlight {
+        color: #999;
+        text-decoration: none;
     }
 
-    .detail__content h2::before {
-        color: #000;
-        content: ".";
+    .author-highlight {
+        color: #bf1f10;
+        text-decoration: none;
+    }
+
+    .article__content h2::before {
+        content: '.';
         display: inline;
     }
 
-    .highlight {
-        color: #bf1f10;
-    }
-
-    .content-photo__image-credit,
-    .photo__image-credit {
-        font-size: 11px;
-        font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    .article__image-credit {
+        font: 12px "TheSerifSemiLight",arial;
         text-transform: uppercase;
     }
 
-    .image-title {
-        border-bottom: 3px solid #bf1f10;
-        display: block;
-        padding-bottom: 3px;
-        line-height: 22px;
-        font-size: 16px;
-        font-family: 'TheMix_Bold', 'Georgia', 'Times', 'Times New Roman', serif;
-        font-weight: 500;
-    }
-
-    .teaser--mag-feature {
-        margin-top: 25px;
-        padding: 10px 0 10px;
-        width: 100%;
-        box-sizing: content-box;
-        border-top: 2px dotted #555;
-        border-bottom: 2px dotted #555;
-        font-size: 20px;
-    }
-
-    .teaser__wrapper {
+    .article__image-title {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        margin: 0;
+        font: 15px "TheSerifBold",arial;
+        border-bottom: 2px solid #bf1f10;
         display: block;
     }
 
-    .teaser a {
-        outline: none;
-        text-decoration: none;
-        color: inherit;
+    .teaser__title {
+        font: 18px "TheSerifBold",arial;
+        color: #bf1f10;
     }
 
-   .teaser__title {
-        font-size: 26px;
-    }"""
+    .teaser__title .highlight {
+        color: #000;
+    }
+    """
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open(self.base_url + '/' + self.piano_param)
-        br.set_cookie('_t', '9bcb7dc397cf9516cbc504b700cf14e', '.tyzden.sk')
-        br.set_cookie('pianovisitkey', '', '.tyzden.sk')
         if self.username is not None and self.password is not None:
-            br.select_form(nr=2)
-            br['email'] = self.username
+            br.open('https://crm.tyzden.sk/sign/in/')
+            br.select_form(nr=0)
+            br['username'] = self.username
             br['password'] = self.password
             br.submit()
         return br
 
-    def find_sections(self):
+    def parse_index(self):
         soup = self.index_to_soup(self.issue_url)
-        img_wrapper = soup.find('div', 'mag__title-img-wrapper')
-        if img_wrapper is not None:
-            self.cover_url = img_wrapper.img['src']
+        cover_img = soup.findAll('img', 'teaser__image')[-1]
+        if cover_img is not None:
+            self.cover_url = cover_img['src']
 
-        for section in soup.findAll('div', 'mag__section'):
-            section_title = section.find('span', 'mag__section-title')
-            yield (self.tag_to_string(section_title), section)
-
-    def find_articles(self, soup):
-        for title in soup.findAll('h1', 'teaser__title'):
-            yield {
-                'title': self.tag_to_string(title.a),
-                'url': title.a['href'],
-                'date': strftime(' %a, %d %b'),
+        feeds = []
+        teasers = soup.findAll('div', {'class': re.compile(r'\bteaser--list\b')})
+        for teaser in teasers:
+            section = self.tag_to_string(teaser.find('a', 'theme-heading__wrapper'))
+            article_title = self.tag_to_string(
+                teaser.find('h1', {'class': re.compile(r'\bteaser__title\b')}))
+            article_link = teaser.find('a', 'teaser__link--main')
+            article = {
+                'title': article_title,
+                'url': article_link['href'],
+                'date': strftime(' %a, %d %b')
             }
 
-    def parse_index(self):
-        feeds = []
-        for title, section in self.find_sections():
-            feeds.append((title, list(self.find_articles(section))))
+            if not feeds:
+                # First cycle iteration.
+                feeds.append((section, [article]))
+                continue
+
+            last_section, last_articles = feeds[-1]
+            if section == last_section:
+                last_articles.append(article)
+            else:
+                feeds.append((section, [article]))
+
         return feeds
