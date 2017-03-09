@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import cPickle, os, sys
 from collections import defaultdict, OrderedDict
+from itertools import chain
 from threading import Thread
 from functools import partial
 
@@ -1093,7 +1094,7 @@ class SpellCheck(Dialog):
             suggestions = dictionaries.suggestions(*w)
             self.suggested_list.clear()
             word_suggested = False
-            for i, s in enumerate(suggestions):
+            for i, s in enumerate(chain(suggestions, (current_word,))):
                 item = QListWidgetItem(s, self.suggested_list)
                 if i == 0:
                     self.suggested_list.setCurrentItem(item)
