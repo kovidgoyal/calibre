@@ -19,6 +19,7 @@ from .constants import (
 
 try:
     unicode
+
     def with_metaclass(meta, *bases):
         """Create a base class with a metaclass."""
         return meta(b"NewBase", bases, {})
@@ -29,11 +30,11 @@ except NameError:
 
 
 def parse(doc, treebuilder="etree", encoding=None,
-          namespaceHTMLElements=True):
+          namespaceHTMLElements=True, transport_encoding=None):
     """Parse a string or file-like object into a tree"""
     tb = treebuilders.getTreeBuilder(treebuilder)
     p = HTMLParser(tb, namespaceHTMLElements=namespaceHTMLElements)
-    return p.parse(doc, encoding=encoding)
+    return p.parse(doc, encoding=transport_encoding or encoding)
 
 
 def parseFragment(doc, container="div", treebuilder="etree", encoding=None,
@@ -367,6 +368,7 @@ class HTMLParser(object):
         if self.track_positions:
             ans['position'] = (self.tokenizer.stream.position(), True)
         return ans
+
 
 def getPhases(debug):
     def log(function):
@@ -2668,10 +2670,12 @@ def getPhases(debug):
         # XXX after after frameset
     }
 
+
 def adjust_attributes(token, replacements):
     if token['data'].viewkeys() & replacements.viewkeys():
         token['data'] = OrderedDict(
             (replacements.get(k, k), v) for k, v in token['data'].iteritems())
+
 
 class ParseError(Exception):
 
