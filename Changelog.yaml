@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title:
 
+- version: 2.81.0
+  date: 2017-03-10
+
+  new features:
+    - title: "Amazon metadata download: Allow downloading amazon metadata from multiple sources. You can now configure the Amazon plugin via Preferences->Metadata download to use either the amazon servers, or various search engine caches to get the metadata. Should help with the recent CAPTCHA problems when downloading metadata from amazon"
+
+    - title: "Kobo driver: Add support for new firmware"
+
+    - title: "Edit Book: Spell Check dialog: Always add the original word as one of the spelling corrections, so that small edits to the word can be made easily."
+      tickets: [1667914]
+
+    - title: "Edit Book: Saved searched Dialog: Allow re-arranging the saved searches using drag and drop."
+      tickets: [1669514]
+
+    - title: "Implement auto update of builtin metadata download plugins, just as for recipes and Get Books plugins. Needed as the websites they get data from often change."
+
+    - title: "Edit Book: When inserting full screen images, use the actual image dimensions in the generated SVG code, when available"
+
+    - title: "Linux installer: Check that the umask is suitable before running the installer. Should fix breakage on systems where users have changed the user umask but neglected to also alter it for sudo"
+
+    - title: "Bulk metadata edit: Remove the control to delete specific formats as it is redundant. This functionality is already present by right clicking the Remove books button"
+
+  bug fixes:
+    - title: "TXT Input: When detecting the encoding of txt files only use the first four kilobytes of text. Fixes excessively slow conversion of very large text files."
+      tickets: [1668246]
+
+    - title: "Get Books: Fix price not being displayed for books from Amazon dues to website changes"
+
+    - title: "GetBooks: Update Google Books plugin for website changes"
+
+    - title: "E-book viewer: Fix slow startup when recently opened files are on a slow/malfunctioning networked filesystem."
+      tickets: [1669497]
+
+    - title: "Google metadata download: Fix metadata not being found when the title of the book includes a sub-title"
+
+    - title: "Improve downloading of covers from the google books metadata source"
+
+    - title: "News download: Fix a bug that could cause a crash when downloading an SVG image."
+      tickets: [1669530]
+
+    - title: "Edit book: Fix a regression that caused pasting copied text from programs that generate both HTML and plain text when copying to paste the HTML in preference to the plain text"
+
+  improved recipes:
+    - tyzden
+    - The Economist
+    - Kansas City Star
+    - NYTimes
+    - The Spectator
+
 - version: 2.80.0
   date: 2017-02-24
 
