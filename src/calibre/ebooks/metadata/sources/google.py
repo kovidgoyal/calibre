@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import hashlib
+import re
 import time
 from Queue import Empty, Queue
 
@@ -39,7 +40,6 @@ def get_details(browser, url, timeout):  # {{{
 
 # }}}
 
-
 xpath_cache = {}
 
 
@@ -49,6 +49,12 @@ def XPath(x):
         from lxml import etree
         ans = xpath_cache[x] = etree.XPath(x, namespaces=NAMESPACES)
     return ans
+
+
+def cleanup_title(title):
+    if ':' in title:
+        return title.partition(':')[0]
+    return re.sub(r'(.+?) \(.+\)', r'\1', title)
 
 
 def to_metadata(browser, log, entry_, timeout):  # {{{
@@ -67,6 +73,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     subject = XPath('descendant::dc:subject')
     description = XPath('descendant::dc:description')
     language = XPath('descendant::dc:language')
+
     # print(etree.tostring(entry_, pretty_print=True))
 
     def get_text(extra, x):
@@ -178,7 +185,8 @@ class GoogleBooks(Source):
     GOOGLE_COVER = 'https://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
     DUMMY_IMAGE_MD5 = frozenset(
-        {'0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'})
+        {'0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'}
+    )
 
     def get_book_url(self, identifiers):  # {{{
         goog = identifiers.get('google', None)
@@ -202,8 +210,7 @@ class GoogleBooks(Source):
             title_tokens = list(self.get_title_tokens(title))
             if title_tokens:
                 q += build_term('title', title_tokens)
-            author_tokens = self.get_author_tokens(
-                authors, only_first_author=True)
+            author_tokens = self.get_author_tokens(authors, only_first_author=True)
             if author_tokens:
                 q += ('+' if q else '') + build_term('author', author_tokens)
 
@@ -323,8 +330,7 @@ class GoogleBooks(Source):
                     result_queue.put(ans)
             except:
                 log.exception(
-                    'Failed to get metadata for identify entry:', etree.tostring(
-                        i)
+                    'Failed to get metadata for identify entry:', etree.tostring(i)
                 )
             if abort.is_set():
                 break
@@ -361,8 +367,7 @@ class GoogleBooks(Source):
         try:
             parser = etree.XMLParser(recover=True, no_network=True)
             feed = etree.fromstring(
-                xml_to_unicode(clean_ascii_chars(
-                    raw), strip_encoding_pats=True)[0],
+                xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
                 parser=parser
             )
             entries = entry(feed)
@@ -381,18 +386,17 @@ class GoogleBooks(Source):
                     authors=authors,
                     timeout=timeout
                 )
-            if ':' in title:
-                title = title.partition(':')[0]
-                if title:
-                    log('No results found, retrying without sub-title')
-                    return self.identify(
-                        log,
-                        result_queue,
-                        abort,
-                        title=title,
-                        authors=authors,
-                        timeout=timeout
-                    )
+            ntitle = cleanup_title(title)
+            if ntitle and ntitle != title:
+                log('No results found, retrying without sub-title')
+                return self.identify(
+                    log,
+                    result_queue,
+                    abort,
+                    title=ntitle,
+                    authors=authors,
+                    timeout=timeout
+                )
 
         # There is no point running these queries in threads as google
         # throttles requests returning 403 Forbidden errors
@@ -407,31 +411,23 @@ if __name__ == '__main__':  # tests {{{
     from calibre.ebooks.metadata.sources.test import (
         test_identify_plugin, title_test, authors_test
     )
-    tests = [
-        ({
-            'identifiers': {
-                'isbn': '0743273567'
-            },
-            'title': 'Great Gatsby',
-            'authors': ['Fitzgerald']
-        }, [
-            title_test('The great gatsby', exact=True),
-            authors_test(['F. Scott Fitzgerald'])
-        ]
-        ),
-
-        ({
-            'title': 'Flatland',
-            'authors': ['Abbott']
-        }, [title_test('Flatland', exact=False)]
-        ),
-
-        ({
-            'title': 'The Blood Red Indian Summer: A Berger and Mitry Mystery',
-            'authors': ['David Handler'],
-        }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')]
-        )
-    ]
+    tests = [({
+        'identifiers': {
+            'isbn': '0743273567'
+        },
+        'title': 'Great Gatsby',
+        'authors': ['Fitzgerald']
+    }, [
+        title_test('The great gatsby', exact=True),
+        authors_test(['F. Scott Fitzgerald'])
+    ]), ({
+        'title': 'Flatland',
+        'authors': ['Abbott']
+    }, [title_test('Flatland', exact=False)]), ({
+        'title':
+        'The Blood Red Indian Summer: A Berger and Mitry Mystery',
+        'authors': ['David Handler'],
+    }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')])]
     test_identify_plugin(GoogleBooks.name, tests[:])
 
 # }}}
