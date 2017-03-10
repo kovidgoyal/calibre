@@ -34,7 +34,7 @@
     - title: "Edit Book: Saved searched Dialog: Allow re-arranging the saved searches using drag and drop."
       tickets: [1669514]
 
-    - title: "Implement auto update of builtin metadata download plugins, just as for recipes and Get Books plugins. Needed as the websites they get data from often change."
+    - title: "Implement auto update of built-in metadata download plugins, just as for recipes and Get Books plugins. Needed as the websites they get data from often change."
 
     - title: "Edit Book: When inserting full screen images, use the actual image dimensions in the generated SVG code, when available"
 
