@@ -97,5 +97,6 @@ def test():
                      authors=('Joe Abercrombie',))
     print ('Downloaded', rq.qsize(), 'covers')
 
+
 if __name__ == '__main__':
     test()

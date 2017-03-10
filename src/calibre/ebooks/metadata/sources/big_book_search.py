@@ -58,5 +58,6 @@ def test():
     urls = get_urls(br, ['consider', 'phlebas', 'banks'])
     pprint.pprint(urls)
 
+
 if __name__ == '__main__':
     test()
