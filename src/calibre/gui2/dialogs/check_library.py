@@ -37,7 +37,6 @@ class DBCheck(QDialog):  # {{{
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.db = db.new_api
-        self.closed_orig_conn = False
         self.rejected = False
 
     def start(self):

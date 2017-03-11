@@ -955,8 +955,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if mb is not None:
             mb.stop()
 
-        if db is not None:
-            db.close()
+        self.library_view.model().close()
 
         try:
             try:

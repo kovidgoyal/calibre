@@ -493,16 +493,16 @@ class ChooseLibraryAction(InterfaceAction):
         m.stop_metadata_backup()
         db = m.db
         db.prefs.disable_setting = True
+        library_path = db.library_path
 
         d = DBCheck(self.gui, db)
         d.start()
         try:
-            d.conn.close()
+            m.close()
         except:
             pass
         d.break_cycles()
-        self.gui.library_moved(db.library_path, call_close=not
-                d.closed_orig_conn)
+        self.gui.library_moved(library_path, call_close=False)
         if d.rejected:
             return
         if d.error is None:
