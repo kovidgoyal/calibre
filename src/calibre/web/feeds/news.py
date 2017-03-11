@@ -829,6 +829,7 @@ class BasicNewsRecipe(Recipe):
         Called when each HTML page belonging to article is downloaded.
         Intended to be used to get article metadata like author/summary/etc.
         from the parsed HTML (soup).
+
         :param article: A object of class :class:`calibre.web.feeds.Article`.
         If you change the summary, remember to also change the
         text_summary
