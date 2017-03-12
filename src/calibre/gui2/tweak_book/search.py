@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QLabel, QLineEdit, QListView,
     QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QSizePolicy,
     QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal, QAction, QKeySequence
 )
 
 import regex
@@ -942,10 +942,19 @@ class SavedSearches(QWidget):
 
         self.h3 = h = QHBoxLayout()
         self.upb = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up'))
+        self.move_up_action = a = QAction(self)
+        a.setShortcut(QKeySequence('Alt+Up'))
+        b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
+        a.triggered.connect(partial(self.move_entry, -1))
+        self.searches.addAction(a)
         b.clicked.connect(partial(self.move_entry, -1))
+
         self.dnb = b = QToolButton(self)
-        b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down'))
+        self.move_down_action = a = QAction(self)
+        a.setShortcut(QKeySequence('Alt+Down'))
+        b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
+        a.triggered.connect(partial(self.move_entry, 1))
+        self.searches.addAction(a)
         b.clicked.connect(partial(self.move_entry, 1))
         h.addWidget(self.upb), h.addWidget(self.dnb)
         v.addLayout(h)
