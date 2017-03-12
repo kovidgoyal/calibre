@@ -624,6 +624,18 @@ class SearchesModel(QAbstractListModel):
                 self.filtered_searches.append(i)
         self.endResetModel()
 
+    def search_for_index(self, index):
+        try:
+            return self.searches[self.filtered_searches[index.row()]]
+        except IndexError:
+            pass
+
+    def index_for_search(self, search):
+        for row, si in enumerate(self.filtered_searches):
+            if self.searches[si] is search:
+                return self.index(row)
+        return self.index(-1)
+
     def move_entry(self, row, delta):
         a, b = row, row + delta
         if 0 <= b < len(self.filtered_searches):
@@ -1096,16 +1108,22 @@ class SavedSearches(QWidget):
     def move_entry(self, delta):
         if self.editing_search:
             return
-        rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
+        sm = self.searches.selectionModel()
+        rows = {index.row() for index in sm.selectedIndexes()} - {-1}
         if rows:
+            searches = [self.model.search_for_index(index) for index in sm.selectedIndexes()]
+            current_search = self.model.search_for_index(self.searches.currentIndex())
             with tprefs:
                 for row in sorted(rows, reverse=delta > 0):
                     self.model.move_entry(row, delta)
-            nrow = row + delta
-            index = self.model.index(nrow)
-            if index.isValid():
-                sm = self.searches.selectionModel()
-                sm.setCurrentIndex(index, sm.ClearAndSelect)
+            sm.clear()
+            for s in searches:
+                index = self.model.index_for_search(s)
+                if index.isValid() and index.row() > -1:
+                    if s is current_search:
+                        sm.setCurrentIndex(index, sm.Select)
+                    else:
+                        sm.select(index, sm.Select)
 
     def search_editing_done(self, save_changes):
         if save_changes and not self.edit_search_widget.save_changes():
