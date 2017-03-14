@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
@@ -76,7 +76,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = re.sub('\.',',',price.strip())
-                s.detail_item = 'http://virtualo.pl' + id
+                s.detail_item = id
                 s.formats = ', '.join(formats).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED
 
