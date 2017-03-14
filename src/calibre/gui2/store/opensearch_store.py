@@ -59,6 +59,8 @@ def open_search(url, query, max_results=10, timeout=60):
                         s.cover_url = href
                     elif 'http://opds-spec.org/acquisition/buy' in rel:
                         s.detail_item = href
+                    elif 'http://opds-spec.org/acquisition/sample' in rel:
+                        pass
                     elif 'http://opds-spec.org/acquisition' in rel:
                         if type:
                             ext = guess_extension(type)
