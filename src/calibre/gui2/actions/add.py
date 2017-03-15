@@ -73,7 +73,7 @@ class AddAction(InterfaceAction):
         self.create_menu_action(arm, 'recursive-multiple-archive', _(
             'Multiple books per directory in the archive')).triggered.connect(partial(self.add_archive, False))
         self.add_menu.addSeparator()
-        ma('add-empty', _('Add Empty book. (Book entry with no formats)'),
+        ma('add-empty', _('Add Empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
         ma('add-isbn', _('Add from ISBN')).triggered.connect(self.add_from_isbn)
         self.add_menu.addSeparator()
