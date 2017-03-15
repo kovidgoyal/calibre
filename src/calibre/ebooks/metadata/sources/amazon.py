@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import re
 import socket
 import time
+from functools import partial
 from Queue import Empty, Queue
 from threading import Thread
 from urlparse import urlparse
@@ -105,7 +106,8 @@ class Worker(Thread):  # Get details {{{
     '''
 
     def __init__(self, url, result_queue, browser, log, relevance, domain,
-                 plugin, timeout=20, testing=False, preparsed_root=None, cover_url_processor=None):
+                 plugin, timeout=20, testing=False, preparsed_root=None,
+                 cover_url_processor=None, filter_result=None):
         Thread.__init__(self)
         self.cover_url_processor = cover_url_processor
         self.preparsed_root = preparsed_root
@@ -113,6 +115,7 @@ class Worker(Thread):  # Get details {{{
         self.testing = testing
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
+        self.filter_result = filter_result or (lambda x, log: True)
         self.relevance, self.plugin = relevance, plugin
         self.browser = browser
         self.cover_url = self.amazon_id = self.isbn = None
@@ -447,7 +450,8 @@ class Worker(Thread):  # Get details {{{
 
         self.plugin.clean_downloaded_metadata(mi)
 
-        self.result_queue.put(mi)
+        if self.filter_result(mi, self.log):
+            self.result_queue.put(mi)
 
     def totext(self, elem):
         return self.tostring(elem, encoding=unicode, method='text').strip()
@@ -817,7 +821,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 0, 0)
+    version = (1, 1, 0)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1338,8 +1342,10 @@ class Amazon(Source):
             log.error('No matches found with query: %r' % query)
             return
 
-        workers = [Worker(url, result_queue, br, log, i, domain, self, testing=testing, timeout=timeout,
-                          cover_url_processor=cover_url_processor) for i, url in enumerate(matches)]
+        workers = [Worker(
+            url, result_queue, br, log, i, domain, self, testing=testing, timeout=timeout,
+            cover_url_processor=cover_url_processor, filter_result=partial(
+                self.filter_result, title, authors, identifiers)) for i, url in enumerate(matches)]
 
         for w in workers:
             # Don't send all requests at the same time
@@ -1360,6 +1366,29 @@ class Amazon(Source):
                 break
 
         return None
+    # }}}
+
+    def filter_result(self, title, authors, identifiers, mi, log):  # {{{
+        if not self.use_search_engine:
+            return True
+        if title is not None:
+            tokens = {icu_lower(x) for x in title.split() if len(x) > 3}
+            if tokens:
+                result_tokens = {icu_lower(x) for x in mi.title.split()}
+                if not tokens.intersection(result_tokens):
+                    log('Ignoring result:', mi.title, 'as its title does not match')
+                    return False
+        if authors:
+            author_tokens = set()
+            for author in authors:
+                author_tokens |= {icu_lower(x) for x in author.split() if len(x) > 2}
+            result_tokens = set()
+            for author in mi.authors:
+                result_tokens |= {icu_lower(x) for x in author.split() if len(x) > 2}
+            if author_tokens and not author_tokens.intersection(result_tokens):
+                log('Ignoring result:', mi.title, 'by', ' & '.join(mi.authors), 'as its author does not match')
+                return False
+        return True
     # }}}
 
     def download_cover(self, log, result_queue, abort,  # {{{
@@ -1448,14 +1477,6 @@ if __name__ == '__main__':  # tests {{{
             [title_test('Expert C#'),
              authors_test(['Rockford Lhotka'])
              ]
-        ),
-
-        (  # Description has links
-            {'identifiers': {'isbn': '9780671578275'}},
-            [title_test('A Civil Campaign: A Comedy of Biology and Manners',
-                        exact=True), authors_test(['Lois McMaster Bujold'])
-             ]
-
         ),
 
         (  # Sophisticated comment formatting
