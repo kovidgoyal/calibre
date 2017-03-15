@@ -95,7 +95,7 @@ class BasicNewsRecipe(Recipe):
 
     #: The format string for the date shown on the first page.
     #: By default: Day_Name, Day_Number Month_Name Year
-    timefmt                = ' [%a, %d %b %Y]'
+    timefmt                = ' [%Y-%m-%d]'
 
     #: List of feeds to download.
     #: Can be either ``[url1, url2, ...]`` or ``[('title1', url1), ('title2', url2),...]``
