@@ -9,7 +9,7 @@ class SGhu(BasicNewsRecipe):
     oldest_article = 5
     max_articles_per_feed = 100
     no_stylesheets = True
-    encoding = 'ISO-8859-2'
+    encoding = 'utf-8'
 
     feeds = [(u'SG.hu', u'http://www.sg.hu/plain/rss.xml')]
 
