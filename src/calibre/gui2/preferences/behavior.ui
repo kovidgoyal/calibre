@@ -28,7 +28,7 @@
 If not checked, the values can be Yes or No.</string>
      </property>
      <property name="text">
-      <string>Yes/No columns have three values (Requires restart)</string>
+      <string>Yes/No columns have three values (needs restart)</string>
      </property>
     </widget>
    </item>

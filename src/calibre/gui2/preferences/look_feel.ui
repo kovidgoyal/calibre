@@ -139,7 +139,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Choose &amp;language (requires restart):</string>
+          <string>Choose &amp;language (needs restart):</string>
          </property>
          <property name="buddy">
           <cstring>opt_language</cstring>
