@@ -80,13 +80,14 @@ class Economist(BasicNewsRecipe):
                 ]
             }
         ),
-        classes('share-links-header teaser--wrapped'),
+        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section'),
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
     preprocess_regexps = [
       (re.compile('</html>.*', re.DOTALL), lambda x: '</html>'),
     ]
+    remove_attributes = ['data-reactid']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 1
@@ -120,9 +121,18 @@ class Economist(BasicNewsRecipe):
         br.set_handle_gzip(True)
         return br
 
+    def preprocess_raw_html(self, raw, url):
+        soup = self.index_to_soup(raw)
+        for div in soup.findAll(**classes('lazy-image')):
+            noscript = div.find('noscript')
+            img = noscript.find('img')
+            noscript.replaceWith(img)
+        return type(u'')(soup)
+
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        # 'url':'https://www.economist.com/news/americas/21699494-guide-cutting-corners-way-jos'}])]
+        # 'url':'http://www.economist.com/news/business/21718916-worlds-biggest-software-firm-has-transformed-its-culture-better-getting-cloud'
+        # }])]
         raw = self.index_to_soup(self.INDEX, raw=True)
         # with open('/t/raw.html', 'wb') as f:
         #     f.write(raw)
