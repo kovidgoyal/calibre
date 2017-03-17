@@ -122,15 +122,19 @@ class Economist(BasicNewsRecipe):
         return br
 
     def preprocess_raw_html(self, raw, url):
-        soup = self.index_to_soup(raw)
-        for div in soup.findAll(**classes('lazy-image')):
-            noscript = div.find('noscript')
-            if noscript is not None:
-                img = noscript.find('img')
-                if img is not None:
-                    img.extract()
-                    noscript.replaceWith(img)
-        return type(u'')(soup)
+        import html5lib
+        root = html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml')
+        from lxml import etree
+        for div in root.xpath('//div[@class="lazy-image"]'):
+            noscript = list(div.iter('noscript'))
+            if noscript and noscript[0].text:
+                img = list(html5lib.parse(noscript[0].text, namespaceHTMLElements=False, treebuilder='lxml').iter('img'))
+                if img:
+                    p = noscript[0].getparent()
+                    idx = p.index(noscript[0])
+                    p.insert(idx, p.makeelement('img', src=img[0].get('src')))
+                    p.remove(noscript[0])
+        return etree.tostring(root, encoding=unicode)
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
