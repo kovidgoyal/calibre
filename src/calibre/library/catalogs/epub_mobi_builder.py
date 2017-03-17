@@ -2698,7 +2698,10 @@ class CatalogBuilder(object):
             for (i, tag) in enumerate(sorted(book.get('genres', []))):
                 aTag = Tag(_soup, 'a')
                 if self.opts.generate_genres:
-                    aTag['href'] = "Genre_%s.html" % self.genre_tags_dict[tag]
+                    try:
+                        aTag['href'] = "Genre_%s.html" % self.genre_tags_dict[tag]
+                    except KeyError:
+                        pass
                 aTag.insert(0, escape(NavigableString(tag)))
                 genresTag.insert(gtc, aTag)
                 gtc += 1
