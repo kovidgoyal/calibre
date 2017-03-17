@@ -125,8 +125,11 @@ class Economist(BasicNewsRecipe):
         soup = self.index_to_soup(raw)
         for div in soup.findAll(**classes('lazy-image')):
             noscript = div.find('noscript')
-            img = noscript.find('img')
-            noscript.replaceWith(img)
+            if noscript is not None:
+                img = noscript.find('img')
+                if img is not None:
+                    img.extract()
+                    noscript.replaceWith(img)
         return type(u'')(soup)
 
     def parse_index(self):
