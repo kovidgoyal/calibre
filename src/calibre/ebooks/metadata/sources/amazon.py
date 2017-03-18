@@ -822,7 +822,7 @@ class Amazon(Source):
 
     name = 'Amazon.com'
     version = (1, 1, 0)
-    minimum_calibre_version = (2, 80, 0)
+    minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
     capabilities = frozenset(['identify', 'cover'])
