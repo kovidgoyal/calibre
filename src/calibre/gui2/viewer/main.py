@@ -620,7 +620,8 @@ class EbookViewer(MainWindow):
             self.load_ebook(files[0])
 
     def open_recent(self, action):
-        self.load_ebook(action.path)
+        if hasattr(action, 'path'):
+            self.load_ebook(action.path)
 
     def font_size_larger(self):
         self.view.magnify_fonts()
