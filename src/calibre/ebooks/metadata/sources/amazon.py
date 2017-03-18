@@ -1072,8 +1072,8 @@ class Amazon(Source):
                     q['field-title'] = ' '.join(title_tokens)
                     terms.extend(title_tokens)
             if authors:
-                author_tokens = self.get_author_tokens(authors,
-                                                       only_first_author=True)
+                author_tokens = list(self.get_author_tokens(authors,
+                                                       only_first_author=True))
                 if author_tokens:
                     q['field-author'] = ' '.join(author_tokens)
                     terms.extend(author_tokens)

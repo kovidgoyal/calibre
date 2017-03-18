@@ -196,8 +196,8 @@ class Douban(Source):
             title_tokens = list(self.get_title_tokens(title))
             if title_tokens:
                 q += build_term('title', title_tokens)
-            author_tokens = self.get_author_tokens(authors,
-                    only_first_author=True)
+            author_tokens = list(self.get_author_tokens(authors,
+                    only_first_author=True))
             if author_tokens:
                 q += ((' ' if q != '' else '') +
                     build_term('author', author_tokens))
