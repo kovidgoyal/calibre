@@ -625,6 +625,9 @@ def patch_metadata_plugins(possibly_updated_plugins):
             if pup is not None:
                 if pup.version > plugin.version and pup.minimum_calibre_version <= numeric_version:
                     patches[i] = pup(None)
+                    # Metadata source plugins dont use initialize() but that
+                    # might change in the future, so be safe.
+                    patches[i].initialize()
     for i, pup in patches.iteritems():
         _initialized_plugins[i] = pup
 # }}}
