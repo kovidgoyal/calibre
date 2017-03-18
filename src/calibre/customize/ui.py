@@ -624,7 +624,7 @@ def patch_metadata_plugins(possibly_updated_plugins):
             pup = possibly_updated_plugins.get(plugin.name)
             if pup is not None:
                 if pup.version > plugin.version and pup.minimum_calibre_version <= numeric_version:
-                    patches[i] = pup
+                    patches[i] = pup(None)
     for i, pup in patches.iteritems():
         _initialized_plugins[i] = pup
 # }}}
