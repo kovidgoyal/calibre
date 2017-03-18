@@ -20,6 +20,39 @@
 #   new recipes:
 #     - title:
 
+- version: 2.82.0
+  date: 2017-03-18
+
+  new features:
+    - title: "Edit Book: Saved Searches: Add keyboard shortcut (Alt+Up/Down Arrow) to move selected searches"
+
+  bug fixes:
+    - title: "Fix a typo in the previous release that caused dynamically updated metadata source plugins to stop working."
+      tickets: [1673884]
+
+    - title: "Catalog generation: Ignore tags with commas in them when generating genres"
+
+    - title: "News download: Do not use Microsoft user agents as more and more websites are serving JPEG XR images to these browsers"
+
+    - title: "Amazon metadata download: Fix spurious results when searching for books that are not present on amazon using a search engine."
+
+    - title: "Get Books: Fix free samples being detected as independent books when searching OPDS based stores such as Feedbooks."
+      tickets: [1672500]
+
+    - title: "Edit Book: Saved Searches: Preserve selection when using arrows to move multiple items"
+
+    - title: "Fix template formatter functions not being reloaded after a check library operation"
+
+    - title: "Fix an error during shutdown caused by some library closed plugins"
+
+  improved recipes:
+    - The Economist
+    - Telegraph UK
+
+  new recipes:
+    - title: The Morning Paper
+      author: Darko Miletic
+
 - version: 2.81.0
   date: 2017-03-10
 
