@@ -545,6 +545,9 @@ class Device(DeviceConfig, DevicePlugin):
                             ok[node] = False
                     except:
                         ok[node] = False
+                    if DEBUG and not ok[node]:
+                        print '\nIgnoring the node: %s as could not read size from: %s' % (node, sz)
+
                     devnodes.append(node)
 
         devnodes += list(repeat(None, 3))
