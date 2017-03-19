@@ -533,6 +533,12 @@ class Worker(Thread):  # Get details {{{
                             ' @class="emptyClear" or @id="collapsePS" or'
                             ' @id="expandPS"]'):
             c.getparent().remove(c)
+        for b in desc.xpath('descendant::b[@style]'):
+            # Bing highlights search results
+            s = b.get('style', '')
+            if 'color' in s:
+                b.tag = 'span'
+                del b.attrib['style']
 
         for a in desc.xpath('descendant::a[@href]'):
             del a.attrib['href']
@@ -821,7 +827,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 1, 0)
+    version = (1, 2, 0)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
