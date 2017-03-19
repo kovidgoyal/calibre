@@ -740,7 +740,7 @@ then import it on another computer. First let's see how to export the data:
     you for the location of the calibre library. Point it to the previously copied
     folder. If the computer you are transferring to already has a calibre
     installation, then the Welcome wizard wont run. In that case, right-click the
-    calibre icon in the tooolbar and point it to the newly copied directory. You will
+    calibre icon in the toolbar and point it to the newly copied directory. You will
     now have two calibre libraries on your computer and you can switch between them
     by clicking the calibre icon on the toolbar. Transferring your library in this
     manner preserver all your metadata, tags, custom columns, etc.
