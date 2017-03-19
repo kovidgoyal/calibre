@@ -834,8 +834,7 @@ class BasicNewsRecipe(Recipe):
         from the parsed HTML (soup).
 
         :param article: A object of class :class:`calibre.web.feeds.Article`.
-        If you change the summary, remember to also change the
-        text_summary
+            If you change the summary, remember to also change the text_summary
         :param soup: Parsed HTML belonging to this article
         :param first: True iff the parsed HTML is the first page of the article.
         '''
