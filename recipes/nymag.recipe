@@ -8,6 +8,12 @@ theatlantic.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class NewYorkMagazine(BasicNewsRecipe):
 
     title = 'New York Magazine'
@@ -16,14 +22,20 @@ class NewYorkMagazine(BasicNewsRecipe):
     language = 'en'
     no_stylesheets = True
     remove_javascript = True
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
     recursions = 1
     match_regexps = [r'http://nymag.com/.+/index[0-9]{1,2}.html$']
-    keep_only_tags = [dict(id='main')]
+    keep_only_tags = [
+        classes('lede-text headline-primary article-timestamp by-authors'),
+        dict(id='main'),
+        dict(itemprop='articleBody'),
+    ]
     remove_tags = [
-        dict(attrs={'class': ['start-discussion']}),
+        classes('related-stories start-discussion'),
         dict(id=['minibrowserbox', 'article-related', 'article-tools'])
     ]
+    remove_attributes = ['srcset']
+    handle_gzip = True
 
     PREFIX = 'http://nymag.com'
 
