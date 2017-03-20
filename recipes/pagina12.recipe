@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2017, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
-
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -54,19 +54,33 @@ class Pagina12(BasicNewsRecipe):
     ]
 
     feeds = [
-      (u'Edicion impresa', u'https://www.pagina12.com.ar/rss/edicion-impresa'),
-      (u'Espectaculos'   , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
-      (u'Radar'          , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
-      (u'Radar libros'   , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
-      (u'Cash'           , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
-      (u'Turismo'        , u'https://www.pagina12.com.ar/rss/suplementos/turismo/notas'),
-      (u'Libero'         , u'https://www.pagina12.com.ar/rss/suplementos/libero/notas'),
-      (u'NO'             , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
-      (u'Las/12'         , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
-      (u'Soy'            , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
-      (u'Futuro'         , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'),
-      (u'M2'             , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
-      (u'Rosario/12'     , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
+      (u'El Pais'          , u'https://www.pagina12.com.ar/rss/secciones/el-pais/notas'),
+      (u'Economia'         , u'https://www.pagina12.com.ar/rss/secciones/economia/notas'),
+      (u'Sociedad'         , u'https://www.pagina12.com.ar/rss/secciones/sociedad/notas'),
+      (u'El Mundo'         , u'https://www.pagina12.com.ar/rss/secciones/el-mundo/notas'),
+      (u'Deportes'         , u'https://www.pagina12.com.ar/rss/secciones/deportes/notas'),
+      (u'Cultura'          , u'https://www.pagina12.com.ar/rss/secciones/cultura/notas'),
+      (u'Universidad'      , u'https://www.pagina12.com.ar/rss/secciones/universidad/notas'),
+      (u'Ciencia'          , u'https://www.pagina12.com.ar/rss/secciones/ciencia/notas'),
+      (u'Psicologia'       , u'https://www.pagina12.com.ar/rss/secciones/psicologia/notas'),
+      (u'Ajedrez'          , u'https://www.pagina12.com.ar/rss/secciones/ajedrez/notas'),
+      (u'La Ventana'       , u'https://www.pagina12.com.ar/rss/secciones/la-ventana/notas'),
+      (u'Dialogos'         , u'https://www.pagina12.com.ar/rss/secciones/dialogos/notas'),
+      (u'Hoy'              , u'https://www.pagina12.com.ar/rss/secciones/hoy/notas'),
+      (u'Plastica'         , u'https://www.pagina12.com.ar/rss/secciones/plastica/notas'),
+      (u'Carta de Lectores', u'https://www.pagina12.com.ar/rss/secciones/cartas-de-lectores/notas'),
+      (u'Espectaculos'     , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
+      (u'Radar'            , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
+      (u'Radar libros'     , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
+      (u'Cash'             , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
+      (u'Turismo'          , u'https://www.pagina12.com.ar/rss/suplementos/turismo/notas'),
+      (u'Libero'           , u'https://www.pagina12.com.ar/rss/suplementos/libero/notas'),
+      (u'NO'               , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
+      (u'Las/12'           , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
+      (u'Soy'              , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
+      (u'Futuro'           , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'),
+      (u'M2'               , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
+      (u'Rosario/12'       , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
     ]
 
     def get_article_url(self, article):
@@ -76,8 +90,11 @@ class Pagina12(BasicNewsRecipe):
         return url
 
     def get_cover_url(self):
-        soup = self.index_to_soup(self.PREFIX)
-        for image in soup.findAll('img', alt=True):
-            if image['alt'].startswith('Tapa del dia'):
-                return self.PREFIX + image['data-src']
+        lurl = strftime('https://www.pagina12.com.ar/edicion-impresa/%d-%m-%Y')
+        soup = self.index_to_soup(lurl)
+        mydiv = soup.find('div', {'class' : lambda x: x and 'printed-edition-cover' in x.split()})
+        if mydiv:
+            for image in mydiv.findAll('img'):
+                if image['data-src'].startswith('https://images.pagina12.com.ar/styles/width700/public/'):
+                    return image['data-src']
         return None
