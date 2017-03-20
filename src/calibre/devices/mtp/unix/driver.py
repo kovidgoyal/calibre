@@ -228,13 +228,14 @@ class MTP_DEVICE(MTPDeviceBase):
                 # the user to allow access. Apparently what happens is
                 # that when the user clicks allow, the device disconnects
                 # and re-connects as a new device.
-                raise OpenActionNeeded(self.dev.friendly_name, _(
+                name = self.dev.friendly_name or connected_device.manufacturer or _('Unnamed device')
+                raise OpenActionNeeded(name, _(
                     'The device {0} is not allowing connections.'
                     ' Unlock the screen on the {0}, tap "Allow" on any connection popup message you see,'
                     ' then either wait a minute or restart calibre. You might'
                     ' also have to change the mode of the USB connection on the {0}'
                     ' to "Media Transfer mode (MTP)" or similar.'
-                ).format(self.dev.friendly_name), (self.dev.friendly_name, self.dev.serial_number))
+                ).format(name), (name, self.dev.serial_number))
             raise
 
         storage = [x for x in storage if x.get('rw', False)]
