@@ -2,11 +2,12 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from ajax import ajax_send
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from utils import html_escape
-from session import get_interface_data
+from session import get_interface_data, get_device_uuid
 
 from modals import error_dialog, warning_dialog
 from book_list.globals import get_session_data, main_js, get_translations
@@ -388,6 +389,13 @@ class View:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi
         self.ui.db.update_last_read_time(self.book)
+        lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+        key = self.book.key
+        ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
+            library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
+                  if end_type is not 'load':
+                    print('Failed to update last read position, AJAX call did not succeed')
+        )
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)

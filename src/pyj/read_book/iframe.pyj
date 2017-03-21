@@ -21,7 +21,7 @@ from read_book.paged_mode import (
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
     jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
     scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs,
-    snap_to_selection, reset_paged_mode_globals
+    snap_to_selection, reset_paged_mode_globals, progress_frac
 )
 from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
@@ -212,16 +212,31 @@ class IframeBoss:
         self.onscroll()
         self.send_message('content_loaded')
 
+    def get_progress_frac(self, current_name, spine_index):
+        length_before = 0
+        spine = self.book.manifest.spine
+        files = self.book.manifest.files
+        for i in range(spine_index):
+            si = spine[i]
+            if si:
+                length_before += files[si]?.length or 0
+        file_length = files[current_name]?.length or 0
+        frac = progress_frac()
+        ans = (length_before + (file_length * frac)) / self.book.manifest.spine_length
+        return ans
+
     def update_cfi(self):
         cfi = at_current()
         if cfi:
             spine = self.book.manifest.spine
-            index = spine.indexOf(current_spine_item().name)
+            current_name = current_spine_item().name
+            index = spine.indexOf(current_name)
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 if cfi != self.last_cfi:
                     self.last_cfi = cfi
-                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update)
+                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
+                                      progress_frac=self.get_progress_frac(current_name, index))
                     self.replace_history_on_next_cfi_update = True
 
     def update_toc_position(self):

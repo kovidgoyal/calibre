@@ -216,6 +216,7 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
         raise HTTPNotFound('Invalid data')
     db.set_last_read_position(
         book_id, fmt, user=user, device=device, cfi=cfi or None, pos_frac=pos_frac)
+    return b''
 
 
 mathjax_lock = Lock()

@@ -301,13 +301,6 @@ def column_boundaries():
     l = column_at(window.pageXOffset + 10)
     return l, l + cols_per_screen
 
-def current_pos(frac):
-    # The current scroll position as a fraction between 0 and 1
-    limit = document.body.scrollWidth - window.innerWidth
-    if limit <= 0:
-        return 0.0
-    return window.pageXOffset / limit
-
 def current_column_location():
     # The location of the left edge of the left most column currently
     # visible in the viewport
@@ -465,6 +458,20 @@ def current_cfi():
     # if ans:
     #     print('Viewport cfi:', ans)
     return ans
+
+
+def progress_frac(frac):
+    # The current scroll position as a fraction between 0 and 1
+    if in_paged_mode:
+        limit = document.body.scrollWidth - window.innerWidth
+        if limit <= 0:
+            return 0.0
+        return window.pageXOffset / limit
+    limit = document.body.scrollHeight - window.innerHeight
+    if limit <= 0:
+        return 0.0
+    return window.pageYOffset / limit
+
 
 def onwheel(evt):
     if evt.deltaY:
