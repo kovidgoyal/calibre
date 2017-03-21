@@ -228,7 +228,14 @@ class MTP_DEVICE(MTPDeviceBase):
                 # the user to allow access. Apparently what happens is
                 # that when the user clicks allow, the device disconnects
                 # and re-connects as a new device.
-                name = self.dev.friendly_name or connected_device.manufacturer or _('Unnamed device')
+                name = self.dev.friendly_name or ''
+                if not name:
+                    if connected_device.manufacturer:
+                        name = connected_device.manufacturer
+                    if connected_device.product:
+                        name = name and (name + ' ')
+                        name += connected_device.product
+                    name = name or _('Unnamed device')
                 raise OpenActionNeeded(name, _(
                     'The device {0} is not allowing connections.'
                     ' Unlock the screen on the {0}, tap "Allow" on any connection popup message you see,'
