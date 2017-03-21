@@ -156,7 +156,7 @@ class PDFOutput(OutputFormatPlugin):
             os.environ.pop('CALIBRE_WEBKIT_NO_HINTING', None)
 
     def convert_images(self, images):
-        from calibre.ebooks.pdf.writer import ImagePDFWriter
+        from calibre.ebooks.pdf.render.from_html import ImagePDFWriter
         self.write(ImagePDFWriter, images, None)
 
     def get_cover_data(self):

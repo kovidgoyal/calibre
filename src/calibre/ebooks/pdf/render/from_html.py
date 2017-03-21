@@ -420,3 +420,52 @@ class PDFWriter(QObject):
         if not self.doc.errors_occurred and self.doc.current_page_num > 1:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
+
+
+class ImagePDFWriter(object):
+
+    def __init__(self, opts, log, cover_data=None, toc=None):
+        from calibre.gui2 import must_use_qt
+        must_use_qt()
+
+        self.logger = self.log = log
+        self.opts = opts
+        self.cover_data = cover_data
+        self.toc = toc
+
+    def dump(self, items, out_stream, pdf_metadata):
+        opts = self.opts
+        page_size = get_page_size(self.opts)
+        ml, mr = opts.margin_left, opts.margin_right
+        self.doc = PdfDevice(
+            out_stream, page_size=page_size, left_margin=ml,
+            top_margin=opts.margin_top, right_margin=mr,
+            bottom_margin=opts.margin_bottom,
+            errors=self.log.error, debug=self.log.debug, compress=not
+            opts.uncompressed_pdf, opts=opts, mark_links=opts.pdf_mark_links)
+        self.painter = QPainter(self.doc)
+        self.doc.set_metadata(title=pdf_metadata.title,
+                              author=pdf_metadata.author,
+                              tags=pdf_metadata.tags, mi=pdf_metadata.mi)
+        self.doc_title = pdf_metadata.title
+        self.doc_author = pdf_metadata.author
+        page_rect = QRect(*self.doc.full_page_rect)
+
+        for imgpath in items:
+            self.log.debug('Processing %s...' % imgpath)
+            self.doc.init_page()
+            p = QPixmap()
+            with lopen(imgpath, 'rb') as f:
+                if not p.loadFromData(f.read()):
+                    raise ValueError('Could not read image from: {}'.format(imgpath))
+            draw_image_page(page_rect,
+                    self.painter, p,
+                    preserve_aspect_ratio=True)
+            self.doc.end_page()
+        if self.toc is not None and len(self.toc) > 0:
+            self.doc.add_outline(self.toc)
+
+        self.painter.end()
+
+        if self.doc.errors_occurred:
+            raise Exception('PDF Output failed, see log for details')
