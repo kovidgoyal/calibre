@@ -133,11 +133,12 @@ def anchor_map(root):
 def get_length(root):
     strip_space = re.compile(r'\s+')
     ans = 0
+    ignore_tags = frozenset('script style title noscript'.split())
 
     def count(elem):
         num = 0
         tname = elem.tag.rpartition('}')[-1].lower()
-        if elem.text and tname not in 'script style':
+        if elem.text and tname not in ignore_tags:
             num += len(strip_space.sub('', elem.text))
         if elem.tail:
             num += len(strip_space.sub('', elem.tail))
@@ -219,7 +220,6 @@ class Container(ContainerBase):
             if ans['is_html']:
                 root = self.parsed(name)
                 ans['length'] = l = get_length(root)
-                print(111111, name, ans['size'], l)
                 self.book_render_data['total_length'] += l
                 if name in data['spine']:
                     self.book_render_data['spine_length'] += l
