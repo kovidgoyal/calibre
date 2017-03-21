@@ -99,6 +99,12 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         ans = templ%(u'<table><tr><td valign="top" '
             'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
                 % (table, right_pane))
+    
+    # Layout of text to Semitic languages display
+    from calibre.adjustments_lang import html_text
+    text = html_text(ans,"div")
+    ans = text.convert2()
+    
     return ans
 
 
