@@ -138,9 +138,9 @@ def get_length(root):
         num = 0
         tname = elem.tag.rpartition('}')[-1].lower()
         if elem.text and tname not in 'script style':
-            num += len(strip_space.sub(elem.text, ''))
+            num += len(strip_space.sub('', elem.text))
         if elem.tail:
-            num += len(strip_space.sub(elem.tail, ''))
+            num += len(strip_space.sub('', elem.tail))
         if tname in 'img svg':
             num += 2000
         return num
@@ -219,6 +219,7 @@ class Container(ContainerBase):
             if ans['is_html']:
                 root = self.parsed(name)
                 ans['length'] = l = get_length(root)
+                print(111111, name, ans['size'], l)
                 self.book_render_data['total_length'] += l
                 if name in data['spine']:
                     self.book_render_data['spine_length'] += l
