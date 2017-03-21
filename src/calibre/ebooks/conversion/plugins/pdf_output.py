@@ -97,8 +97,6 @@ class PDFOutput(OutputFormatPlugin):
                 'The default font size for monospaced text')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
-        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
-            help=_('Use the old, less capable engine to generate the PDF')),
         OptionRecommendation(name='uncompressed_pdf',
             recommended_value=False, help=_(
                 'Generate an uncompressed PDF, useful for debugging, '
@@ -216,11 +214,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
-        if self.opts.old_pdf_engine:
-            from calibre.ebooks.pdf.writer import PDFWriter
-            PDFWriter
-        else:
-            from calibre.ebooks.pdf.render.from_html import PDFWriter
+        from calibre.ebooks.pdf.render.from_html import PDFWriter
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
