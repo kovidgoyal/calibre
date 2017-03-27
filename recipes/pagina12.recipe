@@ -24,14 +24,18 @@ class Pagina12(BasicNewsRecipe):
     remove_empty_feeds   = True
     publication_type     = 'newspaper'
     auto_cleanup         = False
+    ignore_duplicate_articles = {'url'}
     PREFIX               = 'https://www.pagina12.com.ar'
     extra_css            = """
                                body{font-family: Lora,serif}
-                               .article-date{font-size: small; margin-bottom: 0.4em;}
-                               .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em;}
-                               .article-main-media{display: block; margin-bottom: 0.4em;}
-                               .article-summary{margin-bottom: 0.4em; display:block}
-                               img{margin-bottom: 0.4em; display:block}
+                               .article-date{font-size: small; margin-bottom: 1em;}
+                               .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em; font-family: Oswald,sans-serif}
+                               .article-main-media{display: block; margin-bottom: 1em;}
+                               .article-summary{margin-top:1em; margin-bottom: 1em; display:block}
+                               .article-author{font-family: "Archivo Narrow",Helvetica,sans-serif; color: gray; font-size: small; margin-top:1em; margin-bottom: 1em}
+                               img{margin-top:1em; margin-bottom: 1em; display:block}
+                               .article-text p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
+                               .article-prefix{font-family: "Archivo Narrow",Helvetica,sans-serif; font-size: small; text-transform: uppercase;}
                            """
 
     conversion_options = {
@@ -49,11 +53,13 @@ class Pagina12(BasicNewsRecipe):
                                         'article-prefix',
                                         'article-title',
                                         'article-summary',
+                                        'article-author',
                                         'article-text'
                                        ]})
     ]
 
     feeds = [
+      (u'Diario de hoy'    , u'https://www.pagina12.com.ar/rss/edicion-impresa'),
       (u'El Pais'          , u'https://www.pagina12.com.ar/rss/secciones/el-pais/notas'),
       (u'Economia'         , u'https://www.pagina12.com.ar/rss/secciones/economia/notas'),
       (u'Sociedad'         , u'https://www.pagina12.com.ar/rss/secciones/sociedad/notas'),
