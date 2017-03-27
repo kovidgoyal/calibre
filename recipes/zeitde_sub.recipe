@@ -184,20 +184,20 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         browser.open(url)
         browser.select_form(nr=0)
         browser.form['email'] = self.username
-        browser.form['password'] = self.password
+        browser.form['pass'] = self.password
         browser.submit()
-        # change into abo section
-        browser.open(url)
-        abolink = browser.find_link(text_regex=re.compile(
-            '.*Abo-Bereich.*'))
-        browser.follow_link(abolink)
+        # change into abo section - not needed at the moment
+        # browser.open(url)
+        # abolink = browser.find_link(text_regex=re.compile(
+        #    '.*Abo-Bereich.*'))
+        # browser.follow_link(abolink)
         # find page for latest issue
         latestlink = browser.find_link(text_regex=re.compile(
             '.*ZUR AKTUELLEN AUSGABE.*'))
         browser.follow_link(latestlink)
         # now find the correct file, we will still use the ePub file
         epublink = browser.find_link(text_regex=re.compile(
-            '.*EPUB FÜR E-READER LADEN.*'))
+            '.*EPUB F\xdcR E-READER LADEN.*'))
         response = browser.follow_link(epublink)
         self.report_progress(1, _('next step'))
 
@@ -250,13 +250,13 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             browser.open(url)
             browser.select_form(nr=0)
             browser.form['email'] = self.username
-            browser.form['password'] = self.password
+            browser.form['pass'] = self.password
             browser.submit()
-            # change into abo section
-            browser.open(url)
-            abolink = browser.find_link(text_regex=re.compile(
-                '.*Abo-Bereich.*'))
-            browser.follow_link(abolink)
+            # change into abo section - not needed at the moment
+            # browser.open(url)
+            # abolink = browser.find_link(text_regex=re.compile(
+            #    '.*Abo-Bereich.*'))
+            # browser.follow_link(abolink)
             # find page for latest issue
             latestlink = browser.find_link(text_regex=re.compile(
                 '.*ZUR AKTUELLEN AUSGABE.*'))
