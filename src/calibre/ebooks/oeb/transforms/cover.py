@@ -73,7 +73,7 @@ class CoverManager(object):
             style = 'style="height: 100%%"'
         else:
             width, height = fixed_size
-            style = 'style="height: %s; width: %s"'%(width, height)
+            style = 'style="height: %s; width: %s"'%(height, width)
         self.non_svg_template = self.NONSVG_TEMPLATE.replace('__style__',
                 style)
 
