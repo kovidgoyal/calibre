@@ -44,7 +44,10 @@ class NewYorker(BasicNewsRecipe):
         if ph is not None:
             img = ph.find('img')
             if img is not None:
-                self.cover_url = img['data-src']
+                try:
+                    self.cover_url = img['data-src']
+                except KeyError:
+                    self.cover_url = img['src']
         articles = []
         current_section = 'Current Issue'
         feeds = []
