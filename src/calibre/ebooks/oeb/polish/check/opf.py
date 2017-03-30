@@ -241,6 +241,14 @@ class NoUID(BaseError):
         return True
 
 
+class EmptyIdentifier(BaseError):
+
+    HELP = xml(_('The <dc:identifier> element must not be empty.'))
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Empty identifier element'), name, lnum)
+
+
 class BadSpineMime(BaseError):
 
     def __init__(self, name, iid, mt, lnum, opf_name):
@@ -370,6 +378,9 @@ def check_opf(container):
     uid = container.opf.get('unique-identifier', None)
     if uid is None or not container.opf_xpath('/opf:package/opf:metadata/dc:identifier[@id=%r]' % uid):
         errors.append(NoUID(container.opf_name))
+    for elem in container.opf_xpath('/opf:package/opf:metadata/dc:identifier'):
+        if not elem.text or not elem.text.strip():
+            errors.append(EmptyIdentifier(container.opf_name, elem.sourceline))
 
     for item, name, linear in container.spine_iter:
         mt = container.mime_map[name]
