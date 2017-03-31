@@ -948,10 +948,24 @@ class OPF(object):  # {{{
                 return self.get_text(match) or None
 
         def fset(self, val):
+            uuid_id = None
+            for attr in self.root.attrib:
+                if attr.endswith('unique-identifier'):
+                    uuid_id = self.root.attrib[attr]
+                    break
+
             matches = self.isbn_path(self.metadata)
             if not val:
                 for x in matches:
-                    x.getparent().remove(x)
+                    xid = x.get('id', None)
+                    is_package_identifier = uuid_id is not None and uuid_id == xid
+                    if is_package_identifier:
+                        self.set_text(x, str(uuid.uuid4()))
+                        for attr in x.attrib:
+                            if attr.endswith('scheme'):
+                                x.attrib[attr] = 'uuid'
+                    else:
+                        x.getparent().remove(x)
                 return
             if not matches:
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
