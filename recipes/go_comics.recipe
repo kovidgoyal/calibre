@@ -556,8 +556,10 @@ class GoComics(BasicNewsRecipe):
         if img is None:
             raise StopIteration()
         img['srcset'] = ''
-        date = content.find('date')
-        return {'h1':content.find('h1'), 'date':self.tag_to_string(date), 'img':str(img)}
+        a = content.find('a', title=True)
+        title_parts = a['title'].split()
+        title = ' '.join(title_parts[:-2])
+        return {'h1':title, 'date':title_parts[-1], 'img':str(img)}
 
     def render_comic_page(self, data, num, title):
         fname = ascii_filename('%03d_%s' % (num, title)).replace(' ', '_')
@@ -577,11 +579,11 @@ class GoComics(BasicNewsRecipe):
             page_soup = self.index_to_soup(url)
             if not page_soup:
                 break
-            content = page_soup.find(attrs={'class':'layout-1col'})
+            content = page_soup.find(attrs={'class':'item-comic-container'})
             if content is None:
                 break
             current_articles.append(self.parse_comic_page(content))
-            a = content.find('a', attrs={'href':True, 'class':lambda x: x and 'fa-caret-left' in x.split()})
+            a = content.parent.find('a', attrs={'href':True, 'class':lambda x: x and 'fa-caret-left' in x.split()})
             if a is None:
                 break
             url = a['href']
