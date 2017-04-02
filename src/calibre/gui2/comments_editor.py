@@ -235,6 +235,7 @@ class EditorWidget(QWebView):  # {{{
         d = QDialog(self)
         d.setWindowTitle(_('Create link'))
         l = QFormLayout()
+        l.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         d.setLayout(l)
         d.url = QLineEdit(d)
         d.name = QLineEdit(d)
