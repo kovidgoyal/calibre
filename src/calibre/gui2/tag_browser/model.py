@@ -286,6 +286,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     restriction_error = pyqtSignal()
     drag_drop_finished = pyqtSignal(object)
     user_categories_edited = pyqtSignal(object, object)
+    user_category_added = pyqtSignal()
 
     def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
@@ -827,6 +828,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         self.db.new_api.set_pref('user_categories', user_cats)
         self.refresh_required.emit()
+        self.user_category_added.emit()
 
         return True
 
@@ -896,6 +898,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         categories[on_node.category_key[1:]] = [[v, c, 0] for v,c in cat_contents]
         self.db.new_api.set_pref('user_categories', categories)
         self.refresh_required.emit()
+        self.user_category_added.emit()
 
     def handle_drop(self, on_node, ids):
         # print 'Dropped ids:', ids, on_node.tag
