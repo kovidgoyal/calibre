@@ -382,7 +382,7 @@ class CreateCustomColumn(QDialog):
                   'will create a field displaying the title in bold large '
                   'characters, along with the series, for example <br>"<big><b>'
                   'An Oblique Approach</b></big> [Belisarius [1]]". The template '
-                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
+                  '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
                   ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
                   'will generate a link to the book on the Beam ebooks site.') + '</p>')
         l.addWidget(cch)

@@ -909,7 +909,7 @@ There are several possible things I know of, that can cause this:
       computer. Known culprits include: *SpiderOak*, *odrive sync* and *Dell
       Backup and Recovery*. If you have one of these, uninstall them and you
       will be fine. You can also use the
-      `NirSoft Shell Extension Viewer <http://www.nirsoft.net/utils/shexview.html>`_
+      `NirSoft Shell Extension Viewer <https://www.nirsoft.net/utils/shexview.html>`_
       to see what shell extensions are installed on your system
       and disable them individually, if you dont want to uninstall the full program.
       Remember to use "Restart Explorer" or reboot your computer after
