@@ -87,6 +87,13 @@ class TagBrowserMixin(object):  # {{{
                                                  type=Qt.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
         self.populate_tb_manage_menu(db)
+        self.tags_view.model().user_categories_edited.connect(self.user_categories_edited,
+                type=Qt.QueuedConnection)
+        self.tags_view.model().user_category_added.connect(self.user_categories_edited,
+                type=Qt.QueuedConnection)
+
+    def user_categories_edited(self):
+        self.library_view.model().refresh()
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -139,6 +146,7 @@ class TagBrowserMixin(object):  # {{{
             db.new_api.set_pref('user_categories', d.categories)
             db.new_api.refresh_search_locations()
             self.tags_view.recount()
+            self.user_categories_edited()
 
     def do_delete_user_category(self, category_name):
         '''
@@ -172,6 +180,7 @@ class TagBrowserMixin(object):  # {{{
                 del user_cats[k]
         db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
         '''
@@ -190,6 +199,7 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.model().delete_item_from_user_category(user_cat,
                                                       item_name, item_category)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_add_item_to_user_cat(self, dest_category, src_name, src_category):
         '''
@@ -217,6 +227,7 @@ class TagBrowserMixin(object):  # {{{
             user_cats[dest_category].append([src_name, src_category, 0])
         db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_tags_list_edit(self, tag, category):
         '''
