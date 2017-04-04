@@ -1,18 +1,23 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from dom import clear, set_css, unique_id, svgicon, build_rule, add_extra_css
 from elementmaker import E
-from book_list.theme import get_color
-from book_list.globals import get_read_ui
-from book_list.router import home
-from widgets import create_spinner, create_button
 from gettext import gettext as _
-from read_book.toc import create_toc_panel
+
+from book_list.globals import get_read_ui
+from book_list.library_data import sync_library_books
+from book_list.router import home
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from modals import error_dialog
 from read_book.goto import create_goto_panel
-from read_book.prefs.main import create_prefs_panel
 from read_book.prefs.font_size import create_font_size_panel
+from read_book.prefs.main import create_prefs_panel
+from read_book.toc import create_toc_panel
+from session import get_device_uuid
+from widgets import create_button, create_spinner
+
 
 class LoadingMessage:  # {{{
 
@@ -96,6 +101,63 @@ class DeleteBook:  # {{{
         self.overlay.hide_current_panel()
 # }}}
 
+class SyncBook:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+        self.canceled = False
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        set_css(container, display='flex', justify_content='center', flex_direction='column', background_color=get_color('window-background'))
+        book = self.overlay.view.book
+        to_sync = v'[[book.key, new Date(0)]]'
+        sync_library_books(book.key[0], to_sync, self.sync_data_received)
+        container.appendChild(
+            E.div(style='margin:1ex 1em',
+                E.h2(_('Syncing to last read position')),
+                E.p(_('Downloading last read data from server, please wait...')),
+                E.div(style='display:flex; justify-content:flex-end',
+                    create_button(_('Cancel'), action=self.cancel),
+                )
+            )
+        )
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def cancel(self):
+        self.canceled = True
+        self.overlay.hide_current_panel()
+
+    def sync_data_received(self, library_id, lrmap, load_type, xhr, ev):
+        if self.canceled:
+            return
+        self.overlay.hide()
+        if load_type is not 'load':
+            error_dialog(_('Failed to fetch sync data'), _('Failed to download last read data from server, click "Show details" for more information.'), xhr.error_html)
+            return
+        data = JSON.parse(xhr.responseText)
+        book = self.overlay.view.book
+        dev = get_device_uuid()
+        epoch = 0
+        ans = None
+        for key in data:
+            book_id, fmt = key.partition(':')[::2]
+            if book_id is str(book.key[1]) and fmt.upper() is book.key[2].upper():
+                last_read_positions = data[key]
+                for d in last_read_positions:
+                    if d.device is not dev and d.epoch > epoch:
+                        epoch = d.epoch
+                        ans = d
+        if ans is not None:
+            cfi = ans.cfi
+            if cfi:
+                self.overlay.view.goto_bookpos(cfi)
+
+
+# }}}
+
 # MainOverlay {{{
 
 MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
@@ -161,7 +223,7 @@ class MainOverlay:
                 ),
 
                 E.ul(
-                    ac(_('Sync'), _('Get last read position and annotations from the server'), None, 'cloud-download'),
+                    ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download'),
                     ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash'),
                     ac(_('Reload'), _('Reload this book from the server'), self.overlay.reload_book, 'refresh')
                 ),
@@ -335,6 +397,11 @@ class Overlay:
     def reload_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self, _('Are you sure you want to reload this book?'), 'refresh', _('Reload book'), True)]
+        self.show_current_panel()
+
+    def sync_book(self):
+        self.hide_current_panel()
+        self.panels = [SyncBook(self)]
         self.show_current_panel()
 
     def show_toc(self):

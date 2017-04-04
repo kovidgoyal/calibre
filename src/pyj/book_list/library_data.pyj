@@ -155,3 +155,16 @@ class ThumbnailCache:
             callback(img, load_type)
 
 thumbnail_cache = ThumbnailCache()
+
+
+def sync_library_books(library_id, to_sync, callback):
+    url = f'book-get-last-read-position/{library_id}/'
+    which = v'[]'
+    lrmap = {}
+    for key, last_read in to_sync:
+        library_id, book_id, fmt = key
+        fmt = fmt.upper()
+        which.push(f'{book_id}-{fmt}')
+        lrmap[f'{book_id}:{fmt}'] = last_read
+    url += which.join('_')
+    ajax(url, callback.bind(None, library_id, lrmap)).send()

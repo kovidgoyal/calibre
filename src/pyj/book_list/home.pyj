@@ -5,9 +5,9 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
+from book_list.library_data import sync_library_books
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
@@ -76,19 +76,6 @@ def sync_data_received(library_id, lrmap, load_type, xhr, ev):
             db.update_last_read_data_from_key(library_id, int(book_id), fmt, last_read, cfi)
 
 
-def sync_library_books(library_id, to_sync):
-    url = f'book-get-last-read-position/{library_id}/'
-    which = v'[]'
-    lrmap = {}
-    for key, last_read in to_sync:
-        library_id, book_id, fmt = key
-        fmt = fmt.upper()
-        which.push(f'{book_id}-{fmt}')
-        lrmap[f'{book_id}:{fmt}'] = last_read
-    url += which.join('_')
-    ajax(url, sync_data_received.bind(None, library_id, lrmap)).send()
-
-
 def start_sync(to_sync):
     libraries = {}
     for key, last_read in to_sync:
@@ -97,7 +84,7 @@ def start_sync(to_sync):
             libraries[library_id] = v'[]'
         libraries[library_id].push(v'[key, last_read]')
     for lid in libraries:
-        sync_library_books(lid, libraries[lid])
+        sync_library_books(lid, libraries[lid], sync_data_received)
 
 
 def show_recent_stage2(books):
