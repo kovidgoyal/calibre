@@ -404,6 +404,8 @@ class ReadUI:
             self.display_book_stage2(book)
 
     def display_book_stage2(self, book):
+        self.current_metadata = book.metadata
+        update_window_title('', self.current_metadata.title)
         self.show_stack(self.display_id)
         self.view.display_book(book)
 
