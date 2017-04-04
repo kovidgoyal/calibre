@@ -147,6 +147,8 @@ def book_manifest(ctx, rd, book_id, fmt):
                 with lopen(mpath, 'rb') as f:
                     ans = jsonlib.load(f)
                 ans['metadata'] = book_as_json(db, book_id)
+                user = rd.username or None
+                ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user)
                 return ans
             except EnvironmentError as e:
                 if e.errno != errno.ENOENT:
@@ -216,6 +218,7 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
         raise HTTPNotFound('Invalid data')
     db.set_last_read_position(
         book_id, fmt, user=user, device=device, cfi=cfi or None, pos_frac=pos_frac)
+    rd.outheaders['Content-type'] = 'text/plain'
     return b''
 
 

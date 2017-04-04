@@ -384,18 +384,20 @@ class View:
     def on_update_cfi(self, data):
         self.currently_showing.bookpos = data.cfi
         push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
-        unkey = username_key(get_interface_data().username)
+        username = get_interface_data().username
+        unkey = username_key(username)
         if not self.book.last_read_position:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi
         self.ui.db.update_last_read_time(self.book)
         lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
         key = self.book.key
-        ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
-            library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
-                  if end_type is not 'load':
-                    print('Failed to update last read position, AJAX call did not succeed')
-        )
+        if username:
+            ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
+                library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
+                    if end_type is not 'load':
+                        print('Failed to update last read position, AJAX call did not succeed')
+            )
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)

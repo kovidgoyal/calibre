@@ -1,12 +1,14 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
+from encodings import base64decode, base64encode
 from gettext import gettext as _
-from encodings import base64encode, base64decode
-from modals import error_dialog
 
 from book_list.router import is_reading_book
+from modals import error_dialog
+from session import get_interface_data
+from utils import username_key
 
 
 def upgrade_schema(idb, old_version, new_version, transaction):
@@ -22,8 +24,8 @@ def upgrade_schema(idb, old_version, new_version, transaction):
 
     # Create indices
     books_store = transaction.objectStore('books')
-    if not books_store.indexNames.contains('last_read_index'):
-        books_store.createIndex('last_read_index', 'last_read')
+    if not books_store.indexNames.contains('recent_index'):
+        books_store.createIndex('recent_index', 'recent_date')
 
 def file_store_name(book, name):
     return book.book_hash + ' ' + name
@@ -35,8 +37,8 @@ def get_error_details(event):
     elif desc.errorCode:
         desc = desc.errorCode
 
-DB_NAME = 'calibre-books-db-testing'  # TODO: Remove test suffix and change version back to 1
-DB_VERSION = 3
+DB_NAME = 'calibre-books-db-testingx3'  # TODO: Remove test suffix and change version back to 1
+DB_VERSION = 1
 
 class DB:
 
@@ -134,6 +136,7 @@ class DB:
         # The key has to be a JavaScript array as otherwise it cannot be stored
         # into indexed db, because the RapydScript list has properties that
         # refer to non-serializable objects like functions.
+        book_id = int(book_id)
         key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
             proceed(result or {
@@ -141,12 +144,13 @@ class DB:
                 'is_complete':False,
                 'stored_files': {},
                 'book_hash':None,
-                'last_read': Date(),
                 'metadata': metadata,
                 'manifest': None,
                 'cover_width': None,
                 'cover_height': None,
                 'cover_name': None,
+                'recent_date': new Date(),
+                'last_read': {},
                 'last_read_position': {},
             })
         )
@@ -162,7 +166,19 @@ class DB:
         book.book_hash = manifest.book_hash.hash
         book.stored_files = {}
         book.is_complete = False
+        if get_interface_data().username:
+            newest_epoch = newest_pos = None
+            for pos in manifest.last_read_positions:
+                if newest_epoch is None or pos.epoch > newest_epoch:
+                    newest_epoch = pos.epoch
+                    newest_pos = pos.cfi
+            if newest_pos:
+                unkey = username_key(get_interface_data().username)
+                book.last_read[unkey] = new Date(newest_epoch * 1000)
+                book.last_read_position[unkey] = newest_pos
+
         v'delete manifest["metadata"]'
+        v'delete manifest["last_read_positions"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
     def store_file(self, book, name, xhr, proceed, is_cover):
@@ -229,8 +245,19 @@ class DB:
         self.do_op(['objects'], mathjax_info, _('Failed to write to the objects database'), proceed, op='put')
 
     def update_last_read_time(self, book):
-        book.last_read = Date()
+        unkey = username_key(get_interface_data().username)
+        now = new Date()
+        book.last_read[unkey] = book.recent_date = now
         self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+
+    def update_last_read_data_from_key(self, library_id, book_id, fmt, last_read, last_read_position):
+        unkey = username_key(get_interface_data().username)
+        self.get_book(library_id, book_id, fmt, None, def(book):
+            if book.metadata:  # book exists
+                book.last_read[unkey] = book.recent_date = last_read
+                book.last_read_position[unkey] = last_read_position
+                self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+        )
 
     def get_file(self, book, name, proceed):
         key = file_store_name(book, name)
@@ -267,7 +294,7 @@ class DB:
 
     def get_recently_read_books(self, proceed, limit):
         limit = limit or 3
-        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('last_read_index').openCursor(None, 'prev')
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
         books = v'[]'
         c.onerror = def(event):
             err = _('Failed to read recent books from local storage')
