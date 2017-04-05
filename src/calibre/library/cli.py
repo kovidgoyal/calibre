@@ -1369,6 +1369,8 @@ def command_check_library(args, dbpath):
         raise SystemExit(1)
 
     db = LibraryDatabase(dbpath)
+    print _('Vacuuming database...')
+    db.new_api.vacuum()
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:
