@@ -499,7 +499,7 @@ class HTTPConnection(HTTPRequest):
 
         ct = outheaders.get('Content-Type', '')
         if ct.startswith('text/') and 'charset=' not in ct:
-            outheaders.set('Content-Type', ct + '; charset=UTF-8')
+            outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
         buf = [HTTP11 + (' %d ' % data.status_code) + httplib.responses[data.status_code]]
         for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
