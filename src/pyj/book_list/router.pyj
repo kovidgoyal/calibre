@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from ajax import encode_query
+from ajax import encode_query as ajax_encode_query
 
 from book_list.constants import read_book_container_id, book_list_container_id
 from book_list.globals import get_current_query
@@ -54,11 +54,16 @@ def open_book(book_id, fmt, library_id=None, replace=False):
     push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
 
 
+def encode_query(query):
+    ans = ajax_encode_query(query)
+    return '#' + ans[1:]
+
+
 def push_state(query, replace=False, mode='book_list', call_handler=True):
     query = {k:query[k] for k in query}
     if mode is not 'book_list':
         query.mode = mode
-    query = encode_query(query) or '?'
+    query = encode_query(query)
     if replace:
         window.history.replaceState(None, '', query)
     else:

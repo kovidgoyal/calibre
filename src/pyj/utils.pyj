@@ -29,12 +29,12 @@ def parse_url_params(url=None, allow_multiple=False):
     url = url or window.location.href
     if cache[url]:
         return parse_url_params.cache[url]
-    qs = url.indexOf('?')
+    qs = url.indexOf('#')
     ans = {}
     if qs < 0:
         cache[url] = ans
         return ans
-    q = url.slice(qs + 1, ((url.indexOf('#') + 1) or (url.length + 1)))
+    q = url.slice(qs + 1, (url.length + 1))
     if not q:
         cache[url] = ans
         return ans
