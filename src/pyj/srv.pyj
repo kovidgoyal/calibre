@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from gettext import gettext as _
+
 import initialize  # noqa: unused-import
 from ajax import ajax
 from autoreload import create_auto_reload_watcher
@@ -14,6 +16,12 @@ is_running_in_iframe = False  # Changed before script is loaded in the iframe
 if is_running_in_iframe:
     init()
 else:
+    window.applicationCache.addEventListener('updateready', def():
+        if window.applicationCache.status is window.applicationCache.UPDATEREADY:
+            window.applicationCache.swapCache()
+            if window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
+                window.location.reload()
+    , False)
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory

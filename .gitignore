@@ -22,6 +22,7 @@ resources/template-functions.json
 resources/editor-functions.json
 resources/user-manual-translation-stats.json
 resources/content-server/index-generated.html
+resources/content-server/calibre.appcache
 resources/content-server/locales.zip
 resources/content-server/mathjax.zip.xz
 resources/content-server/mathjax.version
