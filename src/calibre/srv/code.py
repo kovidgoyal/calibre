@@ -28,12 +28,16 @@ def index(ctx, rd):
     return lopen(P('content-server/index-generated.html'), 'rb')
 
 
-@endpoint('/auto-reload', auth_required=False)
+@endpoint('/calibre.appcache', auth_required=False, cache_control='no-cache')
+def appcache(ctx, rd):
+    return lopen(P('content-server/calibre.appcache'), 'rb')
+
+
+@endpoint('/auto-reload-port', auth_required=False, cache_control='no-cache')
 def auto_reload(ctx, rd):
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
-    if auto_reload_port > 0:
-        rd.outheaders.set('Calibre-Auto-Reload-Port', type('')(auto_reload_port), replace_all=True)
-    return lopen(P('content-server/autoreload.js'), 'rb')
+    rd.outheaders.set('Content-Type', 'text/plain')
+    return str(max(0, auto_reload_port))
 
 
 @endpoint('/console-print', methods=('POST',))

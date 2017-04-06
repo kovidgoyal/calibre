@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 import initialize  # noqa: unused-import
 from ajax import ajax
-
+from autoreload import create_auto_reload_watcher
 from book_list.globals import main_js
 from book_list.main import main
 from read_book.iframe import init
@@ -23,10 +23,9 @@ else:
     # we know are going to be needed immediately.
     window.addEventListener('load', main)
 
-    ajax('auto-reload', def(end_type, xhr, event):
+    ajax('auto-reload-port', def(end_type, xhr, event):
         if end_type is 'load':
-            port = xhr.getResponseHeader('Calibre-Auto-Reload-Port')
-            if port:
-                src = xhr.responseText.replace('AUTORELOAD_PORT', port)
-                eval(src)
+            port = parseInt(xhr.responseText)
+            if not isNaN(port) and port > 0:
+                create_auto_reload_watcher(port)
     ).send()  # We must bypass cache as otherwise we could get stale port info

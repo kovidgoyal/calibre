@@ -1,0 +1,55 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+MAX_RETRIES = 10
+
+class Watcher:
+
+    def __init__(self, autoreload_port):
+        host = document.location.host.split(':')[0]
+        self.url = 'ws://' + host + ':' + autoreload_port
+        self.retries = 0
+        self.interval = 100
+        self.disable = False
+        self.opened_at_least_once = False
+        self.reconnect()
+
+    def reconnect(self):
+        self.ws = WebSocket(self.url)
+
+        self.ws.onopen = def(event):
+            self.retries = 0
+            self.opened_at_least_once = True
+            self.interval = 100
+            print('Connected to reloading WebSocket server at: ' + self.url)
+            window.addEventListener('beforeunload', def (event):
+                print('Shutting down connection to reload server, before page unload')
+                self.disable = True
+                self.ws.close()
+            )
+
+        self.ws.onmessage = def(event):
+            if event.data is not 'ping':
+                print('Received mesasge from reload server: ' + event.data)
+            if event.data is 'reload':
+                self.reload_app()
+
+        self.ws.onclose = def (event):
+            if self.disable or not self.opened_at_least_once:
+                return
+            print('Connection to reload server closed with code: ' + event.code + ' and reason: ' + event.reason)
+            self.retries += 1
+            if (self.retries < MAX_RETRIES):
+                setTimeout(self.reconnect, self.interval)
+            else:
+                self.reload_app()
+
+    def reload_app(self):
+        window.location.reload(True)
+
+
+def create_auto_reload_watcher(autoreload_port):
+    if not create_auto_reload_watcher.watcher:
+        create_auto_reload_watcher.watcher = Watcher(autoreload_port)
+    return create_auto_reload_watcher.watcher
