@@ -28,10 +28,38 @@ from read_book.touch import create_handlers as create_touch_handlers
 from utils import debounce
 
 FORCE_FLOW_MODE = False
+CALIBRE_VERSION = '__CALIBRE_VERSION__'
+ERS_SUPPORTED_FEATURES = {'dom-manipulation', 'layout-changes', 'touch-events', 'mouse-events', 'keyboard-events', 'spine-scripting'}
+
+
+class EPUBReadingSystem:
+
+    @property
+    def name(self):
+        return 'calibre'
+
+    @property
+    def version(self):
+        return CALIBRE_VERSION
+
+    @property
+    def layoutStyle(self):
+        return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
+
+    def hasFeature(self, feature, version):
+        return feature in ERS_SUPPORTED_FEATURES
+
+    def __repr__(self):
+        return f'{{name:{self.name}, version:{self.version}, layoutStyle:{self.layoutStyle}}}'
+
+    def __str__(self):
+        return self.__repr__()
+
 
 class IframeBoss:
 
     def __init__(self):
+        window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.ready_sent = False
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
