@@ -215,7 +215,10 @@ def compile_srv():
     base = P('content-server', allow_user_override=False)
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname).replace('__RENDER_VERSION__', rv, 1).replace('__MATHJAX_VERSION__', mathjax_version, 1).encode('utf-8')
+        js = compile_fast(f.read(), fname).replace(
+            '__RENDER_VERSION__', rv, 1).replace(
+            '__MATHJAX_VERSION__', mathjax_version, 1).replace(
+            '__CALIBRE_VERSION__', __version__, 1).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
