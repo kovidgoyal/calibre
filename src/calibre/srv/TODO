@@ -1,5 +1,3 @@
-Remove all *content_server_* and server_listen_on tweaks 
-
 Rewrite server integration with nginx/apache section
 
 Remove dependency on cherrypy from download and contribs pages and remove
