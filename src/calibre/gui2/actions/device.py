@@ -13,7 +13,6 @@ from calibre.constants import get_osx_version, isosx, iswindows
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
-from calibre.library.server import server_config as content_server_config
 from calibre.utils.config import tweaks
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
@@ -80,11 +79,12 @@ class ShareConnMenu(QMenu):  # {{{
         if running:
             listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
                     get_external_ip())
-            try :
+            try:
+                from calibre.library.server import server_config as content_server_config
                 cs_port = content_server_config().parse().port
                 ip_text = _(' [%(ip)s, port %(port)d]')%dict(ip=listen_on,
                         port=cs_port)
-            except:
+            except Exception:
                 ip_text = ' [%s]'%listen_on
             text = _('Stop Content server') + ip_text
         self.toggle_server_action.setText(text)
