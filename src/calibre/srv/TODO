@@ -1,8 +1,3 @@
 Rewrite server integration with nginx/apache section
 
-Remove dependency on cherrypy from download and contribs pages and remove
-cherrypy private copy 
-
-Remove the bundled routes package
-
 Grep for from calibre.library.server and port all code that uses it
