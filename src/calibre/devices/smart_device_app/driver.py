@@ -31,7 +31,6 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
-from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
@@ -114,10 +113,11 @@ class ConnectionListener(Thread):
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
                             content_server_port = b''
-                            try :
+                            try:
+                                from calibre.library.server import server_config as content_server_config
                                 content_server_port = \
                                     str(content_server_config().parse().port)
-                            except:
+                            except Exception:
                                 pass
                             message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
                                             str(socket.gethostname().partition('.')[0]) +
