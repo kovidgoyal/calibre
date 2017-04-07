@@ -1306,6 +1306,7 @@ class Amazon(Source):
         udata = self._get_book_url(identifiers)
         br = self.browser
         log('User-agent:', br.current_user_agent())
+        log('Server:', self.server)
         if testing:
             print('User-agent:', br.current_user_agent())
         if udata is not None and not self.use_search_engine:
