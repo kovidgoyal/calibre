@@ -350,9 +350,6 @@ sony_collection_sorting_rules = []
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-#: Set the maximum number of tags to show per book in the Content server
-max_content_server_tags_shown=5
-
 #: Set custom metadata fields that the Content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
@@ -456,14 +453,6 @@ maximum_cover_size = (1650, 2200)
 # that if there isn't enough free space available on the location you choose,
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
-
-#: What interfaces should the Content server listen on
-# By default, the calibre Content server listens on '0.0.0.0' which means that it
-# accepts IPv4 connections on all interfaces. You can change this to, for
-# example, '127.0.0.1' to only listen for connections from the local machine, or
-# to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
-# work on all operating systems)
-server_listen_on = '0.0.0.0'
 
 #: Unified toolbar on OS X
 # If you enable this option and restart calibre, the toolbar will be 'unified'
