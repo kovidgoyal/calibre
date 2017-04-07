@@ -22,7 +22,7 @@ entry_points = {
              'ebook-polish         = calibre.ebooks.oeb.polish.main:main',
              'markdown-calibre     = calibre.ebooks.markdown.__main__:run',
              'web2disk             = calibre.web.fetch.simple:main',
-             'calibre-server       = calibre.library.server.main:main',
+             'calibre-server       = calibre.srv.standalone:main',
              'lrf2lrs              = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf              = calibre.ebooks.lrf.lrs.convert_from:main',
              'calibre-debug        = calibre.debug:main',
@@ -515,7 +515,7 @@ def write_completion(bash_comp_dest, zsh):
     from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
     from calibre.gui2.main import option_parser as guiop
     from calibre.utils.smtp import option_parser as smtp_op
-    from calibre.library.server.main import option_parser as serv_op
+    from calibre.srv.standalone import create_option_parser as serv_op
     from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
     from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
     from calibre.debug import option_parser as debug_op
