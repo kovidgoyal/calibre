@@ -59,7 +59,7 @@ class EPUBReadingSystem:
 class IframeBoss:
 
     def __init__(self):
-        window.navigator.epubReadingSystem = EPUBReadingSystem()
+        window.navigator.epubReadingSystem = Object.freeze(EPUBReadingSystem())
         self.ready_sent = False
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
