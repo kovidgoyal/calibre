@@ -20,8 +20,7 @@ from calibre.customize.ui import metadata_writers, device_plugins, disabled_devi
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                     plugboard_any_device_value, plugboard_save_to_disk_value, \
                     find_plugboard
-from calibre.library.server.content import plugboard_content_server_value, \
-                                        plugboard_content_server_formats
+from calibre.srv.content import plugboard_content_server_value, plugboard_content_server_formats
 from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
 
@@ -403,4 +402,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Plugboard')
-
