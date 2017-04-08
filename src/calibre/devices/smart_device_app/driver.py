@@ -114,9 +114,8 @@ class ConnectionListener(Thread):
                             remote = packet[1]
                             content_server_port = b''
                             try:
-                                from calibre.library.server import server_config as content_server_config
-                                content_server_port = \
-                                    str(content_server_config().parse().port)
+                                from calibre.srv.opts import server_config
+                                content_server_port = str(server_config().port)
                             except Exception:
                                 pass
                             message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
