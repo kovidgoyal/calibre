@@ -6,10 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import errno, os
 from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 from functools import partial
+
+from calibre.constants import config_dir
+from calibre.utils.lock import ExclusiveFile
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
@@ -20,6 +24,7 @@ class Choices(frozenset):
         self = super(Choices, cls).__new__(cls, args)
         self.default = args[0]
         return self
+
 
 raw_options = (
 
@@ -133,8 +138,7 @@ raw_options = (
     _('Path to a file in which to store the user and password information. By default a'
     ' file in the calibre configuration directory is used.'),
 
-    _('Choose the type of authentication used'),
-    'auth_mode', Choices('auto', 'basic', 'digest'),
+    _('Choose the type of authentication used'), 'auth_mode', Choices('auto', 'basic', 'digest'),
     _('Set the HTTP authentication mode used by the server. Set to "basic" if you are'
     ' putting this server behind an SSL proxy. Otherwise, leave it as "auto", which'
     ' will use "basic" if SSL is configured otherwise it will use "digest".'),
@@ -161,6 +165,7 @@ def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return izip_longest(*args, fillvalue=fillvalue)
+
 
 for shortdoc, name, default, doc in grouper(4, raw_options):
     choices = None
@@ -215,3 +220,68 @@ def opts_to_parser(usage):
             add_option(name, type=otype)
 
     return parser
+
+
+DEFAULT_CONFIG = os.path.join(config_dir, 'server-config.txt')
+
+
+def parse_config_file(path=DEFAULT_CONFIG):
+    try:
+        with ExclusiveFile(path) as f:
+            raw = f.read().decode('utf-8')
+    except EnvironmentError as err:
+        if err.errno != errno.ENOENT:
+            raise
+        raw = ''
+    ans = {}
+    for line in raw.splitlines():
+        line = line.strip()
+        if line.startswith('#'):
+            continue
+        key, rest = line.partition(' ')[::2]
+        opt = options.get(key)
+        if opt is None:
+            continue
+        val = rest
+        if isinstance(opt.default, (int, long, float)):
+            try:
+                val = type(opt.default)(rest)
+            except Exception:
+                raise ValueError('The value for %s: %s is not a valid number' % (key, rest))
+        elif opt.choices:
+            if rest not in opt.choices:
+                raise ValueError('The value for %s: %s is not valid' % (key, rest))
+        ans[key] = val
+    return Options(**ans)
+
+
+def write_config_file(opts, path=DEFAULT_CONFIG):
+    changed = {name:getattr(opts, name) for name in options if getattr(opts, name) != options[name].default}
+    lines = []
+    for name in sorted(changed):
+        o = options[name]
+        lines.append('# ' + o.shortdoc)
+        if o.longdoc:
+            lines.append('# ' + o.longdoc)
+        lines.append('%s %s' % (name, changed[name]))
+    raw = '\n'.join(lines).encode('utf-8')
+    with ExclusiveFile(path) as f:
+        f.write(raw)
+
+
+def server_config(refresh=False):
+    if refresh or not hasattr(server_config, 'ans'):
+        server_config.ans = parse_config_file()
+    return server_config.ans
+
+
+def change_settings(**kwds):
+    new_opts = {}
+    opts = server_config()
+    for name in options:
+        if name in kwds:
+            new_opts[name] = kwds[name]
+        else:
+            new_opts[name] = getattr(opts, name)
+    new_opts = server_config.ans = Options(**new_opts)
+    write_config_file(new_opts)

@@ -559,9 +559,8 @@ class StanzaPage(QWizardPage, StanzaUI):
     def commit(self):
         p = self.set_port()
         if p is not None:
-            from calibre.library.server import server_config
-            c = server_config()
-            c.set('port', p)
+            from calibre.srv.opts import change_settings
+            change_settings(port=p)
 
     def set_port(self, *args):
         if not self.content_server.isChecked():
@@ -894,6 +893,7 @@ class Wizard(QWizard):
 def wizard(parent=None):
     w = Wizard(parent)
     return w
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
