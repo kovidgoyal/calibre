@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import (unicode_literals, division, absolute_import, print_function)
 import hashlib, random, zipfile, shutil, sys
 from json import load as load_json_file
 
@@ -33,6 +32,11 @@ def appcache(ctx, rd):
     return lopen(P('content-server/calibre.appcache'), 'rb')
 
 
+@endpoint('/robots.txt', auth_required=False)
+def robots(ctx, rd):
+    return b'User-agent: *\nDisallow: /'
+
+
 @endpoint('/auto-reload-port', auth_required=False, cache_control='no-cache')
 def auto_reload(ctx, rd):
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
@@ -40,7 +44,7 @@ def auto_reload(ctx, rd):
     return str(max(0, auto_reload_port))
 
 
-@endpoint('/console-print', methods=('POST',))
+@endpoint('/console-print', methods=('POST', ))
 def console_print(ctx, rd):
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPNotFound('console printing is not allowed')
@@ -76,7 +80,9 @@ def get_translations():
     global _cached_translations
     if _cached_translations is None:
         _cached_translations = False
-        with zipfile.ZipFile(P('content-server/locales.zip', allow_user_override=False), 'r') as zf:
+        with zipfile.ZipFile(
+            P('content-server/locales.zip', allow_user_override=False), 'r'
+        ) as zf:
             names = set(zf.namelist())
             lang = get_lang()
             if lang not in names:
@@ -93,15 +99,17 @@ DEFAULT_NUMBER_OF_BOOKS = 50
 
 def basic_interface_data(ctx, rd):
     ans = {
-        'username':rd.username,
-        'output_format':prefs['output_format'].upper(),
-        'input_formats':{x.upper():True for x in available_input_formats()},
-        'gui_pubdate_display_format':tweaks['gui_pubdate_display_format'],
-        'gui_timestamp_display_format':tweaks['gui_timestamp_display_format'],
-        'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
+        'username': rd.username,
+        'output_format': prefs['output_format'].upper(),
+        'input_formats': {x.upper(): True
+                          for x in available_input_formats()},
+        'gui_pubdate_display_format': tweaks['gui_pubdate_display_format'],
+        'gui_timestamp_display_format': tweaks['gui_timestamp_display_format'],
+        'gui_last_modified_display_format':
+        tweaks['gui_last_modified_display_format'],
         'use_roman_numerals_for_series_number': get_use_roman(),
         'translations': get_translations(),
-        'allow_console_print':getattr(rd.opts, 'allow_console_print', False),
+        'allow_console_print': getattr(rd.opts, 'allow_console_print', False),
         'icon_map': icon_map(),
         'icon_path': ctx.url_for('/icon', which=''),
     }
@@ -121,18 +129,28 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders):
     ans = {}
     with db.safe_read_lock:
         try:
-            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
+            ans['search_result'] = search_result(
+                ctx, rd, db,
+                rd.query.get('search', ''), num, 0, ','.join(sorts),
+                ','.join(orders)
+            )
         except ParseException:
-            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+            ans['search_result'] = search_result(
+                ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders)
+            )
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
-        ans['sortable_fields'] = sorted(((
-            sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
-                                        key=lambda (field, name):sort_key(name))
+        ans['sortable_fields'] = sorted(
+            ((sanitize_sort_field_name(db.field_metadata, k), v)
+             for k, v in sf.iteritems()),
+            key=lambda (field, name): sort_key(name)
+        )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         mdata = ans['metadata'] = {}
         try:
-            extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))
+            extra_books = set(
+                int(x) for x in rd.query.get('extra_books', '').split(',')
+            )
         except Exception:
             extra_books = ()
         for coll in (ans['search_result']['book_ids'], extra_books):
@@ -209,14 +227,18 @@ def more_books(ctx, rd):
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     try:
         search_query = load_json_file(rd.request_body_file)
-        query, offset, sorts, orders = search_query['query'], search_query['offset'], search_query['sort'], search_query['sort_order']
+        query, offset, sorts, orders = search_query['query'], search_query[
+            'offset'
+        ], search_query['sort'], search_query['sort_order']
     except KeyError as err:
         raise HTTPBadRequest('Search query missing key: %s' % as_unicode(err))
     except Exception as err:
         raise HTTPBadRequest('Invalid query: %s' % as_unicode(err))
     ans = {}
     with db.safe_read_lock:
-        ans['search_result'] = search_result(ctx, rd, db, query, num, offset, sorts, orders)
+        ans['search_result'] = search_result(
+            ctx, rd, db, query, num, offset, sorts, orders
+        )
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
@@ -262,7 +284,9 @@ def get_books(ctx, rd):
     mdata = ans['metadata'] = {}
     with db.safe_read_lock:
         try:
-            ans['search_result'] = search_result(ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders))
+            ans['search_result'] = search_result(
+                ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders)
+            )
         except ParseException as err:
             # This must not be translated as it is used by the front end to
             # detect invalid search expressions
@@ -286,6 +310,7 @@ def book_metadata(ctx, rd, book_id):
 
     def notfound():
         raise HTTPNotFound(_('No book with id: %d in library') % book_id)
+
     if not book_ids:
         notfound()
     if not book_id:
@@ -313,4 +338,5 @@ def tag_browser(ctx, rd):
     def generate():
         db, library_id = get_library_data(ctx, rd)[:2]
         return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db))
+
     return rd.etagged_dynamic_response(etag, generate)
