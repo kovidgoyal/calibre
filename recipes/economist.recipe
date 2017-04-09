@@ -177,7 +177,7 @@ class Economist(BasicNewsRecipe):
                 for a in section.findNextSiblings('a', href=True):
                     spans = a.findAll('span')
                     if len(spans) == 2:
-                        title = '{}: {}'.format(*map(self.tag_to_string, spans))
+                        title = u'{}: {}'.format(*map(self.tag_to_string, spans))
                     else:
                         title = self.tag_to_string(a)
                     articles.append({'title': title, 'url': process_url(a['href'])})
