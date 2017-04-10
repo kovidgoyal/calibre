@@ -470,15 +470,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions['Connect Share'].set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
-        from calibre.library.server.main import start_threaded_server
-        from calibre.library.server import server_config
-        self.content_server = start_threaded_server(
-                self.library_view.model().db, server_config().parse())
+        from calibre.srv.embedded import Server
+        self.content_server = Server(self.library_broker)
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
         if check_started:
             self.content_server.start_failure_callback = \
                 Dispatcher(self.content_server_start_failed)
+        self.content_server.start()
 
     def content_server_start_failed(self, msg):
         error_dialog(self, _('Failed to start Content server'),
