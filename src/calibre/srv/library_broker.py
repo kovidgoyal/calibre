@@ -177,6 +177,7 @@ class GuiLibraryBroker(LibraryBroker):
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
         if olddb is not None and samefile(olddb.backend.library_path, db.backend.library_path):
+            # This happens after a restore database, for example
             olddb.close(), olddb.break_cycles()
         self._prune_loaded_dbs()
 
