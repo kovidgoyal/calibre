@@ -71,6 +71,8 @@ apply_url_state.back_from_current = def back_from_current(current_query):
         if '^' in q.panel:
             q = {k:q[k] for k in q}
             q.panel = q.panel.rpartition('^')[0]
+        elif q.panel is 'book_list':
+            q = {}
         else:
             q = {'panel':'book_list'}
             lid = current_library_id()
