@@ -27,7 +27,7 @@ class Context(object):
 
     def __init__(self, libraries, opts, testing=False):
         self.opts = opts
-        self.library_broker = LibraryBroker(libraries)
+        self.library_broker = libraries if isinstance(libraries, LibraryBroker) else LibraryBroker(libraries)
         self.testing = testing
         self.lock = Lock()
         self.user_manager = UserManager(opts.userdb)

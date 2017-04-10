@@ -13,6 +13,7 @@ from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
 from calibre.srv.utils import RotatingLog
+from calibre.srv.opts import server_config
 
 
 def log_paths():
@@ -26,12 +27,13 @@ class Server(object):
     loop = current_thread = exception = None
     state_callback = start_failure_callback = None
 
-    def __init__(self, opts):
+    def __init__(self, library_broker):
+        opts = server_config()
         lp, lap = log_paths()
         log_size = opts.max_log_size * 1024 * 1024
         log = RotatingLog(lp, max_size=log_size)
         access_log = RotatingLog(lap, max_size=log_size)
-        self.handler = Handler(libraries, opts)
+        self.handler = Handler(library_broker, opts)
         plugins = self.plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour())
@@ -70,6 +72,7 @@ class Server(object):
             t.start()
 
     def serve_forever(self):
+        self.exception = None
         if self.state_callback is not None:
             try:
                 self.state_callback(True)
