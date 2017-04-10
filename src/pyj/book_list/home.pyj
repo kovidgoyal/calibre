@@ -162,6 +162,7 @@ def init(container_id):
                     show_panel('book_list', {'library_id': lib_id})
             ))
             cl.lastChild.style.margin = '1ex 1rem'
+            cl.lastChild.dataset.lid = library_id
 
 
 set_default_panel_handler(init)
