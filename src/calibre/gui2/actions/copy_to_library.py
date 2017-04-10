@@ -133,19 +133,20 @@ class Worker(Thread):  # {{{
     def add_formats(self, id_, paths, newdb, replace=True):
         for path in paths:
             fmt = os.path.splitext(path)[-1].replace('.', '').upper()
-            with open(path, 'rb') as f:
+            with lopen(path, 'rb') as f:
                 newdb.add_format(id_, fmt, f, index_is_id=True,
                         notify=False, replace=replace)
 
     def doit(self):
-        from calibre.db.legacy import LibraryDatabase
-        newdb = LibraryDatabase(self.loc, is_second_db=True)
-        with closing(newdb):
+        from calibre.gui2.ui import get_gui
+        library_broker = get_gui().library_broker
+        newdb = library_broker.get_library(self.loc)
+        try:
             if self.check_for_duplicates:
                 self.find_identical_books_data = newdb.new_api.data_for_find_identical_books()
             self._doit(newdb)
-        newdb.break_cycles()
-        del newdb
+        finally:
+            library_broker.prune_loaded_dbs()
 
     def _doit(self, newdb):
         for i, x in enumerate(self.ids):
