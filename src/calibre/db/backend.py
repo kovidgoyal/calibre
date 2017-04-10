@@ -316,6 +316,11 @@ class Connection(apsw.Connection):  # {{{
 # }}}
 
 
+def set_global_state(backend):
+    load_user_template_functions(backend.library_id,
+                                 backend.prefs.get('user_template_functions', []))
+
+
 class DB(object):
 
     PATH_LIMIT = 40 if iswindows else 100
@@ -402,8 +407,7 @@ class DB(object):
         self.initialize_custom_columns()
         self.initialize_tables()
         if load_user_formatter_functions:
-            load_user_template_functions(self.library_id,
-                                        self.prefs.get('user_template_functions', []))
+            set_global_state(self)
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)
