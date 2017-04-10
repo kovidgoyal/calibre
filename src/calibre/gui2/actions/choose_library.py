@@ -421,6 +421,7 @@ class ChooseLibraryAction(InterfaceAction):
                       'Try switching to this library first, then switch back '
                       'and retry the renaming.')%loc, show=True)
             return
+        self.gui.library_broker.remove_library(loc)
         try:
             os.rename(loc, newloc)
         except:
@@ -448,6 +449,7 @@ class ChooseLibraryAction(InterfaceAction):
                 yes_text=_('&OK'), no_text=_('&Undo'), yes_icon='ok.png', no_icon='edit-undo.png'):
             return
         self.stats.remove(location)
+        self.gui.library_broker.remove_library(location)
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
         if os.path.exists(loc):
@@ -484,7 +486,7 @@ class ChooseLibraryAction(InterfaceAction):
         db = m.db
         db.prefs.disable_setting = True
         if restore_database(db, self.gui):
-            self.gui.library_moved(db.library_path, call_close=False)
+            self.gui.library_moved(db.library_path)
 
     def check_library(self):
         from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
@@ -502,7 +504,7 @@ class ChooseLibraryAction(InterfaceAction):
         except:
             pass
         d.break_cycles()
-        self.gui.library_moved(library_path, call_close=False)
+        self.gui.library_moved(library_path)
         if d.rejected:
             return
         if d.error is None:

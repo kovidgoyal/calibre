@@ -6,77 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, json
-from collections import OrderedDict
+import json
 from importlib import import_module
 from threading import Lock
 
-from calibre import force_unicode, filesystem_encoding
-from calibre.db.cache import Cache
-from calibre.db.legacy import create_backend, LibraryDatabase
 from calibre.srv.auth import AuthController
 from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
+from calibre.srv.library_broker import LibraryBroker
 from calibre.utils.date import utcnow
-
-
-def init_library(library_path):
-    db = Cache(create_backend(library_path))
-    db.init()
-    return db
-
-
-class LibraryBroker(object):
-
-    def __init__(self, libraries):
-        self.lock = Lock()
-        self.lmap = {}
-        seen = set()
-        for i, path in enumerate(os.path.abspath(p) for p in libraries):
-            if path in seen:
-                continue
-            seen.add(path)
-            if not LibraryDatabase.exists_at(path):
-                continue
-            bname = library_id = force_unicode(os.path.basename(path), filesystem_encoding).replace(' ', '_')
-            c = 0
-            while library_id in self.lmap:
-                c += 1
-                library_id = bname + '%d' % c
-            if i == 0:
-                self.default_library = library_id
-            self.lmap[library_id] = path
-        self.category_caches = {lid:OrderedDict() for lid in self.lmap}
-        self.search_caches = {lid:OrderedDict() for lid in self.lmap}
-        self.tag_browser_caches = {lid:OrderedDict() for lid in self.lmap}
-
-    def get(self, library_id=None):
-        with self.lock:
-            library_id = library_id or self.default_library
-            ans = self.lmap.get(library_id)
-            if ans is None:
-                return
-            if not callable(getattr(ans, 'init', None)):
-                try:
-                    self.lmap[library_id] = ans = init_library(ans)
-                    ans.server_library_id = library_id
-                except Exception:
-                    self.lmap[library_id] = ans = None
-                    raise
-            return ans
-
-    def close(self):
-        for db in self.lmap.itervalues():
-            getattr(db, 'close', lambda : None)()
-        self.lmap = {}
-
-    @property
-    def library_map(self):
-        def lpath(x):
-            if hasattr(x, 'rpartition'):
-                return x
-            return x.backend.library_path
-        return {k:os.path.basename(lpath(v)) for k, v in self.lmap.iteritems()}
 
 
 class Context(object):
@@ -209,4 +147,3 @@ class Handler(object):
 
     def close(self):
         self.router.ctx.library_broker.close()
-

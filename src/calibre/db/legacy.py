@@ -15,7 +15,7 @@ from calibre.db import _get_next_series_num_for_list, _get_series_values, get_da
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
     import_book_directory, recursive_import, add_catalog, add_news)
-from calibre.db.backend import DB
+from calibre.db.backend import DB, set_global_state as backend_set_global_state
 from calibre.db.cache import Cache
 from calibre.db.errors import NoSuchFormat
 from calibre.db.categories import CATEGORY_SORTS
@@ -46,6 +46,11 @@ def create_backend(
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
                      progress_callback=progress_callback,
                      load_user_formatter_functions=load_user_formatter_functions)
+
+
+def set_global_state(db):
+    backend_set_global_state(db.backend)
+    set_saved_searches(db, 'saved_searches')
 
 
 class LibraryDatabase(object):
@@ -92,14 +97,16 @@ class LibraryDatabase(object):
             set_saved_searches(self, 'saved_searches')
 
     def close(self):
-        self.new_api.close()
+        if hasattr(self, 'new_api'):
+            self.new_api.close()
 
     def break_cycles(self):
-        delattr(self.backend, 'field_metadata')
-        self.data.cache.backend = None
-        self.data.cache = None
-        for x in ('data', 'backend', 'new_api', 'listeners',):
-            delattr(self, x)
+        if hasattr(self, 'backend'):
+            delattr(self.backend, 'field_metadata')
+            self.data.cache.backend = None
+            self.data.cache = None
+            for x in ('data', 'backend', 'new_api', 'listeners',):
+                delattr(self, x)
 
     # Library wide properties {{{
     @property
@@ -742,6 +749,7 @@ class LibraryDatabase(object):
 
     # }}}
 
+
 MT = lambda func: types.MethodType(func, None, LibraryDatabase)
 
 # Legacy getter API {{{
@@ -936,4 +944,3 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
-

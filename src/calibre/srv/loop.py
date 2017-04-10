@@ -387,9 +387,7 @@ class ServerLoop(object):
         if not self.socket:
             raise socket.error(msg)
 
-    def serve_forever(self):
-        """ Listen for incoming connections. """
-
+    def initialize_socket(self):
         if self.pre_activated_socket is None:
             try:
                 self.do_bind()
@@ -408,6 +406,7 @@ class ServerLoop(object):
             self.pre_activated_socket = None
             self.setup_socket()
 
+    def serve(self):
         self.connection_map = {}
         self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
@@ -432,6 +431,11 @@ class ServerLoop(object):
                 except:
                     self.log.exception('Error in ServerLoop.tick')
             self.shutdown()
+
+    def serve_forever(self):
+        """ Listen for incoming connections. """
+        self.initialize_socket()
+        self.serve()
 
     def setup_socket(self):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
