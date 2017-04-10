@@ -51,6 +51,7 @@ from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
+from calibre.srv.library_broker import GuiLibraryBroker
 
 
 class Listener(Thread):  # {{{
@@ -220,6 +221,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
+        self.library_broker = GuiLibraryBroker(db)
         self.content_server = None
         self._spare_pool = None
         self.must_restart_before_config = False
@@ -626,81 +628,76 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc, copy_structure=False, call_close=True,
-            allow_rebuild=False):
+    def library_moved(self, newloc, copy_structure=False, allow_rebuild=False):
         if newloc is None:
             return
-        default_prefs = None
-        try:
-            olddb = self.library_view.model().db
-            if copy_structure:
-                default_prefs = olddb.prefs
-        except:
-            olddb = None
-        if copy_structure and olddb is not None and default_prefs is not None:
-            default_prefs['field_metadata'] = olddb.new_api.field_metadata.all_metadata()
-        try:
-            db = LibraryDatabase(newloc, default_prefs=default_prefs)
-        except apsw.Error:
-            if not allow_rebuild:
-                raise
-            import traceback
-            repair = question_dialog(self, _('Corrupted database'),
-                    _('The library database at %s appears to be corrupted. Do '
-                    'you want calibre to try and rebuild it automatically? '
-                    'The rebuild may not be completely successful.')
-                    % force_unicode(newloc, filesystem_encoding),
-                    det_msg=traceback.format_exc()
-                    )
-            if repair:
-                from calibre.gui2.dialogs.restore_library import repair_library_at
-                if repair_library_at(newloc, parent=self):
-                    db = LibraryDatabase(newloc, default_prefs=default_prefs)
-                else:
-                    return
-            else:
-                return
-        if self.content_server is not None:
-            self.content_server.set_database(db)
-        self.library_path = newloc
-        prefs['library_path'] = self.library_path
-        self.book_on_device(None, reset=True)
-        db.set_book_on_device_func(self.book_on_device)
-        self.library_view.set_database(db)
-        self.tags_view.set_database(db, self.alter_tb)
-        self.library_view.model().set_book_on_device_func(self.book_on_device)
-        self.status_bar.clear_message()
-        self.search.clear()
-        self.saved_search.clear()
-        self.book_details.reset_info()
-        # self.library_view.model().count_changed()
-        db = self.library_view.model().db
-        self.iactions['Choose Library'].count_changed(db.count())
-        self.set_window_title()
-        self.apply_named_search_restriction('')  # reset restriction to null
-        self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
-        if db.prefs['virtual_lib_on_startup']:
-            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
-        self.rebuild_vl_tabs()
-        for action in self.iactions.values():
-            action.library_changed(db)
-        if olddb is not None:
+        with self.library_broker:
+            default_prefs = None
             try:
-                if call_close:
-                    olddb.close()
+                olddb = self.library_view.model().db
+                if copy_structure:
+                    default_prefs = olddb.prefs
             except:
-                import traceback
-                traceback.print_exc()
-            olddb.break_cycles()
-        if self.device_connected:
-            self.set_books_in_library(self.booklists(), reset=True)
-            self.refresh_ondevice()
-            self.memory_view.reset()
-            self.card_a_view.reset()
-            self.card_b_view.reset()
-        self.set_current_library_information(current_library_name(), db.library_id,
-                                             db.field_metadata)
-        self.library_view.set_current_row(0)
+                olddb = None
+            if copy_structure and olddb is not None and default_prefs is not None:
+                default_prefs['field_metadata'] = olddb.new_api.field_metadata.all_metadata()
+            db = self.library_broker.prepare_for_gui_library_change(newloc)
+            if db is None:
+                try:
+                    db = LibraryDatabase(newloc, default_prefs=default_prefs)
+                except apsw.Error:
+                    if not allow_rebuild:
+                        raise
+                    import traceback
+                    repair = question_dialog(self, _('Corrupted database'),
+                            _('The library database at %s appears to be corrupted. Do '
+                            'you want calibre to try and rebuild it automatically? '
+                            'The rebuild may not be completely successful.')
+                            % force_unicode(newloc, filesystem_encoding),
+                            det_msg=traceback.format_exc()
+                            )
+                    if repair:
+                        from calibre.gui2.dialogs.restore_library import repair_library_at
+                        if repair_library_at(newloc, parent=self):
+                            db = LibraryDatabase(newloc, default_prefs=default_prefs)
+                        else:
+                            return
+                    else:
+                        return
+            self.library_path = newloc
+            prefs['library_path'] = self.library_path
+            self.book_on_device(None, reset=True)
+            db.set_book_on_device_func(self.book_on_device)
+            self.library_view.set_database(db)
+            self.tags_view.set_database(db, self.alter_tb)
+            self.library_view.model().set_book_on_device_func(self.book_on_device)
+            self.status_bar.clear_message()
+            self.search.clear()
+            self.saved_search.clear()
+            self.book_details.reset_info()
+            # self.library_view.model().count_changed()
+            db = self.library_view.model().db
+            self.iactions['Choose Library'].count_changed(db.count())
+            self.set_window_title()
+            self.apply_named_search_restriction('')  # reset restriction to null
+            self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
+            if db.prefs['virtual_lib_on_startup']:
+                self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+            self.rebuild_vl_tabs()
+            for action in self.iactions.values():
+                action.library_changed(db)
+            self.library_broker.gui_library_changed(db)
+            if olddb is not None:
+                olddb.close(), olddb.break_cycles()
+            if self.device_connected:
+                self.set_books_in_library(self.booklists(), reset=True)
+                self.refresh_ondevice()
+                self.memory_view.reset()
+                self.card_a_view.reset()
+                self.card_b_view.reset()
+            self.set_current_library_information(current_library_name(), db.library_id,
+                                                db.field_metadata)
+            self.library_view.set_current_row(0)
         # Run a garbage collection now so that it does not freeze the
         # interface later
         gc.collect()
