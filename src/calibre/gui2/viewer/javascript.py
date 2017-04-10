@@ -21,7 +21,7 @@ class JavaScriptLoader(object):
             'bookmarks':None,
             'referencing':None,
             'hyphenation':None,
-            'jquery':'content_server/jquery.js',
+            'jquery':'viewer/jquery.js',
             'jquery_scrollTo':None,
             'hyphenator':'viewer/hyphenate/Hyphenator.js',
             'images':None
