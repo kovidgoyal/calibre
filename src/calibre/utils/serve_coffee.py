@@ -215,7 +215,7 @@ class Handler(HTTPRequestHandler):  # {{{
     def translate_path(self, path):
         path = self.special_resources.get(path, path)
         if path.endswith('/jquery.js'):
-            return P('content_server/jquery.js')
+            return P('viewer/jquery.js')
 
         return HTTPRequestHandler.translate_path(self, path)
 
@@ -329,7 +329,7 @@ def main():
     else:
         serve(port=args.port, host=args.host)
 
+
 if __name__ == '__main__':
     main()
 # }}}
-
