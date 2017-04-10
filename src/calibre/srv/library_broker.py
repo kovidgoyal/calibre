@@ -127,6 +127,21 @@ class GuiLibraryBroker(LibraryBroker):
         finally:
             self.last_used_times[library_id or self.default_library] = monotonic()
 
+    def get_library(self, library_path):
+        library_path = canonicalize_path(library_path)
+        with self:
+            for library_id, path in self.lmap.iteritems():
+                if samefile(library_path, path):
+                    db = self.loaded_dbs.get(library_id)
+                    if db is None:
+                        db = self.loaded_dbs[library_id] = self.init_library(path, False)
+                    return db
+            db = self.init_library(library_path, False)
+            library_id = library_id_from_path(library_path, self.lmap)
+            self.lmap[library_id] = library_path
+            self.loaded_dbs[library_id] = db
+            return db
+
     def prepare_for_gui_library_change(self, newloc):
         # Must be called with lock held
         for library_id, path in self.lmap.iteritems():
