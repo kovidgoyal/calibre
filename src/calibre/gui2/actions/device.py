@@ -224,7 +224,7 @@ class ConnectShareAction(InterfaceAction):
         if self.gui.content_server is None:
             self.gui.start_content_server()
         else:
-            self.gui.content_server.threaded_exit()
+            self.gui.content_server.stop()
             self.stopping_msg = info_dialog(self.gui, _('Stopping'),
                     _('Stopping server, this could take up to a minute, please wait...'),
                     show_copy_button=False)
