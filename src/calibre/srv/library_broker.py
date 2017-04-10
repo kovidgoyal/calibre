@@ -175,6 +175,7 @@ class GuiLibraryBroker(LibraryBroker):
             else:
                 return
             self.lmap.pop(library_id, None)
-            db = self.loaded_dbs.pop(library_id)
+            db = self.loaded_dbs.pop(library_id, None)
             if db is not None:
-                db.close(), db.break_cycles()
+                db.close()
+                db.break_cycles()
