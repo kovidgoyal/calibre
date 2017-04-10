@@ -135,9 +135,11 @@ class GuiLibraryBroker(LibraryBroker):
                     db = self.loaded_dbs.get(library_id)
                     if db is None:
                         db = self.loaded_dbs[library_id] = self.init_library(path, False)
+                    db.new_api.server_library_id = library_id
                     return db
             db = self.init_library(library_path, False)
             library_id = library_id_from_path(library_path, self.lmap)
+            db.new_api.server_library_id = library_id
             self.lmap[library_id] = library_path
             self.loaded_dbs[library_id] = db
             return db
@@ -166,6 +168,7 @@ class GuiLibraryBroker(LibraryBroker):
             library_id = self.gui_library_id = library_id_from_path(newloc, self.lmap)
             self.lmap[library_id] = newloc
             self.loaded_dbs[library_id] = db
+        db.new_api.server_library_id = library_id
         if prune:
             self._prune_loaded_dbs()
 
