@@ -11,8 +11,15 @@ from threading import Lock
 from calibre import filesystem_encoding
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase, create_backend, set_global_state
-from calibre.utils.filenames import samefile
+from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
+
+
+def samefile(a, b):
+    a, b = canonicalize_path(a), canonicalize_path(b)
+    if a == b:
+        return True
+    return _samefile(a, b)
 
 
 def init_library(library_path, is_default_library):
@@ -156,7 +163,7 @@ class GuiLibraryBroker(LibraryBroker):
                 set_global_state(db)
                 return db
 
-    def gui_library_changed(self, db, prune=True):
+    def gui_library_changed(self, db, olddb=None):
         # Must be called with lock held
         newloc = canonicalize_path(db.backend.library_path)
         for library_id, path in self.lmap.iteritems():
@@ -169,8 +176,9 @@ class GuiLibraryBroker(LibraryBroker):
             self.lmap[library_id] = newloc
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
-        if prune:
-            self._prune_loaded_dbs()
+        if olddb is not None and samefile(olddb.backend.library_path, db.backend.library_path):
+            olddb.close(), olddb.break_cycles()
+        self._prune_loaded_dbs()
 
     def _prune_loaded_dbs(self):
         now = monotonic()
