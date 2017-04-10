@@ -685,9 +685,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.rebuild_vl_tabs()
             for action in self.iactions.values():
                 action.library_changed(db)
-            self.library_broker.gui_library_changed(db)
-            if olddb is not None:
-                olddb.close(), olddb.break_cycles()
+            self.library_broker.gui_library_changed(db, olddb)
             if self.device_connected:
                 self.set_books_in_library(self.booklists(), reset=True)
                 self.refresh_ondevice()
