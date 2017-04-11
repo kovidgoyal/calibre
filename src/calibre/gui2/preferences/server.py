@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.opts import change_settings, options, server_config
 
 
@@ -305,7 +305,8 @@ class ConfigWidget(ConfigWidgetBase):
         r('autolaunch_server', config)
 
     def start_server(self):
-        self.save_changes()
+        if not self.save_changes():
+            return
         self.setCursor(Qt.BusyCursor)
         try:
             self.gui.start_content_server(check_started=False)
@@ -368,14 +369,25 @@ class ConfigWidget(ConfigWidgetBase):
         d.show()
 
     def save_changes(self):
-        ConfigWidgetBase.commit(self)
         settings = {}
         for tab in self.tabs:
             settings.update(getattr(tab, 'settings', {}))
+        if settings['auth']:
+            from calibre.srv.users import UserManager
+            if not UserManager(settings['userdb']).all_user_names:
+                error_dialog(self.gui, _('No users specified'), _(
+                    'You have turned on the setting to require passwords to access'
+                    ' the content server, but you have not created any user accounts.'
+                    ' Create at least one user account in the "Users" tab to proceed.'),
+                             show=True)
+                return False
+        ConfigWidgetBase.commit(self)
         change_settings(**settings)
+        return True
 
     def commit(self):
-        self.save_changes()
+        if not self.save_changes():
+            raise AbortCommit()
         warning_dialog(self, _('Restart needed'),
                 _('You need to restart the server for changes to'
                     ' take effect'), show=True)
