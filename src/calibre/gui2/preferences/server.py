@@ -338,8 +338,8 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
-        prefix = unicode(opt_url_prefix.text()).strip()
-        open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())+prefix))
+        prefix = self.advanced_tab.opt_url_prefix.text().strip()
+        open_url(QUrl('http://127.0.0.1:'+str(self.main_tab.opt_port.value())+prefix))
 
     def view_server_logs(self):
         from calibre.srv.embedded import log_paths
