@@ -255,6 +255,17 @@ class MainTab(QWidget):  # {{{
 # }}}
 
 
+# Users {{{
+class Users(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+
+    def genesis(self):
+        pass
+# }}}
+
+
 class ConfigWidget(ConfigWidgetBase):
 
     def __init__(self, *args, **kw):
@@ -270,6 +281,8 @@ class ConfigWidget(ConfigWidgetBase):
         m.test_server.connect(self.test_server)
         m.show_logs.connect(self.view_server_logs)
         self.opt_autolaunch_server = m.opt_autolaunch_server
+        self.users_tab = ua = Users(self)
+        t.addTab(ua, _('&User Accounts'))
         self.advanced_tab = a = AdvancedTab(self)
         sa = QScrollArea(self)
         sa.setWidget(a), sa.setWidgetResizable(True)
@@ -375,11 +388,12 @@ class ConfigWidget(ConfigWidgetBase):
         if settings['auth']:
             from calibre.srv.users import UserManager
             if not UserManager(settings['userdb']).all_user_names:
-                error_dialog(self.gui, _('No users specified'), _(
+                error_dialog(self, _('No users specified'), _(
                     'You have turned on the setting to require passwords to access'
                     ' the content server, but you have not created any user accounts.'
-                    ' Create at least one user account in the "Users" tab to proceed.'),
+                    ' Create at least one user account in the "User Accounts" tab to proceed.'),
                              show=True)
+                self.tabs_widget.setCurrentWidget(self.users_tab)
                 return False
         ConfigWidgetBase.commit(self)
         change_settings(**settings)
