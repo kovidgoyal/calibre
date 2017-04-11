@@ -1,24 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import time
 
 from PyQt5.Qt import (
-    QCheckBox, QDialog, QDialogButtonBox, QLabel, QPlainTextEdit, QSize, Qt,
-    QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal, QHBoxLayout,
-    QPushButton
+    QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel,
+    QPlainTextEdit, QPushButton, QSize, QSpinBox, Qt, QTabWidget, QTimer, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import as_unicode
-from calibre.gui2 import (
-    Dispatcher, config, error_dialog, info_dialog, open_url, warning_dialog
-)
+from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from calibre.srv.opts import server_config, options
+from calibre.srv.opts import change_settings, options, server_config
 
 
 class MainTab(QWidget):
@@ -40,14 +35,25 @@ class MainTab(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
         l.addSpacing(10)
+        self.fl = fl = QFormLayout()
+        l.addLayout(fl)
+        self.opt_port = sb = QSpinBox(self)
+        if options['port'].longdoc:
+            sb.setToolTip(options['port'].longdoc)
+        sb.setRange(1, 65535)
+        sb.valueChanged.connect(self.changed_signal.emit)
+        fl.addRow(options['port'].shortdoc + ':', sb)
+        l.addSpacing(25)
         self.opt_auth = cb = QCheckBox(_('Require username/password to access the content server'))
         l.addWidget(cb)
         self.auth_desc = la = QLabel(self)
-        la.setStyleSheet('QLabel { font-size: smaller }')
+        la.setStyleSheet('QLabel { font-size: small; font-style: italic }')
         la.setWordWrap(True)
+        l.addWidget(la)
         l.addSpacing(25)
         self.opt_autolaunch_server = al = QCheckBox(_('Run server &automatically when calibre starts'))
         l.addWidget(al)
+        l.addSpacing(25)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         for text, name in [(_('&Start server'), 'start_server'), (_('St&op server'), 'stop_server'),
@@ -58,11 +64,13 @@ class MainTab(QWidget):
             if name == 'show_logs':
                 h.addStretch(10)
             h.addWidget(b)
+        l.addStretch(10)
 
     def genesis(self):
         opts = server_config()
         self.opt_auth.setChecked(opts.auth)
         self.opt_auth.stateChanged.connect(self.auth_changed)
+        self.opt_port.setValue(opts.port)
         self.change_auth_desc()
         self.update_button_state()
 
@@ -71,8 +79,8 @@ class MainTab(QWidget):
             _('Remember to create some user accounts in the "Users" tab') if self.opt_auth.isChecked() else
             _('Requiring a username/password prevents unauthorized people from'
               ' accessing your calibre library. It is also needed for some features'
-              ' such as last read position/annotation syncing and making'
-              ' changes to the library.')
+              ' such as making any changes to the library as well as'
+              ' last read position/annotation syncing.')
         )
 
     def auth_changed(self):
@@ -80,14 +88,20 @@ class MainTab(QWidget):
         self.change_auth_desc()
 
     def restore_defaults(self):
-        self.auth_changed.setChecked(options['auth'].default)
+        self.opt_auth.setChecked(options['auth'].default)
+        self.opt_port.setValue(options['port'].default)
 
     def update_button_state(self):
-        gui = self.parent().gui
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
         is_running = gui.content_server is not None and gui.content_server.is_running
         self.start_server_button.setEnabled(not is_running)
         self.stop_server_button.setEnabled(is_running)
         self.test_server_button.setEnabled(is_running)
+
+    @property
+    def settings(self):
+        return {'auth': self.opt_auth.isChecked(), 'port': self.opt_port.value()}
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -97,6 +111,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.tabs_widget = t = QTabWidget(self)
+        l.addWidget(t)
         self.main_tab = m = MainTab(self)
         t.addTab(m, _('Main'))
         m.start_server.connect(self.start_server)
@@ -114,7 +129,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     @property
     def server(self):
-        return self.gui.server
+        return self.gui.content_server
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -131,14 +146,14 @@ class ConfigWidget(ConfigWidgetBase):
         r('autolaunch_server', config)
 
     def start_server(self):
-        ConfigWidgetBase.commit(self)
+        self.save_changes()
         self.setCursor(Qt.BusyCursor)
         try:
             self.gui.start_content_server(check_started=False)
-            while (not self.gui.content_server.is_running and
-                    self.gui.content_server.exception is None):
+            while (not self.server.is_running and
+                    self.server.exception is None):
                 time.sleep(0.1)
-            if self.gui.content_server.exception is not None:
+            if self.server.exception is not None:
                 error_dialog(self, _('Failed to start content server'),
                         as_unicode(self.gui.content_server.exception)).exec_()
                 return
@@ -147,7 +162,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.unsetCursor()
 
     def stop_server(self):
-        self.gui.content_server.threaded_exit()
+        self.server.stop()
         self.stopping_msg = info_dialog(self, _('Stopping'),
                 _('Stopping server, this could take up to a minute, please wait...'),
                 show_copy_button=False)
@@ -155,7 +170,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.exec_()
 
     def check_exited(self):
-        if getattr(self.gui.content_server, 'is_running', False):
+        if getattr(self.server, 'is_running', False):
             QTimer.singleShot(20, self.check_exited)
             return
 
@@ -164,7 +179,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
-        prefix = unicode(self.opt_url_prefix.text()).strip()
+        prefix = unicode(opt_url_prefix.text()).strip()
         open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())+prefix))
 
     def view_server_logs(self):
@@ -193,22 +208,26 @@ class ConfigWidget(ConfigWidgetBase):
         bx.accepted.connect(d.accept)
         d.show()
 
-    def commit(self):
+    def save_changes(self):
         ConfigWidgetBase.commit(self)
+        settings = {}
+        for tab in self.tabs:
+            settings.update(getattr(tab, 'settings', {}))
+        change_settings(**settings)
+        # TODO: validate settings
+
+    def commit(self):
+        self.save_changes()
         warning_dialog(self, _('Restart needed'),
                 _('You need to restart the server for changes to'
                     ' take effect'), show=True)
         return False
 
     def refresh_gui(self, gui):
-        gui.content_server = self.server
-        if gui.content_server is not None:
-            gui.content_server.state_callback = \
-                Dispatcher(gui.iactions['Connect Share'].content_server_state_changed)
-            gui.content_server.state_callback(gui.content_server.is_running)
+        pass
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Sharing', 'Server')

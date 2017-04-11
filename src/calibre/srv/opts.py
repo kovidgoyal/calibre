@@ -266,6 +266,7 @@ def write_config_file(opts, path=DEFAULT_CONFIG):
         lines.append('%s %s' % (name, changed[name]))
     raw = '\n'.join(lines).encode('utf-8')
     with ExclusiveFile(path) as f:
+        f.truncate()
         f.write(raw)
 
 
