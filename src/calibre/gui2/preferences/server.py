@@ -2,12 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
+import textwrap
 import time
 
 from PyQt5.Qt import (
-    QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel,
-    QPlainTextEdit, QPushButton, QSize, QSpinBox, Qt, QTabWidget, QTimer, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSize,
+    QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre import as_unicode
@@ -16,7 +18,155 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.srv.opts import change_settings, options, server_config
 
 
-class MainTab(QWidget):
+# Advanced {{{
+
+def init_opt(widget, opt, layout):
+    widget.name, widget.default_val = opt.name, opt.default
+    if opt.longdoc:
+        widget.setWhatsThis(opt.longdoc)
+        widget.setStatusTip(opt.longdoc)
+        widget.setToolTip(textwrap.fill(opt.longdoc))
+    layout.addRow(opt.shortdoc + ':', widget)
+
+
+class Bool(QCheckBox):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        opt = options[name]
+        QCheckBox.__init__(self)
+        self.stateChanged.connect(self.changed_signal.emit)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.isChecked()
+
+    def set(self, val):
+        self.setChecked(bool(val))
+
+
+class Int(QSpinBox):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        QSpinBox.__init__(self)
+        self.setRange(0, 10000)
+        opt = options[name]
+        self.valueChanged.connect(self.changed_signal.emit)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.value()
+
+    def set(self, val):
+        self.setValue(int(val))
+
+
+class Float(QDoubleSpinBox):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        QDoubleSpinBox.__init__(self)
+        self.setRange(0, 10000)
+        opt = options[name]
+        self.valueChanged.connect(self.changed_signal.emit)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.value()
+
+    def set(self, val):
+        self.setValue(float(val))
+
+
+class Text(QLineEdit):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        QLineEdit.__init__(self)
+        opt = options[name]
+        self.textChanged.connect(self.changed_signal.emit)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.text().strip() or None
+
+    def set(self, val):
+        self.setText(type(u'')(val or ''))
+
+
+class Choices(QComboBox):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        QComboBox.__init__(self)
+        self.setEditable(False)
+        opt = options[name]
+        self.choices = opt.choices
+        tuple(map(self.addItem, opt.choices))
+        self.currentIndexChanged.connect(self.changed_signal.emit)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.currentText()
+
+    def set(self, val):
+        if val in self.choices:
+            self.setCurrentText(val)
+        else:
+            self.setCurrentIndex(0)
+
+
+class AdvancedTab(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        self.widgets = []
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        for name in sorted(options, key=lambda n:options[n].shortdoc.lower()):
+            if name in ('auth', 'port', 'allow_socket_preallocation'):
+                continue
+            opt = options[name]
+            if opt.choices:
+                w = Choices
+            elif isinstance(opt.default, bool):
+                w = Bool
+            elif isinstance(opt.default, (int, long)):
+                w = Int
+            elif isinstance(opt.default, float):
+                w = Float
+            else:
+                w = Text
+            w = w(name, l)
+            setattr(self, 'opt_' + name, w)
+            self.widgets.append(w)
+
+    def genesis(self):
+        opts = server_config()
+        for w in self.widgets:
+            w.set(getattr(opts, w.name))
+            w.changed_signal.connect(self.changed_signal.emit)
+
+    def restore_defaults(self):
+        for w in self.widgets:
+            w.set(w.default_val)
+
+    @property
+    def settings(self):
+        return {w.name:w.get() for w in self.widgets}
+# }}}
+
+
+class MainTab(QWidget):  # {{{
 
     changed_signal = pyqtSignal()
     start_server = pyqtSignal()
@@ -102,6 +252,7 @@ class MainTab(QWidget):
     @property
     def settings(self):
         return {'auth': self.opt_auth.isChecked(), 'port': self.opt_port.value()}
+# }}}
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -113,19 +264,27 @@ class ConfigWidget(ConfigWidgetBase):
         self.tabs_widget = t = QTabWidget(self)
         l.addWidget(t)
         self.main_tab = m = MainTab(self)
-        t.addTab(m, _('Main'))
+        t.addTab(m, _('&Main'))
         m.start_server.connect(self.start_server)
         m.stop_server.connect(self.stop_server)
         m.test_server.connect(self.test_server)
         m.show_logs.connect(self.view_server_logs)
         self.opt_autolaunch_server = m.opt_autolaunch_server
+        self.advanced_tab = a = AdvancedTab(self)
+        sa = QScrollArea(self)
+        sa.setWidget(a), sa.setWidgetResizable(True)
+        t.addTab(sa, _('&Advanced'))
         for tab in self.tabs:
             if hasattr(tab, 'changed_signal'):
                 tab.changed_signal.connect(self.changed_signal.emit)
 
     @property
     def tabs(self):
-        return (self.tabs_widget.widget(i) for i in range(self.tabs_widget.count()))
+        def w(x):
+            if isinstance(x, QScrollArea):
+                x = x.widget()
+            return x
+        return (w(self.tabs_widget.widget(i)) for i in range(self.tabs_widget.count()))
 
     @property
     def server(self):
@@ -214,7 +373,6 @@ class ConfigWidget(ConfigWidgetBase):
         for tab in self.tabs:
             settings.update(getattr(tab, 'settings', {}))
         change_settings(**settings)
-        # TODO: validate settings
 
     def commit(self):
         self.save_changes()
