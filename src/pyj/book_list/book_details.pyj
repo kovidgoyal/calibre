@@ -351,8 +351,9 @@ def render_book(container_id, book_id):
     ))
     container = c.lastChild.firstChild
     read_button = create_button(_('Read'), 'book', read_book.bind(None, book_id), _('Read this book'))
-    download_button = create_button(_('Download'), 'cloud-download', download_book.bind(None, book_id),
-        _('Download this book in the {} format').format(preferred_format(book_id)))
+    fmt = preferred_format(book_id)
+    download_button = create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
+        _('Download this book in the {} format').format(fmt), download_filename=f'{metadata.title}.{fmt.toLowerCase()}')
     row = E.div(read_button, '\xa0\xa0\xa0', download_button, style='margin-bottom: 1ex')
     if not metadata.formats or not metadata.formats.length:
         row.style.display = 'none'
