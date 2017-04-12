@@ -325,7 +325,7 @@ def download_format(book_id, fmt):
 
 def download_book(book_id):
     fmt = preferred_format(book_id)
-    download_format(fmt)
+    download_format(book_id, fmt)
 
 
 def render_book(container_id, book_id):
