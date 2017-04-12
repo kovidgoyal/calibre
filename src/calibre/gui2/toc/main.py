@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os, textwrap
 from threading import Thread
 from functools import partial
+from future_builtins import map
 
 from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
@@ -354,12 +355,17 @@ class ItemView(QFrame):  # {{{
 # }}}
 
 
+NODE_FLAGS = (Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
+                        Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
+
+
 class TreeWidget(QTreeWidget):  # {{{
 
     edit_item = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
+        self.history = []
         self.setHeaderLabel(_('Table of Contents'))
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setDragEnabled(True)
@@ -378,6 +384,13 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
+    def push_history(self):
+        self.history.append(self.serialize_tree())
+
+    def pop_history(self):
+        if self.history:
+            self.unserialize_tree(self.history.pop())
+
     def iteritems(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
@@ -387,8 +400,54 @@ class TreeWidget(QTreeWidget):  # {{{
             for gc in self.iteritems(parent=child):
                 yield gc
 
+    def update_status_tip(self, item):
+        c = item.data(0, Qt.UserRole)
+        if c is not None:
+            frag = c.frag or ''
+            if frag:
+                frag = '#'+frag
+            item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
+                c.title, c.dest, frag))
+
+    def serialize_tree(self):
+
+        def serialize_node(node):
+            return {
+                'title': node.data(0, Qt.DisplayRole),
+                'toc_node': node.data(0, Qt.UserRole),
+                'icon': node.data(0, Qt.DecorationRole),
+                'tooltip': node.data(0, Qt.ToolTipRole),
+                'is_selected': node.isSelected(),
+                'is_expanded': node.isExpanded(),
+                'children': list(map(serialize_node, (node.child(i) for i in range(node.childCount())))),
+            }
+
+        node = self.invisibleRootItem()
+        return {'children': list(map(serialize_node, (node.child(i) for i in range(node.childCount()))))}
+
+    def unserialize_tree(self, serialized):
+
+        def unserialize_node(dict_node, parent):
+            n = QTreeWidgetItem(parent)
+            n.setData(0, Qt.DisplayRole, dict_node['title'])
+            n.setData(0, Qt.UserRole, dict_node['toc_node'])
+            n.setFlags(NODE_FLAGS)
+            n.setData(0, Qt.DecorationRole, dict_node['icon'])
+            n.setData(0, Qt.ToolTipRole, dict_node['tooltip'])
+            self.update_status_tip(n)
+            n.setExpanded(dict_node['is_expanded'])
+            n.setSelected(dict_node['is_selected'])
+            for c in dict_node['children']:
+                unserialize_node(c, n)
+
+        i = self.invisibleRootItem()
+        i.takeChildren()
+        for child in serialized['children']:
+            unserialize_node(child, i)
+
     def dropEvent(self, event):
         self.in_drop_event = True
+        self.push_history()
         try:
             super(TreeWidget, self).dropEvent(event)
         finally:
@@ -418,6 +477,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def move_left(self):
         if not self.check_multi_selection():
             return
+        self.push_history()
         item = self.currentItem()
         if item is not None:
             parent = item.parent()
@@ -437,6 +497,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def move_right(self):
         if not self.check_multi_selection():
             return
+        self.push_history()
         item = self.currentItem()
         if item is not None:
             parent = item.parent() or self.invisibleRootItem()
@@ -453,6 +514,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def move_down(self):
         if not self.check_multi_selection():
             return
+        self.push_history()
         item = self.currentItem()
         if item is None:
             if self.root.childCount() == 0:
@@ -478,6 +540,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def move_up(self):
         if not self.check_multi_selection():
             return
+        self.push_history()
         item = self.currentItem()
         if item is None:
             if self.root.childCount() == 0:
@@ -501,17 +564,20 @@ class TreeWidget(QTreeWidget):  # {{{
         self.highlight_item(item)
 
     def del_items(self):
+        self.push_history()
         for item in self.selectedItems():
             p = item.parent() or self.root
             p.removeChild(item)
 
     def title_case(self):
+        self.push_history()
         from calibre.utils.titlecase import titlecase
         for item in self.selectedItems():
             t = unicode(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, titlecase(t))
 
     def upper_case(self):
+        self.push_history()
         for item in self.selectedItems():
             t = unicode(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, icu_upper(t))
@@ -523,6 +589,7 @@ class TreeWidget(QTreeWidget):  # {{{
         fmt, num = get_bulk_rename_settings(self, len(items), prefix=_('Chapter '), msg=_(
             'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
         if fmt is not None and num is not None:
+            self.push_history()
             for i, item in enumerate(items):
                 item.setData(0, Qt.DisplayRole, fmt % (num + i))
 
@@ -663,6 +730,7 @@ class TOCView(QWidget):  # {{{
     def delete_current_item(self):
         item = self.tocw.currentItem()
         if item is not None:
+            self.tocw.push_history()
             p = item.parent() or self.root
             p.removeChild(item)
 
@@ -671,6 +739,7 @@ class TOCView(QWidget):  # {{{
             yield item
 
     def flatten_toc(self):
+        self.tocw.push_history()
         found = True
         while found:
             found = False
@@ -681,6 +750,7 @@ class TOCView(QWidget):  # {{{
                     break
 
     def flatten_item(self):
+        self.tocw.push_history()
         self._flatten_item(self.tocw.currentItem())
 
     def _flatten_item(self, item):
@@ -704,15 +774,6 @@ class TOCView(QWidget):  # {{{
     def move_down(self):
         self.tocw.move_down()
 
-    def update_status_tip(self, item):
-        c = item.data(0, Qt.UserRole)
-        if c is not None:
-            frag = c.frag or ''
-            if frag:
-                frag = '#'+frag
-            item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
-                c.title, c.dest, frag))
-
     def data_changed(self, top_left, bottom_right):
         for r in xrange(top_left.row(), bottom_right.row()+1):
             idx = self.tocw.model().index(r, 0, top_left.parent())
@@ -721,7 +782,7 @@ class TOCView(QWidget):  # {{{
             if toc is not None:
                 toc.title = new_title or _('(Untitled)')
             item = self.tocw.itemFromIndex(idx)
-            self.update_status_tip(item)
+            self.tocw.update_status_tip(item)
             self.item_view.data_changed(item)
 
     def create_item(self, parent, child, idx=-1):
@@ -736,8 +797,7 @@ class TOCView(QWidget):  # {{{
     def populate_item(self, c, child):
         c.setData(0, Qt.DisplayRole, child.title or _('(Untitled)'))
         c.setData(0, Qt.UserRole, child)
-        c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
-                    Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
+        c.setFlags(NODE_FLAGS)
         c.setData(0, Qt.DecorationRole, self.icon_map[child.dest_exists])
         if child.dest_exists is False:
             c.setData(0, Qt.ToolTipRole, _(
@@ -746,7 +806,7 @@ class TOCView(QWidget):  # {{{
         else:
             c.setData(0, Qt.ToolTipRole, None)
 
-        self.update_status_tip(c)
+        self.tocw.update_status_tip(c)
 
     def __call__(self, ebook):
         self.ebook = ebook
@@ -780,6 +840,7 @@ class TOCView(QWidget):  # {{{
             frag = add_id(self.ebook, name, *frag)
         child = TOC(title, name, frag)
         child.dest_exists = True
+        self.tocw.push_history()
         if item is None:
             # New entry at root level
             c = self.create_item(self.root, child)
@@ -825,6 +886,7 @@ class TOCView(QWidget):  # {{{
                 added.append(item)
                 process_node(item, child, added)
 
+        self.tocw.push_history()
         nodes = []
         process_node(self.root, toc, nodes)
         self.highlight_item(nodes[0])
@@ -849,6 +911,9 @@ class TOCView(QWidget):  # {{{
             return error_dialog(self, _('No items found'),
                 _('No files were found that could be added to the Table of Contents.'), show=True)
         self.insert_toc_fragment(toc)
+
+    def undo(self):
+        self.tocw.pop_history()
 
 
 # }}}
@@ -897,6 +962,10 @@ class TOCEditor(QDialog):  # {{{
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.undo_button = b = bb.addButton(_('&Undo'), bb.ActionRole)
+        b.setToolTip(_('Undo the last action, if any'))
+        b.setIcon(QIcon(I('edit-undo.png')))
+        b.clicked.connect(self.toc_view.undo)
 
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
