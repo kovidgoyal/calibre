@@ -469,9 +469,10 @@ class TreeWidget(QTreeWidget):  # {{{
 
     def check_multi_selection(self):
         if len(self.selectedItems()) > 1:
-            return info_dialog(self, _('Multiple items selected'), _(
+            info_dialog(self, _('Multiple items selected'), _(
                 'You are trying to move multiple items at once, this is not supported. Instead use'
                 ' Drag and Drop to move multiple items'), show=True)
+            return False
         return True
 
     def move_left(self):
