@@ -533,10 +533,10 @@ class TreeWidget(QTreeWidget):  # {{{
         elif ev.key() == Qt.Key_Right and ev.modifiers() & Qt.CTRL:
             self.move_right()
             ev.accept()
-        elif ev.key() == Qt.Key_Up and ev.modifiers() & Qt.CTRL:
+        elif ev.key() == Qt.Key_Up and (ev.modifiers() & Qt.CTRL or ev.modifiers() & Qt.ALT):
             self.move_up()
             ev.accept()
-        elif ev.key() == Qt.Key_Down and ev.modifiers() & Qt.CTRL:
+        elif ev.key() == Qt.Key_Down and (ev.modifiers() & Qt.CTRL or ev.modifiers() & Qt.ALT):
             self.move_down()
             ev.accept()
         elif ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
@@ -990,6 +990,7 @@ class TOCEditor(QDialog):  # {{{
         self.writing_done.emit(tb)
 
 # }}}
+
 
 if __name__ == '__main__':
     app = Application([], force_calibre_style=True)
