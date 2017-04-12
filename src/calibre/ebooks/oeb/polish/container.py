@@ -702,6 +702,23 @@ class Container(ContainerBase):  # {{{
         self.dirty(self.opf_name)
         return removed_names, added_names
 
+    def add_properties(self, name, *properties):
+        ''' Add the specified properties to the manifest item identified by name. '''
+        properties = frozenset(properties)
+        if not properties:
+            return True
+        for p in properties:
+            if p.startswith('calibre:'):
+                ensure_prefix(self.opf, None, 'calibre', CALIBRE_PREFIX)
+                break
+        for item in self.opf_xpath('//opf:manifest/opf:item'):
+            iname = self.href_to_name(item.get('href'), self.opf_name)
+            if name == iname:
+                props = frozenset((item.get('properties') or '').split()) | properties
+                item.set('properties', ' '.join(props))
+                return True
+        return False
+
     @property
     def guide_type_map(self):
         ' Mapping of guide type to canonical name '
