@@ -71,6 +71,7 @@ class Float(QDoubleSpinBox):
     def __init__(self, name, layout):
         QDoubleSpinBox.__init__(self)
         self.setRange(0, 10000)
+        self.setDecimals(1)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
@@ -133,7 +134,7 @@ class AdvancedTab(QWidget):
         self.widgets = []
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         for name in sorted(options, key=lambda n:options[n].shortdoc.lower()):
-            if name in ('auth', 'port', 'allow_socket_preallocation'):
+            if name in ('auth', 'port', 'allow_socket_preallocation', 'userdb'):
                 continue
             opt = options[name]
             if opt.choices:
@@ -387,7 +388,7 @@ class ConfigWidget(ConfigWidgetBase):
             settings.update(getattr(tab, 'settings', {}))
         if settings['auth']:
             from calibre.srv.users import UserManager
-            if not UserManager(settings['userdb']).all_user_names:
+            if not UserManager().all_user_names:
                 error_dialog(self, _('No users specified'), _(
                     'You have turned on the setting to require passwords to access'
                     ' the content server, but you have not created any user accounts.'
