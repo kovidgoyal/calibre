@@ -9,14 +9,19 @@ from book_list.theme import get_color
 
 # Button {{{
 
-def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
+def create_button(text, icon=None, action=None, tooltip=None, highlight=False, download_filename=None):
     ic = ''
     if icon:
         ic = svgicon(icon)
         text = '\xa0' + text
     ans = E.a(ic, E.span(text), class_='calibre-push-button', href='javascript: void(0)', title=tooltip or '')
+    if download_filename and v'"download" in ans':
+        ans.setAttribute('download', download_filename)
     if action is not None:
-        ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
+        if jstype(action) is 'string':
+            ans.setAttribute('href', action)
+        else:
+            ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
     if highlight:
         set_css(ans, font_size='larger', font_weight='bold')
     return ans
