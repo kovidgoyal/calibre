@@ -169,13 +169,17 @@ class Series(unicode):
 
     def __new__(self, series, series_index):
         if series and series_index is not None:
-            roman = _('Number {1} of <em>{0}</em>').format(
+            roman = _('{1} of <em>{0}</em>').format(
                 escape(series), escape(fmt_sidx(series_index, use_roman=True)))
-            series = escape(series + ' [%s]'%fmt_sidx(series_index, use_roman=False))
+            combined = _('{1} of <em>{0}</em>').format(
+                escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
-            series = roman = escape(series or u'')
-        s = unicode.__new__(self, series)
+            combined = roman = escape(series or u'')
+        s = unicode.__new__(self, combined)
         s.roman = roman
+        s.name = escape(series or u'')
+        s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
+        s.roman_number = escape(fmt_sidx(series_index or 1.0, use_roman=True))
         return s
 
 
@@ -252,12 +256,17 @@ def render_jacket(mi, output_profile,
                     searchable_tags=' '.join(escape(t)+'ttt' for t in tags.tags_list),
                     )
         for key in mi.custom_field_keys():
+            m = mi.get_user_metadata(key, False) or {}
             try:
                 display_name, val = mi.format_field_extended(key)[:2]
-                key = key.replace('#', '_')
-                args[key] = escape(val)
-                args[key+'_label'] = escape(display_name)
-            except:
+                dkey = key.replace('#', '_')
+                dt = m.get('datatype')
+                if dt == 'series':
+                    args[dkey] = Series(mi.get(key), mi.get(key + '_index'))
+                else:
+                    args[dkey] = escape(val)
+                args[dkey+'_label'] = escape(display_name)
+            except Exception:
                 # if the val (custom column contents) is None, don't add to args
                 pass
 
