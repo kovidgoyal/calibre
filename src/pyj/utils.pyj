@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from ajax import encode_query
 from encodings import hexlify
 
 def debounce(func, wait, immediate=False):
@@ -51,6 +52,12 @@ def parse_url_params(url=None, allow_multiple=False):
     cache[url] = ans
     return ans
 parse_url_params.cache = {}
+
+
+def encode_query_with_path(query, path):
+    path = path or window.location.pathname
+    return path + encode_query(query, '#')
+
 
 _roman = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
