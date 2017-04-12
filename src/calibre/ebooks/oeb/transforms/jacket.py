@@ -20,7 +20,7 @@ from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
-from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -263,6 +263,8 @@ def render_jacket(mi, output_profile,
                 dt = m.get('datatype')
                 if dt == 'series':
                     args[dkey] = Series(mi.get(key), mi.get(key + '_index'))
+                elif dt == 'rating':
+                    args[dkey] = rating_to_stars(mi.get(key), m.get('display', {}).get('allow_half_stars', False))
                 else:
                     args[dkey] = escape(val)
                 args[dkey+'_label'] = escape(display_name)
