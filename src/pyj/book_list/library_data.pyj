@@ -96,7 +96,7 @@ def cover_url(book_id):
 
 def download_url(book_id, fmt):
     lid = current_library_id()
-    return f'get/{fmt}/{book_id}/{lid}}'
+    return f'get/{fmt}/{book_id}/{lid}'
 
 
 def book_metadata(book_id):
