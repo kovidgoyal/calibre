@@ -18,9 +18,14 @@ if is_running_in_iframe:
 else:
     window.applicationCache.addEventListener('updateready', def():
         if window.applicationCache.status is window.applicationCache.UPDATEREADY:
-            window.applicationCache.swapCache()
-            if window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
-                window.location.reload()
+            try:
+                window.applicationCache.swapCache()
+                if window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
+                    window.location.reload()
+            except Exception as e:
+                # For some reason swapCache occassionally fails even though status is UPDATEREADY
+                print('WARNING: falied to swap applicationCache')
+                console.log(e)
     , False)
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
