@@ -199,7 +199,12 @@ class Router(object):
 
     def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None):
         self.routes = {}
-        self.url_prefix = url_prefix or ''
+        self.url_prefix = (url_prefix or '').rstrip('/')
+        self.strip_path = None
+        if self.url_prefix:
+            if not self.url_prefix.startswith('/'):
+                self.url_prefix = '/' + self.url_prefix
+            self.strip_path = tuple(self.url_prefix[1:].split('/'))
         self.ctx = ctx
         self.auth_controller = auth_controller
         self.init_session = getattr(ctx, 'init_session', lambda ep, data:None)
@@ -236,6 +241,8 @@ class Router(object):
         self.soak_routes = sorted(frozenset(r for r in self if r.soak_up_extra), key=attrgetter('min_size'), reverse=True)
 
     def find_route(self, path):
+        if self.strip_path is not None and path[:len(self.strip_path)] == self.strip_path:
+            path = path[len(self.strip_path):]
         size = len(path)
         # routes for which min_size <= size <= max_size
         routes = self.max_size_map.get(size, set()) & self.min_size_map.get(size, set())

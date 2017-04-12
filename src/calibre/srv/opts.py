@@ -82,7 +82,7 @@ raw_options = (
 
     _('A prefix to prepend to all URLs'),
     'url_prefix', None,
-    _('Useful if you wish to run this server behind a reverse proxy.'),
+    _('Useful if you wish to run this server behind a reverse proxy. For example use, /calibre as the URL prefix.'),
 
     _('Advertise OPDS feeds via BonJour'),
     'use_bonjour', True,

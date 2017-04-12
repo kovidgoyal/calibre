@@ -15,20 +15,20 @@ def encode_query_component(x):
     ans = ans.replace(/%3[aA]/g, ':')
     return ans
 
-def encode_query(query):
+def encode_query(query, qchar):
     if not query:
         return ''
+    qchar = qchar or '?'
     keys = Object.keys(query)
-    has_query = False
-    path = ''
+    ans = ''
     if keys.length:
         for k in keys:
             val = query[k]
             if val is undefined or val is None:
                 continue
-            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
-            has_query = True
-    return path
+            ans += qchar + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
+            qchar = '&'
+    return ans
 
 def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
