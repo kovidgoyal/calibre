@@ -84,9 +84,6 @@ class Economist(BasicNewsRecipe):
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
-    preprocess_regexps = [
-      (re.compile('</html>.*', re.DOTALL), lambda x: '</html>'),
-    ]
     remove_attributes = ['data-reactid']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
@@ -134,7 +131,10 @@ class Economist(BasicNewsRecipe):
                     idx = p.index(noscript[0])
                     p.insert(idx, p.makeelement('img', src=img[0].get('src')))
                     p.remove(noscript[0])
-        return etree.tostring(root, encoding=unicode)
+        for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
+            x.getparent().remove(x)
+        raw = etree.tostring(root, encoding=unicode)
+        return raw
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
@@ -235,10 +235,6 @@ class Economist(BasicNewsRecipe):
                 yield x
 
     def postprocess_html(self, soup, first):
-        body = soup.find('body')
-        for name, val in body.attrs:
-            del body[name]
-
         for table in list(self.eco_find_image_tables(soup)):
             caption = table.find('font')
             img = table.find('img')
