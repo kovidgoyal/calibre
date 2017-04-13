@@ -127,7 +127,7 @@ class Handler(object):
         self.auth_controller = None
         if opts.auth:
             has_ssl = opts.ssl_certfile is not None and opts.ssl_keyfile is not None
-            prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, 'digest')
+            prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, False)
             self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in ('content', 'ajax', 'code', 'legacy', 'opds', 'books'):
