@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title:
 
+- version: 2.83.0
+  date: 2017-04-??
+
+  new features:
+    - title: "PDF Output: Default to generating PDFs with a page size of letter instead of taking the page size from the output profile."
+      description: 'This avoids user confusion/bug reports about PDF Output having "too large fonts". There is a new option "Use profile size" to have the conversion use the output profile page size instead.'
+
+    - title: "PDF/DOCX Output: Add separate, pdf/docx specific, page margin settings that override the common settings."
+      description: "Useful because page amrgin settings for page oriented formats, such as PDF and DOCX are usually different than those for reflowable formats such as EPUB"
+
+    - title: "Table of Contents Edit tool: Add an undo button"
+
+    - title: "Metadata jacket: Show custom rating columns using stars"
+
+    - title: "Metadata jacket: Change formatting of series to match that used by the book details panel. Also allow access to the raw series name and number when customizing the jacket template."
+
+    - title: "calibredb check_library: Vacuum database when runnning the check"
+
+    - title: "Check Book: Add a check for empty identifier elements"
+
+  bug fixes:
+    - title: "Edit book/Book polishing: When adding a cover to an EPUB 3.0 file set the svg property if an SVG cover wrapper is used"
+
+    - title: "Refresh the book list when a User Category is added/edited."
+      tickets: [1675535]
+
+    - title: "EPUB metadata: Fix deleting ISBN from EPUB file could result in an EPUB file without a package identifier if the ISBN was used as the package identifier."
+      tickets: [1677383]
+
+    - title: "Amazon metadata download: Fix title and author names being bolded in the downloaded comments when using bing to get amazon metadata."
+      tickets: [1674088]
+
+    - title: "PDF Output: Fix a regression that broke PDF Output for documents containing mathematics."
+      tickets: [1673983]
+
+    - title: 'E-book viewer: Fix a regression that broke the "Clear recently read books" action in the viewer'
+
+  improved recipes:
+    - Go Comics
+    - Die Zeit (subscription)
+    - Pagina12
+    - New York Magazine
+
+  new recipes:
+    - title: Jacobin magazine
+      author: Darko Miletic
+
 - version: 2.82.0
   date: 2017-03-18
 
