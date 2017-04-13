@@ -44,25 +44,25 @@ class DOCXOutput(OutputFormatPlugin):
         OptionRecommendation(name='docx_page_margin_left', recommended_value=72.0,
             level=OptionRecommendation.LOW,
             help=_('The size of the left page margin, in pts. Default is 72pt.'
-                   ' Overrides the main left page margin setting.')
+                   ' Overrides the common left page margin setting.')
         ),
 
         OptionRecommendation(name='docx_page_margin_top', recommended_value=72.0,
             level=OptionRecommendation.LOW,
             help=_('The size of the top page margin, in pts. Default is 72pt.'
-                   ' Overrides the main top page margin setting, unless set to zero.')
+                   ' Overrides the common top page margin setting, unless set to zero.')
         ),
 
         OptionRecommendation(name='docx_page_margin_right', recommended_value=72.0,
             level=OptionRecommendation.LOW,
             help=_('The size of the right page margin, in pts. Default is 72pt.'
-                   ' Overrides the main right page margin setting, unless set to zero.')
+                   ' Overrides the common right page margin setting, unless set to zero.')
         ),
 
         OptionRecommendation(name='docx_page_margin_bottom', recommended_value=72.0,
             level=OptionRecommendation.LOW,
             help=_('The size of the bottom page margin, in pts. Default is 72pt.'
-                   ' Overrides the main bottom page margin setting, unless set to zero.')
+                   ' Overrides the common bottom page margin setting, unless set to zero.')
         ),
 
     }

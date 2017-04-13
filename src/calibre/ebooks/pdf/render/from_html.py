@@ -185,10 +185,16 @@ class PDFWriter(QObject):
         opts = self.opts
         page_size = get_page_size(self.opts)
         xdpi, ydpi = self.view.logicalDpiX(), self.view.logicalDpiY()
+
+        def margin(which):
+            val = getattr(opts, 'pdf_page_margin_' + which)
+            if val == 0.0:
+                val = getattr(opts, 'margin_' + which)
+            return val
+        ml, mr, mt, mb = map(margin, 'left right top bottom'.split())
         # We cannot set the side margins in the webview as there is no right
         # margin for the last page (the margins are implemented with
         # -webkit-column-gap)
-        ml, mr = opts.margin_left, opts.margin_right
         self.doc = PdfDevice(out_stream, page_size=page_size, left_margin=ml,
                              top_margin=0, right_margin=mr, bottom_margin=0,
                              xdpi=xdpi, ydpi=ydpi, errors=self.log.error,
@@ -204,18 +210,18 @@ class PDFWriter(QObject):
         if self.header:
             self.header = self.header.strip()
         min_margin = 1.5 * opts._final_base_font_size
-        if self.footer and opts.margin_bottom < min_margin:
+        if self.footer and mb < min_margin:
             self.log.warn('Bottom margin is too small for footer, increasing it to %.1fpts' % min_margin)
-            opts.margin_bottom = min_margin
-        if self.header and opts.margin_top < min_margin:
+            mb = min_margin
+        if self.header and mt < min_margin:
             self.log.warn('Top margin is too small for header, increasing it to %.1fpts' % min_margin)
-            opts.margin_top = min_margin
+            mt = min_margin
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
         self.total_items = len(items)
 
-        mt, mb = map(self.doc.to_px, (opts.margin_top, opts.margin_bottom))
+        mt, mb = map(self.doc.to_px, (mt, mb))
         self.margin_top, self.margin_bottom = map(lambda x:int(floor(x)), (mt, mb))
 
         self.painter = QPainter(self.doc)

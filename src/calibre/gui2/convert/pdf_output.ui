@@ -104,7 +104,7 @@
    <item row="10" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Se&amp;rif family:</string>
+      <string>Serif famil&amp;y:</string>
      </property>
      <property name="buddy">
       <cstring>opt_pdf_serif_family</cstring>
@@ -117,7 +117,7 @@
    <item row="11" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&amp;Sans family:</string>
+      <string>Sans fami&amp;ly:</string>
      </property>
      <property name="buddy">
       <cstring>opt_pdf_sans_family</cstring>
@@ -187,7 +187,7 @@
      </property>
     </widget>
    </item>
-   <item row="16" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <widget class="QGroupBox" name="template_box">
      <property name="title">
       <string>Page headers and footers</string>
@@ -252,6 +252,13 @@
      </property>
      <property name="buddy">
       <cstring>opt_toc_title</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0" colspan="2">
+    <widget class="QGroupBox" name="page_margins_box">
+     <property name="title">
+      <string>Page  margins</string>
      </property>
     </widget>
    </item>
