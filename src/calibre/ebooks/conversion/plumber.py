@@ -410,28 +410,32 @@ OptionRecommendation(name='margin_top',
         help=_('Set the top margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the bottom margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the left margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the right margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='change_justification',
         recommended_value='original', level=OptionRecommendation.LOW,
