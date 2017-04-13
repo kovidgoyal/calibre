@@ -27,9 +27,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 
 def get_page_size(opts, for_comic=False):  # {{{
-    use_profile = not (opts.override_profile_size or
-                       opts.output_profile.short_name == 'default' or
-                       opts.output_profile.width > 9999)
+    use_profile = opts.use_profile_size and opts.output_profile.short_name != 'default' and opts.output_profile.width <= 9999
     if use_profile:
         w = (opts.output_profile.comic_screen_size[0] if for_comic else
                 opts.output_profile.width)

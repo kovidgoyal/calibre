@@ -805,12 +805,13 @@ Converting to PDF
 ~~~~~~~~~~~~~~~~~~~
 
 The first, most important, setting to decide on when converting to PDF is the page
-size. By default, calibre uses a page size defined by the current
-:guilabel:`Output profile`. So if your output profile is set to Kindle, calibre
+size. By default, calibre uses a page size of "U.S. Letter". You can change this
+to another standard page size or a completely custom size in the :guilabel:`PDF Output`
+section of the conversion dialog. If you are generating a PDF to be used ona
+specific device, you can turn on the option to use the page size from the
+:guilabel:`output profile` instead. So if your output profile is set to Kindle, calibre
 will create a PDF with page size suitable for viewing on the small kindle
-screen. However, if you view this PDF file on a computer screen, then it will
-appear to have too large fonts. To create "normal" sized PDFs, use the
-:guilabel:`Override page size` option under :guilabel:`PDF Output` in the conversion dialog.
+screen. 
 
 Headers and Footers
 ^^^^^^^^^^^^^^^^^^^^

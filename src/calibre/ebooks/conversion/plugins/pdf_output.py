@@ -52,11 +52,10 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
-        OptionRecommendation(name='override_profile_size', recommended_value=False,
-            help=_('Normally, the PDF page size is set by the output profile'
-                   ' chosen under the page setup options. This option will cause the '
-                   ' page size settings under PDF Output to override the '
-                   ' size specified by the output profile.')),
+        OptionRecommendation(name='use_profile_size', recommended_value=False,
+            help=_('Instead of using the paper size specified in the PDF Output options,'
+                   ' use a paper size corresponding to the current output profile.'
+                   ' Useful if you want to generate a PDF for viewing on a specific device.')),
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure for page sizes. Default is inch. Choices '
