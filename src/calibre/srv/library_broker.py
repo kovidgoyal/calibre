@@ -57,17 +57,15 @@ class LibraryBroker(object):
 
     def __init__(self, libraries):
         self.lock = Lock()
-        self.lmap = {}
+        self.lmap = OrderedDict()
         seen = set()
-        for i, path in enumerate(canonicalize_path(p) for p in libraries):
+        for path in (canonicalize_path(p) for p in libraries):
             if path in seen:
                 continue
             seen.add(path)
             if not LibraryDatabase.exists_at(path):
                 continue
             library_id = library_id_from_path(path, self.lmap)
-            if i == 0:
-                self.default_library = library_id
             self.lmap[library_id] = path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
@@ -98,7 +96,11 @@ class LibraryBroker(object):
         with self:
             for db in self.loaded_dbs.itervalues():
                 getattr(db, 'close', lambda: None)()
-            self.lmap, self.loaded_dbs = {}, {}
+            self.lmap, self.loaded_dbs = OrderedDict(), {}
+
+    @property
+    def default_library(self):
+        return next(self.lmap.iterkeys())
 
     @property
     def library_map(self):
