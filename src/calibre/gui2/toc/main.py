@@ -362,6 +362,7 @@ NODE_FLAGS = (Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
 class TreeWidget(QTreeWidget):  # {{{
 
     edit_item = pyqtSignal()
+    history_state_changed = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -386,10 +387,12 @@ class TreeWidget(QTreeWidget):  # {{{
 
     def push_history(self):
         self.history.append(self.serialize_tree())
+        self.history_state_changed.emit()
 
     def pop_history(self):
         if self.history:
             self.unserialize_tree(self.history.pop())
+            self.history_state_changed.emit()
 
     def iteritems(self, parent=None):
         if parent is None:
@@ -955,6 +958,7 @@ class TOCEditor(QDialog):  # {{{
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
         self.toc_view = TOCView(self, self.prefs)
         self.toc_view.add_new_item.connect(self.add_new_item)
+        self.toc_view.tocw.history_state_changed.connect(self.update_history_buttons)
         s.addWidget(self.toc_view)
         self.item_edit = ItemEdit(self)
         s.addWidget(self.item_edit)
@@ -975,6 +979,12 @@ class TOCEditor(QDialog):  # {{{
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.stacks.currentChanged.connect(self.update_history_buttons)
+        self.update_history_buttons()
+
+    def update_history_buttons(self):
+        self.undo_button.setVisible(self.stacks.currentIndex() == 1)
+        self.undo_button.setEnabled(bool(self.toc_view.tocw.history))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
