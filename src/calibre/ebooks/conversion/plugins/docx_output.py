@@ -40,13 +40,31 @@ class DOCXOutput(OutputFormatPlugin):
             help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
                 'deleted, so be careful.') % 'DOCX'),
-    }
 
-    recommendations = {
-        ('margin_left', 72.0, OptionRecommendation.MED),
-        ('margin_right', 72.0, OptionRecommendation.MED),
-        ('margin_top', 72.0, OptionRecommendation.MED),
-        ('margin_bottom', 72.0, OptionRecommendation.MED),
+        OptionRecommendation(name='docx_page_margin_left', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the left page margin, in pts. Default is 72pt.'
+                   ' Overrides the main left page margin setting.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_top', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the top page margin, in pts. Default is 72pt.'
+                   ' Overrides the main top page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_right', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the right page margin, in pts. Default is 72pt.'
+                   ' Overrides the main right page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_bottom', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the bottom page margin, in pts. Default is 72pt.'
+                   ' Overrides the main bottom page margin setting, unless set to zero.')
+        ),
+
     }
 
     def convert_metadata(self, oeb):
@@ -68,4 +86,3 @@ class DOCXOutput(OutputFormatPlugin):
         if opts.extract_to:
             from calibre.ebooks.docx.dump import do_dump
             do_dump(output_path, opts.extract_to)
-
