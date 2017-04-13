@@ -858,10 +858,20 @@ OptionRecommendation(name='search_replace',
         level is >= the baseline recommended level, the UI value is used,
         *except* if the baseline has a recommendation level of `HIGH`.
         '''
+
+        def eq(name, a, b):
+            if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css'}:
+                if not a and not b:
+                    return True
+            if name in {'transform_css_rules', 'search_replace'}:
+                if b == '[]':
+                    b = None
+            return a == b
+
         for name, val, level in recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
-                changed = rec.recommended_value != val
+                changed = not eq(name, rec.recommended_value, val)
                 rec.recommended_value = val
                 rec.level = level
                 if changed:
