@@ -7,11 +7,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, base64, urllib2, subprocess, os, cookielib
+from collections import namedtuple
 try:
     from distutils.spawn import find_executable
 except ImportError:  # windows
     find_executable = lambda x: None
 
+from calibre.ptempfile import TemporaryDirectory
+from calibre.srv.errors import HTTPForbidden
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
 
@@ -114,6 +117,43 @@ class TestAuth(BaseTest):
             self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
             self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request(''))
             self.ae((httplib.UNAUTHORIZED, b''), request('asf', 'testpw'))
+    # }}}
+
+    def test_library_restrictions(self):  # {{{
+        from calibre.srv.opts import Options
+        from calibre.srv.handler import Handler
+        from calibre.db.legacy import create_backend
+        opts = Options(userdb=':memory:')
+        Data = namedtuple('Data', 'username')
+        with TemporaryDirectory() as base:
+            l1, l2, l3 = map(lambda x: os.path.join(base, 'l' + x), '123')
+            for l in (l1, l2, l3):
+                create_backend(l).close()
+            ctx = Handler((l1, l2, l3), opts).router.ctx
+            um = ctx.user_manager
+
+            def get_library(username=None, library_id=None):
+                ans = ctx.get_library(Data(username), library_id=library_id)
+                return os.path.basename(ans.backend.library_path)
+
+            def library_info(username=None):
+                lmap, defaultlib = ctx.library_info(Data(username))
+                lmap = {k:os.path.basename(v) for k, v in lmap.iteritems()}
+                return lmap, defaultlib
+
+            self.assertEqual(get_library(), 'l1')
+            self.assertEqual(library_info()[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            self.assertEqual(library_info()[1], 'l1')
+            self.assertRaises(HTTPForbidden, get_library, 'xxx')
+            um.add_user('a', 'a')
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            um.update_user_restrictions('a', {'blocked_library_names': ['l2']})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i != 2})
+            um.update_user_restrictions('a', {'allowed_library_names': ['l3']})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i == 3})
+            self.assertEqual(library_info('a')[1], 'l3')
+            self.assertRaises(HTTPForbidden, get_library, 'a', 'l1')
+
     # }}}
 
     def test_digest_auth(self):  # {{{

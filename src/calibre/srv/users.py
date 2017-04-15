@@ -61,6 +61,7 @@ class UserManager(object):
     def __init__(self, path=None):
         self.path = os.path.join(config_dir, 'server-users.sqlite') if path is None else path
         self._conn = None
+        self._restrictions = {}
 
     def get_session_data(self, username):
         with self.lock:
@@ -100,14 +101,17 @@ class UserManager(object):
         except ValueError:
             return _('The password must contain only ASCII (English) characters and symbols')
 
-    def add_user(self, username, pw, restriction='', readonly=False):
+    def add_user(self, username, pw, restriction=None, readonly=False):
         with self.lock:
             msg = self.validate_username(username) or self.validate_password(pw)
             if msg is not None:
                 raise ValueError(msg)
+            restriction = restriction or {}
+            if not isinstance(restriction, dict):
+                raise TypeError('restriction must be a dict')
             self.conn.cursor().execute(
                 'INSERT INTO users (name, pw, restriction, readonly) VALUES (?, ?, ?, ?)',
-                (username, pw, restriction, ('y' if readonly else 'n')))
+                (username, pw, json.dumps(restriction), ('y' if readonly else 'n')))
 
     def remove_user(self, username):
         with self.lock:
@@ -127,3 +131,36 @@ class UserManager(object):
                 raise ValueError(msg)
             self.conn.cursor().execute(
                 'UPDATE users SET pw=? WHERE name=?', (pw, username))
+
+    def restrictions(self, username):
+        with self.lock:
+            r = self._restrictions.get(username)
+            if r is None:
+                for restriction, in self.conn.cursor().execute(
+                        'SELECT restriction FROM users WHERE name=?', (username,)):
+                    self._restrictions[username] = r = json.loads(restriction)
+                    r['allowed_library_names'] = frozenset(r.get('allowed_library_names', ()))
+                    r['blocked_library_names'] = frozenset(r.get('blocked_library_names', ()))
+                    break
+            return r
+
+    def allowed_library_names(self, username, all_library_names):
+        ' Get allowed library names for specified user from set of all library names '
+        r = self.restrictions(username)
+        if r is None:
+            return set()
+        inc = r['allowed_library_names']
+        exc = r['blocked_library_names']
+
+        def check(n):
+            n = n.lower()
+            return (not inc or n in inc) and n not in exc
+        return {n for n in all_library_names if check(n)}
+
+    def update_user_restrictions(self, username, restrictions):
+        if not isinstance(restrictions, dict):
+            raise TypeError('restrictions must be a dict')
+        with self.lock:
+            self._restrictions.pop(username, None)
+            self.conn.cursor().execute(
+                'UPDATE users SET restriction=? WHERE name=?', (json.dumps(restrictions), username))

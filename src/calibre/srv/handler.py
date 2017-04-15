@@ -1,19 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+from functools import partial
 from importlib import import_module
 from threading import Lock
 
 from calibre.srv.auth import AuthController
+from calibre.srv.errors import HTTPForbidden
+from calibre.srv.library_broker import LibraryBroker
 from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
-from calibre.srv.library_broker import LibraryBroker
 from calibre.utils.date import utcnow
 
 
@@ -52,12 +51,25 @@ class Context(object):
         pass
 
     def get_library(self, data, library_id=None):
-        # TODO: Restrict the libraries based on data.username
-        return self.library_broker.get(library_id)
+        if not data.username:
+            return self.library_broker.get(library_id)
+        lf = partial(self.user_manager.allowed_library_names, data.username)
+        allowed_libraries = self.library_broker.allowed_libraries(lf)
+        if not allowed_libraries:
+            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
+        library_id = library_id or next(allowed_libraries.iterkeys())
+        if library_id in allowed_libraries:
+            return self.library_broker.get(library_id)
+        raise HTTPForbidden('The user {} is not allowed to access the library {}'.format(data.username, library_id))
 
     def library_info(self, data):
-        # TODO: Restrict the libraries based on data.username
-        return self.library_broker.library_map, self.library_broker.default_library
+        if not data.username:
+            return self.library_broker.library_map, self.library_broker.default_library
+        lf = partial(self.user_manager.allowed_library_names, data.username)
+        allowed_libraries = self.library_broker.allowed_libraries(lf)
+        if not allowed_libraries:
+            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
+        return dict(allowed_libraries), next(allowed_libraries.iterkeys())
 
     def allowed_book_ids(self, data, db):
         with self.lock:
