@@ -27,16 +27,16 @@ class Pagina12(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     PREFIX               = 'https://www.pagina12.com.ar'
     extra_css            = """
-                               body{font-family: Lora,serif}
-                               .article-date{font-size: small; margin-bottom: 1em;}
-                               .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em; font-family: Oswald,sans-serif}
-                               .article-main-media{display: block; margin-bottom: 1em;}
-                               .article-summary{margin-top:1em; margin-bottom: 1em; display:block}
-                               .article-author{font-family: "Archivo Narrow",Helvetica,sans-serif; color: gray; font-size: small; margin-top:1em; margin-bottom: 1em}
-                               img{margin-top:1em; margin-bottom: 1em; display:block}
-                               .article-text p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
-                               .article-prefix{font-family: "Archivo Narrow",Helvetica,sans-serif; font-size: small; text-transform: uppercase;}
-                           """
+        body{font-family: Lora,serif}
+        .article-date{font-size: small; margin-bottom: 1em;}
+        .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em; font-family: Oswald,sans-serif}
+        .article-main-media{display: block; margin-bottom: 1em;}
+        .article-summary{margin-top:1em; margin-bottom: 1em; display:block}
+        .article-author{font-family: "Archivo Narrow",Helvetica,sans-serif; color: gray; font-size: small; margin-top:1em; margin-bottom: 1em}
+        img{margin-top:1em; margin-bottom: 1em; display:block}
+        .article-text p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
+        .article-prefix{font-family: "Archivo Narrow",Helvetica,sans-serif; font-size: small; text-transform: uppercase;}
+    """
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
