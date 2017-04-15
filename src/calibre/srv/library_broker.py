@@ -104,7 +104,13 @@ class LibraryBroker(object):
 
     @property
     def library_map(self):
-        return {k: os.path.basename(v) for k, v in self.lmap.iteritems()}
+        with self:
+            return {k: os.path.basename(v) for k, v in self.lmap.iteritems()}
+
+    def allowed_libraries(self, filter_func):
+        with self:
+            allowed_names = filter_func(os.path.basename(l) for l in self.lmap.itervalues())
+            return OrderedDict(((lid, path) for lid, path in self.lmap.iteritems() if os.path.basename(path) in allowed_names))
 
     def __enter__(self):
         self.lock.acquire()
