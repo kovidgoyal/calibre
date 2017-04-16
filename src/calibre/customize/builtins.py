@@ -1236,7 +1236,7 @@ class Plugboard(PreferencesPlugin):
 class TemplateFunctions(PreferencesPlugin):
     name = 'TemplateFunctions'
     icon = I('template_funcs.png')
-    gui_name = _('Template Functions')
+    gui_name = _('Template functions')
     category = 'Advanced'
     gui_category = _('Advanced')
     category_order = 5
