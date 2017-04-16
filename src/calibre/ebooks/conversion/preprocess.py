@@ -541,8 +541,9 @@ class HTMLPreProcessor(object):
         # Function for processing search and replace
 
         def do_search_replace(search_pattern, replace_txt):
+            from calibre.ebooks.conversion.search_replace import compile_regular_expression
             try:
-                search_re = re.compile(search_pattern)
+                search_re = compile_regular_expression(search_pattern)
                 if not replace_txt:
                     replace_txt = ''
                 rules.insert(0, (search_re, replace_txt))
@@ -617,7 +618,7 @@ class HTMLPreProcessor(object):
         for rule in rules + end_rules:
             try:
                 html = rule[0].sub(rule[1], html)
-            except re.error as e:
+            except Exception as e:
                 if rule in user_sr_rules:
                     self.log.error(
                         'User supplied search & replace rule: %s -> %s '
@@ -678,5 +679,3 @@ class HTMLPreProcessor(object):
                 html = html.replace(char, asciichar)
 
         return html
-
-

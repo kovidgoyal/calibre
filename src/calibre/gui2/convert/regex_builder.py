@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, os
+import os
 
 from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox,
         QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
@@ -15,6 +15,7 @@ from calibre.gui2 import error_dialog, choose_files, gprefs
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
 
 
@@ -60,7 +61,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         regex = unicode(self.regex.text())
         if regex:
             try:
-                re.compile(regex)
+                compile_regular_expression(regex)
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
                 return True
             except:
@@ -87,7 +88,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             extsel.cursor = cursor
             extsel.format.setBackground(QBrush(Qt.yellow))
             try:
-                for match in re.finditer(regex, text):
+                for match in compile_regular_expression(regex).finditer(text):
                     es = QTextEdit.ExtraSelection(extsel)
                     es.cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
                     es.cursor.setPosition(match.end(), QTextCursor.KeepAnchor)

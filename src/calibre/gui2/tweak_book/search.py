@@ -33,9 +33,8 @@ from calibre.gui2.tweak_book.function_replace import (
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
+from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
 
-
-REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | regex.UNICODE
 
 # The search panel {{{
 
@@ -452,9 +451,6 @@ class SearchWidget(QWidget):
         self.find_text.lineEdit().setSelection(0, len(text)+10)
 
 # }}}
-
-
-regex_cache = {}
 
 
 class SearchPanel(QWidget):  # {{{
@@ -1295,12 +1291,10 @@ def get_search_regex(state):
         flags |= regex.DOTALL
     if state['direction'] == 'up':
         flags |= regex.REVERSE
-    ans = regex_cache.get((flags, raw), None)
-    if ans is None:
-        try:
-            ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
-        except regex.error as e:
-            raise InvalidRegex(raw, e)
+    try:
+        ans = compile_regular_expression(raw, flags=flags)
+    except regex.error as e:
+        raise InvalidRegex(raw, e)
 
     return ans
 

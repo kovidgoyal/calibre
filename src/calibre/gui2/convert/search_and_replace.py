@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, json
+import codecs, json
 
 from PyQt5.Qt import Qt, QTableWidgetItem
 
@@ -14,6 +14,7 @@ from calibre.gui2 import (error_dialog, question_dialog, choose_files,
         choose_save_file)
 from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
+from calibre.ebooks.conversion.search_replace import compile_regular_expression
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
@@ -209,7 +210,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         # Verify all search expressions are valid
         for search, replace in definitions:
             try:
-                re.compile(search)
+                compile_regular_expression(search)
             except Exception as err:
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
@@ -300,4 +301,3 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 'to this conversion.')
             self.setup_widget_help(self.search_replace)
         return True
-
