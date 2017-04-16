@@ -93,7 +93,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             aloc = os.path.normcase(os.path.abspath(loc))
             if (aloc.startswith(cal+os.sep) or aloc == cal):
                 error_dialog(self, _('Bad location'),
-                    _('You should not create a library inside the Calibre'
+                    _('You should not create a library inside the calibre'
                         ' folder as this folder is automatically deleted during upgrades.'),
                     show=True)
                 return False
