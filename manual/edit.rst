@@ -783,7 +783,8 @@ The HTML editor has very sophisticated syntax highlighting. Features include:
 
     * The text inside bold, italic and heading tags is made bold/italic
     * As you move your cursor through the HTML, the matching HTML tags are
-      highlighted
+      highlighted, and you can jump to the opening or closing tag with the
+      keyboard shortcuts :kbd:`Ctrl+{` and :kdb:`Ctrl+}`
     * Invalid HTML is highlighted with a red underline
     * Spelling errors in the text inside HTML tags and attributes such as title
       are highlighted. The spell checking is language aware, based on the value
@@ -837,12 +838,3 @@ text. The editor allows you to insert a snippet with only a few key strokes.
 The snippets are very powerful, with many features, such as placeholders you
 can jump between, automatic mirroring of repeated text and so on.
 For more information, see :doc:`snippets`.
-
-
-Matching tags
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When editing HTML or XML files, the closest tag containing the current cursor
-position is automatically highlighted. You can jump to either the opening tag
-or the closing tag using the keyboard shortcuts, :kbd:`Ctrl+{` and
-:kbd:`Ctrl+}`.
