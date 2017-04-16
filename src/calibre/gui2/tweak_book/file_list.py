@@ -658,9 +658,7 @@ class FileList(QTreeWidget):
     def selectedIndexes(self):
         ans = QTreeWidget.selectedIndexes(self)
         if self.ordered_selected_indexes:
-            # The reverse is needed because Qt's implementation of dropEvent
-            # reverses the selectedIndexes when dropping.
-            ans = list(sorted(ans, key=lambda idx:idx.row(), reverse=True))
+            ans = list(sorted(ans, key=lambda idx:idx.row()))
         return ans
 
     def dropEvent(self, event):
