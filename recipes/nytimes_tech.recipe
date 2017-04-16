@@ -9,6 +9,13 @@ __docformat__ = 'restructuredtext en'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
 class NYTimesTechnology(BasicNewsRecipe):
     title = 'New York Times Technology Beat'
     language = 'en'
@@ -20,30 +27,13 @@ class NYTimesTechnology(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     language = 'en'
-    cover_url = 'http://bit.ly/g0SKJT'
     feeds = [
-        (u'Bits', u'http://bits.blogs.nytimes.com/feed/'),
-        (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
-        (u'Open', u'http://open.blogs.nytimes.com/feed/')
+             (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
     ]
     keep_only_tags = [
-        dict(name='div', attrs={'id': ['story-body', 'header', 'story-meta']}),
         dict(name='h1'),
-        dict(name='h2'),
-        dict(name='div', attrs={'class': 'entry-content'})
+        classes('extended-byline story-body'),
     ]
     remove_tags = [
-        dict(id='lede-ad'),
-        dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'nocontent' in x.split()}),
+        classes('visually-hidden newsletter-signup nocontent robots-nocontent hidden'),
     ]
-    extra_css = '''
-           h1{font-family:Arial,Helvetica,sans-serif;
-               font-weight:bold;font-size:large;}
-
-           h2{font-family:Arial,Helvetica,sans-serif;
-               font-weight:normal;font-size:small;}
-
-           p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-           body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-               '''
