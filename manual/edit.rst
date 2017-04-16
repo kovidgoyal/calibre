@@ -837,3 +837,12 @@ text. The editor allows you to insert a snippet with only a few key strokes.
 The snippets are very powerful, with many features, such as placeholders you
 can jump between, automatic mirroring of repeated text and so on.
 For more information, see :doc:`snippets`.
+
+
+Matching tags
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When editing HTML or XML files, the closest tag containing the current cursor
+position is automatically highlighted. You can jump to either the opening tag
+or the closing tag using the keyboard shortcuts, :kbd:`Ctrl+{` and
+:kbd:`Ctrl+}`.
