@@ -1144,7 +1144,7 @@ class Search(PreferencesPlugin):
 class InputOptions(PreferencesPlugin):
     name = 'Input Options'
     icon = I('arrow-down.png')
-    gui_name = _('Input Options')
+    gui_name = _('Input options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
@@ -1161,7 +1161,7 @@ class InputOptions(PreferencesPlugin):
 class CommonOptions(PreferencesPlugin):
     name = 'Common Options'
     icon = I('convert.png')
-    gui_name = _('Common Options')
+    gui_name = _('Common options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
@@ -1173,7 +1173,7 @@ class CommonOptions(PreferencesPlugin):
 class OutputOptions(PreferencesPlugin):
     name = 'Output Options'
     icon = I('arrow-up.png')
-    gui_name = _('Output Options')
+    gui_name = _('Output options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
