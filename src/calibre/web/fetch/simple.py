@@ -153,7 +153,8 @@ class RecursiveFetcher(object):
         self.preprocess_raw_html = getattr(options, 'preprocess_raw_html',
                 lambda raw, url: raw)
         self.prepreprocess_html_ext = getattr(options, 'skip_ad_pages', lambda soup: None)
-        self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
+        self.postprocess_html_ext = getattr(options, 'postprocess_html', None)
+        self.preprocess_image_ext = getattr(options, 'preprocess_image', None)
         self._is_link_wanted     = getattr(options, 'is_link_wanted',
                 default_is_link_wanted)
         self.compress_news_images_max_size = getattr(options, 'compress_news_images_max_size', None)
@@ -396,6 +397,9 @@ class RecursiveFetcher(object):
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
+            data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
+            if data is None:
+                continue
             itype = what(None, data)
             if itype == 'svg' or (itype is None and b'<svg' in data[:1024]):
                 # SVG image

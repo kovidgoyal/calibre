@@ -472,6 +472,14 @@ class BasicNewsRecipe(Recipe):
         '''
         return url
 
+    def preprocess_image(self, img_data, image_url):
+        '''
+        Perform some processing on downloaded image data. This is called on the raw
+        data before any resizing is done. Must return the processed raw data. Return
+        None to skip the image.
+        '''
+        return img_data
+
     def get_browser(self, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
@@ -929,6 +937,7 @@ class BasicNewsRecipe(Recipe):
             setattr(self.web2disk_options, extra, getattr(self, extra))
 
         self.web2disk_options.postprocess_html = self._postprocess_html
+        self.web2disk_options.preprocess_image = self.preprocess_image
         self.web2disk_options.encoding = self.encoding
         self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_
 
