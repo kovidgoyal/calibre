@@ -16,9 +16,10 @@ from calibre import as_unicode
 from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.opts import change_settings, options, server_config
-
+from calibre.srv.users import UserManager
 
 # Advanced {{{
+
 
 def init_opt(widget, opt, layout):
     widget.name, widget.default_val = opt.name, opt.default
@@ -133,7 +134,7 @@ class AdvancedTab(QWidget):
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.widgets = []
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        for name in sorted(options, key=lambda n:options[n].shortdoc.lower()):
+        for name in sorted(options, key=lambda n: options[n].shortdoc.lower()):
             if name in ('auth', 'port', 'allow_socket_preallocation', 'userdb'):
                 continue
             opt = options[name]
@@ -163,7 +164,9 @@ class AdvancedTab(QWidget):
 
     @property
     def settings(self):
-        return {w.name:w.get() for w in self.widgets}
+        return {w.name: w.get() for w in self.widgets}
+
+
 # }}}
 
 
@@ -178,11 +181,14 @@ class MainTab(QWidget):  # {{{
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
-        self.la = la = QLabel(_(
-            'calibre contains an internet server that allows you to'
-            ' access your book collection using a browser from anywhere'
-            ' in the world. Any changes to the settings will only take'
-            ' effect after a server restart.'))
+        self.la = la = QLabel(
+            _(
+                'calibre contains an internet server that allows you to'
+                ' access your book collection using a browser from anywhere'
+                ' in the world. Any changes to the settings will only take'
+                ' effect after a server restart.'
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         l.addSpacing(10)
@@ -195,20 +201,26 @@ class MainTab(QWidget):  # {{{
         sb.valueChanged.connect(self.changed_signal.emit)
         fl.addRow(options['port'].shortdoc + ':', sb)
         l.addSpacing(25)
-        self.opt_auth = cb = QCheckBox(_('Require username/password to access the content server'))
+        self.opt_auth = cb = QCheckBox(
+            _('Require username/password to access the content server')
+        )
         l.addWidget(cb)
         self.auth_desc = la = QLabel(self)
         la.setStyleSheet('QLabel { font-size: small; font-style: italic }')
         la.setWordWrap(True)
         l.addWidget(la)
         l.addSpacing(25)
-        self.opt_autolaunch_server = al = QCheckBox(_('Run server &automatically when calibre starts'))
+        self.opt_autolaunch_server = al = QCheckBox(
+            _('Run server &automatically when calibre starts')
+        )
         l.addWidget(al)
         l.addSpacing(25)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
-        for text, name in [(_('&Start server'), 'start_server'), (_('St&op server'), 'stop_server'),
-                           (_('&Test server'), 'test_server'), (_('Show server &logs'), 'show_logs')]:
+        for text, name in [(_('&Start server'),
+                            'start_server'), (_('St&op server'), 'stop_server'),
+                           (_('&Test server'),
+                            'test_server'), (_('Show server &logs'), 'show_logs')]:
             b = QPushButton(text)
             b.clicked.connect(getattr(self, name).emit)
             setattr(self, name + '_button', b)
@@ -227,11 +239,13 @@ class MainTab(QWidget):  # {{{
 
     def change_auth_desc(self):
         self.auth_desc.setText(
-            _('Remember to create some user accounts in the "Users" tab') if self.opt_auth.isChecked() else
-            _('Requiring a username/password prevents unauthorized people from'
-              ' accessing your calibre library. It is also needed for some features'
-              ' such as making any changes to the library as well as'
-              ' last read position/annotation syncing.')
+            _('Remember to create some user accounts in the "Users" tab')
+            if self.opt_auth.isChecked() else _(
+                'Requiring a username/password prevents unauthorized people from'
+                ' accessing your calibre library. It is also needed for some features'
+                ' such as making any changes to the library as well as'
+                ' last read position/annotation syncing.'
+            )
         )
 
     def auth_changed(self):
@@ -253,17 +267,23 @@ class MainTab(QWidget):  # {{{
     @property
     def settings(self):
         return {'auth': self.opt_auth.isChecked(), 'port': self.opt_port.value()}
+
+
 # }}}
 
 
 # Users {{{
 class Users(QWidget):
 
+    changed_signal = pyqtSignal()
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
     def genesis(self):
-        pass
+        self.user_data = UserManager().user_data
+
+
 # }}}
 
 
@@ -294,11 +314,15 @@ class ConfigWidget(ConfigWidgetBase):
 
     @property
     def tabs(self):
+
         def w(x):
             if isinstance(x, QScrollArea):
                 x = x.widget()
             return x
-        return (w(self.tabs_widget.widget(i)) for i in range(self.tabs_widget.count()))
+
+        return (
+            w(self.tabs_widget.widget(i)) for i in range(self.tabs_widget.count())
+        )
 
     @property
     def server(self):
@@ -324,12 +348,14 @@ class ConfigWidget(ConfigWidgetBase):
         self.setCursor(Qt.BusyCursor)
         try:
             self.gui.start_content_server(check_started=False)
-            while (not self.server.is_running and
-                    self.server.exception is None):
+            while (not self.server.is_running and self.server.exception is None):
                 time.sleep(0.1)
             if self.server.exception is not None:
-                error_dialog(self, _('Failed to start content server'),
-                        as_unicode(self.gui.content_server.exception)).exec_()
+                error_dialog(
+                    self,
+                    _('Failed to start content server'),
+                    as_unicode(self.gui.content_server.exception)
+                ).exec_()
                 return
             self.main_tab.update_button_state()
         finally:
@@ -337,9 +363,12 @@ class ConfigWidget(ConfigWidgetBase):
 
     def stop_server(self):
         self.server.stop()
-        self.stopping_msg = info_dialog(self, _('Stopping'),
-                _('Stopping server, this could take up to a minute, please wait...'),
-                show_copy_button=False)
+        self.stopping_msg = info_dialog(
+            self,
+            _('Stopping'),
+            _('Stopping server, this could take up to a minute, please wait...'),
+            show_copy_button=False
+        )
         QTimer.singleShot(500, self.check_exited)
         self.stopping_msg.exec_()
 
@@ -354,7 +383,9 @@ class ConfigWidget(ConfigWidgetBase):
 
     def test_server(self):
         prefix = self.advanced_tab.opt_url_prefix.text().strip()
-        open_url(QUrl('http://127.0.0.1:'+str(self.main_tab.opt_port.value())+prefix))
+        open_url(
+            QUrl('http://127.0.0.1:' + str(self.main_tab.opt_port.value()) + prefix)
+        )
 
     def view_server_logs(self):
         from calibre.srv.embedded import log_paths
@@ -367,14 +398,18 @@ class ConfigWidget(ConfigWidgetBase):
         el = QPlainTextEdit(d)
         layout.addWidget(el)
         try:
-            el.setPlainText(lopen(log_error_file, 'rb').read().decode('utf8', 'replace'))
+            el.setPlainText(
+                lopen(log_error_file, 'rb').read().decode('utf8', 'replace')
+            )
         except EnvironmentError:
             el.setPlainText('No error log found')
         layout.addWidget(QLabel(_('Access log:')))
         al = QPlainTextEdit(d)
         layout.addWidget(al)
         try:
-            al.setPlainText(lopen(log_access_file, 'rb').read().decode('utf8', 'replace'))
+            al.setPlainText(
+                lopen(log_access_file, 'rb').read().decode('utf8', 'replace')
+            )
         except EnvironmentError:
             al.setPlainText('No access log found')
         bx = QDialogButtonBox(QDialogButtonBox.Ok)
@@ -386,26 +421,36 @@ class ConfigWidget(ConfigWidgetBase):
         settings = {}
         for tab in self.tabs:
             settings.update(getattr(tab, 'settings', {}))
+        users = self.users_tab.user_data
         if settings['auth']:
-            from calibre.srv.users import UserManager
-            if not UserManager().all_user_names:
-                error_dialog(self, _('No users specified'), _(
-                    'You have turned on the setting to require passwords to access'
-                    ' the content server, but you have not created any user accounts.'
-                    ' Create at least one user account in the "User Accounts" tab to proceed.'),
-                             show=True)
+            if not users:
+                error_dialog(
+                    self,
+                    _('No users specified'),
+                    _(
+                        'You have turned on the setting to require passwords to access'
+                        ' the content server, but you have not created any user accounts.'
+                        ' Create at least one user account in the "User Accounts" tab to proceed.'
+                    ),
+                    show=True
+                )
                 self.tabs_widget.setCurrentWidget(self.users_tab)
                 return False
         ConfigWidgetBase.commit(self)
         change_settings(**settings)
+        UserManager().user_data = users
         return True
 
     def commit(self):
         if not self.save_changes():
             raise AbortCommit()
-        warning_dialog(self, _('Restart needed'),
-                _('You need to restart the server for changes to'
-                    ' take effect'), show=True)
+        warning_dialog(
+            self,
+            _('Restart needed'),
+            _('You need to restart the server for changes to'
+              ' take effect'),
+            show=True
+        )
         return False
 
     def refresh_gui(self, gui):
