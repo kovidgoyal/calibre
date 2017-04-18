@@ -1,1 +1,9 @@
-grep src/calibre/srv and src/pyj for TODO
+Make the formats handling in the book details panel nicer
+Adda couple more book list visualizations
+
+Rewrite calibredb to connect to running server
+Prevent standalone and embedded servers from running simultaneously
+Prevent more than a single instance of the standalone server from running
+
+Read progress
+Bookmarks/annotations
