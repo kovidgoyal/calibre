@@ -184,7 +184,9 @@ def manage_users(path=None):
             m.set_readonly(username, not readonly)
 
     def change_restriction(username):
-        r = m.restrictions(username) or {}
+        r = m.restrictions(username)
+        if r is None:
+            raise SystemExit('The user {} does not exist'.format(username))
         if r['allowed_library_names']:
             prints(_('{} is currently only allowed to access the libraries named: {}').format(
                 username, ', '.join(r['allowed_library_names'])))
