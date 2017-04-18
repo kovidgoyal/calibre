@@ -197,7 +197,6 @@ class UserManager(object):
         with self.lock:
             r = self._restrictions.get(username)
             if r is None:
-                r = self._restrictions[username] = parse_restriction('{}')
                 for restriction, in self.conn.cursor().execute(
                         'SELECT restriction FROM users WHERE name=?', (username,)):
                     self._restrictions[username] = r = parse_restriction(restriction)

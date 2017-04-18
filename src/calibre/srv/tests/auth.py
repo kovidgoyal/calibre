@@ -153,6 +153,7 @@ class TestAuth(BaseTest):
             self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i == 3})
             self.assertEqual(library_info('a')[1], 'l3')
             self.assertRaises(HTTPForbidden, get_library, 'a', 'l1')
+            self.assertRaises(HTTPForbidden, get_library, 'xxx')
 
     # }}}
 
