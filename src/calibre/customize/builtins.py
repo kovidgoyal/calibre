@@ -949,7 +949,7 @@ class ActionSendToDevice(InterfaceActionBase):
 class ActionConnectShare(InterfaceActionBase):
     name = 'Connect Share'
     actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
-    description = _('Send books via email or the web also connect to iTunes or'
+    description = _('Send books via email or the web. Also connect to iTunes or'
             ' folders on your computer as if they are devices')
 
 

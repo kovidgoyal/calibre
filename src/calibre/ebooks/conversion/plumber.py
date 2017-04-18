@@ -322,7 +322,7 @@ OptionRecommendation(name='chapter',
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
-                '"chapter","book","section", "prologue", "epilogue", or "part" as chapter titles as '
+                '"chapter", "book", "section", "prologue", "epilogue" or "part" as chapter titles as '
                 'well as any tags that have class="chapter". The expression '
                 'used must evaluate to a list of elements. To disable chapter '
                 'detection, use the expression "/". See the XPath Tutorial '

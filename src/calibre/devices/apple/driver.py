@@ -217,7 +217,7 @@ class ITUNES(DriverBase):
     DEBUG_LOGGING = 3
 
     OPEN_FEEDBACK_MESSAGE = _(
-        'Apple iDevice detected, launching iTunes, please wait ...')
+        'Apple iDevice detected, launching iTunes, please wait...')
     BACKLOADING_ERROR_MESSAGE = _(
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
