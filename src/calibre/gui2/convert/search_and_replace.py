@@ -43,7 +43,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
 
-        self.sr_search.set_msg(_('&Search Regular Expression'))
+        self.sr_search.set_msg(_('&Search regular expression:'))
         self.sr_search.set_book_id(book_id)
         self.sr_search.set_db(db)
 
@@ -56,7 +56,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setColumnWidth(0, 320)
         self.search_replace.setColumnWidth(1, 320)
         self.search_replace.setHorizontalHeaderLabels([
-            _('Search Regular Expression'), _('Replacement Text')])
+            _('Search regular expression'), _('Replacement text')])
 
         self.sr_add.clicked.connect(self.sr_add_clicked)
         self.sr_change.clicked.connect(self.sr_change_clicked)
@@ -108,9 +108,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_load_clicked(self):
         files = choose_files(self, 'sr_saved_patterns',
-                _('Load Calibre Search-Replace definitions file'),
+                _('Load calibre Search-Replace definitions file'),
                 filters=[
-                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre Search-Replace definitions file'), ['csr'])
                     ], select_only_single_file=True)
         if files:
             from calibre.ebooks.conversion.cli import read_sr_patterns
@@ -126,9 +126,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_save_clicked(self):
         filename = choose_save_file(self, 'sr_saved_patterns',
-                _('Save Calibre Search-Replace definitions file'),
+                _('Save calibre Search-Replace definitions file'),
                 filters=[
-                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre Search-Replace definitions file'), ['csr'])
                     ])
         if filename:
             with codecs.open(filename, 'w', 'utf-8') as f:
@@ -201,7 +201,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     break
             if not found and not question_dialog(self,
                     _('Unused Search & Replace definition'),
-                    _('The search / replace definition being edited '
+                    _('The search/replace definition being edited '
                         ' has not been added to the list of definitions. '
                         'Do you wish to continue with the conversion '
                         '(the definition will not be used)?')):

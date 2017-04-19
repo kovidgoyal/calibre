@@ -304,7 +304,7 @@ QToolBox::tab:hover {
            <item row="9" column="0">
             <widget class="QLabel" name="label_18">
              <property name="text">
-              <string>&amp;Top margin</string>
+              <string>&amp;Top margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_top_margin</cstring>
@@ -327,7 +327,7 @@ QToolBox::tab:hover {
            <item row="10" column="0">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>&amp;Side margin</string>
+              <string>&amp;Side margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_side_margin</cstring>
@@ -350,7 +350,7 @@ QToolBox::tab:hover {
            <item row="11" column="0">
             <widget class="QLabel" name="label_17">
              <property name="text">
-              <string>&amp;Bottom margin</string>
+              <string>&amp;Bottom margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_bottom_margin</cstring>

@@ -57,7 +57,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>&amp;Replacement Text</string>
+         <string>&amp;Replacement text:</string>
         </property>
         <property name="buddy">
          <cstring>sr_replace</cstring>

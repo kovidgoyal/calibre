@@ -387,8 +387,8 @@ class Main(MainWindow):
                                       _('Insert special character'))
         self.action_rationalize_folders = treg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
                                       _('Arrange into folders'))
-        self.action_set_semantics = treg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
-                                        _('Set Semantics'))
+        self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (),
+                                        _('Set semantics'))
         self.action_filter_css = treg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
                                      _('Filter style information'))
         self.action_manage_fonts = treg('font.png', _('Manage &fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
@@ -466,7 +466,7 @@ class Main(MainWindow):
 
         # Check Book actions
         group = _('Check Book')
-        self.action_check_book = treg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        self.action_check_book = treg('debug.png', _('&Check book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
         self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
             'Check book for spelling errors'))
         self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
@@ -566,7 +566,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
-        er = e.addMenu(_('External Links'))
+        er = e.addMenu(_('External links'))
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)

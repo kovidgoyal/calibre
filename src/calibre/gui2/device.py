@@ -601,7 +601,7 @@ class DeviceManager(Thread):  # {{{
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
                      metadata=None, plugboards=None, add_as_step_to_job=None):
-        desc = ngettext('Upload one book to the device', 'Upload {} books to device', len(names)).format(len(names))
+        desc = ngettext('Upload one book to the device', 'Upload {} books to the device', len(names)).format(len(names))
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job_step(self._upload_books, done, to_job=add_as_step_to_job,
@@ -1255,11 +1255,11 @@ class DeviceMixin(object):  # {{{
                             format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
                 if f in format_count.keys():
-                    formats.append((f, _('%(num)i of %(total)i Books') % dict(
+                    formats.append((f, _('%(num)i of %(total)i books') % dict(
                         num=format_count[f], total=len(rows)),
                         True if f in aval_out_formats else False))
                 elif f in aval_out_formats:
-                    formats.append((f, _('0 of %i Books') % len(rows), True))
+                    formats.append((f, _('0 of %i books') % len(rows), True))
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec_() != QDialog.Accepted:
                 return

@@ -113,7 +113,7 @@ class DownloadResources(Dialog):
         self.wait = WaitStack(_('Searching for external resources...'), cr, self)
         self.wait.addWidget(ds), self.wait.addWidget(s)
         self.wait.start()
-        for t, f in ((_('Select &None'), cr.select_none), (_('Select &All'), cr.select_all)):
+        for t, f in ((_('Select &none'), cr.select_none), (_('Select &all'), cr.select_all)):
             b = self.bb.addButton(t, self.bb.ActionRole)
             b.clicked.connect(f), b.setAutoDefault(False)
         self.bb.setVisible(False)
@@ -247,6 +247,7 @@ class DownloadResources(Dialog):
 
     def sizeHint(self):
         return QSize(800, 500)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
