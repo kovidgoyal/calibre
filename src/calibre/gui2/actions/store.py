@@ -132,7 +132,7 @@ class StoreAction(InterfaceAction):
 
     def show_disclaimer(self):
         confirm(('<p>' +
-            _('Calibre helps you find the ebooks you want by searching '
+            _('calibre helps you find the ebooks you want by searching '
             'the websites of various commercial and public domain '
             'book sources for you.') +
             '<p>' +
@@ -141,7 +141,7 @@ class StoreAction(InterfaceAction):
             'You also get DRM status and other useful information.') + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
             'you and the book seller. '
-            'Calibre is not part of this process and any issues related '
+            'calibre is not part of this process and any issues related '
             'to a purchase should be directed to the website you are '
             'buying from. Be sure to double check that any books you get '
             'will work with your e-book reader, especially if the book you '

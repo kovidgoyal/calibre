@@ -171,8 +171,9 @@ class Adder(QObject):
                         unreadable_files.append(path)
                 if unreadable_files:
                     if not self.file_groups:
-                        self.scan_error = _('You do not have permission to read the selected file(s).') + '\n'
-                        self.scan_error += '\n'.join(unreadable_files)
+                        m = ngettext('You do not have permission to read the selected file.',
+                                     'You do not have permission to read the selected files.', len(unreadable_files))
+                        self.scan_error = m + '\n' + '\n'.join(unreadable_files)
                     else:
                         a = self.report.append
                         for f in unreadable_files:
@@ -281,7 +282,8 @@ class Adder(QObject):
         a = self.report.append
         paths = self.file_groups[group_id]
         a(''), a('-' * 70)
-        a(_('Failed to read metadata from the file(s):'))
+        m = ngettext('Failed to read metadata from the file:', 'Failed to read metadata from the files:', len(paths))
+        a(m)
         [a('\t' + f) for f in paths]
         a(_('With error:')), a(details)
         mi = Metadata(_('Unknown'))

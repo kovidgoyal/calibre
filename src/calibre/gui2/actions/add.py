@@ -133,8 +133,10 @@ class AddAction(InterfaceAction):
                 override = formats.intersection(nformats)
                 if override:
                     title = db.title(ids[0], index_is_id=True)
-                    msg = _('The {0} format(s) will be replaced in the book {1}. Are you sure?').format(
-                        ', '.join(override), title)
+                    msg = ngettext(
+                        'The {0} format will be replaced in the book {1}. Are you sure?',
+                        'The {0} formats will be replaced in the book {1}. Are you sure?',
+                        len(override)).format(', '.join(override), title)
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 

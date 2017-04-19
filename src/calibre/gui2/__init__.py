@@ -903,7 +903,7 @@ def load_builtin_fonts():
 def setup_gui_option_parser(parser):
     if islinux:
         parser.add_option('--detach', default=False, action='store_true',
-                          help=_('Detach from the controlling terminal, if any (linux only)'))
+                          help=_('Detach from the controlling terminal, if any (Linux only)'))
 
 
 def show_temp_dir_error(err):
