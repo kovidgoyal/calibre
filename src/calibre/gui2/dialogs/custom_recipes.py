@@ -494,7 +494,7 @@ class CustomRecipes(Dialog):
         else:
             bb.setStandardButtons(bb.Cancel | bb.Save)
             if self.stack.currentIndex() == 1:
-                text = _('S&witch to Advanced mode')
+                text = _('S&witch to advanced mode')
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
                 b = bb.addButton(text, bb.ActionRole)

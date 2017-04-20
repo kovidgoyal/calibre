@@ -125,7 +125,7 @@ class ImageTitleLayout(QHBoxLayout):
         pixmap.load(I(icon_name))
         if pixmap is None:
             error_dialog(parent, _('Restart required'),
-                         _('You must restart Calibre before using this plugin!'), show=True)
+                         _('You must restart calibre before using this plugin!'), show=True)
         else:
             title_image_label.setPixmap(pixmap)
         title_image_label.setMaximumSize(32, 32)
@@ -277,7 +277,7 @@ class DisplayPluginModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
         self.headers = map(unicode, [_('Plugin Name'), _('Donate'), _('Status'), _('Installed'),
-                                      _('Available'), _('Released'), _('Calibre'), _('Author')])
+                                      _('Available'), _('Released'), _('calibre'), _('Author')])
 
     def rowCount(self, *args):
         return len(self.display_plugins)
@@ -363,7 +363,7 @@ class DisplayPluginModel(QAbstractTableModel):
         if not display_plugin.is_valid_platform():
             return _('Platform unavailable')
         if not display_plugin.is_valid_calibre():
-            return _('Calibre upgrade required')
+            return _('calibre upgrade required')
         if display_plugin.is_installed():
             if display_plugin.is_deprecated:
                 return _('Plugin deprecated')
@@ -408,7 +408,7 @@ class DisplayPluginModel(QAbstractTableModel):
                             ', '.join(display_plugin.platforms)+'\n\n'+
                             _('Right-click to see more options'))
         if numeric_version < display_plugin.calibre_required_version:
-            return (_('You must upgrade to at least Calibre %s before installing this plugin') %
+            return (_('You must upgrade to at least calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
@@ -756,7 +756,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                          _('A problem occurred while installing this plugin.'
                            ' This plugin will now be uninstalled.'
                            ' Please post the error message in details below into'
-                           ' the forum thread for this plugin and restart Calibre.'),
+                           ' the forum thread for this plugin and restart calibre.'),
                          det_msg=traceback.format_exc(), show=True)
             if DEBUG:
                 prints('Due to error now uninstalling plugin: %s'%display_plugin.name)

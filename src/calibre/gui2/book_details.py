@@ -421,7 +421,7 @@ class CoverView(QWidget):  # {{{
         except:
             sz = QSize(0, 0)
         self.setToolTip(
-            '<p>'+_('Double-click to open Book Details window') +
+            '<p>'+_('Double-click to open the book details window') +
             '<br><br>' + _('Path') + ': ' + current_path +
             '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
                 width=sz.width(), height=sz.height())

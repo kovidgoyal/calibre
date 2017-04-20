@@ -126,9 +126,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_save_clicked(self):
         filename = choose_save_file(self, 'sr_saved_patterns',
-                _('Save calibre Search-Replace definitions file'),
+                _('Save calibre search-replace definitions file'),
                 filters=[
-                    (_('calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre search-replace definitions file'), ['csr'])
                     ])
         if filename:
             with codecs.open(filename, 'w', 'utf-8') as f:
