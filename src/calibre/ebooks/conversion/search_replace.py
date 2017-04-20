@@ -16,4 +16,4 @@ def compile_regular_expression(text, flags=REGEX_FLAGS):
     ans = regex_cache.get(key)
     if ans is None:
         ans = regex_cache[key] = regex.compile(text, flags=flags)
-    return regex.compile(text, flags=flags)
+    return ans
