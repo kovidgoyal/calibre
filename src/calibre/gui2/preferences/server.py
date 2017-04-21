@@ -303,6 +303,7 @@ class NewUser(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         l.addRow(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        (self.uw if not username else self.p1).setFocus(Qt.OtherFocusReason)
 
     def show_password(self):
         for p in self.p1, self.p2:
@@ -317,7 +318,7 @@ class NewUser(QDialog):
         return self.p1.text()
 
     def accept(self):
-        if self.uw.isEditable():
+        if not self.uw.isReadOnly():
             un = self.username
             if not un:
                 return error_dialog(self, _('Empty username'), _('You must enter a username'), show=True)
