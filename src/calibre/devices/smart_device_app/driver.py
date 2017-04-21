@@ -65,6 +65,14 @@ class ConnectionListener(Thread):
     def stop(self):
         self.keep_running = False
 
+    def _close_socket(self, the_socket):
+        try:
+            the_socket.shutdown(socket.SHUT_RDWR)
+        except:
+            # the shutdown can fail if the socket isn't fully connected. Ignore it
+            pass
+        the_socket.close()
+
     def run(self):
         device_socket = None
         get_all_ips(reinitialize=True)
@@ -141,7 +149,7 @@ class ConnectionListener(Thread):
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
                         except Queue.Full:
-                            device_socket.close()
+                            self._close_socket(device_socket)
                             device_socket = None
                             self.driver._debug('driver is not answering')
 
@@ -150,7 +158,7 @@ class ConnectionListener(Thread):
                     except socket.error:
                         x = sys.exc_info()[1]
                         self.driver._debug('unexpected socket exception', x.args[0])
-                        device_socket.close()
+                        self._close_socket(device_socket)
                         device_socket = None
 #                        raise
 
@@ -363,6 +371,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_time = time.time()
         self.is_connected = False
 
+    # Don't call this method from the GUI unless you are sure that there is no
+    # network traffic in progress. Otherwise the gui might hang waiting for the
+    # network timeout
     def _debug(self, *args):
         # manual synchronization so we don't lose the calling method name
         import inspect
@@ -868,10 +879,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self.device_book_cache[key]['book'] = new_book
                 self.device_book_cache[key]['last_used'] = now()
 
+    # Force close a socket. The shutdown permits the close even if data transfer
+    # is in progress
+    def _close_socket(self, the_socket):
+        try:
+            the_socket.shutdown(socket.SHUT_RDWR)
+        except:
+            # the shutdown can fail if the socket isn't fully connected. Ignore it
+            pass
+        the_socket.close()
+
     def _close_device_socket(self):
         if self.device_socket is not None:
             try:
-                self.device_socket.close()
+                self._close_socket(self.device_socket)
             except:
                 pass
             self.device_socket = None
@@ -896,11 +917,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return port
 
     def _close_listen_socket(self):
-        self.listen_socket.close()
+        self._close_socket(self.listen_socket)
         self.listen_socket = None
         self.is_connected = False
         if getattr(self, 'broadcast_socket', None) is not None:
-            self.broadcast_socket.close()
+            self._close_socket(self.broadcast_socket)
             self.broadcast_socket = None
 
     def _read_file_metadata(self, temp_file_name):
@@ -1806,162 +1827,167 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.listen_socket = None
         self.is_connected = False
 
-    @synchronous('sync_lock')
-    def startup_on_demand(self):
+    def _startup_on_demand(self):
         if getattr(self, 'listen_socket', None) is not None:
             # we are already running
             return
-        if len(self.opcodes) != len(self.reverse_opcodes):
-            self._debug(self.opcodes, self.reverse_opcodes)
-        self.is_connected = False
-        self.listen_socket = None
-        self.device_socket = None
-        self.json_codec = JsonCodec()
-        self.known_metadata = {}
-        self.device_book_cache = defaultdict(dict)
-        self.debug_time = time.time()
-        self.debug_start_time = time.time()
-        self.max_book_packet_len = 0
-        self.noop_counter = 0
-        self.connection_attempts = {}
-        self.client_wants_uuid_file_names = False
-        self.is_read_sync_col = None
-        self.is_read_date_sync_col = None
-        self.have_checked_sync_columns = False
-        self.have_bad_sync_columns = False
-        self.have_sent_future_dated_book_message = False
-        self.now = None
 
         message = None
-        compression_quality_ok = True
-        try:
-            cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
-            if cq < 50 or cq > 99:
-                compression_quality_ok = False
-            else:
-                self.THUMBNAIL_COMPRESSION_QUALITY = cq
-        except:
-            compression_quality_ok = False
-        if not compression_quality_ok:
-            self.THUMBNAIL_COMPRESSION_QUALITY = 70
-            message = _('Bad compression quality setting. It must be a number '
-                        'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
-            self._debug(message)
-            self.set_option('thumbnail_compression_quality',
-                            str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
+        # The driver is not running so must be started. It needs to protect itself
+        # from access by the device thread before it is fully setup. Thus the lock.
+        with self.sync_lock:
+            if len(self.opcodes) != len(self.reverse_opcodes):
+                self._debug(self.opcodes, self.reverse_opcodes)
+            self.is_connected = False
+            self.listen_socket = None
+            self.device_socket = None
+            self.json_codec = JsonCodec()
+            self.known_metadata = {}
+            self.device_book_cache = defaultdict(dict)
+            self.debug_time = time.time()
+            self.debug_start_time = time.time()
+            self.max_book_packet_len = 0
+            self.noop_counter = 0
+            self.connection_attempts = {}
+            self.client_wants_uuid_file_names = False
+            self.is_read_sync_col = None
+            self.is_read_date_sync_col = None
+            self.have_checked_sync_columns = False
+            self.have_bad_sync_columns = False
+            self.have_sent_future_dated_book_message = False
+            self.now = None
 
-        try:
-            self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            set_socket_inherit(self.listen_socket, False)
-        except:
-            traceback.print_exc()
-            message = 'creation of listen socket failed'
-            self._debug(message)
-            return message
-
-        i = 0
-
-        if self.settings().extra_customization[self.OPT_USE_PORT]:
+            compression_quality_ok = True
             try:
-                opt_port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
+                cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
+                if cq < 50 or cq > 99:
+                    compression_quality_ok = False
+                else:
+                    self.THUMBNAIL_COMPRESSION_QUALITY = cq
             except:
-                message = _('Invalid port in options: %s')% \
-                            self.settings().extra_customization[self.OPT_PORT_NUMBER]
+                compression_quality_ok = False
+            if not compression_quality_ok:
+                self.THUMBNAIL_COMPRESSION_QUALITY = 70
+                message = _('Bad compression quality setting. It must be a number '
+                            'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
+                self._debug(message)
+                self.set_option('thumbnail_compression_quality',
+                                str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
+
+            try:
+                self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                set_socket_inherit(self.listen_socket, False)
+            except:
+                traceback.print_exc()
+                message = 'creation of listen socket failed'
+                self._debug(message)
+                return message
+
+            i = 0
+
+            if self.settings().extra_customization[self.OPT_USE_PORT]:
+                try:
+                    opt_port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
+                except:
+                    message = _('Invalid port in options: %s')% \
+                                self.settings().extra_customization[self.OPT_PORT_NUMBER]
+                    self._debug(message)
+                    self._close_listen_socket()
+                    return message
+
+                port = self._attach_to_port(self.listen_socket, opt_port)
+                if port == 0:
+                    message = _('Failed to connect to port %d. Try a different value.')%opt_port
+                    self._debug(message)
+                    self._close_listen_socket()
+                    return message
+            else:
+                while i < 100:  # try 9090 then up to 99 random port numbers
+                    i += 1
+                    port = self._attach_to_port(self.listen_socket,
+                                    9090 if i == 1 else random.randint(8192, 32000))
+                    if port != 0:
+                        break
+                if port == 0:
+                    message = _('Failed to allocate a random port')
+                    self._debug(message)
+                    self._close_listen_socket()
+                    return message
+
+            try:
+                self.listen_socket.listen(0)
+            except:
+                message = 'listen on port %d failed' % port
                 self._debug(message)
                 self._close_listen_socket()
                 return message
 
-            port = self._attach_to_port(self.listen_socket, opt_port)
-            if port == 0:
-                message = _('Failed to connect to port %d. Try a different value.')%opt_port
+            try:
+                ip_addr = self.settings().extra_customization[self.OPT_FORCE_IP_ADDRESS]
+                publish_zeroconf('calibre smart device client',
+                                 '_calibresmartdeviceapp._tcp', port, {},
+                                 use_ip_address=ip_addr)
+            except:
+                self._debug('registration with bonjour failed')
+                traceback.print_exc()
+
+            self._debug('listening on port', port)
+            self.port = port
+
+            # Now try to open a UDP socket to receive broadcasts on
+
+            try:
+                self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            except:
+                message = 'creation of broadcast socket failed. This is not fatal.'
                 self._debug(message)
-                self._close_listen_socket()
-                return message
-        else:
-            while i < 100:  # try 9090 then up to 99 random port numbers
-                i += 1
-                port = self._attach_to_port(self.listen_socket,
-                                9090 if i == 1 else random.randint(8192, 32000))
-                if port != 0:
-                    break
-            if port == 0:
-                message = _('Failed to allocate a random port')
-                self._debug(message)
-                self._close_listen_socket()
-                return message
-
-        try:
-            self.listen_socket.listen(0)
-        except:
-            message = 'listen on port %d failed' % port
-            self._debug(message)
-            self._close_listen_socket()
-            return message
-
-        try:
-            ip_addr = self.settings().extra_customization[self.OPT_FORCE_IP_ADDRESS]
-            publish_zeroconf('calibre smart device client',
-                             '_calibresmartdeviceapp._tcp', port, {},
-                             use_ip_address=ip_addr)
-        except:
-            self._debug('registration with bonjour failed')
-            traceback.print_exc()
-
-        self._debug('listening on port', port)
-        self.port = port
-
-        # Now try to open a UDP socket to receive broadcasts on
-
-        try:
-            self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except:
-            message = 'creation of broadcast socket failed. This is not fatal.'
-            self._debug(message)
-            self.broadcast_socket = None
-        else:
-            for p in self.BROADCAST_PORTS:
-                port = self._attach_to_port(self.broadcast_socket, p)
-                if port != 0:
-                    self._debug('broadcast socket listening on port', port)
-                    break
-
-            if port == 0:
-                self.broadcast_socket.close()
                 self.broadcast_socket = None
-                message = 'attaching port to broadcast socket failed. This is not fatal.'
-                self._debug(message)
+            else:
+                for p in self.BROADCAST_PORTS:
+                    port = self._attach_to_port(self.broadcast_socket, p)
+                    if port != 0:
+                        self._debug('broadcast socket listening on port', port)
+                        break
 
-        self.connection_queue = Queue.Queue(1)
-        self.connection_listener = ConnectionListener(self)
-        self.connection_listener.start()
+                if port == 0:
+                    self._close_socket(self.broadcast_socket)
+                    self.broadcast_socket = None
+                    message = 'attaching port to broadcast socket failed. This is not fatal.'
+                    self._debug(message)
 
+            self.connection_queue = Queue.Queue(1)
+            self.connection_listener = ConnectionListener(self)
+            self.connection_listener.start()
         return message
 
-    @synchronous('sync_lock')
-    def shutdown(self):
+    def _shutdown(self):
+        # Force close any socket open by a device. This will cause any IO on the
+        # socket to fail, eventually releasing the transaction lock.
         self._close_device_socket()
-        if getattr(self, 'listen_socket', None) is not None:
-            self.connection_listener.stop()
-            try:
-                unpublish_zeroconf('calibre smart device client',
-                                   '_calibresmartdeviceapp._tcp', self.port, {})
-            except:
-                self._debug('deregistration with bonjour failed')
-                traceback.print_exc()
-            self._close_listen_socket()
 
-    # Methods for dynamic control
+        # Now lockup so we can shutdown the control socket and unpublish mDNS
+        with self.sync_lock:
+            if getattr(self, 'listen_socket', None) is not None:
+                self.connection_listener.stop()
+                try:
+                    unpublish_zeroconf('calibre smart device client',
+                                       '_calibresmartdeviceapp._tcp', self.port, {})
+                except:
+                    self._debug('deregistration with bonjour failed')
+                    traceback.print_exc()
+                self._close_listen_socket()
+
+    # Methods for dynamic control. Do not call _debug in these methods, as it
+    # uses the sync lock.
 
     def is_dynamically_controllable(self):
         return 'smartdevice'
 
-    @synchronous('sync_lock')
     def start_plugin(self):
-        return self.startup_on_demand()
+        return self._startup_on_demand()
 
-    @synchronous('sync_lock')
     def stop_plugin(self):
-        self.shutdown()
+        self._shutdown()
 
     def get_option(self, opt_string, default=None):
         opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
