@@ -168,14 +168,18 @@ class UserManager(object):
     def user_data(self, users):
         with self.lock, self.conn:
             c = self.conn.cursor()
+            remove = self.all_user_names - set(users)
+            if remove:
+                c.executemany('DELETE FROM users WHERE name=?', (remove,))
             for name, data in users.iteritems():
                 res = serialize_restriction(data['restriction'])
                 r = 'y' if data['readonly'] else 'n'
-                c.execute('UPDATE users SET (pw, restriction, readonly) VALUES (?,?,?) WHERE name=?',
-                        data['pw'], res, r, name)
+                c.execute('UPDATE users SET pw=?, restriction=?, readonly=? WHERE name=?',
+                        (data['pw'], res, r, name))
                 if self.conn.changes() > 0:
                     continue
-                c.execute('INSERT INTO USERS (name, pw, restriction, readonly)', name, data['pw'], res, r)
+                c.execute('INSERT INTO USERS (name, pw, restriction, readonly) VALUES (?, ?, ?, ?)',
+                          (name, data['pw'], res, r))
             self.refresh()
 
     def refresh(self):
