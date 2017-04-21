@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Saved Search Editor</string>
+   <string>Saved search editor</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -48,7 +48,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Saved Search: </string>
+        <string>Saved search: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

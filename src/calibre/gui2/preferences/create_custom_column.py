@@ -406,7 +406,7 @@ class CreateCustomColumn(QDialog):
                     "<p>Date format. Use 1-4 \'d\'s for day, 1-4 \'M\'s for month, and 2 or 4 \'y\'s for year.</p>\n"
                     "<p>For example:\n"
                     "<ul>\n"
-                    "<li> ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
+                    "<li>ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
                     "<li>dd MMMM yy gives 05 January 10</li>\n"
                     "</ul> "))
             else:

@@ -48,7 +48,7 @@ class TXTInput(InputFormatPlugin):
                    'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
-            help=_('Formatting used within the document.'
+            help=_('Formatting used within the document.\n'
                    '* auto: Automatically decide which formatting processor to use.\n'
                    '* plain: Do not process the document formatting. Everything is a '
                    'paragraph and no styling is applied.\n'
