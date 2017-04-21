@@ -42,6 +42,25 @@ def serialize_restriction(r):
     return json.dumps(ans)
 
 
+def validate_username(username):
+    if re.sub(r'[a-zA-Z_0-9 ]', '', username):
+        return _('For maximum compatibility you should use only the letters A-Z,'
+                    ' the numbers 0-9 and spaces or underscores in the username')
+
+
+def validate_password(pw):
+    try:
+        pw = pw.encode('ascii', 'strict')
+    except ValueError:
+        return _('The password must contain only ASCII (English) characters and symbols')
+
+
+def create_user_data(pw, readonly=False, restriction=None):
+    return {
+        'pw':pw, 'restriction':parse_restriction(restriction or '{}'), 'readonly': readonly
+    }
+
+
 class UserManager(object):
 
     lock = RLock()
@@ -111,15 +130,10 @@ class UserManager(object):
     def validate_username(self, username):
         if self.has_user(username):
             return _('The username %s already exists') % username
-        if re.sub(r'[a-zA-Z_0-9 ]', '', username):
-            return _('For maximum compatibility you should use only the letters A-Z,'
-                     ' the numbers 0-9 and spaces or underscores in the username')
+        return validate_username(username)
 
     def validate_password(self, pw):
-        try:
-            pw = pw.encode('ascii', 'strict')
-        except ValueError:
-            return _('The password must contain only ASCII (English) characters and symbols')
+        return validate_password(pw)
 
     def add_user(self, username, pw, restriction=None, readonly=False):
         with self.lock:
@@ -147,9 +161,7 @@ class UserManager(object):
         with self.lock:
             ans = {}
             for name, pw, restriction, readonly in self.conn.cursor().execute('SELECT name,pw,restriction,readonly FROM users'):
-                ans[name] = {
-                    'pw':pw, 'restriction':parse_restriction(restriction), 'readonly': readonly.lower() == 'y'
-                }
+                ans[name] = create_user_data(pw, readonly.lower() == 'y', restriction)
         return ans
 
     @user_data.setter
@@ -164,8 +176,11 @@ class UserManager(object):
                 if self.conn.changes() > 0:
                     continue
                 c.execute('INSERT INTO USERS (name, pw, restriction, readonly)', name, data['pw'], res, r)
-            self._restrictions.clear()
-            self._readonly.clear()
+            self.refresh()
+
+    def refresh(self):
+        self._restrictions.clear()
+        self._readonly.clear()
 
     def is_readonly(self, username):
         with self.lock:

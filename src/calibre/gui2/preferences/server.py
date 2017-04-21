@@ -7,16 +7,18 @@ import time
 
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSize,
-    QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, QPushButton,
+    QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import as_unicode
 from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.opts import change_settings, options, server_config
-from calibre.srv.users import UserManager
+from calibre.srv.users import UserManager, validate_username, validate_password, create_user_data
+from calibre.utils.icu import primary_sort_key
+
 
 # Advanced {{{
 
@@ -273,16 +275,170 @@ class MainTab(QWidget):  # {{{
 
 
 # Users {{{
+
+class NewUser(QDialog):
+
+    def __init__(self, user_data, parent=None, username=None):
+        QDialog.__init__(self, parent)
+        self.user_data = user_data
+        self.setWindowTitle(_('Change password for {}').format(username) if username else _('Add new user'))
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        self.uw = u = QLineEdit(self)
+        l.addRow(_('&Username:'), u)
+        if username:
+            u.setText(username)
+            u.setReadOnly(True)
+        l.addRow(QLabel(_('Set the password for this user')))
+        self.p1, self.p2 = p1, p2 = QLineEdit(self), QLineEdit(self)
+        l.addRow(_('&Password:'), p1), l.addRow(_('&Repeat password:'), p2)
+        for p in p1, p2:
+            p.setEchoMode(QLineEdit.PasswordEchoOnEdit)
+            p.setMinimumWidth(300)
+            if username:
+                p.setText(user_data[username]['pw'])
+        self.showp = sp = QCheckBox(_('&Show password'))
+        sp.stateChanged.connect(self.show_password)
+        l.addRow(sp)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        l.addRow(bb)
+        bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+
+    def show_password(self):
+        for p in self.p1, self.p2:
+            p.setEchoMode(QLineEdit.Normal if self.showp.isChecked() else QLineEdit.PasswordEchoOnEdit)
+
+    @property
+    def username(self):
+        return self.uw.text().strip()
+
+    @property
+    def password(self):
+        return self.p1.text()
+
+    def accept(self):
+        if self.uw.isEditable():
+            un = self.username
+            if not un:
+                return error_dialog(self, _('Empty username'), _('You must enter a username'), show=True)
+            if un in self.user_data:
+                return error_dialog(self, _('Username already exists'), _(
+                    'A user witht he username {} already exists. Please choose a different username.').format(un), show=True)
+            err = validate_username(un)
+            if err:
+                return error_dialog(self, _('Username is not valid'), err, show=True)
+        p1, p2 = self.password, self.p2.text()
+        if p1 != p2:
+            return error_dialog(self, _('Password do not match'), _(
+                'The two passwords you entered do not match!'), show=True)
+        if not p1:
+            return error_dialog(self, _('Empty password'), _(
+                'You must enter a password for this user'), show=True)
+        err = validate_password(p1)
+        if err:
+            return error_dialog(self, _('Invalid password'), err, show=True)
+        return QDialog.accept(self)
+
+
+class User(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        self.username_label = la = QLabel('')
+        l.addWidget(la)
+        self.cpb = b = QPushButton(_('Change &password'))
+        l.addWidget(b)
+        b.clicked.connect(self.change_password)
+
+        self.show_user()
+
+    def change_password(self):
+        d = NewUser(self.user_data, self, self.username)
+        if d.exec_() == d.Accepted:
+            self.user_data[self.username]['pw'] = d.password
+            self.changed_signal.emit()
+
+    def show_user(self, username=None, user_data=None):
+        self.username, self.user_data = username, user_data
+        self.cpb.setEnabled(username is not None)
+        self.username_label.setText(('<h2>' + username) if username else '')
+
+    def sizeHint(self):
+        ans = QWidget.sizeHint(self)
+        ans.setWidth(400)
+        return ans
+
+
 class Users(QWidget):
 
     changed_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout(self)
+        self.lp = lp = QVBoxLayout()
+        l.addLayout(lp)
+
+        self.h = h = QHBoxLayout()
+        lp.addLayout(h)
+        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('&Add user'), self)
+        b.clicked.connect(self.add_user)
+        h.addWidget(b)
+        self.remove_button = b = QPushButton(QIcon(I('minus.png')), _('&Remove user'), self)
+        b.clicked.connect(self.remove_user)
+        h.addStretch(2), h.addWidget(b)
+
+        self.user_list = w = QListWidget(self)
+        w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        lp.addWidget(w)
+
+        self.user_display = u = User(self)
+        u.changed_signal.connect(self.changed_signal.emit)
+        l.addWidget(u)
 
     def genesis(self):
         self.user_data = UserManager().user_data
+        self.user_list.addItems(sorted(self.user_data, key=primary_sort_key))
+        self.user_list.setCurrentRow(0)
+        self.user_list.currentItemChanged.connect(self.current_item_changed)
+        self.current_item_changed()
 
+    def current_item_changed(self):
+        item = self.user_list.currentItem()
+        if item is None:
+            username = None
+        else:
+            username = item.text()
+        if username not in self.user_data:
+            username = None
+        self.display_user_data(username)
+
+    def add_user(self):
+        d = NewUser(self.user_data, parent=self)
+        if d.exec_() == d.Accepted:
+            un, pw = d.username, d.password
+            self.user_data[un] = create_user_data(pw)
+            self.user_list.insertItem(0, un)
+            self.user_list.setCurrentRow(0)
+            self.display_user_data(un)
+            self.changed_signal.emit()
+
+    def remove_user(self):
+        u = self.user_list.currentItem()
+        if u is not None:
+            self.user_list.takeItem(self.user_list.row(u))
+            un = u.text()
+            self.user_data.pop(un, None)
+            self.changed_signal.emit()
+            self.current_item_changed()
+
+    def display_user_data(self, username=None):
+        self.user_display.show_user(username, self.user_data)
 
 # }}}
 
@@ -454,7 +610,8 @@ class ConfigWidget(ConfigWidgetBase):
         return False
 
     def refresh_gui(self, gui):
-        pass
+        if self.server:
+            self.server.user_manager.refresh()
 
 
 if __name__ == '__main__':
