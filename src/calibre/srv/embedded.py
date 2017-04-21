@@ -45,6 +45,10 @@ class Server(object):
             from calibre.utils.rapydscript import compile_srv
             compile_srv()
 
+    @property
+    def user_manager(self):
+        return self.handler.router.ctx.user_manager
+
     def start(self):
         if self.current_thread is None:
             try:
