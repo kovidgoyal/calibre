@@ -355,6 +355,12 @@ class User(QWidget):
         self.cpb = b = QPushButton(_('Change &password'))
         l.addWidget(b)
         b.clicked.connect(self.change_password)
+        self.ro_text = _('Allow {} to make changes (i.e. grant write access)?')
+        self.rw = rw = QCheckBox(self)
+        rw.setToolTip(_('If enabled, allows the user to make changes to the library.'
+                        ' Adding books/deleting books/editing metadata, etc.'))
+        rw.stateChanged.connect(self.readonly_changed)
+        l.addWidget(rw)
 
         self.show_user()
 
@@ -364,10 +370,20 @@ class User(QWidget):
             self.user_data[self.username]['pw'] = d.password
             self.changed_signal.emit()
 
+    def readonly_changed(self):
+        self.user_data[self.username]['readonly'] = not self.rw.isChecked()
+        self.changed_signal.emit()
+
     def show_user(self, username=None, user_data=None):
         self.username, self.user_data = username, user_data
         self.cpb.setEnabled(username is not None)
         self.username_label.setText(('<h2>' + username) if username else '')
+        if username:
+            self.rw.setText(self.ro_text.format(username))
+            self.rw.setVisible(True)
+            self.rw.blockSignals(True), self.rw.setChecked(not user_data[username]['readonly']), self.rw.blockSignals(False)
+        else:
+            self.rw.setVisible(False)
 
     def sizeHint(self):
         ans = QWidget.sizeHint(self)
