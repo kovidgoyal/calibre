@@ -347,6 +347,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_OVERWRITE_BOOKS_UUID    = 12
     OPT_COMPRESSION_QUALITY     = 13
     OPT_USE_METADATA_CACHE      = 14
+    OPTNAME_TO_NUMBER_MAP = {
+        'password': OPT_PASSWORD,
+        'autostart': OPT_AUTOSTART,
+        'use_fixed_port': OPT_USE_PORT,
+        'port_number': OPT_PORT_NUMBER,
+        'force_ip_address': OPT_FORCE_IP_ADDRESS,
+        'thumbnail_compression_quality': OPT_COMPRESSION_QUALITY,
+    }
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -694,22 +702,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if close_:
             infile.close()
         return (-1, None) if failed else (length, lpath)
-
-    def _get_smartdevice_option_number(self, opt_string):
-        if opt_string == 'password':
-            return self.OPT_PASSWORD
-        elif opt_string == 'autostart':
-            return self.OPT_AUTOSTART
-        elif opt_string == 'use_fixed_port':
-            return self.OPT_USE_PORT
-        elif opt_string == 'port_number':
-            return self.OPT_PORT_NUMBER
-        elif opt_string == 'force_ip_address':
-            return self.OPT_FORCE_IP_ADDRESS
-        elif opt_string == 'thumbnail_compression_quality':
-            return self.OPT_COMPRESSION_QUALITY
-        else:
-            return None
 
     def _metadata_in_cache(self, uuid, ext_or_lpath, lastmod):
         from calibre.utils.date import now, parse_date
@@ -1960,7 +1952,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # Methods for dynamic control
 
-    @synchronous('sync_lock')
     def is_dynamically_controllable(self):
         return 'smartdevice'
 
@@ -1972,24 +1963,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def stop_plugin(self):
         self.shutdown()
 
-    @synchronous('sync_lock')
     def get_option(self, opt_string, default=None):
-        opt = self._get_smartdevice_option_number(opt_string)
+        opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
         if opt is not None:
             return self.settings().extra_customization[opt]
         return default
 
-    @synchronous('sync_lock')
     def set_option(self, opt_string, value):
-        opt = self._get_smartdevice_option_number(opt_string)
+        opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
         if opt is not None:
             config = self._configProxy()
             ec = config['extra_customization']
             ec[opt] = value
             config['extra_customization'] = ec
 
-    @synchronous('sync_lock')
     def is_running(self):
         return getattr(self, 'listen_socket', None) is not None
-
-
