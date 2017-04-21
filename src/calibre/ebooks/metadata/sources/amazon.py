@@ -15,7 +15,6 @@ from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
-from calibre.ebooks.metadata.sources.update import search_engines_module
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua, all_user_agents
 
@@ -1255,6 +1254,7 @@ class Amazon(Source):
     # }}}
 
     def search_search_engine(self, br, testing, log, abort, title, authors, identifiers, timeout):  # {{{
+        from calibre.ebooks.metadata.sources.update import search_engines_module
         terms, domain = self.create_query(log, title=title, authors=authors,
                                           identifiers=identifiers, for_amazon=False)
         site = self.referrer_for_domain(
