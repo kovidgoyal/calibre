@@ -28,7 +28,17 @@
        <string>&amp;Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="9" column="0">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>&amp;User Interface layout (needs restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_gui_layout</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>E&amp;xtra spacing to add between rows in the book list (can be negative):</string>
@@ -38,7 +48,7 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="10" column="1">
         <widget class="QSpinBox" name="opt_book_list_extra_row_spacing">
          <property name="suffix">
           <string> px</string>
@@ -48,7 +58,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>&amp;Toolbar</string>
@@ -86,7 +96,7 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="opt_ui_style"/>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QPushButton" name="change_font_button">
          <property name="text">
           <string>Change &amp;font (needs restart)</string>
@@ -109,14 +119,14 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QCheckBox" name="opt_book_list_tooltips">
          <property name="text">
           <string>Show &amp;tooltips in the book list</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="12" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -129,7 +139,7 @@
          </property>
         </spacer>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QCheckBox" name="opt_systray_icon">
          <property name="text">
           <string>Enable system &amp;tray icon (needs restart)</string>
@@ -146,7 +156,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label_2">
@@ -174,7 +184,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QCheckBox" name="opt_disable_tray_notification">
          <property name="text">
           <string>Disable &amp;notifications in system tray</string>
@@ -201,17 +211,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="text">
-          <string>&amp;User Interface layout (needs restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_gui_layout</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QCheckBox" name="opt_disable_animations">
          <property name="toolTip">
           <string>Disable all animations. Useful if you have a slow/old computer.</string>
@@ -221,7 +221,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <widget class="QCheckBox" name="opt_show_splash_screen">
          <property name="text">
           <string>Show &amp;splash screen at startup</string>
@@ -235,10 +235,32 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <widget class="QCheckBox" name="opt_row_numbers_in_book_list">
          <property name="text">
           <string>Show &amp;row numbers in the book list</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_hidpi">
+         <property name="text">
+          <string>Adjust for high resolution screens (needs restart):</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="opt_hidpi">
+         <property name="toolTip">
+          <string>&lt;p&gt;Whether to automatically adjust the calibre user interface for high resolution (high DPI) monitors. There are three possible values:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;b&gt;Automatic&lt;/b&gt;: Adjust the user interface if a high resolution monitor is detected. Will respect Qt environment variables controlling high DPI behavior. So if you use the environment variable QT_AUTO_SCREEN_SCALE_FACTOR then it will be used instead of this setting.&lt;/li&gt;
+
+&lt;li&gt;&lt;b&gt;On&lt;/b&gt;: Same as &quot;Automatic&quot;, but ignores Qt environment variables controlling high dpi behavior.&lt;/li&gt;
+
+&lt;li&gt;&lt;b&gt;Off&lt;/b&gt;: Do not adjust the user interface, regardless of Qt environment variables.&lt;/li&gt;
+&lt;/ul&gt;</string>
          </property>
         </widget>
        </item>
