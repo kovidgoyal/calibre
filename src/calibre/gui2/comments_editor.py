@@ -115,7 +115,7 @@ class EditorWidget(QWebView):  # {{{
                 ('Paste', 'paste', 'edit-paste', _('Paste'), False),
                 ('Cut', 'cut', 'edit-cut', _('Cut'), False),
                 ('Indent', 'indent', 'format-indent-more',
-                    _('Increase Indentation'), False),
+                    _('Increase indentation'), False),
                 ('Outdent', 'outdent', 'format-indent-less',
                     _('Decrease Indentation'), False),
                 ('SelectAll', 'select_all', 'edit-select-all',
@@ -665,7 +665,7 @@ class Editor(QWidget):  # {{{
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('N&ormal view'))
-        self.tabs.addTab(self.code_edit, _('&HTML Source'))
+        self.tabs.addTab(self.code_edit, _('&HTML source'))
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)

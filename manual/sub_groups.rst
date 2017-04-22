@@ -102,7 +102,7 @@ After creating the saved search, you can use it as a restriction.
 .. image:: images/sg_restrict2.jpg
     :align: center
 
-Useful Template Functions
+Useful template functions
 -------------------------
  
  You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" A calibre template function, subitems, is provided to make doing this easier.

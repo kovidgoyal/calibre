@@ -309,7 +309,7 @@ class Main(MainWindow):
         return self.central.editor_tabs
 
     def create_actions(self):
-        group = _('Global Actions')
+        group = _('Global actions')
 
         def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
             if not isinstance(icon, QIcon):
@@ -410,7 +410,7 @@ class Main(MainWindow):
         register_text_editor_actions(ereg, self.palette())
 
         # Polish actions
-        group = _('Polish Book')
+        group = _('Polish book')
         self.action_subset_fonts = treg(
             'subset-fonts.png', _('&Subset embedded fonts'), partial(
                 self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
@@ -465,7 +465,7 @@ class Main(MainWindow):
                                           self.boss.show_text_search, 'text-search', (), _('Show the text search panel'))
 
         # Check Book actions
-        group = _('Check Book')
+        group = _('Check book')
         self.action_check_book = treg('debug.png', _('&Check book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
         self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
             'Check book for spelling errors'))

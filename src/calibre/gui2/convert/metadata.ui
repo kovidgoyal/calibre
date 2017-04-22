@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
-      <string>Book Cover</string>
+      <string>Book cover</string>
      </property>
      <layout class="QGridLayout" name="_2">
       <item row="1" column="0">

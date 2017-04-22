@@ -368,7 +368,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>Cover &amp;Width: </string>
+                 <string>Cover &amp;width: </string>
                 </property>
                 <property name="buddy">
                  <cstring>opt_cover_grid_width</cstring>
@@ -409,7 +409,7 @@ A value of zero means calculate automatically.</string>
               <item row="2" column="0">
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>Cover &amp;Height: </string>
+                 <string>Cover &amp;height: </string>
                 </property>
                 <property name="buddy">
                  <cstring>opt_cover_grid_height</cstring>
