@@ -19,7 +19,6 @@ from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import UserManager, validate_username, validate_password, create_user_data
 from calibre.utils.icu import primary_sort_key
 
-
 # Advanced {{{
 
 
@@ -273,15 +272,18 @@ class MainTab(QWidget):  # {{{
 
 # }}}
 
-
 # Users {{{
+
 
 class NewUser(QDialog):
 
     def __init__(self, user_data, parent=None, username=None):
         QDialog.__init__(self, parent)
         self.user_data = user_data
-        self.setWindowTitle(_('Change password for {}').format(username) if username else _('Add new user'))
+        self.setWindowTitle(
+            _('Change password for {}').format(username)
+            if username else _('Add new user')
+        )
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.uw = u = QLineEdit(self)
@@ -300,14 +302,19 @@ class NewUser(QDialog):
         self.showp = sp = QCheckBox(_('&Show password'))
         sp.stateChanged.connect(self.show_password)
         l.addRow(sp)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
         l.addRow(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         (self.uw if not username else self.p1).setFocus(Qt.OtherFocusReason)
 
     def show_password(self):
         for p in self.p1, self.p2:
-            p.setEchoMode(QLineEdit.Normal if self.showp.isChecked() else QLineEdit.PasswordEchoOnEdit)
+            p.setEchoMode(
+                QLineEdit.Normal
+                if self.showp.isChecked() else QLineEdit.PasswordEchoOnEdit
+            )
 
     @property
     def username(self):
@@ -321,24 +328,118 @@ class NewUser(QDialog):
         if not self.uw.isReadOnly():
             un = self.username
             if not un:
-                return error_dialog(self, _('Empty username'), _('You must enter a username'), show=True)
+                return error_dialog(
+                    self,
+                    _('Empty username'),
+                    _('You must enter a username'),
+                    show=True
+                )
             if un in self.user_data:
-                return error_dialog(self, _('Username already exists'), _(
-                    'A user witht he username {} already exists. Please choose a different username.').format(un), show=True)
+                return error_dialog(
+                    self,
+                    _('Username already exists'),
+                    _(
+                        'A user witht he username {} already exists. Please choose a different username.'
+                    ).format(un),
+                    show=True
+                )
             err = validate_username(un)
             if err:
                 return error_dialog(self, _('Username is not valid'), err, show=True)
         p1, p2 = self.password, self.p2.text()
         if p1 != p2:
-            return error_dialog(self, _('Password do not match'), _(
-                'The two passwords you entered do not match!'), show=True)
+            return error_dialog(
+                self,
+                _('Password do not match'),
+                _('The two passwords you entered do not match!'),
+                show=True
+            )
         if not p1:
-            return error_dialog(self, _('Empty password'), _(
-                'You must enter a password for this user'), show=True)
+            return error_dialog(
+                self,
+                _('Empty password'),
+                _('You must enter a password for this user'),
+                show=True
+            )
         err = validate_password(p1)
         if err:
             return error_dialog(self, _('Invalid password'), err, show=True)
         return QDialog.accept(self)
+
+
+class ChangeRestriction(QDialog):
+
+    def __init__(self, username, restriction, parent=None):
+        QDialog.__init__(self, parent)
+        self.username = username
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+
+        self.libraries = t = QPlainTextEdit(self)
+        self.atype = a = QComboBox(self)
+        a.addItems([_('All libraries'), _('Only the specified libraries'), _('All except the specified libraries')])
+        if restriction['allowed_library_names']:
+            a.setCurrentIndex(1)
+            self.items = restriction['allowed_library_names']
+        elif restriction['blocked_library_names']:
+            a.setCurrentIndex(2)
+            self.items = restriction['blocked_library_names']
+        else:
+            a.setCurrentIndex(0)
+        a.currentIndexChanged.connect(self.atype_changed)
+        l.addRow(_('Allow access to:'), a)
+
+        self.msg = la = QLabel(self)
+        la.setWordWrap(True)
+        l.addRow(la)
+        self.la = la = QLabel(_('Specify the names of libraries below, one per line:'))
+        la.setWordWrap(True)
+        l.addRow(la), l.addRow(t)
+        self.atype_changed()
+
+        self.bb = bb = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        l.addRow(bb)
+
+    @property
+    def items(self):
+        items = filter(None, [x.strip() for x in self.libraries.toPlainText().splitlines()])
+        return frozenset(items)
+
+    @items.setter
+    def items(self, val):
+        self.libraries.setPlainText('\n'.join(sorted(val)))
+
+    @property
+    def restriction(self):
+        ans = {'allowed_library_names': frozenset(), 'blocked_library_names': frozenset()}
+        if self.atype.currentIndex() != 0:
+            k = ['allowed_library_names', 'blocked_library_names'][self.atype.currentIndex() - 1]
+            ans[k] = self.items
+        return ans
+
+    def accept(self):
+        if self.atype.currentIndex() != 0 and not self.items:
+            return error_dialog(self, _('No libraries specified'), _(
+                'You have not specified any libraries'), show=True)
+        return QDialog.accept(self)
+
+    def atype_changed(self):
+        ci = self.atype.currentIndex()
+        if ci == 0:
+            m = _('<b>{} is allowed access to all libraries')
+            self.libraries.setEnabled(False), self.la.setEnabled(False)
+        else:
+            if ci == 1:
+                m = _('{} is allowed access only to the libraries whose names'
+                      ' <b>match</b> one of the names specified below.')
+            else:
+                m = _('{} is allowed access to all libraries, <b>except</b> those'
+                      ' whose names match one of the names specified below.')
+            self.libraries.setEnabled(True), self.la.setEnabled(True)
+        self.msg.setText(m.format(self.username))
 
 
 class User(QWidget):
@@ -357,10 +458,19 @@ class User(QWidget):
         b.clicked.connect(self.change_password)
         self.ro_text = _('Allow {} to make changes (i.e. grant write access)?')
         self.rw = rw = QCheckBox(self)
-        rw.setToolTip(_('If enabled, allows the user to make changes to the library.'
-                        ' Adding books/deleting books/editing metadata, etc.'))
+        rw.setToolTip(
+            _(
+                'If enabled, allows the user to make changes to the library.'
+                ' Adding books/deleting books/editing metadata, etc.'
+            )
+        )
         rw.stateChanged.connect(self.readonly_changed)
         l.addWidget(rw)
+        self.access_label = la = QLabel(self)
+        l.addWidget(la), la.setWordWrap(True)
+        self.restrict_button = b = QPushButton(self)
+        b.clicked.connect(self.change_restriction)
+        l.addWidget(b)
 
         self.show_user()
 
@@ -374,16 +484,53 @@ class User(QWidget):
         self.user_data[self.username]['readonly'] = not self.rw.isChecked()
         self.changed_signal.emit()
 
+    def update_restriction(self):
+        username, user_data = self.username, self.user_data
+        r = user_data[username]['restriction']
+        if r['allowed_library_names']:
+            m = _(
+                '{} is currently only allowed to access the libraries named: {}'
+            ).format(username, ', '.join(r['allowed_library_names']))
+            b = _('Change the allowed libraries')
+        elif r['blocked_library_names']:
+            m = _(
+                '{} is currently not allowed to access the libraries named: {}'
+            ).format(username, ', '.join(r['blocked_library_names']))
+            b = _('Change the blocked libraries')
+        else:
+            m = _('{} is currently allowed access to all libraries')
+            b = _('Restrict the libraries {} can access'.format(self.username))
+        self.restrict_button.setText(b),
+        self.access_label.setText(m.format(username))
+
     def show_user(self, username=None, user_data=None):
         self.username, self.user_data = username, user_data
-        self.cpb.setEnabled(username is not None)
+        self.cpb.setVisible(username is not None)
         self.username_label.setText(('<h2>' + username) if username else '')
         if username:
             self.rw.setText(self.ro_text.format(username))
             self.rw.setVisible(True)
-            self.rw.blockSignals(True), self.rw.setChecked(not user_data[username]['readonly']), self.rw.blockSignals(False)
+            self.rw.blockSignals(True), self.rw.setChecked(
+                not user_data[username]['readonly']
+            ), self.rw.blockSignals(False)
+            self.access_label.setVisible(True)
+            self.restrict_button.setVisible(True)
+            self.update_restriction()
         else:
             self.rw.setVisible(False)
+            self.access_label.setVisible(False)
+            self.restrict_button.setVisible(False)
+
+    def change_restriction(self):
+        d = ChangeRestriction(
+            self.username,
+            self.user_data[self.username]['restriction'].copy(),
+            parent=self
+        )
+        if d.exec_() == d.Accepted:
+            self.user_data[self.username]['restriction'] = d.restriction
+            self.update_restriction()
+            self.changed_signal.emit()
 
     def sizeHint(self):
         ans = QWidget.sizeHint(self)
@@ -406,7 +553,9 @@ class Users(QWidget):
         self.add_button = b = QPushButton(QIcon(I('plus.png')), _('&Add user'), self)
         b.clicked.connect(self.add_user)
         h.addWidget(b)
-        self.remove_button = b = QPushButton(QIcon(I('minus.png')), _('&Remove user'), self)
+        self.remove_button = b = QPushButton(
+            QIcon(I('minus.png')), _('&Remove user'), self
+        )
         b.clicked.connect(self.remove_user)
         h.addStretch(2), h.addWidget(b)
 
@@ -456,6 +605,7 @@ class Users(QWidget):
 
     def display_user_data(self, username=None):
         self.user_display.show_user(username, self.user_data)
+
 
 # }}}
 
