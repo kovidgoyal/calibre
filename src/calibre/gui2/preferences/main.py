@@ -132,7 +132,7 @@ class Category(QWidget):  # {{{
         self.actions = []
         for p in plugins:
             target = partial(self.triggered, p)
-            ac = self.bar.addAction(QIcon(p.icon), p.gui_name, target)
+            ac = self.bar.addAction(QIcon(p.icon), p.gui_name.replace('&', '&&'), target)
             ac.setToolTip(textwrap.fill(p.description))
             ac.setWhatsThis(textwrap.fill(p.description))
             ac.setStatusTip(p.description)
@@ -408,6 +408,7 @@ class Preferences(QDialog):
             self.on_shutdown()
             return QDialog.reject(self)
         self.hide_plugin()
+
 
 if __name__ == '__main__':
     from calibre.gui_launch import init_dbus
