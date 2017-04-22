@@ -988,12 +988,7 @@ class Application(QApplication):
         if islinux or isbsd:
             self.setAttribute(Qt.AA_DontUseNativeMenuBar, 'CALIBRE_NO_NATIVE_MENUBAR' in os.environ)
         self.setup_styles(force_calibre_style)
-        f = QFont(QApplication.font())
-        if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
-            f.setPointSize(10)
-            QApplication.setFont(f)
-        f = QFontInfo(f)
-        self.original_font = (f.family(), f.pointSize(), f.weight(), f.italic(), 100)
+        self.setup_ui_font()
         if not self.using_calibre_style and self.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.load_calibre_style()
@@ -1044,6 +1039,23 @@ class Application(QApplication):
             # Prevent text copied to the clipboard from being lost on quit due to
             # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
             self.aboutToQuit.connect(self.flush_clipboard)
+
+    def setup_ui_font(self):
+        f = QFont(QApplication.font())
+        q = (f.family(), f.pointSize())
+        if iswindows:
+            if q == ('MS Shell Dlg 2', 8):  # Qt default setting
+                # Microsoft recommends the default font be Segoe UI at 9 pt
+                # https://msdn.microsoft.com/en-us/library/windows/desktop/dn742483(v=vs.85).aspx
+                f.setFamily('Segoe UI')
+                f.setPointSize(9)
+                QApplication.setFont(f)
+        else:
+            if q == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
+                f.setPointSize(10)
+                QApplication.setFont(f)
+        f = QFontInfo(f)
+        self.original_font = (f.family(), f.pointSize(), f.weight(), f.italic(), 100)
 
     def flush_clipboard(self):
         try:
