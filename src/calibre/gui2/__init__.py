@@ -924,6 +924,29 @@ def show_temp_dir_error(err):
         'Could not create temporary directory, calibre cannot start.') + ' ' + extra, det_msg=traceback.format_exc(), show=True)
 
 
+def setup_hidpi():
+    # This requires Qt >= 5.6
+    has_env_setting = False
+    env_vars = ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO')
+    for v in env_vars:
+        if os.environ.get(v):
+            has_env_setting = True
+            break
+    hidpi = gprefs['hidpi']
+    if hidpi == 'on' or (hidpi == 'auto' and not has_env_setting):
+        if DEBUG:
+            prints('Turning on hidpi scaling')
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    elif hidpi == 'off':
+        if DEBUG:
+            prints('Turning off hidpi scaling')
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+        for p in env_vars:
+            os.environ.pop(p, None)
+    elif DEBUG:
+        prints('Not controlling hidpi scaling')
+
+
 class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
@@ -941,26 +964,7 @@ class Application(QApplication):
         self.pi = plugins['progress_indicator'][0]
         if not isosx and not headless:
             # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
-            # This requires Qt >= 5.6
-            has_env_setting = False
-            env_vars = ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO')
-            for v in env_vars:
-                if os.environ.get(v):
-                    has_env_setting = True
-                    break
-            hidpi = gprefs['hidpi']
-            if hidpi == 'on' or (hidpi == 'auto' and not has_env_setting):
-                if DEBUG:
-                    prints('Turning on hidpi scaling')
-                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-            elif hidpi == 'off':
-                if DEBUG:
-                    prints('Turning off hidpi scaling')
-                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
-                for p in env_vars:
-                    os.environ.pop(p, None)
-            elif DEBUG:
-                prints('Not controlling hidpi scaling')
+            setup_hidpi()
         QApplication.setOrganizationName('calibre-ebook.com')
         QApplication.setOrganizationDomain(QApplication.organizationName())
         QApplication.setApplicationVersion(__version__)
