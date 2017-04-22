@@ -183,7 +183,7 @@ gui_last_modified_display_format = 'dd MMM yyyy'
 # sorted as-is (sort by title instead of title sort). For example, with
 # library_order, The Client will sort under 'C'. With strictly_alphabetic, the
 # book will sort under 'T'.
-# This flag affects Calibre's library display. It has no effect on devices. In
+# This flag affects calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
 # order until the title is edited. Double-clicking on a title and hitting return
 # without changing anything is sufficient to change the sort.

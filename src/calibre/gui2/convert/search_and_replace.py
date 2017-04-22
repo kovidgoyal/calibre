@@ -19,7 +19,7 @@ from calibre.ebooks.conversion.search_replace import compile_regular_expression
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
-    TITLE = _('Search\n&\nReplace')
+    TITLE = _('Search &\nreplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
     ICON = I('search.png')

@@ -150,7 +150,7 @@ class FB2Output(OutputFormatPlugin):
                 'A value of "nothing" turns the book into a single section. '
                 'A value of "files" turns each file into a separate section; use this if your device is having trouble. '
                 'A value of "Table of Contents" turns the entries in the Table of Contents into titles and creates sections; '
-                'if it fails, adjust the "Structure Detection" and/or "Table of Contents" settings '
+                'if it fails, adjust the "Structure detection" and/or "Table of Contents" settings '
                 '(turn on "Force use of auto-generated Table of Contents").')),
         OptionRecommendation(name='fb2_genre',
             recommended_value='antique', level=OptionRecommendation.LOW,
@@ -190,4 +190,3 @@ class FB2Output(OutputFormatPlugin):
 
         if close:
             out_stream.close()
-

@@ -48,7 +48,7 @@ Schematically, it looks like this:
 
 The input format is first converted to XHTML by the appropriate *Input Plugin*.
 This HTML is then *transformed*. In the last step, the processed XHTML is converted
-to the specified output format by the appropriate *Output Plugin*. The results
+to the specified output format by the appropriate *output plugin*. The results
 of the conversion can vary greatly, based on the input format. Some formats
 convert much better than others. A list of the best source formats for conversion
 is available :ref:`here <best-source-formats>`.
@@ -59,7 +59,7 @@ to detect chapter headings and automatically create a Table of Contents, to prop
 adjust font sizes, et cetera. It is important to remeber that all the transforms act on the
 XHTML output by the *Input Plugin*, not on the input file itself. So, for example, if you ask calibre
 to convert an RTF file to EPUB, it will first be converted to XHTML internally,
-the various transforms will be applied to the XHTML and then the *Output Plugin* will
+the various transforms will be applied to the XHTML and then the *output plugin* will
 create the EPUB file, automatically generating all metadata, Table of Contents, et cetera.
 
 You can see this process in action by using the debug option |dbgi|. Just specify the path to
@@ -75,7 +75,7 @@ The four sub-directories are:
     input         This contains the HTML output by the Input Plugin. Use this to debug the Input Plugin.
     parsed        The result of pre-processing and converting to XHTML the output from the Input Plugin. Use to debug structure detection. 
     structure     Post structure detection, but before CSS flattening and font size conversion. Use to debug font size conversion and CSS transforms.
-    processed     Just before the ebook is passed to the output plugin. Use to debug the Output Plugin.
+    processed     Just before the ebook is passed to the output plugin. Use to debug the output plugin.
     ==========    =============
 
 If you want to edit the input document a little before having calibre convert it, the best thing to 
@@ -87,7 +87,7 @@ select ZIP as the input format.
 This document will deal mainly with the various transforms that operate on the intermediate XHTML
 and how to control them. At the end are some tips specific to each Input/Output format.
 
-Look & Feel
+Look & feel
 -------------
 
 .. contents:: Contents
@@ -114,7 +114,7 @@ font sizes are rescaled appropriately. By choosing a larger base font size, you 
 in the document larger and vice versa. When you set the base font size, for best results, you should
 also set the font size key.
 
-Normally, calibre will automatically choose a base font size appropriate to the Output Profile you
+Normally, calibre will automatically choose a base font size appropriate to the output profile you
 have chosen (see :ref:`page-setup`). However, you can override this here in case the default is
 not suitable for you.
 
@@ -241,34 +241,34 @@ There are a few more options in this section.
 
 .. _page-setup:
 
-Page Setup
+Page setup
 -------------
 
-The Page Setup options are for controlling screen layout, like margins and screen sizes. There are
-options to setup page margins, which will be used by the Output Plugin, if the selected Output Format
-supports page margins. In addition, you should choose an Input profile and an Output profile. Both sets
+The :guilabel:`Page setup` options are for controlling screen layout, like margins and screen sizes. There are
+options to setup page margins, which will be used by the output plugin, if the selected output format
+supports page margins. In addition, you should choose an Input profile and an output profile. Both sets
 of profiles basically deal with how to interpret measurements in the input/output documents, screen sizes
 and default font rescaling keys. 
 
 If you know that the file you are converting was intended to be used on a particular device/software platform,
 choose the corresponding input profile, otherwise just choose the default input profile. If you know the files
-you are producing are meant for a particular device type, choose the corresponding Output profile. In particular, for MOBI Output files, you should choose the Kindle, for LIT the Microsoft Reader and for EPUB the Sony Reader. In the case of EPUB, the Sony Reader profile will result in EPUB files that will work everywhere. However, it has some side effects, like inserting artificial section breaks to keep internal components below the size threshold, needed for SONY devices. In particular for the iPhone/Android phones, choose the SONY output profile. If you know your EPUB files will not be read on a SONY or similar device, use the default output profile. If you are producing MOBI files that are not intended for the Kindle, choose the Mobipocket books output profile.
+you are producing are meant for a particular device type, choose the corresponding output profile. In particular, for MOBI output files, you should choose the Kindle, for LIT the Microsoft Reader and for EPUB the Sony Reader. In the case of EPUB, the Sony Reader profile will result in EPUB files that will work everywhere. However, it has some side effects, like inserting artificial section breaks to keep internal components below the size threshold, needed for SONY devices. In particular for the iPhone/Android phones, choose the SONY output profile. If you know your EPUB files will not be read on a SONY or similar device, use the default output profile. If you are producing MOBI files that are not intended for the Kindle, choose the Mobipocket books output profile.
 
-The Output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
+The output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
 
 .. _heuristic-processing:
 
-Heuristic Processing
+Heuristic processing
 ---------------------
 
-Heuristic Processing provides a variety of functions which can be used to try and detect and correct 
+Heuristic processing provides a variety of functions which can be used to try and detect and correct 
 common problems in poorly formatted input documents.  Use these functions if your input document suffers 
 from poor formatting. Because these functions rely on common patterns, be aware that in some cases an 
 option may lead to worse results, so use with care.  As an example, several of these options will
 remove all non-breaking-space entities, or may include false positive matches relating to the function.
 
 :guilabel:`Enable heuristic processing`
-    This option activates calibre's Heuristic Processing stage of the conversion pipeline.
+    This option activates calibre's :guilabel:`Heuristic processing` stage of the conversion pipeline.
     This must be enabled in order for various sub-functions to be applied
 
 :guilabel:`Unwrap lines`
@@ -289,8 +289,8 @@ remove all non-breaking-space entities, or may include false positive matches re
     for chapter headings; <h3> tags are used for any titles that are detected.  
     
     This function will not create a TOC, but in many cases it will cause calibre's default chapter detection settings 
-    to correctly detect chapters and build a TOC.  Adjust the XPath under Structure Detection if a TOC is not automatically
-    created.  If there are no other headings used in the document then setting "//h:h2" under Structure Detection would
+    to correctly detect chapters and build a TOC.  Adjust the XPath under Structure detection if a TOC is not automatically
+    created.  If there are no other headings used in the document then setting "//h:h2" under Structure detection would
     be the easiest way to create a TOC for the document.
     
     The inserted headings are not formatted, to apply formatting use the :guilabel:`Extra CSS` option under
@@ -367,7 +367,7 @@ and their syntax at :ref:`regexptutorial`.
 
 .. _structure-detection:
 
-Structure Detection
+Structure detection
 ---------------------
 
 Structure detection involves calibre trying its best to detect structural elements in the input document, when they are not properly specified. For example, chapters, page breaks, headers, footers, etc. As you can imagine, this process varies widely from book to book. Fortunately, calibre has very powerful options to control this. With power comes complexity, but if once you take the time to learn the complexity, you will find it well worth the effort.
@@ -381,7 +381,7 @@ The reason for this is that there are often location where page breaks should be
 Also, detected chapters can be optionally inserted into the auto generated Table of Contents. 
 
 calibre uses *XPath*, a powerful language to allow the user to specify chapter boundaries/page breaks. XPath can seem a little daunting
-to use at first, fortunately, there is a :ref:`XPath tutorial <xpath-tutorial>` in the User Manual. Remember that Structure Detection
+to use at first, fortunately, there is a :ref:`XPath tutorial <xpath-tutorial>` in the User Manual. Remember that Structure detection
 operates on the intermediate XHTML produced by the conversion pipeline. Use the debug option described in the
 :ref:`conversion-introduction` to figure out the appropriate settings for your book. There is also a button for a XPath wizard
 to help with the generation of simple XPath expressions.
@@ -512,7 +512,7 @@ This will result in an automatically generated two level Table of Contents that 
 
 .. warning::
 
-    Not all output formats support a multi level Table of Contents. You should first try with EPUB Output. If that
+    Not all output formats support a multi level Table of Contents. You should first try with EPUB output. If that
     works, then try your format of choice. 
 
 Using images as chapter titles when converting HTML input documents
@@ -857,7 +857,7 @@ of 1::
     <p id="pagenum" style="text-align:center;"></p><script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
 
 .. note:: When adding headers and footers make sure you set the page top and
-    bottom margins to large enough values, under the Page Setup section of the
+    bottom margins to large enough values, under the Page setup section of the
     conversion dialog.
 
 Printable Table of Contents
@@ -869,7 +869,7 @@ print out the PDF to paper. If you wish to use the PDF on an electronic device,
 then the PDF Outline provides this functionality and is generated by default.
 
 You can customize the look of the generated Table of contents by using the
-Extra CSS conversion setting under the Look & Feel part of the conversion
+Extra CSS conversion setting under the Look & feel part of the conversion
 dialog. The default css used is listed below, simply copy it and make whatever
 changes you like.
 

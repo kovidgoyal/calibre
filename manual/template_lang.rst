@@ -143,7 +143,7 @@ The functions available are listed below. Note that the definitive documentation
             {#genre:subitems(0,1)} returns "A, D"
             {#genre:subitems(0,2)} returns "A.B, D.E"
 
-    * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the items from `start_index`to `end_index`. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
+    * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the items from `start_index` to `end_index`. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
 
         {tags:sublist(0,1,\,)} returns "A"
         {tags:sublist(-1,0,\,)} returns "C"

@@ -531,7 +531,7 @@ class CatalogBuilder(object):
                 if author[0] == current_author[0]:
                     if self.opts.fmt == 'mobi':
                         # Exit if building MOBI
-                        error_msg = _("<p>Inconsistent Author Sort values for Author<br/>" +
+                        error_msg = _("<p>Inconsistent author sort values for author<br/>" +
                                       "'{!s}':</p>".format(author[0]) +
                                       "<p><center><b>{!s}</b> != <b>{!s}</b></center></p>".format(author[1], current_author[1]) +
                                       "<p>Unable to build MOBI catalog.<br/>" +
@@ -540,13 +540,13 @@ class CatalogBuilder(object):
                         self.opts.log.warn('\n*** Metadata error ***')
                         self.opts.log.warn(error_msg)
 
-                        self.error.append('Author Sort mismatch')
+                        self.error.append('Author sort mismatch')
                         self.error.append(error_msg)
                         raise AuthorSortMismatchException("author_sort mismatch while building MOBI")
                     else:
                         # Warning if building non-MOBI
                         if not self.error:
-                            self.error.append('Author Sort mismatch')
+                            self.error.append('Author sort mismatch')
 
                         error_msg = _("Warning: Inconsistent Author Sort values for Author '{!s}':\n".format(author[0]) +
                                       " {!s} != {!s}\n".format(author[1], current_author[1]))

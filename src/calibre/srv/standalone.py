@@ -178,7 +178,7 @@ def manage_users(path=None):
 
 def create_option_parser():
     parser=opts_to_parser('%prog '+ _(
-'''[options] [path to library folder ...]
+'''[options] [path to library folder...]
 
 Start the calibre content server. The calibre content server
 exposes your calibre libraries over the internet. You can specify

@@ -1082,7 +1082,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
 class LookAndFeel(PreferencesPlugin):
     name = 'Look & Feel'
     icon = I('lookfeel.png')
-    gui_name = _('Look and Feel')
+    gui_name = _('Look & feel')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1

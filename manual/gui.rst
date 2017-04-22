@@ -512,7 +512,7 @@ Double clicking the book details panel will open it up in a separate popup
 window.
 
 Finally, you can customize exactly what information is displayed in the Book
-Details panel via :guilabel:`Preferences->Look & Feel->Book Details`.
+Details panel via :guilabel:`Preferences->Look & feel->Book Details`.
 
 .. raw:: html epub
     
@@ -539,7 +539,7 @@ You can search user categories in the same way as built-in categories, by clicki
     3. "everything not matching an item in the category" shown by a single red minus sign.
     4. "everything not matching an item in the category or its sub-categories" shown by two red minus signs.
 
-It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to Preferences->Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. See :ref:`Managing subgroups of books, for example "genre" <subgroups-tutorial>` for more information.
+It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to :guilabel:`Preferences->Look & feel` and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. See :ref:`Managing subgroups of books, for example "genre" <subgroups-tutorial>` for more information.
 
 Hierarchical items (items with children) use the same four 'click-on' searches as user categories. Items that do not have children use two of the searches: "everything matching" and "everything not matching".
 
@@ -563,7 +563,7 @@ You can have calibre display a grid of book covers instead of a list of books, i
 you prefer to browse your collection by covers instead. The :guilabel:`Cover
 Grid` is activated by clicking the grid button in the bottom right corner of
 the main calibre window. You can customize the cover sizes and the background of
-the cover grid via :guilabel:`Preferences->Look & Feel->Cover Grid`. You can
+the cover grid via :guilabel:`Preferences->Look & feel->Cover grid`. You can
 even have calibre display any specified field under the covers, such as title or
 authors or rating or a custom column of your own devising.
 
@@ -575,8 +575,8 @@ Cover Browser
 
 In addition to the cover grid described above, you can also have calibre display
 covers in the single row. This is activated via a button in the lower right
-corner of the main window. In :guilabel:`Preferences->Look & Feel->Cover
-Browser` you can change the number of covers displayed, and even have the cover
+corner of the main window. In :guilabel:`Preferences->Look & feel->Cover
+browser` you can change the number of covers displayed, and even have the cover
 browser display itself in a separate popup window.
 
 Quickview

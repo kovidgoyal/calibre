@@ -47,7 +47,7 @@ PDF is a terrible format to convert from. For a list of the various issues you w
 How do I convert my file containing non-English characters, or smart quotes?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There are two aspects to this problem:
-  1. Knowing the encoding of the source file: calibre tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & Feel->Text` section of the conversion dialog. The command-line tools have an :option:`ebook-convert-txt-input --input-encoding` option.
+  1. Knowing the encoding of the source file: calibre tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & feel->Text` section of the conversion dialog. The command-line tools have an :option:`ebook-convert-txt-input --input-encoding` option.
   2. When adding HTML files to calibre, you may need to tell calibre what encoding the files are in. To do this go to :guilabel:`Preferences->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to calibre they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
 
 What's the deal with Table of Contents in MOBI files?
@@ -324,7 +324,7 @@ over the net. First perform the following steps in calibre
   * Set the Preferred Output Format in calibre to EPUB (The output format can be
     set under :guilabel:`Preferences->Interface->Behavior`)
   * Set the output profile to iPad (this will work for iPhone/iPods as well),
-    under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+    under :guilabel:`Preferences->Conversion->Common options->Page setup`
   * Convert the books you want to read on your iDevice to EPUB format by
     selecting them and clicking the Convert button.
   * Turn on the Content Server by clicking the :guilabel:`Connect/Share` button
@@ -1042,7 +1042,7 @@ You will need to fix the underlying cause of the permissions error before resumi
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
+Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
 Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 

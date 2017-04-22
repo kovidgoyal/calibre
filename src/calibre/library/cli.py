@@ -992,7 +992,7 @@ def catalog_option_parser(args):
     log = Log()
     parser = get_parser(_(
     '''
-    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]
+    %prog catalog /path/to/destination.(csv|epub|mobi|xml...) [options]
 
     Export a catalog in format specified by path/to/destination extension.
     Options control how entries are displayed in the generated catalog output.

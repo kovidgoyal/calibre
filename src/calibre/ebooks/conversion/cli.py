@@ -106,7 +106,7 @@ def option_recommendation_to_cli_option(add_option, rec):
             'Path to a file containing rules to transform the CSS styles'
             ' in this book. The easiest way to create such a file is to'
             ' use the wizard for creating rules in the calibre GUI. Access'
-            ' it in the "Look & Feel->Transform styles" section of the conversion'
+            ' it in the "Look & feel->Transform styles" section of the conversion'
             ' dialog. Once you create the rules, you can use the Export button'
             ' to save them to a file.'
         )
@@ -418,4 +418,3 @@ options specific to every input and output format.''')
 
 if __name__ == '__main__':
     sys.exit(main())
-
