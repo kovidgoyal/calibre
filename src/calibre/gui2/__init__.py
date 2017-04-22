@@ -148,6 +148,7 @@ def create_defs():
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['row_numbers_in_book_list'] = True
+    defs['hidpi'] = 'auto'
 
 
 create_defs()
@@ -938,17 +939,28 @@ class Application(QApplication):
         self.headless = headless
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
-        if not isosx and not headless and hasattr(Qt, 'AA_EnableHighDpiScaling'):
+        if not isosx and not headless:
             # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
             # This requires Qt >= 5.6
-            for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
+            has_env_setting = False
+            env_vars = ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO')
+            for v in env_vars:
                 if os.environ.get(v):
+                    has_env_setting = True
                     break
-            else:
-                # Should probably make a preference to allow the user to
-                # control this, if needed.
-                # Could have options: auto, off, 1.25, 1.5, 1.75, 2, 2.25, 2.5
+            hidpi = gprefs['hidpi']
+            if hidpi == 'on' or (hidpi == 'auto' and not has_env_setting):
+                if DEBUG:
+                    prints('Turning on hidpi scaling')
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+            elif hidpi == 'off':
+                if DEBUG:
+                    prints('Turning off hidpi scaling')
+                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
+                for p in env_vars:
+                    os.environ.pop(p, None)
+            elif DEBUG:
+                prints('Not controlling hidpi scaling')
         QApplication.setOrganizationName('calibre-ebook.com')
         QApplication.setOrganizationDomain(QApplication.organizationName())
         QApplication.setApplicationVersion(__version__)

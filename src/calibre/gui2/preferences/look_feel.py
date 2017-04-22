@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
+from calibre.constants import isosx
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import default_author_link
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -338,8 +339,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.default_author_link = DefaultAuthorLink(self.default_author_link_container)
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
-        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'),
-                    'calibre')])
+        r('hidpi', gprefs, restart_required=True, choices=[(_('Automatic'), 'auto'), (_('On'), 'on'), (_('Off'), 'off')])
+        if isosx:
+            self.opt_hidpi.setVisible(False), self.label_hidpi.setVisible(False)
+        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
         r('book_list_tooltips', gprefs)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
