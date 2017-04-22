@@ -911,7 +911,7 @@ You must enter the search URL for the search engine, with the placeholder
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>User &amp;Stylesheet</string>
+       <string>User &amp;stylesheet</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>

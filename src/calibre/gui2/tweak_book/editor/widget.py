@@ -70,9 +70,9 @@ def register_text_editor_actions(_reg, palette):
     ac.setToolTip(_('<h3>Subscript</h3>Set the selected text slightly smaller and below the normal line'))
     ac = reg('format-text-color.png', _('&Color'), ('format_text', 'color'), 'format-text-color', (), _('Change text color'))
     ac.setToolTip(_('<h3>Color</h3>Change the color of the selected text'))
-    ac = reg('format-fill-color.png', _('&Background Color'), ('format_text', 'background-color'),
+    ac = reg('format-fill-color.png', _('&Background color'), ('format_text', 'background-color'),
              'format-text-background-color', (), _('Change background color of text'))
-    ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
+    ac.setToolTip(_('<h3>Background color</h3>Change the background color of the selected text'))
     ac = reg('format-justify-left.png', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
     ac.setToolTip(_('<h3>Align left</h3>Align the paragraph to the left'))
     ac = reg('format-justify-center.png', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
