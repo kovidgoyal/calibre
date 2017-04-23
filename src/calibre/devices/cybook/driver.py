@@ -21,8 +21,8 @@ import calibre.devices.cybook.t4b as t4b
 class CYBOOK(USBMS):
 
     name           = 'Cybook Gen 3 / Opus Device Interface'
-    gui_name       = 'Cybook Gen 3 / Opus'
-    description    = _('Communicate with the Cybook Gen 3 / Opus eBook reader.')
+    gui_name       = 'Cybook Gen 3/Opus'
+    description    = _('Communicate with the Cybook Gen 3/Opus eBook reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 

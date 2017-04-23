@@ -488,12 +488,12 @@ Book Details
 
 The Book Details display shows the cover and all the metadata for the currently
 selected book. It can be hidden via the button in the lower right corner of the
-main calibre window. The author names shown in the Book Detail panel are
+main calibre window. The author names shown in the Book Details panel are
 clickable, they will by default take you to the Wikipedia page for the author.
 This can be customized by right clicking on the author name and selecting
 Manage this author.
 
-Similarly, if you download metadata for the book, the Book details panel will
+Similarly, if you download metadata for the book, the Book Details panel will
 automatically show you links pointing to the web pages for the book on amazon,
 worldcat, etc. from where the metadata was downloaded.
 

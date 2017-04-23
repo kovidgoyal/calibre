@@ -35,7 +35,7 @@ class PLAYBOOK(USBMS):
 
     name           = 'Blackberry Playbook Interface'
     gui_name       = 'Playbook'
-    description    = _('Communicate with the Blackberry playbook.')
+    description    = _('Communicate with the Blackberry Playbook.')
     author         = _('Kovid Goyal')
     supported_platforms = ['windows', 'linux', 'osx']
 

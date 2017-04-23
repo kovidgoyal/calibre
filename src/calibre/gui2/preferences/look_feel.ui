@@ -25,7 +25,7 @@
         <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Main Interface</string>
+       <string>Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="9" column="0">
