@@ -62,8 +62,8 @@ def set_toc_anchor_map(val):
 default_color_schemes = {
     'white':{'foreground':'#000000', 'background':'#ffffff', 'name':_('White')},
     'black':{'foreground':'#ffffff', 'background':'#000000', 'name':_('Black')},
-    'sepia-light':{'foreground':'#39322B', 'background':'#F6F3E9', 'name':_('Sepia Light')},
-    'sepia-dark': {'background':'#39322B', 'foreground':'#F6F3E9', 'name':_('Sepia Dark')},
+    'sepia-light':{'foreground':'#39322B', 'background':'#F6F3E9', 'name':_('Sepia light')},
+    'sepia-dark': {'background':'#39322B', 'foreground':'#F6F3E9', 'name':_('Sepia dark')},
 }
 
 register_callback(def():

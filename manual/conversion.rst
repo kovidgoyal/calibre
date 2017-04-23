@@ -606,7 +606,7 @@ Format specific tips
 
 Here you will find tips specific to the conversion of particular formats. Options specific to particular
 format, whether input or output are available in the conversion dialog under their own section, for example
-`TXT Input` or `EPUB Output`.
+`TXT input` or `EPUB output`.
 
 Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

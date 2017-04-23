@@ -294,8 +294,8 @@ def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
     items = [
-        create_item(_('Book List Mode'), subtitle=_('Change how the list of books is displayed')),
-        create_item(_('A Random Book'), subtitle=_('Choose a random book from the library'), action=def():
+        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed')),
+        create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
                     query = {'library_id': current_library_id(), 'book_id':'0'}
                     show_panel('book_details', query=query, replace=True)
         ),

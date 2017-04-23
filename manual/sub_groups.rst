@@ -60,7 +60,7 @@ You create the custom column in the usual way, using Preferences -> Add your own
 .. image:: images/sg_cc.jpg
     :align: center
 
-Then after restarting calibre, you must tell calibre that the column is to be treated as a hierarchy. Go to :guilabel:`Preferences -> Look and Feel -> Tag browser` and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
+Then after restarting calibre, you must tell calibre that the column is to be treated as a hierarchy. Go to :guilabel:`Preferences -> Look & feel -> Tag browser` and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press :guilabel:`Apply`, and you are done with setting up.
 
 .. image:: images/sg_pref.png
     :align: center

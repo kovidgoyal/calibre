@@ -70,8 +70,8 @@ def set_use_roman(val):
 
 # }}}
 
-# Draw text {{{
 
+# Draw text {{{
 Point = namedtuple('Point', 'x y')
 
 
@@ -235,6 +235,7 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
 def sanitize(s):
     return unicodedata.normalize('NFC', clean_xml_chars(clean_ascii_chars(force_unicode(s or ''))))
 
+
 _formatter = None
 _template_cache = {}
 
@@ -294,12 +295,14 @@ def format_text(mi, prefs):
         return tuple(format_fields(mi, prefs))
 # }}}
 
+
 # Colors {{{
 ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_color2')
 
 
 def to_theme(x):
     return {k:v for k, v in zip(ColorTheme._fields[:4], x.split())}
+
 
 fallback_colors = to_theme('ffffff 000000 000000 ffffff')
 
@@ -381,7 +384,7 @@ class Cross(Style):
 class Half(Style):
 
     NAME = 'Half and Half'
-    GUI_NAME = _('Half and Half')
+    GUI_NAME = _('Half and half')
 
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         g = QLinearGradient(QPointF(0, 0), QPointF(0, rect.height()))
@@ -747,6 +750,7 @@ def test(scale=0.25):
     w.resize(w.sizeHint())
     m.show()
     app.exec_()
+
 
 if __name__ == '__main__':
     test()

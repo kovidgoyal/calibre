@@ -226,7 +226,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                          device.get_pref('delete_empty_collections')
                          )
 
-        self.ignore_collections_names_label = QLabel(_('Ignore Collections:'))
+        self.ignore_collections_names_label = QLabel(_('Ignore collections:'))
         self.ignore_collections_names_edit = QLineEdit(self)
         self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by ' +
                 'the collection management. The collections listed ' +
@@ -422,7 +422,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Be careful when doing this as it will take time and could make the initial connection take a long time.')))
 
         self.update_series_checkbox = create_checkbox(
-                             _("Set Series information"),
+                             _("Set series information"),
                              _('The book lists on the Kobo devices can display series information. '
                                'This is not read by the device from the sideloaded books. '
                                'Series information can only be added to the device after the book has been processed by the device. '

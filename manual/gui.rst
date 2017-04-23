@@ -301,7 +301,7 @@ Many operations, such as adding books, deleting, viewing, etc., are context sens
 
 .. _search_sort:
 
-Search & Sort
+Search & sort
 ---------------
 .. image:: images/search_sort.png
     :align: center
@@ -324,7 +324,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
 .. _search_interface:
 
-The Search Interface
+The search interface
 ---------------------
 You can search all the metadata by entering search terms in the search bar. Searches are case insensitive. For example::
 

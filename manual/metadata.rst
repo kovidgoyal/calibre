@@ -1,6 +1,6 @@
 .. _metadata:
 
-Editing Ebook Metadata
+Editing e-book metadata
 ========================
 
 .. contents:: Contents

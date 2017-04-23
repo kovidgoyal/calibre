@@ -1,6 +1,6 @@
 .. _diff:
 
-Comparing E-books 
+Comparing e-books 
 ========================
 
 calibre includes an integrated e-book comparison tool that can be used to see

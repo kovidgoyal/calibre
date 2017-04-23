@@ -803,7 +803,7 @@ class LibraryClosedPlugin(Plugin):  # {{{
     when the library is changed, or when a library is used in some other way.
     At the moment these plugins won't be called by the CLI functions.
     '''
-    type = _('Library Closed')
+    type = _('Library closed')
 
     # minimum version 2.54 because that is when support was added
     minimum_calibre_version = (2, 54, 0)

@@ -283,7 +283,7 @@ class OutputFormatPlugin(Plugin):
     The main action happens in :meth:`convert`.
     '''
 
-    type = _('Conversion Output')
+    type = _('Conversion output')
     can_be_disabled = False
     supported_platforms = ['windows', 'osx', 'linux']
 

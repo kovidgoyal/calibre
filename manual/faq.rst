@@ -7,7 +7,7 @@ Frequently Asked Questions
   :depth: 1
   :local:
 
-Ebook Format Conversion
+Ebook format conversion
 -------------------------
 .. contents:: Contents
   :depth: 1

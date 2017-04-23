@@ -1,6 +1,6 @@
 .. _edit:
 
-Editing E-books
+Editing e-books
 ========================
 
 calibre has an integrated e-book editor that can be used to edit books in the
@@ -507,14 +507,14 @@ the :guilabel:`Compare` button. The :guilabel:`Revert to` button restores the
 book to the selected checkpoint, undoing all changes since that checkpoint was
 created.
 
-The Live Preview panel
+The Live preview panel
 ------------------------
 
 .. image:: images/live-preview.png
-    :alt: The Live Preview Panel
+    :alt: The Live preview Panel
     :class: float-left-img
 
-The :guilabel:`File Preview` gives you an overview of the various files inside
+The :guilabel:`File preview` gives you an overview of the various files inside
 The live preview panel shows you the changes you are making live (with a second
 or two of delay). As you edit HTML or CSS files, the preview panel is updated
 automatically to reflect your changes. As you move the cursor around in the
@@ -572,7 +572,7 @@ The Live CSS panel
 ---------------------
 
 .. image:: images/live_css.png
-    :alt: The Live Preview Panel
+    :alt: The Live CSS Panel
     :class: float-left-img
 
 
@@ -596,12 +596,12 @@ You can enable the Live CSS panel via :guilabel:`View->Live CSS`.
 
     <div style="clear:both"></div>
 
-Miscellaneous Tools
+Miscellaneous tools
 ----------------------
 
 There are a few more tools that can be useful while you edit the book.
 
-The Table of Contents View
+The Table of Contents view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Table of Contents view shows you the current table of contents in the book.

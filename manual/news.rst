@@ -324,7 +324,7 @@ Further reading
 
 To learn more about writing advanced recipes using some of the facilities, available in ``BasicNewsRecipe`` you should consult the following sources:
 
-    :ref:`API Documentation <news_recipe>`
+    :ref:`API documentation <news_recipe>`
         Documentation of the ``BasicNewsRecipe`` class and all its important methods and fields.
 
     `BasicNewsRecipe <https://github.com/kovidgoyal/calibre/blob/master/src/calibre/web/feeds/news.py>`_

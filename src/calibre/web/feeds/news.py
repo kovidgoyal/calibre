@@ -405,7 +405,7 @@ class BasicNewsRecipe(Recipe):
         ignore it.
 
         :param url: The URL to be followed
-        :param tag: The Tag from which the URL was derived
+        :param tag: The tag from which the URL was derived
         '''
         raise NotImplementedError
 
