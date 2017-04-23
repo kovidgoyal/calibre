@@ -483,13 +483,18 @@ class ReadingTest(BaseTest):
     def test_restrictions(self):  # {{{
         ' Test searching with and without restrictions '
         cache = self.init_cache()
-        self.assertSetEqual(cache.all_book_ids(), cache.search(''))
-        self.assertSetEqual({1, 2}, cache.search('', 'not authors:=Unknown'))
-        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown'))
-        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown'))
-        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', book_ids={1, 2}))
-        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown', book_ids={1,2,3}))
-        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown', book_ids={1,2,3}))
+        se = self.assertSetEqual
+        se(cache.all_book_ids(), cache.search(''))
+        se({1, 2}, cache.search('', 'not authors:=Unknown'))
+        se(set(), cache.search('authors:=Unknown', 'not authors:=Unknown'))
+        se({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown'))
+        se({2}, cache.search('not authors:"=Author Two"', book_ids={1, 2}))
+        se({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown', book_ids={1,2,3}))
+        se(set(), cache.search('authors:=Unknown', 'not authors:=Unknown', book_ids={1,2,3}))
+        se(cache.all_book_ids(), cache.books_in_virtual_library(''))
+        se(cache.all_book_ids(), cache.books_in_virtual_library('does not exist'))
+        cache.set_pref('virtual_libraries', {'1':'title:"=Title One"'})
+        se({2}, cache.books_in_virtual_library('1'))
     # }}}
 
     def test_search_caching(self):  # {{{
