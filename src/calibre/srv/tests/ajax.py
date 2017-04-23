@@ -53,6 +53,7 @@ class ContentTest(LibraryBaseTest):
         'Test /ajax/categories and /ajax/search'
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
+            db.set_pref('virtual_libraries', {'1':'title:"=Title One"'})
             conn = server.connect()
             request = partial(make_request, conn)
 
@@ -74,4 +75,6 @@ class ContentTest(LibraryBaseTest):
             r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"'}))
             self.ae(r.status, httplib.OK)
             self.ae(set(data['book_ids']), {1, 2})
+            r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"', 'vl':'1'}))
+            self.ae(set(data['book_ids']), {2})
     # }}}
