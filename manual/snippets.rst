@@ -25,8 +25,8 @@ The following discussion of the built-in snippets should help illustrate the
 power of the snippets system.
 
 .. note:: 
-    You can also use snippets in the text entry fields in the Search and
-    Replace panel, however, placeholders (using |ct| to jump around) will not
+    You can also use snippets in the text entry fields in the :guilabel:`Search & replace`
+    panel, however, placeholders (using |ct| to jump around) will not
     work.
 
 The built-in snippets

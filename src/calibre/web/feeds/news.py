@@ -1509,7 +1509,7 @@ class BasicNewsRecipe(Recipe):
                     for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):
                         aumap[curl].add(arelpath)
                     parent.add_item(arelpath, None,
-                            a.title if a.title else _('Untitled Article'),
+                            a.title if a.title else _('Untitled article'),
                             play_order=po, author=auth,
                             description=desc, toc_thumbnail=tt)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))

@@ -57,14 +57,14 @@ That is the basic work flow for editing books -- Open a file, make changes,
 preview and save. The rest of this manual will discuss the various tools and
 features present to allow you to perform specific tasks efficiently.
 
-The File Browser
+The File browser
 ------------------
 
 .. image:: images/files_browser.png
-    :alt: The File Browser
+    :alt: The File browser
     :class: float-left-img
 
-The :guilabel:`File Browser` gives you an overview of the various files inside
+The :guilabel:`File browser` gives you an overview of the various files inside
 the book you are editing. The files are arranged by category, with text (HTML)
 files at the top, followed by stylesheet (CSS) files, images and so on. Simply
 double click on a file to start editing it. Editing is supported for HTML, CSS
@@ -136,10 +136,10 @@ little fiddly until you get used to it.
 Marking the cover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-E-books typically have a cover image. This image is indicated in the Files
-Browser by the icon of a brown book next to the image name. If you want to
-designate some other image as the cover, you can do so by right clicking on the
-file and choosing :guilabel:`Mark as cover`.
+E-books typically have a cover image. This image is indicated in the
+:guilabel:`File browser` by the icon of a brown book next to the image name. If
+you want to designate some other image as the cover, you can do so by right
+clicking on the file and choosing :guilabel:`Mark as cover`.
 
 In addition, EPUB files has the concept of a *titlepage*. A title page is a
 HTML file that acts as the title page/cover for the book. You can mark an HTML
@@ -194,7 +194,7 @@ being replaced.
 Linking stylesheets to HTML files efficiently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As a convenience, you can select multiple HTML files in the File Browser,
+As a convenience, you can select multiple HTML files in the File browser,
 right click and choose Link stylesheets to have calibre automatically insert the
 <link> tags for those stylesheets into all the selected HTML files.
 
@@ -736,7 +736,7 @@ the files inside the EPUB are arranged haphazardly, in different sub-folders.
 This tool allows you to automatically move all files into sub-folders based on
 their types. Access it via :guilabel:`Tools->Arrange into folders`. Note that
 this tool only changes how the files are arranged inside the EPUB, it does not
-change how they are displayed in the File Browser.
+change how they are displayed in the File browser.
 
 Importing files in other e-book formats as EPUB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

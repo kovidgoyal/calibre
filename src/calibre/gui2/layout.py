@@ -192,7 +192,7 @@ class SearchBar(QWidget):  # {{{
         x.setObjectName('clear_vl')
         l.addWidget(x)
         x.setVisible(False)
-        x.setToolTip(_('Close the Virtual Library'))
+        x.setToolTip(_('Close the Virtual library'))
         parent.clear_vl = x
 
         x = QLabel(self)

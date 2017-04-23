@@ -1,8 +1,8 @@
 Function Mode for Search & Replace in the Editor
 ================================================
 
-The Search & Replace tool in the editor support a *function mode*. In this
-mode, you can combine regular expressions (see :doc:`regexp`) with
+The :guilabel:`Search & replace` tool in the editor support a *function mode*.
+In this mode, you can combine regular expressions (see :doc:`regexp`) with
 arbitrarily powerful python functions to do all sorts of advanced text
 processing.
 
@@ -52,7 +52,7 @@ function and copy the python code from below.
     def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
         return match.group().replace('--', '—').replace('-', '—')
 
-Every Search & Replace custom function must have a unique name and consist of a
+Every :guilabel:`Search & replace` custom function must have a unique name and consist of a
 python function named replace, that accepts all the arguments shown above.
 For the moment, we wont worry about all the different arguments to
 ``replace()`` function. Just focus on the ``match`` argument. It represents a
@@ -201,7 +201,7 @@ And use it with the find expression::
     <(h[12]) [^<>]* id=['"]([^'"]+)['"][^<>]*>([^<>]+)
 
 Run the search on :guilabel:`All text files` and at the end of the search, a
-window will popup with "Debug Output from your function" which will have the
+window will popup with "Debug output from your function" which will have the
 HTML Table of Contents, ready to be pasted into :file:`toc.html`.
 
 The function above is heavily commented, so it should be easy to follow. The

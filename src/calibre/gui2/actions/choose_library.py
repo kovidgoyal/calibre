@@ -256,7 +256,7 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.rename_separator = self.choose_menu.addSeparator()
 
-        self.maintenance_menu = QMenu(_('Library Maintenance'))
+        self.maintenance_menu = QMenu(_('Library maintenance'))
         ac = self.create_action(spec=(_('Library metadata backup status'),
                         'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
@@ -633,4 +633,3 @@ class ChooseLibraryAction(InterfaceAction):
             return False
 
         return True
-

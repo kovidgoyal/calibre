@@ -28,7 +28,7 @@ class SelectNames(QDialog):  # {{{
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
-        self.la = la = QLabel(_('Create a Virtual Library based on %s') % txt)
+        self.la = la = QLabel(_('Create a Virtual library based on %s') % txt)
         l.addWidget(la)
 
         self._names = QListWidget(self)
@@ -59,6 +59,7 @@ class SelectNames(QDialog):  # {{{
         return ' and ' if self._and.isChecked() else ' or '
 
 # }}}
+
 
 MAX_VIRTUAL_LIBRARY_NAME_LENGTH = 40
 
@@ -141,7 +142,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.setRowStretch(3,10)
 
         self.hl = hl = QLabel(_('''
-            <h2>Virtual Libraries</h2>
+            <h2>Virtual libraries</h2>
 
             <p>Using <i>virtual libraries</i> you can restrict calibre to only show
             you books that match a search. When a virtual library is in effect, calibre
@@ -150,7 +151,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             you do will only search within the books in the virtual library. This
             is a good way to partition your large library into smaller and easier to work with subsets.</p>
 
-            <p>For example you can use a Virtual Library to only show you books with the Tag <i>"Unread"</i>
+            <p>For example you can use a Virtual library to only show you books with the Tag <i>"Unread"</i>
             or only books by <i>"My Favorite Author"</i> or only books in a particular series.</p>
 
             <p>More information and examples are available in the
@@ -343,8 +344,8 @@ class SearchRestrictionMixin(object):
         self.search_restriction.setVisible(False)
         self.search_count.setText(_("(all books)"))
         self.ar_menu = QMenu(_('Additional restriction'))
-        self.edit_menu = QMenu(_('Edit Virtual Library'))
-        self.rm_menu = QMenu(_('Remove Virtual Library'))
+        self.edit_menu = QMenu(_('Edit Virtual library'))
+        self.rm_menu = QMenu(_('Remove Virtual library'))
         self.search_restriction_list_built = False
 
     def add_virtual_library(self, db, name, search):
@@ -368,7 +369,7 @@ class SearchRestrictionMixin(object):
         m = self.virtual_library_menu
         m.clear()
 
-        a = m.addAction(_('Create Virtual Library'))
+        a = m.addAction(_('Create Virtual library'))
         a.triggered.connect(partial(self.do_create_edit, name=None))
 
         a = self.edit_menu
@@ -636,6 +637,7 @@ class SearchRestrictionMixin(object):
             self.search_count.setVisible(False)
         self.search_count.setText(t)
 
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.preferences import init_gui
@@ -644,5 +646,3 @@ if __name__ == '__main__':
     gui = init_gui()
     d = CreateVirtualLibrary(gui, [])
     d.exec_()
-
-

@@ -441,10 +441,10 @@ calibre allows you to save a frequently used search under a special name and the
 
 Now you can access your saved search in the Tag Browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
-Virtual Libraries
+Virtual libraries
 -------------------
 
-A :guilabel:`Virtual Library` is a way to pretend that your calibre library has
+A :guilabel:`Virtual library` is a way to pretend that your calibre library has
 only a few books instead of its full collection. This is an excellent way to
 partition your large collection of books into smaller, manageable chunks. To
 learn how to create and use virtual libraries, see the tutorial:

@@ -494,7 +494,7 @@ gui_view_history_size = 15
 # negative number to increase or decrease the font size.
 change_book_details_font_size_by = 0
 
-#: Compile General Program Mode templates to Python
+#: Compile general program Mode templates to Python
 # Compiled general program mode templates are significantly faster than
 # interpreted templates. Setting this tweak to True causes calibre to compile
 # (in most cases) general program mode templates. Setting it to False causes
@@ -548,9 +548,9 @@ numeric_collation = False
 # number here. The default is ten libraries.
 many_libraries = 10
 
-#: Highlight the virtual library name when using a Virtual Library
-# The virtual library name next to the Virtual Library button is highlighted in
-# yellow when using a Virtual Library. You can choose the color used for the
+#: Highlight the virtual library name when using a Virtual library
+# The virtual library name next to the Virtual library button is highlighted in
+# yellow when using a Virtual library. You can choose the color used for the
 # highlight with this tweak. Set it to 'transparent' to disable highlighting.
 highlight_virtual_library = 'yellow'
 
@@ -569,9 +569,9 @@ restrict_output_formats = None
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
 
-#: Image file types to treat as ebooks when dropping onto the Book Details panel
+#: Image file types to treat as ebooks when dropping onto the Book details panel
 # Normally, if you drop any image file in a format known to calibre onto the
-# Book Details panel, it will be used to set the cover. If you want to store
+# Book details panel, it will be used to set the cover. If you want to store
 # some image types as ebooks instead, you can set this tweak.
 # Examples:
 #    cover_drop_exclude = {'tiff', 'webp'}

@@ -122,7 +122,7 @@ class RationalizeFolders(Dialog):  # {{{
             l.addWidget(le, i + 1, 1)
         self.la2 = la = QLabel(_(
             'Note that this will only arrange files inside the book,'
-            ' it will not affect how they are displayed in the File Browser'))
+            ' it will not affect how they are displayed in the File browser'))
         la.setWordWrap(True)
         l.addWidget(la, i + 2, 0, 1, -1)
         l.addWidget(self.bb, i + 3, 0, 1, -1)

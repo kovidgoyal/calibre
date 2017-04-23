@@ -339,12 +339,12 @@ class VLTabs(QTabBar):  # {{{
         self.gui.keyboard.register_shortcut(
             'virtual-library-tab-bar-next', _('Next virtual library'), action=self.next_action,
             default_keys=('Ctrl+Right',),
-            description=_('Switch to the next Virtual Library in the Virtual Library tab bar')
+            description=_('Switch to the next Virtual library in the Virtual library tab bar')
         )
         self.gui.keyboard.register_shortcut(
             'virtual-library-tab-bar-previous', _('Previous virtual library'), action=self.previous_action,
             default_keys=('Ctrl+Left',),
-            description=_('Switch to the previous Virtual Library in the Virtual Library tab bar')
+            description=_('Switch to the previous Virtual library in the Virtual library tab bar')
         )
 
     def next_tab(self, delta=1):

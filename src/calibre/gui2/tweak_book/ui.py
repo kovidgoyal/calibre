@@ -689,13 +689,13 @@ class Main(MainWindow):
             setattr(self, oname.replace('-', '_'), d)
             return d
 
-        d = create(_('File Browser'), 'files-browser')
+        d = create(_('File browser'), 'files-browser')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        d = create(_('File Preview'), 'preview')
+        d = create(_('File preview'), 'preview')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
@@ -708,7 +708,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Check Book'), 'check-book')
+        d = create(_('Check book'), 'check-book')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.check_book)
         self.addDockWidget(Qt.TopDockWidgetArea, d)
@@ -728,7 +728,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Text Search'), 'text-search')
+        d = create(_('Text search'), 'text-search')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.text_search)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
@@ -741,7 +741,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Saved Searches'), 'saved-searches')
+        d = create(_('Saved searches'), 'saved-searches')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.saved_searches)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)

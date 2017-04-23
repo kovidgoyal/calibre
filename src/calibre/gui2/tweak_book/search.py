@@ -137,7 +137,7 @@ class WhereBox(QComboBox):
             <dt><b>All style files</b></dt>
             <dd>Search in all style (CSS) files</dd>
             <dt><b>Selected files</b></dt>
-            <dd>Search in the files currently selected in the File Browser</dd>
+            <dd>Search in the files currently selected in the File browser</dd>
             <dt><b>Open files</b></dt>
             <dd>Search in the files currently open in the editor</dd>
             <dt><b>Marked text</b></dt>
@@ -1260,7 +1260,7 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
     if name is None and where in {'current', 'selected-text'}:
         err = _('No file is being edited.')
     elif where == 'selected' and not searchable_names['selected']:
-        err = _('No files are selected in the File Browser')
+        err = _('No files are selected in the File browser')
     elif where == 'selected-text' and not has_marked_text:
         err = _('No text is marked. First select some text, and then use'
                 ' The "Mark selected text" action in the Search menu to mark it.')
