@@ -423,7 +423,7 @@ def get_prefs():
 
         {
             'name':'partition_method',
-            'text':_('Tags browser category partitioning method'),
+            'text':_('Tag browser category partitioning method'),
             'choices':[('first letter', _('First Letter')), ('disable', _('Disable')), ('partition', _('Partition'))],
             'tooltip':_('Choose how tag browser subcategories are displayed when'
                         ' there are more items than the limit. Select by first'
