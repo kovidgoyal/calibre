@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Amazon's Kindle
 '''
 
-import datetime, os, re, sys, json, hashlib
+import datetime, os, re, sys, json, hashlib, errno
 
 from calibre.constants import DEBUG
 from calibre.devices.kindle.bookmark import Bookmark
@@ -461,26 +461,44 @@ class KINDLE2(KINDLE):
         # Upload the apnx file
         self.upload_apnx(path, filename, metadata, filepath)
 
-    def upload_kindle_thumbnail(self, metadata, filepath):
+    def thumbpath_from_filepath(self, filepath):
+        from calibre.ebooks.mobi.reader.headers import MetadataHeader
         from calibre.utils.logging import default_log
-        coverdata = getattr(metadata, 'thumbnail', None)
-        if not coverdata or not coverdata[2]:
-            return
         thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
         if not os.path.exists(thumb_dir):
             return
-
-        from calibre.ebooks.mobi.reader.headers import MetadataHeader
         with lopen(filepath, 'rb') as f:
             mh = MetadataHeader(f, default_log)
         if mh.exth is None or not mh.exth.uuid or not mh.exth.cdetype:
             return
-        thumbfile = os.path.join(thumb_dir,
+        return os.path.join(thumb_dir,
                 'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
                     uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
-        with lopen(thumbfile, 'wb') as f:
-            f.write(coverdata[2])
-            fsync(f)
+
+    def upload_kindle_thumbnail(self, metadata, filepath):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if not coverdata or not coverdata[2]:
+            return
+
+        tp = self.thumbpath_from_filepath(filepath)
+        if tp:
+            with lopen(tp, 'wb') as f:
+                f.write(coverdata[2])
+                fsync(f)
+
+    def delete_single_book(self, path):
+        try:
+            tp = self.thumbpath_from_filepath(path)
+            if tp:
+                try:
+                    os.remove(tp)
+                except EnvironmentError as err:
+                    if err.errno != errno.ENOENT:
+                        prints(u'Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        USBMS.delete_single_book(self, path)
 
     def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder
