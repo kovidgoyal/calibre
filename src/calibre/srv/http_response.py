@@ -224,7 +224,6 @@ class RequestData(object):  # {{{
         self.lang_code = self.gettext_func = self.ngettext_func = None
         self.set_translator(self.get_preferred_language())
         self.tdir = tdir
-        self.allowed_book_ids = {}
 
     def generate_static_output(self, name, generator, content_type='text/html; charset=UTF-8'):
         ans = self.static_cache.get(name)
