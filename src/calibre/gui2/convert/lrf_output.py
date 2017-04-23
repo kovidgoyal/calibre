@@ -14,7 +14,7 @@ font_family_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('LRF Output')
+    TITLE = _('LRF output')
     HELP = _('Options specific to')+' LRF '+_('output')
     COMMIT_NAME = 'lrf_output'
     ICON = I('mimetypes/lrf.png')
@@ -33,6 +33,3 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_header.toggle(), self.opt_header.toggle()
         self.opt_render_tables_as_images.toggle()
         self.opt_render_tables_as_images.toggle()
-
-
-

@@ -13,7 +13,7 @@ from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('TXT Input')
+    TITLE = _('TXT input')
     HELP = _('Options specific to')+' TXT '+_('input')
     COMMIT_NAME = 'txt_input'
     ICON = I('mimetypes/txt.png')

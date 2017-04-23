@@ -15,7 +15,7 @@ font_family_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('MOBI Output')
+    TITLE = _('MOBI output')
     HELP = _('Options specific to')+' MOBI '+_('output')
     COMMIT_NAME = 'mobi_output'
     ICON = I('mimetypes/mobi.png')
@@ -33,5 +33,3 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_mobi_file_type.addItems(['old', 'both', 'new'])
 
         self.initialize_options(get_option, get_help, db, book_id)
-
-

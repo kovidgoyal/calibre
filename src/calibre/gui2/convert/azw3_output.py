@@ -15,7 +15,7 @@ font_family_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('AZW3 Output')
+    TITLE = _('AZW3 output')
     HELP = _('Options specific to')+' AZW3 '+_('output')
     COMMIT_NAME = 'azw3_output'
     ICON = I('mimetypes/azw3.png')
@@ -30,5 +30,3 @@ class PluginWidget(Widget, Ui_Form):
         self.db, self.book_id = db, book_id
 
         self.initialize_options(get_option, get_help, db, book_id)
-
-
