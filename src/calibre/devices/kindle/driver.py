@@ -561,6 +561,9 @@ class KINDLE_DX(KINDLE2):
     def upload_kindle_thumbnail(self, metadata, filepath):
         pass
 
+    def delete_single_book(self, path):
+        USBMS.delete_single_book(self, path)
+
 
 class KINDLE_FIRE(KINDLE2):
 
@@ -581,3 +584,6 @@ class KINDLE_FIRE(KINDLE2):
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         pass
+
+    def delete_single_book(self, path):
+        USBMS.delete_single_book(self, path)
