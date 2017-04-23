@@ -161,7 +161,7 @@ some of the advanced features
 `html-demo.zip <https://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
-Device Integration
+Device integration
 -------------------
 
 .. contents:: Contents

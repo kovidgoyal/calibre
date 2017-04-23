@@ -47,7 +47,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>&amp;Number of Colors:</string>
+      <string>&amp;Number of colors:</string>
      </property>
      <property name="buddy">
       <cstring>opt_colors</cstring>
@@ -97,7 +97,7 @@
    <item row="6" column="0">
     <widget class="QCheckBox" name="opt_dont_sharpen">
      <property name="text">
-      <string>Disable &amp;Sharpening</string>
+      <string>Disable &amp;sharpening</string>
      </property>
     </widget>
    </item>
@@ -149,7 +149,7 @@
    <item row="7" column="0">
     <widget class="QCheckBox" name="opt_disable_trim">
      <property name="text">
-      <string>Disable &amp;Trimming</string>
+      <string>Disable &amp;trimming</string>
      </property>
     </widget>
    </item>

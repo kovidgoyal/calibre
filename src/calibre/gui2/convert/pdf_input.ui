@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Line &amp;Un-Wrapping Factor:</string>
+      <string>Line &amp;un-Wrapping factor:</string>
      </property>
      <property name="buddy">
       <cstring>opt_unwrap_factor</cstring>
@@ -53,7 +53,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="opt_no_images">
      <property name="text">
-      <string>No &amp;Images</string>
+      <string>No &amp;images</string>
      </property>
     </widget>
    </item>

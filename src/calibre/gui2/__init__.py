@@ -201,7 +201,7 @@ def _config():  # {{{
     c.add_opt('disable_tray_notification', default=False,
               help=_('Disable notifications from the system tray icon'))
     c.add_opt('default_send_to_device_action', default=None,
-            help=_('Default action to perform when send to device button is '
+            help=_('Default action to perform when the "Send to device" button is '
                 'clicked'))
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')

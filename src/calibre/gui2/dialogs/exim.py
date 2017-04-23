@@ -283,7 +283,7 @@ class EximDialog(Dialog):
             if g.iactions['Connect Share'].content_server_is_running:
                 error_dialog(self, _('Content Server running'), _(
                     'Cannot import while the content server is running, shut it down first by clicking the'
-                    ' Connect/share button on the calibre toolbar'), show=True)
+                    ' "Connect/share" button on the calibre toolbar'), show=True)
                 return False
         if self.import_panel.stack.currentIndex() == 0:
             error_dialog(self, _('No folder selected'), _(

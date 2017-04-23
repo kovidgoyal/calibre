@@ -504,7 +504,7 @@ class SendError(QDialog):
               'folder is currently ignored by calibre when scanning the '
               'device. You have to tell calibre you want this folder scanned '
               'in order to be able to send books to it. Click the '
-              '<b>configure</b> button below to send books to it.')%error.folder)
+              '<b>Configure</b> button below to send books to it.')%error.folder)
         la.setWordWrap(True)
         la.setMinimumWidth(500)
         l.addWidget(la)

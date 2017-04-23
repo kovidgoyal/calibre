@@ -269,7 +269,7 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>Control the cover grid view. You can enable this view by clicking the grid button in the bottom right corner of the main calibre window.</string>
+              <string>Control the cover grid view. You can enable this view by clicking the "Cover Grid" button in the bottom right corner of the main calibre window.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

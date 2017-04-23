@@ -49,7 +49,7 @@ basis of a virtual library. The virtual library will contain only the
 books matched by that search. First, type in the search you want to use 
 in the search bar or build a search using the :guilabel:`Tag Browser`. 
 When you are happy with the returned results, click the Virtual library 
-button, choose Create Library and enter a name for the new virtual 
+button, choose :guilabel:`Create library` and enter a name for the new virtual 
 library. The virtual library will then be created based on the search 
 you just typed in. Searches are very powerful, for examples of the kinds 
 of things you can do with them, see :ref:`search_interface`. 

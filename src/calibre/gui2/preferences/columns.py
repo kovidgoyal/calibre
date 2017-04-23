@@ -75,7 +75,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.field_metadata = db.field_metadata
 
         self.opt_columns.setColumnCount(4)
-        item = QTableWidgetItem(_('Column Header'))
+        item = QTableWidgetItem(_('Column header'))
         self.opt_columns.setHorizontalHeaderItem(0, item)
         item = QTableWidgetItem(_('Lookup name'))
         self.opt_columns.setHorizontalHeaderItem(1, item)

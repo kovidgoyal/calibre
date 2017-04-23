@@ -786,7 +786,7 @@ class CharSelect(Dialog):
         l.addWidget(la, 2, 0, 1, 3)
 
         self.rearrange_msg = la = QLabel(_(
-            'Drag and drop characters to re-arrange them. Click the re-arrange button again when you are done.'))
+            'Drag and drop characters to re-arrange them. Click the Re-arrange button again when you are done.'))
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         la.setVisible(False)
         l.addWidget(la, 3, 0, 1, 3)

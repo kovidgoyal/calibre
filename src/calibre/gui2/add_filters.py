@@ -121,7 +121,7 @@ class Tester(TesterBase):
     DIALOG_TITLE = _('Test filename filter rules')
     PREFS_NAME = 'test-file-filter-rules'
     LABEL = _('Enter a filename to test:')
-    PLACEHOLDER = _('Enter filename and click the Test button')
+    PLACEHOLDER = _('Enter filename and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
     def do_test(self):
@@ -140,6 +140,7 @@ class RulesDialog(RulesDialogBase):
     RulesClass = Rules
     TesterClass = Tester
     PREFS_OBJECT = add_filters
+
 
 if __name__ == '__main__':
     app = Application([])

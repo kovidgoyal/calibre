@@ -931,7 +931,7 @@ class FilterCSS(Dialog):  # {{{
 
     def __init__(self, current_name=None, parent=None):
         self.current_name = current_name
-        Dialog.__init__(self, _('Filter Style Information'), 'filter-css', parent=parent)
+        Dialog.__init__(self, _('Filter style information'), 'filter-css', parent=parent)
 
     def setup_ui(self):
         from calibre.gui2.convert.look_and_feel_ui import Ui_Form

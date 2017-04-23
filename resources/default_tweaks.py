@@ -484,7 +484,7 @@ save_original_format = True
 save_original_format_when_polishing = True
 
 #: Number of recently viewed books to show
-# Right-clicking the View button shows a list of recently viewed books. Control
+# Right-clicking the "View" button shows a list of recently viewed books. Control
 # how many should be shown, here.
 gui_view_history_size = 15
 
