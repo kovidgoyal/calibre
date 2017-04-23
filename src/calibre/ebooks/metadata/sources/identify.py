@@ -369,13 +369,15 @@ def merge_identify_results(result_map, log):
 
 
 def identify(log, abort,  # {{{
-        title=None, authors=None, identifiers={}, timeout=30):
+        title=None, authors=None, identifiers={}, timeout=30, plugin=None):
     if title == _('Unknown'):
         title = None
     if authors == [_('Unknown')]:
         authors = None
     start_time = time.time()
-    plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
+
+    plugins = [p for p in metadata_plugins(['identify'])
+        if p.is_configured() and (plugin == None or p.name == plugin)]
 
     kwargs = {
         'title': title,

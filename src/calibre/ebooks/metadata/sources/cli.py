@@ -40,6 +40,8 @@ of title, authors or ISBN.
             help=_('Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.'))
     parser.add_option('-d', '--timeout', default='30',
             help=_('Timeout in seconds. Default is 30'))
+    parser.add_option('-p', '--plugin',
+            help=_('Specify a metadata plugin. By default, all enabled metadata plugins will be used.'))
 
     return parser
 
@@ -62,7 +64,8 @@ def main(args=sys.argv):
         identifiers['isbn'] = opts.isbn
 
     results = identify(log, abort, title=opts.title, authors=authors,
-            identifiers=identifiers, timeout=int(opts.timeout))
+            identifiers=identifiers, timeout=int(opts.timeout),
+            plugin=opts.plugin)
 
     if not results:
         print (log, file=sys.stderr)
