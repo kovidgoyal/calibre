@@ -271,7 +271,7 @@ QToolBox::tab:hover {
            <item row="5" column="0">
             <widget class="QLabel" name="label_27">
              <property name="text">
-              <string>In &amp;Portrait orientation:</string>
+              <string>In &amp;portrait orientation:</string>
              </property>
              <property name="buddy">
               <cstring>opt_cols_per_screen_portrait</cstring>
@@ -387,7 +387,7 @@ QToolBox::tab:hover {
            <item row="6" column="0">
             <widget class="QLabel" name="label_28">
              <property name="text">
-              <string>In &amp;Landscape orientation: </string>
+              <string>In &amp;landscape orientation: </string>
              </property>
              <property name="buddy">
               <cstring>opt_cols_per_screen_landscape</cstring>
@@ -600,7 +600,7 @@ QToolBox::tab:hover {
            </rect>
           </property>
           <attribute name="label">
-           <string>Page Fl&amp;ip/Scrolling options</string>
+           <string>Page fl&amp;ip/scrolling options</string>
           </attribute>
           <widget class="QLabel" name="label_11">
            <property name="geometry">
