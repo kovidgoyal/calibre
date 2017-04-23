@@ -12,6 +12,7 @@ from book_list.main import main
 from read_book.iframe import init
 
 is_running_in_iframe = False  # Changed before script is loaded in the iframe
+autoreload_enabled = False
 
 if is_running_in_iframe:
     init()
@@ -20,11 +21,11 @@ else:
         if window.applicationCache.status is window.applicationCache.UPDATEREADY:
             try:
                 window.applicationCache.swapCache()
-                if window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
+                if autoreload_enabled or window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
                     window.location.reload()
             except Exception as e:
-                # For some reason swapCache occassionally fails even though status is UPDATEREADY
-                print('WARNING: falied to swap applicationCache')
+                # For some reason swapCache occasionally fails even though status is UPDATEREADY
+                print('WARNING: failed to swap applicationCache')
                 console.log(e)
     , False)
     script = document.currentScript or document.scripts[0]
@@ -37,8 +38,10 @@ else:
     window.addEventListener('load', main)
 
     ajax('auto-reload-port', def(end_type, xhr, event):
+        nonlocal autoreload_enabled
         if end_type is 'load':
             port = parseInt(xhr.responseText)
             if not isNaN(port) and port > 0:
+                autoreload_enabled = True
                 create_auto_reload_watcher(port)
     ).send()  # We must bypass cache as otherwise we could get stale port info
