@@ -150,4 +150,4 @@ class StoreAction(InterfaceAction):
             )), 'about_get_books_msg',
             parent=self.gui, show_cancel_button=False,
             confirm_msg=_('Show this message again'),
-            pixmap='dialog_information.png', title=_('About Get Books'))
+            pixmap='dialog_information.png', title=_('About Get books'))

@@ -339,7 +339,7 @@ Using Stanza
 ***************
 
 You should be able to access your books on your iPhone by opening Stanza. Go to
-"Get Books" and then click the "Shared" tab. Under Shared you will see an entry
+"Get books" and then click the "Shared" tab. Under Shared you will see an entry
 "Books in calibre". If you don't, make sure your iPad/iPhone is connected using
 the WiFi network in your house, not 3G. If the calibre catalog is still not
 detected in Stanza, you can add it manually in Stanza. To do this, click the
