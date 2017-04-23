@@ -981,6 +981,14 @@ class Cache(object):
         '''
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
+    @read_api
+    def books_in_virtual_library(self, vl):
+        ' Return the set of books in the specified virtual library '
+        vl = self._pref('virtual_libraries', {}).get(vl) if vl else None
+        if vl is None:
+            return self.all_book_ids()
+        return frozenset(self._search('', vl))
+
     @api
     def get_categories(self, sort='name', book_ids=None, already_fixed=None,
                        first_letter_sort=False):
