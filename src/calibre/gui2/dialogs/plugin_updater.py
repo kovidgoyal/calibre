@@ -537,12 +537,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.install_action.triggered.connect(self._install_clicked)
         self.install_action.setEnabled(False)
         self.plugin_view.addAction(self.install_action)
-        self.history_action = QAction(QIcon(I('chapters.png')), _('Version &History'), self)
+        self.history_action = QAction(QIcon(I('chapters.png')), _('Version &history'), self)
         self.history_action.setToolTip(_('Show history of changes to this plugin'))
         self.history_action.triggered.connect(self._history_clicked)
         self.history_action.setEnabled(False)
         self.plugin_view.addAction(self.history_action)
-        self.forum_action = QAction(QIcon(I('plugins/mobileread.png')), _('Plugin &Forum Thread'), self)
+        self.forum_action = QAction(QIcon(I('plugins/mobileread.png')), _('Plugin &forum thread'), self)
         self.forum_action.triggered.connect(self._forum_label_activated)
         self.forum_action.setEnabled(False)
         self.plugin_view.addAction(self.forum_action)
@@ -752,7 +752,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             if DEBUG:
                 prints('ERROR occurred while installing plugin: %s'%display_plugin.name)
                 traceback.print_exc()
-            error_dialog(self.gui, _('Install Plugin Failed'),
+            error_dialog(self.gui, _('Install plugin failed'),
                          _('A problem occurred while installing this plugin.'
                            ' This plugin will now be uninstalled.'
                            ' Please post the error message in details below into'

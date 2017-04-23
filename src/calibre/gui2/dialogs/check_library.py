@@ -81,7 +81,7 @@ class CheckLibraryDialog(QDialog):
         QDialog.__init__(self, parent)
         self.db = db
 
-        self.setWindowTitle(_('Check Library -- Problems Found'))
+        self.setWindowTitle(_('Check library -- Problems Found'))
         self.setWindowIcon(QIcon(I('debug.png')))
 
         self._tl = QHBoxLayout()
@@ -395,4 +395,3 @@ if __name__ == '__main__':
     from calibre.library import db
     d = CheckLibraryDialog(None, db())
     d.exec_()
-

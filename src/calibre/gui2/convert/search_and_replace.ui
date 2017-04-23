@@ -32,7 +32,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Search/Replace Definition Edit</string>
+      <string>Search/Replace definition edit</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="sizeConstraint">

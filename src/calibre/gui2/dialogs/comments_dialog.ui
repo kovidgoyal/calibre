@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Edit Comments</string>
+   <string>Edit comments</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

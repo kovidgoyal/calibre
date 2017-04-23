@@ -447,11 +447,11 @@ class LineEditECM(object):  # {{{
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
-        case_menu = QMenu(_('Change Case'))
-        action_upper_case = case_menu.addAction(_('Upper Case'))
-        action_lower_case = case_menu.addAction(_('Lower Case'))
-        action_swap_case = case_menu.addAction(_('Swap Case'))
-        action_title_case = case_menu.addAction(_('Title Case'))
+        case_menu = QMenu(_('Change case'))
+        action_upper_case = case_menu.addAction(_('Upper case'))
+        action_lower_case = case_menu.addAction(_('Lower case'))
+        action_swap_case = case_menu.addAction(_('Swap case'))
+        action_title_case = case_menu.addAction(_('Title case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
 
         action_upper_case.triggered.connect(self.upper_case)
@@ -1166,6 +1166,7 @@ class Splitter(QSplitter):
     # }}}
 
 # }}}
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QTextEdit

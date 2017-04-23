@@ -304,7 +304,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     }
 
     s_r_match_modes = [_('Character match'),
-                            _('Regular Expression'),
+                            _('Regular expression'),
                       ]
 
     s_r_replace_modes = [_('Replace field'),

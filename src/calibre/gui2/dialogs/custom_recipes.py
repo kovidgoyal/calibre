@@ -390,7 +390,7 @@ class BasicRecipe(QWidget):  # {{{
             self.feed_title.clear()
             self.feed_url.clear()
             if src is None:
-                self.title.setText(_('My News Source'))
+                self.title.setText(_('My news source'))
                 self.oldest_article.setValue(7)
                 self.max_articles.setValue(100)
             else:

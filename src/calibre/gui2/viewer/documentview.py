@@ -615,17 +615,17 @@ class DocumentView(QWebView):  # {{{
                 'Next Section': self.goto_next_section,
                 'Previous Section': self.goto_previous_section,
         }
-        for name, key in [(_('Next Section'), 'Next Section'),
-                (_('Previous Section'), 'Previous Section'),
+        for name, key in [(_('Next section'), 'Next Section'),
+                (_('Previous section'), 'Previous Section'),
                 (None, None),
-                (_('Document Start'), 'Document Top'),
-                (_('Document End'), 'Document Bottom'),
+                (_('Document start'), 'Document Top'),
+                (_('Document end'), 'Document Bottom'),
                 (None, None),
-                (_('Section Start'), 'Section Top'),
-                (_('Section End'), 'Section Bottom'),
+                (_('Section start'), 'Section Top'),
+                (_('Section end'), 'Section Bottom'),
                 (None, None),
-                (_('Next Page'), 'Next Page'),
-                (_('Previous Page'), 'Previous Page')]:
+                (_('Next page'), 'Next Page'),
+                (_('Previous page'), 'Previous Page')]:
             if key is None:
                 m.addSeparator()
             else:
