@@ -143,7 +143,7 @@ class LibraryWidget(Splitter):  # {{{
             orientation = Qt.Horizontal if is_widescreen() else Qt.Vertical
         idx = 0 if orientation == Qt.Vertical else 1
         size = 300 if orientation == Qt.Vertical else 550
-        Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
+        Splitter.__init__(self, 'cover_browser_splitter', _('Cover browser'),
                 I('cover_flow.png'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
@@ -179,7 +179,7 @@ class Stack(QStackedWidget):  # {{{
         parent.cb_splitter = LibraryWidget(parent)
         self.tb_widget = TagBrowserWidget(parent)
         parent.tb_splitter = Splitter('tag_browser_splitter',
-                _('Tag Browser'), I('tags.png'),
+                _('Tag browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut='Shift+Alt+T')
         parent.tb_splitter.state_changed.connect(
@@ -292,7 +292,7 @@ class GridViewButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
         sc = 'Shift+Alt+G'
-        LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
+        LayoutButton.__init__(self, I('grid.png'), _('Cover grid'), parent=gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
@@ -474,7 +474,7 @@ class LayoutMixin(object):  # {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.png'),
+                    _('Book details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.bd_splitter.addWidget(self.stack)
@@ -485,7 +485,7 @@ class LayoutMixin(object):  # {{{
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.png'), initial_side_size=200,
+                    _('Book details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.stack = Stack(self)

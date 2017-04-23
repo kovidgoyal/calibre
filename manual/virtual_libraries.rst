@@ -15,8 +15,8 @@ separate libraries simultaneously in calibre.
 
 A virtual library is different from a simple search. A search will only restrict
 the list of books shown in the book list. A virtual library does that, and in
-addition it also restricts the entries shown in the :guilabel:`Tag Browser` to
-the left. The Tag Browser will only show tags, authors, series, publishers, etc.
+addition it also restricts the entries shown in the :guilabel:`Tag browser` to
+the left. The Tag browser will only show tags, authors, series, publishers, etc.
 that come from the books in the virtual library. A virtual library thus behaves
 as though the actual library contains only the restricted set of books.
 
@@ -47,7 +47,7 @@ You can switch back to the full library at any time by once again clicking the
 Virtual libraries are based on *searches*. You can use any search as the 
 basis of a virtual library. The virtual library will contain only the 
 books matched by that search. First, type in the search you want to use 
-in the search bar or build a search using the :guilabel:`Tag Browser`. 
+in the search bar or build a search using the :guilabel:`Tag browser`. 
 When you are happy with the returned results, click the Virtual library 
 button, choose :guilabel:`Create library` and enter a name for the new virtual 
 library. The virtual library will then be created based on the search 

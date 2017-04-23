@@ -335,7 +335,7 @@ class CreateCustomColumn(QDialog):
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose how the data in this column is interpreted.\n'
-                        'This controls how the data is displayed in the Book Details panel\n'
+                        'This controls how the data is displayed in the Book details panel\n'
                         'and how it is edited.'))
         self.comments_type_label = add_row(_('Interpret this column as:') + ' ', ct)
 

@@ -418,7 +418,7 @@ def get_prefs():
             'name': 'sort_tags_by',
             'text': _('Sort tags by'),
             'choices': [('name', _('Name')), ('popularity', _('Popularity (number of books)')), ('rating', _('Average rating'))],
-            'tooltip': _('Change how the tags/authors/etc. are sorted in the Tag Browser'),
+            'tooltip': _('Change how the tags/authors/etc. are sorted in the "Tag browser"'),
         },
 
         {
@@ -437,7 +437,7 @@ def get_prefs():
             'text':_('Collapse when more items than'),
             'min': 5, 'max':10000, 'step':5,
             'from_storage':int, 'to_storage':int,
-            'tooltip': _('If a Tag Browser category has more than this number of items, it is divided'
+            'tooltip': _('If a "Tag browser" category has more than this number of items, it is divided'
                             ' up into subcategories. If the partition method is set to disable, this value is ignored.'),
         },
 
@@ -466,7 +466,7 @@ def get_prefs():
     ]
 
 def tb_config_panel_handler():
-    return prefs_panel_handler(_('Configure Tag Browser'), get_prefs)
+    return prefs_panel_handler(_('Configure Tag browser'), get_prefs)
 # }}}
 
 
@@ -476,6 +476,6 @@ def init(container_id):
         return
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Search for books'), action=back, icon='close')
-    add_button(container, icon='cogs', action=show_panel.bind(None, 'book_list^search^prefs'), tooltip=_('Configure Tag Browser'))
+    add_button(container, icon='cogs', action=show_panel.bind(None, 'book_list^search^prefs'), tooltip=_('Configure Tag browser'))
     container.appendChild(E.div(class_=CLASS_NAME))
     create_search_panel(container.lastChild)

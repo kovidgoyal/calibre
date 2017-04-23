@@ -362,7 +362,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def rebuild_node_tree(self, state_map={}):
         if self._build_in_progress:
-            print ('Tag Browser build already in progress')
+            print ('Tag browser build already in progress')
             traceback.print_stack()
             return
         # traceback.print_stack()

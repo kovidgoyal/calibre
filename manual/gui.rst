@@ -437,9 +437,9 @@ Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note
 Saving searches
 -----------------
 
-calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the search bar or using the Tag Browser. Then type the name you would like to give to the search in the Saved Searches box next to the search bar. Click the plus icon next to the saved searches box to save the search.
+calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the search bar or using the Tag browser. Then type the name you would like to give to the search in the Saved Searches box next to the search bar. Click the plus icon next to the saved searches box to save the search.
 
-Now you can access your saved search in the Tag Browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
+Now you can access your saved search in the Tag browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
 Virtual libraries
 -------------------
@@ -481,23 +481,23 @@ will be interpreted to have the title: Foundation and Earth and author: Isaac As
 .. _book_details:
 
 
-Book Details
+Book details
 -------------
 .. image:: images/book_details.png
    :class: float-left-img
 
-The Book Details display shows the cover and all the metadata for the currently
+The Book details display shows the cover and all the metadata for the currently
 selected book. It can be hidden via the button in the lower right corner of the
-main calibre window. The author names shown in the Book Details panel are
+main calibre window. The author names shown in the Book details panel are
 clickable, they will by default take you to the Wikipedia page for the author.
 This can be customized by right clicking on the author name and selecting
 Manage this author.
 
-Similarly, if you download metadata for the book, the Book Details panel will
+Similarly, if you download metadata for the book, the Book details panel will
 automatically show you links pointing to the web pages for the book on amazon,
 worldcat, etc. from where the metadata was downloaded.
 
-You can right click on individual ebook formats in the Book Details panel to
+You can right click on individual ebook formats in the Book details panel to
 delete them, compare them to their original versions, save them to disk, open
 them with an external program, etc.
 
@@ -512,7 +512,7 @@ Double clicking the book details panel will open it up in a separate popup
 window.
 
 Finally, you can customize exactly what information is displayed in the Book
-Details panel via :guilabel:`Preferences->Look & feel->Book Details`.
+Details panel via :guilabel:`Preferences->Look & feel->Book details`.
 
 .. raw:: html epub
     
@@ -520,18 +520,18 @@ Details panel via :guilabel:`Preferences->Look & feel->Book Details`.
 
 .. _tag_browser:
 
-Tag Browser
+Tag browser
 -------------
 .. image:: images/tag_browser.png
    :class: float-left-img
 
-The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any item in the Tag Browser, for example the author name Isaac Asimov, then the list of books to the right is restricted to showing books by that author. You can click on category names as well. For example, clicking on "Series" will show you all books in any series.
+The Tag browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any item in the Tag browser, for example the author name Isaac Asimov, then the list of books to the right is restricted to showing books by that author. You can click on category names as well. For example, clicking on "Series" will show you all books in any series.
 
-The first click on an item will restrict the list of books to those that contain or match the item. Continuing the above example, clicking on Isaac Asimov will show books by that author. Clicking again on the item will change what is shown, depending on whether the item has children (see sub-categories and hierarchical items below). Continuing the Isaac Asimov example, clicking again on Isaac Asimov will restrict the list of books to those not by Isaac Asimov. A third click will remove the restriction, showing all books. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could hold Ctrl and click on the tags History and Europe for finding books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. Looking at what the Tag Browser generates is a good way to learn how to construct basic search expressions.
+The first click on an item will restrict the list of books to those that contain or match the item. Continuing the above example, clicking on Isaac Asimov will show books by that author. Clicking again on the item will change what is shown, depending on whether the item has children (see sub-categories and hierarchical items below). Continuing the Isaac Asimov example, clicking again on Isaac Asimov will restrict the list of books to those not by Isaac Asimov. A third click will remove the restriction, showing all books. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could hold Ctrl and click on the tags History and Europe for finding books on European history. The Tag browser works by constructing search expressions that are automatically entered into the Search bar. Looking at what the Tag browser generates is a good way to learn how to construct basic search expressions.
 
-Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
+Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-The outer-level items in the tag browser, such as Authors and Series, are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (click :guilabel:`Alter Tag Browser->Manage authors, series, etc->Manage User Categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
+The outer-level items in the tag browser, such as Authors and Series, are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (click :guilabel:`Alter Tag browser->Manage authors, series, etc->Manage User Categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
 
 You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking:
     1. "everything matching an item in the category" indicated by a single green plus sign.
@@ -543,17 +543,17 @@ It is also possible to create hierarchies inside some of the text categories suc
 
 Hierarchical items (items with children) use the same four 'click-on' searches as user categories. Items that do not have children use two of the searches: "everything matching" and "everything not matching".
 
-You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag Browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
+You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
 
-There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
+There is a search bar at the top of the Tag browser that allows you to easily find any item in the Tag browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
 
-You can control how items are sorted in the Tag browser via the :guilabel:`Alter Tag Browser` button at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
+You can control how items are sorted in the Tag browser via the :guilabel:`Alter Tag browser` button at the bottom of the Tag browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
 .. raw:: html epub
     
     <div style="clear:both"></div>
 
-Cover Grid
+Cover grid
 -----------
 
 .. image:: images/cover_grid.png
@@ -567,7 +567,7 @@ the cover grid via :guilabel:`Preferences->Look & feel->Cover grid`. You can
 even have calibre display any specified field under the covers, such as title or
 authors or rating or a custom column of your own devising.
 
-Cover Browser
+Cover browser
 ---------------
 
 .. image:: images/cover_browser.png
@@ -675,13 +675,13 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`Alt+Shift+J`
       - Toggle jobs list
     * - :kbd:`Alt+Shift+B`
-      - Toggle Cover Browser
+      - Toggle Cover browser
     * - :kbd:`Alt+Shift+D`
-      - Toggle Book Details panel
+      - Toggle Book details panel
     * - :kbd:`Alt+Shift+T`
-      - Toggle Tag Browser
+      - Toggle Tag browser
     * - :kbd:`Alt+Shift+G`
-      - Toggle Cover Grid
+      - Toggle Cover grid
     * - :kbd:`Alt+A`
       - Show books by the same author as the current book
     * - :kbd:`Alt+T`

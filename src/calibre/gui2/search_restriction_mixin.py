@@ -146,7 +146,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
             <p>Using <i>virtual libraries</i> you can restrict calibre to only show
             you books that match a search. When a virtual library is in effect, calibre
-            behaves as though the library contains only the matched books. The Tag Browser
+            behaves as though the library contains only the matched books. The Tag browser
             display only the tags/authors/series/etc. that belong to the matched books and any searches
             you do will only search within the books in the virtual library. This
             is a good way to partition your large library into smaller and easier to work with subsets.</p>

@@ -83,7 +83,7 @@ author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
 # Default: r'(?i),?\s+(and|with)\s+'
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
-#: Use author sort in Tag Browser
+#: Use author sort in Tag browser
 # Set which author field to display in the tags pane (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
@@ -98,7 +98,7 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
-#: Control partitioning of Tag Browser
+#: Control partitioning of Tag browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
 # name, categories_collapsed_rating_template if sorting by average rating, and

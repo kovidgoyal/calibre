@@ -372,7 +372,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
                 _('Find item'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
@@ -383,7 +383,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find button',
                 _('Find button'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
         self.expand_button = QToolButton()
@@ -397,7 +397,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser collapse all',
                 _('Collapse all'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.expand_button.clicked)
 
         self.current_find_position = None
@@ -430,7 +430,7 @@ class TagBrowserWidget(QWidget):  # {{{
                                                    type=Qt.QueuedConnection)
 
         parent.alter_tb = l = QPushButton(parent)
-        l.setText(_('Alter Tag Browser'))
+        l.setText(_('Alter Tag browser'))
         l.setIcon(QIcon(I('tags.png')))
         l.m = QMenu()
         l.setMenu(l.m)
@@ -439,7 +439,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
                 _('Alter tag browser'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 
         sb = l.m.addAction(_('Sort by'))
@@ -456,7 +456,7 @@ class TagBrowserWidget(QWidget):  # {{{
             if i == 0:
                 a.setChecked(True)
         sb.setToolTip(
-                _('Set the sort order for entries in the Tag Browser'))
+                _('Set the sort order for entries in the Tag browser'))
         sb.setStatusTip(sb.toolTip())
 
         ma = l.m.addAction(_('Search type when selecting multiple items'))
@@ -472,7 +472,7 @@ class TagBrowserWidget(QWidget):  # {{{
             if i == 0:
                 a.setChecked(True)
         ma.setToolTip(
-                _('When selecting multiple entries in the Tag Browser '
+                _('When selecting multiple entries in the Tag browser '
                     'match any or all of them'))
         ma.setStatusTip(ma.toolTip())
 
@@ -486,7 +486,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser toggle item',
                 _("'Click' found item"), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_item)
 
         # self.leak_test_timer = QTimer(self)
