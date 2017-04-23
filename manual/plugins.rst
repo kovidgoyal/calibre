@@ -1,6 +1,6 @@
 .. _plugins:
 
-API Documentation for plugins
+API documentation for plugins
 ===============================
 
 .. module:: calibre.customize

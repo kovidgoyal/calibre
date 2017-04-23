@@ -939,7 +939,7 @@ if you never want subcategories</string>
        <item row="1" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&amp;Tags browser category partitioning method:</string>
+          <string>&amp;Tag browser category partitioning method:</string>
          </property>
          <property name="buddy">
           <cstring>opt_tags_browser_partition_method</cstring>
@@ -949,7 +949,7 @@ if you never want subcategories</string>
        <item row="6" column="0">
         <widget class="QCheckBox" name="opt_show_avg_rating">
          <property name="text">
-          <string>Show &amp;average ratings in the tags browser</string>
+          <string>Show &amp;average ratings in the Tag browser</string>
          </property>
          <property name="checked">
           <bool>true</bool>

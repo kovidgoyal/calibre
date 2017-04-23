@@ -1,6 +1,6 @@
 .. _xpath-tutorial:
 
-XPath Tutorial
+XPath tutorial
 ==============
 
 In this tutorial, you will be given a gentle introduction to 

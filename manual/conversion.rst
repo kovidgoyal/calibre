@@ -1,6 +1,6 @@
 .. _conversion:
 
-Ebook Conversion
+E-book conversion
 ===================
 
 calibre has a conversion system that is designed to be very easy to use.

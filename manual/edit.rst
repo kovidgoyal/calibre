@@ -39,7 +39,7 @@ Tutorial <http://html.net/tutorials/html/>`_ and `CSS Tutorial
 
 As you make changes to the HTML or CSS in the editor, the changes will be
 previewed, live, in the preview panel to the right. When you are happy with how
-the changes you have made look, click the Save button or use
+the changes you have made look, click the :guilabel:`Save` button or use
 :guilabel:`File->Save` to save your changes into the ebook.
 
 One useful feature is :guilabel:`Checkpoints`. Before you embark on some

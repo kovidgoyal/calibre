@@ -368,8 +368,8 @@ class CreateCustomColumn(QDialog):
         self.composite_sort_by = csb = QComboBox(self)
         la.setBuddy(csb), csb.setToolTip(_("How this column should handled in the GUI when sorting and searching"))
         l.addWidget(la), l.addWidget(csb)
-        self.composite_make_category = cmc = QCheckBox(_("Show in tags browser"))
-        cmc.setToolTip(_("If checked, this column will appear in the tags browser as a category"))
+        self.composite_make_category = cmc = QCheckBox(_("Show in Tag browser"))
+        cmc.setToolTip(_("If checked, this column will appear in the Tag browser as a category"))
         l.addWidget(cmc)
         self.composite_contains_html = cch = QCheckBox(_("Show as HTML in book details"))
         cch.setToolTip('<p>' +

@@ -461,7 +461,7 @@ To accomplish this, we:
     2. Create a composite field (give it lookup name #BB) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``. This template produces `genre/author_sort/title`, where an empty genre is replaced with `Unknown`.
     3. Set the save template to ``{series:lookup(.,#AA,#BB)}``. This template chooses composite field #AA if series is not empty, and composite field #BB if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
 
-Templates and Plugboards
+Templates and plugboards
 ------------------------
 
 Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.

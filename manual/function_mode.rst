@@ -44,7 +44,7 @@ functions to process text in arbitrary ways. The Smarten Punctuation tool in
 the editor leaves individual hyphens alone, so you can use the this function to
 replace them with em-dashes.
 
-To create a new function, simply click the Create/Edit button to create a new
+To create a new function, simply click the :guilabel:`Create/Edit` button to create a new
 function and copy the python code from below.
 
 .. code-block:: python
