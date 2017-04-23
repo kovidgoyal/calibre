@@ -71,16 +71,9 @@ class Context(object):
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
         return dict(allowed_libraries), next(allowed_libraries.iterkeys())
 
-    def allowed_book_ids(self, data, db):
-        with self.lock:
-            ans = data.allowed_book_ids.get(db.server_library_id)
-            if ans is None:
-                ans = data.allowed_book_ids[db.server_library_id] = db.all_book_ids()
-            return ans
-
-    def get_categories(self, data, db, restrict_to_ids=None, sort='name', first_letter_sort=True):
+    def get_categories(self, data, db, restrict_to_ids=None, sort='name', first_letter_sort=True, vl=''):
         if restrict_to_ids is None:
-            restrict_to_ids = self.allowed_book_ids(data, db)
+            restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, sort, first_letter_sort)
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
@@ -94,9 +87,9 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def get_tag_browser(self, data, db, opts, render, restrict_to_ids=None):
+    def get_tag_browser(self, data, db, opts, render, restrict_to_ids=None, vl=''):
         if restrict_to_ids is None:
-            restrict_to_ids = self.allowed_book_ids(data, db)
+            restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, opts)
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
@@ -113,15 +106,14 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def search(self, data, db, query, restrict_to_ids=None):
-        if restrict_to_ids is None:
-            restrict_to_ids = self.allowed_book_ids(data, db)
+    def search(self, data, db, query, restrict_to_ids=None, vl=''):
         with self.lock:
             cache = self.library_broker.search_caches[db.server_library_id]
-            key = (query, restrict_to_ids)
+            vl = db.pref('virtual_libraries', {}).get(vl) or ''
+            key = query, restrict_to_ids, vl
             old = cache.pop(key, None)
             if old is None or old[0] < db.clear_search_cache_count:
-                matches = db.search(query, book_ids=restrict_to_ids)
+                matches = db.search(query, restriction=vl, book_ids=restrict_to_ids)
                 cache[key] = old = (db.clear_search_cache_count, matches)
                 if len(cache) > self.SEARCH_CACHE_SIZE:
                     cache.popitem(last=False)

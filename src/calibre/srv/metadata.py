@@ -39,6 +39,7 @@ def encode_datetime(dateval):
         return None
     return isoformat(dateval)
 
+
 empty_val = ((), '', {})
 
 
@@ -83,6 +84,7 @@ def book_as_json(db, book_id):
         if langs:
             ans['lang_names'] = {l:calibre_langcode_to_name(l) for l in langs}
     return ans
+
 
 _include_fields = frozenset(Tag.__slots__) - frozenset({
     'state', 'is_editable', 'is_searchable', 'original_name', 'use_sort_as_name', 'is_hierarchical'
@@ -133,6 +135,7 @@ def category_item_as_json(x, clear_rating=False):
         del ans['avg_rating']
     return ans
 
+
 CategoriesSettings = namedtuple(
     'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by'
     ' template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories')
@@ -161,6 +164,7 @@ class GroupedSearchTerms(object):
             return self.keys == other.keys
         except AttributeError:
             return False
+
 
 _icon_map = None
 _icon_map_lock = Lock()
@@ -288,6 +292,7 @@ def build_first_letter_list(category_items):
             last_ordnum = ordnum
         cl_list[idx] = last_c
     return cl_list
+
 
 categories_with_ratings = {'authors', 'series', 'publisher', 'tags'}
 
@@ -528,9 +533,8 @@ def render_categories(opts, db, category_data):
     return {'root':root, 'item_map': items}
 
 
-def categories_as_json(ctx, rd, db):
-    opts = categories_settings(rd.query, db)
-    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts))
+def categories_as_json(ctx, rd, db, opts, vl):
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl='')
 
 # Test tag browser {{{
 

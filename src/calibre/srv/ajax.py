@@ -168,7 +168,7 @@ def book(ctx, rd, book_id, library_id):
                     book_id = None
             except Exception:
                 book_id = None
-        if book_id is None or book_id not in ctx.allowed_book_ids(rd, db):
+        if book_id is None or not db.has_id(book_id):
             raise HTTPNotFound('Book with id %r does not exist' % oid)
         category_urls = rd.query.get('category_urls', 'true').lower()
         device_compatible = rd.query.get('device_compatible', 'false').lower()
@@ -216,9 +216,8 @@ def books(ctx, rd, library_id):
         device_compatible = rd.query.get('device_compatible', 'false').lower() == 'true'
         device_for_template = rd.query.get('device_for_template', None)
         ans = {}
-        restricted_to = ctx.allowed_book_ids(rd, db)
         for book_id in ids:
-            if book_id not in restricted_to:
+            if not db.has_id(book_id):
                 ans[book_id] = None
                 continue
             data, lm = book_to_json(
@@ -251,7 +250,7 @@ def categories(ctx, rd, library_id):
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         ans = {}
-        categories = ctx.get_categories(rd, db)
+        categories = ctx.get_categories(rd, db, vl=rd.query.get('vl') or '')
         category_meta = db.field_metadata
         library_id = db.server_library_id
 
@@ -484,7 +483,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
             raise HTTPNotFound('%s is not a valid sort field'%sort)
 
         if dname in ('allbooks', 'newest'):
-            ids = ctx.allowed_book_ids(rd, db)
+            ids = db.all_book_ids()
         elif dname == 'search':
             try:
                 ids = ctx.search(rd, db, 'search:"%s"'%ditem)
@@ -498,7 +497,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
             if dname == 'news':
                 dname = 'tags'
-            ids = db.get_books_for_category(dname, cid).intersection(ctx.allowed_book_ids(rd, db))
+            ids = db.get_books_for_category(dname, cid)
 
         ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
         total_num = len(ids)
@@ -528,7 +527,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 # Search {{{
 
 
-def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
+def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
     skeys = db.field_metadata.sortable_field_keys()
@@ -536,10 +535,7 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
         if sfield not in skeys:
             raise HTTPNotFound('%s is not a valid sort field'%sort)
 
-    if not query:
-        ids = ctx.allowed_book_ids(rd, db)
-    else:
-        ids = ctx.search(rd, db, query)
+    ids = ctx.search(rd, db, query, vl=vl)
     ids = db.multisort(fields=multisort, ids_to_sort=ids)
     total_num = len(ids)
     ids = ids[offset:offset+num]
@@ -558,13 +554,13 @@ def search(ctx, rd, library_id):
     '''
     Return the books (as list of ids) matching the specified search query.
 
-    Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=
+    Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=&vl=
     '''
     db = get_db(ctx, rd, library_id)
     query = rd.query.get('query')
     num, offset = get_pagination(rd.query)
     with db.safe_read_lock:
-        return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
+        return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'), rd.query.get('vl') or '')
 
 # }}}
 

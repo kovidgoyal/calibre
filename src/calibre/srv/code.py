@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-import hashlib, random, zipfile, shutil, sys
+import hashlib, random, zipfile, shutil, sys, cPickle
 from json import load as load_json_file
 
 from calibre import as_unicode
@@ -11,7 +11,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
-from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
+from calibre.srv.metadata import book_as_json, categories_as_json, icon_map, categories_settings
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
@@ -70,7 +70,7 @@ def get_basic_query_data(ctx, rd):
                 sorts.append(s), orders.append(o)
     if not sorts:
         sorts, orders = ['timestamp'], ['desc']
-    return library_id, db, sorts, orders
+    return library_id, db, sorts, orders, rd.query.get('vl') or ''
 
 
 _cached_translations = None
@@ -125,18 +125,18 @@ def update_interface_data(ctx, rd):
     return basic_interface_data(ctx, rd)
 
 
-def get_library_init_data(ctx, rd, db, num, sorts, orders):
+def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
     ans = {}
     with db.safe_read_lock:
         try:
             ans['search_result'] = search_result(
                 ctx, rd, db,
                 rd.query.get('search', ''), num, 0, ','.join(sorts),
-                ','.join(orders)
+                ','.join(orders), vl
             )
         except ParseException:
             ans['search_result'] = search_result(
-                ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders)
+                ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders), vl
             )
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
@@ -146,6 +146,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders):
             key=lambda (field, name): sort_key(name)
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
+        ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         mdata = ans['metadata'] = {}
         try:
             extra_books = set(
@@ -168,15 +169,15 @@ def books(ctx, rd):
     Get data to create list of books
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
-              &search=''&extra_books=''
+              &search=''&extra_books=''&vl=''
     '''
     ans = {}
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
-    library_id, db, sorts, orders = get_basic_query_data(ctx, rd)
-    ans = get_library_init_data(ctx, rd, db, num, sorts, orders)
+    library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
+    ans = get_library_init_data(ctx, rd, db, num, sorts, orders, vl)
     ans['library_id'] = library_id
     return ans
 
@@ -187,7 +188,7 @@ def interface_data(ctx, rd):
     Return the data needed to create the server UI as well as a list of books.
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
-              &search=''&extra_books=''
+              &search=''&extra_books=''&vl=''
     '''
     ans = basic_interface_data(ctx, rd)
     ud = {}
@@ -201,13 +202,13 @@ def interface_data(ctx, rd):
         usort = ud.get('sort')
         if usort:
             rd.query.set('sort', usort)
-    ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd)
+    ans['library_id'], db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     ans['user_session_data'] = ud
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
-    ans.update(get_library_init_data(ctx, rd, db, num, sorts, orders))
+    ans.update(get_library_init_data(ctx, rd, db, num, sorts, orders, vl))
     return ans
 
 
@@ -271,9 +272,9 @@ def get_books(ctx, rd):
     '''
     Get books for the specified query
 
-    Optional: ?library_id=<default library>&num=50&sort=timestamp.desc&search=''
+    Optional: ?library_id=<default library>&num=50&sort=timestamp.desc&search=''&vl=''
     '''
-    library_id, db, sorts, orders = get_basic_query_data(ctx, rd)
+    library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
     except Exception:
@@ -285,7 +286,7 @@ def get_books(ctx, rd):
     with db.safe_read_lock:
         try:
             ans['search_result'] = search_result(
-                ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders)
+                ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders), vl
             )
         except ParseException as err:
             # This must not be translated as it is used by the front end to
@@ -306,16 +307,13 @@ def book_metadata(ctx, rd, book_id):
     Optional: ?library_id=<default library>
     '''
     library_id, db = get_basic_query_data(ctx, rd)[:2]
-    book_ids = ctx.allowed_book_ids(rd, db)
 
     def notfound():
-        raise HTTPNotFound(_('No book with id: %d in library') % book_id)
+        raise HTTPNotFound(_('No book with id: {} in library: {}').format(book_id, library_id))
 
-    if not book_ids:
-        notfound()
     if not book_id:
-        book_id = random.choice(tuple(book_ids))
-    elif book_id not in book_ids:
+        book_id = random.choice(tuple(db.all_book_ids()))
+    elif not db.has_id(book_id):
         notfound()
     data = book_as_json(db, book_id)
     if data is None:
@@ -329,14 +327,15 @@ def tag_browser(ctx, rd):
     '''
     Get the Tag Browser serialized as JSON
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
-              &collapse_at=25&dont_collapse=&hide_empty_categories=
+              &collapse_at=25&dont_collapse=&hide_empty_categories=&vl=''
     '''
     db, library_id = get_library_data(ctx, rd)[:2]
-    etag = '%s||%s||%s' % (db.last_modified(), rd.username, library_id)
-    etag = hashlib.sha1(etag.encode('utf-8')).hexdigest()
+    opts = categories_settings(rd.query, db)
+    vl = rd.query.get('vl') or ''
+    etag = cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
+    etag = hashlib.sha1(etag).hexdigest()
 
     def generate():
-        db, library_id = get_library_data(ctx, rd)[:2]
-        return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db))
+        return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl))
 
     return rd.etagged_dynamic_response(etag, generate)
