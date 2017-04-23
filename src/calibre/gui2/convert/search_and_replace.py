@@ -108,9 +108,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_load_clicked(self):
         files = choose_files(self, 'sr_saved_patterns',
-                _('Load calibre Search-Replace definitions file'),
+                _('Load calibre search-replace definitions file'),
                 filters=[
-                    (_('calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre search-replace definitions file'), ['csr'])
                     ], select_only_single_file=True)
         if files:
             from calibre.ebooks.conversion.cli import read_sr_patterns
@@ -120,7 +120,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 self.search_replace.setCurrentCell(0, 0)
             except Exception as e:
                 error_dialog(self, _('Failed to read'),
-                        _('Failed to load patterns from %s, click Show details'
+                        _('Failed to load patterns from %s, click "Show details"'
                             ' to learn more.')%files[0], det_msg=as_unicode(e),
                         show=True)
 
@@ -200,7 +200,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     found = True
                     break
             if not found and not question_dialog(self,
-                    _('Unused Search & Replace definition'),
+                    _('Unused search & replace definition'),
                     _('The search/replace definition being edited '
                         ' has not been added to the list of definitions. '
                         'Do you wish to continue with the conversion '

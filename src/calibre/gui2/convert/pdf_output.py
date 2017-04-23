@@ -17,7 +17,7 @@ orientation_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('PDF Output')
+    TITLE = _('PDF output')
     HELP = _('Options specific to')+' PDF '+_('output')
     COMMIT_NAME = 'pdf_output'
     ICON = I('mimetypes/pdf.png')

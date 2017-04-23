@@ -12,7 +12,7 @@ format_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('PMLZ Output')
+    TITLE = _('PMLZ output')
     HELP = _('Options specific to')+' PMLZ '+_('output')
     COMMIT_NAME = 'pmlz_output'
     ICON = I('mimetypes/unknown.png')

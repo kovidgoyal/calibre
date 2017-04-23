@@ -171,7 +171,7 @@ class CoverSettingsWidget(QWidget):
         self.style_map = OrderedDict()
 
         self.font_page = fp = QWidget(st)
-        st.addTab(fp, _('&Fonts and Sizes'))
+        st.addTab(fp, _('&Fonts and sizes'))
         fp.l = l = QFormLayout()
         fp.setLayout(l)
         fp.f = []
@@ -554,6 +554,7 @@ class CoverSettingsDialog(QDialog):
     def reject(self):
         self._save_settings()
         QDialog.reject(self)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

@@ -24,7 +24,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Paper Size:</string>
+      <string>&amp;Paper size:</string>
      </property>
      <property name="buddy">
       <cstring>opt_paper_size</cstring>

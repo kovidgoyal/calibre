@@ -46,7 +46,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Output Encoding:</string>
+        <string>Output encoding:</string>
        </property>
       </widget>
      </item>
