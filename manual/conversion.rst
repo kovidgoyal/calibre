@@ -12,7 +12,7 @@ you just want greater control over the conversion system, calibre has a lot of
 options to fine tune the conversion process. Note however that calibre's
 conversion system is not a substitute for a full blown ebook editor. To edit
 ebooks, I recommend first converting them to EPUB or AZW3 using calibre and
-then using the Edit Book feature to get them into perfect shape. You can then
+then using the :guilabel:`Edit book` feature to get them into perfect shape. You can then
 use the edited ebook as input for conversion into other formats in calibre.
 
 This document will refer mainly to the conversion settings as found in the
@@ -323,7 +323,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
     choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
     tags can used, but calibre does not provide the ability to add the image during conversion, this must be done after the fact using 
-    the 'Edit Book' feature.
+    the 'Edit book' feature.
         
         Example image tag (place the image within an 'Images' folder inside the epub after conversion):
             <img style="width:10%" src="../Images/scenebreak.png" />
@@ -443,8 +443,8 @@ generate a Table of Contents in the converted ebook, based on the actual content
     create entries in the Table of Contents by simply clicking the place in the
     book where you want the entry to point. You can also use the ToC Editor by
     itself, without doing a conversion. Go to :guilabel:`Preferences->Toolbars`
-    and add the ToC Editor to the main toolbar. Then just select the book you
-    want to edit and click the ToC Editor button.
+    and add the :guilabel:`ToC Editor` to the main toolbar. Then just select the book you
+    want to edit and click the :guilabel:`ToC Editor` button.
 
 The first option is :guilabel:`Force use of auto-generated Table of Contents`. By checking this option
 you can have calibre override any Table of Contents found in the metadata of the input document with the
@@ -570,11 +570,11 @@ You can also change settings in the conversion dialog for each book conversion.
 When you convert a book, calibre remembers the settings you used for that book,
 so that if you convert it again, the saved settings for the individual book
 will take precedence over the defaults set in Preferences. You can restore the
-individual settings to defaults by using the Restore to defaults button in the
-individual book conversion dialog. You can remove the saved settings for a
-group of books by selecting all the books and then clicking the edit metadata
-button to bring up the bulk metadata edit dialog, near the bottom of the dialog
-is an option to remove stored conversion settings.
+individual settings to defaults by using the :guilabel:`Restore to defaults`
+button in the individual book conversion dialog. You can remove the saved
+settings for a group of books by selecting all the books and then clicking the
+edit metadata button to bring up the bulk metadata edit dialog, near the bottom
+of the dialog is an option to remove stored conversion settings.
 
 When you Bulk Convert a set of books, settings are taken in the following order (last one wins):
 
@@ -622,7 +622,7 @@ the latest version of calibre as support for ``.docx`` files is very new).
 
 calibre will automatically generate a Table of Contents based on headings if you mark
 your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
-the output ebook in the calibre viewer and click the Table of Contents button
+the output ebook in the calibre viewer and click the :guilabel:`Table of Contents` button
 to view the generated Table of Contents.
 
 Older .doc files
@@ -649,11 +649,11 @@ conventions.
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
-    :guilabel:`Paragraph Style: Auto`
+    :guilabel:`Paragraph style: Auto`
         Analyzes the text file and attempts to automatically determine how paragraphs are defined.  This
         option will generally work fine, if you achieve undesirable results try one of the manual options.
 
-    :guilabel:`Paragraph Style: Block`
+    :guilabel:`Paragraph style: Block`
         Assumes one or more blank lines are a paragraph boundary::
         
             This is the first.
@@ -661,14 +661,14 @@ TXT input supports a number of options to differentiate how paragraphs are detec
             This is the
             second paragraph.
 
-    :guilabel:`Paragraph Style: Single`
+    :guilabel:`Paragraph style: Single`
         Assumes that every line is a paragraph::
 
             This is the first.
             This is the second.
             This is the third.
         
-    :guilabel:`Paragraph Style: Print`
+    :guilabel:`Paragraph style: Print`
         Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
         the next line that starts with an indent is reached::
 
@@ -679,26 +679,26 @@ TXT input supports a number of options to differentiate how paragraphs are detec
               This is the
             third.
 
-    :guilabel:`Paragraph Style: Unformatted`
+    :guilabel:`Paragraph style: Unformatted`
         Assumes that the document has no formatting, but does use hard line breaks.  Punctuation
         and median line length are used to attempt to re-create paragraphs.
 
-    :guilabel:`Formatting Style: Auto`
+    :guilabel:`Formatting style: Auto`
         Attempts to detect the type of formatting markup being used.  If no markup is used then heuristic
         formatting will be applied.
 
-    :guilabel:`Formatting Style: Heuristic`
+    :guilabel:`Formatting style: Heuristic`
         Analyzes the document for common chapter headings, scene breaks, and italicized words and applies the
         appropriate html markup during conversion.
 
-    :guilabel:`Formatting Style: Markdown`
+    :guilabel:`Formatting style: Markdown`
         calibre also supports running TXT input though a transformation preprocessor known as markdown. Markdown
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
         lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
         You can learn more about the markdown syntax at `daringfireball <https://daringfireball.net/projects/markdown/syntax>`_.
 
-    :guilabel:`Formatting Style: None`
+    :guilabel:`Formatting style: None`
         Applies no special formatting to the text, the document is converted to html with no other changes.
 
 .. _pdfconversion:
@@ -731,7 +731,7 @@ Some limitations of PDF input are:
 To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
 output ranging anywhere from decent to unusable, depending on the input PDF.
 
-Comic Book Collections
+Comic book collections
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A comic book collection is a .cbc file. A .cbc file is a zip file that contains other CBZ/CBR files. In addition the

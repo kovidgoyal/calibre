@@ -791,7 +791,7 @@ class ViewerPlugin(Plugin):  # {{{
 
 class EditBookToolPlugin(Plugin):  # {{{
 
-    type = _('Edit Book Tool')
+    type = _('Edit book tool')
     minimum_calibre_version = (1, 46, 0)
 
 # }}}

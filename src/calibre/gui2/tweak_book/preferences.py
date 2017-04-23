@@ -662,7 +662,7 @@ class Preferences(QDialog):
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
-        self.setWindowTitle(_('Preferences for Edit Book'))
+        self.setWindowTitle(_('Preferences for Edit book'))
         self.setWindowIcon(QIcon(I('config.png')))
 
         self.stacks = QStackedWidget(self)

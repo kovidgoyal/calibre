@@ -118,7 +118,7 @@ Working with the Table of Contents
 .. autofunction:: create_inline_toc
 
 
-Edit Book Tool
+Edit book tool
 --------------------
 
 .. autoclass:: calibre.gui2.tweak_book.plugin.Tool

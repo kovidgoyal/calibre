@@ -180,7 +180,7 @@ You can see the ``prefs`` object being used in main.py:
     :lines: 151-
 
 
-Edit Book plugins
+Edit book plugins
 ------------------------------------------
 
 Now let's change gears for a bit and look at creating a plugin to add tools to
@@ -302,7 +302,7 @@ The first, most important step is to run calibre in debug mode. You can do this 
 
     calibre-debug -g
 
-Or from within calibre by right-clicking the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
+Or from within calibre by right-clicking the :guilabel:`Preferences` button or using the `Ctrl+Shift+R` keyboard shortcut.
 
 When running from the command line, debug output will be printed to the console, when running from within calibre the output will go to a txt file.
 

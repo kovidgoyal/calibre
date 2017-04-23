@@ -297,7 +297,7 @@ A *catalog* is a collection of books. calibre can manage two types of different 
 
     2. **Device**:  This is a collection of books stored in your ebook reader. It will be available when you connect the reader to your computer.
 
-Many operations, such as adding books, deleting, viewing, etc., are context sensitive. So, for example, if you click the View button when you have the **Device** catalog selected, calibre will open the files on the device to view. If you have the **Library** catalog selected, files in your calibre library will be opened instead.
+Many operations, such as adding books, deleting, viewing, etc., are context sensitive. So, for example, if you click the :guilabel:`View` button when you have the **Device** catalog selected, calibre will open the files on the device to view. If you have the **Library** catalog selected, files in your calibre library will be opened instead.
 
 .. _search_sort:
 
@@ -624,7 +624,7 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
 Keyboard Shortcuts
 ---------------------
 
-calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the Preferences button in the viewer.
+calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
 
 .. note::
 
@@ -634,7 +634,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     :widths: 10 100
     :header-rows: 1
 
-    * - Keyboard Shortcut
+    * - Keyboard shortcut
       - Action
     * - :kbd:`F2 (Enter in OS X)`
       - Edit the metadata of the currently selected field in the book list.
@@ -667,7 +667,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`S`
       - Save to Disk
     * - :kbd:`T`
-      - Edit Book
+      - Edit book
     * - :kbd:`V`
       - View
     * - :kbd:`Alt+V/Cmd+V in OS X`

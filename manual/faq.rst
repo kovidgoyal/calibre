@@ -125,7 +125,7 @@ to all the other files in the desired order. Such a file looks like::
       </body>
    </html>
 
-Then, just add this HTML file to the GUI and use the convert button to create
+Then, just add this HTML file to the GUI and use the :guilabel:`Convert` button to create
 your ebook. You can use the option in the Table of Contents section in the
 conversion dialog to control how the Table of Contents is generated.
 
@@ -326,7 +326,7 @@ over the net. First perform the following steps in calibre
   * Set the output profile to iPad (this will work for iPhone/iPods as well),
     under :guilabel:`Preferences->Conversion->Common options->Page setup`
   * Convert the books you want to read on your iDevice to EPUB format by
-    selecting them and clicking the Convert button.
+    selecting them and clicking the :guilabel:`Convert` button.
   * Turn on the Content Server by clicking the :guilabel:`Connect/Share` button
     and leave calibre running. You can also tell calibre to automatically start the
     content server via :guilabel:`Preferences->Sharing over the net`.
@@ -407,7 +407,7 @@ Using a USB cable
 
 Simply plug your device into the computer with a USB cable. calibre should
 automatically detect the device and then you can transfer books to it by
-clicking the Send to Device button. calibre does not have support for every
+clicking the :guilabel:`Send to device` button. calibre does not have support for every
 single android device out there, so if your device is not automatically
 detected, follow the instructions at :ref:`devsupport` to get your device
 supported in calibre.
@@ -439,8 +439,8 @@ calibre content server, which makes your collection available over the net.
 First perform the following steps in calibre
 
   * Set the :guilabel:`Preferred Output Format` in calibre to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
-  * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the Convert button.
-  * Turn on the Content Server in calibre's preferences and leave calibre running.
+  * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the :guilabel:`Convert` button.
+  * Turn on the :guilabel:`Content Server` in calibre's preferences and leave calibre running.
 
 Now on your Android device, open the browser and browse to
 
@@ -903,17 +903,16 @@ There are several possible things I know of, that can cause this:
       monitoring/managing application you have running. Turn it off and you
       should be fine.
 
-    * If the crashes happen specifically when you are using a file dialog,
-      like clicking on the Add Books button or the Save to Disk button, then
-      you have some software that has installed broken Shell extensions on your
-      computer. Known culprits include: *SpiderOak*, *odrive sync* and *Dell
-      Backup and Recovery*. If you have one of these, uninstall them and you
-      will be fine. You can also use the
-      `NirSoft Shell Extension Viewer <https://www.nirsoft.net/utils/shexview.html>`_
-      to see what shell extensions are installed on your system
-      and disable them individually, if you dont want to uninstall the full program.
-      Remember to use "Restart Explorer" or reboot your computer after
-      disabling the shell extensions.
+    * If the crashes happen specifically when you are using a file dialog, like
+      clicking on the :guilabel:`Add books` button or the :guilabel:`Save to
+      Disk button`, then you have some software that has installed broken Shell
+      extensions on your computer. Known culprits include: *SpiderOak*, *odrive
+      sync* and *Dell Backup and Recovery*. If you have one of these, uninstall
+      them and you will be fine. You can also use the `NirSoft Shell Extension
+      Viewer <https://www.nirsoft.net/utils/shexview.html>`_ to see what shell
+      extensions are installed on your system and disable them individually, if
+      you dont want to uninstall the full program.  Remember to use "Restart
+      Explorer" or reboot your computer after disabling the shell extensions.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with calibre. First reboot your computer in safe
@@ -1044,7 +1043,7 @@ Can I have the comment metadata show up on my reader?
 
 Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
-Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
+Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the :guilabel:`Convert` button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
 How do I get calibre to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

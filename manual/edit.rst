@@ -13,7 +13,7 @@ You can use this editor by right clicking on any book in calibre and selecting
 :guilabel:`Edit book`.
 
 .. image:: images/edit-book.png
-    :alt: The Edit Book tool
+    :alt: The Edit book tool
     :align: center
     :class: fit-img
 
@@ -206,14 +206,14 @@ right click and choose Link stylesheets to have calibre automatically insert the
 Search & Replace
 -------------------
 
-Edit Book has a very powerful search and replace interface that allows you to
+Edit book has a very powerful search and replace interface that allows you to
 search and replace text in the current file, across all files and even in a
 marked region of the current file. You can search using a normal search or
 using regular expressions. To learn how to use regular expressions for advanced
 searching, see :ref:`regexptutorial`.
 
 .. image:: images/sr.png
-    :alt: The Edit Book tool
+    :alt: The Edit book tool
     :align: center
 
 Start the search and replace via the :guilabel:`Search->Find/replace` menu

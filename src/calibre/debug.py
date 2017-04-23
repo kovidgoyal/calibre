@@ -58,7 +58,7 @@ Everything after the -- is passed to the script.
             default=False,
             help=_('Inspect the MOBI file(s) at the specified path(s)'))
     parser.add_option('-t', '--edit-book', action='store_true',
-            help=_('Launch the calibre Edit Book tool in debug mode.'))
+            help=_('Launch the calibre Edit book tool in debug mode.'))
     parser.add_option('-x', '--explode-book', default=None,
             help=_('Explode the book (exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
@@ -317,6 +317,7 @@ def main(args=sys.argv):
         ipython()
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

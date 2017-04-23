@@ -233,7 +233,7 @@ class CursorPositionWidget(QWidget):  # {{{
 
 class Main(MainWindow):
 
-    APP_NAME = _('Edit Book')
+    APP_NAME = _('Edit book')
     STATE_VERSION = 0
 
     def __init__(self, opts, notify=None):

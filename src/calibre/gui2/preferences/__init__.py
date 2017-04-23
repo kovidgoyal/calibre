@@ -36,7 +36,7 @@ class ConfigWidgetInterface(object):
     #: Set to True iff the :meth:`restore_to_defaults` method is implemented.
     supports_restoring_to_defaults = True
 
-    #: The tooltip for the Restore to defaults button
+    #: The tooltip for the "Restore to defaults" button
     restore_defaults_desc = _('Restore settings to default values. '
             'You have to click Apply to actually save the default settings.')
 
@@ -408,8 +408,7 @@ def test_all():
         test_widget(plugin.category, plugin.name, gui=gui)
     gui.shutdown()
 
+
 if __name__ == '__main__':
     test_all()
 # }}}
-
-

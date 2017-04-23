@@ -170,7 +170,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super(BookUploadsGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Book Uploading"))
+        self.setTitle(_("Book uploading"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
@@ -316,7 +316,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
         self.setLayout(self.options_layout)
 
         self.show_recommendations_checkbox = create_checkbox(
-                             _("Show Recommendations"),
+                             _("Show recommendations"),
                              _('Kobo shows recommendations on the device.  In some cases these have '
                                'files but in other cases they are just pointers to the web site to buy. '
                                'Enable if you wish to see/delete them.'),
@@ -331,7 +331,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.show_previews_checkbox = create_checkbox(
-                             _('Show Previews'),
+                             _('Show previews'),
                              _('Kobo previews are included on the Touch and some other versions'
                                ' by default they are no longer displayed as there is no good reason to '
                                'see them.  Enable if you wish to see/delete them.'),
@@ -359,7 +359,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 class AdvancedGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(AdvancedGroupBox, self).__init__(parent, device, _("Advanced Options"))
+        super(AdvancedGroupBox, self).__init__(parent, device, _("Advanced options"))
 #         self.setTitle(_("Advanced Options"))
 
         self.options_layout = QGridLayout()
