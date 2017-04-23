@@ -13,7 +13,7 @@ class DevicePlugin(Plugin):
     Defines the interface that should be implemented by backends that
     communicate with an ebook reader.
     """
-    type = _('Device Interface')
+    type = _('Device interface')
 
     #: Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
