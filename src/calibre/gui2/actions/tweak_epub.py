@@ -107,7 +107,7 @@ class TweakEpubAction(InterfaceAction):
         fmts = [x.upper().strip() for x in fmts.split(',')]
         tweakable_fmts = set(fmts).intersection(SUPPORTED)
         if not tweakable_fmts:
-            return error_dialog(self.gui, _('Cannot Edit book'),
+            return error_dialog(self.gui, _('Cannot edit book'),
                     _('The book must be in the %s formats to edit.'
                         '\n\nFirst convert the book to one of these formats.') % (_(' or ').join(SUPPORTED)),
                     show=True)

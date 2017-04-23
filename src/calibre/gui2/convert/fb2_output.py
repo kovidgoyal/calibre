@@ -12,7 +12,7 @@ format_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('FB2 Output')
+    TITLE = _('FB2 output')
     HELP = _('Options specific to')+' FB2 '+_('output')
     COMMIT_NAME = 'fb2_output'
     ICON = I('mimetypes/fb2.png')

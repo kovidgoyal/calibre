@@ -117,7 +117,7 @@ class EditorWidget(QWebView):  # {{{
                 ('Indent', 'indent', 'format-indent-more',
                     _('Increase indentation'), False),
                 ('Outdent', 'outdent', 'format-indent-less',
-                    _('Decrease Indentation'), False),
+                    _('Decrease indentation'), False),
                 ('SelectAll', 'select_all', 'edit-select-all',
                     _('Select all'), False),
             ]:

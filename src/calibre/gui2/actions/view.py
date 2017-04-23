@@ -203,7 +203,7 @@ class ViewAction(InterfaceAction):
     def _view_check(self, num, max_=3):
         if num <= max_:
             return True
-        return question_dialog(self.gui, _('Multiple Books Selected'),
+        return question_dialog(self.gui, _('Multiple books selected'),
                 _('You are attempting to open %d books. Opening too many '
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '

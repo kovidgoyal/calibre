@@ -13,7 +13,7 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('EPUB Output')
+    TITLE = _('EPUB output')
     HELP  = _('Options specific to')+' EPUB '+_('output')
     COMMIT_NAME = 'epub_output'
     ICON = I('mimetypes/epub.png')
@@ -29,4 +29,3 @@ class PluginWidget(Widget, Ui_Form):
             self.opt_no_svg_cover.toggle()
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-

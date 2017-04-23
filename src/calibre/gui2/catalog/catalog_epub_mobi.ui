@@ -448,7 +448,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            </size>
           </property>
           <property name="toolTip">
-           <string>Custom column containing additional content to be merged with Comments metadata in Descriptions section.</string>
+           <string>Custom column containing additional content to be merged with comments metadata in the descriptions section.</string>
           </property>
          </widget>
         </item>
@@ -462,7 +462,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QRadioButton" name="merge_before">
           <property name="toolTip">
-           <string>Merge additional content before Comments in Descriptions section.</string>
+           <string>Merge additional content before comments in descriptions section.</string>
           </property>
           <property name="text">
            <string>&amp;Before</string>
@@ -475,7 +475,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QRadioButton" name="merge_after">
           <property name="toolTip">
-           <string>Merge additional content after Comments in Descriptions section.</string>
+           <string>Merge additional content after comments in descriptions section.</string>
           </property>
           <property name="text">
            <string>&amp;After</string>
@@ -495,10 +495,10 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QCheckBox" name="include_hr">
           <property name="toolTip">
-           <string>Separate Comments metadata and additional content with a horizontal rule in Descriptions section.</string>
+           <string>Separate comments metadata and additional content with a horizontal rule in the descriptions section.</string>
           </property>
           <property name="text">
-           <string>Include &amp;Separator</string>
+           <string>Include &amp;separator</string>
           </property>
          </widget>
         </item>
@@ -519,7 +519,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="text">
-         <string>&amp;Merge with Comments:</string>
+         <string>&amp;Merge with comments:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

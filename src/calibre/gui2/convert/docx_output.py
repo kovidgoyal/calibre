@@ -14,7 +14,7 @@ orientation_model = None
 
 class PluginWidget(Widget):
 
-    TITLE = _('DOCX Output')
+    TITLE = _('DOCX output')
     HELP = _('Options specific to')+' DOCX '+_('output')
     COMMIT_NAME = 'docx_output'
     ICON = I('mimetypes/docx.png')
