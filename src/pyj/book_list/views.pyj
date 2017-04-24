@@ -14,7 +14,7 @@ from book_list.cover_grid import (
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
-    book_metadata, current_library_id, current_sorted_field,
+    book_metadata, current_sorted_field,
     ensure_current_library_data, library_data, load_status, loaded_books_query,
     thumbnail_cache, url_books_query
 )
@@ -61,7 +61,7 @@ def clear_grid():
 
 
 def show_book_details(book_id):
-    show_panel('book_details', {'book_id':book_id, 'library_id':current_library_id()})
+    show_panel('book_details', {'book_id':book_id})
 
 
 def create_image(book_id, max_width, max_height, on_load):
@@ -296,7 +296,7 @@ def create_more_actions_panel(container_id):
     items = [
         create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed')),
         create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
-                    query = {'library_id': current_library_id(), 'book_id':'0'}
+                    query = {'book_id':'0'}
                     show_panel('book_details', query=query, replace=True)
         ),
     ]

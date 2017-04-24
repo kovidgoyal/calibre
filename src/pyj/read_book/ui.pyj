@@ -13,7 +13,7 @@ from utils import human_readable, debounce
 from book_list.constants import read_book_container_id
 from read_book.db import get_db
 from book_list.router import update_window_title
-from book_list.library_data import library_data, current_library_id
+from book_list.library_data import library_data, current_library_id, current_virtual_library
 from read_book.view import View
 
 RENDER_VERSION = __RENDER_VERSION__
@@ -75,6 +75,7 @@ class ReadUI:
         if self.current_book_id:
             a.setAttribute('href', encode_query({
                 'library_id':current_library_id(),
+                'vl': current_virtual_library(),
                 'book-id': (self.current_book_id + ''),
                 'panel':'book-details'
             }))
