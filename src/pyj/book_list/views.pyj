@@ -61,7 +61,7 @@ def clear_grid():
 
 
 def show_book_details(book_id):
-    show_panel('book_details', {'book_id':book_id})
+    show_panel('book_details', {'book_id':book_id, 'library_id':current_library_id()})
 
 
 def create_image(book_id, max_width, max_height, on_load):
