@@ -87,7 +87,7 @@ to its attributes.
 .. _sample_ebook :
 
 Sample e-book
-------------
+-------------
 
 .. literalinclude:: xpath.xhtml
     :language: html
