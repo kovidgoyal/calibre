@@ -304,15 +304,16 @@ def book_metadata(ctx, rd, book_id):
     '''
     Get metadata for the specified book. If no book_id is specified, return metadata for a random book.
 
-    Optional: ?library_id=<default library>
+    Optional: ?library_id=<default library>&vl=<virtual library>
     '''
-    library_id, db = get_basic_query_data(ctx, rd)[:2]
+    library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
 
     def notfound():
         raise HTTPNotFound(_('No book with id: {} in library: {}').format(book_id, library_id))
 
     if not book_id:
-        book_id = random.choice(tuple(db.all_book_ids()))
+        all_ids = db.books_in_virtual_library(vl) if vl else db.all_book_ids()
+        book_id = random.choice(tuple(all_ids))
     elif not db.has_id(book_id):
         notfound()
     data = book_as_json(db, book_id)

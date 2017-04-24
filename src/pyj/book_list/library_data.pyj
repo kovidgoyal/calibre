@@ -18,6 +18,11 @@ def current_library_id():
     return q.library_id or get_interface_data().default_library_id
 
 
+def current_virtual_library():
+    q = parse_url_params()
+    return q.vl or ''
+
+
 def url_books_query(sd):
     q = parse_url_params()
     sd = sd or get_session_data()
@@ -26,6 +31,7 @@ def url_books_query(sd):
         'library_id': lid,
         'sort': q.sort or sd.get_library_option(lid, 'sort'),
         'search': q.search,
+        'vl': current_virtual_library(),
     }
 
 
@@ -37,7 +43,8 @@ def loaded_books_query():
     return {
         'library_id': sr.library_id if sr else None,
         'sort': sort,
-        'search': sr?.query
+        'search': sr?.query,
+        'vl':sr?.vl
     }
 
 
@@ -111,8 +118,14 @@ def ensure_current_library_data():
     q = url_books_query()
     loaded = loaded_books_query()
     matches = True
+
+    def is_same(a, b):
+        if not a and not b:
+            return True
+        return a is b
+
     for key in q:
-        if q[key] is not loaded[key]:
+        if not is_same(q[key], loaded[key]):
             matches = False
             break
     if not matches:
