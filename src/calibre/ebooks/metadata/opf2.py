@@ -1163,6 +1163,11 @@ class OPF(object):  # {{{
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
                     return v
 
+    @property
+    def primary_writing_mode(self):
+        for m in self.XPath('//*[local-name()="meta" and @name="primary-writing-mode" and @content]')(self.root):
+            return m.get('content')
+
     def guess_cover(self):
         '''
         Try to guess a cover. Needed for some old/badly formed OPF files.
@@ -1384,6 +1389,7 @@ class OPFCreator(Metadata):
         Metadata.__init__(self, title='', other=other)
         self.base_path = os.path.abspath(base_path)
         self.page_progression_direction = None
+        self.primary_writing_mode = None
         if self.application_id is None:
             self.application_id = str(uuid.uuid4())
         if not isinstance(self.toc, TOC):
@@ -1546,6 +1552,8 @@ class OPFCreator(Metadata):
             from calibre.ebooks.metadata.book.json_codec import object_to_unicode
             a(CAL_ELEM('calibre:user_categories',
                        json.dumps(object_to_unicode(self.user_categories))))
+        if self.primary_writing_mode:
+            a(M.meta(name='primary-writing-mode', content=self.primary_writing_mode))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:

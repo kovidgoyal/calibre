@@ -34,6 +34,7 @@ class EXTHHeader(object):  # {{{
         self.kf8_header = None
         self.uuid = self.cdetype = None
         self.page_progression_direction = None
+        self.primary_writing_mode = None
 
         self.decode = lambda x : clean_ascii_chars(x.decode(codec, 'replace'))
 
@@ -82,6 +83,13 @@ class EXTHHeader(object):  # {{{
                     if lang:
                         self.mi.language = lang
                 except:
+                    pass
+            elif idx == 525:
+                try:
+                    pwm = content.decode(codec)
+                    if pwm:
+                        self.primary_writing_mode = pwm
+                except Exception:
                     pass
             elif idx == 527:
                 try:
@@ -336,4 +344,3 @@ class MetadataHeader(BookHeader):
         except OverflowError:
             self.stream.seek(start)
             return self.stream.read()
-

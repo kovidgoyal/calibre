@@ -40,6 +40,7 @@ EXTH_CODES = {
     'lastupdatetime': 502,
     'title': 503,
     'language': 524,
+    'primary_writing_mode': 525,
     'page_progression_direction': 527,
 }
 
@@ -50,7 +51,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         share_not_sync=True, cover_offset=None, thumbnail_offset=None,
         start_offset=None, mobi_doctype=2, num_of_resources=None,
         kf8_unknown_count=0, be_kindlegen2=False, kf8_header_index=None,
-        page_progression_direction=None):
+        page_progression_direction=None, primary_writing_mode=None):
     exth = BytesIO()
     nrecs = 0
 
@@ -208,6 +209,12 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             kf8_unknown_count))
         nrecs += 1
 
+    if primary_writing_mode:
+        pwm = primary_writing_mode.encode('utf-8')
+        exth.write(pack(b'>II', EXTH_CODES['primary_writing_mode'], len(pwm) + 8))
+        exth.write(pwm)
+        nrecs += 1
+
     if page_progression_direction in {'rtl', 'ltr', 'default'}:
         ppd = bytes(page_progression_direction)
         exth.write(pack(b'>II', EXTH_CODES['page_progression_direction'], len(ppd) + 8))
@@ -219,5 +226,3 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     pad = b'\0' * (4 - trail)  # Always pad w/ at least 1 byte
     exth = [b'EXTH', pack(b'>II', len(exth) + 12, nrecs), exth, pad]
     return b''.join(exth)
-
-

@@ -209,6 +209,7 @@ class MOBIHeader(Header):  # {{{
 
 # }}}
 
+
 HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'first_non_text_record', 'title_length', 'language_code',
                     'first_resource_record', 'exth_flags', 'fdst_record',
@@ -223,6 +224,7 @@ class KF8Book(object):
         self.build_records(writer, for_joint)
         self.used_images = writer.used_images
         self.page_progression_direction = writer.oeb.spine.page_progression_direction
+        self.primary_writing_mode = writer.oeb.metadata.primary_writing_mode
 
     def build_records(self, writer, for_joint):
         metadata = writer.oeb.metadata
@@ -311,7 +313,8 @@ class KF8Book(object):
             num_of_resources=self.num_of_resources,
             kf8_unknown_count=self.kuc, be_kindlegen2=True,
             start_offset=self.start_offset, mobi_doctype=self.book_type,
-            page_progression_direction=self.page_progression_direction
+            page_progression_direction=self.page_progression_direction,
+            primary_writing_mode=self.primary_writing_mode
         )
 
         kwargs = {field:getattr(self, field) for field in HEADER_FIELDS}
@@ -342,4 +345,3 @@ class KF8Book(object):
 
             for rec in records:
                 f.write(rec)
-

@@ -512,6 +512,9 @@ class Mobi8Reader(object):
         ppd = getattr(self.header.exth, 'page_progression_direction', None)
         if ppd in {'ltr', 'rtl', 'default'}:
             opf.page_progression_direction = ppd
+        pwm = getattr(self.header.exth, 'primary_writing_mode', None)
+        if pwm is not None:
+            opf.primary_writing_mode = pwm
 
         with open('metadata.opf', 'wb') as of, open('toc.ncx', 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx')
