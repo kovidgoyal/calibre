@@ -42,6 +42,7 @@ def contains(l1, r1, l2, r2):
     # True iff (l2, r2) if contained in (l1, r1)
     return l2 > l1 and r2 < r1
 
+
 builtin_snippets = {  # {{{
     snip_key('Lorem', 'html', 'xml'):  {
         'description': _('Insert filler text'),
@@ -161,6 +162,7 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
     return ''.join(parts), tab_stops
 
 # }}}
+
 
 _snippets = None
 user_snippets = JSONConfig('editor_snippets')
@@ -565,7 +567,7 @@ class EditSnippet(QWidget):
 class UserSnippets(Dialog):
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Create/Edit snippets'), 'snippet-editor', parent=parent)
+        Dialog.__init__(self, _('Create/edit snippets'), 'snippet-editor', parent=parent)
         self.setWindowIcon(QIcon(I('snippets.png')))
 
     def setup_ui(self):
@@ -711,6 +713,7 @@ class UserSnippets(Dialog):
             self.stack.setCurrentIndex(1)
             self.edit_snip.apply_snip(lw.currentItem().data(Qt.UserRole), creating_snippet=True)
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

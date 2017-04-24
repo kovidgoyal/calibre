@@ -612,8 +612,8 @@ class EbookViewer(MainWindow):
 
     def open_ebook(self, checked):
         files = choose_files(self, 'ebook viewer open dialog',
-                     _('Choose ebook'),
-                     [(_('Ebooks'), available_input_formats())],
+                     _('Choose e-book'),
+                     [(_('E-books'), available_input_formats())],
                      all_files=False,
                      select_only_single_file=True)
         if files:
@@ -913,7 +913,7 @@ class EbookViewer(MainWindow):
         self.bookmarks_menu.clear()
         sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Bookmark'))
         self.bookmarks_menu.addAction(_("Bookmark this location [%s]") % sc, self.bookmark)
-        self.bookmarks_menu.addAction(_("Show/hide Bookmarks"), self.bookmarks_dock.toggleViewAction().trigger)
+        self.bookmarks_menu.addAction(_("Show/hide bookmarks"), self.bookmarks_dock.toggleViewAction().trigger)
         self.bookmarks_menu.addSeparator()
         current_page = None
         self.existing_bookmarks = []
@@ -961,7 +961,7 @@ class EbookViewer(MainWindow):
             self.iterator.__exit__()
         self.iterator = EbookIterator(pathtoebook, copy_bookmarks_to_file=self.view.document.copy_bookmarks_to_file)
         self.history.clear()
-        self.open_progress_indicator(_('Loading ebook...'))
+        self.open_progress_indicator(_('Loading e-book...'))
         worker = Worker(target=partial(self.iterator.__enter__, view_kepub=True))
         worker.path_to_ebook = pathtoebook
         worker.start()
@@ -976,7 +976,7 @@ class EbookViewer(MainWindow):
                 DRMErrorMessage(self).exec_()
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
-                error_dialog(self, _('Could not open ebook'),
+                error_dialog(self, _('Could not open e-book'),
                         as_unicode(r) or _('Unknown error'),
                         det_msg=tb, show=True)
             self.close_progress_indicator()

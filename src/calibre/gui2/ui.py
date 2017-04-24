@@ -750,7 +750,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.set_number_of_books_shown()
         self.update_status_bar()
 
-    def job_exception(self, job, dialog_title=_('Conversion Error'), retry_func=None):
+    def job_exception(self, job, dialog_title=_('Conversion error'), retry_func=None):
         if not hasattr(self, '_modeless_dialogs'):
             self._modeless_dialogs = []
         minz = self.is_minimized_to_tray
@@ -800,7 +800,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     idx = job.details.index('calibre.ebooks.mobi.reader.mobi6.KFXError:')
                     msg += '<p>' + re.sub(r'(https:\S+)', r'<a href="\1">{}</a>'.format(_('here')),
                                           job.details[idx:].partition(':')[2].strip())
-                    d = error_dialog(self, _('Conversion Failed'), msg, det_msg=job.details)
+                    d = error_dialog(self, _('Conversion failed'), msg, det_msg=job.details)
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -890,7 +890,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         if self.proceed_question.questions:
             msg = _('There are library updates waiting. Are you sure you want to quit?')
-            if not question_dialog(self, _('Library Updates Waiting'), msg):
+            if not question_dialog(self, _('Library updates waiting'), msg):
                 return False
 
         from calibre.db.delete_service import has_jobs

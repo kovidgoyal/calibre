@@ -739,7 +739,7 @@ class FileList(QTreeWidget):
         filters = [oext]
         fname = _('Files')
         if mt in OEB_DOCS:
-            fname = _('HTML Files')
+            fname = _('HTML files')
             filters = 'html htm xhtm xhtml shtml'.split()
         elif is_raster_image(mt):
             fname = _('Images')

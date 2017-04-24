@@ -202,7 +202,7 @@ class ModeBox(QComboBox):
 
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
-        self.addItems([_('Normal'), _('Regex'), _('Regex-Function')])
+        self.addItems([_('Normal'), _('Regex'), _('Regex-function')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''Select how the search expression is interpreted
             <dl>
@@ -210,7 +210,7 @@ class ModeBox(QComboBox):
             <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
-            <dt><b>Regex-Function</b></dt>
+            <dt><b>Regex-function</b></dt>
             <dd>The search expression is interpreted as a regular expression. The replace expression is an arbitrarily powerful python function.</dd>
             </dl>'''))
 
@@ -998,8 +998,8 @@ class SavedSearches(QWidget):
         self.eb2 = b = pb(_('E&xport'), _('Export saved searches'))
         v.addWidget(b)
         self.em = m = QMenu(_('Export'))
-        m.addAction(_('Export All'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
-        m.addAction(_('Export Selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
+        m.addAction(_('Export all'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
+        m.addAction(_('Export selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
         b.setMenu(m)
 
         self.searches.setFocus(Qt.OtherFocusReason)
@@ -1433,7 +1433,7 @@ def run_search(
             prefix += ' '
         error_dialog(
             gui_parent, _('Cannot replace'), prefix + _(
-            'You must first click Find, before trying to replace'), show=True)
+            'You must first click "Find", before trying to replace'), show=True)
         return False
 
     def do_replace():

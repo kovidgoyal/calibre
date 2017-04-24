@@ -1,6 +1,6 @@
 .. _db_api:
 
-API Documentation for the database interface
+API documentation for the database interface
 ======================================================
 
 .. module:: calibre.db.cache

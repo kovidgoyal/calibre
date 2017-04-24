@@ -858,8 +858,8 @@ class WordsView(QTableView):
             for s in dictionaries.suggestions(*w):
                 cm.addAction(s, partial(self.change_to.emit, w, s))
 
-        m.addAction(_('Ignore/Unignore all selected words'), self.ignore_all)
-        a = m.addAction(_('Add/Remove all selected words'))
+        m.addAction(_('Ignore/un-ignore all selected words'), self.ignore_all)
+        a = m.addAction(_('Add/remove all selected words'))
         am = QMenu()
         a.setMenu(am)
         for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):

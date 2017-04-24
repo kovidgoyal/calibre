@@ -1,6 +1,6 @@
 .. _polish_api:
 
-API Documentation for the ebook editing tools
+API documentation for the e-book editing tools
 ===============================================
 
 The ebook editing tools consist of a

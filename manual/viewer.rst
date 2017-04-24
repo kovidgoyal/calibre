@@ -1,9 +1,9 @@
 .. _viewer:
 
-The Ebook Viewer
+The E-book viewer
 =============================
 
-calibre includes a built-in ebook viewer that can view all the major ebook formats. 
+calibre includes a built-in e-book viewer that can view all the major e-book formats. 
 The viewer is highly customizable and has many advanced features. 
 
 .. contents::
@@ -14,11 +14,11 @@ Starting the viewer
 --------------------
 
 You can view any of the books in your calibre library by selecting the book and pressing the :guilabel:`View` button. This
-will open up the book in the ebook viewer. You can also launch the viewer by itself from the Start menu in Windows
+will open up the book in the e-book viewer. You can also launch the viewer by itself from the Start menu in Windows
 or using the command :command:`ebook-viewer` in Linux and OS X (you have to install the command line tools on OS X
 first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
 
-Navigating around an ebook
+Navigating around an e-book
 -----------------------------
 
 .. |pni| image:: images/prev_next.png
@@ -33,7 +33,7 @@ Navigating around an ebook
 
 
 You can "turn pages" in a book by using the :guilabel:`Page Next` and :guilabel:`Page Previous` buttons |pni|, or by pressing
-the Page Down/Page Up keys. Unlike most ebook viewers, calibre does not force you to view books in paged mode. You can
+the Page Down/Page Up keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode. You can
 scroll by amounts less than a page by using the scroll bar or various customizable keyboard shortcuts. 
 
 Bookmarks
@@ -53,7 +53,7 @@ This will bring up a list of sections in the book. You can click on any of them 
 Navigating by location
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ebooks, unlike paper books, have no concept of pages. Instead,
+E-books, unlike paper books, have no concept of pages. Instead,
 as you read through the book, you will notice that your position in the book is displayed in the upper left corner in a box
 like this |navposi|. This is both your current position and the total length of the book. These numbers are independent of the screen size and font
 size you are viewing the book at, and they play a similar role to page numbers in paper books.
@@ -70,7 +70,7 @@ You can use this number to unambiguously refer to parts of the books when discus
 in other works. You can enter these numbers in the box marked Go to at the top of the window to go to a particular
 reference location. 
 
-If you click on links inside the ebook to take you to different parts of the book, such as an endnote, you can use the :guilabel:`Back` and :guilabel:`Forward` buttons 
+If you click on links inside the e-book to take you to different parts of the book, such as an endnote, you can use the :guilabel:`Back` and :guilabel:`Forward` buttons 
 in the top left corner to return to where you were. These buttons behave just like those in a web browser. 
 
 Customizing the look and feel of your reading experience

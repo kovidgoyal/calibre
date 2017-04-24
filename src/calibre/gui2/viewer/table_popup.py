@@ -54,7 +54,7 @@ class TableView(QDialog):
         geom = gprefs.get('viewer_table_popup_geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
-        self.setWindowTitle(_('View Table'))
+        self.setWindowTitle(_('View table'))
         self.show()
 
     def done(self, e):
@@ -81,4 +81,3 @@ class TablePopup(object):
         for d in tuple(self.dialogs):
             if not d.isVisible():
                 self.dialogs.remove(d)
-

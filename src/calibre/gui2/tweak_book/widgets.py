@@ -622,7 +622,7 @@ class InsertLink(Dialog):
         self.container = container
         self.source_name = source_name
         self.initial_text = initial_text
-        Dialog.__init__(self, _('Insert Hyperlink'), 'insert-hyperlink', parent=parent)
+        Dialog.__init__(self, _('Insert hyperlink'), 'insert-hyperlink', parent=parent)
         self.anchor_cache = {}
 
     def sizeHint(self):
@@ -743,7 +743,7 @@ class InsertSemantics(Dialog):
             for item in container.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
         self.final_type_map = self.original_type_map.copy()
         self.create_known_type_map()
-        Dialog.__init__(self, _('Set Semantics'), 'insert-semantics', parent=parent)
+        Dialog.__init__(self, _('Set semantics'), 'insert-semantics', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)

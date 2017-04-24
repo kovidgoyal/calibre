@@ -432,18 +432,18 @@ class Main(MainWindow):
         self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5',), _('Refresh preview'))
         self.action_split_in_preview = reg('document-split.png', _('Split this file'), None, 'split-in-preview', (), _(
             'Split file in the preview panel'))
-        self.action_find_next_preview = reg('arrow-down.png', _('Find Next'), None, 'find-next-preview', (), _('Find next in preview'))
-        self.action_find_prev_preview = reg('arrow-up.png', _('Find Previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
+        self.action_find_next_preview = reg('arrow-down.png', _('Find next'), None, 'find-next-preview', (), _('Find next in preview'))
+        self.action_find_prev_preview = reg('arrow-up.png', _('Find previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
 
         # Search actions
         group = _('Search')
-        self.action_find = treg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+        self.action_find = treg('search.png', _('&Find/replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/replace panel'))
 
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
             return reg(icon, text, partial(self.boss.search_action_triggered, action, overrides), name, keys, description or text.replace('&', ''))
-        self.action_find_next = sreg('find-next', _('Find &Next'),
+        self.action_find_next = sreg('find-next', _('Find &next'),
                                      'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
-        self.action_find_previous = sreg('find-previous', _('Find &Previous'),
+        self.action_find_previous = sreg('find-previous', _('Find &previous'),
                                          'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
         self.action_replace = sreg('replace', _('Replace'),
                                    'replace', keys=('Ctrl+R'), description=_('Replace current match'))
