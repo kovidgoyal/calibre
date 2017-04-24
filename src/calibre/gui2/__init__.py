@@ -935,16 +935,16 @@ def setup_hidpi():
     hidpi = gprefs['hidpi']
     if hidpi == 'on' or (hidpi == 'auto' and not has_env_setting):
         if DEBUG:
-            prints('Turning on hidpi scaling')
+            prints('Turning on automatic hidpi scaling')
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     elif hidpi == 'off':
         if DEBUG:
-            prints('Turning off hidpi scaling')
+            prints('Turning off automatic hidpi scaling')
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, False)
         for p in env_vars:
             os.environ.pop(p, None)
     elif DEBUG:
-        prints('Not controlling hidpi scaling')
+        prints('Not controlling automatic hidpi scaling')
 
 
 class Application(QApplication):
