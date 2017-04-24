@@ -23,6 +23,12 @@ def current_virtual_library():
     return q.vl or ''
 
 
+def last_virtual_library_for(library_id):
+    if last_virtual_library_for.library_id is library_id:
+        return last_virtual_library_for.vl or ''
+    return ''
+
+
 def url_books_query(sd):
     q = parse_url_params()
     sd = sd or get_session_data()
@@ -63,6 +69,13 @@ def update_library_data(data):
     load_status.error_html = None
     for key in 'search_result sortable_fields field_metadata metadata'.split(' '):
         library_data[key] = data[key]
+    sr = library_data.search_result
+    if sr:
+        last_virtual_library_for.library_id = sr.library_id
+        last_virtual_library_for.vl = sr.vl
+    else:
+        last_virtual_library_for.library_id = None
+        last_virtual_library_for.vl = None
 
 
 def on_data_loaded(end_type, xhr, ev):
