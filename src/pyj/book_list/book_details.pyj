@@ -15,7 +15,7 @@ from session import get_interface_data
 from utils import fmt_sidx, parse_url_params, conditional_timeout
 
 from book_list.router import back, open_book
-from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status
+from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status, current_virtual_library
 from book_list.top_bar import create_top_bar, set_title, add_button
 from book_list.ui import set_panel_handler
 from book_list.views import search
@@ -401,7 +401,7 @@ def fetch_metadata(container_id, book_id):
     if current_fetch:
         current_fetch.abort()
     current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id),
-                            query={'library_id':current_library_id().library_id})
+                         query={'library_id':current_library_id(), 'vl':current_virtual_library()})
     current_fetch.send()
     container = container.lastChild
     clear(container)

@@ -540,12 +540,13 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
     total_num = len(ids)
     ids = ids[offset:offset+num]
     return {
-            'total_num': total_num, 'sort_order':sort_order,
-            'offset':offset, 'num':len(ids), 'sort':sort,
-            'base_url':ctx.url_for(search, library_id=db.server_library_id),
-            'query': query,
-            'library_id': db.server_library_id,
-            'book_ids':ids
+        'total_num': total_num, 'sort_order':sort_order,
+        'offset':offset, 'num':len(ids), 'sort':sort,
+        'base_url':ctx.url_for(search, library_id=db.server_library_id),
+        'query': query,
+        'library_id': db.server_library_id,
+        'book_ids':ids,
+        'vl': vl,
     }
 
 
