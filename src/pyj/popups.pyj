@@ -60,7 +60,8 @@ def show_popup(popup_id, associated_widget_ids=None):
 
 def hide_popup(popup_id):
     elem = document.getElementById(popup_id)
-    elem.style.display = 'none'
+    if elem:
+        elem.style.display = 'none'
     v'delete associated_widgets[popup_id]'
 
 class CompletionPopup:
