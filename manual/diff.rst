@@ -4,10 +4,10 @@ Comparing e-books
 ========================
 
 calibre includes an integrated e-book comparison tool that can be used to see
-what has changed inside an ebook after editing or converting it. It can compare
+what has changed inside an e-book after editing or converting it. It can compare
 books in the EPUB and AZW3 formats.
 
-To use it, either open the ebook in the tool for :ref:`edit` and then click
+To use it, either open the e-book in the tool for :ref:`edit` and then click
 :guilabel:`File->Compare to other book` or use the :ref:`book_details` panel.
 If you do a conversion from EPUB to EPUB, the original EPUB file will be saved
 as ORIGINAL_EPUB. Simply right click on the ORIGINAL_EPUB entry in the Book
@@ -57,7 +57,7 @@ The comparison tool is most useful when you have two versions of the same book
 and you want to see what is different between them. To that end, there are
 several ways to launch the tool.
 
-Comparing two ebook files
+Comparing two e-book files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Open the first file in the :ref:`edit` tool. Now click :guilabel:`File->Compare

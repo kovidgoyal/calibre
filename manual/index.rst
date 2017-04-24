@@ -16,7 +16,7 @@ Adding your favorite news website to calibre
 
    news
 
-The calibre ebook viewer
+The calibre e-book viewer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -24,7 +24,7 @@ The calibre ebook viewer
 
    viewer
 
-Customizing calibre's ebook conversion
+Customizing calibre's e-book conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -32,7 +32,7 @@ Customizing calibre's ebook conversion
 
    conversion
 
-Editing ebooks
+Editing e-books
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -40,7 +40,7 @@ Editing ebooks
 
    edit
 
-Comparing ebooks
+Comparing e-books
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -48,7 +48,7 @@ Comparing ebooks
 
    diff
 
-Editing ebook metadata
+Editing e-book metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::

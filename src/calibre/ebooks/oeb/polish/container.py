@@ -217,10 +217,10 @@ class ContainerBase(object):  # {{{
 class Container(ContainerBase):  # {{{
 
     '''
-    A container represents an Open EBook as a directory full of files and an
+    A container represents an Open E-Book as a directory full of files and an
     opf file. There are two important concepts:
 
-        * The root directory. This is the base of the ebook. All the ebooks
+        * The root directory. This is the base of the e-book. All the e-books
           files are inside this directory or in its sub-directories.
 
         * Names: These are paths to the books' files relative to the root
@@ -230,7 +230,7 @@ class Container(ContainerBase):  # {{{
           in the NFC unicode normal form.
 
         * Clones: the container object supports efficient on-disk cloning, which is used to
-          implement checkpoints in the ebook editor. In order to make this work, you should
+          implement checkpoints in the e-book editor. In order to make this work, you should
           never access files on the filesystem directly. Instead, use :meth:`raw_data` or
           :meth:`open` to read/write to component files in the book.
 
@@ -545,17 +545,17 @@ class Container(ContainerBase):  # {{{
 
     @property
     def names_that_need_not_be_manifested(self):
-        ' Set of names that are allowed to be missing from the manifest. Depends on the ebook file format. '
+        ' Set of names that are allowed to be missing from the manifest. Depends on the e-book file format. '
         return {self.opf_name}
 
     @property
     def names_that_must_not_be_removed(self):
-        ' Set of names that must never be deleted from the container. Depends on the ebook file format. '
+        ' Set of names that must never be deleted from the container. Depends on the e-book file format. '
         return {self.opf_name}
 
     @property
     def names_that_must_not_be_changed(self):
-        ' Set of names that must never be renamed. Depends on the ebook file format. '
+        ' Set of names that must never be renamed. Depends on the e-book file format. '
         return set()
 
     def parse(self, path, mime):
@@ -1031,9 +1031,9 @@ class Container(ContainerBase):  # {{{
 
     def commit(self, outpath=None, keep_parsed=False):
         '''
-        Commit all dirtied parsed objects to the filesystem and write out the ebook file at outpath.
+        Commit all dirtied parsed objects to the filesystem and write out the e-book file at outpath.
 
-        :param output: The path to write the saved ebook file to. If None, the path of the original book file is used.
+        :param output: The path to write the saved e-book file to. If None, the path of the original book file is used.
         :param keep_parsed: If True the parsed representations of committed items are kept in the cache.
         '''
         for name in tuple(self.dirtied):

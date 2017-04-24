@@ -64,12 +64,12 @@ class AppleOpenFeedback(OpenFeedback):
                 msg.setText(_(
                             '<p>If you do not want calibre to recognize your Apple iDevice '
                             'when it is connected to your computer, '
-                            'click <b>Disable Apple Driver</b>.</p>'
+                            'click <b>Disable Apple driver</b>.</p>'
                             '<p>To transfer books to your iDevice, '
-                            'click <b>Disable Apple Driver</b>, '
+                            'click <b>Disable Apple driver</b>, '
                             "then use the 'Connect to iTunes' method recommended in the "
                             '<a href="https://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
-                            'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
+                            'using the <em>Connect/share</em>--<em>Connect to iTunes</em> menu item.</p>'
                             '<p>Enabling the Apple driver for direct connection to iDevices '
                             'is an unsupported advanced user mode.</p>'
                             '<p></p>'

@@ -7,13 +7,13 @@ calibre has a conversion system that is designed to be very easy to use.
 Normally, you just add a book to calibre, click convert and calibre will try hard
 to generate output that is as close as possible to the input. However, calibre
 accepts a very large number of input formats, not all of which are as suitable
-as others for conversion to ebooks. In the case of such input formats, or if
+as others for conversion to e-books. In the case of such input formats, or if
 you just want greater control over the conversion system, calibre has a lot of
 options to fine tune the conversion process. Note however that calibre's
-conversion system is not a substitute for a full blown ebook editor. To edit
-ebooks, I recommend first converting them to EPUB or AZW3 using calibre and
+conversion system is not a substitute for a full blown e-book editor. To edit
+e-books, I recommend first converting them to EPUB or AZW3 using calibre and
 then using the :guilabel:`Edit book` feature to get them into perfect shape. You can then
-use the edited ebook as input for conversion into other formats in calibre.
+use the edited e-book as input for conversion into other formats in calibre.
 
 This document will refer mainly to the conversion settings as found in the
 conversion dialog, pictured below. All these settings are also available via
@@ -23,7 +23,7 @@ it, a tooltip will appear describing the setting.
 
 .. image:: images/conv_dialog.png
     :align: center
-    :alt: Ebook conversion dialog
+    :alt: E-book conversion dialog
     :class: half-width-img
 
 .. contents:: Contents
@@ -75,7 +75,7 @@ The four sub-directories are:
     input         This contains the HTML output by the Input Plugin. Use this to debug the Input Plugin.
     parsed        The result of pre-processing and converting to XHTML the output from the Input Plugin. Use to debug structure detection. 
     structure     Post structure detection, but before CSS flattening and font size conversion. Use to debug font size conversion and CSS transforms.
-    processed     Just before the ebook is passed to the output plugin. Use to debug the output plugin.
+    processed     Just before the e-book is passed to the output plugin. Use to debug the output plugin.
     ==========    =============
 
 If you want to edit the input document a little before having calibre convert it, the best thing to 
@@ -85,7 +85,7 @@ to add the zip file as a format for the book and then, in the top left corner of
 select ZIP as the input format.
 
 This document will deal mainly with the various transforms that operate on the intermediate XHTML
-and how to control them. At the end are some tips specific to each Input/Output format.
+and how to control them. At the end are some tips specific to each input/output format.
 
 Look & feel
 -------------
@@ -94,7 +94,7 @@ Look & feel
   :depth: 1
   :local:
 
-This group of options controls various aspects of the look and feel of the converted ebook. 
+This group of options controls various aspects of the look and feel of the converted e-book. 
 
 .. _font-size-rescaling:
 
@@ -209,7 +209,7 @@ Miscellaneous
 There are a few more options in this section.
 
 :guilabel:`No text justification`
-    Normally, if the output format supports it, calibre will force the output ebook
+    Normally, if the output format supports it, calibre will force the output e-book
     to have *justified* text (i.e., a smooth right margin). This option will turn
     off this behavior, in which case whatever justification is specified in the input document
     will be used instead.
@@ -227,7 +227,7 @@ There are a few more options in this section.
     with "Mikhail Gorbachiov". Also, note that in cases where there are multiple representations
     of a character (characters shared by Chinese and Japanese for instance) the representation used
     by the largest number of people will be used (Chinese in the previous example).
-    This option is mainly useful if you are going to view the ebook on a device that does not
+    This option is mainly useful if you are going to view the e-book on a device that does not
     have support for unicode.
 
 :guilabel:`Input character encoding`
@@ -235,7 +235,7 @@ There are a few more options in this section.
     result in non-English characters or special characters like smart quotes being corrupted. 
     calibre tries to auto-detect the character encoding of the source document, but it does not
     always succeed. You can force it to assume a particular character encoding by using this setting.
-    `cp1252` is a common encoding for documents produced using windows software. You should also read
+    `cp1252` is a common encoding for documents produced using Windows software. You should also read
     :ref:`char-encoding-faq` for more on encoding issues.
     
 
@@ -416,7 +416,7 @@ There are a few more options in this section.
 :guilabel:`Insert metadata as page at start of book`
     One of the great things about calibre is that it allows you to maintain very complete metadata
     about all of your books, for example, a rating, tags, comments, etc. This option will create
-    a single page with all this metadata and insert it into the converted ebook, typically just
+    a single page with all this metadata and insert it into the converted e-book, typically just
     after the cover. Think of it as a way to create your own customised book jacket.
 
 :guilabel:`Remove first image`
@@ -432,7 +432,7 @@ Table of Contents
 When the input document has a Table of Contents in its metadata, calibre will just use that. However,
 a number of older formats either do not support a metadata based Table of Contents, or individual
 documents do not have one. In these cases, the options in this section can help you automatically
-generate a Table of Contents in the converted ebook, based on the actual content in the input document.
+generate a Table of Contents in the converted e-book, based on the actual content in the input document.
 
 .. note:: Using these options can be a little challenging to get exactly right.
     If you prefer creating/editing the Table of Contents by hand, convert to
@@ -622,7 +622,7 @@ the latest version of calibre as support for ``.docx`` files is very new).
 
 calibre will automatically generate a Table of Contents based on headings if you mark
 your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
-the output ebook in the calibre viewer and click the :guilabel:`Table of Contents` button
+the output e-book in the calibre viewer and click the :guilabel:`Table of Contents` button
 to view the generated Table of Contents.
 
 Older .doc files
@@ -749,7 +749,7 @@ The .cbc file will then contain::
     two.cbz
     three.cbz
 
-calibre will automatically convert this .cbc file into a ebook with a Table of Contents pointing to each entry in comics.txt.
+calibre will automatically convert this .cbc file into a e-book with a Table of Contents pointing to each entry in comics.txt.
 
 
 EPUB advanced formatting demo

@@ -32,8 +32,8 @@ Navigating around an e-book
 .. |refmi| image:: images/ref_mode_button.png
 
 
-You can "turn pages" in a book by using the :guilabel:`Page Next` and :guilabel:`Page Previous` buttons |pni|, or by pressing
-the Page Down/Page Up keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode. You can
+You can "turn pages" in a book by using the :guilabel:`Page next` and :guilabel:`Page previous` buttons |pni|, or by pressing
+the :guilabel:`Page down`/:guilabel:`Page up` keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode. You can
 scroll by amounts less than a page by using the scroll bar or various customizable keyboard shortcuts. 
 
 Bookmarks
@@ -86,7 +86,7 @@ You can change font sizes on the fly by using the font size buttons |fontsizei|.
 by pressing the Full Screen button |fsi|. By clicking the Preferences button |prefbi|, you can change the default fonts used 
 by the viewer to ones you like as well as the default font size when the viewer starts up. 
 
-More advanced customization can be achieved by the User Stylesheet setting. This is a stylesheet you can set that will be applied
+More advanced customization can be achieved by the :guilabel:`User stylesheet` setting. This is a stylesheet you can set that will be applied
 to every book. Using it you can do things like have white text on a black background, change paragraph styles, text justification, etc.
 For examples of custom stylesheets used by calibre's users, see `the forums <https://www.mobileread.com/forums/showthread.php?t=51500>`_.
 

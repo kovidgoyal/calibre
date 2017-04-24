@@ -3,7 +3,7 @@
 API documentation for the e-book editing tools
 ===============================================
 
-The ebook editing tools consist of a
+The e-book editing tools consist of a
 :class:`calibre.ebooks.oeb.polish.container.Container` object that represents a
 book as a collection of HTML + resource files, and various tools that can be
 used to perform operations on the container. All the tools are in the form of
@@ -17,7 +17,7 @@ You obtain a container object for a book at a path like this::
     from calibre.ebooks.oeb.polish.container import get_container
     container = get_container('Path to book file', tweak_mode=True)
 
-If you are writing a plugin for the ebook editor, you get the current container
+If you are writing a plugin for the e-book editor, you get the current container
 for the book being edited like this::
 
     from calibre.gui2.tweak_book import current_container
@@ -130,7 +130,7 @@ Edit book tool
 Controlling the editor's user interface
 -----------------------------------------
 
-The ebook editor's user interface is controlled by a single global *Boss*
+The e-book editor's user interface is controlled by a single global *Boss*
 object. This has many useful methods that can be used in plugin code to
 perform common tasks.
 

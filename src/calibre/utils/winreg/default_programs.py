@@ -31,7 +31,7 @@ def default_programs():
 
         'ebook-edit.exe': {
             'icon_id':'editor_icon',
-            'description': _('The calibre e-book editor. It can be used to edit common ebook formats.'),
+            'description': _('The calibre e-book editor. It can be used to edit common e-book formats.'),
             'capability_name': 'Editor' + ('64bit' if is64bit else ''),
             'name': 'calibre Editor' + (' 64-bit' if is64bit else ''),
             'assoc_name': 'calibreEditor' + ('64bit' if is64bit else ''),

@@ -34,11 +34,11 @@ Environment variables
     * ``CALIBRE_NO_NATIVE_MENUBAR`` - Causes calibre to not create a native (global) menu on Ubuntu Unity and similar linux desktop environments. The menu is instead placed inside the window, as is traditional.
     * ``CALIBRE_IGNORE_SYSTEM_THEME`` - Causes calibre to ignore any system Qt style plugins and use its builtin style plugin instead. Useful to workaround crashes caused by the system Qt plugin being incompatible with the version of Qt shipped with calibre.
     * ``CALIBRE_SHOW_DEPRECATION_WARNINGS`` - Causes calibre to print deprecation warnings to stdout. Useful for calibre developers.
-    * ``CALIBRE_NO_DEFAULT_PROGRAMS`` - Prevent calibre from automatically registering the filetypes it is capable of handling with windows.
+    * ``CALIBRE_NO_DEFAULT_PROGRAMS`` - Prevent calibre from automatically registering the filetypes it is capable of handling with Windows.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
-See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
+See `How to set environment variables in Windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
 `How to set environment variables in OS X <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
 
 Tweaks

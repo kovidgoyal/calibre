@@ -566,12 +566,12 @@ def command_add_format(args, dbpath):
     if len(args) < 3:
         parser.print_help()
         print
-        print >>sys.stderr, _('You must specify an id and an ebook file')
+        print >>sys.stderr, _('You must specify an id and an e-book file')
         return 1
 
     id, path, fmt = int(args[1]), args[2], os.path.splitext(args[2])[-1]
     if not fmt:
-        print _('ebook file must have an extension')
+        print _('e-book file must have an extension')
     do_add_format(get_db(dbpath, opts), id, fmt[1:], path, opts)
     return 0
 

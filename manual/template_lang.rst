@@ -3,7 +3,7 @@
 The calibre template language
 =======================================================
 
-The calibre template language is used in various places. It is used to control the folder structure and file name when saving files from the calibre library to the disk or eBook reader.
+The calibre template language is used in various places. It is used to control the folder structure and file name when saving files from the calibre library to the disk or e-book reader.
 It is also used to define "virtual" columns that contain data from other columns and so on.
 
 The basic template language is very simple, but has very powerful advanced features. The basic idea is that a template consists of text and names in curly brackets that are then replaced by the corresponding metadata from the book being processed. So, for example, the default template used for saving books to device in calibre is::

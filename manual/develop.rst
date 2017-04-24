@@ -40,7 +40,7 @@ All the calibre python code is in the ``calibre`` package. This package contains
       * For details, see: ``devices.interface`` which defines the interface supported by device drivers and ``devices.usbms`` which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
 
-    * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
+    * e-books  - All the e-book conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
       module powering the :command:`ebook-convert` command. The conversion process is controlled via ``conversion.plumber``.
       The format independent code is all in ``ebooks.oeb`` and the format dependent code is in ``ebooks.format_name``.
 
@@ -49,20 +49,20 @@ All the calibre python code is in the ``calibre`` package. This package contains
           see :ref:`conversion-introduction`. The pipeline consists of an input
           plugin, various transforms and an output plugin. The code that constructs
           and drives the pipeline is in :file:`plumber.py`. The pipeline works on a
-          representation of an ebook that is like an unzipped epub, with
+          representation of an e-book that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The
           class that manages this representation is OEBBook in ``ebooks.oeb.base``. The
           various transformations that are applied to the book during
           conversions live in :file:`oeb/transforms/*.py`. And the input and output
           plugins live in :file:`conversion/plugins/*.py`.
-        * Ebook editing happens using a different container object. It is
+        * E-book editing happens using a different container object. It is
           documented in :ref:`polish_api`.
 
     * db - The database back-end. See :ref:`db_api` for the interface to the calibre library. 
 
     * content server: ``library.server`` is the calibre Content Server.
 
-    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
+    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The e-book-viewer is in ``gui2.viewer``. The e-book editor is in ``gui2.tweak_book``.
 
 If you want to locate the entry points for all the various calibre executables,
 look at the ``entry_points`` structure in `linux.py
@@ -286,11 +286,11 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
-Similarly, you can start the ebook-viewer as::
+Similarly, you can start the e-book-viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
 
-The ebook-editor can be started as::
+The e-book-editor can be started as::
 
     calibre-debug -t /path/to/be/edited
 

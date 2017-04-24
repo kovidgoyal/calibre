@@ -4,7 +4,7 @@ The Graphical User Interface
 ===============================================
 
 The Graphical User Interface *(GUI)* provides access to all
-library management and ebook format conversion features. The basic workflow
+library management and e-book format conversion features. The basic workflow
 for using calibre is to first add books to the library from your hard disk.
 calibre will automatically try to read metadata from the books and add them
 to its internal database. Once they are in the database, you can perform various
@@ -29,7 +29,7 @@ Actions
     :align: center
 
 The actions toolbar provides convenient shortcuts to commonly used actions. If you right-click the buttons, you can perform variations on the default action.
-Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
+Please note that the actions toolbar will look slightly different depending on whether you have an e-book reader attached to your computer.
 
 .. contents::
     :depth: 1
@@ -45,13 +45,13 @@ Add books
 |adbi| The :guilabel:`Add books` action has seven variations accessed by doing a right-click on the button.
 
 
-    1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
+    1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any ebooks found are added to the library. calibre assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
+    2. **Add books from directories, including sub-directories (One book per directory, assumes every e-book file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any e-books found are added to the library. calibre assumes that each directory contains a single book. All e-book files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
-    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. calibre assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
+    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every e-book file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any e-books found are added to the library. calibre assumes that each directory contains many books. All e-book files with the same name in a directory are assumed to be the same book in different formats. E-books with different names are added as different books. 
 
-    4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+    4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple e-books that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
     5. **Add empty book (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
@@ -59,7 +59,7 @@ Add books
 
     7. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
 
-The :guilabel:`Add books` action can read metadata from a wide variety of ebook formats. In addition, it tries to guess metadata from the filename.
+The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition, it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
 
 To add an additional format for an existing book you can do any of three things:
@@ -79,7 +79,7 @@ Edit metadata
 
 |emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by doing a right-click on the button.
 
-    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book.
+    1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular e-book formats from a book.
     2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simultaneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
@@ -93,24 +93,24 @@ Convert books
 .. |cei| image:: images/convert_ebooks.png
     :class: float-right-img
 
-|cei| Ebooks can be converted from a number of formats into whatever format your ebook reader prefers.
-Many ebooks available for purchase will be protected by `Digital Rights Management <https://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
-calibre will not convert these ebooks. It is easy to remove the DRM from many formats, but as this may be illegal,
+|cei| E-books can be converted from a number of formats into whatever format your e-book reader prefers.
+Many e-books available for purchase will be protected by `Digital Rights Management <https://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
+calibre will not convert these e-books. It is easy to remove the DRM from many formats, but as this may be illegal,
 you will have to find tools to liberate your books yourself and then use calibre to convert them.
 
 For most people, conversion should be a simple one-click affair. If you want to learn more about the conversion process, see :ref:`conversion`.
 
 The :guilabel:`Convert books` action has three variations, accessed by doing a right-click on the button.
 
-    1. **Convert individually**: Allows you to specify conversion options to customize the conversion of each selected ebook.
+    1. **Convert individually**: Allows you to specify conversion options to customize the conversion of each selected e-book.
 
-    2. **Bulk convert**: Allows you to specify options only once to convert a number of ebooks in bulk.
+    2. **Bulk convert**: Allows you to specify options only once to convert a number of e-books in bulk.
 
     3. **Create a catalog of the books in your calibre library**: Allows you to generate a complete listing of the books in your library, including all metadata,
        in several formats such as XML, CSV, BiBTeX, EPUB and MOBI. The catalog will contain all the books currently showing in the library view.
        This allows you to use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
-       only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB, MOBI or AZW3,
-       the next time you connect your ebook reader the catalog will be automatically sent to the device.
+       only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB, MOBI or AZW3,
+       the next time you connect your e-book reader the catalog will be automatically sent to the device.
        For more information on how catalogs work, read the :ref:`catalog_tut`.
 
 .. _view:
@@ -120,7 +120,7 @@ View
 .. |vi| image:: images/view.png
     :class: float-right-img
 
-|vi| The :guilabel:`View` action displays the book in an ebook viewer program. calibre has a built-in viewer for many ebook formats.
+|vi| The :guilabel:`View` action displays the book in an e-book viewer program. calibre has a built-in viewer for many e-book formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
 Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button.
 
@@ -134,17 +134,17 @@ Send to device
 
 |stdi| The :guilabel:`Send to device` action has eight variations, accessed by doing a right-click on the button.
 
-    1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
-    2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the ebook reader.
-    3. **Send to card (B)**: The selected books are transferred to the storage card (B) on the ebook reader.
+    1. **Send to main memory**: The selected books are transferred to the main memory of the e-book reader.
+    2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the e-book reader.
+    3. **Send to card (B)**: The selected books are transferred to the storage card (B) on the e-book reader.
     4. **Send specific format to**: The selected books are transferred to the selected storage location on the device, in the format that you specify.
     5. **Eject device**: Detaches the device from calibre.
     6. **Set default send to device action**: Allows you to specify which of the options, 1 through 5 above or 7 below, will be the default action when you click the main button.
     7. **Send and delete from library**: The selected books are transferred to the selected storage location on the device and then **deleted** from the Library.
-    8. **Fetch Annotations (experimental)**: Transfers annotations you may have made on an ebook on your device to the comments metadata of the book in the calibre library.
+    8. **Fetch Annotations (experimental)**: Transfers annotations you may have made on an e-book on your device to the comments metadata of the book in the calibre library.
 
 You can control the file name and folder structure of files sent to the device by setting up a template in
-:guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
+:guilabel:`Preferences->Import/export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
 
 .. _fetch_news:
 
@@ -153,7 +153,7 @@ Fetch news
 .. |fni| image:: images/fetch_news.png
     :class: float-right-img
 
-|fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
+|fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an e-book that can be read on your e-book reader. Normally, the newly created e-book is added to your e-book library, but if an e-book reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
 
 The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
 
@@ -180,7 +180,7 @@ Library
     5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
     6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
-.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your calibre library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, calibre automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore database action under Library Maintenance described above, you can have calibre rebuild the metadata.db file from the individual OPF files for you.
+.. note:: Metadata about your e-books, e.g. title, author, and tags, is stored in a single file in your calibre library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, calibre automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore database action under Library Maintenance described above, you can have calibre rebuild the metadata.db file from the individual OPF files for you.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on the book and selecting the action :guilabel:`Copy to library`.
 
@@ -213,7 +213,7 @@ Save to disk
                     Book Files
 
     You can control the file name and folder structure of files saved to disk by setting up a template in
-    :guilabel:`Preferences->Import/Export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
+    :guilabel:`Preferences->Import/export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
 
 .. _save_to_disk_single:
 
@@ -221,22 +221,22 @@ Save to disk
 
     For 1. and 2., all available formats, as well as metadata, are stored to disk for each selected book. Metadata is stored in an OPF file. Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
 
-    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the directory structure as shown in (1.) but only in your preferred ebook format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
+    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the directory structure as shown in (1.) but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
 
-    4. **Save only *<your preferred>* format to disk in a single directory**: Saves the selected books to disk in a single directory but only in your preferred ebook format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
+    4. **Save only *<your preferred>* format to disk in a single directory**: Saves the selected books to disk in a single directory but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
 
     5. **Save single format to disk...**: Saves the selected books to disk in the directory structure as shown in (1.) but only in the format you select from the pop-out list.
 
 .. _connect_share:
 
-Connect/Share
+Connect/share
 ~~~~~~~~~~~~~~~~~
 .. |csi| image:: images/connect_share.png
     :class: float-right-img
 
-|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up your calibre library for access via a web browser or email.
+|csi| The :guilabel:`Connect/share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up your calibre library for access via a web browser or email.
 
-    The :guilabel:`Connect/Share` action has four variations, accessed by doing a right-click on the button.
+    The :guilabel:`Connect/share` action has four variations, accessed by doing a right-click on the button.
 
     1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities calibre has for devices with that folder. Useful if your device cannot be supported by calibre but is available as a USB disk.
 
@@ -253,22 +253,22 @@ Remove books
 .. |rbi| image:: images/remove_books.png
     :class: float-right-img
 
-|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by doing a right-click on the button.
+|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the e-book reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by doing a right-click on the button.
 
     1. **Remove selected books**: Allows you to **permanently** remove all books that are selected in the book list.
 
-    2. **Remove files of a specific format from selected books...**: Allows you to **permanently** remove ebook files of a specified format from books that are selected in the book list.
+    2. **Remove files of a specific format from selected books...**: Allows you to **permanently** remove e-book files of a specified format from books that are selected in the book list.
 
-    3. **Remove all formats from selected books, except...**: Allows you to **permanently** remove ebook files of any format except a specified format from books that are selected in the book list.
+    3. **Remove all formats from selected books, except...**: Allows you to **permanently** remove e-book files of any format except a specified format from books that are selected in the book list.
 
-    4. **Remove all formats from selected books**: Allows you to **permanently** remove all ebook files from books that are selected in the book list. Only the metadata will remain.
+    4. **Remove all formats from selected books**: Allows you to **permanently** remove all e-book files from books that are selected in the book list. Only the metadata will remain.
 
     5. **Remove covers from selected books**: Allows you to **permanently** remove cover image files from books that are selected in the book list.
 
-    6. **Remove matching books from device**: Allows you to remove ebook files from a connected device that match the books that are selected in the book list.
+    6. **Remove matching books from device**: Allows you to remove e-book files from a connected device that match the books that are selected in the book list.
 
 .. note::
-    Note that when you use Remove books to delete books from your calibre library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
+    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
 
 .. _configuration:
 
@@ -295,7 +295,7 @@ A *catalog* is a collection of books. calibre can manage two types of different 
 
     1. **Library**: This is a collection of books stored in your calibre library on your computer.
 
-    2. **Device**:  This is a collection of books stored in your ebook reader. It will be available when you connect the reader to your computer.
+    2. **Device**:  This is a collection of books stored in your e-book reader. It will be available when you connect the reader to your computer.
 
 Many operations, such as adding books, deleting, viewing, etc., are context sensitive. So, for example, if you click the :guilabel:`View` button when you have the **Device** catalog selected, calibre will open the files on the device to view. If you have the **Library** catalog selected, files in your calibre library will be opened instead.
 
@@ -462,7 +462,7 @@ be configured to read metadata from the file name instead, via
 You can also control how metadata is read from the filename using regular
 expressions (see :doc:`regexp`).  In the :guilabel:`Adding Books` section of
 the configuration dialog, you can specify a regular expression that calibre
-will use to try and guess metadata from the names of ebook files that you add
+will use to try and guess metadata from the names of e-book files that you add
 to the library. The default regular expression is::
 
     title - author
@@ -497,7 +497,7 @@ Similarly, if you download metadata for the book, the Book details panel will
 automatically show you links pointing to the web pages for the book on amazon,
 worldcat, etc. from where the metadata was downloaded.
 
-You can right click on individual ebook formats in the Book details panel to
+You can right click on individual e-book formats in the Book details panel to
 delete them, compare them to their original versions, save them to disk, open
 them with an external program, etc.
 
@@ -505,7 +505,7 @@ You can change the cover of the book by simply drag and dropping an
 image onto the book details panel. If you wish to edit the cover image in
 an external program, simply right click on it and choose :guilabel:`Open With`.
 
-You can also add ebook files to the current book by drag and dropping the files
+You can also add e-book files to the current book by drag and dropping the files
 onto the book details panel.
 
 Double clicking the book details panel will open it up in a separate popup
@@ -615,7 +615,7 @@ Jobs
 .. image:: images/jobs.png
     :class: float-left-img
 
-The Jobs panel shows the number of currently running jobs. Jobs are tasks that run in a separate process. They include converting ebooks and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed you can see a detailed log from that job by double-clicking it in the list. This is useful to debug jobs that may not have completed successfully.
+The Jobs panel shows the number of currently running jobs. Jobs are tasks that run in a separate process. They include converting e-books and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed you can see a detailed log from that job by double-clicking it in the list. This is useful to debug jobs that may not have completed successfully.
 
 .. raw:: html epub
     
@@ -624,7 +624,7 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
 Keyboard Shortcuts
 ---------------------
 
-calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
+calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre e-book viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
 
 .. note::
 

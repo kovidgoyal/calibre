@@ -569,10 +569,10 @@ restrict_output_formats = None
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
 
-#: Image file types to treat as ebooks when dropping onto the Book details panel
+#: Image file types to treat as e-books when dropping onto the Book details panel
 # Normally, if you drop any image file in a format known to calibre onto the
 # Book details panel, it will be used to set the cover. If you want to store
-# some image types as ebooks instead, you can set this tweak.
+# some image types as e-books instead, you can set this tweak.
 # Examples:
 #    cover_drop_exclude = {'tiff', 'webp'}
 cover_drop_exclude = ()

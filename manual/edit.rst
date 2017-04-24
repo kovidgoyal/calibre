@@ -40,7 +40,7 @@ Tutorial <http://html.net/tutorials/html/>`_ and `CSS Tutorial
 As you make changes to the HTML or CSS in the editor, the changes will be
 previewed, live, in the preview panel to the right. When you are happy with how
 the changes you have made look, click the :guilabel:`Save` button or use
-:guilabel:`File->Save` to save your changes into the ebook.
+:guilabel:`File->Save` to save your changes into the e-book.
 
 One useful feature is :guilabel:`Checkpoints`. Before you embark on some
 ambitious set of edits, you can create a checkpoint. The checkpoint
@@ -49,7 +49,7 @@ you don't like the changes you have made to you can go back to the state when
 you created the checkpoint. To create a checkpoint, use :guilabel:`Edit->Create
 checkpoint`. Checkpoints will also be automatically created for you whenever you
 run any automated tool like global search and replace. The checkpointing
-functionality is in addition to the normal Undo/redo mechanism when editing
+functionality is in addition to the normal undo/redo mechanism when editing
 individual files. Checkpoints are useful for when changes are spread over
 multiple files in the book.
 
@@ -74,7 +74,7 @@ alphabetically.
 
 By hovering your mouse over an entry, you can see its size, and also, at
 the bottom of the screen, the full path to the file inside the book. Note that
-files inside ebooks are compressed, so the size of the final book is not the
+files inside e-books are compressed, so the size of the final book is not the
 sum of the individual file sizes.
 
 Many files have special meaning, in the book. These will typically have
@@ -114,7 +114,7 @@ Merging files
 Sometimes, you may want to merge two HTML files or two CSS files together. It
 can sometimes be useful to have everything in a single file. Be wary, though,
 putting a lot of content into a single file will cause performance problems
-when viewing the book in a typical ebook reader.
+when viewing the book in a typical e-book reader.
 
 To merge multiple files together, select them by holding the Ctrl key and
 clicking on them (make sure you only select files of one type, either all HTML
@@ -416,7 +416,7 @@ Fixing HTML
 ^^^^^^^^^^^
 
 This tool simply converts HTML that cannot be parsed as XML into well-formed
-XML. It is very common in ebooks to have non-well-formed XML, so this tool
+XML. It is very common in e-books to have non-well-formed XML, so this tool
 simply automates the process of fixing such HTML. The tool works by parsing the
 HTML using the HTML5 algorithm (the algorithm used in all modern browsers) and
 then converting the result into XML. Be aware that auto-fixing can sometimes
@@ -450,8 +450,8 @@ beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
 Inserting an inline Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally in ebooks, the Table of Contents is separate from the main text and is
-typically accessed via a special Table of Contents button/menu in the ebook
+Normally in e-books, the Table of Contents is separate from the main text and is
+typically accessed via a special Table of Contents button/menu in the e-book
 reading device. You can also have calibre automatically generate an *inline*
 Table of Contents that becomes part of the text of the book. It is
 generated based on the currently defined Table of Contents.
@@ -809,7 +809,7 @@ to open that file in the editor automatically.
 Auto-complete
 ^^^^^^^^^^^^^^^^
 
-When editing an ebook, one of the most tedious tasks is creating links to other
+When editing an e-book, one of the most tedious tasks is creating links to other
 files inside the book, or to CSS stylesheets, or images. You have to figure out
 the correct filename and relative path to the file. The editor has
 auto-complete to make that easier.

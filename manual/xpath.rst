@@ -8,7 +8,7 @@ In this tutorial, you will be given a gentle introduction to
 used to select arbitrary parts of `HTML <https://en.wikipedia.org/wiki/HTML>`_
 documents in calibre. XPath is a widely
 used standard, and googling it will yield a ton of information. This tutorial, 
-however, focuses on using XPath for ebook related tasks like finding chapter 
+however, focuses on using XPath for e-book related tasks like finding chapter 
 headings in an unstructured HTML document.
 
 .. contents:: Contents
@@ -36,7 +36,7 @@ the prefix::
     /h:body/h:div/h:p (Selects <p> tags that are children of <div> tags that are
                  children of the <body> tag)
 
-This will match only ``<p>A very short ebook to demonstrate the use of XPath.</p>`` 
+This will match only ``<p>A very short e-book to demonstrate the use of XPath.</p>`` 
 in the :ref:`sample_ebook` but not any of the other ``<p>`` tags. The ``h:`` prefix
 in the above examples is needed to match XHTML tags. This is because internally,
 calibre represents all content as XHTML. In XHTML tags have a *namespace*, and
@@ -86,7 +86,7 @@ to its attributes.
 
 .. _sample_ebook :
 
-Sample ebook
+Sample e-book
 ------------
 
 .. literalinclude:: xpath.xhtml

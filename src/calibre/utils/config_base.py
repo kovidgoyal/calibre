@@ -399,7 +399,7 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('language', default=None,
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='EPUB',
-              help=_('The default output format for ebook conversions.'))
+              help=_('The default output format for e-book conversions.'))
     c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
         'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'DOCX', 'ODT', 'RTF', 'PDF',
         'TXT'],

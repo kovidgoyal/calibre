@@ -44,7 +44,7 @@ functions to process text in arbitrary ways. The Smarten Punctuation tool in
 the editor leaves individual hyphens alone, so you can use the this function to
 replace them with em-dashes.
 
-To create a new function, simply click the :guilabel:`Create/Edit` button to create a new
+To create a new function, simply click the :guilabel:`Create/edit` button to create a new
 function and copy the python code from below.
 
 .. code-block:: python
@@ -73,7 +73,7 @@ inside HTML tag definitions.
 The power of function mode - using a spelling dictionary to fix mis-hyphenated words
 ------------------------------------------------------------------------------------
 
-Often, ebooks created from scans of printed books contain mis-hyphenated words
+Often, e-books created from scans of printed books contain mis-hyphenated words
 -- words that were split at the end of the line on the printed page. We will
 write a simple function to automatically find and fix such words.
 

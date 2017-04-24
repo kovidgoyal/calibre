@@ -321,7 +321,7 @@ class BasicNewsRecipe(Recipe):
     #: cover_margins = (10, 15, '#ffffff') pads the cover with a white margin
     #: 10px on the left and right, 15px on the top and bottom.
     #: Color names defined at https://www.imagemagick.org/script/color.php
-    #: Note that for some reason, white does not always work on windows. Use
+    #: Note that for some reason, white does not always work in Windows. Use
     #: #ffffff instead
     cover_margins = (0, 0, '#ffffff')
 

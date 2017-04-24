@@ -139,7 +139,7 @@ class ViewAction(InterfaceAction):
                                     'Windows will try to open %s with calibre itself'
                                     ' resulting in a duplicate in your calibre library. You'
                                     ' should install some program capable of viewing this'
-                                    ' file format and tell windows to use that program to open'
+                                    ' file format and tell Windows to use that program to open'
                                     ' files of this type.') % name, show=True)
 
                 open_local_file(name)

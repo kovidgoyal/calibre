@@ -3,9 +3,9 @@
 calibre User Manual
 ===============================================
 
-calibre is an ebook library manager. It can view, convert and catalog ebooks in most of the major ebook formats. It can also talk to many ebook reader devices. It can go out to the Internet and fetch metadata for your books. It can download newspapers and convert them into ebooks for convenient reading. It is cross platform, running on Linux, Windows and OS X. 
+calibre is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to many e-book reader devices. It can go out to the Internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X. 
 
-You've just started calibre. What do you do now? Before calibre can do anything with your ebooks, it first has to know about them. Drag and drop a few ebook files into calibre, or click the "Add books" button and browse for the ebooks you want to work with. Once you've added the books, they will show up in the main view looking something like this:
+You've just started calibre. What do you do now? Before calibre can do anything with your e-books, it first has to know about them. Drag and drop a few e-book files into calibre, or click the "Add books" button and browse for the e-books you want to work with. Once you've added the books, they will show up in the main view looking something like this:
 
 .. image:: images/added_books.png
 
@@ -17,7 +17,7 @@ To get started with more advanced usage, you should read about :doc:`gui`. For e
 
 .. only:: online
     
-    **An ebook version of this user manual is available in** `EPUB format <calibre.epub>`_,  `AZW3 (Kindle Fire) format <calibre.azw3>`_ and `PDF format <calibre.pdf>`_.
+    **An e-book version of this user manual is available in** `EPUB format <calibre.epub>`_,  `AZW3 (Kindle Fire) format <calibre.azw3>`_ and `PDF format <calibre.pdf>`_.
     
 Sections
 ------------

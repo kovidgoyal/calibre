@@ -1226,7 +1226,7 @@ class Plugboard(PreferencesPlugin):
     icon = I('plugboard.png')
     gui_name = _('Metadata plugboards')
     category = 'Import/Export'
-    gui_category = _('Import/Export')
+    gui_category = _('Import/export')
     category_order = 3
     name_order = 4
     config_widget = 'calibre.gui2.preferences.plugboard'

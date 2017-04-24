@@ -7,7 +7,7 @@ Editing e-book metadata
   :depth: 2
   :local:
 
-Ebooks come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect.
+E-books come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect.
 The simplest way to change metadata in calibre is to simply double click on an entry and type in the correct replacement.
 For more sophisticated, "power editing" use the edit metadata tools discussed below.
 

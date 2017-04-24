@@ -3,7 +3,7 @@
 Adding your favorite news website
 ==================================
 
-calibre has a powerful, flexible and easy-to-use framework for downloading news from the Internet and converting it into an ebook. The following will show you, by means of examples, how to get news from various websites.
+calibre has a powerful, flexible and easy-to-use framework for downloading news from the Internet and converting it into an e-book. The following will show you, by means of examples, how to get news from various websites.
 
 To gain an understanding of how to use the framework, follow the examples in the order listed below:
 
@@ -27,20 +27,20 @@ The calibre blog
 
 The calibre blog is a blog of posts that describe many useful calibre features
 in a simple and accessible way for new calibre users. In order to download this
-blog into an ebook, we rely on the :term:`RSS` feed of the blog::
+blog into an e-book, we rely on the :term:`RSS` feed of the blog::
 
     https://blog.calibre-ebook.com/feeds/posts/default
 
 I got the RSS URL by looking under "Subscribe to" at the bottom of the blog
 page and choosing :guilabel:`Posts->Atom`. To make calibre download the feeds and convert
-them into an ebook, you should right click the :guilabel:`Fetch news` button
+them into an e-book, you should right click the :guilabel:`Fetch news` button
 and then the :guilabel:`Add a custom news source` menu item and then the
 :guilabel:`New Recipe` button. A dialog similar to that shown below should open up.
 
 .. image:: images/custom_news.png
     :align: center
 
-First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the ebook that will be created from the articles in the above feeds. 
+First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds. 
 
 The next two fields (:guilabel:`Oldest article` and :guilabel:`Max. number of articles`) allow you some control over how many articles should be downloaded from each feed, and they are pretty self explanatory.
 
@@ -48,9 +48,9 @@ To add the feeds to the recipe, enter the feed title and the feed URL and click
 the :guilabel:`Add feed` button. Once you have added the feed, simply click the
 :guilabel:`Save` button and you're done! Close the dialog.
 
-To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`calibre Blog`. After a couple of minutes, the newly downloaded ebook of blog posts will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
+To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`calibre Blog`. After a couple of minutes, the newly downloaded e-book of blog posts will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
 
-The reason this worked so well, with so little effort is that the blog provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to ebooks. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article. 
+The reason this worked so well, with so little effort is that the blog provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to e-books. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article. 
 
 .. _bbc:
 
@@ -62,19 +62,19 @@ Lets try the following two feeds from *The BBC*:
     #. News Front Page: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
     #. Science/Nature: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml
 
-Follow the procedure outlined in :ref:`calibre_blog` above to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded ebook, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
+Follow the procedure outlined in :ref:`calibre_blog` above to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded e-book, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
 
 Customizing the fetch process
 --------------------------------
 
 When you want to perfect the download process, or download content from a particularly complex website, you can avail yourself of all the power and flexibility of the :term:`recipe` framework. In order to do that, in the :guilabel:`Add custom news sources` dialog, simply click the :guilabel:`Switch to Advanced mode` button.
 
-The easiest and often most productive customization is to use the print version of the online articles. The print version typically has much less cruft and translates much more smoothly to an ebook. Let's try to use the print version of the articles from *The BBC*.
+The easiest and often most productive customization is to use the print version of the online articles. The print version typically has much less cruft and translates much more smoothly to an e-book. Let's try to use the print version of the articles from *The BBC*.
 
 Using the print version of bbc.co.uk
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first step is to look at the ebook we downloaded previously from :ref:`bbc`. At the end of each article, in the ebook is a little blurb telling you where the article was downloaded from. Copy and paste that URL into a browser. Now on the article webpage look for a link that points to the "Printable version". Click it to see the print version of the article. It looks much neater! Now compare the two URLs. For me they were:
+The first step is to look at the e-book we downloaded previously from :ref:`bbc`. At the end of each article, in the e-book is a little blurb telling you where the article was downloaded from. Copy and paste that URL into a browser. Now on the article webpage look for a link that points to the "Printable version". Click it to see the print version of the article. It looks much neater! Now compare the two URLs. For me they were:
 
     Article URL
         https://news.bbc.co.uk/2/hi/science/nature/7312016.stm
@@ -105,7 +105,7 @@ This is python, so indentation is important. After you've added the lines, it sh
 
 In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <https://www.python.org>`_ see the `tutorial <https://docs.python.org/2/tutorial/>`_.
 
-Now, click the :guilabel:`Add/update recipe` button and your changes will be saved. Re-download the ebook. You should have a much improved ebook. One of the problems with the new version is that the fonts on the print version webpage are too small. This is automatically fixed when converting to an ebook, but even after the fixing process, the font size of the menus and navigation bar to become too large relative to the article text. To fix this, we will do some more customization, in the next section.
+Now, click the :guilabel:`Add/update recipe` button and your changes will be saved. Re-download the e-book. You should have a much improved e-book. One of the problems with the new version is that the fonts on the print version webpage are too small. This is automatically fixed when converting to an e-book, but even after the fixing process, the font size of the menus and navigation bar to become too large relative to the article text. To fix this, we will do some more customization, in the next section.
 
 Replacing article styles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,7 +138,7 @@ This can be removed by adding::
 
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]
 
-to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled earlier, with our own :term:`CSS` that is suitable for conversion to an ebook::
+to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled earlier, with our own :term:`CSS` that is suitable for conversion to an e-book::
 
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
 
@@ -241,7 +241,7 @@ We see several new features in this :term:`recipe`. First, we have::
 
     timefmt = ' [%a, %d %b, %Y]'
 
-This sets the displayed time on the front page of the created ebook to be in the format,
+This sets the displayed time on the front page of the created e-book to be in the format,
 ``Day, Day_Number Month, Year``. See :attr:`timefmt <calibre.web.feeds.news.BasicNewsRecipe.timefmt>`.
 
 Then we see a group of directives to cleanup the downloaded :term:`HTML`::
@@ -265,7 +265,7 @@ The next new feature is the
 :meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is
 to go to https://www.nytimes.com/pages/todayspaper/index.html and fetch the list
 of articles that appear in *todays* paper. While more complex than simply using
-:term:`RSS`, the recipe creates an ebook that corresponds very closely to the
+:term:`RSS`, the recipe creates an e-book that corresponds very closely to the
 days paper. ``parse_index`` makes heavy use of `BeautifulSoup
 <https://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse
 the daily paper webpage. You can also use other, more modern parsers if you
@@ -299,7 +299,7 @@ feeds. In addition, ebook-convert will put the downloaded HTML into the
 ``debug/input`` directory, where ``debug`` is the directory you specified in
 the :option:`ebook-convert --debug-pipeline` option. 
 
-Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate ebooks in different formats as shown below::
+Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate e-books in different formats as shown below::
 
     ebook-convert myrecipe.recipe myrecipe.epub
     ebook-convert myrecipe.recipe myrecipe.mobi
@@ -316,7 +316,7 @@ If you're satisfied with your recipe, and you feel there is enough demand to jus
 .. seealso::
 
     :doc:`generated/en/ebook-convert`
-        The command line interface for all ebook conversion.
+        The command line interface for all e-book conversion.
 
 
 Further reading

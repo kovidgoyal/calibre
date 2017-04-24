@@ -7,7 +7,7 @@ Frequently Asked Questions
   :depth: 1
   :local:
 
-Ebook format conversion
+E-book format conversion
 -------------------------
 .. contents:: Contents
   :depth: 1
@@ -53,11 +53,11 @@ There are two aspects to this problem:
 What's the deal with Table of Contents in MOBI files?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first thing to realize is that most ebooks have two tables of contents. One is the traditional Table of Contents, like the ToC you find in paper books. This Table of Contents is part of the main document flow and can be styled however you like. This ToC is called the *content ToC*.
+The first thing to realize is that most e-books have two tables of contents. One is the traditional Table of Contents, like the ToC you find in paper books. This Table of Contents is part of the main document flow and can be styled however you like. This ToC is called the *content ToC*.
 
 Then there is the *metadata ToC*. A metadata ToC is a ToC that is not part of the book text and is typically accessed by some special button on a reader. For example, in the calibre viewer, you use the Show Table of Contents button to see this ToC. This ToC cannot be styled by the book creator. How it is represented is up to the viewer program.
 
-In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream ebook formats, *does not* have decent support for a metadata ToC. A MOBI book simulates the presence of a metadata ToC by putting an *extra* content ToC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content ToC that the Kindle takes you.
+In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream e-book formats, *does not* have decent support for a metadata ToC. A MOBI book simulates the presence of a metadata ToC by putting an *extra* content ToC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content ToC that the Kindle takes you.
 
 Now it might well seem to you that the MOBI book has two identical ToCs. Remember that one is semantically a content ToC and the other is a metadata ToC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot.
 
@@ -65,7 +65,7 @@ When converting to MOBI, calibre detects the *metadata ToC* in the input documen
 
 If you have a hand edited ToC in the input document, you can use the ToC detection options in calibre to automatically generate the metadata ToC from it. See the conversion section of the User Manual for more details on how to use these options.
 
-Finally, I encourage you to ditch the content ToC and only have a metadata ToC in your ebooks. Metadata ToCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content ToC).
+Finally, I encourage you to ditch the content ToC and only have a metadata ToC in your e-books. Metadata ToCs will give the people reading your e-books a much superior navigation experience (except on the Kindle, where they are essentially the same as a content ToC).
 
 .. note::
     The newer AZW3 format has proper support for a metadata ToC. However, the
@@ -126,7 +126,7 @@ to all the other files in the desired order. Such a file looks like::
    </html>
 
 Then, just add this HTML file to the GUI and use the :guilabel:`Convert` button to create
-your ebook. You can use the option in the Table of Contents section in the
+your e-book. You can use the option in the Table of Contents section in the
 conversion dialog to control how the Table of Contents is generated.
 
 .. note:: By default, when adding HTML files, calibre follows links in the files
@@ -170,9 +170,9 @@ Device integration
 
 What devices does calibre support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-calibre can directly connect to all the major (and most of the minor) ebook
+calibre can directly connect to all the major (and most of the minor) e-book
 reading devices, smarthphones, tablets, etc.  In addition, using the
-:guilabel:`Connect to folder` function you can use it with any ebook reader
+:guilabel:`Connect to folder` function you can use it with any e-book reader
 that exports itself as a USB disk.  You can even connect to Apple devices (via
 iTunes), using the :guilabel:`Connect to iTunes` function.
 
@@ -184,8 +184,8 @@ How can I help get my device supported in calibre?
 If your device appears as a USB disk to the operating system, adding support for it to calibre is very easy.
 We just need some information from you:
 
-  * Complete list of ebook formats that your device supports.
-  * Is there a special directory on the device in which all ebook files should be placed? Also does the device detect files placed in sub-directories?
+  * Complete list of e-book formats that your device supports.
+  * Is there a special directory on the device in which all e-book files should be placed? Also does the device detect files placed in sub-directories?
   * We also need information about your device that calibre will collect automatically. First, if your
     device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
@@ -223,12 +223,12 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the
-:guilabel:`Connect/Share` button, calibre provides a ``User Defined`` device
+In addition to the :guilabel:`Connect to folder` function found under the
+:guilabel:`Connect/share` button, calibre provides a ``User defined`` device
 plugin that can be used to connect to any USB device that shows up as a disk
 drive in your operating system. Note: on Windows, the device must have a drive
 letter for calibre to use it. See the device plugin ``Preferences -> Plugins ->
-Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get
+Device plugins -> User defined`` and ``Preferences -> Miscellaneous -> Get
 information to setup the user defined device`` for more information. Note that
 if you are using the user defined plugin for a device normally detected by a
 builtin calibre plugin, you must disable the builtin plugin first, so that your
@@ -246,7 +246,7 @@ default, collections are created from tags and series. You can control what meta
 values, calibre will not add the book to any collection.
 
 Collection management is largely controlled by the 'Metadata management' option found at
-:guilabel:`Preferences->Import/Export->Sending books to devices`. If set to 'Manual' (the default), managing collections is left to
+:guilabel:`Preferences->Import/export->Sending books to devices`. If set to 'Manual' (the default), managing collections is left to
 the user; calibre will not delete already existing collections for a book on your reader when you resend the
 book to the reader, but calibre will add the book to collections if necessary.  To ensure that the collections
 for a book are based only on current calibre metadata, first delete the books from the reader, then resend the
@@ -327,7 +327,7 @@ over the net. First perform the following steps in calibre
     under :guilabel:`Preferences->Conversion->Common options->Page setup`
   * Convert the books you want to read on your iDevice to EPUB format by
     selecting them and clicking the :guilabel:`Convert` button.
-  * Turn on the Content Server by clicking the :guilabel:`Connect/Share` button
+  * Turn on the Content Server by clicking the :guilabel:`Connect/share` button
     and leave calibre running. You can also tell calibre to automatically start the
     content server via :guilabel:`Preferences->Sharing over the net`.
 
@@ -393,8 +393,8 @@ How do I use calibre with my Android phone/tablet or Kindle Fire HD?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable -- or wirelessly, over the air.
-The first step to using an Android device is installing an ebook reading
-application on it. There are many free and paid ebook reading applications for
+The first step to using an Android device is installing an e-book reading
+application on it. There are many free and paid e-book reading applications for
 Android: Some examples (in no particular order):
 `FBReader <https://play.google.com/store/apps/details?id=org.geometerplus.zlibrary.ui.android&hl=en>`_,
 `Moon+ <https://play.google.com/store/apps/details?id=com.flyersoft.moonreader&hl=en>`_,
@@ -455,7 +455,7 @@ change ``8080`` as well to the new port.
 The local IP address is the IP address your computer is assigned on your home
 network. A quick Google search will tell you how to find out your local IP
 address. You can now browse your book collection and download books from calibre
-to your device to open with whatever ebook reading software you have on your
+to your device to open with whatever e-book reading software you have on your
 android device.
 
 Calibre Companion and many reading apps support browsing the calibre library 
@@ -823,9 +823,9 @@ Otherwise, you can request a particular news site by posting in the `calibre Rec
 Why the name calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Take your pick:
-  * Convertor And LIBRary for Ebooks
+  * Convertor And LIBRary for E-books
   * A high *calibre* product
-  * A tribute to the SONY Librie which was the first e-ink based ebook reader
+  * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
 
 calibre is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, calibre is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me.
@@ -833,7 +833,7 @@ calibre is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, calibre
 Why does calibre show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre embeds fonts in ebook files it creates. Ebook files support embedding
+calibre embeds fonts in e-book files it creates. E-book files support embedding
 only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on OS X systems
 are in .dfont format, thus they cannot be embedded. calibre shows only TrueType
 and OpenType fonts found on your system. You can obtain many such fonts on the
@@ -867,7 +867,7 @@ There can be several causes for this:
       has trouble with library locations if the path contains non-English characters, or only numbers, etc.)
     * Try running it as Administrator (Right click on the icon and select "Run as Administrator")
 
-If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
+If it still wont launch, start a command prompt (press the Windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
     calibre-debug -g
 
@@ -932,10 +932,10 @@ Using the viewer or doing any conversions results in a permission denied error o
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Something on your computer is preventing calibre from accessing its own
-temporary files. Most likely the permissions on your Temp folder are incorrect.
+temporary files. Most likely the permissions on your :file:`Temp` folder are incorrect.
 Go to the folder file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows
-Explorer and then right click on the file:`Temp` folder, select Properties and go to
-the Security tab. Make sure that your user account has full control for this
+Explorer and then right click on the file:`Temp` folder, select :guilabel:`Properties` and go to
+the :guilabel:`Security` tab. Make sure that your user account has full control for this
 folder.
 
 Some users have reported that running the following command in an Administrator
@@ -1022,7 +1022,7 @@ If you want to backup the calibre configuration/plugins, you have to backup the 
 
 How do I use purchased EPUB books with calibre (or what do I do with .acsm files)?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Most purchased EPUB books have `DRM <https://drmfree.calibre-ebook.com/about#drm>`_. This prevents calibre from opening them. You can still use calibre to store and transfer them to your ebook reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with calibre will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" ebook. The ebook file will be stored in the folder "My Digital Editions", from where you can add it to calibre.
+Most purchased EPUB books have `DRM <https://drmfree.calibre-ebook.com/about#drm>`_. This prevents calibre from opening them. You can still use calibre to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with calibre will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to calibre.
 
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1041,9 +1041,9 @@ You will need to fix the underlying cause of the permissions error before resumi
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
+Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the e-book, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
-Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the :guilabel:`Convert` button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
+Another alternative is to create a catalog in e-book form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the :guilabel:`Convert` button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
 How do I get calibre to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1119,7 +1119,7 @@ You can run the calibre server via the command::
 
     /opt/calibre/calibre-server --with-library /path/to/the/library/you/want/to/share
 
-You can download news and convert it into an ebook with the command::
+You can download news and convert it into an e-book with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
