@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
-from book_list.library_data import sync_library_books
+from book_list.library_data import sync_library_books, last_virtual_library_for
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
@@ -159,7 +159,11 @@ def init(container_id):
             cl.appendChild(
                 create_button(library_name, icon='library', action=def(ev):
                     lib_id = ev.currentTarget.dataset.lid
-                    show_panel('book_list', {'library_id': lib_id})
+                    q = {'library_id': lib_id}
+                    vlid = last_virtual_library_for(lib_id)
+                    if vlid:
+                        q.vl = vlid
+                    show_panel('book_list', q)
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
