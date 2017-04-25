@@ -18,7 +18,7 @@
     <widget class="QLabel" name="help_label">
      <property name="text">
       <string>&lt;div style=&quot;font-size:10pt;&quot;&gt;
-&lt;p&gt;Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;/p&gt;
+&lt;p&gt;Set a regular expression pattern to use when trying to guess e-book metadata from filenames. &lt;/p&gt;
 &lt;p&gt;A &lt;a href=&quot;%s&quot;&gt;tutorial&lt;/a&gt; on using regular expressions is available.&lt;/p&gt;
 &lt;p&gt;Use the &lt;b&gt;Test&lt;/b&gt; functionality below to test your regular expression on a few sample filenames (remember to include the file extension). The group names for the various metadata entries are documented in tooltips. Note that underscores in filenames are auto-replaced by spaces.&lt;/p&gt;&lt;/div&gt;</string>
      </property>

@@ -215,13 +215,13 @@ class KINDLE(USBMS):
         spanTag['style'] = 'font-weight:bold'
         if bookmark.book_format == 'pdf':
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % dict(
+                _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)))
         else:
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % dict(
+                _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)))

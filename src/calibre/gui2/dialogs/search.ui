@@ -201,7 +201,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Titl&amp;e/Author/Series...</string>
+       <string>Titl&amp;e/author/series...</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">

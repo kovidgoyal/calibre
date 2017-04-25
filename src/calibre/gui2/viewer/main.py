@@ -87,7 +87,7 @@ class Worker(Thread):
             self.exception = self.traceback = None
         except BadZipfile:
             self.exception = _(
-                'This ebook is corrupted and cannot be opened. If you '
+                'This e-book is corrupted and cannot be opened. If you '
                 'downloaded it from somewhere, try downloading it again.')
             self.traceback = ''
         except WorkerError as err:
@@ -1160,7 +1160,7 @@ class EbookViewer(MainWindow):
 
 
 def config(defaults=None):
-    desc = _('Options to control the ebook viewer')
+    desc = _('Options to control the e-book viewer')
     if defaults is None:
         c = Config('viewer', desc)
     else:
@@ -1192,7 +1192,7 @@ def option_parser():
     parser = c.option_parser(usage=_('''\
 %prog [options] file
 
-View an ebook.
+View an e-book.
 '''))
     setup_gui_option_parser(parser)
     return parser

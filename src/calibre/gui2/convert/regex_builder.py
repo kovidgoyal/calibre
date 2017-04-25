@@ -216,7 +216,7 @@ class RegexEdit(QWidget, Ui_Edit):
     def builder(self):
         if self.db is None:
             self.doc_cache = _('Click the "Open" button below to open a '
-                    'ebook to use for testing.')
+                    'e-book to use for testing.')
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self.doc_cache, self)
         if bld.cancelled:
             return

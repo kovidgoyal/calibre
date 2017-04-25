@@ -384,7 +384,7 @@ class CreateCustomColumn(QDialog):
                   'An Oblique Approach</b></big> [Belisarius [1]]". The template '
                   '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
                   ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
+                  'will generate a link to the book on the Beam e-books site.') + '</p>')
         l.addWidget(cch)
         add_row(None, l)
 

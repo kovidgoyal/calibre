@@ -210,7 +210,7 @@ class Adder(QObject):
             return
         if not self.file_groups:
             error_dialog(self.pd, _('Could not add'), _(
-                'No ebook files were found in %s') % self.source, show=True)
+                'No e-book files were found in %s') % self.source, show=True)
             self.break_cycles()
             return
         self.pd.max = len(self.file_groups)

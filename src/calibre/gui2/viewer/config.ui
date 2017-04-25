@@ -842,10 +842,10 @@ You must enter the search URL for the search engine, with the placeholder
            <item row="6" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_copy_bookmarks_to_file">
              <property name="toolTip">
-              <string>Keep a copy of all bookmarks/current page information inside the ebook file, so that you can share them by simply sending the ebook file itself. Currently only works with ebooks in the EPUB format.</string>
+              <string>Keep a copy of all bookmarks/current page information inside the e-book file, so that you can share them by simply sending the e-book file itself. Currently only works with e-books in the EPUB format.</string>
              </property>
              <property name="text">
-              <string>Keep a copy of &amp;bookmarks/current page inside the ebook file, for easy sharing</string>
+              <string>Keep a copy of &amp;bookmarks/current page inside the e-book file, for easy sharing</string>
              </property>
             </widget>
            </item>

@@ -25,7 +25,7 @@ from calibre.gui2.viewer.config_ui import Ui_Dialog
 
 
 def config(defaults=None):
-    desc = _('Options to customize the ebook viewer')
+    desc = _('Options to customize the e-book viewer')
     if defaults is None:
         c = Config('viewer', desc)
     else:
@@ -53,7 +53,7 @@ def config(defaults=None):
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
     c.add_opt('copy_bookmarks_to_file', default=True,
-            help=_('Copy bookmarks to the ebook file for easy sharing, if possible'))
+            help=_('Copy bookmarks to the e-book file for easy sharing, if possible'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
     c.add_opt('wheel_scroll_fraction', default=100,

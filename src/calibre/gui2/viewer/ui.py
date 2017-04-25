@@ -388,7 +388,7 @@ class Main(MainWindow):
         a('forward', _('Forward'), 'forward.png')
         self.tool_bar.addSeparator()
 
-        a('open_ebook', _('Open ebook'), 'document_open.png', menu_name='open_history')
+        a('open_ebook', _('Open e-book'), 'document_open.png', menu_name='open_history')
         a('copy', _('Copy to clipboard'), 'edit-copy.png').setDisabled(True)
         a('font_size_larger', _('Increase font size'), 'font_size_larger.png')
         a('font_size_smaller', _('Decrease font size'), 'font_size_smaller.png')

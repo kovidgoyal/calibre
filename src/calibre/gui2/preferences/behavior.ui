@@ -35,7 +35,7 @@ If not checked, the values can be Yes or No.</string>
    <item row="3" column="0">
     <widget class="QCheckBox" name="opt_upload_news_to_device">
      <property name="text">
-      <string>Automatically send downloaded &amp;news to ebook reader</string>
+      <string>Automatically send downloaded &amp;news to e-book reader</string>
      </property>
     </widget>
    </item>

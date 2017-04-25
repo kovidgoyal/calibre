@@ -386,8 +386,8 @@ class WebView(QWebView):
             The preview will update automatically as you make changes.
 
             <p style="font-size:x-small; color: gray">Note that this is a quick preview
-            only, it is not intended to simulate an actual ebook reader. Some
-            aspects of your ebook will not work, such as page breaks and page margins.
+            only, it is not intended to simulate an actual e-book reader. Some
+            aspects of your e-book will not work, such as page breaks and page margins.
             '''))
 
     def inspect(self):

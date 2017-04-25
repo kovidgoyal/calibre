@@ -432,7 +432,7 @@ the directory related options below.
         ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all pdf files'))
     fadd('--add', 'add', _(
         'A filename (glob) pattern, files matching this pattern will be added when scanning directories for files,'
-        ' even if they are not of a known ebook file type. Can be specified multiple times for multiple patterns.'))
+        ' even if they are not of a known e-book file type. Can be specified multiple times for multiple patterns.'))
     parser.add_option_group(g)
 
     return parser
@@ -551,7 +551,7 @@ def add_format_option_parser():
 '''\
 %prog add_format [options] id ebook_file
 
-Add the ebook in ebook_file to the available formats for the logical book identified \
+Add the e-book in ebook_file to the available formats for the logical book identified \
 by id. You can get id by using the search command. If the format already exists, \
 it is replaced, unless the do not replace option is specified.\
 '''))

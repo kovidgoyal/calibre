@@ -661,7 +661,7 @@ class Boss(QObject):
                 _('The name you have chosen {0} contains special characters, internally'
                   ' it will look like: {1}Try to use only the English alphabet [a-z], numbers [0-9],'
                   ' hyphens and underscores for file names. Other characters can cause problems for '
-                  ' different ebook viewers. Are you sure you want to proceed?').format(
+                  ' different e-book viewers. Are you sure you want to proceed?').format(
                       '<pre>%s</pre>'%newname, '<pre>%s</pre>' % urlnormalize(newname)),
                 'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
                 return

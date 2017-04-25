@@ -773,7 +773,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 title = job.description.split(':')[-1].partition('(')[-1][:-1]
                 msg = _('<p><b>Failed to convert: %s')%title
                 msg += '<p>'+_('''
-                Many older ebook reader devices are incapable of displaying
+                Many older e-book reader devices are incapable of displaying
                 EPUB files that have internal components over a certain size.
                 Therefore, when converting to EPUB, calibre automatically tries
                 to split up the EPUB into smaller sized pieces.  For some
@@ -783,7 +783,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 maximum split size under EPUB Output in the conversion dialog,
                 or by turning on Heuristic Processing, also in the conversion
                 dialog. Note that if you make the maximum split size too large,
-                your ebook reader may have trouble with the EPUB.
+                your e-book reader may have trouble with the EPUB.
                         ''')
                 if not minz:
                     d = error_dialog(self, _('Conversion Failed'), msg,
