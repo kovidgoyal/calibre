@@ -534,7 +534,7 @@ def render_categories(opts, db, category_data):
 
 
 def categories_as_json(ctx, rd, db, opts, vl):
-    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl='')
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl=vl)
 
 # Test tag browser {{{
 
