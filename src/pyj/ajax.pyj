@@ -24,7 +24,7 @@ def encode_query(query, qchar):
     if keys.length:
         for k in keys:
             val = query[k]
-            if val is undefined or val is None:
+            if val is undefined or val is None or val is '':
                 continue
             ans += qchar + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
             qchar = '&'
