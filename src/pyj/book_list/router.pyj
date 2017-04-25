@@ -54,7 +54,7 @@ def open_book(book_id, fmt, library_id=None, replace=False):
 
 
 def push_state(query, replace=False, mode='book_list', call_handler=True):
-    query = {k:query[k] for k in query}
+    query = {k:query[k] for k in query if query[k]}
     if mode is not 'book_list':
         query.mode = mode
     query = encode_query_with_path(query)
