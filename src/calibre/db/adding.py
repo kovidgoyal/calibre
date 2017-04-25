@@ -84,7 +84,6 @@ else:
 
 
 def listdir(root, sort_by_mtime=False):
-
     items = (os.path.join(root, x) for x in unicode_listdir(root))
     if sort_by_mtime:
         def safe_mtime(x):
