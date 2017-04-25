@@ -202,12 +202,12 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
        <item row="5" column="0">
         <widget class="QCheckBox" name="opt_auto_add_everything">
          <property name="toolTip">
-          <string>By default, calibre will auto-add only known ebook files. 
+          <string>By default, calibre will auto-add only known e-book files. 
 This option tells calibre to add all file types, except those
 that have been explicitly ignored below.</string>
          </property>
          <property name="text">
-          <string>Auto add files of &amp;all types (not just ebooks)</string>
+          <string>Auto add files of &amp;all types (not just e-books)</string>
          </property>
         </widget>
        </item>

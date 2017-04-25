@@ -21,7 +21,7 @@ from tinycss.fonts3 import parse_font_family
 class InvalidFont(BaseError):
 
     HELP = _('This font could not be processed. It most likely will'
-             ' not work in an ebook reader, either')
+             ' not work in an e-book reader, either')
 
 
 def fix_sheet(sheet, css_name, font_name):

@@ -39,7 +39,7 @@ def option_parser():
     parser = _option_parser(_('''\
 %prog [options] [path_to_ebook]
 
-Launch the main calibre Graphical User Interface and optionally add the ebook at
+Launch the main calibre Graphical User Interface and optionally add the e-book at
 path_to_ebook to the database.
 '''))
     parser.add_option('--with-library', default=None, action='store',

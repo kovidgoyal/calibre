@@ -59,7 +59,7 @@ class EPUBOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Turn off splitting at page breaks. Normally, input '
                     'files are automatically split at every page break into '
-                    'two files. This gives an output ebook that can be '
+                    'two files. This gives an output e-book that can be '
                     'parsed faster and with less resources. However, '
                     'splitting is slow and if your source file contains a '
                     'very large number of page breaks, you should turn off '
@@ -512,4 +512,3 @@ class EPUBOutput(OutputFormatPlugin):
             simplify_toc_entry(self.oeb.toc)
 
     # }}}
-

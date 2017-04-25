@@ -73,7 +73,7 @@ class BadDestinationType(BaseError):
     def __init__(self, link_source, link_dest, link_elem):
         BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
         self.HELP = _('The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
-                      ' Many ebook readers will be unable to follow such a link. You should'
+                      ' Many e-book readers will be unable to follow such a link. You should'
                       ' either remove the link or change it to point to a text document.'
                       ' For example, if it points to an image, you can create small wrapper'
                       ' document that contains the image and change the link to point to that.').format(
@@ -96,7 +96,7 @@ class BadDestinationFragment(BaseError):
 
 class FileLink(BadLink):
 
-    HELP = _('This link uses the file:// URL scheme. This does not work with many ebook readers.'
+    HELP = _('This link uses the file:// URL scheme. This does not work with many e-book readers.'
              ' Remove the file:// prefix and make sure the link points to a file inside the book.')
 
 
@@ -115,7 +115,7 @@ class EmptyLink(BadLink):
 class UnreferencedResource(BadLink):
 
     HELP = _('This file is included in the book but not referred to by any document in the spine.'
-             ' This means that the file will not be viewable on most ebook readers. You should '
+             ' This means that the file will not be viewable on most e-book readers. You should '
              ' probably remove this file from the book or add a link to it somewhere.')
 
     def __init__(self, name):
@@ -184,7 +184,7 @@ class Bookmarks(BadLink):
 
     HELP = _(
         'This file stores the bookmarks and last opened information from'
-        ' the calibre ebook viewer. You can remove it if you do not'
+        ' the calibre e-book viewer. You can remove it if you do not'
         ' need that information, or don\'t want to share it with'
         ' other people you send this book to.')
     INDIVIDUAL_FIX = _('Remove this file')
@@ -192,7 +192,7 @@ class Bookmarks(BadLink):
 
     def __init__(self, name):
         BadLink.__init__(self, _(
-            'The bookmarks file used by the calibre ebook viewer is present'), name)
+            'The bookmarks file used by the calibre e-book viewer is present'), name)
 
     def __call__(self, container):
         container.remove_item(self.name)

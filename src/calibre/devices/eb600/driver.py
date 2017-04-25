@@ -23,7 +23,7 @@ class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
     gui_name       = 'Netronix EB600'
-    description    = _('Communicate with the EB600 eBook reader.')
+    description    = _('Communicate with the EB600 e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -415,4 +415,3 @@ class PI2(EB600):
     WINDOWS_CARD_A_MEM = 'INFIBEAM_PI'
 
     DELETE_EXTS = ['.rec']
-

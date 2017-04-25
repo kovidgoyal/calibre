@@ -22,7 +22,7 @@ class CYBOOK(USBMS):
 
     name           = 'Cybook Gen 3 / Opus Device Interface'
     gui_name       = 'Cybook Gen 3/Opus'
-    description    = _('Communicate with the Cybook Gen 3/Opus eBook reader.')
+    description    = _('Communicate with the Cybook Gen 3/Opus e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -66,7 +66,7 @@ class ORIZON(CYBOOK):
 
     name           = 'Cybook Orizon Device Interface'
     gui_name       = 'Orizon'
-    description    = _('Communicate with the Cybook Orizon eBook reader.')
+    description    = _('Communicate with the Cybook Orizon e-book reader.')
 
     BCD         = [0x319]
 
@@ -118,7 +118,7 @@ class MUSE(CYBOOK):
 
     name           = 'Cybook Muse Device Interface'
     gui_name       = 'Muse'
-    description    = _('Communicate with the Cybook Muse eBook reader.')
+    description    = _('Communicate with the Cybook Muse e-book reader.')
     author         = 'Kovid Goyal'
 
     FORMATS     = ['epub', 'html', 'fb2', 'txt', 'pdf', 'djvu']

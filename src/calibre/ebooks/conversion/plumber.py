@@ -345,7 +345,7 @@ OptionRecommendation(name='chapter_mark',
 OptionRecommendation(name='start_reading_at',
         recommended_value=None, level=OptionRecommendation.LOW,
         help=_('An XPath expression to detect the location in the document'
-            ' at which to start reading. Some ebook reading programs'
+            ' at which to start reading. Some e-book reading programs'
             ' (most prominently the Kindle) use this location as the'
             ' position at which to open the book. See the XPath tutorial'
             ' in the calibre User Manual for further help using this'
@@ -486,7 +486,7 @@ OptionRecommendation(name='insert_blank_line_size',
 
 OptionRecommendation(name='remove_first_image',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Remove the first image from the input ebook. Useful if the '
+        help=_('Remove the first image from the input e-book. Useful if the '
         'input document has a cover image that is not identified as a cover. '
         'In this case, if you set a cover in calibre, the output document will '
         'end up with two cover images if you do not specify this option.'
@@ -496,7 +496,7 @@ OptionRecommendation(name='remove_first_image',
 OptionRecommendation(name='insert_metadata',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Insert the book metadata at the start of '
-            'the book. This is useful if your ebook reader does not support '
+            'the book. This is useful if your e-book reader does not support '
             'displaying/searching metadata directly.'
             )
         ),
@@ -574,15 +574,15 @@ OptionRecommendation(name='cover',
 
 OptionRecommendation(name='comments',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook description.')),
+    help=_('Set the e-book description.')),
 
 OptionRecommendation(name='publisher',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook publisher.')),
+    help=_('Set the e-book publisher.')),
 
 OptionRecommendation(name='series',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the series this ebook belongs to.')),
+    help=_('Set the series this e-book belongs to.')),
 
 OptionRecommendation(name='series_index',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -818,7 +818,7 @@ OptionRecommendation(name='search_replace',
         html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
         html_files = [f for f in files if html_pat.search(f) is not None]
         if not html_files:
-            raise ValueError(_('Could not find an ebook inside the archive'))
+            raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
         html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         html_files = [f[0] for f in html_files]
@@ -1110,7 +1110,7 @@ OptionRecommendation(name='search_replace',
             self.input_plugin.specialize(self.oeb, self.opts, self.log,
                     self.output_fmt)
 
-        pr(0., _('Running transforms on ebook...'))
+        pr(0., _('Running transforms on e-book...'))
 
         self.oeb.plumber_output_format = self.output_fmt or ''
 

@@ -42,7 +42,7 @@ class IncorrectCover(BaseError):
 class NookCover(BaseError):
 
     HELP = _(
-            'Some ebook readers such as the Nook fail to recognize covers if'
+            'Some e-book readers such as the Nook fail to recognize covers if'
             ' the content attribute comes before the name attribute.'
             ' For maximum compatibility move the name attribute before the content attribute.')
     INDIVIDUAL_FIX = _('Move the name attribute before the content attribute')
@@ -152,7 +152,7 @@ class NonLinearItems(BaseError):
     has_multiple_locations = True
 
     HELP = xml(_('There are items marked as non-linear in the <spine>.'
-                 ' These will be displayed in random order by different ebook readers.'
+                 ' These will be displayed in random order by different e-book readers.'
                  ' Some will ignore the non-linear attribute, some will display'
                  ' them at the end or the beginning of the book and some will'
                  ' fail to display them at all. Instead of using non-linear items'
@@ -255,7 +255,7 @@ class BadSpineMime(BaseError):
         BaseError.__init__(self, _('Incorrect media-type for spine item'), opf_name, lnum)
         self.HELP = _(
             'The item {0} present in the spine has the media-type {1}. '
-            ' Most ebook software cannot handle non-HTML spine items. '
+            ' Most e-book software cannot handle non-HTML spine items. '
             ' If the item is actually HTML, you should change its media-type to {2}.'
             ' If it is not-HTML you should consider replacing it with an HTML item, as it'
             ' is unlikely to work in most readers.').format(name, mt, XHTML_MIME)

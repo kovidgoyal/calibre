@@ -46,7 +46,7 @@ class OverDrive(Source):
 
     config_help_message = '<p>'+_('Additional metadata can be taken from Overdrive\'s book detail'
             ' page. This includes a limited set of tags used by libraries, comments, language,'
-            ' and the ebook ISBN. Collecting this data is disabled by default due to the extra'
+            ' and the e-book ISBN. Collecting this data is disabled by default due to the extra'
             ' time required. Check the download all metadata option below to'
             ' enable downloading this data.')
 

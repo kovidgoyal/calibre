@@ -113,7 +113,7 @@ class Rules(RulesBase):
             ' when auto-adding. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every file until either an'
             ' "add" or an "ignore" rule matches. If no rules match, the file will be added only'
-            ' if its file extension is of a known ebook type.')
+            ' if its file extension is of a known e-book type.')
 
 
 class Tester(TesterBase):

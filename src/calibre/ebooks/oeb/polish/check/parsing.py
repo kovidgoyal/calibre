@@ -59,7 +59,7 @@ class XMLParseError(BaseError):
     is_parsing_error = True
 
     HELP = _('A parsing error in an XML file means that the XML syntax in the file is incorrect.'
-             ' Such a file will most probably not open in an ebook reader. These errors can '
+             ' Such a file will most probably not open in an e-book reader. These errors can '
              ' usually be fixed automatically, however, automatic fixing can sometimes '
              ' "do the wrong thing".')
 
@@ -125,7 +125,7 @@ class EscapedName(BaseError):
         self.sname = make_filename_safe(name)
         self.HELP = _(
             'The filename {0} contains unsafe characters, that must be escaped, like'
-            ' this {1}. This can cause problems with some ebook readers. To be'
+            ' this {1}. This can cause problems with some e-book readers. To be'
             ' absolutely safe, use only the English alphabet [a-z], the numbers [0-9],'
             ' underscores and hyphens in your file names. While many other characters'
             ' are allowed, they may cause problems with some software.').format(name, qname)
@@ -149,7 +149,7 @@ class TooLarge(BaseError):
     level = INFO
     MAX_SIZE = 260 *1024
     HELP = _('This HTML file is larger than %s. Too large HTML files can cause performance problems'
-             ' on some ebook readers. Consider splitting this file into smaller sections.') % human_readable(MAX_SIZE)
+             ' on some e-book readers. Consider splitting this file into smaller sections.') % human_readable(MAX_SIZE)
 
     def __init__(self, name):
         BaseError.__init__(self, _('File too large'), name)
@@ -243,6 +243,7 @@ def check_html_size(name, mt, raw):
         errors.append(TooLarge(name))
     return errors
 
+
 entity_pat = re.compile(br'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
 
@@ -324,6 +325,7 @@ class CSSError(BaseError):
                 if raw:
                     elem.set('style', force_unicode(container.parse_css(raw, is_declaration=True).cssText, 'utf-8').replace('\n', ' '))
         return True
+
 
 pos_pats = (re.compile(r'\[(\d+):(\d+)'), re.compile(r'(\d+), (\d+)\)'))
 
@@ -471,6 +473,7 @@ def check_filenames(container):
         if urlquote(name) != name:
             errors.append(EscapedName(name))
     return errors
+
 
 valid_id = re.compile(r'^[a-zA-Z][a-zA-Z0-9_:.-]*$')
 

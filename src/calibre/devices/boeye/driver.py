@@ -12,7 +12,7 @@ from calibre.devices.usbms.driver import USBMS
 class BOEYE_BEX(USBMS):
     name		= 'BOEYE BEX reader driver'
     gui_name	= 'BOEYE BEX'
-    description	= _('Communicate with BOEYE BEX Serial eBook readers.')
+    description	= _('Communicate with BOEYE BEX Serial e-book readers.')
     author		= 'szboeye'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -34,7 +34,7 @@ class BOEYE_BEX(USBMS):
 class BOEYE_BDX(USBMS):
     name		= 'BOEYE BDX reader driver'
     gui_name	= 'BOEYE BDX'
-    description	= _('Communicate with BOEYE BDX serial eBook readers.')
+    description	= _('Communicate with BOEYE BDX serial e-book readers.')
     author		= 'szboeye'
     supported_platforms = ['windows', 'osx', 'linux']
 
