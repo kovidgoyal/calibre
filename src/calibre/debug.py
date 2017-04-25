@@ -21,7 +21,7 @@ this command starts an embedded python interpreter. You can also run the main
 calibre GUI, the calibre viewer and the calibre editor in debug mode.
 
 It also contains interfaces to various bits of calibre that do not have
-dedicated command line tools, such as font subsetting, the ebook diff tool and so
+dedicated command line tools, such as font subsetting, the e-book diff tool and so
 on.
 
 You can also use %prog to run standalone scripts. To do that use it like this:
@@ -44,7 +44,7 @@ Everything after the -- is passed to the script.
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
-                      help=_('Run the ebook viewer in debug mode'))
+                      help=_('Run the e-book viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',
             help=_('Output the paths necessary to setup the calibre environment'))
     parser.add_option('--add-simple-plugin', default=None,

@@ -338,7 +338,7 @@ class USBMS(CLI, Device):
         :param filename: The name of the book file without the extension.
         :param metadata: metadata belonging to the book. Use metadata.thumbnail
                          for cover
-        :param filepath: The full path to the ebook file
+        :param filepath: The full path to the e-book file
 
         '''
         pass

@@ -21,17 +21,17 @@ from calibre.utils.localization import localize_user_manual_link
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
 
-Convert an ebook from one format to another.
+Convert an e-book from one format to another.
 
 input_file is the input and output_file is the output. Both must be \
 specified as the first two arguments to the command.
 
-The output ebook format is guessed from the file extension of \
+The output e-book format is guessed from the file extension of \
 output_file. output_file can also be of the special format .EXT where \
 EXT is the output file extension. In this case, the name of the output \
 file is derived from the name of the input file. Note that the filenames must \
 not start with a hyphen. Finally, if output_file has no extension, then \
-it is treated as a directory and an "open ebook" (OEB) consisting of HTML \
+it is treated as a directory and an "open e-book" (OEB) consisting of HTML \
 files is written to that directory. These files are the files that would \
 normally have been passed to the output plugin.
 
@@ -269,7 +269,7 @@ def add_pipeline_options(parser, plumber):
 def option_parser():
     parser = OptionParser(usage=USAGE)
     parser.add_option('--list-recipes', default=False, action='store_true',
-            help=_('List builtin recipe names. You can create an ebook from '
+            help=_('List builtin recipe names. You can create an e-book from '
                 'a builtin recipe like this: ebook-convert "Recipe Name.recipe" '
                 'output.epub'))
     return parser

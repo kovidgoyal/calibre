@@ -17,7 +17,7 @@ class HANLINV3(USBMS):
 
     name           = 'Hanlin V3 driver'
     gui_name       = 'Hanlin V3'
-    description    = _('Communicate with Hanlin V3 eBook readers.')
+    description    = _('Communicate with Hanlin V3 e-book readers.')
     author         = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -97,7 +97,7 @@ class SPECTRA(HANLINV3):
 class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'
     gui_name       = 'Hanlin V5'
-    description    = _('Communicate with Hanlin V5 eBook readers.')
+    description    = _('Communicate with Hanlin V5 e-book readers.')
 
     VENDOR_ID	= [0x0492]
     PRODUCT_ID	= [0x8813]
@@ -116,7 +116,7 @@ class BOOX(HANLINV3):
 
     name           = 'BOOX driver'
     gui_name       = 'BOOX'
-    description    = _('Communicate with the BOOX eBook reader.')
+    description    = _('Communicate with the BOOX e-book reader.')
     author         = 'Jesus Manuel Marinho Valcarce'
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
@@ -159,4 +159,3 @@ class BOOX(HANLINV3):
 
     def linux_swap_drives(self, drives):
         return drives
-

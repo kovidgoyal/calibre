@@ -20,7 +20,7 @@ class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with Sony eBook readers older than the'
+    description    = _('Communicate with Sony e-book readers older than the'
             ' PRST1.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -75,7 +75,7 @@ class PRS505(USBMS):
                             abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
         _('Upload separate cover thumbnails for books (newer readers)') + ':::'+
         _('Normally, the SONY readers get the cover image from the'
-                ' ebook file itself. With this option, calibre will send a '
+                ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you are '
                 'sending DRMed books in which you cannot change the cover.'
                 ' WARNING: This option should only be used with newer '
@@ -298,4 +298,3 @@ class PRS505(USBMS):
             with lopen(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
             debug_print('Cover uploaded to: %r'%cpath)
-

@@ -569,12 +569,13 @@ used by default.
 You can also change settings in the conversion dialog for each book conversion.
 When you convert a book, calibre remembers the settings you used for that book,
 so that if you convert it again, the saved settings for the individual book
-will take precedence over the defaults set in Preferences. You can restore the
-individual settings to defaults by using the :guilabel:`Restore to defaults`
-button in the individual book conversion dialog. You can remove the saved
-settings for a group of books by selecting all the books and then clicking the
-edit metadata button to bring up the bulk metadata edit dialog, near the bottom
-of the dialog is an option to remove stored conversion settings.
+will take precedence over the defaults set in :guilabel:`Preferences`. You can
+restore the individual settings to defaults by using the :guilabel:`Restore defaults`
+button in the individual book conversion dialog. You can remove the
+saved settings for a group of books by selecting all the books and then
+clicking the :guilabel:`Edit metadata` button to bring up the bulk metadata
+edit dialog, near the bottom of the dialog is an option to remove stored
+conversion settings.
 
 When you Bulk Convert a set of books, settings are taken in the following order (last one wins):
 

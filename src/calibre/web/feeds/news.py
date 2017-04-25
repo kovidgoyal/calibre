@@ -49,7 +49,7 @@ class BasicNewsRecipe(Recipe):
     to creating recipes, see :doc:`news`.
     '''
 
-    #: The title to use for the ebook
+    #: The title to use for the e-book
     title                  = _('Unknown News Source')
 
     #: A couple of lines that describe the content this recipe downloads.
@@ -106,7 +106,7 @@ class BasicNewsRecipe(Recipe):
 
     #: Convenient flag to disable loading of stylesheets for websites
     #: that have overly complex stylesheets unsuitable for conversion
-    #: to ebooks formats.
+    #: to e-book formats.
     #: If True stylesheets are not downloaded and processed
     no_stylesheets         = False
 

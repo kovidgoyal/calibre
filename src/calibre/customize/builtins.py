@@ -358,7 +358,7 @@ class RARMetadataReader(MetadataReaderPlugin):
 
     name = 'Read RAR metadata'
     file_types = set(['rar'])
-    description = _('Read metadata from ebooks in RAR archives')
+    description = _('Read metadata from e-books in RAR archives')
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.rar import get_metadata
@@ -439,7 +439,7 @@ class ZipMetadataReader(MetadataReaderPlugin):
 
     name = 'Read ZIP metadata'
     file_types = set(['zip', 'oebzip'])
-    description = _('Read metadata from ebooks in ZIP archives')
+    description = _('Read metadata from e-books in ZIP archives')
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.zip import get_metadata
@@ -1005,13 +1005,13 @@ class ActionCopyToLibrary(InterfaceActionBase):
 class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
-    description = _('Edit e-books in the epub or azw3 formats')
+    description = _('Edit e-books in the EPUB or AZW3 formats')
 
 
 class ActionUnpackBook(InterfaceActionBase):
     name = 'Unpack Book'
     actual_plugin = 'calibre.gui2.actions.unpack_book:UnpackBookAction'
-    description = _('Make small changes to epub or htmlz files in your calibre library')
+    description = _('Make small changes to EPUB or HTMLZ files in your calibre library')
 
 
 class ActionNextMatch(InterfaceActionBase):

@@ -102,7 +102,7 @@ class KOBO(USBMS):
         _('Create tags for automatic management'),
         _('Upload covers for books (newer readers)') +
         ':::'+_('Normally, the KOBO readers get the cover image from the'
-                ' ebook file itself. With this option, calibre will send a '
+                ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),
         _('Upload Black and White Covers'),
