@@ -102,7 +102,7 @@
      <item>
       <widget class="QPushButton" name="toggle_plugin_button">
        <property name="text">
-        <string>Enable/&amp;Disable plugin</string>
+        <string>Enable/&amp;disable plugin</string>
        </property>
       </widget>
      </item>

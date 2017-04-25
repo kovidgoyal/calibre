@@ -11,7 +11,7 @@ from calibre.customize import Plugin
 class DevicePlugin(Plugin):
     """
     Defines the interface that should be implemented by backends that
-    communicate with an ebook reader.
+    communicate with an e-book reader.
     """
     type = _('Device interface')
 
@@ -371,10 +371,10 @@ class DevicePlugin(Plugin):
 
     def books(self, oncard=None, end_session=True):
         """
-        Return a list of ebooks on the device.
+        Return a list of e-books on the device.
 
-        :param oncard:  If 'carda' or 'cardb' return a list of ebooks on the
-                        specific storage card, otherwise return list of ebooks
+        :param oncard:  If 'carda' or 'cardb' return a list of e-books on the
+                        specific storage card, otherwise return list of e-books
                         in main memory of device. If a card is specified and no
                         books are on the card return empty list.
 

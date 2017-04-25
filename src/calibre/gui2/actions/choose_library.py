@@ -291,9 +291,9 @@ class ChooseLibraryAction(InterfaceAction):
         if isportable:
             return error_dialog(self.gui, _('Cannot export/import'), _(
                 'You are running calibre portable, all calibre data is already in the'
-                ' calibre portable folder. Export/Import is unavailable.'), show=True)
+                ' calibre portable folder. Export/import is unavailable.'), show=True)
         if self.gui.job_manager.has_jobs():
-            return error_dialog(self.gui, _('Cannot Export/Import'),
+            return error_dialog(self.gui, _('Cannot export/import'),
                     _('Cannot export/import data while there are running jobs.'), show=True)
         from calibre.gui2.dialogs.exim import EximDialog
         d = EximDialog(parent=self.gui)

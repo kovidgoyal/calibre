@@ -735,7 +735,7 @@ class Cache(object):
     @read_api
     def format_abspath(self, book_id, fmt):
         '''
-        Return absolute path to the ebook file of format `format`. You should
+        Return absolute path to the e-book file of format `format`. You should
         almost never use this, as it breaks the threadsafe promise of this API.
         Instead use, :meth:`copy_format_to`.
 
@@ -827,10 +827,10 @@ class Cache(object):
     @api
     def format(self, book_id, fmt, as_file=False, as_path=False, preserve_filename=False):
         '''
-        Return the ebook format as a bytestring or `None` if the format doesn't exist,
-        or we don't have permission to write to the ebook file.
+        Return the e-book format as a bytestring or `None` if the format doesn't exist,
+        or we don't have permission to write to the e-book file.
 
-        :param as_file: If True the ebook format is returned as a file object. Note
+        :param as_file: If True the e-book format is returned as a file object. Note
                         that the file object is a SpooledTemporaryFile, so if what you want to
                         do is copy the format to another file, use :meth:`copy_format_to`
                         instead for performance.

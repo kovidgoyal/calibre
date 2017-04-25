@@ -182,7 +182,7 @@ def _config():  # {{{
     c.add_opt('LRF_conversion_defaults', default=[],
               help=_('Defaults for conversion to LRF'))
     c.add_opt('LRF_ebook_viewer_options', default=None,
-              help=_('Options for the LRF ebook viewer'))
+              help=_('Options for the LRF e-book viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
         'MOBI', 'PRC', 'POBI', 'AZW', 'AZW3', 'HTML', 'FB2', 'PDB', 'RB',
         'SNB', 'HTMLZ', 'KEPUB'], help=_(
@@ -219,9 +219,9 @@ def _config():  # {{{
     c.add_opt('main_search_history', default=[],
         help='Search history for the main GUI')
     c.add_opt('viewer_search_history', default=[],
-        help='Search history for the ebook viewer')
+        help='Search history for the e-book viewer')
     c.add_opt('viewer_toc_search_history', default=[],
-        help='Search history for the ToC in the ebook viewer')
+        help='Search history for the ToC in the e-book viewer')
     c.add_opt('lrf_viewer_search_history', default=[],
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],

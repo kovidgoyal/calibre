@@ -19,7 +19,7 @@ class SaveToDiskAction(InterfaceAction):
 
     name = "Save To Disk"
     action_spec = (_('Save to disk'), 'save.png',
-                   _('Export ebook files from the calibre library'), _('S'))
+                   _('Export e-book files from the calibre library'), _('S'))
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = True

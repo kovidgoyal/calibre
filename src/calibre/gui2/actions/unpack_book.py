@@ -75,10 +75,10 @@ class UnpackBook(QDialog):
 
         self.help_label = QLabel(_('''\
             <h2>About Unpack book</h2>
-            <p>Unpack book allows you to fine tune the appearance of an ebook by
+            <p>Unpack book allows you to fine tune the appearance of an e-book by
             making small changes to its internals. In order to use Unpack book,
             you need to know a little bit about HTML and CSS, technologies that
-            are used in ebooks. Follow the steps:</p>
+            are used in e-books. Follow the steps:</p>
             <br>
             <ol>
             <li>Click "Explode book": This will "explode" the book into its

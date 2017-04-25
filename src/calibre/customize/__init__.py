@@ -346,20 +346,20 @@ class FileTypePlugin(Plugin):  # {{{
         '''
         Run the plugin. Must be implemented in subclasses.
         It should perform whatever modifications are required
-        on the ebook and return the absolute path to the
-        modified ebook. If no modifications are needed, it should
-        return the path to the original ebook. If an error is encountered
+        on the e-book and return the absolute path to the
+        modified e-book. If no modifications are needed, it should
+        return the path to the original e-book. If an error is encountered
         it should raise an Exception. The default implementation
-        simply return the path to the original ebook. Note that the path to
+        simply return the path to the original e-book. Note that the path to
         the original file (before any file type plugins are run, is available as
         self.original_path_to_file).
 
-        The modified ebook file should be created with the
+        The modified e-book file should be created with the
         :meth:`temporary_file` method.
 
-        :param path_to_ebook: Absolute path to the ebook.
+        :param path_to_ebook: Absolute path to the e-book.
 
-        :return: Absolute path to the modified ebook.
+        :return: Absolute path to the modified e-book.
         '''
         # Default implementation does nothing
         return path_to_ebook
@@ -687,18 +687,18 @@ class StoreBase(Plugin):  # {{{
     # Information about the store. Should be in the primary language
     # of the store. This should not be translatable when set by
     # a subclass.
-    description = _('An ebook store.')
+    description = _('An e-book store.')
     minimum_calibre_version = (0, 8, 0)
     version        = (1, 0, 1)
 
     actual_plugin = None
 
-    # Does the store only distribute ebooks without DRM.
+    # Does the store only distribute e-books without DRM.
     drm_free_only = False
     # This is the 2 letter country code for the corporate
     # headquarters of the store.
     headquarters = ''
-    # All formats the store distributes ebooks in.
+    # All formats the store distributes e-books in.
     formats = []
     # Is this store on an affiliate program?
     affiliate = False

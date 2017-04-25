@@ -18,9 +18,9 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', _('Search dozens of online ebook retailers for the cheapest books'), _('G'))
+    action_spec = (_('Get books'), 'store.png', _('Search dozens of online e-book retailers for the cheapest books'), _('G'))
     action_add_menu = True
-    action_menu_clone_qaction = _('Search for ebooks')
+    action_menu_clone_qaction = _('Search for e-books')
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
@@ -132,7 +132,7 @@ class StoreAction(InterfaceAction):
 
     def show_disclaimer(self):
         confirm(('<p>' +
-            _('calibre helps you find the ebooks you want by searching '
+            _('calibre helps you find the e-books you want by searching '
             'the websites of various commercial and public domain '
             'book sources for you.') +
             '<p>' +

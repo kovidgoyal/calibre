@@ -99,7 +99,7 @@ class TweakEpubAction(InterfaceAction):
 
     def do_tweak(self, book_id):
         if self.gui.current_view() is not self.gui.library_view:
-            return error_dialog(self.gui, _('Cannot Edit book'), _(
+            return error_dialog(self.gui, _('Cannot edit book'), _(
                 'Editing of books on the device is not supported'), show=True)
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         db = self.gui.library_view.model().db

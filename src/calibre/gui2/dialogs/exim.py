@@ -152,7 +152,7 @@ class EximDialog(Dialog):
         self.initial_panel = initial_panel
         self.abort_disk_usage = Event()
         self.restart_needed = False
-        Dialog.__init__(self, _('Export/Import all calibre data'), 'exim-calibre', parent=parent)
+        Dialog.__init__(self, _('Export/import all calibre data'), 'exim-calibre', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)

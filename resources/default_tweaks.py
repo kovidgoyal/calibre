@@ -494,7 +494,7 @@ gui_view_history_size = 15
 # negative number to increase or decrease the font size.
 change_book_details_font_size_by = 0
 
-#: Compile general program Mode templates to Python
+#: Compile general program mode templates to Python
 # Compiled general program mode templates are significantly faster than
 # interpreted templates. Setting this tweak to True causes calibre to compile
 # (in most cases) general program mode templates. Setting it to False causes
@@ -504,14 +504,14 @@ change_book_details_font_size_by = 0
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
 
-#: What format to default to when using the Tweak feature
-# The Tweak feature of calibre allows direct editing of a book format.
+#: What format to default to when using the "Unpack book" feature
+# The "Unpack book" feature of calibre allows direct editing of a book format.
 # If multiple formats are available, calibre will offer you a choice
 # of formats, defaulting to your preferred output format if it is available.
 # Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
 # to that format rather than your output format preference.
 # Set to a value of 'remember' to use whichever format you chose last time you
-# used the Tweak feature.
+# used the "Unpack book" feature.
 # Examples:
 #   default_tweak_format = None       (Use output format)
 #   default_tweak_format = 'EPUB'
@@ -569,9 +569,9 @@ restrict_output_formats = None
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
 
-#: Image file types to treat as e-books when dropping onto the Book details panel
+#: Image file types to treat as e-books when dropping onto the "Book details" panel
 # Normally, if you drop any image file in a format known to calibre onto the
-# Book details panel, it will be used to set the cover. If you want to store
+# "Book details" panel, it will be used to set the cover. If you want to store
 # some image types as e-books instead, you can set this tweak.
 # Examples:
 #    cover_drop_exclude = {'tiff', 'webp'}

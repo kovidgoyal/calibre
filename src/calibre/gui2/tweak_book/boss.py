@@ -252,7 +252,7 @@ class Boss(QObject):
 
     def open_book(self, path=None, edit_file=None, clear_notify_data=True, open_folder=False):
         '''
-        Open the ebook at ``path`` for editing. Will show an error if the ebook is not in a supported format or the current book has unsaved changes.
+        Open the e-book at ``path`` for editing. Will show an error if the e-book is not in a supported format or the current book has unsaved changes.
 
         :param edit_file: The name of a file inside the newly opened book to start editing. Can also be a list of names.
         '''
