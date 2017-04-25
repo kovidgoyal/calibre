@@ -16,7 +16,7 @@ from future_builtins import map
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints, as_unicode
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, iswindows, isosx, filesystem_encoding
 from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db.adding import find_books_in_directory, compile_rule
 from calibre.db.utils import find_identical_books
@@ -129,12 +129,27 @@ class Adder(QObject):
             import traceback
             traceback.print_exc()
 
-        def find_files(root):
-            for dirpath, dirnames, filenames in os.walk(root):
-                for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
-                    if self.abort_scan:
-                        return
-                    self.file_groups[len(self.file_groups)] = files
+        if iswindows or isosx:
+            def find_files(root):
+                for dirpath, dirnames, filenames in os.walk(root):
+                    for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
+                        if self.abort_scan:
+                            return
+                        self.file_groups[len(self.file_groups)] = files
+        else:
+            def find_files(root):
+                if isinstance(root, type(u'')):
+                    root = root.encode(filesystem_encoding)
+                for dirpath, dirnames, filenames in os.walk(root):
+                    try:
+                        dirpath = dirpath.decode(filesystem_encoding)
+                    except UnicodeDecodeError:
+                        prints('Ignoring non-decodable directory:', dirpath)
+                        continue
+                    for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
+                        if self.abort_scan:
+                            return
+                        self.file_groups[len(self.file_groups)] = files
 
         def extract(source):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)

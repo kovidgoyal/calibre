@@ -10,6 +10,8 @@ import os, time, re
 from collections import defaultdict
 from future_builtins import map
 
+from calibre import prints
+from calibre.constants import iswindows, isosx, filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 
 
@@ -56,6 +58,7 @@ def filter_filename(compiled_rules, filename):
         if q(filename):
             return action
 
+
 _metadata_extensions = None
 
 
@@ -68,8 +71,21 @@ def metadata_extensions():
     return _metadata_extensions
 
 
+if iswindows or isosx:
+    unicode_listdir = os.listdir
+else:
+    def unicode_listdir(root):
+        root = root.encode(filesystem_encoding)
+        for x in os.listdir(root):
+            try:
+                yield x.decode(filesystem_encoding)
+            except UnicodeDecodeError:
+                prints('Ignoring un-decodable file:', x)
+
+
 def listdir(root, sort_by_mtime=False):
-    items = (os.path.join(root, x) for x in os.listdir(root))
+
+    items = (os.path.join(root, x) for x in unicode_listdir(root))
     if sort_by_mtime:
         def safe_mtime(x):
             try:
@@ -236,5 +252,3 @@ def add_news(cache, path, arg, dbapi=None):
     if not hasattr(path, 'read'):
         stream.close()
     return db_id
-
-
