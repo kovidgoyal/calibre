@@ -37,7 +37,6 @@ DEFAULT_MODE = 'cover_grid'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
-    ans += build_rule(sel + '[data-component="top_message"] a', color='blue')
     ans += cover_grid_css.call()
     return ans
 )
@@ -171,16 +170,25 @@ def create_more_button(more):
 
 def show_top_message():
     container = component('top_message')
-    if library_data.search_result?.query:
+    q = loaded_books_query()
+    if not q.search and not q.vl:
+        container.style.display = 'none'
+        return
+    if q.vl:
+        container.appendChild(E.span(
+            E.span(_('Showing Virtual library: {} ').format(q.vl)),
+            create_button(_('Close'), 'close', def(): show_vl();, _('Show all books in library'))
+        ))
+        if q.search:
+            container.appendChild(E.br())
+    if q.search:
         text = _('Showing books matching: {} ')
         if not library_data.search_result.total_num:
             text = _('No books matching: {} ')
         container.appendChild(E.span(
             E.span(text.format(library_data.search_result.query)),
-            E.a(_('Clear'), href='javascript:void(0)', onclick=def():search();, class_='simple-link', title=_('Clear this search'))
+            create_button(_('Clear'), 'close', def(): search();, _('Clear this search'))
         ))
-    else:
-        container.style.display = 'none'
 
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
@@ -299,13 +307,15 @@ def create_vl_panel(container_id):
     vls = all_virtual_libraries()
     vl_names = Object.keys(vls).sort(def (a, b): return a.toLowerCase().localeCompare(b.toLowerCase());)
     for name in vl_names:
-        items.push(create_item(name, subtitle=vls[name], action=show_vl.bind(None, name)))
+        items.push(create_item(name, subtitle=vls[name], action=show_vl.bind(None, name, True)))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Choose a Virtual library to browse from the list below'))
 
 
-def show_vl(vl_name):
-    show_panel('book_list', query={'vl':vl_name}, replace=True)
+def show_vl(vl_name, replace):
+    q = loaded_books_query()
+    q.vl = vl_name or None
+    show_panel('book_list', query=q, replace=replace or False)
 
 # }}}
 
