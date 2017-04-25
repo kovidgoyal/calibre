@@ -225,6 +225,10 @@ class KF8Book(object):
         self.used_images = writer.used_images
         self.page_progression_direction = writer.oeb.spine.page_progression_direction
         self.primary_writing_mode = writer.oeb.metadata.primary_writing_mode
+        if self.page_progression_direction == 'rtl' and not self.primary_writing_mode:
+            # Without this the Kindle renderer does not respect
+            # page_progression_direction
+            self.primary_writing_mode = 'horizontal-rl'
 
     def build_records(self, writer, for_joint):
         metadata = writer.oeb.metadata
