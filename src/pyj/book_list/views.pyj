@@ -14,7 +14,7 @@ from book_list.cover_grid import (
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
-    book_metadata, current_sorted_field,
+    all_virtual_libraries, book_metadata, current_sorted_field,
     ensure_current_library_data, library_data, load_status, loaded_books_query,
     thumbnail_cache, url_books_query
 )
@@ -288,6 +288,27 @@ set_apply_search(def(query): search(query, True);)
 
 # }}}
 
+# Virtual libraries {{{
+def create_vl_panel(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Choose Virtual library…'), action=back, icon='close')
+    items = []
+    vls = all_virtual_libraries()
+    vl_names = Object.keys(vls).sort(def (a, b): return a.toLowerCase().localeCompare(b.toLowerCase());)
+    for name in vl_names:
+        items.push(create_item(name, subtitle=vls[name], action=show_vl.bind(None, name)))
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items, _('Choose a Virtual library to browse from the list below'))
+
+
+def show_vl(vl_name):
+    show_panel('book_list', query={'vl':vl_name}, replace=True)
+
+# }}}
+
 # More actions {{{
 
 def create_more_actions_panel(container_id):
@@ -300,6 +321,11 @@ def create_more_actions_panel(container_id):
                     show_panel('book_details', query=query, replace=True)
         ),
     ]
+    vls = all_virtual_libraries()
+    if vls and Object.keys(vls).length > 0:
+        items.insert(1, create_item(_('Choose Virtual library'), subtitle=_('Browse books in a Virtual library'), action=def():
+                     show_panel('book_list^vl', replace=True)
+        ))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
 
@@ -307,6 +333,7 @@ def create_more_actions_panel(container_id):
 
 set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)
+set_panel_handler('book_list^vl', create_vl_panel)
 set_panel_handler('book_list^search', init_search_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
 set_panel_handler('book_list^more_actions', create_more_actions_panel)
