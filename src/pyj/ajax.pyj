@@ -19,7 +19,7 @@ def encode_query(query, qchar):
     if not query:
         return ''
     qchar = qchar or '?'
-    keys = Object.keys(query)
+    keys = Object.keys(query).sort()
     ans = ''
     if keys.length:
         for k in keys:
