@@ -1,9 +1,9 @@
 .. _servertutorial:
 
-Integrating the calibre content server into other servers
+Integrating the calibre Content server into other servers
 ==========================================================
 
-Here, we will show you how to integrate the calibre content server into another server. The most common reason for this is to make use of SSL or more sophisticated authentication. The basic technique is to run the calibre server and setup reverse proxying to it from the main server.
+Here, we will show you how to integrate the calibre Content server into another server. The most common reason for this is to make use of SSL or more sophisticated authentication. The basic technique is to run the calibre server and setup reverse proxying to it from the main server.
 
 .. contents:: Contents
   :depth: 2
@@ -51,7 +51,7 @@ use a URL prefix. Start the calisre server as::
 
     calibre-server --url-prefix /calibre --port 8080 
 
-The key parameter here is ``--url-prefix /calibre``. This causes the content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal content server website, but now it will run under /calibre.
+The key parameter here is ``--url-prefix /calibre``. This causes the Content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal Content server website, but now it will run under /calibre.
 
 Now suppose you are using Apache as your main server. First enable the proxy modules in Apache, by adding the following to :file:`httpd.conf`::
 
@@ -64,4 +64,4 @@ The exact technique for enabling the proxy modules will vary depending on your A
     RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
     RewriteRule ^/calibre http://localhost:8080 [proxy]
 
-That's all, you will now be able to access the calibre Content Server under the /calibre URL in your Apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
+That's all, you will now be able to access the calibre Content server under the /calibre URL in your Apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
