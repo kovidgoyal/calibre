@@ -323,7 +323,7 @@ class CreateCustomColumn(QDialog):
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
-                        'Details panel and, if shown, where'))
+                        'details panel and, if shown, where'))
         self.comments_heading_position_label = add_row(_('Column heading'), ct)
 
         self.comments_type = ct = QComboBox(self)
@@ -371,10 +371,10 @@ class CreateCustomColumn(QDialog):
         self.composite_make_category = cmc = QCheckBox(_("Show in Tag browser"))
         cmc.setToolTip(_("If checked, this column will appear in the Tag browser as a category"))
         l.addWidget(cmc)
-        self.composite_contains_html = cch = QCheckBox(_("Show as HTML in book details"))
+        self.composite_contains_html = cch = QCheckBox(_("Show as HTML in Book details"))
         cch.setToolTip('<p>' +
                 _('If checked, this column will be displayed as HTML in '
-                  'book details and the Content server. This can be used to '
+                  'Book details and the Content server. This can be used to '
                   'construct links with the template language. For example, '
                   'the template '
                   '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'

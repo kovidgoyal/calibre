@@ -316,7 +316,7 @@ class Boss(QObject):
                     ' Do an EPUB to EPUB conversion before trying to edit this book.'), show=True)
 
             return error_dialog(self.gui, _('Failed to open book'),
-                    _('Failed to open book, click Show details for more information.'),
+                    _('Failed to open book, click "Show details" for more information.'),
                                 det_msg=job.traceback, show=True)
         if cn:
             self.save_manager.clear_notify_data()
@@ -1141,9 +1141,9 @@ class Boss(QObject):
             self.abort_terminal_save()
         self.set_modified()
         error_dialog(self.gui, _('Could not save'),
-                     _('Saving of the book failed. Click "Show Details"'
+                     _('Saving of the book failed. Click "Show details"'
                        ' for more information. You can try to save a copy'
-                       ' to a different location, via File->Save a Copy'), det_msg=tb, show=True)
+                       ' to a different location, via File->Save a copy'), det_msg=tb, show=True)
 
     def go_to_line_number(self):
         ed = self.gui.central.current_editor

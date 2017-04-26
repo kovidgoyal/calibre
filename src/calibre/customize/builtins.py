@@ -924,7 +924,7 @@ class ActionSaveToDisk(InterfaceActionBase):
 class ActionShowBookDetails(InterfaceActionBase):
     name = 'Show Book Details'
     actual_plugin = 'calibre.gui2.actions.show_book_details:ShowBookDetailsAction'
-    description = _('Show book details in a separate popup')
+    description = _('Show Book details in a separate popup')
 
 
 class ActionRestart(InterfaceActionBase):

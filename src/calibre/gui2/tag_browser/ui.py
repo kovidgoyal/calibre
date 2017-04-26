@@ -42,9 +42,9 @@ class TagBrowserMixin(object):  # {{{
                         self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
              (_('Manage Tags'),
                         self.do_tags_list_edit, (None, 'tags'), 'tags'),
-             (_('Manage User Categories'),
+             (_('Manage User categories'),
                         self.do_edit_user_categories, (None,), 'user:'),
-             (_('Manage Saved Searches'),
+             (_('Manage Saved searches'),
                         self.do_saved_search_edit, (None,), 'search')
             ):
             m.addAction(QIcon(I(category_icon_map[cat_name])), text,

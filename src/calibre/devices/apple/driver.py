@@ -720,7 +720,7 @@ class ITUNES(DriverBase):
         self.problem_titles = []
         self.problem_msg = _("Some books not found in iTunes database.\n"
                               "Delete using the iBooks app.\n"
-                              "Click 'Show Details' for a list.")
+                              "Click 'Show details' for a list.")
         logger().info("%s.delete_books()" % self.__class__.__name__)
         for path in paths:
             if self.cached_books[path]['lib_book']:

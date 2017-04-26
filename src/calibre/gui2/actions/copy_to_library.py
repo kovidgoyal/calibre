@@ -355,6 +355,7 @@ class DuplicatesQuestion(QDialog):  # {{{
 
 # }}}
 
+
 # Static session-long set of pairs of libraries that have had their custom columns
 # checked for compatibility
 libraries_with_checked_columns = defaultdict(set)
@@ -527,8 +528,8 @@ class CopyToLibraryAction(InterfaceAction):
             books = '\n'.join(self.worker.auto_merged_ids.itervalues())
             info_dialog(self.gui, _('Auto merged'),
                     _('Some books were automatically merged into existing '
-                        'records in the target library. Click Show '
-                        'details to see which ones. This behavior is '
+                        'records in the target library. Click "Show '
+                        'details" to see which ones. This behavior is '
                         'controlled by the Auto merge option in '
                         'Preferences->Adding books.'), det_msg=books,
                     show=True)

@@ -355,7 +355,7 @@ class EmailMixin(object):  # {{{
                 det_msg.extend('\t' + titles[bid] for bid in ids)
                 det_msg.append('\n')
             warning_dialog(self, _('Could not send'),
-                           _('Could not send books to some recipients. Click Show Details for more information'),
+                           _('Could not send books to some recipients. Click "Show details" for more information'),
                            det_msg='\n'.join(det_msg), show=True)
 
     def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,

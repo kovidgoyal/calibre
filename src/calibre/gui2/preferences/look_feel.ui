@@ -734,7 +734,7 @@ A value of zero means calculate automatically.</string>
          <item>
           <widget class="QCheckBox" name="opt_bd_show_cover">
            <property name="text">
-            <string>Show &amp;cover in the book details panel</string>
+            <string>Show &amp;cover in the Book details panel</string>
            </property>
           </widget>
          </item>

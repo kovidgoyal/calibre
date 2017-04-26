@@ -544,7 +544,7 @@ class IdentifyWidget(QWidget):  # {{{
                         'match your search. Try making the search <b>less '
                         'specific</b>. For example, use only the author\'s '
                         'last name and a single distinctive word from '
-                        'the title.<p>To see the full log, click Show Details.'),
+                        'the title.<p>To see the full log, click "Show details".'),
                     show=True, det_msg=log)
             self.rejected.emit()
             return

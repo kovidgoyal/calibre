@@ -11,7 +11,7 @@ To use it, either open the e-book in the tool for :ref:`edit` and then click
 :guilabel:`File->Compare to other book` or use the :ref:`book_details` panel.
 If you do a conversion from EPUB to EPUB, the original EPUB file will be saved
 as ORIGINAL_EPUB. Simply right click on the ORIGINAL_EPUB entry in the Book
-Details panel and choose :guilabel:`Compare to EPUB format`.
+details panel and choose :guilabel:`Compare to EPUB format`.
 
 The comparison tool that opens will look like the screenshot below. It shows
 you the differences in text, styles and images in the chosen books.

@@ -64,7 +64,7 @@ class IdLinksRuleEdit(Dialog):
         self.key = k = QLineEdit(self)
         l.addRow(_('&Key:'), k)
         l.addRow(QLabel(_(
-            'The name that will appear in the book details panel')))
+            'The name that will appear in the Book details panel')))
         self.nw = n = QLineEdit(self)
         l.addRow(_('&Name:'), n)
         la = QLabel(_(

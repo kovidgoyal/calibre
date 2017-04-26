@@ -64,7 +64,7 @@ See the :ref:`config_filename_metadata` section, to learn how to configure this.
 
 To add an additional format for an existing book you can do any of three things:
 
-    1. Drag and drop the file onto the book details panel on the right side of the main window
+    1. Drag and drop the file onto the Book details panel on the right side of the main window
            
     2. Right click the :guilabel:`Add books` button and choose :guilabel:`Add files to selected books`.
            
@@ -502,17 +502,17 @@ delete them, compare them to their original versions, save them to disk, open
 them with an external program, etc.
 
 You can change the cover of the book by simply drag and dropping an
-image onto the book details panel. If you wish to edit the cover image in
+image onto the Book details panel. If you wish to edit the cover image in
 an external program, simply right click on it and choose :guilabel:`Open With`.
 
 You can also add e-book files to the current book by drag and dropping the files
-onto the book details panel.
+onto the Book details panel.
 
-Double clicking the book details panel will open it up in a separate popup
+Double clicking the Book details panel will open it up in a separate popup
 window.
 
 Finally, you can customize exactly what information is displayed in the Book
-Details panel via :guilabel:`Preferences->Look & feel->Book details`.
+details panel via :guilabel:`Preferences->Look & feel->Book details`.
 
 .. raw:: html epub
     
@@ -531,7 +531,7 @@ The first click on an item will restrict the list of books to those that contain
 
 Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-The outer-level items in the :guilabel:`Tag browser`, such as Authors and Series, are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (click :guilabel:`Alter Tag browser->Manage authors, series, etc->Manage User Categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
+The outer-level items in the :guilabel:`Tag browser`, such as Authors and Series, are called categories. You can create your own categories, called :guilabel:`User categories`, which are useful for organizing items. For example, you can use the :guilabel:`User categories editor` (click :guilabel:`Alter Tag browser->Manage authors, series, etc->Manage User categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
 
 You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking:
     1. "everything matching an item in the category" indicated by a single green plus sign.
@@ -624,7 +624,7 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
 Keyboard shortcuts
 ---------------------
 
-calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre e-book viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
+calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre E-book viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
 
 .. note::
 
@@ -653,7 +653,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`G`
       - Get books
     * - :kbd:`I`
-      - Show book details
+      - Show Book details
     * - :kbd:`K`
       - Edit Table of Contents
     * - :kbd:`M`
