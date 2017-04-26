@@ -319,6 +319,7 @@ class Preferences(QDialog):
         self.bb.button(self.bb.RestoreDefaults).setToolTip(
             self.showing_widget.restore_defaults_desc if self.showing_widget.supports_restoring_to_defaults else
             (_('Restoring to defaults not supported for') + ' ' + plugin.gui_name))
+        self.bb.button(self.bb.RestoreDefaults).setText(_('Restore defaults'))
         self.showing_widget.changed_signal.connect(self.changed_signal)
 
     def changed_signal(self):
