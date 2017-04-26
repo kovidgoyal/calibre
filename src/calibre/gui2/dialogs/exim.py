@@ -281,8 +281,8 @@ class EximDialog(Dialog):
         g = get_gui()
         if g is not None:
             if g.iactions['Connect Share'].content_server_is_running:
-                error_dialog(self, _('Content Server running'), _(
-                    'Cannot import while the content server is running, shut it down first by clicking the'
+                error_dialog(self, _('Content server running'), _(
+                    'Cannot import while the Content server is running, shut it down first by clicking the'
                     ' "Connect/share" button on the calibre toolbar'), show=True)
                 return False
         if self.import_panel.stack.currentIndex() == 0:

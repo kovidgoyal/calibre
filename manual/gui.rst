@@ -242,7 +242,7 @@ Connect/share
 
     2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices.
 
-    3. **Start Content Server**: Starts calibre's built-in web server.  When started, your calibre library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
+    3. **Start Content server**: Starts calibre's built-in web server.  When started, your calibre library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
 
     4. **Setup email based sharing of books**: Allows sharing of books and news feeds by email.  After setting up email addresses for this option, calibre will send news updates and book updates to the entered email addresses. You can configure how calibre sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have set up one or more email addresses, this menu entry will be replaced by menu entries to send books to the configured email addresses.
 

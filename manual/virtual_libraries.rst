@@ -84,7 +84,7 @@ You can tell calibre that you always want to apply a particular virtual library
 when the current library is opened, by going to
 :guilabel:`Preferences->Behavior`. 
 
-If you use the calibre Content Server, you can have it share a virtual library
+If you use the calibre Content server, you can have it share a virtual library
 instead of the full library by going to :guilabel:`Preferences->Sharing over the net`.
 
 You can quickly use the current search as a temporary virtual library by

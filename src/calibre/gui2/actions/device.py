@@ -49,7 +49,7 @@ class ShareConnMenu(QMenu):  # {{{
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
-            _('Start Content Server'))
+            _('Start Content server'))
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
         self.control_smartdevice_action = \
@@ -71,12 +71,12 @@ class ShareConnMenu(QMenu):  # {{{
                 ac = getattr(self, 'connect_to_%s_action'%attr)
                 r(prefix + attr, unicode(ac.text()), action=ac,
                         group=gr)
-            r(prefix+' content server', _('Start/stop content server'),
+            r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ipV4_address
-        text = _('Start Content Server')
+        text = _('Start Content server')
         if running:
             listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
                     get_external_ip())
@@ -86,7 +86,7 @@ class ShareConnMenu(QMenu):  # {{{
                         port=cs_port)
             except:
                 ip_text = ' [%s]'%listen_on
-            text = _('Stop Content Server') + ip_text
+            text = _('Stop Content server') + ip_text
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):

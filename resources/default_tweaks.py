@@ -87,7 +87,7 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 # Set which author field to display in the tags pane (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
-# category in the tags pane and content server. Please note that if you set this
+# category in the tags pane and Content server. Please note that if you set this
 # to author_sort, it is very possible to see duplicate names in the list because
 # although it is guaranteed that author names are unique, there is no such
 # guarantee for author_sort values. Showing duplicates won't break anything, but
@@ -350,10 +350,10 @@ sony_collection_sorting_rules = []
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-#: Set the maximum number of tags to show per book in the content server
+#: Set the maximum number of tags to show per book in the Content server
 max_content_server_tags_shown=5
 
-#: Set custom metadata fields that the content server will or will not display.
+#: Set custom metadata fields that the Content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
@@ -457,8 +457,8 @@ maximum_cover_size = (1650, 2200)
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
 
-#: What interfaces should the content server listen on
-# By default, the calibre content server listens on '0.0.0.0' which means that it
+#: What interfaces should the Content server listen on
+# By default, the calibre Content server listens on '0.0.0.0' which means that it
 # accepts IPv4 connections on all interfaces. You can change this to, for
 # example, '127.0.0.1' to only listen for connections from the local machine, or
 # to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
@@ -561,7 +561,7 @@ highlight_virtual_library = 'yellow'
 # all available output formats to be present.
 restrict_output_formats = None
 
-#: Set the thumbnail image quality used by the content server
+#: Set the thumbnail image quality used by the Content server
 # The quality of a thumbnail is largely controlled by the compression quality
 # used when creating it. Set this to a larger number to improve the quality.
 # Note that the thumbnails get much larger with larger compression quality

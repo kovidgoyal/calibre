@@ -189,7 +189,7 @@ def _config():  # {{{
             'Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
-    c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
+    c.add_opt('autolaunch_server', default=False, help=_('Automatically launch Content server on application startup'))
     c.add_opt('oldest_news', default=60, help=_('Oldest news kept in database'))
     c.add_opt('systray_icon', default=False, help=_('Show system tray icon'))
     c.add_opt('upload_news_to_device', default=True,

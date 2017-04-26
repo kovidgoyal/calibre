@@ -484,8 +484,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 Dispatcher(self.content_server_start_failed)
 
     def content_server_start_failed(self, msg):
-        error_dialog(self, _('Failed to start Content Server'),
-                _('Could not start the content server. Error:\n\n%s')%msg,
+        error_dialog(self, _('Failed to start Content server'),
+                _('Could not start the Content server. Error:\n\n%s')%msg,
                 show=True)
 
     def resizeEvent(self, ev):
@@ -558,7 +558,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def test_server(self, *args):
         if self.content_server is not None and \
                 self.content_server.exception is not None:
-            error_dialog(self, _('Failed to start content server'),
+            error_dialog(self, _('Failed to start Content server'),
                          unicode(self.content_server.exception)).exec_()
 
     @property
@@ -960,11 +960,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         try:
             try:
                 if self.content_server is not None:
-                    # If the content server has any sockets being closed then
+                    # If the Content server has any sockets being closed then
                     # this can take quite a long time (minutes). Tell the user that it is
                     # happening.
                     self.show_shutdown_message(
-                        _('Shutting down the content server. This could take a while ...'))
+                        _('Shutting down the Content server. This could take a while ...'))
                     s = self.content_server
                     self.content_server = None
                     s.exit()

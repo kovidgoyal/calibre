@@ -1267,7 +1267,7 @@ class Server(PreferencesPlugin):
     category_order = 4
     name_order = 2
     config_widget = 'calibre.gui2.preferences.server'
-    description = _('Setup the calibre Content Server which will '
+    description = _('Setup the calibre Content server which will '
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 

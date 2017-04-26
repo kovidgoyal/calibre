@@ -374,7 +374,7 @@ class CreateCustomColumn(QDialog):
         self.composite_contains_html = cch = QCheckBox(_("Show as HTML in book details"))
         cch.setToolTip('<p>' +
                 _('If checked, this column will be displayed as HTML in '
-                  'book details and the content server. This can be used to '
+                  'book details and the Content server. This can be used to '
                   'construct links with the template language. For example, '
                   'the template '
                   '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'

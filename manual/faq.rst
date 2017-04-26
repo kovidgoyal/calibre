@@ -318,7 +318,7 @@ in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
 
 Another easy way to browse your calibre collection from your Apple device
-is by using the calibre content server, which makes your collection available
+is by using the calibre Content server, which makes your collection available
 over the net. First perform the following steps in calibre
 
   * Set the Preferred Output Format in calibre to EPUB (The output format can be
@@ -327,11 +327,12 @@ over the net. First perform the following steps in calibre
     under :guilabel:`Preferences->Conversion->Common options->Page setup`
   * Convert the books you want to read on your iDevice to EPUB format by
     selecting them and clicking the :guilabel:`Convert` button.
-  * Turn on the Content Server by clicking the :guilabel:`Connect/share` button
+  * Turn on the Content server by clicking the :guilabel:`Connect/share` button
     and leave calibre running. You can also tell calibre to automatically start the
-    content server via :guilabel:`Preferences->Sharing over the net`.
+    Content server via :guilabel:`Preferences->Sharing over the net`.
 
-There are many apps for your iDevice that can connect to the calibre content server.
+There are many apps for your iDevice that can connect to the calibre Content
+server.
 One was mentioned above: Calibre Companion. Below we describe two more of them,
 iBooks and Stanza.
 
@@ -350,7 +351,7 @@ like and in the URL field, enter the following::
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. If you have changed the port the calibre content server is running on, you
+calibre. If you have changed the port the calibre Content server is running on, you
 will have to change ``8080`` as well to the new port. The local IP address is
 the IP address your computer is assigned on your home network. A quick Google
 search will tell you how to find out your local IP address.   Now click "Save"
@@ -369,7 +370,7 @@ running the calibre server, like this::
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. If you have changed the port the calibre content server is running on, you
+calibre. If you have changed the port the calibre Content server is running on, you
 will have to change ``8080`` as well to the new port. The local IP address is
 the IP address your computer is assigned on your home network. A quick Google
 search will tell you how to find out your local IP address.
@@ -433,14 +434,14 @@ plugged in the device with a USB cable. You can browse files on the device
 in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
 
-calibre also has a builtin web server, the :guilabel:`Content Server`.
+calibre also has a builtin web server, the :guilabel:`Content server`.
 You can browse your calibre collection on your Android device by using the
-calibre content server, which makes your collection available over the net.
+calibre Content server, which makes your collection available over the net.
 First perform the following steps in calibre
 
   * Set the :guilabel:`Preferred Output Format` in calibre to EPUB for normal Android devices or MOBI for Kindles (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Convert the books you want to read on your device to EPUB/MOBI format by selecting them and clicking the :guilabel:`Convert` button.
-  * Turn on the :guilabel:`Content Server` in calibre's preferences and leave calibre running.
+  * Turn on the :guilabel:`Content server` in calibre's preferences and leave calibre running.
 
 Now on your Android device, open the browser and browse to
 
@@ -449,7 +450,7 @@ Now on your Android device, open the browser and browse to
 Replace ``192.168.1.2`` with the local IP address of the computer running
 calibre. If your local network supports the use of computer names, you can
 replace the IP address with the network name of the computer. If you have
-changed the port the calibre content server is running on, you will have to
+changed the port the calibre Content server is running on, you will have to
 change ``8080`` as well to the new port.
 
 The local IP address is the IP address your computer is assigned on your home
@@ -467,9 +468,9 @@ reading software.
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre has a *Content Server* that exports the books in calibre as a web page. You can turn it on under
+calibre has a *Content server* that exports the books in calibre as a web page. You can turn it on under
 :guilabel:`Preferences->Sharing over the net`. Then just point the web browser on your device to the computer running
-the Content Server and you will be able to browse your book collection. For example, if the computer running
+the Content server and you will be able to browse your book collection. For example, if the computer running
 the server has IP address 63.45.128.5, in the browser, you would type::
 
     http://63.45.128.5:8080
@@ -479,7 +480,7 @@ server runs). In that case, change the port in the calibre Preferences to 80. (O
 you may not be able to run the server on a port number less than 1024 because of security settings. In
 this case the simplest solution is to adjust your router to forward requests on port 80 to port 8080).
 
-I get the error message "Failed to start content server: Port 8080 not free on '0.0.0.0'"?
+I get the error message "Failed to start Content server: Port 8080 not free on '0.0.0.0'"?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The most likely cause of this is your antivirus program. Try temporarily disabling it and see if it does the trick.
@@ -671,7 +672,7 @@ Now this makes it very easy to find for example all science fiction books by Isa
 
 In calibre, you would instead use tags to mark genre and read status and then just use a simple search query like ``tag:scifi and not tag:read``. calibre even has a nice graphical interface, so you don't need to learn its search language instead you can just click on tags to include or exclude them from the search.
 
-To those of you that claim that you need access to the filesystem, so that you can have access to your books over the network, calibre has an excellent content server that gives you access to your calibre library over the net.
+To those of you that claim that you need access to the filesystem, so that you can have access to your books over the network, calibre has an excellent Content server that gives you access to your calibre library over the net.
 
 If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to Disk` feature in calibre that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
 
@@ -787,8 +788,9 @@ library, bad things will happen. Finally, different OSes impose different
 limitations on filesystems, so if you share your networked drive across OSes,
 once again, bad things *will happen*.
 
-Consider using the calibre Content Server to make your books available on other
-computers. Run calibre on a single computer and access it via the Content Server
+Consider using the calibre Content server to make your books available on other
+computers. Run calibre on a single computer and access it via the Content
+server
 or a Remote Desktop solution.
 
 If you must share the actual library, use a file syncing tool like
@@ -1099,7 +1101,7 @@ How do I run calibre from my USB stick?
 
 A portable version of calibre is available `here <https://calibre-ebook.com/download_portable>`_.
 
-How do I run parts of calibre like news download and the content server on my own linux server?
+How do I run parts of calibre like news download and the Content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, you must install calibre onto your linux server. If your server is using
