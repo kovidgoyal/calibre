@@ -53,7 +53,7 @@ use a URL prefix. Start the calisre server as::
 
 The key parameter here is ``--url-prefix /calibre``. This causes the content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal content server website, but now it will run under /calibre.
 
-Now suppose you are using Apache as your main server. First enable the proxy modules in apache, by adding the following to :file:`httpd.conf`::
+Now suppose you are using Apache as your main server. First enable the proxy modules in Apache, by adding the following to :file:`httpd.conf`::
 
     LoadModule proxy_module modules/mod_proxy.so
     LoadModule proxy_http_module modules/mod_proxy_http.so
@@ -64,4 +64,4 @@ The exact technique for enabling the proxy modules will vary depending on your A
     RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
     RewriteRule ^/calibre http://localhost:8080 [proxy]
 
-That's all, you will now be able to access the calibre Content Server under the /calibre URL in your apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
+That's all, you will now be able to access the calibre Content Server under the /calibre URL in your Apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
