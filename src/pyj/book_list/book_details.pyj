@@ -8,7 +8,7 @@ from book_list.theme import get_font_size
 from dom import clear, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from modals import error_dialog
+from modals import error_dialog, create_custom_dialog
 from widgets import create_spinner, create_button
 from date import format_date
 from session import get_interface_data
@@ -61,16 +61,26 @@ def execute_search(ev):
     search(query)
 
 
-def on_download_format(ev):
+def on_fmt_click(ev):
     fmt = ev.currentTarget.dataset.format
-    book_id = ev.currentTarget.dataset.bookId
-    download_format(int(book_id), fmt)
+    book_id = int(ev.currentTarget.dataset.bookId)
+    title = this
 
+    create_custom_dialog(title, def(parent, close_modal):
 
-def on_read_format(ev):
-    fmt = ev.currentTarget.dataset.format
-    book_id = ev.currentTarget.dataset.bookId
-    read_format(int(book_id), fmt)
+        def action(which):
+            close_modal()
+            which(book_id, fmt)
+
+        parent.appendChild(E.div(
+            E.div(_('What would you like to do with the {} format?').format(fmt)),
+            E.div(style='margin:1ex auto; overflow: hidden; padding: 1em 1.5em; text-align: center',
+                create_button(_('Read {}').format(fmt), 'book', action.bind(None, read_format)),
+                '\xa0',
+                create_button(_('Download {}').format(fmt), 'cloud-download', action.bind(None, download_format)),
+            )
+        ))
+    )
 
 
 def render_metadata(mi, table, book_id, field_list=None):  # {{{
@@ -134,26 +144,15 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
 
     def process_formats(field, fm, name, val):
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
-        # TODO: Change this to have the read/download options in a popup
+        td = table.lastChild.lastChild
         for fmt in val:
-            td = table.lastChild.lastChild
-            td.appendChild(E.span(fmt, style='white-space: nowrap'))
-            if interface_data.input_formats[fmt] or interface_data.input_formats[fmt.replace('ORIGINAL_', '')]:
-                td.lastChild.appendChild(E.a(
-                    title=_('Read this book in the {} format').format(fmt),
-                    href='javascript:void(0)', style='padding-left: 1em',
-                    svgicon('book'),
-                    onclick=on_read_format, data_format=fmt, data_book_id='' + book_id,
-                ))
-            td.lastChild.appendChild(E.a(
-                title=_('Download the {} format of this book').format(fmt),
-                href='javascript:void(0)', style='padding-left: 1em',
-                svgicon('cloud-download'),
-                onclick=on_download_format, data_format=fmt, data_book_id='' + book_id
-            ))
+            fmt = fmt.toUpperCase()
+            td.appendChild(E.a(
+                fmt, class_='simple-link', href='javascript:void(0)',
+                title=_('Read or download this book in the {} format').format(fmt),
+                onclick=on_fmt_click.bind(mi.title), data_format=fmt, data_book_id='' + book_id))
             if fmt is not val[-1]:
-                td.lastChild.appendChild(document.createTextNode(','))
-                td.appendChild(document.createTextNode(' '))
+                td.appendChild(document.createTextNode(', '))
 
     def process_rating(field, fm, name, val):
         stars = E.span()

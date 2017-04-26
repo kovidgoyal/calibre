@@ -1,5 +1,4 @@
-Make the formats handling in the book details panel nicer
-Adda couple more book list visualizations
+Add a couple more book list visualizations
 
 Rewrite calibredb to connect to running server
 Prevent standalone and embedded servers from running simultaneously

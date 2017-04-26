@@ -160,6 +160,20 @@ def create_simple_dialog(title, msg, details, icon, prefix):
         )
     show_modal(create_func)
 
+
+def create_custom_dialog(title, content_generator_func):
+    def create_func(parent, close_modal):
+        content_div = E.div()
+        content_generator_func(content_div, close_modal)
+        parent.appendChild(
+            E.div(
+                style='max-width:60em; text-align: left',
+                E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
+                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+        ))
+    show_modal(create_func)
+
+
 def create_progress_dialog(msg, on_close):
     msg = msg or _('Loading, please wait...')
     pbar, msg_div = E.progress(style='display:inline-block'), E.div(msg, style='text-align:center; padding-top:1ex')
