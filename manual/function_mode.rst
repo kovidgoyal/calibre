@@ -3,14 +3,14 @@ Function Mode for Search & Replace in the Editor
 
 The :guilabel:`Search & replace` tool in the editor support a *function mode*.
 In this mode, you can combine regular expressions (see :doc:`regexp`) with
-arbitrarily powerful python functions to do all sorts of advanced text
+arbitrarily powerful Python functions to do all sorts of advanced text
 processing.
 
 In the standard *regexp* mode for search and replace, you specify both a
 regular expression to search for as well as a template that is used to replace
 all found matches. In function mode, instead of using a fixed template, you
 specify an arbitrary function, in the
-`python programming language <https://docs.python.org/2.7/>`_. This allows
+`Python programming language <https://docs.python.org/2.7/>`_. This allows
 you to do lots of things that are not possible with simple templates.
 
 Techniques for using function mode and the syntax will be described by means of
@@ -45,7 +45,7 @@ the editor leaves individual hyphens alone, so you can use the this function to
 replace them with em-dashes.
 
 To create a new function, simply click the :guilabel:`Create/edit` button to create a new
-function and copy the python code from below.
+function and copy the Python code from below.
 
 .. code-block:: python
 
@@ -53,7 +53,7 @@ function and copy the python code from below.
         return match.group().replace('--', '—').replace('-', '—')
 
 Every :guilabel:`Search & replace` custom function must have a unique name and consist of a
-python function named replace, that accepts all the arguments shown above.
+Python function named replace, that accepts all the arguments shown above.
 For the moment, we wont worry about all the different arguments to
 ``replace()`` function. Just focus on the ``match`` argument. It represents a
 match when running a search and replace. Its full documentation in available
@@ -206,7 +206,7 @@ HTML Table of Contents, ready to be pasted into :file:`toc.html`.
 
 The function above is heavily commented, so it should be easy to follow. The
 key new feature is the use of another useful extra argument to the
-``replace()`` function, the ``data`` object. The ``data`` object is a python
+``replace()`` function, the ``data`` object. The ``data`` object is a Python
 *dict* that persists between all successive invocations of ``replace()`` during
 a single :guilabel:`Replace All` operation.
 
@@ -223,7 +223,7 @@ you would be better off using the dedicated Table of Contents tool in
 The API for the function mode
 -----------------------------
 
-All function mode functions must be python functions named replace, with the
+All function mode functions must be Python functions named replace, with the
 following signature::
 
     def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
@@ -239,7 +239,7 @@ The ``match`` argument
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The ``match`` argument represents the currently found match. It is a
-`python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
+`Python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
 Its most useful method is ``group()`` which can be used to get the matched
 text corresponding to individual capture groups in the search regular
 expression.
@@ -278,7 +278,7 @@ for the current book's language.
 The ``data`` argument
 ^^^^^^^^^^^^^^^^^^^^^
 
-This a simple python ``dict``. When you run
+This a simple Python ``dict``. When you run
 :guilabel:`Replace All`, every successive match will cause ``replace()`` to be
 called with the same ``dict`` as data. You can thus use it to store arbitrary
 data between invocations of ``replace()`` during a :guilabel:`Replace All`
@@ -331,7 +331,7 @@ Debugging your functions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can debug the functions you create by using the standard ``print()``
-function from python. The output of print will be displayed in a popup window
+function from Python. The output of print will be displayed in a popup window
 after the Find/replace has completed. You saw an example of using ``print()``
 to output an entire table of contents above.
 

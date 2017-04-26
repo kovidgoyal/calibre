@@ -294,10 +294,10 @@ The e-book-editor can be started as::
 
     calibre-debug -t /path/to/be/edited
 
-Using an interactive python interpreter
+Using an interactive Python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can insert the following two lines of code to start an interactive python session at that point::
+You can insert the following two lines of code to start an interactive Python session at that point::
 
     from calibre import ipython
     ipython(locals())
@@ -307,10 +307,10 @@ locally defined variables (variables in the local scope). The interactive prompt
 for object properties and you can use the various Python facilities for introspection, such as
 :func:`dir`, :func:`type`, :func:`repr`, etc.
 
-Using the python debugger as a remote debugger
+Using the Python debugger as a remote debugger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use the builtin python debugger (pdb) as a remote debugger from the
+You can use the builtin Python debugger (pdb) as a remote debugger from the
 command line. First, start the remote debugger at the point in the calibre code
 you are interested in, like this::
 
@@ -326,7 +326,7 @@ the debugging session::
 
     calibre-debug -c "from calibre.rpdb import cli; cli()"
 
-You can read about how to use the python debugger in the `python stdlib docs
+You can read about how to use the Python debugger in the `Python stdlib docs
 for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
 
 .. note::
@@ -336,13 +336,13 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
     ``cli(port=1234)``.
 
 .. note:: 
-    The python debugger cannot handle multiple threads, so you have to
+    The Python debugger cannot handle multiple threads, so you have to
     call set_trace once per thread, each time with a different port number.
 
-Using the debugger in your favorite python IDE
+Using the debugger in your favorite Python IDE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is possible to use the builtin debugger in your favorite python IDE, if it
+It is possible to use the builtin debugger in your favorite Python IDE, if it
 supports remote debugging. The first step is to add the calibre src checkout to
 the ``PYTHONPATH`` in your IDE. In other words, the directory you set as
 ``CALIBRE_DEVELOP_FROM`` above, must also be in the ``PYTHONPATH`` of your IDE.
@@ -353,15 +353,15 @@ remote debugger to calibre at the point of interest, for example in the main
 function. Then run calibre as normal. Your IDE should now be able to connect to
 the remote debugger running inside calibre.
 
-Executing arbitrary scripts in the calibre python environment
+Executing arbitrary scripts in the calibre Python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :command:`calibre-debug` command provides a couple of handy switches to execute your own
 code, with access to the calibre modules::
 
-    calibre-debug -c "some python code"
+    calibre-debug -c "some Python code"
 
-is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
+is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the Python interpreter::
 
     calibre-debug myscript.py
 

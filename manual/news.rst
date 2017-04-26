@@ -91,19 +91,19 @@ Now in the :guilabel:`Advanced Mode` of the Custom  news sources dialog, you sho
 .. image:: images/bbc_advanced.png
     :align: center
 
-You can see that the fields from the :guilabel:`Basic mode` have been translated to python code in a straightforward manner. We need to add instructions to this recipe to use the print version of the articles. All that's needed is to add the following two lines:
+You can see that the fields from the :guilabel:`Basic mode` have been translated to Python code in a straightforward manner. We need to add instructions to this recipe to use the print version of the articles. All that's needed is to add the following two lines:
 
 .. code-block:: python
 
     def print_version(self, url):
         return url.replace('https://', 'https://newsvote.bbc.co.uk/mpapps/pagetools/print/')
 
-This is python, so indentation is important. After you've added the lines, it should look like:
+This is Python, so indentation is important. After you've added the lines, it should look like:
 
 .. image:: images/bbc_altered.png
     :align: center
 
-In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <https://www.python.org>`_ see the `tutorial <https://docs.python.org/2/tutorial/>`_.
+In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `Python <https://www.python.org>`_ see the `tutorial <https://docs.python.org/2/tutorial/>`_.
 
 Now, click the :guilabel:`Add/update recipe` button and your changes will be saved. Re-download the e-book. You should have a much improved e-book. One of the problems with the new version is that the fonts on the print version webpage are too small. This is automatically fixed when converting to an e-book, but even after the fixing process, the font size of the menus and navigation bar to become too large relative to the article text. To fix this, we will do some more customization, in the next section.
 
@@ -287,7 +287,7 @@ The final new feature is the :meth:`calibre.web.feeds.news.BasicNewsRecipe.prepr
 Tips for developing new recipes
 ---------------------------------
 
-The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.recipe`. The `.recipe` extension is required. You can download content using this recipe with the command::
+The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite Python editor and save it to a file say :file:`myrecipe.recipe`. The `.recipe` extension is required. You can download content using this recipe with the command::
 
     ebook-convert myrecipe.recipe .epub --test -vv --debug-pipeline debug
 

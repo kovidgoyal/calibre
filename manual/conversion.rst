@@ -360,7 +360,7 @@ by the conversion pipeline. There is a wizard to help you customize the regular 
 your document.  Click the magic wand beside the expression box, and click the 'Test' button after composing 
 your search expression.  Successful matches will be highlighted in Yellow.
 
-The search works by using a python regular expression. All matched text is simply removed from 
+The search works by using a Python regular expression. All matched text is simply removed from 
 the document or replaced using the replacement pattern. The replacement pattern is optional, if left blank 
 then text matching the search pattern will be deleted from the document.  You can learn more about regular expressions  
 and their syntax at :ref:`regexptutorial`.

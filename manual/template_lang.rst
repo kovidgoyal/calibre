@@ -84,7 +84,7 @@ If you want only the first two letters of the data, use::
 
    {author_sort:.2} - Only the first two letter of the author sort name
 
-The calibre template language comes from python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/2/library/string.html#format-string-syntax>`_.
+The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/2/library/string.html#format-string-syntax>`_.
 
 Advanced features
 ------------------
@@ -121,7 +121,7 @@ The functions available are listed below. Note that the definitive documentation
     * ``capitalize()``	-- return the value with the first letter upper case and the rest lower case.
     * ``contains(pattern, text if match, text if not match)`` -- checks if field contains matches for the regular expression `pattern`. Returns `text if match` if matches are found, otherwise it returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
-    * ``format_number(template)`` -- interprets the value as a number and format that number using a python formatting template such as "{0:5.2f}" or "{0:,d}" or "${0:5,.2f}". The field_name part of the template must be a 0 (zero) (the "{0:" in the above examples). See the template language and python documentation for more examples. Returns the empty string if formatting fails.
+    * ``format_number(template)`` -- interprets the value as a number and format that number using a Python formatting template such as "{0:5.2f}" or "{0:,d}" or "${0:5,.2f}". The field_name part of the template must be a 0 (zero) (the "{0:" in the above examples). See the template language and Python documentation for more examples. Returns the empty string if formatting fails.
     * ``human_readable()`` -- expects the value to be a number and returns a string representing that number in KB, MB, GB, etc.
     * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
     * ``in_list(separator, pattern, found_val, not_found_val)`` -- interpret the field as a list of items separated by `separator`, comparing the `pattern` against each value in the list. If the pattern matches a value, return `found_val`, otherwise return `not_found_val`.
@@ -129,7 +129,7 @@ The functions available are listed below. Note that the definitive documentation
     * ``language_strings(lang_codes, localize)`` -- return the strings for the language codes passed in `lang_codes`. If `localize` is zero, return the strings in English. If localize is not zero, return the strings in the language of the current locale. `Lang_codes` is a comma-separated list.
     * ``list_item(index, separator)`` -- interpret the field as a list of items separated by `separator`, returning the `index`th item. The first item is number zero. The last item can be returned using `list_item(-1,separator)`. If the item is not in the list, then the empty value is returned. The separator has the same meaning as in the `count` function.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
-    * ``re(pattern, replacement)`` -- return the field after applying the regular expression. All instances of `pattern` are replaced with `replacement`. As in all of calibre, these are python-compatible regular expressions.
+    * ``re(pattern, replacement)`` -- return the field after applying the regular expression. All instances of `pattern` are replaced with `replacement`. As in all of calibre, these are Python-compatible regular expressions.
     * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the field, consisting of `left chars` characters from the beginning of the field, followed by `middle text`, followed by `right chars` characters from the end of the string. `Left chars` and `right chars` must be integers. For example, assume the title of the book is `Ancient English Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most 15 characters. If you use ``{title:shorten(9,-,5)}``, the result will be `Ancient E-nhoe`. If the field's length is less than ``left chars`` + ``right chars`` + the length of ``middle text``, then the field will be used intact. For example, the title `The Dome` would not be changed.
     * ``str_in_list(val, separator, string, found_val, not_found_val)`` -- treat val as a list of items separated by separator, comparing the string against each value in the list. If the string matches a value, return found_val, otherwise return not_found_val. If the string contains separators, then it is also treated as a list and each value is checked.
@@ -441,7 +441,7 @@ It would be possible to do the above with no custom columns by putting the progr
 User-defined template functions
 -------------------------------
 
-You can add your own functions to the template processor. Such functions are written in python, and can be used in any of the three template programming modes. The functions are added by going to Preferences -> Advanced -> Template functions. Instructions are shown in that dialog.
+You can add your own functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to Preferences -> Advanced -> Template functions. Instructions are shown in that dialog.
 
 Special notes for save/send templates
 -------------------------------------

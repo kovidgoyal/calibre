@@ -254,7 +254,7 @@ expressions in a single operation.
 Function mode
 ^^^^^^^^^^^^^^^^^^^^^
 
-Function mode allows you to write arbitrarily powerful python functions that
+Function mode allows you to write arbitrarily powerful Python functions that
 are run on every Find/replace. You can do pretty much any text manipulation you
 like in function mode. For more information, see :doc:`function_mode`.
 
