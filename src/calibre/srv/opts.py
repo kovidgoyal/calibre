@@ -146,12 +146,12 @@ raw_options = (
     _('Ignored user-defined metadata fields'),
     'ignored_fields', None,
     _('Comma separated list of user-defined metadata fields that will not be displayed'
-      ' by the content server in the /opds and /mobile views.'),
+      ' by the Content server in the /opds and /mobile views.'),
 
     _('Restrict displayed user-defined fields'),
     'displayed_fields', None,
     _('Comma separated list of user-defined metadata fields that will be displayed'
-      ' by the content server in the /opds and /mobile views. If you specify this'
+      ' by the Content server in the /opds and /mobile views. If you specify this'
       ' option, any fields not in this list will not be displayed.'),
 
 
