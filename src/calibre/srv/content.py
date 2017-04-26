@@ -163,7 +163,7 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     if update_metadata:
         mi = db.get_metadata(book_id)
         mtime = max(mtime, mi.last_modified)
-        # Get any plugboards for the content server
+        # Get any plugboards for the Content server
         plugboards = db.pref('plugboards')
         if plugboards:
             cpb = find_plugboard(plugboard_content_server_value, fmt, plugboards)
