@@ -710,7 +710,7 @@ OptionRecommendation(name='search_replace',
         'Path to a file containing search and replace regular expressions. '
         'The file must contain alternating lines of regular expression '
         'followed by replacement pattern (which can be an empty line). '
-        'The regular expression must be in the python regex syntax and '
+        'The regular expression must be in the Python regex syntax and '
         'the file must be UTF-8 encoded.')),
 ]
         # }}}

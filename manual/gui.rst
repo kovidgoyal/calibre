@@ -342,7 +342,7 @@ Two other kinds of searches are available: equality search and search using `reg
 
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
-indicated by prefixing the search string with a tilde (~). Any `python-compatible regular expression <https://docs.python.org/2/library/re.html>`_ can
+indicated by prefixing the search string with a tilde (~). Any `Python-compatible regular expression <https://docs.python.org/2/library/re.html>`_ can
 be used. Note that backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
 
 Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
@@ -621,7 +621,7 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
     
     <div style="clear:both"></div>
 
-Keyboard Shortcuts
+Keyboard shortcuts
 ---------------------
 
 calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre e-book viewer has its own shortcuts which can be customised by clicking the :guilabel:`Preferences` button in the viewer.
