@@ -251,7 +251,7 @@ def _config():  # {{{
                 'book details panel on the right and narrow has '
                 'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
-            help=_('Show the average rating per item indication in the tag browser'))
+            help=_('Show the average rating per item indication in the Tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
 

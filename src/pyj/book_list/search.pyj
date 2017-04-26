@@ -328,7 +328,7 @@ def on_data_fetched(end_type, xhr, ev):
     def show_error(error_html):
         ediv = E.div()
         container.appendChild(ediv)
-        ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
+        ediv.innerHTML = '<h3>' + _('Failed to load Tag browser data') + '</h3>' + error_html
 
     def process_node(node, item_map):
         state.node_id_map[node.id] = node
@@ -393,7 +393,7 @@ def create_search_panel(container):
     # Build loading panel
     loading_panel = component(container, 'loading')
     loading_panel.appendChild(E.div(
-        create_spinner(), '\xa0' + _('Fetching data for the tag browser, please wait') + '…',
+        create_spinner(), '\xa0' + _('Fetching data for the Tag browser, please wait') + '…',
         style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
     )
 
@@ -425,7 +425,7 @@ def get_prefs():
             'name':'partition_method',
             'text':_('Tag browser category partitioning method'),
             'choices':[('first letter', _('First Letter')), ('disable', _('Disable')), ('partition', _('Partition'))],
-            'tooltip':_('Choose how tag browser subcategories are displayed when'
+            'tooltip':_('Choose how Tag browser subcategories are displayed when'
                         ' there are more items than the limit. Select by first'
                         ' letter to see an A, B, C list. Choose partitioned to'
                         ' have a list of fixed-sized groups. Set to disabled'
@@ -445,7 +445,7 @@ def get_prefs():
             'name': 'dont_collapse',
             'text': _('Categories not to partition'),
             'tooltip': _('A comma-separated list of categories in which items containing'
-                            ' periods are displayed in the tag browser trees. For example, if'
+                            ' periods are displayed in the Tag browser trees. For example, if'
                             " this box contains 'tags' then tags of the form 'Mystery.English'"
                             " and 'Mystery.Thriller' will be displayed with English and Thriller"
                             " both under 'Mystery'. If 'tags' is not in this box,"

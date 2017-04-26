@@ -298,7 +298,7 @@ class RuleEditor(QDialog):  # {{{
             rule_text = _('column icon')
         elif pref_name == 'cover_grid_icon_rules':
             self.rule_kind = 'emblem'
-            rule_text = _('cover grid emblem')
+            rule_text = _('Cover grid emblem')
 
         self.setWindowIcon(QIcon(I('format-fill-color.png')))
         self.setWindowTitle(_('Create/edit a {0} rule').format(rule_text))
@@ -957,7 +957,7 @@ class EditRules(QWidget):  # {{{
                 ' double clicking it.')
         elif pref_name == 'cover_grid_icon_rules':
             text = _('You can add emblems (small icons) that are displayed on the side of covers'
-                     ' in the cover grid by creating "rules" that tell calibre'
+                     ' in the Cover grid by creating "rules" that tell calibre'
                 ' what image to use. Click the "Add rule" button below'
                 ' to get started.<p>You can <b>change an existing rule</b> by'
                 ' double clicking it.')
@@ -967,7 +967,7 @@ class EditRules(QWidget):  # {{{
             self.enabled.stateChanged.connect(self.enabled_toggled)
             self.enabled.setToolTip(_(
                 'If checked, you can tell calibre to display icons of your choosing'
-                ' next to the covers shown in the cover grid, controlled by the'
+                ' next to the covers shown in the Cover grid, controlled by the'
                 ' metadata of the book.'))
             self.enabled_toggled()
         self.l1.setText('<p>'+ text)

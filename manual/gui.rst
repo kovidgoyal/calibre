@@ -531,7 +531,7 @@ The first click on an item will restrict the list of books to those that contain
 
 Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-The outer-level items in the tag browser, such as Authors and Series, are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (click :guilabel:`Alter Tag browser->Manage authors, series, etc->Manage User Categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
+The outer-level items in the :guilabel:`Tag browser`, such as Authors and Series, are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (click :guilabel:`Alter Tag browser->Manage authors, series, etc->Manage User Categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
 
 You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking:
     1. "everything matching an item in the category" indicated by a single green plus sign.
@@ -561,9 +561,9 @@ Cover grid
 
 You can have calibre display a grid of book covers instead of a list of books, if
 you prefer to browse your collection by covers instead. The :guilabel:`Cover
-Grid` is activated by clicking the grid button in the bottom right corner of
+grid` is activated by clicking the grid button in the bottom right corner of
 the main calibre window. You can customize the cover sizes and the background of
-the cover grid via :guilabel:`Preferences->Look & feel->Cover grid`. You can
+the :guilabel:`Cover grid` via :guilabel:`Preferences->Look & feel->Cover grid`. You can
 even have calibre display any specified field under the covers, such as title or
 authors or rating or a custom column of your own devising.
 
@@ -573,11 +573,11 @@ Cover browser
 .. image:: images/cover_browser.png
     :align: center
 
-In addition to the cover grid described above, you can also have calibre display
+In addition to the :guilabel:`Cover grid` described above, you can also have calibre display
 covers in the single row. This is activated via a button in the lower right
 corner of the main window. In :guilabel:`Preferences->Look & feel->Cover
-browser` you can change the number of covers displayed, and even have the cover
-browser display itself in a separate popup window.
+browser` you can change the number of covers displayed, and even have the
+:guilabel:`Cover browser` display itself in a separate popup window.
 
 Quickview
 ----------

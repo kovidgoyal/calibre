@@ -152,7 +152,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             is a good way to partition your large library into smaller and easier to work with subsets.</p>
 
             <p>For example you can use a Virtual library to only show you books with the Tag <i>"Unread"</i>
-            or only books by <i>"My Favorite Author"</i> or only books in a particular series.</p>
+            or only books by <i>"My favorite author"</i> or only books in a particular series.</p>
 
             <p>More information and examples are available in the
             <a href="%s">User Manual</a>.</p>

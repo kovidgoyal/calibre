@@ -357,7 +357,7 @@ class TagBrowserWidget(QWidget):  # {{{
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         try:
             self.item_search.lineEdit().setPlaceholderText(
-                                                _('Find item in tag browser'))
+                                                _('Find item in Tag browser'))
         except:
             pass             # Using Qt < 4.7
         self.item_search.setToolTip(_(
@@ -438,7 +438,7 @@ class TagBrowserWidget(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
-                _('Alter tag browser'), default_keys=(),
+                _('Alter Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 

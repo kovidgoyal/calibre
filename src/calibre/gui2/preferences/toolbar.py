@@ -236,7 +236,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 'calibre library')),
             ('context-menu-device', _('The context menu for the books on '
                 'the device')),
-            ('context-menu-cover-browser', _('The context menu for the cover '
+            ('context-menu-cover-browser', _('The context menu for the Cover '
                 'browser')),
             ]
 

@@ -26,17 +26,17 @@ class CreateCustomColumn(QDialog):
     column_types = dict(enumerate((
         {
             'datatype':'text',
-            'text':_('Text, column shown in the tag browser'),
+            'text':_('Text, column shown in the Tag browser'),
             'is_multiple':False
         },
         {
             'datatype':'*text',
-            'text':_('Comma separated text, like tags, shown in the tag browser'),
+            'text':_('Comma separated text, like tags, shown in the Tag browser'),
             'is_multiple':True
         },
         {
             'datatype':'comments',
-            'text':_('Long text, like comments, not shown in the tag browser'),
+            'text':_('Long text, like comments, not shown in the Tag browser'),
             'is_multiple':False
         },
         {
@@ -272,7 +272,7 @@ class CreateCustomColumn(QDialog):
 
         # Heading
         self.column_heading_box = chb = QLineEdit(self)
-        chb.setToolTip(_("Column heading in the library view and category name in the tag browser"))
+        chb.setToolTip(_("Column heading in the library view and category name in the Tag browser"))
         add_row(_("Column &heading"), chb)
 
         # Column Type

@@ -551,7 +551,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def change_cover_grid_color(self):
         col = QColorDialog.getColor(self.cg_bg_widget.bcol,
-                              self.gui, _('Choose background color for the cover grid'))
+                              self.gui, _('Choose background color for the Cover grid'))
         if col.isValid():
             col = tuple(col.getRgb())[:3]
             self.set_cg_color(col)

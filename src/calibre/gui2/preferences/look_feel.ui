@@ -269,7 +269,7 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>Control the cover grid view. You can enable this view by clicking the "Cover grid" button in the bottom right corner of the main calibre window.</string>
+              <string>Control the Cover grid view. You can enable this view by clicking the "Cover grid" button in the bottom right corner of the main calibre window.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -337,7 +337,7 @@
            <item row="7" column="0" colspan="2">
             <widget class="QGroupBox" name="cg_background_box">
              <property name="title">
-              <string>Background for the cover grid</string>
+              <string>Background for the Cover grid</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_5"/>
             </widget>
@@ -921,14 +921,14 @@ then the tags will be displayed each on their own line.</string>
  box will cause these empty categories to be hidden.</string>
          </property>
          <property name="text">
-          <string>Hi&amp;de empty categories (columns) in the tag browser</string>
+          <string>Hi&amp;de empty categories (columns) in the Tag browser</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="opt_tags_browser_partition_method">
          <property name="toolTip">
-          <string>Choose how tag browser subcategories are displayed when
+          <string>Choose how Tag browser subcategories are displayed when
 there are more items than the limit. Select by first
 letter to see an A, B, C list. Choose partitioned to
 have a list of fixed-sized groups. Set to disabled
@@ -1032,14 +1032,14 @@ see the counts by hovering your mouse over any item.</string>
        <item row="7" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
-          <string>When showing cover browser in separate window, show it &amp;fullscreen</string>
+          <string>When showing Cover browser in separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_separate_cover_flow">
          <property name="text">
-          <string>Show cover &amp;browser in a separate window (needs restart)</string>
+          <string>Show Cover &amp;browser in a separate window (needs restart)</string>
          </property>
         </widget>
        </item>
@@ -1050,14 +1050,14 @@ see the counts by hovering your mouse over any item.</string>
 them to all have the same width and height</string>
          </property>
          <property name="text">
-          <string>Preserve &amp;aspect ratio of covers displayed in the cover browser</string>
+          <string>Preserve &amp;aspect ratio of covers displayed in the Cover browser</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cover_browser_reflections">
          <property name="text">
-          <string>Show &amp;reflections in the cover browser</string>
+          <string>Show &amp;reflections in the Cover browser</string>
          </property>
         </widget>
        </item>

@@ -134,7 +134,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             dt = fm['datatype']
             if fm['is_multiple']:
                 if col == 'authors' or fm.get('display', {}).get('is_names', False):
-                    coltype = _('Ampersand separated text, shown in the tag browser')
+                    coltype = _('Ampersand separated text, shown in the Tag browser')
                 else:
                     coltype = self.column_desc['*' + dt]
             else:

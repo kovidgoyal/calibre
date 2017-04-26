@@ -964,7 +964,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     # this can take quite a long time (minutes). Tell the user that it is
                     # happening.
                     self.show_shutdown_message(
-                        _('Shutting down the Content server. This could take a while ...'))
+                        _('Shutting down the Content server. This could take a while...'))
                     s = self.content_server
                     self.content_server = None
                     s.exit()

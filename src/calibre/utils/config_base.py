@@ -425,7 +425,7 @@ def create_global_prefs(conf_obj=None):
     # these are here instead of the gui preferences because calibredb and
     # calibre server can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
-    c.add_opt('user_categories', default={}, help=_('User-created tag browser categories'))
+    c.add_opt('user_categories', default={}, help=_('User-created Tag browser categories'))
     c.add_opt('manage_device_metadata', default='manual',
         help=_('How and when calibre updates metadata on the device.'))
     c.add_opt('limit_search_columns', default=False,
