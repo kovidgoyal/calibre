@@ -41,6 +41,8 @@ class WiredDailyNews(BasicNewsRecipe):
     keep_only_tags = [
         dict(attrs={'data-js': ['post', 'postHeader']}),
     ]
+    remove_attributes = ['srcset']
+    handle_gzip = True
 
     feeds = [
     (u'Top Stories', u'https://www.wired.com/feed/'),
