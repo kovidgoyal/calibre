@@ -23,7 +23,7 @@ def details_list_css():
     ans += build_rule(sel, cursor='pointer')
     ans += build_rule(sel + ' > div', margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
     s = sel + ' .details-list-left'
-    ans += build_rule(s, margin_right='1em', width=f'{THUMBNAIL_MAX_WIDTH}px')
+    ans += build_rule(s, margin_right='1em', min_width=f'{THUMBNAIL_MAX_WIDTH}px')
     ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', max_height=f'{THUMBNAIL_MAX_HEIGHT}px', max_width=f'{THUMBNAIL_MAX_WIDTH}px')
     s = sel + ' .details-list-right'
     ans += build_rule(s, flex_grow='10')
