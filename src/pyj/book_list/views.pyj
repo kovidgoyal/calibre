@@ -23,7 +23,7 @@ from book_list.library_data import (
     ensure_current_library_data, library_data, load_status, loaded_books_query,
     thumbnail_cache, url_books_query
 )
-from book_list.router import back, update_window_title
+from book_list.router import back, update_window_title, push_state
 from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
@@ -32,10 +32,11 @@ from book_list.ui import set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
 from modals import error_dialog
 from session import get_interface_data
-from utils import conditional_timeout
+from utils import conditional_timeout, parse_url_params
 from widgets import create_button, create_spinner
 
 CLASS_NAME = 'book-list-container'
+ITEM_CLASS_NAME = 'book-list-item'
 ALLOWED_MODES = {'cover_grid', 'details_list'}
 DEFAULT_MODE = 'cover_grid'
 
@@ -65,8 +66,30 @@ def clear_grid():
     book_list_data.init_grid(bl)
 
 
+def has_parent_with_class(elem, cls):
+    while elem:
+        if elem.classList and elem.classList.contains(cls):
+            return elem
+        elem = elem.parentNode
+
+
+def show_subsequent_panel(name, query=None, replace=False):
+    container = document.getElementById(book_list_data.container_id)
+    if container:
+        left, top = container.offsetLeft, container.offsetTop
+        for y in range(5, 50, 5):
+            for x in range(25, 75, 5):
+                elem = document.elementFromPoint(left + x, top + y)
+                p = has_parent_with_class(elem, ITEM_CLASS_NAME)
+                if p:
+                    q = parse_url_params()
+                    q.book_id = p.dataset.bookId
+                    push_state(q, replace=True, call_handler=False)
+    show_panel(name, query, replace)
+
+
 def show_book_details(book_id):
-    show_panel('book_details', {'book_id':book_id})
+    show_subsequent_panel('book_details', {'book_id':book_id})
 
 
 def create_image(book_id, max_width, max_height, on_load):
@@ -78,7 +101,10 @@ def render_id(book_id):
     book_list_data.shown_book_ids.add(book_id)
     if l < book_list_data.shown_book_ids.length:
         metadata = book_metadata(book_id)
-        return book_list_data.render_book(book_id, metadata, create_image, show_book_details.bind(None, book_id))
+        ans = book_list_data.render_book(book_id, metadata, create_image, show_book_details.bind(None, book_id))
+        ans.classList.add(ITEM_CLASS_NAME)
+        ans.dataset.bookId = str(book_id)
+        return ans
 
 
 def render_ids(book_ids):
@@ -211,9 +237,16 @@ def create_books_list(container):
     show_top_message()
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
-    add_button(container.parentNode, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
-    add_button(container.parentNode, icon='search', action=show_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
-    add_button(container.parentNode, icon='ellipsis-v', action=show_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
+    add_button(container.parentNode, icon='sort-amount-desc', action=show_subsequent_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
+    add_button(container.parentNode, icon='search', action=show_subsequent_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
+    add_button(container.parentNode, icon='ellipsis-v', action=show_subsequent_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
+    q = parse_url_params()
+    if q.book_id:
+        e = container.querySelector(f'.{ITEM_CLASS_NAME}[data-book-id="{q.book_id}"]')
+        if e and e.scrollIntoView:
+            e.scrollIntoView(True)
+            # Now scroll extra corresponding to top bar size
+            window.scrollBy(0, -container.offsetTop)
 
 
 def check_for_books_loaded():
