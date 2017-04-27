@@ -84,7 +84,6 @@ def create_item(book_id, metadata, create_image, show_book_details):
     )
     ans = E.div(img_div, right,
                 style=f'overflow: hidden; height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
-                data_book_id=str(book_id),
                 onclick=show_book_details
     )
     return ans
