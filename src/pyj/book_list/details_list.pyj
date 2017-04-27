@@ -1,0 +1,54 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from dom import clear, set_css, build_rule
+from elementmaker import E
+from gettext import gettext as _
+
+DETAILS_LIST_CLASS = 'book-list-details-list'
+DESCRIPTION = _('A list with thumbnails and some book details')
+
+THUMBNAIL_MAX_WIDTH = 90
+THUMBNAIL_MAX_HEIGHT = 120
+BORDER_RADIUS = 5
+
+
+def details_list_css():
+    ans = ''
+    sel = '.' + DETAILS_LIST_CLASS
+    ans += build_rule(sel + ' img', border_radius=BORDER_RADIUS+'px')
+    return ans
+
+
+def init(container):
+    clear(container)
+    container.appendChild(E.div(class_=DETAILS_LIST_CLASS))
+
+
+def on_img_load(img, load_type):
+    div = img.parentNode
+    if not div:
+        return
+    if load_type is not 'load':
+        clear(div)
+        div.appendChild(E.div(
+            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
+            E.div(_('by'), style='text-align: center'),
+            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
+        ))
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+
+
+def create_item(book_id, metadata, create_image, show_book_details):
+    authors = metadata.authors.join(' & ')
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
+    img.dataset.title, img.dataset.authors = metadata.title, authors
+    img_div = E.div(img)
+    ans = E.div(img_div, style=f'height:{THUMBNAIL_MAX_HEIGHT}px')
+    return ans
+
+
+def append_item(container, item):
+    container.lastChild.appendChild(item)
