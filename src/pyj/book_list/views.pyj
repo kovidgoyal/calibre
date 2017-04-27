@@ -77,8 +77,8 @@ def save_scroll_position():
     container = document.getElementById(book_list_data.container_id)
     if container:
         left, top = container.offsetLeft, container.offsetTop
-        for y in range(5, 50, 5):
-            for x in range(25, 75, 5):
+        for y in range(5, 100, 5):
+            for x in range(25, 125, 5):
                 elem = document.elementFromPoint(left + x, top + y)
                 p = has_parent_with_class(elem, ITEM_CLASS_NAME)
                 if p:
