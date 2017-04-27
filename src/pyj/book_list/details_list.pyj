@@ -20,6 +20,7 @@ BORDER_RADIUS = 6
 def details_list_css():
     ans = ''
     sel = '.' + DETAILS_LIST_CLASS
+    ans += build_rule(sel, cursor='pointer')
     ans += build_rule(sel + ' > div', margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
     s = sel + ' .details-list-left'
     ans += build_rule(s, margin_right='1em', width=f'{THUMBNAIL_MAX_WIDTH}px')
@@ -81,7 +82,11 @@ def create_item(book_id, metadata, create_image, show_book_details):
         ),
         comments,
     )
-    ans = E.div(img_div, right, style=f'overflow: hidden; height:{THUMBNAIL_MAX_HEIGHT}px; display: flex')
+    ans = E.div(img_div, right,
+                style=f'overflow: hidden; height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
+                data_book_id=str(book_id),
+                onclick=show_book_details
+    )
     return ans
 
 
