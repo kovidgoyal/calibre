@@ -85,6 +85,7 @@ def save_scroll_position():
                     q = parse_url_params()
                     q.book_id = p.dataset.bookId
                     push_state(q, replace=True, call_handler=False)
+                    return
 
 
 def show_subsequent_panel(name, query=None, replace=False):
