@@ -8,8 +8,13 @@ from gettext import gettext as _
 
 from ajax import ajax_send
 from book_list.cover_grid import (
-    append_item as cover_grid_append_item, cover_grid_css,
-    create_item as create_cover_grid_item, init as init_cover_grid
+    DESCRIPTION as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
+    cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid
+)
+from book_list.details_list import (
+    DESCRIPTION as DETAILS_LIST_DESCRIPTION, append_item as details_list_append_item,
+    create_item as create_details_list_item, details_list_css,
+    init as init_details_list
 )
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
@@ -31,13 +36,14 @@ from utils import conditional_timeout
 from widgets import create_button, create_spinner
 
 CLASS_NAME = 'book-list-container'
-ALLOWED_MODES = {'cover_grid'}
+ALLOWED_MODES = {'cover_grid', 'details_list'}
 DEFAULT_MODE = 'cover_grid'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
-    ans += cover_grid_css.call()
+    ans += cover_grid_css()
+    ans += details_list_css()
     return ans
 )
 
@@ -94,6 +100,10 @@ def apply_view_mode(mode=DEFAULT_MODE):
         book_list_data.render_book = create_cover_grid_item
         book_list_data.init_grid = init_cover_grid
         book_list_data.append_item = cover_grid_append_item
+    elif mode is 'details_list':
+        book_list_data.render_book = create_details_list_item
+        book_list_data.init_grid = init_details_list
+        book_list_data.append_item = details_list_append_item
     clear_grid()
     render_ids()
 
@@ -319,13 +329,40 @@ def show_vl(vl_name, replace):
 
 # }}}
 
+# Modes {{{
+def create_mode_panel(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Choose book list mode…'), action=back, icon='close')
+    items = []
+    current_mode = get_session_data().get('view_mode')
+
+    def ci(title, desc, name):
+        ic = 'check' if name is current_mode else None
+        items.push(create_item(title, subtitle=desc, icon=ic, action=def():
+            if name is not current_mode:
+                get_session_data().set('view_mode', name)
+            back()
+        ))
+
+    ci(_('Cover grid'), COVER_GRID_DESCRIPTION, 'cover_grid')
+    ci(_('Detailed list'), DETAILS_LIST_DESCRIPTION, 'details_list')
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items, _('Choose a display mode for the list of books from below'))
+
+# }}}
+
 # More actions {{{
 
 def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
     items = [
-        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed')),
+        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed'), action=def():
+                    show_panel('book_list^choose_mode', replace=True)
+        ),
         create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
                     query = {'book_id':'0'}
                     show_panel('book_details', query=query, replace=True)
@@ -345,5 +382,6 @@ set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)
 set_panel_handler('book_list^vl', create_vl_panel)
 set_panel_handler('book_list^search', init_search_panel)
+set_panel_handler('book_list^choose_mode', create_mode_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
 set_panel_handler('book_list^more_actions', create_more_actions_panel)

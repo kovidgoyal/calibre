@@ -11,6 +11,7 @@ COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
 BORDER_RADIUS = 10
+DESCRIPTION = _('A grid of book covers')
 
 def cover_grid_css():
     sel = '.' + COVER_GRID_CLASS
