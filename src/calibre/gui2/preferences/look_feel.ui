@@ -1032,7 +1032,7 @@ see the counts by hovering your mouse over any item.</string>
        <item row="7" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
-          <string>When showing Cover browser in separate window, show it &amp;fullscreen</string>
+          <string>When showing the Cover browser in a separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
