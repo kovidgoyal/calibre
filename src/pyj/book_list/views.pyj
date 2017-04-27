@@ -269,7 +269,7 @@ def check_for_books_loaded():
             err,
             E.div(
                 style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-                E.a(onclick=home, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+                E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
             ),
         )
         return
