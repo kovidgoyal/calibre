@@ -10,6 +10,7 @@ from session import get_interface_data
 from utils import fmt_sidx
 
 DETAILS_LIST_CLASS = 'book-list-details-list'
+ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
 DESCRIPTION = _('A list with thumbnails and some book details')
 
 THUMBNAIL_MAX_WIDTH = 35 * 3
@@ -20,13 +21,15 @@ BORDER_RADIUS = 6
 def details_list_css():
     ans = ''
     sel = '.' + DETAILS_LIST_CLASS
-    ans += build_rule(sel, cursor='pointer')
+    ans += build_rule(sel, cursor='pointer', user_select='none')
     ans += build_rule(sel + ' > div', margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left', transform='scale(1.2)')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:active .details-list-left', transform='scale(2)')
     s = sel + ' .details-list-left'
     ans += build_rule(s, margin_right='1em', min_width=f'{THUMBNAIL_MAX_WIDTH}px')
     ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', max_height=f'{THUMBNAIL_MAX_HEIGHT}px', max_width=f'{THUMBNAIL_MAX_WIDTH}px')
     s = sel + ' .details-list-right'
-    ans += build_rule(s, flex_grow='10')
+    ans += build_rule(s, flex_grow='10', overflow='hidden')
     return ans
 
 
@@ -83,8 +86,9 @@ def create_item(book_id, metadata, create_image, show_book_details):
         comments,
     )
     ans = E.div(img_div, right,
-                style=f'overflow: hidden; height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
-                onclick=show_book_details
+                style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
+                onclick=show_book_details,
+                class_=ITEM_CLASS,
     )
     return ans
 
