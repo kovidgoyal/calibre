@@ -1,5 +1,3 @@
-Add a couple more book list visualizations
-
 Rewrite calibredb to connect to running server
 Prevent standalone and embedded servers from running simultaneously
 Prevent more than a single instance of the standalone server from running
