@@ -149,7 +149,6 @@ class DBCtx(object):
             self.library_id = parts.fragment or None
             self.url = urlunparse(parts._replace(fragment='')).rstrip('/')
             self.br = browser(handle_refresh=False, user_agent='{} {}'.format(__appname__, __version__))
-            self.br.addheaders += [('Accept', MSGPACK_MIME), ('Content-Type', MSGPACK_MIME)]
             self.is_remote = True
             username, password = read_credetials(opts)
             self.has_credentials = False
@@ -192,13 +191,15 @@ class DBCtx(object):
             raise SystemExit(err.reason)
 
     def remote_run(self, name, m, *args):
-        from mechanize import HTTPError
-        from calibre.utils.serialize import msgpack_loads
+        from mechanize import HTTPError, Request
+        from calibre.utils.serialize import msgpack_loads, msgpack_dumps
         url = self.url + '/cdb/run/' + name
         if self.library_id:
             url += '?' + urlencode({'library_id':self.library_id})
+        rq = Request(url, data=msgpack_dumps(args),
+                     headers={'Accept': MSGPACK_MIME, 'Content-Type': MSGPACK_MIME})
         try:
-            res = self.br.open_novisit(url, data=json.dumps(args))
+            res = self.br.open_novisit(rq)
             ans = msgpack_loads(res.read())
         except HTTPError as err:
             self.interpret_http_error(err)
