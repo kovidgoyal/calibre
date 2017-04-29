@@ -89,6 +89,13 @@ class BuildTest(unittest.TestCase):
         from calibre.utils.certgen import create_key_pair
         create_key_pair()
 
+    def test_msgpack(self):
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+        from calibre.utils.date import utcnow
+        for obj in ({1:1}, utcnow()):
+            s = msgpack_dumps(obj)
+            self.assertEqual(obj, msgpack_loads(s))
+
     @unittest.skipUnless(isosx, 'FSEvents only present on OS X')
     def test_fsevents(self):
         from fsevents import Observer, Stream
