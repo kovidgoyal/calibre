@@ -34,8 +34,9 @@ def cover(db, book_id):
 
 
 def implementation(
-    db, is_remote, fields, sort_by, ascending, search_text, limit
+    db, notify_changes, fields, sort_by, ascending, search_text, limit
 ):
+    is_remote = notify_changes is not None
     with db.safe_read_lock:
         fm = db.field_metadata
         afields = set(FIELDS) | {'id'}
