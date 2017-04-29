@@ -1193,13 +1193,13 @@ class KOBO(USBMS):
         spanTag['style'] = 'font-weight:normal'
         if bookmark.book_format == 'epub':
             spanTag.insert(0,NavigableString(
-                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % dict(
+                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
                     pr=percent_read)))
         else:
             spanTag.insert(0,NavigableString(
-                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % dict(
+                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
                     pr=percent_read)))

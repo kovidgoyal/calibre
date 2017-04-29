@@ -305,7 +305,7 @@ class ELONEX(EB600):
 class POCKETBOOK301(USBMS):
 
     name           = 'PocketBook 301 Device Interface'
-    description    = _('Communicate with the PocketBook 301 reader.')
+    description    = _('Communicate with the PocketBook 301 Reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']

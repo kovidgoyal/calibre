@@ -1670,7 +1670,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 elif fm[self.is_read_date_sync_col]['datatype'] != 'datetime':
                     self._debug('is_read_date_sync_col not date type')
                     self._show_message(_("The read date sync column %s is "
-                             "not a Date column")%self.is_read_date_sync_col)
+                             "not a date column")%self.is_read_date_sync_col)
                     self.have_bad_sync_columns = True
 
             self.have_checked_sync_columns = True
