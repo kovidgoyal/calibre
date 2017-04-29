@@ -11,7 +11,7 @@ from copy import deepcopy
 import optparse
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        get_version, __author__, DEBUG)
+        get_version, __author__, DEBUG, iswindows)
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
@@ -93,7 +93,8 @@ class OptionParser(optparse.OptionParser):
         if epilog is None:
             epilog = _('Created by ')+colored(__author__, fg='cyan')
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
-                          '''enclose the arguments in quotation marks. For example "C:\\some path with spaces"''')+'\n'
+                          '''enclose the arguments in quotation marks. For example: "{}"''').format(
+                               "C:\\some path with spaces" if iswindows else '/some path/with spaces') +'\n'
         if version is None:
             version = '%%prog (%s %s)'%(__appname__, get_version())
         optparse.OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
