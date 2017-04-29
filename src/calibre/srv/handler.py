@@ -71,6 +71,12 @@ class Context(object):
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
         return dict(allowed_libraries), next(allowed_libraries.iterkeys())
 
+    def check_for_write_access(self, data):
+        if not data.username:
+            raise HTTPForbidden('Anonymous users are not allowed to make changes')
+        if self.user_manager.is_readonly(data.username):
+            raise HTTPForbidden('The user {} does not have permission to make changes'.format(data.username))
+
     def get_categories(self, data, db, restrict_to_ids=None, sort='name', first_letter_sort=True, vl=''):
         if restrict_to_ids is None:
             restrict_to_ids = db.books_in_virtual_library(vl)
@@ -132,7 +138,7 @@ class Handler(object):
             prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, False)
             self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
-        for module in ('content', 'ajax', 'code', 'legacy', 'opds', 'books'):
+        for module in ('content', 'ajax', 'code', 'legacy', 'opds', 'books', 'cdb'):
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).itervalues())
         self.router.finalize()
