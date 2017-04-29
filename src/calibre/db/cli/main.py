@@ -48,7 +48,7 @@ def send_message(msg=''):
 def run_cmd(cmd, opts, args, db_ctx):
     m = module_for_cmd(cmd)
     ret = m.main(opts, args, db_ctx)
-    if not opts.dont_notify_gui and not getattr(m, 'readonly', False):
+    if not db_ctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
         send_message()
     return ret
 
