@@ -405,7 +405,7 @@ def random_user_agent(choose=None, allow_ie=True):
     return random.choice(ua_list) if choose is None else ua_list[choose]
 
 
-def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, use_robust_parser=False, verify_ssl_certificates=True):
+def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, verify_ssl_certificates=True, handle_refresh=True):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
     refresh requests and ignores robots.txt. Also uses proxy if available.
@@ -415,12 +415,8 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, 
     :param verify_ssl_certificates: If false SSL certificates errors are ignored
     '''
     from calibre.utils.browser import Browser
-    if use_robust_parser:
-        import mechanize
-        opener = Browser(factory=mechanize.RobustFactory(), verify_ssl=verify_ssl_certificates)
-    else:
-        opener = Browser(verify_ssl=verify_ssl_certificates)
-    opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
+    opener = Browser(verify_ssl=verify_ssl_certificates)
+    opener.set_handle_refresh(handle_refresh, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
         user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
