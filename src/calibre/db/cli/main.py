@@ -4,12 +4,18 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import importlib
+import httplib
+import json
 import os
 import sys
+from urllib import urlencode
+from urlparse import urlparse, urlunparse
 
-from calibre import prints
+from calibre import browser, prints
+from calibre.constants import __appname__, __version__
+from calibre.db.cli import module_for_cmd
 from calibre.utils.config import OptionParser, prefs
+from calibre.utils.serialize import MSGPACK_MIME
 
 COMMANDS = (
     'list', 'add', 'remove', 'add_format', 'remove_format', 'show_metadata',
@@ -20,13 +26,11 @@ COMMANDS = (
 )
 
 
-def module_for_cmd(cmd):
-    return importlib.import_module('calibre.db.cli.cmd_' + cmd)
-
-
 def option_parser_for(cmd):
+
     def cmd_option_parser():
         return module_for_cmd(cmd).option_parser(get_parser)
+
     return cmd_option_parser
 
 
@@ -59,6 +63,12 @@ def get_parser(usage):
         default=None,
         help=_(
             'Path to the calibre library. Default is to use the path stored in the settings.'
+            ' You can also connect to a calibre Content server to perform actions on'
+            ' remote libraries. To do so use a URL of the form: http://hostname:port/#library_id'
+            ' for example, http://localhost:8080/#mylibrary. library_id is the library id'
+            ' of the library you want to connect to on the Content server. You can use'
+            ' the special library_id value of - to get a list of library ids available'
+            ' on the server.'
         )
     )
     go.add_option(
@@ -77,6 +87,17 @@ def get_parser(usage):
         '--version',
         help=_("show program's version number and exit"),
         action='version'
+    )
+    go.add_option(
+        '--username',
+        help=_('Username for connecting to a calibre Content server')
+    )
+    go.add_option(
+        '--password',
+        help=_('Password for connecting to a calibre Content server.'
+               ' To read the password from standard input, use the special value: {}.'
+               ' To read the password from a file, use: {}.)').format(
+                   '<stdin>', '<f:/path/to/file>')
     )
 
     return parser
@@ -100,17 +121,44 @@ For help on an individual command: %%prog command --help
     return parser
 
 
+def read_credetials(opts):
+    username = opts.username
+    pw = opts.password
+    if pw:
+        if pw == '<stdin>':
+            import getpass
+            pw = getpass.getpass(_('Enter the password: '))
+        elif pw.startswith('<f:') and pw.endswith('>'):
+            with lopen(pw[3:-1], 'rb') as f:
+                pw = f.read().decode('utf-8')
+    return username, pw
+
+
 class DBCtx(object):
 
     def __init__(self, opts):
         self.library_path = opts.library_path or prefs['library_path']
         self.url = None
         if self.library_path is None:
-            raise SystemExit('No saved library path, either run the GUI or use the'
-                             ' --with-library option')
+            raise SystemExit(
+                'No saved library path, either run the GUI or use the'
+                ' --with-library option'
+            )
         if self.library_path.partition(':')[0] in ('http', 'https'):
-            self.url = self.library_path
+            parts = urlparse(self.library_path)
+            self.library_id = parts.fragment or None
+            self.url = urlunparse(parts._replace(fragment='')).rstrip('/')
+            self.br = browser(handle_refresh=False, user_agent='{} {}'.format(__appname__, __version__))
+            self.br.addheaders += [('Accept', MSGPACK_MIME), ('Content-Type', MSGPACK_MIME)]
             self.is_remote = True
+            username, password = read_credetials(opts)
+            self.has_credentials = False
+            if username and password:
+                self.br.add_password(self.url, username, password)
+                self.has_credentials = True
+            if self.library_id == '-':
+                self.list_libraries()
+                raise SystemExit()
         else:
             self.library_path = os.path.expanduser(self.library_path)
             self._db = None
@@ -124,10 +172,48 @@ class DBCtx(object):
         return self._db
 
     def run(self, name, *args):
-        if self.is_remote:
-            raise NotImplementedError()
         m = module_for_cmd(name)
+        if self.is_remote:
+            return self.remote_run(name, m, *args)
         return m.implementation(self.db, False, *args)
+
+    def interpret_http_error(self, err):
+        if err.code == httplib.UNAUTHORIZED:
+            raise SystemExit('A username and password is required to access this server')
+        if err.code == httplib.FORBIDDEN:
+            raise SystemExit('The username/password combination is incorrect')
+        if err.code == httplib.NOT_FOUND:
+            raise SystemExit(err.reason)
+
+    def remote_run(self, name, m, *args):
+        from mechanize import HTTPError
+        from calibre.utils.serialize import msgpack_loads
+        url = self.url + '/cdb/run/' + name
+        if self.library_id:
+            url += '?' + urlencode({'library_id':self.library_id})
+        try:
+            res = self.br.open_novisit(url, data=json.dumps(args))
+            ans = msgpack_loads(res.read())
+        except HTTPError as err:
+            self.interpret_http_error(err)
+            raise
+        if 'err' in ans:
+            prints(ans['tb'])
+            raise SystemExit(ans['err'])
+        return ans['result']
+
+    def list_libraries(self):
+        from mechanize import HTTPError
+        url = self.url + '/ajax/library-info'
+        try:
+            res = self.br.open_novisit(url)
+            ans = json.loads(res.read())
+        except HTTPError as err:
+            self.interpret_http_error(err)
+            raise
+        library_map, default_library = ans['library_map'], ans['default_library']
+        for lid in sorted(library_map, key=lambda lid: (lid != default_library, lid)):
+            prints(lid)
 
 
 def main(args=sys.argv):

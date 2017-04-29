@@ -150,7 +150,7 @@ def do_list(
         book_ids, data, metadata = ans['book_ids'], ans['data'], ans['metadata']
     except TypeError:
         raise SystemExit(ans)
-    fields = ans['fields']
+    fields = list(ans['fields'])
     try:
         fields.remove('id')
     except ValueError:
