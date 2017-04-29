@@ -45,10 +45,10 @@ def send_message(msg=''):
         t.conn.close()
 
 
-def run_cmd(cmd, opts, args, db_ctx):
+def run_cmd(cmd, opts, args, dbctx):
     m = module_for_cmd(cmd)
-    ret = m.main(opts, args, db_ctx)
-    if not db_ctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
+    ret = m.main(opts, args, dbctx)
+    if not dbctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
         send_message()
     return ret
 
@@ -170,6 +170,12 @@ class DBCtx(object):
             from calibre.db.legacy import LibraryDatabase
             self._db = LibraryDatabase(self.library_path).new_api
         return self._db
+
+    def path(self, path):
+        if self.is_remote:
+            with lopen(path, 'rb') as f:
+                return f.read()
+        return path
 
     def run(self, name, *args):
         m = module_for_cmd(name)

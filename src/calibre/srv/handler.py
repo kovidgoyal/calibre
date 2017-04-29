@@ -32,6 +32,7 @@ class Context(object):
         self.user_manager = UserManager(opts.userdb)
         self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
         self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
+        self.notify_changes = lambda *a: None
 
     def start_job(self, name, module, func, args=(), kwargs=None, job_done_callback=None, job_data=None):
         return self.jobs_manager.start_job(name, module, func, args, kwargs, job_done_callback, job_data)
