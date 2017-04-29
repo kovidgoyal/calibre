@@ -96,9 +96,8 @@ def parse_uri(uri, parse_query=True):
     return scheme, path, query
 # }}}
 
+
 # HTTP Header parsing {{{
-
-
 comma_separated_headers = {
     'Accept', 'Accept-Charset', 'Accept-Encoding',
     'Accept-Language', 'Accept-Ranges', 'Allow', 'Cache-Control',
