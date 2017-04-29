@@ -33,7 +33,7 @@ def cdb_run(ctx, rd, which):
         raise HTTPBadRequest('args are not valid encoded data')
     db = get_library_data(ctx, rd, strict_library_id=True)[0]
     try:
-        result = m.implementation(db, True, *args)
+        result = m.implementation(db, ctx.notify_changes, *args)
     except Exception as err:
         import traceback
         return {'err': as_unicode(err), 'tb':traceback.format_stack()}
