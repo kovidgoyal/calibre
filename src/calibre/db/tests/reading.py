@@ -237,6 +237,17 @@ class ReadingTest(BaseTest):
             self.compare_metadata(mi1, mi2)
     # }}}
 
+    def test_serialize_metadata(self):  # {{{
+        from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpack_loads
+        cache = self.init_cache(self.library_path)
+        for i in xrange(1, 4):
+            mi = cache.get_metadata(i, get_cover=True, cover_as_data=True)
+            rmi = msgpack_loads(msgpack_dumps(mi))
+            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id'.split())
+            rmi = json_loads(json_dumps(mi))
+            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id'.split())
+    # }}}
+
     def test_get_cover(self):  # {{{
         'Test cover() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
