@@ -10,10 +10,12 @@ def books_added(book_ids):
 
 
 def formats_added(formats_map):
+    # formats_map: {book_id:(fmt1, fmt2)}
     pass
 
 
 def formats_removed(formats_map):
+    # formats_map: {book_id:(fmt1, fmt2)}
     pass
 
 
