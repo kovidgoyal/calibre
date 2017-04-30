@@ -36,5 +36,5 @@ def cdb_run(ctx, rd, which):
         result = m.implementation(db, ctx.notify_changes, *args)
     except Exception as err:
         import traceback
-        return {'err': as_unicode(err), 'tb':traceback.format_stack()}
+        return {'err': as_unicode(err), 'tb': traceback.format_exc()}
     return {'result': result}
