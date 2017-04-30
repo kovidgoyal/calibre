@@ -15,6 +15,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 
 readonly = True
+version = 0  # change this if you change signature of implementation()
 FIELDS = {
     'title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size',
     'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'uuid',

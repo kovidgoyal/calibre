@@ -18,7 +18,7 @@ from calibre.srv.changes import books_added
 from calibre.utils.localization import canonicalize_lang
 
 readonly = False
-
+version = 0  # change this if you change signature of implementation()
 
 def to_stream(data):
     ans = BytesIO(data[1])

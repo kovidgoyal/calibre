@@ -8,6 +8,7 @@ from calibre.db.delete_service import delete_service
 from calibre.srv.changes import books_deleted
 
 readonly = False
+version = 0  # change this if you change signature of implementation()
 
 
 def implementation(db, notify_changes, ids, permanent):
