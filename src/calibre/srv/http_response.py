@@ -210,14 +210,14 @@ class RequestData(object):  # {{{
     username = None
 
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, translator_cache, tdir):
+                 static_cache, opts, remote_addr, remote_port, is_local_connection, translator_cache, tdir):
 
         (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
          self.response_protocol, self.static_cache, self.translator_cache) = (
             method, path, query, inheaders, request_body_file, outheaders,
             response_protocol, static_cache, translator_cache
         )
-        self.remote_addr, self.remote_port = remote_addr, remote_port
+        self.remote_addr, self.remote_port, self.is_local_connection = remote_addr, remote_port, is_local_connection
         self.opts = opts
         self.status_code = httplib.OK
         self.outcookie = Cookie()
@@ -430,7 +430,8 @@ class HTTPConnection(HTTPRequest):
         data = RequestData(
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port, self.translator_cache, self.tdir
+            self.remote_addr, self.remote_port, self.is_local_connection,
+            self.translator_cache, self.tdir
         )
         self.queue_job(self.run_request_handler, data)
 
