@@ -16,12 +16,14 @@ MSGPACK_MIME = 'application/x-msgpack'
 def encoder(obj, for_json=False):
     if isinstance(obj, datetime):
         return {'__datetime__': unicode(obj.isoformat())}
+    if isinstance(obj, (set, frozenset)):
+        return {'__serset__': tuple(obj)}
     if obj.__class__.__name__ == 'Metadata':
         from calibre.ebooks.metadata.book.base import Metadata
         if isinstance(obj, Metadata):
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
-            obj = {'__metadata__': metadata_as_dict(obj, encode_cover_data=for_json)}
-    return obj
+            return {'__metadata__': metadata_as_dict(obj, encode_cover_data=for_json)}
+    raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
 
 def msgpack_dumps(data):
@@ -42,6 +44,9 @@ def decoder(obj, for_json=False):
     dt = obj.get('__datetime__')
     if dt is not None:
         return parse_iso8601(dt, assume_utc=True)
+    s = obj.get('__serset__')
+    if s is not None:
+        return set(s)
     m = obj.get('__metadata__')
     if m is not None:
         from calibre.ebooks.metadata.book.serialize import metadata_from_dict
