@@ -228,17 +228,20 @@ def main(args=sys.argv):
     if len(args) < 2:
         parser.print_help()
         return 1
-    cmd = args[1]
-    if cmd not in COMMANDS:
-        if cmd == '--version':
-            parser.print_version()
-            return 0
+    if args[1] == '--version':
+        parser.print_version()
+        return 0
+    for i, x in enumerate(args):
+        if i > 0 and x in COMMANDS:
+            cmd = x
+            break
+    else:
         parser.print_help()
         return 1
-
+    del args[i]
     parser = option_parser_for(cmd)()
     opts, args = parser.parse_args(args)
-    return run_cmd(cmd, opts, args[2:], DBCtx(opts))
+    return run_cmd(cmd, opts, args[1:], DBCtx(opts))
 
 
 if __name__ == '__main__':
