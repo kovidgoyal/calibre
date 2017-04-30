@@ -173,14 +173,14 @@ class DBCtx(object):
     def path(self, path):
         if self.is_remote:
             with lopen(path, 'rb') as f:
-                return f.read()
+                return path, f.read()
         return path
 
     def run(self, name, *args):
         m = module_for_cmd(name)
         if self.is_remote:
             return self.remote_run(name, m, *args)
-        return m.implementation(self.db, False, *args)
+        return m.implementation(self.db, None, *args)
 
     def interpret_http_error(self, err):
         if err.code == httplib.UNAUTHORIZED:
