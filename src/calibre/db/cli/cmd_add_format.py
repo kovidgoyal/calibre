@@ -10,6 +10,7 @@ from io import BytesIO
 from calibre.srv.changes import formats_added
 
 readonly = False
+version = 0  # change this if you change signature of implementation()
 
 
 def implementation(db, notify_changes, book_id, data, fmt, replace):
