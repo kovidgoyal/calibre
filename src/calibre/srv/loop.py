@@ -128,6 +128,7 @@ class Connection(object):  # {{{
         except Exception:
             # In case addr is None, which can occassionally happen
             self.remote_addr = self.remote_port = None
+        self.is_local_connection = self.remote_addr in ('127.0.0.1', '::1')
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.ssl_context = ssl_context
