@@ -26,7 +26,7 @@ def ensure_unicode(obj, enc=preferred_encoding):
 
 def read_cover(mi):
     if mi.cover_data and mi.cover_data[1]:
-        return
+        return mi
     if mi.cover:
         try:
             with lopen(mi.cover, 'rb') as f:
