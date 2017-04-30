@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from io import BytesIO
 
-from calibre.srv.changes import formats_removed
+from calibre.srv.changes import formats_added
 
 readonly = False
 
@@ -18,7 +18,7 @@ def implementation(db, notify_changes, book_id, data, fmt, replace):
         data = BytesIO(data[1])
     added = db.add_format(book_id, fmt, data, replace=replace)
     if is_remote and added:
-        notify_changes(formats_removed({book_id: fmt}))
+        notify_changes(formats_added({book_id: fmt}))
     return added
 
 
