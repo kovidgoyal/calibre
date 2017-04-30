@@ -31,7 +31,7 @@ def read_cover(mi):
         try:
             with lopen(mi.cover, 'rb') as f:
                 cd = f.read()
-            mi.cover_data = what(cd), cd
+            mi.cover_data = what(None, cd), cd
         except EnvironmentError:
             pass
     return mi
