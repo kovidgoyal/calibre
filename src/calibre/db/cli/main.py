@@ -193,7 +193,7 @@ class DBCtx(object):
     def remote_run(self, name, m, *args):
         from mechanize import HTTPError, Request
         from calibre.utils.serialize import msgpack_loads, msgpack_dumps
-        url = self.url + '/cdb/run/{}/{}'.format(name, getattr(m, 'version', 0))
+        url = self.url + '/cdb/cmd/{}/{}'.format(name, getattr(m, 'version', 0))
         if self.library_id:
             url += '?' + urlencode({'library_id':self.library_id})
         rq = Request(url, data=msgpack_dumps(args),

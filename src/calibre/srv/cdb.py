@@ -14,7 +14,7 @@ from calibre.utils.serialize import MSGPACK_MIME, msgpack_loads, json_loads
 receive_data_methods = {'GET', 'POST'}
 
 
-@endpoint('/cdb/run/{which}/{version=0}', postprocess=msgpack_or_json, methods=receive_data_methods)
+@endpoint('/cdb/cmd/{which}/{version=0}', postprocess=msgpack_or_json, methods=receive_data_methods)
 def cdb_run(ctx, rd, which, version):
     try:
         m = module_for_cmd(which)
