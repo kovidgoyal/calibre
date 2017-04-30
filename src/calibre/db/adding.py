@@ -150,7 +150,7 @@ def import_book_directory_multiple(db, dirpath, callback=None,
         if dups:
             duplicates.append((mi, formats))
             continue
-        book_id = next(ids)
+        book_id = next(iter(ids))
         if added_ids is not None:
             added_ids.add(book_id)
         if callable(callback):
@@ -173,7 +173,7 @@ def import_book_directory(db, dirpath, callback=None, added_ids=None, compiled_r
     ids, dups = db.new_api.add_books([(mi, create_format_map(formats))], add_duplicates=add_duplicates)
     if dups:
         return [(mi, formats)]
-    book_id = next(ids)
+    book_id = next(iter(ids))
     if added_ids is not None:
         added_ids.add(book_id)
     if callable(callback):
