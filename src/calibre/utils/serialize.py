@@ -11,18 +11,23 @@ from datetime import datetime
 from calibre.utils.iso8601 import parse_iso8601
 
 MSGPACK_MIME = 'application/x-msgpack'
+CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
+
+
+def encoded(typ, data):
+    return {CANARY: typ, 'v': data}
 
 
 def encoder(obj, for_json=False):
     if isinstance(obj, datetime):
-        return {'__datetime__': unicode(obj.isoformat())}
+        return encoded(0, unicode(obj.isoformat()))
     if isinstance(obj, (set, frozenset)):
-        return {'__serset__': tuple(obj)}
+        return encoded(1, tuple(obj))
     if obj.__class__.__name__ == 'Metadata':
         from calibre.ebooks.metadata.book.base import Metadata
         if isinstance(obj, Metadata):
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
-            return {'__metadata__': metadata_as_dict(obj, encode_cover_data=for_json)}
+            return encoded(2, metadata_as_dict(obj, encode_cover_data=for_json))
     raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
 
@@ -40,21 +45,28 @@ def json_dumps(data, **kw):
     return ans
 
 
-def decoder(obj, for_json=False):
-    dt = obj.get('__datetime__')
-    if dt is not None:
-        return parse_iso8601(dt, assume_utc=True)
-    s = obj.get('__serset__')
-    if s is not None:
-        return set(s)
-    m = obj.get('__metadata__')
-    if m is not None:
-        from calibre.ebooks.metadata.book.serialize import metadata_from_dict
-        obj = metadata_from_dict(m)
-        if for_json and obj.cover_data and obj.cover_data[1]:
-            obj.cover_data = obj.cover_data[0], base64.standard_b64decode(obj.cover_data[1])
-            return obj
+def decode_metadata(x, for_json):
+    from calibre.ebooks.metadata.book.serialize import metadata_from_dict
+    obj = metadata_from_dict(x)
+    if for_json and obj.cover_data and obj.cover_data[1]:
+        obj.cover_data = obj.cover_data[0], base64.standard_b64decode(
+            obj.cover_data[1]
+        )
     return obj
+
+
+decoders = (
+    lambda x, fj: parse_iso8601(x, assume_utc=True),
+    lambda x, fj: set(x),
+    decode_metadata,
+)
+
+
+def decoder(obj, for_json=False):
+    typ = obj.get(CANARY)
+    if typ is None:
+        return obj
+    return decoders[typ](obj['v'], for_json)
 
 
 def msgpack_loads(data):
