@@ -14,6 +14,7 @@ from urlparse import urlparse, urlunparse
 from calibre import browser, prints
 from calibre.constants import __appname__, __version__
 from calibre.db.cli import module_for_cmd
+from calibre.db.legacy import LibraryDatabase
 from calibre.utils.config import OptionParser, prefs
 from calibre.utils.serialize import MSGPACK_MIME
 
@@ -166,7 +167,6 @@ class DBCtx(object):
     @property
     def db(self):
         if self._db is None:
-            from calibre.db.legacy import LibraryDatabase
             self._db = LibraryDatabase(self.library_path).new_api
         return self._db
 
