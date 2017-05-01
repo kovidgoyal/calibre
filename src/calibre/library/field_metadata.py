@@ -322,7 +322,7 @@ def _builtin_field_metadata():
 # }}}
 
 
-class FieldMetadata(dict):
+class FieldMetadata(object):
     '''
     key: the key to the dictionary is:
     - for standard fields, the metadata field name.
@@ -381,6 +381,7 @@ class FieldMetadata(dict):
 
     # search labels that are not db columns
     search_items = ['all', 'search']
+    __calibre_serializable__ = True
 
     def __init__(self):
         self._field_metadata = _builtin_field_metadata()
@@ -428,6 +429,17 @@ class FieldMetadata(dict):
 
     def keys(self):
         return self._tb_cats.keys()
+
+    def __eq__(self, other):
+        if not isinstance(other, FieldMetadata):
+            return False
+        for attr in ('_tb_cats', '_tb_custom_fields', '_search_term_map', 'custom_label_to_key_map', 'custom_field_prefix'):
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def sortable_field_keys(self):
         return [k for k in self._tb_cats.keys()
@@ -657,3 +669,24 @@ class FieldMetadata(dict):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    len(self._tb_cats[k]['search_terms']) > 0]
+
+
+# The following two methods are to support serialization
+# Note that they do not create copies of internal structures, for performance,
+# so they are not safe to use for anything else
+def fm_as_dict(self):
+    return {
+        'custom_fields': self._tb_custom_fields,
+        'search_term_map': self._search_term_map,
+        'custom_label_to_key_map': self.custom_label_to_key_map,
+    }
+
+
+def fm_from_dict(src):
+    ans = FieldMetadata()
+    ans._tb_custom_fields = src['custom_fields']
+    ans._search_term_map = src['search_term_map']
+    ans.custom_label_to_key_map = src['custom_label_to_key_map']
+    for k, v in ans._tb_custom_fields.iteritems():
+        ans._tb_cats[k] = v
+    return ans
