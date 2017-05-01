@@ -38,7 +38,7 @@ def implementation(db, notify_changes, action, *args):
         db.copy_format_to(book_id, fmt, dest)
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
