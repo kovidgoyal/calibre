@@ -36,6 +36,8 @@ def cdb_run(ctx, rd, which, version):
     except Exception:
         raise HTTPBadRequest('args are not valid encoded data')
     db = get_library_data(ctx, rd, strict_library_id=True)[0]
+    if getattr(m, 'needs_srv_ctx', False):
+        args = [ctx] + list(args)
     try:
         result = m.implementation(db, ctx.notify_changes, *args)
     except Exception as err:
