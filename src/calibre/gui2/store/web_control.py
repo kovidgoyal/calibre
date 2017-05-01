@@ -82,7 +82,7 @@ class NPWebView(QWebView):
                 if not confirm('<p>' + _('This e-book is a DRMed EPUB file.  '
                           'You will be prompted to save this file to your '
                           'computer. Once it is saved, open it with '
-                          '<a href="https://www.adobe.com/products/digitaleditions/">'
+                          '<a href="https://www.adobe.com/solutions/ebook/digital-editions.html">'
                           'Adobe Digital Editions</a> (ADE).<p>ADE, in turn '
                           'will download the actual e-book, which will be a '
                           '.epub file. You can add this book to calibre '
