@@ -14,7 +14,7 @@ import unittest
 from cStringIO import StringIO
 
 
-from calibre.library.cli import _print_check_library_results
+from calibre.db.cli.cmd_check_library import _print_check_library_results
 
 
 class Checker(object):
