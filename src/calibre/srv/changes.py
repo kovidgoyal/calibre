@@ -21,3 +21,7 @@ def formats_removed(formats_map):
 
 def books_deleted(book_ids):
     pass
+
+
+def metadata(book_ids):
+    pass
