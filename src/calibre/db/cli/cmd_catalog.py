@@ -12,6 +12,7 @@ from calibre.db.cli import integers_from_string
 readonly = True
 version = 0  # change this if you change signature of implementation()
 needs_srv_ctx = True
+no_remote = True
 
 
 def implementation(db, notify_changes, ctx):
@@ -103,8 +104,6 @@ Options control how entries are displayed in the generated catalog output.
 def main(opts, args, dbctx):
     if len(args) < 1:
         raise SystemExit(_('You must specify a catalog output file'))
-    if dbctx.is_remote:
-        raise SystemExit(_('Generating catalogs from server libraries is not supported'))
     if opts.ids:
         opts.ids = list(integers_from_string(opts.ids))
     fmt = args[0].rpartition('.')[-1]
