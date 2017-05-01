@@ -8,7 +8,7 @@ import unittest
 
 from setup import Command
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc library'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli'.split())
 
 
 def find_tests(which_tests=None):
@@ -66,8 +66,8 @@ def find_tests(which_tests=None):
         a(find_tests())
         from calibre.utils.shared_file import find_tests
         a(find_tests())
-    if ok('library'):
-        from calibre.library.test_cli import find_tests
+    if ok('dbcli'):
+        from calibre.db.cli.tests import find_tests
         a(find_tests())
 
     tests = unittest.TestSuite(ans)
