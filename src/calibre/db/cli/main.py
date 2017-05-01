@@ -48,6 +48,8 @@ def send_message(msg=''):
 
 def run_cmd(cmd, opts, args, dbctx):
     m = module_for_cmd(cmd)
+    if dbctx.is_remote and getattr(m, 'no_remote', False):
+        raise SystemExit(_('The {} command is not supported with remote (server based) libraries').format(cmd))
     ret = m.main(opts, args, dbctx)
     if not dbctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
         send_message()
@@ -167,7 +169,7 @@ class DBCtx(object):
     @property
     def db(self):
         if self._db is None:
-            self._db = LibraryDatabase(self.library_path).new_api
+            self._db = LibraryDatabase(self.library_path)
         return self._db
 
     def path(self, path):
@@ -180,7 +182,7 @@ class DBCtx(object):
         m = module_for_cmd(name)
         if self.is_remote:
             return self.remote_run(name, m, *args)
-        return m.implementation(self.db, None, *args)
+        return m.implementation(self.db.new_api, None, *args)
 
     def interpret_http_error(self, err):
         if err.code == httplib.UNAUTHORIZED:
