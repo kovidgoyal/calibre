@@ -133,7 +133,7 @@ def read_credetials(opts):
             pw = getpass.getpass(_('Enter the password: '))
         elif pw.startswith('<f:') and pw.endswith('>'):
             with lopen(pw[3:-1], 'rb') as f:
-                pw = f.read().decode('utf-8')
+                pw = f.read().decode('utf-8').rstrip()
     return username, pw
 
 
