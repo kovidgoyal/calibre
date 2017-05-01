@@ -239,7 +239,12 @@ class ReadingTest(BaseTest):
 
     def test_serialize_metadata(self):  # {{{
         from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpack_loads
+        from calibre.library.field_metadata import fm_as_dict
         cache = self.init_cache(self.library_path)
+        fm = cache.field_metadata
+        for d, l in ((json_dumps, json_loads), (msgpack_dumps, msgpack_loads)):
+            fm2 = l(d(fm))
+            self.assertEqual(fm_as_dict(fm), fm_as_dict(fm2))
         for i in xrange(1, 4):
             mi = cache.get_metadata(i, get_cover=True, cover_as_data=True)
             rmi = msgpack_loads(msgpack_dumps(mi))

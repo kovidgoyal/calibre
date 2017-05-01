@@ -433,10 +433,10 @@ class FieldMetadata(object):
     def __eq__(self, other):
         if not isinstance(other, FieldMetadata):
             return False
-        for attr in ('_tb_cats', '_tb_custom_fields', '_search_term_map', 'custom_label_to_key_map', 'custom_field_prefix'):
+        for attr in ('_tb_custom_fields', '_search_term_map', 'custom_label_to_key_map', 'custom_field_prefix'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
-        return True
+        return dict(self._tb_cats) == dict(other._tb_cats)
 
     def __ne__(self, other):
         return not self.__eq__(other)
