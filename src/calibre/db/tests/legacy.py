@@ -12,6 +12,7 @@ from repr import repr
 from functools import partial
 from operator import itemgetter
 
+from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
 
 # Utils {{{
@@ -83,12 +84,13 @@ class LegacyTest(BaseTest):
             return x
 
         def get_props(db):
-            props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
+            props = ('user_version', 'is_second_db', 'library_id',
                     'custom_column_label_map', 'custom_column_num_map', 'library_path', 'dbpath')
             fprops = ('last_modified', )
             ans = {x:getattr(db, x) for x in props}
             ans.update({x:getattr(db, x)() for x in fprops})
             ans['all_ids'] = frozenset(db.all_ids())
+            ans['field_metadata'] = fm_as_dict(db.field_metadata)
             return to_unicode(ans)
 
         old = self.init_old()
