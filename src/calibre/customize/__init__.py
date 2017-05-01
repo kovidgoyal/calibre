@@ -485,7 +485,7 @@ class CatalogPlugin(Plugin):  # {{{
     #:                       dest = 'catalog_title',
     #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
     #:                       '%default' + "'"))]
-    #:  cli_options parsed in library.cli:catalog_option_parser()
+    #:  cli_options parsed in calibre.db.cli.cmd_catalog:option_parser()
     cli_options = []
 
     def _field_sorter(self, key):
