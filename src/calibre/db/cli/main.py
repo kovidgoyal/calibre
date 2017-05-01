@@ -239,7 +239,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     del args[i]
-    parser = option_parser_for(cmd, args)()
+    parser = option_parser_for(cmd, args[1:])()
     opts, args = parser.parse_args(args)
     return run_cmd(cmd, opts, args[1:], DBCtx(opts))
 
