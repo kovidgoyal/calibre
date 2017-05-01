@@ -16,28 +16,31 @@ MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
 
 
-def encoded(typ, data):
-    return {CANARY: typ, 'v': data}
+def encoded(typ, data, for_json):
+    if for_json:
+        return {CANARY: typ, 'v': data}
+    return msgpack.ExtType(typ, msgpack_dumps(data))
 
 
 def encoder(obj, for_json=False):
     if isinstance(obj, datetime):
-        return encoded(0, unicode(obj.isoformat()))
+        return encoded(0, unicode(obj.isoformat()), for_json)
     if isinstance(obj, (set, frozenset)):
-        return encoded(1, tuple(obj))
+        return encoded(1, tuple(obj), for_json)
     if hasattr(obj, '__calibre_serializable__'):
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.library.field_metadata import FieldMetadata, fm_as_dict
         if isinstance(obj, Metadata):
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
-            return encoded(2, metadata_as_dict(obj, encode_cover_data=for_json))
+            return encoded(
+                2, metadata_as_dict(obj, encode_cover_data=for_json), for_json
+            )
         elif isinstance(obj, FieldMetadata):
-            return encoded(3, fm_as_dict(obj))
+            return encoded(3, fm_as_dict(obj), for_json)
     raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
 
-def msgpack_dumps(data):
-    return msgpack.packb(data, use_bin_type=True, default=encoder)
+msgpack_dumps = partial(msgpack.packb, default=encoder, use_bin_type=True)
 
 
 def json_dumps(data, **kw):
@@ -65,23 +68,24 @@ def decode_field_metadata(x, for_json):
 
 
 decoders = (
-    lambda x, fj: parse_iso8601(x, assume_utc=True),
-    lambda x, fj: set(x),
-    decode_metadata,
-    decode_field_metadata,
+    lambda x, fj: parse_iso8601(x, assume_utc=True), lambda x, fj: set(x),
+    decode_metadata, decode_field_metadata,
 )
 
 
-def decoder(obj, for_json=False):
+def json_decoder(obj):
     typ = obj.get(CANARY)
     if typ is None:
         return obj
-    return decoders[typ](obj['v'], for_json)
+    return decoders[typ](obj['v'], True)
 
 
-def msgpack_loads(data):
-    return msgpack.unpackb(data, encoding='utf-8', object_hook=decoder)
+def msgpack_decoder(code, data):
+    return decoders[code](msgpack_loads(data), False)
+
+
+msgpack_loads = partial(msgpack.unpackb, encoding='utf-8', ext_hook=msgpack_decoder)
 
 
 def json_loads(data):
-    return json.loads(data, object_hook=partial(decoder, for_json=True))
+    return json.loads(data, object_hook=json_decoder)
