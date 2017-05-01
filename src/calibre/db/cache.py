@@ -1244,6 +1244,7 @@ class Cache(object):
         provided, but are never deleted. Also note that force_changes has no
         effect on setting title or authors.
         '''
+        dirtied = set()
 
         try:
             # Handle code passing in an OPF object instead of a Metadata object
@@ -1252,7 +1253,7 @@ class Cache(object):
             pass
 
         def set_field(name, val):
-            self._set_field(name, {book_id:val}, do_path_update=False, allow_case_change=allow_case_change)
+            dirtied.update(self._set_field(name, {book_id:val}, do_path_update=False, allow_case_change=allow_case_change))
 
         path_changed = False
         if set_title and mi.title:
@@ -1342,6 +1343,7 @@ class Cache(object):
             # the db and Cache are in sync
             self._reload_from_db()
             raise
+        return dirtied
 
     def _do_add_format(self, book_id, fmt, stream, name=None, mtime=None):
         path = self._field_for('path', book_id)
