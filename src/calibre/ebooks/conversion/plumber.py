@@ -860,7 +860,7 @@ OptionRecommendation(name='search_replace',
         '''
 
         def eq(name, a, b):
-            if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css'}:
+            if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css', 'comments'}:
                 if not a and not b:
                     return True
             if name in {'transform_css_rules', 'search_replace'}:
