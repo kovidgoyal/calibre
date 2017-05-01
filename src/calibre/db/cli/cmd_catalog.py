@@ -25,9 +25,10 @@ def option_parser(get_parser, args):  # {{{
         # Fetch the extension-specific CLI options from the plugin
         # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
+        p = parser.add_option_group(_('{} OPTIONS').format(fmt.upper()))
         for option in plugin.cli_options:
             if option.action:
-                parser.add_option(
+                p.add_option(
                     option.option,
                     default=option.default,
                     dest=option.dest,
@@ -35,7 +36,7 @@ def option_parser(get_parser, args):  # {{{
                     help=option.help
                 )
             else:
-                parser.add_option(
+                p.add_option(
                     option.option,
                     default=option.default,
                     dest=option.dest,
@@ -50,6 +51,7 @@ def option_parser(get_parser, args):  # {{{
 
 Export a catalog in format specified by path/to/destination extension.
 Options control how entries are displayed in the generated catalog output.
+Note that different catalog formats support different sets of options.
 '''
         )
     )
