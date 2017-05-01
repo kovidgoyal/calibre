@@ -56,7 +56,7 @@ def implementation(db, notify_changes, action, *args):
             return db.get_metadata(book_id)
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''

@@ -23,7 +23,7 @@ def implementation(db, notify_changes, book_id, data, fmt, replace):
     return added
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\

@@ -20,7 +20,7 @@ def implementation(db, notify_changes, book_id, fmt):
         notify_changes(formats_removed(fmt_map))
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     return get_parser(
         _(
             '''
