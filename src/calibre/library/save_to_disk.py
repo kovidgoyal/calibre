@@ -7,7 +7,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback, re, errno
-from io import BytesIO
 
 from calibre.constants import DEBUG
 from calibre.db.errors import NoSuchFormat
@@ -258,12 +257,12 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     return shorten_components_to(length, components, last_has_extension=last_has_extension)
 
 
-def get_formats(available_formats, opts):
+def get_formats(available_formats, formats):
     available_formats = {x.lower().strip() for x in available_formats}
-    if opts.formats == 'all':
+    if formats == 'all':
         asked_formats = available_formats
     else:
-        asked_formats = {x.lower().strip() for x in opts.formats.split(',')}
+        asked_formats = {x.lower().strip() for x in formats.split(',')}
     return available_formats & asked_formats
 
 
@@ -271,7 +270,7 @@ def save_book_to_disk(book_id, db, root, opts, length):
     db = db.new_api
     mi = db.get_metadata(book_id, index_is_id=True)
     plugboards = db.pref('plugboards', {})
-    formats = get_formats(db.formats(book_id), opts)
+    formats = get_formats(db.formats(book_id), opts.formats)
     return do_save_book_to_disk(db, book_id, mi, plugboards,
         formats, root, opts, length)
 
@@ -342,9 +341,8 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
 
         cdata = None
         if opts.save_cover or formats:
-            cbuf = BytesIO()
-            if db.copy_cover_to(book_id, cbuf):
-                cdata = cbuf.getvalue()
+            cdata = db.cover(book_id)
+            if cdata:
                 cpath = base_path + '.jpg'
                 with lopen(cpath, 'wb') as f:
                     f.write(cdata)
@@ -368,7 +366,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         except NoSuchFormat:
             continue
         if opts.update_metadata:
-            with lopen(fmt_path, 'rb') as stream:
+            with lopen(fmt_path, 'r+b') as stream:
                 update_metadata(mi, fmt, stream, plugboards, cdata)
 
     return not formats_written, book_id, mi.title
