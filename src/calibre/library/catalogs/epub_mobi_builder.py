@@ -44,7 +44,7 @@ class CatalogBuilder(object):
 
     Flow of control:
         gui2.actions.catalog:generate_catalog()
-        gui2.tools:generate_catalog() or library.cli:command_catalog()
+        gui2.tools:generate_catalog() or db.cli.cmd_catalog
         called from gui2.convert.gui_conversion:gui_catalog()
         catalog = Catalog(notification=Reporter())
         catalog.build_sources()

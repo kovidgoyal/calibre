@@ -26,7 +26,7 @@ entry_points = {
              'lrf2lrs              = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf              = calibre.ebooks.lrf.lrs.convert_from:main',
              'calibre-debug        = calibre.debug:main',
-             'calibredb            = calibre.library.cli:main',
+             'calibredb            = calibre.db.cli.main:main',
              'calibre-parallel     = calibre.utils.ipc.worker:main',
              'calibre-customize    = calibre.customize.ui:main',
              'calibre-complete     = calibre.utils.complete:main',
@@ -402,15 +402,11 @@ _ebook_edit() {
 ''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n').encode('utf-8'))
 
     def do_calibredb(self, f):
-        import calibre.library.cli as cli
+        from calibre.db.cli.main import COMMANDS, option_parser_for
         from calibre.customize.ui import available_catalog_formats
         parsers, descs = {}, {}
-        for command in cli.COMMANDS:
-            op = getattr(cli, '%s_option_parser'%command)
-            args = [['t.epub']] if command == 'catalog' else []
-            p = op(*args)
-            if isinstance(p, tuple):
-                p = p[0]
+        for command in COMMANDS:
+            p = option_parser_for(command)()
             parsers[command] = p
             lines = [x.strip().partition('.')[0] for x in p.usage.splitlines() if x.strip() and
                      not x.strip().startswith('%prog')]

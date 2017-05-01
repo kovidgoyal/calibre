@@ -331,7 +331,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     out = PersistentTemporaryFile(suffix='_catalog_out.'+d.catalog_format.lower())
 
     # Profile the connected device
-    # Parallel initialization in calibre.library.cli:command_catalog()
+    # Parallel initialization in calibre.db.cli.cmd_catalog
     connected_device = {
                          'is_device_connected': device_manager.is_device_present,
                          'kind': device_manager.connected_device_kind,

@@ -15,10 +15,13 @@ from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
+
 def substitute(app, doctree):
     pass
 
+
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
+
 
 def source_read_handler(app, docname, source):
     src = source[0]
@@ -31,6 +34,7 @@ def source_read_handler(app, docname, source):
         source_read_handler(app, included_doc_name.partition('.')[0], ss)
         src = src[:m.start()] + ss[0] + src[m.end():]
     source[0] = src
+
 
 CLI_INDEX='''
 .. _cli:
@@ -72,15 +76,16 @@ CLI_PREAMBLE='''\
 {usage}
 '''
 
+
 def titlecase(app, x):
     if x and app.config.language == 'en':
         from calibre.utils.titlecase import titlecase as tc
         x = tc(x)
     return x
 
+
 def generate_calibredb_help(preamble, app):
-    from calibre.library.cli import COMMANDS, get_parser
-    import calibre.library.cli as cli
+    from calibre.db.cli.main import COMMANDS, option_parser_for, get_parser
     preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
     preamble += textwrap.dedent('''
 
@@ -98,12 +103,7 @@ def generate_calibredb_help(preamble, app):
 
     lines = []
     for cmd in COMMANDS:
-        args = []
-        if cmd == 'catalog':
-            args = [['doc.xml', '-h']]
-        parser = getattr(cli, cmd+'_option_parser')(*args)
-        if cmd == 'catalog':
-            parser = parser[0]
+        parser = option_parser_for(cmd)()
         lines += ['.. _calibredb-%s-%s:' % (app.config.language, cmd), '']
         lines += [cmd, '~'*20, '']
         usage = parser.usage.strip()
@@ -125,6 +125,7 @@ def generate_calibredb_help(preamble, app):
 
     raw = preamble + '\n\n'+'.. contents::\n  :local:'+ '\n\n' + global_options+'\n\n'+'\n'.join(lines)
     update_cli_doc('calibredb', raw, app)
+
 
 def generate_ebook_convert_help(preamble, app):
     from calibre.ebooks.conversion.cli import create_option_parser, manual_index_strings
@@ -161,6 +162,7 @@ def generate_ebook_convert_help(preamble, app):
 
     update_cli_doc('ebook-convert', raw, app)
 
+
 def update_cli_doc(name, raw, app):
     if isinstance(raw, unicode):
         raw = raw.encode('utf-8')
@@ -179,6 +181,7 @@ def update_cli_doc(name, raw, app):
         if p and not os.path.exists(p):
             os.makedirs(p)
         open(path, 'wb').write(raw)
+
 
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
     lines = ['']
@@ -204,8 +207,10 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
             lines.extend([opt, '', '    '+help, ''])
     return lines
 
+
 def mark_options(raw):
     raw = re.sub(r'(\s+)--(\s+)', r'\1``--``\2', raw)
+
     def sub(m):
         opt = m.group()
         a, b = opt.partition('=')[::2]
@@ -216,6 +221,7 @@ def mark_options(raw):
         return a + b
     raw = re.sub(r'(--[|()a-zA-Z0-9_=,-]+)', sub, raw)
     return raw
+
 
 def cli_docs(app):
     info = app.builder.info
@@ -269,14 +275,17 @@ def cli_docs(app):
             raw += '\n'+'\n'.join(lines)
             update_cli_doc(cmd, raw, app)
 
+
 def generate_docs(app):
     cli_docs(app)
     template_docs(app)
+
 
 def template_docs(app):
     from template_ref_generate import generate_template_language_help
     raw = generate_template_language_help(app.config.language)
     update_cli_doc('template_ref', raw, app)
+
 
 def localized_path(app, langcode, pagename):
     href = app.builder.get_target_uri(pagename)
@@ -286,9 +295,11 @@ def localized_path(app, langcode, pagename):
         prefix += langcode + '/'
     return prefix + href
 
+
 def add_html_context(app, pagename, templatename, context, *args):
     context['localized_path'] = partial(localized_path, app)
     context['change_language_text'] = cli_index_strings()[5]
+
 
 def setup(app):
     app.add_builder(EPUBHelpBuilder)
@@ -299,7 +310,6 @@ def setup(app):
     app.connect('html-page-context', add_html_context)
     app.connect('build-finished', finished)
 
+
 def finished(app, exception):
     pass
-
-
