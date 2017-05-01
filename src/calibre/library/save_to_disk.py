@@ -6,9 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, re, shutil
+import os, traceback, re, errno
+from io import BytesIO
 
 from calibre.constants import DEBUG
+from calibre.db.errors import NoSuchFormat
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, ascii_filename
@@ -17,7 +19,6 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
-from calibre.ptempfile import SpooledTemporaryFile
 from calibre.db.lazy import FormatsList
 
 plugboard_any_device_value = 'any device'
@@ -257,35 +258,22 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     return shorten_components_to(length, components, last_has_extension=last_has_extension)
 
 
-def save_book_to_disk(id_, db, root, opts, length):
-    mi = db.get_metadata(id_, index_is_id=True)
-    cover = db.cover(id_, index_is_id=True)
-    plugboards = db.prefs.get('plugboards', {})
-
-    available_formats = db.formats(id_, index_is_id=True)
-    if not available_formats:
-        available_formats = []
+def get_formats(available_formats, opts):
+    available_formats = {x.lower().strip() for x in available_formats}
+    if opts.formats == 'all':
+        asked_formats = available_formats
     else:
-        available_formats = [x.lower().strip() for x in
-                available_formats.split(',')]
-    formats = {}
-    fmts = db.formats(id_, index_is_id=True, verify_formats=False)
-    if fmts:
-        fmts = fmts.split(',')
-        for fmt in fmts:
-            fpath = db.format(id_, fmt, index_is_id=True, as_path=True)
-            if fpath is not None:
-                formats[fmt.lower()] = fpath
+        asked_formats = {x.lower().strip() for x in opts.formats.split(',')}
+    return available_formats & asked_formats
 
-    try:
-        return do_save_book_to_disk(id_, mi, cover, plugboards,
-            formats, root, opts, length)
-    finally:
-        for temp in formats.itervalues():
-            try:
-                os.remove(temp)
-            except:
-                pass
+
+def save_book_to_disk(book_id, db, root, opts, length):
+    db = db.new_api
+    mi = db.get_metadata(book_id, index_is_id=True)
+    plugboards = db.pref('plugboards', {})
+    formats = get_formats(db.formats(book_id), opts)
+    return do_save_book_to_disk(db, book_id, mi, plugboards,
+        formats, root, opts, length)
 
 
 def get_path_components(opts, mi, book_id, path_length):
@@ -332,70 +320,58 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugb
             error_report(fmt, traceback.format_exc())
 
 
-def do_save_book_to_disk(id_, mi, cover, plugboards,
-        format_map, root, opts, length):
-    available_formats = [x.lower().strip() for x in format_map.keys()]
-    if mi.pubdate:
-        mi.pubdate = as_local_time(mi.pubdate)
-    if mi.timestamp:
-        mi.timestamp = as_local_time(mi.timestamp)
-
-    if opts.formats == 'all':
-        asked_formats = available_formats
-    else:
-        asked_formats = [x.lower().strip() for x in opts.formats.split(',')]
-    formats = set(available_formats).intersection(set(asked_formats))
-    if not formats:
-        return True, id_, mi.title
-
-    components = get_path_components(opts, mi, id_, length)
-    base_path = os.path.join(root, *components)
-    base_name = os.path.basename(base_path)
-    dirpath = os.path.dirname(base_path)
-    # Don't test for existence first as the test could fail but
-    # another worker process could create the directory before
-    # the call to makedirs
+def do_save_book_to_disk(db, book_id, mi, plugboards,
+        formats, root, opts, length):
+    originals = mi.cover, mi.pubdate, mi.timestamp
+    formats_written = False
     try:
-        os.makedirs(dirpath)
-    except BaseException:
-        if not os.path.exists(dirpath):
-            raise
+        if mi.pubdate:
+            mi.pubdate = as_local_time(mi.pubdate)
+        if mi.timestamp:
+            mi.timestamp = as_local_time(mi.timestamp)
 
-    ocover = mi.cover
-    if opts.save_cover and cover:
-        with open(base_path+'.jpg', 'wb') as f:
-            f.write(cover)
-        mi.cover = base_name+'.jpg'
-    else:
-        mi.cover = None
+        components = get_path_components(opts, mi, book_id, length)
+        base_path = os.path.join(root, *components)
+        base_name = os.path.basename(base_path)
+        dirpath = os.path.dirname(base_path)
+        try:
+            os.makedirs(dirpath)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
 
-    if opts.write_opf:
-        from calibre.ebooks.metadata.opf2 import metadata_to_opf
-        opf = metadata_to_opf(mi)
-        with open(base_path+'.opf', 'wb') as f:
-            f.write(opf)
+        cdata = None
+        if opts.save_cover or formats:
+            cbuf = BytesIO()
+            if db.copy_cover_to(book_id, cbuf):
+                cdata = cbuf.getvalue()
+                cpath = base_path + '.jpg'
+                with lopen(cpath, 'wb') as f:
+                    f.write(cdata)
+                mi.cover = base_name+'.jpg'
+        if opts.write_opf:
+            from calibre.ebooks.metadata.opf2 import metadata_to_opf
+            opf = metadata_to_opf(mi)
+            with lopen(base_path+'.opf', 'wb') as f:
+                f.write(opf)
+    finally:
+        mi.cover, mi.pubdate, mi.timestamp = originals
 
-    mi.cover = ocover
+    if not formats:
+        return not formats_written, book_id, mi.title
 
-    written = False
     for fmt in formats:
-        fp = format_map.get(fmt, None)
-        if fp is None:
-            continue
-        stream = SpooledTemporaryFile(20*1024*1024, '_save_to_disk.'+(fmt or
-            'tmp'))
-        with open(fp, 'rb') as f:
-            shutil.copyfileobj(f, stream)
-        stream.seek(0)
-        written = True
-        if opts.update_metadata:
-            update_metadata(mi, fmt, stream, plugboards, cover)
-            stream.seek(0)
         fmt_path = base_path+'.'+str(fmt)
-        with open(fmt_path, 'wb') as f:
-            shutil.copyfileobj(stream, f)
+        try:
+            db.copy_format_to(book_id, fmt, fmt_path)
+            formats_written = True
+        except NoSuchFormat:
+            continue
+        if opts.update_metadata:
+            with lopen(fmt_path, 'rb') as stream:
+                update_metadata(mi, fmt, stream, plugboards, cdata)
 
-    return not written, id_, mi.title
+    return not formats_written, book_id, mi.title
 
 
 def sanitize_args(root, opts):
