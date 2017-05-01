@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from calibre.db.cli import integers_from_string
 from calibre.db.delete_service import delete_service
 from calibre.srv.changes import books_deleted
 
@@ -46,12 +47,7 @@ def main(opts, args, dbctx):
 
     ids = set()
     for arg in args:
-        for x in arg.split(','):
-            y = tuple(map(int, x.split('-')))
-            if len(y) > 1:
-                ids |= set(range(y[0], y[1]))
-            else:
-                ids.add(y[0])
+        ids |= set(integers_from_string(arg))
 
     dbctx.run('remove', ids, opts.permanent)
 
