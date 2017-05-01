@@ -27,10 +27,10 @@ COMMANDS = (
 )
 
 
-def option_parser_for(cmd):
+def option_parser_for(cmd, args=()):
 
     def cmd_option_parser():
-        return module_for_cmd(cmd).option_parser(get_parser)
+        return module_for_cmd(cmd).option_parser(get_parser, args)
 
     return cmd_option_parser
 
@@ -239,7 +239,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     del args[i]
-    parser = option_parser_for(cmd)()
+    parser = option_parser_for(cmd, args)()
     opts, args = parser.parse_args(args)
     return run_cmd(cmd, opts, args[1:], DBCtx(opts))
 

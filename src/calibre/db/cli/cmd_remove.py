@@ -20,7 +20,7 @@ def implementation(db, notify_changes, ids, permanent):
         notify_changes(books_deleted(ids))
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     p = get_parser(
         _(
             '''\

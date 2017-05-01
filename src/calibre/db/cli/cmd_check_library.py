@@ -13,7 +13,7 @@ def implementation(db, notify_changes, *args):
     is_remote
 
 
-def option_parser(get_parser):
+def option_parser(get_parser, args):
     pass
 
 
