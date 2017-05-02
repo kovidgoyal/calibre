@@ -30,6 +30,7 @@ def encoder(obj, for_json=False):
     if getattr(obj, '__calibre_serializable__', False):
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.library.field_metadata import FieldMetadata, fm_as_dict
+        from calibre.db.categories import Tag
         if isinstance(obj, Metadata):
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
             return encoded(
@@ -37,6 +38,8 @@ def encoder(obj, for_json=False):
             )
         elif isinstance(obj, FieldMetadata):
             return encoded(3, fm_as_dict(obj), for_json)
+        elif isinstance(obj, Tag):
+            return encoded(4, obj.as_dict(), for_json)
     raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
 
@@ -67,9 +70,14 @@ def decode_field_metadata(x, for_json):
     return fm_from_dict(x)
 
 
+def decode_category_tag(x, for_json):
+    from calibre.db.categories import Tag
+    return Tag.from_dict(x)
+
+
 decoders = (
     lambda x, fj: parse_iso8601(x, assume_utc=True), lambda x, fj: set(x),
-    decode_metadata, decode_field_metadata,
+    decode_metadata, decode_field_metadata, decode_category_tag
 )
 
 
