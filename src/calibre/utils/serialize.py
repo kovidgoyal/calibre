@@ -27,7 +27,7 @@ def encoder(obj, for_json=False):
         return encoded(0, unicode(obj.isoformat()), for_json)
     if isinstance(obj, (set, frozenset)):
         return encoded(1, tuple(obj), for_json)
-    if hasattr(obj, '__calibre_serializable__'):
+    if getattr(obj, '__calibre_serializable__', False):
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.library.field_metadata import FieldMetadata, fm_as_dict
         if isinstance(obj, Metadata):
