@@ -695,7 +695,7 @@ class LibraryDatabase(object):
         self.new_api.delete_custom_column(label, num)
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
-        self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
+        return self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None,
                                    notify=True, update_last_modified=False):
