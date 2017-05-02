@@ -954,7 +954,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
     extras = []
     for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
         for opt in eopts:
-            extras.append(special_exts_template%(opt, eexts))
+            extras.append(special_exts_template%(opt, sorted(eexts)))
     extras = '\n'.join(extras)
 
     return '_'+fname+'()'+\
@@ -985,7 +985,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
+    opts=opts, extras=extras, exts=sorted(exts)) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\

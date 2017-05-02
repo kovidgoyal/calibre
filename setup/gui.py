@@ -10,6 +10,7 @@ import os
 
 from setup import Command, __appname__
 
+
 class GUI(Command):
     description = 'Compile all GUI forms'
     PATH  = os.path.join(Command.SRC, __appname__, 'gui2')
@@ -53,7 +54,7 @@ class GUI(Command):
                 self.info('Creating images.qrc')
                 for s in sources:
                     files.append('<file>%s</file>'%s)
-                manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(files)
+                manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(sorted(files))
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
         finally:
@@ -71,5 +72,3 @@ class GUI(Command):
                 os.remove(c)
         if os.path.exists(self.QRC):
             os.remove(self.QRC)
-
-
