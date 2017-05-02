@@ -10,7 +10,7 @@ import sys
 from textwrap import TextWrapper
 
 from calibre import prints
-from calibre.db.utils import str_width
+from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 
