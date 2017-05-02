@@ -7,17 +7,61 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import csv
 import sys
 
+from calibre import prints
+from calibre.db.legacy import LibraryDatabase
+from calibre.library.check_library import CHECKS, CheckLibrary
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
+no_remote = True
 
 
 def implementation(db, notify_changes, *args):
-    is_remote = notify_changes is not None
-    is_remote
+    raise NotImplementedError()
 
 
 def option_parser(get_parser, args):
-    pass
+    parser = get_parser(
+        _(
+            '''\
+%prog check_library [options]
+
+Perform some checks on the filesystem representing a library. Reports are {0}
+'''
+        ).format(', '.join([c[0] for c in CHECKS]))
+    )
+
+    parser.add_option(
+        '-c', '--csv', default=False, action='store_true', help=_('Output in CSV')
+    )
+
+    parser.add_option(
+        '-r',
+        '--report',
+        default=None,
+        dest='report',
+        help=_("Comma-separated list of reports.\n"
+               "Default: all")
+    )
+
+    parser.add_option(
+        '-e',
+        '--ignore_extensions',
+        default=None,
+        dest='exts',
+        help=_("Comma-separated list of extensions to ignore.\n"
+               "Default: all")
+    )
+
+    parser.add_option(
+        '-n',
+        '--ignore_names',
+        default=None,
+        dest='names',
+        help=_("Comma-separated list of names to ignore.\n"
+               "Default: all")
+    )
+    return parser
 
 
 def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
@@ -39,5 +83,40 @@ def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
 
 
 def main(opts, args, dbctx):
-    raise NotImplementedError('TODO: implement this')
+    if opts.report is None:
+        checks = CHECKS
+    else:
+        checks = []
+        for r in opts.report.split(','):
+            found = False
+            for c in CHECKS:
+                if c[0] == r:
+                    checks.append(c)
+                    found = True
+                    break
+            if not found:
+                prints(_('Unknown report check'), r)
+                return 1
+
+    if opts.names is None:
+        names = []
+    else:
+        names = [f.strip() for f in opts.names.split(',') if f.strip()]
+    if opts.exts is None:
+        exts = []
+    else:
+        exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
+
+    if not LibraryDatabase.exists_at(dbctx.library_path):
+        prints('No library found at', dbctx.library_path, file=sys.stderr)
+        raise SystemExit(1)
+
+    db = LibraryDatabase(dbctx.library_path)
+    prints(_('Vacuuming database...'))
+    db.new_api.vacuum()
+    checker = CheckLibrary(dbctx.library_path, db)
+    checker.scan_library(names, exts)
+    for check in checks:
+        _print_check_library_results(checker, check, as_csv=opts.csv)
+
     return 0
