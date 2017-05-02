@@ -52,6 +52,18 @@ class Tag(object):
     def __repr__(self):
         return str(self)
 
+    __calibre_serializable__ = True
+
+    def as_dict(self):
+        return {k: getattr(self, k) for k in self.__slots__}
+
+    @classmethod
+    def from_dict(cls, d):
+        ans = cls('')
+        for k in cls.__slots__:
+            setattr(ans, k, d[k])
+        return ans
+
 
 def find_categories(field_metadata):
     for category, cat in field_metadata.iteritems():
@@ -101,6 +113,7 @@ def clean_user_categories(dbcache):
     except:
         pass
     return new_cats
+
 
 category_sort_keys = {True:{}, False: {}}
 category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = \
