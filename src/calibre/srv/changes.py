@@ -25,3 +25,9 @@ def books_deleted(book_ids):
 
 def metadata(book_ids):
     pass
+
+
+def saved_searches(changes):
+    for change_type, saved_search_name in changes:
+        # change_type is one of 'add' or 'remove'
+        pass

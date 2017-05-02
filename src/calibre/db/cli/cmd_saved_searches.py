@@ -8,6 +8,7 @@ readonly = False
 version = 0  # change this if you change signature of implementation()
 
 from calibre import prints
+from calibre.srv.changes import saved_searches
 
 
 def implementation(db, notify_changes, action, *args):
@@ -18,10 +19,14 @@ def implementation(db, notify_changes, action, *args):
     if action == 'add':
         name, val = args
         db.saved_search_add(name, val)
+        if notify_changes is not None:
+            notify_changes(saved_searches([('add', name)]))
         return
     if action == 'remove':
         name = args[0]
         db.saved_search_delete(name)
+        if notify_changes is not None:
+            notify_changes(saved_searches([('remove', name)]))
         return
 
 
