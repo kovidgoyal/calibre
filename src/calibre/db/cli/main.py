@@ -23,7 +23,7 @@ COMMANDS = (
     'set_metadata', 'export', 'catalog', 'saved_searches', 'add_custom_column',
     'custom_columns', 'remove_custom_column', 'set_custom', 'restore_database',
     'check_library', 'list_categories', 'backup_metadata', 'clone', 'embed_metadata',
-    # 'search'
+    'search'
 )
 
 
