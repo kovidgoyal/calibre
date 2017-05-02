@@ -231,7 +231,13 @@ class Matches(QAbstractItemModel):
             if col == 1:
                 return ('<p>%s</p>' % result.title)
             elif col == 2:
-                return ('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')  # noqa
+                if result.price:
+                    return ('<p>' + _(
+                        'Detected price as: %s. Check with the store before making a purchase'
+                        ' to verify this price is correct. This price often does not include'
+                        ' promotions the store may be running.') % result.price + '</p>')
+                return '<p>' + _(
+                    'No price was found')
             elif col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
                     return ('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')  # noqa
