@@ -7,10 +7,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import sys
-import unicodedata
 from textwrap import TextWrapper
 
 from calibre import prints
+from calibre.db.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 
@@ -171,12 +171,6 @@ def do_list(
 
     output_table = prepare_output_table(fields, book_ids, data, metadata)
     widths = list(map(lambda x: 0, fields))
-
-    def chr_width(x):
-        return 1 + unicodedata.east_asian_width(x).startswith('W')
-
-    def str_width(x):
-        return sum(map(chr_width, x))
 
     for record in output_table:
         for j in range(len(fields)):
