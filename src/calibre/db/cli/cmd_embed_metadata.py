@@ -18,7 +18,8 @@ def implementation(db, notify_changes, book_id, only_fmts):
     with db.write_lock:
         if db.has_id(book_id):
             db.embed_metadata((book_id,), only_fmts=only_fmts)
-            formats_added({book_id: db.formats(book_id)})
+            if notify_changes is not None:
+                notify_changes(formats_added({book_id: db.formats(book_id)}))
             return db.field_for('title', book_id)
 
 
