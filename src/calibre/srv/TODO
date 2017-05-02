@@ -2,5 +2,6 @@ Wire up cdb notify_changes for the embeded server
 Prevent standalone and embedded servers from running simultaneously
 Prevent more than a single instance of the standalone server from running
 
+Fix search completion popups
 Read progress
 Bookmarks/annotations
