@@ -20,13 +20,13 @@ def implementation(db, notify_changes, action, *args):
         name, val = args
         db.saved_search_add(name, val)
         if notify_changes is not None:
-            notify_changes(saved_searches([('add', name)]))
+            notify_changes(saved_searches(added=(name,)))
         return
     if action == 'remove':
         name = args[0]
         db.saved_search_delete(name)
         if notify_changes is not None:
-            notify_changes(saved_searches([('remove', name)]))
+            notify_changes(saved_searches(removed=(name,)))
         return
 
 
