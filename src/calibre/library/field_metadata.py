@@ -679,6 +679,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
+        'user_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'search'},
     }
 
 
@@ -687,6 +689,7 @@ def fm_from_dict(src):
     ans._tb_custom_fields = src['custom_fields']
     ans._search_term_map = src['search_term_map']
     ans.custom_label_to_key_map = src['custom_label_to_key_map']
-    for k, v in ans._tb_custom_fields.iteritems():
-        ans._tb_cats[k] = v
+    for q in ('custom_fields', 'user_categories', 'search_categories'):
+        for k, v in src[q].iteritems():
+            ans._tb_cats[k] = v
     return ans
