@@ -45,11 +45,6 @@ def handle_changes(changes, gui=None):
         m = gui.library_view.model()
         m.ids_deleted(removed)
         gui.iactions['Remove Books'].library_ids_deleted2(removed, next_id=next_id)
-        # current = gui.library_view.currentIndex()
-        # if current.isValid():
-        #     m.current_changed(current, current)
-        # else:
-        #     gui.book_details.reset_info()
     if refresh_ids:
         gui.iactions['Edit Metadata'].refresh_books_after_metadata_edit(refresh_ids)
     if ss_changed:
