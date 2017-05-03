@@ -18,6 +18,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import get_language
 from calibre.utils.search_query_parser import SearchQueryParser
 
 
@@ -38,7 +39,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('Download'), _('Affiliate')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('Download'), _('Affiliate'), _('Language')]
     HTML_COLS = (1, 4)
     IMG_COLS = (0, 3, 5, 6)
 
@@ -207,6 +208,8 @@ class Matches(QAbstractItemModel):
                 return (result.price)
             elif col == 4:
                 return ('<span>%s<br>%s</span>' % (result.store_name, result.formats))
+            elif col == 7:
+                return get_language(result.language)
             return None
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:

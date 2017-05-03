@@ -157,6 +157,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setColumnWidth(5, 20)
         # Affiliate
         self.results_view.setColumnWidth(6, 20)
+        # Language
+        self.results_view.setColumnWidth(7, 10)
 
     def toggle_search(self):
         if self.searching:

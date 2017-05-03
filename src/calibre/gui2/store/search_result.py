@@ -27,6 +27,7 @@ class SearchResult(object):
         # value = url to download the file.
         self.downloads = {}
         self.affiliate = False
+        self.language = ''
         self.plugin_author = ''
         self.create_browser = None
 
