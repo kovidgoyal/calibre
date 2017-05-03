@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from threading import Thread
 
@@ -36,7 +37,6 @@ def run_worker(mod, func, **kw):
     exe = [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
     env = kw.get('env', os.environ.copy())
     env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
-    env['PYTHONUNBUFFERED'] = '1'
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
@@ -69,11 +69,12 @@ class IPCLockTest(unittest.TestCase):
                 )
 
     def test_exclusive_file_other_process(self):
-        child = run_worker('calibre.utils.test_lock', 'other1', stdout=subprocess.PIPE)
-        print(1111111111)
-        ready = child.stdout.readline()
-        print(2222222222)
-        self.assertEqual(ready.strip(), b'ready')
+        child = run_worker('calibre.utils.test_lock', 'other1')
+        while child.poll() is None:
+            if os.path.exists('ready'):
+                break
+            time.sleep(0.01)
+        self.assertIsNone(child.poll(), 'child died without creating ready dir')
         ef = FastFailEF('test')
         self.assertRaises(EnvironmentError, ef.__enter__)
         child.kill()
@@ -83,11 +84,9 @@ class IPCLockTest(unittest.TestCase):
 
 
 def other1():
-    import sys, time
     e = ExclusiveFile('test')
     with e:
-        print('ready')
-        sys.stdout.flush()
+        os.mkdir('ready')
         time.sleep(30)
 
 
