@@ -7,12 +7,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from threading import Thread
 
-from calibre.constants import iswindows, fcntl
-from calibre.debug import run_calibre_debug
+from calibre.constants import fcntl, iswindows
 from calibre.utils.lock import ExclusiveFile, unix_open
 
 
@@ -30,6 +30,17 @@ class Other(Thread):
                 self.locked = True
         except EnvironmentError:
             self.locked = False
+
+
+def run_worker(mod, func, **kw):
+    exe = [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
+    env = kw.get('env', os.environ.copy())
+    env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
+    if iswindows:
+        import win32process
+        kw['creationflags'] = win32process.CREATE_NO_WINDOW
+    kw['env'] = env
+    return subprocess.Popen(exe, **kw)
 
 
 class IPCLockTest(unittest.TestCase):
@@ -57,11 +68,7 @@ class IPCLockTest(unittest.TestCase):
                 )
 
     def test_exclusive_file_other_process(self):
-        child = run_calibre_debug(
-            '-c',
-            'from calibre.utils.test_lock import other1; other1()',
-            stdout=subprocess.PIPE
-        )
+        child = run_worker('calibre.utils.test_lock', 'other1', stdout=subprocess.PIPE)
         ready = child.stdout.readline()
         self.assertEqual(ready.strip(), b'ready')
         ef = FastFailEF('test')
