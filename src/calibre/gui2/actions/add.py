@@ -436,12 +436,13 @@ class AddAction(InterfaceAction):
         Adder(paths, db=None if to_device else self.gui.current_db,
               parent=self.gui, callback=partial(self._files_added, on_card=on_card), pool=self.gui.spare_pool())
 
-    def refresh_gui(self, num, set_current_row=-1):
+    def refresh_gui(self, num, set_current_row=-1, recount=True):
         self.gui.library_view.model().books_added(num)
         if set_current_row > -1:
             self.gui.library_view.set_current_row(0)
         self.gui.refresh_cover_browser()
-        self.gui.tags_view.recount()
+        if recount:
+            self.gui.tags_view.recount()
 
     def _files_added(self, adder, on_card=None):
         if adder.items:

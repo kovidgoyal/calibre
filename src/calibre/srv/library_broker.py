@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 from collections import OrderedDict, defaultdict
-from threading import Lock
+from threading import RLock as Lock
 
 from calibre import filesystem_encoding
 from calibre.db.cache import Cache
@@ -188,6 +188,12 @@ class GuiLibraryBroker(LibraryBroker):
             # This happens after a restore database, for example
             olddb.close(), olddb.break_cycles()
         self._prune_loaded_dbs()
+
+    def is_gui_library(self, library_path):
+        with self:
+            if self.gui_library_id and self.gui_library_id in self.lmap:
+                return samefile(library_path, self.lmap[self.gui_library_id])
+            return False
 
     def _prune_loaded_dbs(self):
         now = monotonic()

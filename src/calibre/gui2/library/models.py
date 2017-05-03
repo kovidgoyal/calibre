@@ -385,6 +385,9 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def delete_books_by_id(self, ids, permanent=False):
         self.db.new_api.remove_books(ids, permanent=permanent)
+        self.ids_deleted(ids)
+
+    def ids_deleted(self, ids):
         self.db.data.books_deleted(tuple(ids))
         self.db.notify('delete', list(ids))
         self.books_deleted()
