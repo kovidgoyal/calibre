@@ -31,6 +31,7 @@ from calibre.gui2 import (error_dialog, GetMetadata, open_url,
         gprefs, max_available_height, config, info_dialog, Dispatcher,
         question_dialog, warning_dialog)
 from calibre.gui2.cover_flow import CoverFlowMixin
+from calibre.gui2.changes import handle_changes
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
@@ -223,6 +224,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_path = library_path
         self.library_broker = GuiLibraryBroker(db)
         self.content_server = None
+        self.server_change_notification_timer = t = QTimer(self)
+        self.server_changes = Queue()
+        t.setInterval(1000), t.timeout.connect(self.handle_changes_from_server_debounced), t.setSingleShot(True)
         self._spare_pool = None
         self.must_restart_before_config = False
         self.listener = Listener(listener)
@@ -471,13 +475,32 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def start_content_server(self, check_started=True):
         from calibre.srv.embedded import Server
-        self.content_server = Server(self.library_broker)
+        self.content_server = Server(self.library_broker, self.handle_changes_from_server)
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
         if check_started:
             self.content_server.start_failure_callback = \
                 Dispatcher(self.content_server_start_failed)
         self.content_server.start()
+
+    def handle_changes_from_server(self, library_path, change_event):
+        if self.library_broker.is_gui_library(library_path):
+            self.server_changes.push((library_path, change_event))
+            self.server_change_notification_timer.start()
+
+    def handle_changes_from_server_debounced(self):
+        if self.shutting_down:
+            return
+        changes = []
+        while True:
+            try:
+                library_path, change_event = self.server_changes.get_nowait()
+            except Empty:
+                break
+            if self.library_broker.is_gui_library(library_path):
+                changes.append(change_event)
+        if changes:
+            handle_changes(self, changes)
 
     def content_server_start_failed(self, msg):
         error_dialog(self, _('Failed to start Content server'),
@@ -561,6 +584,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def current_db(self):
         return self.library_view.model().db
 
+    def refresh_all(self):
+        m = self.library_view.model()
+        m.db.data.refresh(clear_caches=False, do_search=False)
+        m.resort()
+        m.research()
+        self.tags_view.recount()
+
     def another_instance_wants_to_talk(self):
         try:
             msg = self.listener.queue.get_nowait()
@@ -589,10 +619,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         elif msg.startswith('refreshdb:'):
             m = self.library_view.model()
             m.db.new_api.reload_from_db()
-            m.db.data.refresh(clear_caches=False, do_search=False)
-            m.resort()
-            m.research()
-            self.tags_view.recount()
+            self.refresh_all()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         elif msg.startswith('bookedited:'):
@@ -895,6 +922,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def shutdown(self, write_settings=True):
         self.shutting_down = True
         self.show_shutdown_message()
+        self.server_change_notification_timer.stop()
 
         from calibre.customize.ui import has_library_closed_plugins
         if has_library_closed_plugins():
