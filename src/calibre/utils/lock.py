@@ -1,9 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-'''
-Secure access to locked files from multiple processes.
-'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import atexit
 import errno
@@ -14,10 +13,11 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows
+    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins
 )
 from calibre.utils.monotonic import monotonic
 
+speedup = plugins['speedup'][0]
 if iswindows:
     import msvcrt, win32file, pywintypes, winerror, win32api, win32event
     from calibre.constants import get_windows_username
@@ -28,8 +28,6 @@ else:
 
 def unix_open(path):
     flags = os.O_RDWR | os.O_CREAT
-    from calibre.constants import plugins
-    speedup = plugins['speedup'][0]
     has_cloexec = False
     if hasattr(speedup, 'O_CLOEXEC'):
         try:
@@ -149,8 +147,7 @@ elif islinux:
         name = '%s-singleinstance-%s-%s' % (
             __appname__, (os.geteuid() if per_user else ''), name
         )
-        if not isinstance(name, bytes):
-            name = name.encode('utf-8')
+        name = name.encode('utf-8')
         address = b'\0' + name.replace(b' ', b'_')
         sock = socket.socket(family=socket.AF_UNIX)
         try:
@@ -177,7 +174,9 @@ else:
         for loc in locs:
             if os.access(loc, os.W_OK | os.R_OK | os.X_OK):
                 return os.path.join(loc, ('.' if loc is home else '') + name)
-        raise EnvironmentError('Failed to find a suitable filesystem location for the lock file')
+        raise EnvironmentError(
+            'Failed to find a suitable filesystem location for the lock file'
+        )
 
     def create_single_instance_mutex(name, per_user=True):
         from calibre.utils.ipc import eintr_retry_call
@@ -192,6 +191,7 @@ else:
 
 
 def singleinstance(name):
+    ' Ensure that only a single process holding exists with the specified mutex key '
     release_mutex = create_single_instance_mutex(name)
     if release_mutex is None:
         return False
