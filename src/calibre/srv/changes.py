@@ -3,29 +3,80 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+from future_builtins import map
 
 
-def books_added(book_ids):
-    pass
+class ChangeEvent(object):
+
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return '{}(book_ids={})'.format(
+            self.__class__.__name__, ','.join(sorted(map(str, self.book_ids)))
+        )
 
 
-def formats_added(formats_map):
-    # formats_map: {book_id:(fmt1, fmt2)}
-    pass
+class BooksAdded(ChangeEvent):
+
+    def __init__(self, book_ids):
+        ChangeEvent.__init__(self)
+        self.book_ids = frozenset(book_ids)
 
 
-def formats_removed(formats_map):
-    # formats_map: {book_id:(fmt1, fmt2)}
-    pass
+class BooksDeleted(ChangeEvent):
+
+    def __init__(self, book_ids):
+        ChangeEvent.__init__(self)
+        self.book_ids = frozenset(book_ids)
 
 
-def books_deleted(book_ids):
-    pass
+class FormatsAdded(ChangeEvent):
+
+    def __init__(self, formats_map):
+        ChangeEvent.__init__(self)
+        self.formats_map = formats_map
+
+    @property
+    def book_ids(self):
+        return frozenset(self.formats_map)
 
 
-def metadata(book_ids):
-    pass
+class FormatsRemoved(ChangeEvent):
+
+    def __init__(self, formats_map):
+        ChangeEvent.__init__(self)
+        self.formats_map = formats_map
+
+    @property
+    def book_ids(self):
+        return frozenset(self.formats_map)
 
 
-def saved_searches(added=(), removed=()):
-    pass
+class MetadataChanged(ChangeEvent):
+
+    def __init__(self, book_ids):
+        ChangeEvent.__init__(self)
+        self.book_ids = frozenset(book_ids)
+
+
+class SavedSearchesChanged(ChangeEvent):
+
+    def __init__(self, added=(), removed=()):
+        ChangeEvent.__init__(self)
+        self.added = frozenset(added)
+        self.removed = frozenset(removed)
+
+    def __repr__(self):
+        return '{}(added={}, removed={})'.format(
+            self.__class__.__name__,
+            sorted(map(str, self.added)), sorted(map(str, self.removed))
+        )
+
+
+books_added = BooksAdded
+formats_added = FormatsAdded
+formats_removed = FormatsRemoved
+books_deleted = BooksDeleted
+metadata = MetadataChanged
+saved_searches = SavedSearchesChanged

@@ -27,13 +27,13 @@ class Server(object):
     loop = current_thread = exception = None
     state_callback = start_failure_callback = None
 
-    def __init__(self, library_broker):
+    def __init__(self, library_broker, notify_changes):
         opts = server_config()
         lp, lap = log_paths()
         log_size = opts.max_log_size * 1024 * 1024
         log = RotatingLog(lp, max_size=log_size)
         access_log = RotatingLog(lap, max_size=log_size)
-        self.handler = Handler(library_broker, opts)
+        self.handler = Handler(library_broker, opts, notify_changes=notify_changes)
         plugins = self.plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour())

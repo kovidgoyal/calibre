@@ -292,6 +292,8 @@ class CBDialog(QDialog):
 
 class CoverFlowMixin(object):
 
+    disable_cover_browser_refresh = False
+
     def __init__(self, *args, **kwargs):
         pass
 
@@ -405,6 +407,8 @@ class CoverFlowMixin(object):
         return not self.cb_splitter.is_side_index_hidden
 
     def refresh_cover_browser(self):
+        if self.disable_cover_browser_refresh:
+            return
         try:
             if self.is_cover_browser_visible() and not isinstance(self.cover_flow, QLabel):
                 self.db_images.ignore_image_requests = False
@@ -465,6 +469,7 @@ def test():
 
 def main(args=sys.argv):
     return 0
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication, QMainWindow
