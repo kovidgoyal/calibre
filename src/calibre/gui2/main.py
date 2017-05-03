@@ -417,7 +417,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
     return ret
 
 
-singleinstance_name = 'calibre_GUI'
+singleinstance_name = 'GUI'
 
 
 def cant_start(msg=_('If you are sure it is not running')+', ',
