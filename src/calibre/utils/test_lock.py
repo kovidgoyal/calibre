@@ -70,7 +70,7 @@ class IPCLockTest(unittest.TestCase):
 
     def test_exclusive_file_other_process(self):
         child = run_worker('calibre.utils.test_lock', 'other1')
-        print(1111111, child)
+        print(1111111, sys.executable, sys.setup_dir, child)
         while child.poll() is None:
             if os.path.exists('ready'):
                 break
@@ -85,6 +85,7 @@ class IPCLockTest(unittest.TestCase):
 
 
 def other1():
+    print('in other')
     e = ExclusiveFile('test')
     with e:
         os.mkdir('ready')
