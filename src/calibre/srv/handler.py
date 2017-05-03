@@ -24,7 +24,7 @@ class Context(object):
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
 
-    def __init__(self, libraries, opts, testing=False):
+    def __init__(self, libraries, opts, testing=False, notify_changes=None):
         self.opts = opts
         self.library_broker = libraries if isinstance(libraries, LibraryBroker) else LibraryBroker(libraries)
         self.testing = testing
@@ -32,7 +32,11 @@ class Context(object):
         self.user_manager = UserManager(opts.userdb)
         self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
         self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
-        self.notify_changes = lambda *a: None
+        self._notify_changes = notify_changes
+
+    def notify_changes(self, library_path, change_event):
+        if self._notify_changes is not None:
+            self._notify_changes(library_path, change_event)
 
     def start_job(self, name, module, func, args=(), kwargs=None, job_done_callback=None, job_data=None):
         return self.jobs_manager.start_job(name, module, func, args, kwargs, job_done_callback, job_data)
@@ -133,8 +137,8 @@ class Context(object):
 
 class Handler(object):
 
-    def __init__(self, libraries, opts, testing=False):
-        ctx = Context(libraries, opts, testing=testing)
+    def __init__(self, libraries, opts, testing=False, notify_changes=None):
+        ctx = Context(libraries, opts, testing=testing, notify_changes=notify_changes)
         self.auth_controller = None
         if opts.auth:
             has_ssl = opts.ssl_certfile is not None and opts.ssl_keyfile is not None
