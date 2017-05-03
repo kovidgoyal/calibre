@@ -37,18 +37,20 @@ def handle_changes(changes, gui=None):
     refresh_ids -= added | removed
     orig = gui.tags_view.disable_recounting, gui.disable_cover_browser_refresh
     gui.tags_view.disable_recounting = gui.disable_cover_browser_refresh = True
-    if added:
-        gui.current_db.data.books_added(added)
-        gui.iactions['Add Books'].refresh_gui(len(added), recount=False)
-    if removed:
-        next_id = gui.current_view().next_id
-        m = gui.library_view.model()
-        m.ids_deleted(removed)
-        gui.iactions['Remove Books'].library_ids_deleted2(removed, next_id=next_id)
-    if refresh_ids:
-        gui.iactions['Edit Metadata'].refresh_books_after_metadata_edit(refresh_ids)
-    if ss_changed:
-        gui.saved_searches_changed(recount=False)
-    gui.tags_view.disable_recounting = gui.disable_cover_browser_refresh = False
-    gui.tags_view.recount(), gui.refresh_cover_browser()
-    gui.tags_view.disable_recounting, gui.disable_cover_browser_refresh = orig
+    try:
+        if added:
+            gui.current_db.data.books_added(added)
+            gui.iactions['Add Books'].refresh_gui(len(added), recount=False)
+        if removed:
+            next_id = gui.current_view().next_id
+            m = gui.library_view.model()
+            m.ids_deleted(removed)
+            gui.iactions['Remove Books'].library_ids_deleted2(removed, next_id=next_id)
+        if refresh_ids:
+            gui.iactions['Edit Metadata'].refresh_books_after_metadata_edit(refresh_ids)
+        if ss_changed:
+            gui.saved_searches_changed(recount=False)
+        gui.tags_view.disable_recounting = gui.disable_cover_browser_refresh = False
+        gui.tags_view.recount(), gui.refresh_cover_browser()
+    finally:
+        gui.tags_view.disable_recounting, gui.disable_cover_browser_refresh = orig
