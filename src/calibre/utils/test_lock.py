@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import fcntl
 import os
 import shutil
 import subprocess
@@ -12,7 +11,7 @@ import tempfile
 import unittest
 from threading import Thread
 
-from calibre.constants import iswindows
+from calibre.constants import iswindows, fcntl
 from calibre.debug import run_calibre_debug
 from calibre.utils.lock import ExclusiveFile, unix_open
 
