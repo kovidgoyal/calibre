@@ -13,21 +13,14 @@ from calibre import prints
 
 
 def get_debug_executable():
-    e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
         if 'calibre-debug.app' not in base:
             base = os.path.join(base, 'calibre-debug.app', 'Contents')
-        exe = os.path.basename(e)
-        if '-debug' not in exe:
-            exe += '-debug'
-        exe = os.path.join(base, 'MacOS', exe)
-    else:
-        exe = e
-        if '-debug' not in exe:
-            base, ext = os.path.splitext(e)
-            exe = base + '-debug' + ext
-    return exe
+        return os.path.join(base, 'MacOS', 'calibre-debug')
+    if getattr(sys, 'frozen', False):
+        return os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-debug' + ('.exe' if iswindows else ''))
+    return 'calibre-debug'
 
 
 def run_calibre_debug(*args, **kw):
@@ -39,7 +32,7 @@ def run_calibre_debug(*args, **kw):
     exe = get_debug_executable()
     cmd = [exe] + list(args)
     kw['creationflags'] = creationflags
-    subprocess.Popen(cmd, **kw)
+    return subprocess.Popen(cmd, **kw)
 
 
 def option_parser():
