@@ -10,7 +10,7 @@ from functools import partial
 from collections import defaultdict
 from copy import deepcopy
 
-from calibre.utils.lock import LockError, ExclusiveFile
+from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE
 
 plugin_dir = os.path.join(config_dir, 'plugins')
@@ -278,45 +278,36 @@ class Config(ConfigInterface):
     def parse(self):
         src = ''
         if os.path.exists(self.config_file_path):
-            try:
-                with ExclusiveFile(self.config_file_path) as f:
-                    try:
-                        src = f.read().decode('utf-8')
-                    except ValueError:
-                        print "Failed to parse", self.config_file_path
-                        traceback.print_exc()
-            except LockError:
-                raise IOError('Could not lock config file: %s'%self.config_file_path)
+            with ExclusiveFile(self.config_file_path) as f:
+                try:
+                    src = f.read().decode('utf-8')
+                except ValueError:
+                    print "Failed to parse", self.config_file_path
+                    traceback.print_exc()
         return self.option_set.parse_string(src)
 
     def as_string(self):
         if not os.path.exists(self.config_file_path):
             return ''
-        try:
-            with ExclusiveFile(self.config_file_path) as f:
-                return f.read().decode('utf-8')
-        except LockError:
-            raise IOError('Could not lock config file: %s'%self.config_file_path)
+        with ExclusiveFile(self.config_file_path) as f:
+            return f.read().decode('utf-8')
 
     def set(self, name, val):
         if not self.option_set.has_option(name):
             raise ValueError('The option %s is not defined.'%name)
-        try:
-            if not os.path.exists(config_dir):
-                make_config_dir()
-            with ExclusiveFile(self.config_file_path) as f:
-                src = f.read()
-                opts = self.option_set.parse_string(src)
-                setattr(opts, name, val)
-                footer = self.option_set.get_override_section(src)
-                src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
-                f.seek(0)
-                f.truncate()
-                if isinstance(src, unicode):
-                    src = src.encode('utf-8')
-                f.write(src)
-        except LockError:
-            raise IOError('Could not lock config file: %s'%self.config_file_path)
+        if not os.path.exists(config_dir):
+            make_config_dir()
+        with ExclusiveFile(self.config_file_path) as f:
+            src = f.read()
+            opts = self.option_set.parse_string(src)
+            setattr(opts, name, val)
+            footer = self.option_set.get_override_section(src)
+            src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
+            f.seek(0)
+            f.truncate()
+            if isinstance(src, unicode):
+                src = src.encode('utf-8')
+            f.write(src)
 
 
 class StringConfig(ConfigInterface):

@@ -66,6 +66,8 @@ def find_tests(which_tests=None):
         a(find_tests())
         from calibre.utils.shared_file import find_tests
         a(find_tests())
+        from calibre.utils.test_lock import find_tests
+        a(find_tests())
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
         a(find_tests())
