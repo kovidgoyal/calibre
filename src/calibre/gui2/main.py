@@ -349,38 +349,14 @@ class GuiRunner(QObject):
         self.initialize_db()
 
 
-def get_debug_executable():
-    e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-    if hasattr(sys, 'frameworks_dir'):
-        base = os.path.dirname(sys.frameworks_dir)
-        if 'calibre-debug.app' not in base:
-            base = os.path.join(base, 'calibre-debug.app', 'Contents')
-        exe = os.path.basename(e)
-        if '-debug' not in exe:
-            exe += '-debug'
-        exe = os.path.join(base, 'MacOS', exe)
-    else:
-        exe = e
-        if '-debug' not in exe:
-            base, ext = os.path.splitext(e)
-            exe = base + '-debug' + ext
-    return exe
-
-
-def run_in_debug_mode(logpath=None):
+def run_in_debug_mode():
+    from calibre.debug import run_calibre_debug
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
-
-    exe = get_debug_executable()
-    print 'Starting debug executable:', exe
-    creationflags = 0
-    if iswindows:
-        import win32process
-        creationflags = win32process.CREATE_NO_WINDOW
-    subprocess.Popen([exe, '--gui-debug', logpath], stdout=open(logpath, 'w'),
-            stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
-            creationflags=creationflags)
+    run_calibre_debug(
+        '--gui-debug', logpath, stdout=lopen(logpath, 'w'),
+        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'r'))
 
 
 def shellquote(s):
