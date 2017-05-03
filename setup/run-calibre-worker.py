@@ -13,5 +13,4 @@ sys.extensions_location = os.path.join(SRC, 'calibre', 'plugins')
 sys.running_from_setup = True
 
 from calibre.utils.ipc.worker import main
-print(111111111111)
 sys.exit(main())
