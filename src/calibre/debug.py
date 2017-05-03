@@ -12,6 +12,36 @@ from calibre.constants import iswindows
 from calibre import prints
 
 
+def get_debug_executable():
+    e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+    if hasattr(sys, 'frameworks_dir'):
+        base = os.path.dirname(sys.frameworks_dir)
+        if 'calibre-debug.app' not in base:
+            base = os.path.join(base, 'calibre-debug.app', 'Contents')
+        exe = os.path.basename(e)
+        if '-debug' not in exe:
+            exe += '-debug'
+        exe = os.path.join(base, 'MacOS', exe)
+    else:
+        exe = e
+        if '-debug' not in exe:
+            base, ext = os.path.splitext(e)
+            exe = base + '-debug' + ext
+    return exe
+
+
+def run_calibre_debug(*args, **kw):
+    import subprocess
+    creationflags = 0
+    if iswindows:
+        import win32process
+        creationflags = win32process.CREATE_NO_WINDOW
+    exe = get_debug_executable()
+    cmd = [exe] + list(args)
+    kw['creationflags'] = creationflags
+    subprocess.Popen(cmd, **kw)
+
+
 def option_parser():
     parser = OptionParser(usage=_('''\
 {0}
