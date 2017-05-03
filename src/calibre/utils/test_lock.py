@@ -14,7 +14,7 @@ import unittest
 from threading import Thread
 
 from calibre.constants import fcntl, iswindows
-from calibre.utils.lock import ExclusiveFile, unix_open
+from calibre.utils.lock import ExclusiveFile, unix_open, create_single_instance_mutex
 
 
 def FastFailEF(name):
@@ -37,13 +37,19 @@ def run_worker(mod, func, **kw):
     try:
         exe = [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
     except AttributeError:
-        exe = [os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-parallel' + ('.exe' if iswindows else ''))]
+        exe = [
+            os.path.join(
+                os.path.dirname(os.path.abspath(sys.executable)),
+                'calibre-parallel' + ('.exe' if iswindows else '')
+            )
+        ]
     env = kw.get('env', os.environ.copy())
     env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
-    kw['env'] = {str(k):str(v) for k, v in env.iteritems()}  # windows needs bytes in env
+    kw['env'] = {str(k): str(v)
+                 for k, v in env.iteritems()}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 
@@ -99,6 +105,23 @@ class IPCLockTest(unittest.TestCase):
     def test_exclusive_file_other_process_kill(self):
         self.run_other_ef_op(False)
 
+    def test_single_instance(self):
+        release_mutex = create_single_instance_mutex('test')
+        for i in range(5):
+            child = run_worker('calibre.utils.test_lock', 'other2')
+            self.assertEqual(child.wait(), 0)
+        release_mutex()
+        for i in range(5):
+            child = run_worker('calibre.utils.test_lock', 'other2')
+            self.assertEqual(child.wait(), 1)
+        child = run_worker('calibre.utils.test_lock', 'other3')
+        while not os.path.exists('ready'):
+            time.sleep(0.01)
+        child.kill()
+        release_mutex = create_single_instance_mutex('test')
+        self.assertIsNotNone(release_mutex)
+        release_mutex()
+
 
 def other1():
     e = ExclusiveFile('test')
@@ -106,6 +129,17 @@ def other1():
         os.mkdir('ready')
         while not os.path.exists('quit'):
             time.sleep(0.02)
+
+
+def other2():
+    release_mutex = create_single_instance_mutex('test')
+    raise SystemExit(0 if release_mutex is None else 1)
+
+
+def other3():
+    create_single_instance_mutex('test')
+    os.mkdir('ready')
+    time.sleep(30)
 
 
 def find_tests():
