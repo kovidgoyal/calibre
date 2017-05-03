@@ -9,17 +9,19 @@ import atexit
 import errno
 import os
 import stat
+import tempfile
 import time
+from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, ishaiku, islinux, iswindows, win32api,
-    win32event
+    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows
 )
 from calibre.utils.monotonic import monotonic
 
 if iswindows:
+    import msvcrt, win32file, pywintypes, winerror, win32api, win32event
+    from calibre.constants import get_windows_username
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
-    import msvcrt, win32file, pywintypes, winerror
 else:
     excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
 
@@ -52,7 +54,8 @@ def windows_open(path):
     try:
         h = win32file.CreateFile(
             path,
-            win32file.GENERIC_READ | win32file.GENERIC_WRITE,  # Open for reading and writing
+            win32file.GENERIC_READ |
+            win32file.GENERIC_WRITE,  # Open for reading and writing
             0,  # Open exclusive
             None,  # No security attributes, ensures handle is not inherited by children
             win32file.OPEN_ALWAYS,  # If file does not exist, create it
@@ -66,7 +69,9 @@ def windows_open(path):
 
 
 def windows_retry(err):
-    return err.winerror in (winerror.ERROR_SHARING_VIOLATION, winerror.ERROR_LOCK_VIOLATION)
+    return err.winerror in (
+        winerror.ERROR_SHARING_VIOLATION, winerror.ERROR_LOCK_VIOLATION
+    )
 
 
 def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
@@ -108,36 +113,42 @@ class ExclusiveFile(object):
         self.file.close()
 
 
-def _clean_lock_file(file):
+def _clean_lock_file(file_obj):
     try:
-        file.close()
-    except:
+        os.remove(file_obj.name)
+    except EnvironmentError:
         pass
     try:
-        os.remove(file.name)
-    except:
+        file_obj.close()
+    except EnvironmentError:
         pass
 
 
 if iswindows:
 
-    def singleinstance(name):
-        mutexname = 'mutexforsingleinstanceof' + __appname__ + name
+    def create_single_instance_mutex(name, per_user=True):
+        mutexname = '{}-singleinstance-{}-{}'.format(
+            __appname__, (get_windows_username() if per_user else ''), name
+        )
         mutex = win32event.CreateMutex(None, False, mutexname)
+        if not mutex:
+            return
         err = win32api.GetLastError()
         if err == winerror.ERROR_ALREADY_EXISTS:
             # Close this handle other wise this handle will prevent the mutex
             # from being deleted when the process that created it exits.
             win32api.CloseHandle(mutex)
-        elif mutex and err != winerror.ERROR_INVALID_HANDLE:
-            atexit.register(win32api.CloseHandle, mutex)
-        return not err == winerror.ERROR_ALREADY_EXISTS
+            return
+        return partial(win32api.CloseHandle, mutex)
+
 elif islinux:
 
-    def singleinstance(name):
+    def create_single_instance_mutex(name, per_user=True):
         import socket
         from calibre.utils.ipc import eintr_retry_call
-        name = '%s-singleinstance-%s-%d' % (__appname__, name, os.geteuid())
+        name = '%s-singleinstance-%s-%s' % (
+            __appname__, (os.geteuid() if per_user else ''), name
+        )
         if not isinstance(name, bytes):
             name = name.encode('utf-8')
         address = b'\0' + name.replace(b' ', b'_')
@@ -146,49 +157,43 @@ elif islinux:
             eintr_retry_call(sock.bind, address)
         except socket.error as err:
             if getattr(err, 'errno', None) == errno.EADDRINUSE:
-                return False
+                return
             raise
         fd = sock.fileno()
         old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
         fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
-        atexit.register(sock.close)
-        return True
-elif ishaiku:
+        return sock.close
 
-    def singleinstance(name):
-        # Somebody should fix this.
-        return True
 else:
 
-    def singleinstance_path(name):
-        home = os.path.expanduser('~')
-        if os.access(home, os.W_OK | os.R_OK | os.X_OK):
-            basename = __appname__ + '_' + name + '.lock'
-            return os.path.expanduser('~/.' + basename)
-        import tempfile
-        tdir = tempfile.gettempdir()
-        return os.path.join(
-            tdir, '%s_%s_%s.lock' % (__appname__, name, os.geteuid())
+    def singleinstance_path(name, per_user=True):
+        name = '%s-singleinstance-%s-%s.lock' % (
+            __appname__, (os.geteuid() if per_user else ''), name
         )
+        home = os.path.expanduser('~')
+        locs = ['/var/lock', home, tempfile.gettempdir()]
+        if isosx:
+            locs.insert(0, '/Library/Caches')
+        for loc in locs:
+            if os.access(loc, os.W_OK | os.R_OK | os.X_OK):
+                return os.path.join(loc, ('.' if loc is home else '') + name)
+        raise EnvironmentError('Failed to find a suitable filesystem location for the lock file')
 
-    def singleinstance(name):
-        '''
-        Return True if no other instance of the application identified by name is running,
-        False otherwise.
-        @param name: The name to lock.
-        @type name: string
-        '''
+    def create_single_instance_mutex(name, per_user=True):
         from calibre.utils.ipc import eintr_retry_call
-        path = singleinstance_path(name)
-        f = open(path, 'w')
-        old_flags = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
-        fcntl.fcntl(f.fileno(), fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
+        path = singleinstance_path(name, per_user)
+        f = lopen(path, 'w')
         try:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            atexit.register(_clean_lock_file, f)
-            return True
-        except IOError as err:
-            if err.errno == errno.EAGAIN:
-                return False
-            raise
+            return partial(_clean_lock_file, f)
+        except EnvironmentError as err:
+            if err.errno not in (errno.EAGAIN, errno.EACCES):
+                raise
+
+
+def singleinstance(name):
+    release_mutex = create_single_instance_mutex(name)
+    if release_mutex is None:
         return False
+    atexit.register(release_mutex)
+    return True
