@@ -13,13 +13,13 @@ import time
 
 from calibre.constants import (
     __appname__, fcntl, filesystem_encoding, ishaiku, islinux, iswindows, win32api,
-    win32event, winerror
+    win32event
 )
 from calibre.utils.monotonic import monotonic
 
 if iswindows:
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
-    import msvcrt
+    import msvcrt, win32file, pywintypes, winerror
 else:
     excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
 
@@ -44,28 +44,40 @@ def unix_open(path):
     return os.fdopen(fd, 'r+b')
 
 
+def unix_retry(err):
+    return err.errno in (errno.EACCES, errno.EAGAIN, errno.ENOLCK, errno.EINTR)
+
+
 def windows_open(path):
-    flags = os.O_RDWR | os.O_CREAT | os.O_NOINHERIT | os.O_BINARY
-    fd = os.open(path, flags, excl_file_mode)
-    return os.fdopen(fd, 'r+bN')
+    try:
+        h = win32file.CreateFile(
+            path,
+            win32file.GENERIC_READ | win32file.GENERIC_WRITE,  # Open for reading and writing
+            0,  # Open exclusive
+            None,  # No security attributes, ensures handle is not inherited by children
+            win32file.OPEN_ALWAYS,  # If file does not exist, create it
+            win32file.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
+            None,  # No template file
+        )
+    except pywintypes.error as err:
+        raise WindowsError(err[0], err[2], path)
+    fd = msvcrt.open_osfhandle(h.Detach(), 0)
+    return os.fdopen(fd, 'r+b')
 
 
-class TimeoutError(Exception):
-    pass
+def windows_retry(err):
+    return err.winerror in (winerror.ERROR_SHARING_VIOLATION, winerror.ERROR_LOCK_VIOLATION)
 
 
-def retry_for_a_time(timeout, sleep_time, func, *args):
+def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
     limit = monotonic() + timeout
-    last_error = None
-    while monotonic() <= limit:
+    while True:
         try:
             return func(*args)
         except EnvironmentError as err:
-            last_error = err.args
-            if monotonic() > limit:
-                break
+            if not error_retry(err) or monotonic() > limit:
+                raise
         time.sleep(sleep_time)
-    raise TimeoutError(*last_error)
 
 
 class ExclusiveFile(object):
@@ -79,30 +91,20 @@ class ExclusiveFile(object):
         self.sleep_time = sleep_time
 
     def __enter__(self):
-        try:
-            if iswindows:
-                f = windows_open(self.path)
-                retry_for_a_time(
-                    self.timeout, self.sleep_time, msvcrt.locking,
-                    f.fileno(), msvcrt.LK_NBLCK, 1
-                )
-            else:
-                f = unix_open(self.path)
-                retry_for_a_time(
-                    self.timeout, self.sleep_time, fcntl.flock,
-                    f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
-                )
+        if iswindows:
+            self.file = retry_for_a_time(
+                self.timeout, self.sleep_time, windows_open, windows_retry, self.path
+            )
+        else:
+            f = unix_open(self.path)
+            retry_for_a_time(
+                self.timeout, self.sleep_time, fcntl.flock, unix_retry,
+                f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+            )
             self.file = f
-        except TimeoutError as err:
-            raise OSError(*(list(err.args)[:2] + [self.path]))
         return self.file
 
     def __exit__(self, type, value, traceback):
-        if iswindows:
-            try:
-                msvcrt.locking(self.file.fileno(), msvcrt.LK_UNLCK, 1)
-            except EnvironmentError:
-                pass
         self.file.close()
 
 
