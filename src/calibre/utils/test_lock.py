@@ -39,7 +39,7 @@ def run_worker(mod, func, **kw):
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
-    kw['env'] = env
+    kw['env'] = {str(k):str(v) for k, v in env.iteritems()}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 
