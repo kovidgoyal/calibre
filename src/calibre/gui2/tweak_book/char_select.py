@@ -206,7 +206,7 @@ class CategoryModel(QAbstractItemModel):
     (_('Limbu'), (0x1900, 0x194F)),
     (_('Malayalam'), (0xD00, 0xD7F)),
     (_('Meetei Mayek'), (0xABC0, 0xABFF)),
-    (_('Meetei Mayek extensions*'), (0xAAE0, 0xAAEF)),
+    (_('Meetei Mayek extensions'), (0xAAE0, 0xAAEF)),
     (_('Ol Chiki'), (0x1C50, 0x1C7F)),
     (_('Oriya'), (0xB00, 0xB7F)),
     (_('Saurashtra'), (0xA880, 0xA8DF)),
