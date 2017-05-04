@@ -196,7 +196,7 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
         if desc:
             lines.extend([desc, ''])
         for opt in sorted(options, key=lambda x: x.get_opt_string()):
-            help = opt.help if opt.help else ''
+            help = opt.help or ''
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
             help = help.replace('"', r'\ ``"``\ ')
             help = help.replace("'", r"\ ``'``\ ")
@@ -214,7 +214,7 @@ def mark_options(raw):
         opt = m.group()
         a, b = opt.partition('=')[::2]
         if a in ('--option1', '--option2'):
-            return m.group()
+            return '``' + m.group() + '``'
         a = ':option:`' + a + '`'
         b = (' = ``' + b + '``') if b else ''
         return a + b
