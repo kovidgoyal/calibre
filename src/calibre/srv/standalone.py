@@ -276,6 +276,9 @@ program will be used.
     return parser
 
 
+option_parser = create_option_parser
+
+
 def main(args=sys.argv):
     opts, args=create_option_parser().parse_args(args)
     if opts.manage_users:
