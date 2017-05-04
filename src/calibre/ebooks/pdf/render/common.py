@@ -13,6 +13,7 @@ from datetime import datetime
 from binascii import hexlify
 
 from calibre.constants import plugins, ispy3
+from calibre.utils.logging import default_log
 
 pdf_float = plugins['speedup'][0].pdf_float
 
@@ -238,3 +239,11 @@ class Reference(object):
         return repr(self)
 # }}}
 
+
+def current_log(newlog=None):
+    if newlog:
+        current_log.ans = newlog
+    return current_log.ans or default_log
+
+
+current_log.ans = None
