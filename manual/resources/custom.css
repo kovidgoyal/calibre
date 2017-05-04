@@ -1,0 +1,35 @@
+/*
+ * custom.css
+ * Copyright (C) 2017 Kovid Goyal
+ *
+ * Distributed under terms of the GPLv3 license.
+ */
+
+@media screen and (max-width: 875px) {
+    body {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.float-left-img { float: left; margin-right: 1em; margin-bottom: 1em }
+
+.float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
+
+.half-with-img { max-width: 50% }
+
+.fit-img { max-width: 95% }
+
+a, input[type="submit"] { cursor: pointer; }
+
+#calibre-homepage-logo img { width: 64px; height: 64px }
+
+div.sphinxsidebar { user-select: none }
+div.sphinxsidebar a, a.reference { border-bottom: none }
+div.sphinxsidebar a:hover, a.reference:hover { color: red; border-bottom: none }
+div.document { margin-top: 0px; }
+div.related { background-color: #39322b; color: white; font-family: sans-serif; padding: 0.5ex 0; }
+div.related a { text-decoration: none; color: white; }
+div.related a:hover { text-decoration: none; color: red; }
+
+
