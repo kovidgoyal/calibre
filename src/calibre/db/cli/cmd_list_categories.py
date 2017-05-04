@@ -49,7 +49,7 @@ information is the equivalent of what is shown in the tags pane.
         default='excel',
         choices=csv.list_dialects(),
         help=_('The type of CSV file to produce. Choices: {}')
-        .format(', '.join(csv.list_dialects()))
+        .format(', '.join(sorted(csv.list_dialects())))
     )
     parser.add_option(
         '-r',
