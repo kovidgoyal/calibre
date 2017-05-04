@@ -66,6 +66,10 @@ CLI_INDEX='''
 CLI_PREAMBLE='''\
 .. _{cmdref}:
 
+.. raw:: html
+
+    <style>code {{font-size: 1em; background-color: transparent; font-family: sans-serif }}</style>
+
 ``{cmd}``
 ===================================================================
 
