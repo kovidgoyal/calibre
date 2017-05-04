@@ -570,7 +570,7 @@ class Convert(object):
                 block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
             elif bmark:
                 block = self.create_block_from_parent(html_tag, stylizer)
-                block.bookmarks.add(bmark)
+                block.add_text('', tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
 
     def bookmark_for_anchor(self, anchor, html_tag):
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)
