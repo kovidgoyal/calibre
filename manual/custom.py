@@ -195,15 +195,14 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
             lines.append('')
         if desc:
             lines.extend([desc, ''])
-        for opt in sorted(options, cmp=lambda x, y:cmp(x.get_opt_string(),
-                y.get_opt_string())):
+        for opt in sorted(options, key=lambda x: x.get_opt_string()):
             help = opt.help if opt.help else ''
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
             help = help.replace('"', r'\ ``"``\ ')
             help = help.replace("'", r"\ ``'``\ ")
             help = mark_options(help)
-            opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
-            opt = '.. option:: '+opt
+            opt_strings = (x.strip() for x in tuple(opt._long_opts or ()) + tuple(opt._short_opts or ()))
+            opt = '.. option:: ' + ', '.join(opt_strings)
             lines.extend([opt, '', '    '+help, ''])
     return lines
 
