@@ -18,6 +18,7 @@ from calibre.srv.http_response import create_http_handler
 from calibre.srv.handler import Handler
 from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
+from calibre.utils.lock import singleinstance
 from calibre.db.legacy import LibraryDatabase
 
 
@@ -296,6 +297,15 @@ def main(args=sys.argv):
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries=[prefs['library_path']]
+
+    if not singleinstance('db'):
+        ext = '.exe' if iswindows else ''
+        raise SystemExit(_(
+            'Another calibre program such as another instance of {} or the main'
+            ' calibre program is running. Having multiple programs that can make'
+            ' changes to a calibre library running at the same time is not supported.'
+        ).format('calibre-server' + ext)
+        )
 
     if opts.auto_reload:
         if opts.daemonize:

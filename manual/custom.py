@@ -90,7 +90,32 @@ def generate_calibredb_help(preamble, app):
     preamble += textwrap.dedent('''
 
     :command:`calibredb` is the command line interface to the calibre database. It has
-    several sub-commands, documented below:
+    several sub-commands, documented below.
+
+    :command:`calibredb` can be used to manipulate either a calibre database
+    specified by path or a calibre :guilabel:`Content server` running either on
+    the local machine or over the internet. You can start a calibre
+    :guilabel:`Content server` using either the :command:`calibre-server`
+    program or in the main calibre program click :guilabel:`Connect/share ->
+    Start Content server`. Since :command:`calibredb` can make changes to your
+    calibre libraries, you must setup authentication on the server first. There
+    are two ways to do that:
+
+        * If you plan to connect only to a server running on the same computer,
+          you can simply use the ``--enable-local-write`` option of the
+          content server, to allow any program, including calibredb, running on
+          the local computer to make changes to your calibre data. When running
+          the server from the main calibre program, this option is in
+          :guilabel:`Preferences->Sharing over the net->Advanced`.
+
+        * If you want to enable access over the internet, then you should setup
+          user accounts on the server and use the :option:`--username` and :option:`--password`
+          options to :command:`calibredb` to give it access. You can setup
+          user authentication for :command:`calibre-server` by using the ``--enable-auth``
+          option and using ``--manage-users`` to create the user accounts.
+          If you are running the server from the main calibre program, use
+          :guilabel:`Preferences->Sharing over the net->Require username/password`.
+
 
     ''')
 
