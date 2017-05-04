@@ -1142,7 +1142,7 @@ def cli_index_strings():
     ' are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.'), _(
         'Documented commands'), _('Undocumented commands'), _(
         'You can see usage for undocumented commands by executing them without arguments in a terminal.'), _(
-            'Change language')
+            'Change language'), _('Search')
 
 
 if __name__ == '__main__':
