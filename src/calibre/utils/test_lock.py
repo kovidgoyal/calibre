@@ -62,7 +62,12 @@ class IPCLockTest(unittest.TestCase):
 
     def tearDown(self):
         os.chdir(self.cwd)
-        shutil.rmtree(self.tdir)
+        for i in range(100):
+            try:
+                shutil.rmtree(self.tdir)
+                break
+            except EnvironmentError:
+                time.sleep(0.1)
 
     def test_exclusive_file_same_process(self):
         fname = 'testsp'
