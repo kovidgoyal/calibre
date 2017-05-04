@@ -12,10 +12,12 @@ from urllib import urlencode
 from urlparse import urlparse, urlunparse
 
 from calibre import browser, prints
-from calibre.constants import __appname__, __version__
+from calibre.constants import __appname__, __version__, iswindows
 from calibre.db.cli import module_for_cmd
 from calibre.db.legacy import LibraryDatabase
 from calibre.utils.config import OptionParser, prefs
+from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
 
 COMMANDS = (
@@ -51,8 +53,8 @@ def run_cmd(cmd, opts, args, dbctx):
     if dbctx.is_remote and getattr(m, 'no_remote', False):
         raise SystemExit(_('The {} command is not supported with remote (server based) libraries').format(cmd))
     ret = m.main(opts, args, dbctx)
-    if not dbctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
-        send_message()
+    # if not dbctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
+    #     send_message()
     return ret
 
 
@@ -71,17 +73,11 @@ def get_parser(usage):
             ' for example, http://localhost:8080/#mylibrary. library_id is the library id'
             ' of the library you want to connect to on the Content server. You can use'
             ' the special library_id value of - to get a list of library ids available'
-            ' on the server.'
-        )
-    )
-    go.add_option(
-        '--dont-notify-gui',
-        default=False,
-        action='store_true',
-        help=_(
-            'Do not notify the running calibre GUI (if any) that the database has'
-            ' changed. Use with care, as it can lead to database corruption!'
-        )
+            ' on the server. For details on how to setup access via a Content server, see'
+            ' {}.'
+        ).format(localize_user_manual_link(
+            'https://manual.calibre-ebook.com/generated/en/calibredb.html'
+        ))
     )
     go.add_option(
         '-h', '--help', help=_('show this help message and exit'), action='help'
@@ -107,7 +103,7 @@ def get_parser(usage):
 
 
 def option_parser():
-    parser = OptionParser(
+    return get_parser(
         _(
             '''\
 %%prog command [options] [arguments]
@@ -121,7 +117,6 @@ For help on an individual command: %%prog command --help
 '''
         ) % '\n  '.join(COMMANDS)
     )
-    return parser
 
 
 def read_credetials(opts):
@@ -163,6 +158,16 @@ class DBCtx(object):
                 raise SystemExit()
         else:
             self.library_path = os.path.expanduser(self.library_path)
+            if not singleinstance('db'):
+                ext = '.exe' if iswindows else ''
+                raise SystemExit(_(
+                    'Another calibre program such as {} or the main calibre program is running.'
+                    ' Having multiple programs that can make changes to a calibre library'
+                    ' running at the same time is a bad idea. calibredb can connect directly'
+                    ' to a running calibre content server, to make changes through it, instead.'
+                    ' See the documentation of the {} option for details.'
+                ).format('calibre-server' + ext, '--with-library')
+                )
             self._db = None
             self.is_remote = False
 
