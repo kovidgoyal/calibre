@@ -163,8 +163,8 @@ class CalibreExtract
         cnode = inline_styles(node)
         return cnode.outerHTML
 
-    is_footnote_link: (a, prefix) ->
-        return is_footnote_link(a, a.href, py_bridge.value, prefix)
+    is_footnote_link: (a, prefix, linked_to_anchors) ->
+        return is_footnote_link(a, a.href, linked_to_anchors, prefix)
 
     show_footnote: (target, known_targets) ->
         if not target

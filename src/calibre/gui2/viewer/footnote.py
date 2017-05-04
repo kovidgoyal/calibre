@@ -137,8 +137,7 @@ class Footnotes(object):
                 linked_to_anchors = {}
             else:
                 linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
-            self.view.document.bridge_value = linked_to_anchors
-            if a.evaluateJavaScript('calibre_extract.is_footnote_link(this, "%s://%s")' % (FAKE_PROTOCOL, FAKE_HOST)):
+            if a.evaluateJavaScript('calibre_extract.is_footnote_link(this, "%s://%s", %s)' % (FAKE_PROTOCOL, FAKE_HOST, json.dumps(linked_to_anchors))):
                 if dest_path not in self.known_footnote_targets:
                     self.known_footnote_targets[dest_path] = s = set()
                     for item in self.view.manager.iterator.spine:

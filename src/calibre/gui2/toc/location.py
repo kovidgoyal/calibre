@@ -31,7 +31,6 @@ class Page(QWebPage):  # {{{
         secure_web_page(self.settings())
         self.js = None
         self.evaljs = self.mainFrame().evaluateJavaScript
-        self.bridge_value = None
         nam = self.networkAccessManager()
         nam.setNetworkAccessible(nam.NotAccessible)
         self.setLinkDelegationPolicy(self.DelegateAllLinks)

@@ -13,7 +13,7 @@ from math import floor
 from collections import defaultdict
 
 from PyQt5.Qt import (
-    QObject, QPainter, Qt, QSize, QTimer, pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
+    QObject, QPainter, Qt, QSize, QTimer, QEventLoop, QPixmap, QRect, pyqtSlot)
 from PyQt5.QtWebKit import QWebSettings
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
@@ -126,16 +126,6 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
 
 
 class PDFWriter(QObject):
-
-    def _pass_json_value_getter(self):
-        val = json.dumps(self.bridge_value)
-        return val
-
-    def _pass_json_value_setter(self, value):
-        self.bridge_value = json.loads(unicode(value))
-
-    _pass_json_value = pyqtProperty(str, fget=_pass_json_value_getter,
-            fset=_pass_json_value_setter)
 
     @pyqtSlot(result=unicode)
     def title(self):
@@ -361,33 +351,32 @@ class PDFWriter(QObject):
         evaljs(self.paged_js)
         self.load_mathjax()
 
-        evaljs('''
-        Object.defineProperty(py_bridge, 'value', {
-               get : function() { return JSON.parse(this._pass_json_value); },
-               set : function(val) { this._pass_json_value = JSON.stringify(val); }
-        });
-
+        amap = evaljs('''
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, %d, %d, %d);
         paged_display.layout();
         paged_display.fit_images();
-        py_bridge.value = book_indexing.all_links_and_anchors();
+        ret = book_indexing.all_links_and_anchors();
         window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
+        ret;
         '''%(self.margin_top, 0, self.margin_bottom))
 
-        amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
+        for val in amap['anchors'].itervalues():
+            if isinstance(val, dict) and 'column' in val:
+                val['column'] = int(val['column'])
+        for href, val in amap['links']:
+            if isinstance(val, dict) and 'column' in val:
+                val['column'] = int(val['column'])
         sections = self.get_sections(amap['anchors'])
         tl_sections = self.get_sections(amap['anchors'], True)
         col = 0
 
         if self.header:
-            self.bridge_value = self.header
-            evaljs('paged_display.header_template = py_bridge.value')
+            evaljs('paged_display.header_template = ' + json.dumps(self.header))
         if self.footer:
-            self.bridge_value = self.footer
-            evaljs('paged_display.footer_template = py_bridge.value')
+            evaljs('paged_display.footer_template = ' + json.dumps(self.footer))
         if self.header or self.footer:
             evaljs('paged_display.create_header_footer("%s");'%self.hf_uuid)
 
