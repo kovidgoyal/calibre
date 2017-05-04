@@ -207,7 +207,7 @@ def opt_to_cli_help(opt):
 
 
 def bool_callback(option, opt_str, value, parser, *args, **kwargs):
-    setattr(parser.values, option.dest, opt_str.startswith('--enable'))
+    setattr(parser.values, option.dest, opt_str.startswith('--enable-'))
 
 
 def boolean_option(add_option, opt):
