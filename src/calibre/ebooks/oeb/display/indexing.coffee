@@ -105,8 +105,9 @@ class BookIndexing
         body = document.body
         links = []
         anchors = {}
+        in_paged_mode = window.paged_display?.in_paged_mode
         for a in document.querySelectorAll("body a[href], body [id], body a[name]")
-            if window.paged_display?.in_paged_mode
+            if in_paged_mode
                 geom = window.paged_display.column_location(a)
             else
                 br = a.getBoundingClientRect()
@@ -128,4 +129,3 @@ class BookIndexing
 
 if window?
     window.book_indexing = new BookIndexing()
-
