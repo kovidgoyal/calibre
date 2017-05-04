@@ -21,7 +21,7 @@ from calibre import fit_image
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
-                                              didot, PAPER_SIZES)
+                                              didot, PAPER_SIZES, current_log)
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 
@@ -159,6 +159,7 @@ class PDFWriter(QObject):
         QObject.__init__(self)
 
         self.logger = self.log = log
+        current_log(log)
         self.opts = opts
         self.cover_data = cover_data
         self.paged_js = None
