@@ -327,6 +327,7 @@ def localized_path(app, langcode, pagename):
 def add_html_context(app, pagename, templatename, context, *args):
     context['localized_path'] = partial(localized_path, app)
     context['change_language_text'] = cli_index_strings()[5]
+    context['search_box_text'] = cli_index_strings()[6]
 
 
 def setup(app):

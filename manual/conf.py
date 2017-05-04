@@ -110,11 +110,23 @@ pygments_style = 'sphinx'
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_theme = 'default'
-html_theme_options = {'stickysidebar':'true', 'relbarbgcolor':'black'}
-# Put the quick search box on top
+html_theme = 'alabaster'
 html_sidebars = {
-        '**' : ['searchbox.html', 'localtoc.html', 'relations.html']
+    '**': [
+        'about.html',
+        'donate.html',
+        'searchbox.html',
+        'localtoc.html',
+        'relations.html',
+    ]
+}
+html_theme_options = {
+    'logo': 'logo.png',
+    'show_powered_by': False,
+    'fixed_sidebar': True,
+    'sidebar_collapse': True,
+    'analytics_id': 'UA-20736318-1',
+    'github_button': False,
 }
 
 # The favicon
@@ -134,20 +146,23 @@ html_last_updated_fmt = '%b %d, %Y'
 html_use_smartypants = True
 
 # Overall title of the documentation
-html_title       = title
-html_short_title = 'Start'
-html_logo        = 'resources/logo.png'
+# html_title       = title
+html_short_title = _('Start')
 
 from calibre.utils.localization import get_language
 html_context = {}
 html_context['other_languages'] = [
     (lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]
+
+
 def sort_languages(x):
     from calibre.utils.icu import sort_key
     lc, name = x
     if lc == language:
         return ''
     return sort_key(unicode(name))
+
+
 html_context['other_languages'].sort(key=sort_languages)
 del sort_languages, get_language
 
