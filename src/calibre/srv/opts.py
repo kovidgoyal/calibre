@@ -67,7 +67,7 @@ raw_options = (
     _('Maximum number of worker processes'),
     'max_jobs', 0,
     _('Worker processes are launched as needed and used for large jobs such as preparing'
-      ' a book for viewing, adding books, converting, etc. By default, the max.'
+      ' a book for viewing, adding books, converting, etc. Normally, the max.'
       ' number of such processes is based on the number of CPU cores. You can'
       ' control it by this setting.'),
 
@@ -124,18 +124,18 @@ raw_options = (
 
     _('Log HTTP 404 (Not Found) requests'),
     'log_not_found', True,
-    _('By default, the server logs all HTTP requests for resources that are not found.'
+    _('Normally, the server logs all HTTP requests for resources that are not found.'
     ' This can generate a lot of log spam, if your server is targeted by bots.'
     ' Use this option to turn it off.'),
 
     _('Password based authentication to access the server'),
     'auth', False,
-    _('By default, the server is unrestricted, allowing anyone to access it. You can'
+    _('Normally, the server is unrestricted, allowing anyone to access it. You can'
     ' restrict access to predefined users with this option.'),
 
     _('Allow un-authenticated local connections to make changes'),
     'local_write', False,
-    _('By default, if you do not turn on authentication, the server operates in'
+    _('Normally, if you do not turn on authentication, the server operates in'
       ' read-only mode, so as to not allow anonymous users to make changes to your'
       ' calibre libraries. This option allows anybody connecting from the same'
       ' computer as the server is running on to make changes. This is useful'
@@ -146,7 +146,7 @@ raw_options = (
 
     _('Path to user database'),
     'userdb', None,
-    _('Path to a file in which to store the user and password information. By default a'
+    _('Path to a file in which to store the user and password information. Normally a'
     ' file in the calibre configuration directory is used.'),
 
     _('Choose the type of authentication used'), 'auth_mode', Choices('auto', 'basic', 'digest'),
@@ -206,11 +206,15 @@ def opt_to_cli_help(opt):
     return ans
 
 
+def bool_callback(option, opt_str, value, parser, *args, **kwargs):
+    setattr(parser.values, option.dest, opt_str.startswith('--enable'))
+
+
 def boolean_option(add_option, opt):
     name = opt.name.replace('_', '-')
     help = opt_to_cli_help(opt)
-    add_option('--enable-' + name, action='store_true', help=help)
-    add_option('--disable-' + name, action='store_false', help=help)
+    help += '\n' + (_('By default, this option is enabled.') if opt.default else _('By default, this option is disabled.'))
+    add_option('--enable-' + name, '--disable-' + name, action='callback', callback=bool_callback, help=help)
 
 
 def opts_to_parser(usage):
