@@ -26,6 +26,7 @@ from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
+from calibre.utils.lock import singleinstance
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -364,6 +365,16 @@ def shellquote(s):
 
 
 def run_gui(opts, args, listener, app, gui_debug=None):
+    si = singleinstance('db')
+    if not si:
+        ext = '.exe' if iswindows else ''
+        error_dialog(None, _('Cannot start calibre'), _(
+            'Another calibre program that can modify calibre libraries, such as,'
+            ' {} or {} is already running. You must first shut it down, before'
+            ' starting the main calibre program. If you are sure no such'
+            ' program is running, try restarting your computer.').format(
+                'calibre-server' + ext, 'calibredb' + ext), show=True)
+        return 1
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
@@ -462,7 +473,6 @@ def shutdown_other(rc=None):
         if rc.conn is None:
             prints(_('No running calibre found'))
             return  # No running instance found
-    from calibre.utils.lock import singleinstance
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
     for i in xrange(50):
@@ -518,7 +528,6 @@ def main(args=sys.argv):
     except AbortInit:
         return 1
     try:
-        from calibre.utils.lock import singleinstance
         si = singleinstance(singleinstance_name)
     except Exception:
         error_dialog(None, _('Cannot start calibre'), _(
