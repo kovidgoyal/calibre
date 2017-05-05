@@ -901,7 +901,7 @@ There are several possible things I know of, that can cause this:
       version of calibre try switching to the 32-bit version.
 
     * If the crash happens when you are trying to copy text from the calibre
-      e-book viewer, it is most likely caused by some clipboard
+      E-book viewer, it is most likely caused by some clipboard
       monitoring/managing application you have running. Turn it off and you
       should be fine.
 

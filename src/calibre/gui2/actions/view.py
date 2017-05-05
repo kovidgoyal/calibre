@@ -50,7 +50,7 @@ class ViewAction(InterfaceAction):
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
-        self.internal_view_action = cm('internal', _('View with calibre viewer'), triggered=self.view_internal)
+        self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
         self.clear_sep1 = self.view_menu.addSeparator()

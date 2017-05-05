@@ -734,7 +734,7 @@ class ViewerPlugin(Plugin):  # {{{
     type = _('Viewer')
 
     '''
-    These plugins are used to add functionality to the calibre viewer.
+    These plugins are used to add functionality to the calibre E-book viewer.
     '''
 
     def load_fonts(self):

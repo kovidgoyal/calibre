@@ -16,7 +16,7 @@ Adding your favorite news website to calibre
 
    news
 
-The calibre e-book viewer
+The calibre E-book viewer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::

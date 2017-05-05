@@ -623,7 +623,7 @@ the latest version of calibre as support for ``.docx`` files is very new).
 
 calibre will automatically generate a Table of Contents based on headings if you mark
 your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
-the output e-book in the calibre viewer and click the :guilabel:`Table of Contents` button
+the output e-book in the calibre E-book viewer and click the :guilabel:`Table of Contents` button
 to view the generated Table of Contents.
 
 Older .doc files

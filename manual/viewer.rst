@@ -3,18 +3,18 @@
 The E-book viewer
 =============================
 
-calibre includes a built-in e-book viewer that can view all the major e-book formats. 
-The viewer is highly customizable and has many advanced features. 
+calibre includes a built-in E-book viewer that can view all the major e-book formats. 
+The E-book viewer is highly customizable and has many advanced features. 
 
 .. contents::
     :depth: 1
     :local:
 
-Starting the viewer
---------------------
+Starting the E-book viewer
+-----------------------------
 
 You can view any of the books in your calibre library by selecting the book and pressing the :guilabel:`View` button. This
-will open up the book in the e-book viewer. You can also launch the viewer by itself from the Start menu in Windows
+will open up the book in the E-book viewer. You can also launch the E-book viewer by itself from the Start menu in Windows
 or using the command :command:`ebook-viewer` in Linux and OS X (you have to install the command line tools on OS X
 first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
 

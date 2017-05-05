@@ -39,7 +39,7 @@ def default_programs():
 
         'ebook-viewer.exe': {
             'icon_id':'viewer_icon',
-            'description': _('The calibre e-book viewer. It can view most known e-book formats.'),
+            'description': _('The calibre E-book viewer. It can view most known e-book formats.'),
             'capability_name': 'Viewer' + ('64bit' if is64bit else ''),
             'name': 'calibre Viewer' + (' 64-bit' if is64bit else ''),
             'assoc_name': 'calibreViewer' + ('64bit' if is64bit else ''),

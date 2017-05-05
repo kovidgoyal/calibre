@@ -184,7 +184,7 @@ class Bookmarks(BadLink):
 
     HELP = _(
         'This file stores the bookmarks and last opened information from'
-        ' the calibre e-book viewer. You can remove it if you do not'
+        ' the calibre E-book viewer. You can remove it if you do not'
         ' need that information, or don\'t want to share it with'
         ' other people you send this book to.')
     INDIVIDUAL_FIX = _('Remove this file')
@@ -192,7 +192,7 @@ class Bookmarks(BadLink):
 
     def __init__(self, name):
         BadLink.__init__(self, _(
-            'The bookmarks file used by the calibre e-book viewer is present'), name)
+            'The bookmarks file used by the calibre E-book viewer is present'), name)
 
     def __call__(self, container):
         container.remove_item(self.name)

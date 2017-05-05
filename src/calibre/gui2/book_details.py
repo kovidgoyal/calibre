@@ -423,7 +423,7 @@ class CoverView(QWidget):  # {{{
         self.setToolTip(
             '<p>'+_('Double-click to open the Book details window') +
             '<br><br>' + _('Path') + ': ' + current_path +
-            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+            '<br><br>' + _('Cover size: %(width)d x %(height)d pixels')%dict(
                 width=sz.width(), height=sz.height())
         )
 

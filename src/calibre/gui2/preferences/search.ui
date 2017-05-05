@@ -161,7 +161,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
+      <string>Clear search histories from all over calibre. Including the book list, E-book viewer, fetch news dialog, etc.</string>
      </property>
      <property name="text">
       <string>Clear search &amp;histories</string>

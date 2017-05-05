@@ -1077,7 +1077,7 @@ def get_appdata():
             'name':'calibre - E-book Viewer',
             'summary':_('Read e-books in over a dozen different formats'),
             'description': (
-                _('The calibre e-book viewer allows you to read e-books in over a dozen different formats.'),
+                _('The calibre E-book viewer allows you to read e-books in over a dozen different formats.'),
                 _('It has a full screen mode for distraction free reading and can display the text with multiple columns per screen.'),
             ),
             'screenshots':(
