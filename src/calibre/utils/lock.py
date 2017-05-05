@@ -192,6 +192,8 @@ else:
 
 def singleinstance(name):
     ' Ensure that only a single process holding exists with the specified mutex key '
+    if b'CALIBRE_NO_SI_DANGER_DANGER' in os.environ:
+        return True
     release_mutex = create_single_instance_mutex(name)
     if release_mutex is None:
         return False
