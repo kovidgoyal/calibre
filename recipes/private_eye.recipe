@@ -14,8 +14,8 @@ class AdvancedUserRecipe1359406781(BasicNewsRecipe):
     ignore_duplicate_articles = {'title'}
     language = 'en_GB'
     encoding = 'cp1252'
-    __author__ = u'MartynPritchard@yahoo.com'
-    __copyright__ = '2014, Martyn Pritchard <MartynPritchard@yahoo.com>'
+    __author__ = u'MPritchard2k9@gmail.com'
+    __copyright__ = '2014, Martyn Pritchard <MPritchard2k9@gmail.com>'
 
     def get_cover_url(self):
         cover_url = None
@@ -40,4 +40,4 @@ class AdvancedUserRecipe1359406781(BasicNewsRecipe):
                    (re.compile(r'Also Available Online.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
     ]
 
-    feeds          = [(u'Private Eye', u'https://dl.dropboxusercontent.com/u/10483931/PrivateEyeStat.xml')]
+    feeds          = [(u'Private Eye', u'https://bodybuilder3d.000webhostapp.com/public/PrivateEyeStat.xml')]
