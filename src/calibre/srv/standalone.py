@@ -298,7 +298,7 @@ def main(args=sys.argv):
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries=[prefs['library_path']]
 
-    if not singleinstance('db'):
+    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
         raise SystemExit(_(
             'Another calibre program such as another instance of {} or the main'
