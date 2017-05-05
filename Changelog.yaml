@@ -20,6 +20,60 @@
 #   new recipes:
 #     - title:
 
+- version: 2.84.0
+  date: 2017-05-05
+
+  new features:
+    - title: "Kindle driver: Also delete book thumbnails from the system directory when deleting books."
+
+    - title: "Conversion: Use the same regular expression engine as is used by the Edit Book tool. The new engine has much better support for Unicode characters/character classes."
+
+    - title: "Edit Book: Add keyboard shortcuts to jump to opening and closing tags (Ctrl+{ and Ctrl+})"
+
+    - title: "Add API to pre-process image data in recipes easily"
+
+    - title: "fetch-ebook-metadata: add option to use only a single metadata plugin"
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression in the previous release that broke printing from inside the viewer."
+
+    - title: "DOCX Output: When the input document contains paragraphs inside a block with a background color preserve the background color in the resulting paragraphs in the DOCX document."
+      tickets: [1683188]
+
+    - title: "DOCX Output: Fix links to empty inline tags not working."
+      tickets: [1683188]
+
+    - title: "DOCX Input: Fix links that point to anchors placed in empty paragraphs not working."
+      tickets: [1683017]
+
+    - title: "PDF Output: Do not crash when unable to find page for link destination, instead use previous page."
+      tickets: [1687914]
+
+    - title: "Edit Book: Fix sorting by language in Report->Words not working"
+
+    - title: "Edit Book: Fix drag and drop of multiple items in the File Browser causing item order to be reversed."
+
+    - title: "Get Books: Update Baen store plugin for website changes"
+
+    - title: "Linux: When adding books from directories ignore files that have undecodable names."
+      tickets: [1685819]
+
+    - title: "AZW3: Preserve the primary-writing-mode EXTH header field when round-tripping AZW3 files. Should fix editing/conversion of RTL AZW3 files causing page turning to become left-to-right on the Kindle"
+
+    - title: "AZW3 Output: Set the primary-writing-mode EXTH header when the input document has page-progression-direction set to RTL as this is apparently required on newer Kindle firmware for right-to-left page turning"
+
+    - title: "Fix a misbehaving wireless device connection can cause calibre to hang when opening the Connect/Share menu."
+      tickets: [1676522]
+
+  improved recipes:
+    - Private Eye
+    - Die Zeit
+    - NYTimes Tech Beat
+
+  new recipes:
+    - title: First Things
+      author: John Hutson
+
 - version: 2.83.0
   date: 2017-04-15
 
