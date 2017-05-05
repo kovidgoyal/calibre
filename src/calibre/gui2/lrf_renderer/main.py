@@ -272,7 +272,7 @@ def option_parser():
     parser = option_parser(_('''\
 %prog [options] book.lrf
 
-Read the LRF ebook book.lrf
+Read the LRF e-book book.lrf
 '''))
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose',
                       help=_('Print more information about the rendering process'))
@@ -322,7 +322,6 @@ def main(args=sys.argv, logger=None):
         return app.exec_()
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
-
-

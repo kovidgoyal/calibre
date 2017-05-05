@@ -32,7 +32,12 @@ class MathJax
         scale = if is_windows then 160 else 100
 
         script.type = 'text/javascript'
-        script.src = this.base + 'MathJax.js'
+        script.onerror = (ev) ->
+            console.log('Failed to load MathJax script: ' + ev.target.src)
+        base = this.base
+        if base.substr(base.length - 1) != '/'
+            base += '/'
+        script.src = base + 'MathJax.js'
         script.text = user_config + ('''
         MathJax.Hub.signal.Interest(function (message) {if (String(message).match(/error/i)) {console.log(message)}});
         MathJax.Hub.Config({

@@ -39,7 +39,7 @@ class ProfileModel(QAbstractListModel):
 
 class PageSetupWidget(Widget, Ui_Form):
 
-    TITLE = _('Page Setup')
+    TITLE = _('Page setup')
     COMMIT_NAME = 'page_setup'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):

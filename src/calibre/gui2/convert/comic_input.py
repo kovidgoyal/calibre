@@ -13,7 +13,7 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('Comic Input')
+    TITLE = _('Comic input')
     HELP = _('Options specific to')+' comic '+_('input')
     COMMIT_NAME = 'comic_input'
     ICON = I('mimetypes/png.png')
@@ -32,5 +32,3 @@ class PluginWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_no_process.toggle()
         self.opt_no_process.toggle()
-
-

@@ -27,8 +27,8 @@ class ShowQuickviewAction(InterfaceAction):
 
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
-        self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus To Quickview'),
-                     description=_('Move the focus to the Quickview pane/window'),
+        self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
+                     description=_('Move the focus to the Quickview panel/window'),
                      default_keys=('Shift+Q',), action=self.focus_action,
                      group=self.action_spec[0])
         self.focus_action.triggered.connect(self.focus_quickview)

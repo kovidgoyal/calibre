@@ -102,7 +102,8 @@ class MOBIOutput(OutputFormatPlugin):
                 'devices. However, by changing this setting, you can tell '
                 'calibre to generate MOBI files that contain both MOBI 6 and '
                 'the new KF8 format, or only the new KF8 format. KF8 has '
-                'more features than MOBI 6, but only works with newer Kindles.')),
+                'more features than MOBI 6, but only works with newer Kindles. '
+                'Allowed values: {}').format('old, both, new')),
 
     ])
 
@@ -331,5 +332,3 @@ class AZW3Output(OutputFormatPlugin):
     def specialize_css_for_output(self, log, opts, item, stylizer):
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
         CSSCleanup(log, opts)(item, stylizer)
-
-

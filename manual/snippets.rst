@@ -25,8 +25,8 @@ The following discussion of the built-in snippets should help illustrate the
 power of the snippets system.
 
 .. note:: 
-    You can also use snippets in the text entry fields in the Search and
-    Replace panel, however, placeholders (using |ct| to jump around) will not
+    You can also use snippets in the text entry fields in the :guilabel:`Search & replace`
+    panel, however, placeholders (using |ct| to jump around) will not
     work.
 
 The built-in snippets
@@ -95,7 +95,7 @@ tag.  This snippet is defined as::
 
 There are a couple of new features here. First the ``$1`` placeholder has
 become more complex. It now includes some *default text* (the word
-``filename``. If a placeholder contains default text, the default text is
+``filename``). If a placeholder contains default text, the default text is
 substituted for the placeholder when the snippet is expanded. Also when you
 jump to a placeholder with default text using |ct|, the default text is
 selected. In this way, you can use default text to act as a reminder to you to

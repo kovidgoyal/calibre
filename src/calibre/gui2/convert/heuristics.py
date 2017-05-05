@@ -14,7 +14,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 class HeuristicsWidget(Widget, Ui_Form):
 
-    TITLE = _('Heuristic\nProcessing')
+    TITLE = _('Heuristic\nprocessing')
     HELP  = _('Modify the document text and structure using common patterns.')
     COMMIT_NAME = 'heuristics'
     ICON = I('heuristics.png')

@@ -165,6 +165,8 @@ class Worker(Thread):  # {{{
 class Edelweiss(Source):
 
     name = 'Edelweiss'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Edelweiss - A catalog updated by book publishers')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -182,7 +184,7 @@ class Edelweiss(Source):
 
     def _get_book_url(self, sku):
         if sku:
-            return 'http://edelweiss.abovethetreeline.com/ProductDetailPage.aspx?sku=%s'%sku
+            return 'https://edelweiss.abovethetreeline.com/ProductDetailPage.aspx?sku=%s'%sku
 
     def get_book_url(self, identifiers):  # {{{
         sku = identifiers.get('edelweiss', None)
@@ -202,7 +204,7 @@ class Edelweiss(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
         from urllib import urlencode
-        BASE_URL = 'http://edelweiss.abovethetreeline.com/Browse.aspx?source=catalog&rg=4187&group=browse&pg=0&'
+        BASE_URL = 'https://edelweiss.abovethetreeline.com/Browse.aspx?source=catalog&rg=4187&group=browse&pg=0&'
         params = {
             'browseType':'title', 'startIndex':0, 'savecook':1, 'sord':20, 'secSord':20, 'tertSord':20,
         }
@@ -358,6 +360,7 @@ class Edelweiss(Source):
         except:
             log.exception('Failed to download cover from:', cached_url)
     # }}}
+
 
 if __name__ == '__main__':
     from calibre.ebooks.metadata.sources.test import (

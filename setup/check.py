@@ -119,7 +119,7 @@ class Check(Command):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    subprocess.call(['gvim', '-c', 'SyntasticCheck', '-c', 'll', '-S',
+                    subprocess.call(['vim', '-c', 'SyntasticCheck', '-c', 'll', '-S',
                                     self.j(self.SRC, '../session.vim'), '-f', f])
                     if self.file_has_errors(f):
                         raise SystemExit(1)

@@ -1,23 +1,28 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import os, sys, atexit, errno, subprocess, glob, shutil, json, re
-from io import BytesIO
-from threading import local
+import atexit
+import errno
+import glob
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
 from functools import partial
-from threading import Thread
-from Queue import Queue, Empty
+from io import BytesIO
+from Queue import Empty, Queue
+from threading import Thread, local
 
+from calibre import force_unicode
+from calibre.constants import __appname__, __version__, cache_dir
+from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from calibre import force_unicode
-from calibre.constants import cache_dir, __appname__, __version__
-from calibre.utils.terminal import ANSIStream
+
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 
@@ -47,6 +52,8 @@ def update_rapydscript():
 # }}}
 
 # Compiler {{{
+
+
 tls = local()
 
 
@@ -71,6 +78,7 @@ class CompileFailure(ValueError):
 
 def default_lib_dir():
     return P('rapydscript/lib', allow_user_override=False)
+
 
 _cache_dir = None
 
@@ -125,6 +133,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         raise CompileFailure(result.stack)
     raise CompileFailure(repr(presult))
 
+
 has_external_compiler = None
 
 
@@ -170,6 +179,20 @@ def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=
     return js.decode('utf-8')
 
 
+def create_manifest(html):
+    import hashlib
+    from calibre.library.field_metadata import category_icon_map
+    h = hashlib.sha256(html)
+    for ci in category_icon_map.itervalues():
+        h.update(I(ci, data=True))
+    icons = {'icon/' + x for x in category_icon_map.itervalues()}
+    icons.add('favicon.png')
+    h.update(I('lt.png', data=True))
+    manifest = '\n'.join(sorted(icons))
+    return 'CACHE MANIFEST\n# {}\n{}\n\nNETWORK:\n*'.format(
+        h.hexdigest(), manifest).encode('utf-8')
+
+
 def compile_srv():
     d = os.path.dirname
     base = d(d(d(d(os.path.abspath(__file__)))))
@@ -195,8 +218,12 @@ def compile_srv():
         js = compile_fast(f.read(), fname).replace('__RENDER_VERSION__', rv, 1).replace('__MATHJAX_VERSION__', mathjax_version, 1).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
+
+    manifest = create_manifest(html)
     with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
         f.write(html)
+    with lopen(os.path.join(base, 'calibre.appcache'), 'wb') as f:
+        f.write(manifest)
 
 # }}}
 
@@ -419,6 +446,7 @@ def main(args=sys.argv):
 
 def entry():
     main(sys.argv[1:])
+
 
 if __name__ == '__main__':
     main()

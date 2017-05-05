@@ -253,13 +253,27 @@ HANDLE open_named_pipe(LPWSTR pipename) {
     return ans;
 }
 
+typedef HRESULT (__stdcall *app_uid_func)(PCWSTR app_uid);
+
+bool set_app_uid(LPWSTR app_uid) {
+    // Not available on vista so we have to load the function dynamically
+    bool ok = false;
+    HINSTANCE dll = LoadLibraryW(L"Shell32.dll");
+    if (dll != NULL) {
+        app_uid_func f = (app_uid_func)GetProcAddress(dll, "SetCurrentProcessExplicitAppUserModelID");
+        if (f != NULL) ok = f(app_uid) == S_OK;
+        FreeLibrary(dll); dll = NULL;
+    }
+    return ok;
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     char buf[257] = {0}, secret[SECRET_SIZE + 1] = {0};
     size_t key_size = 0;
     HWND parent = NULL;
     bool save_dialog = false, multiselect = false, confirm_overwrite = false, only_dirs = false, no_symlinks = false;
     unsigned short len = 0;
-    LPWSTR title = NULL, folder = NULL, filename = NULL, save_path = NULL, echo = NULL, pipename = NULL, default_extension = NULL;
+    LPWSTR title = NULL, folder = NULL, filename = NULL, save_path = NULL, echo = NULL, pipename = NULL, default_extension = NULL, app_uid = NULL;
     COMDLG_FILTERSPEC *file_types = NULL;
     UINT num_file_types = 0;
     HANDLE pipe = INVALID_HANDLE_VALUE;
@@ -289,6 +303,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         else if CHECK_KEY("PIPENAME") { READSTR(pipename); pipe = open_named_pipe(pipename); if (pipe == INVALID_HANDLE_VALUE) return 1; }
 
         else if CHECK_KEY("SECRET") { if(!read_bytes(SECRET_SIZE, secret)) return 1; }
+
+        else if CHECK_KEY("APP_UID") { READSTR(app_uid) }
 
         else if CHECK_KEY("TITLE") { READSTR(title) }
 
@@ -329,6 +345,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         if (!write_bytes(pipe, SECRET_SIZE+1, secret)) return 1;
         return write_bytes(pipe, echo_sz, echo_buf) ? 0 : 1;
     }
+	if (app_uid != NULL) {
+        // dont check return status as failure is not critical
+        set_app_uid(app_uid);
+    }
+	
     set_dpi_aware();
     return show_dialog(pipe, secret, parent, save_dialog, title, folder, filename, save_path, multiselect, confirm_overwrite, only_dirs, no_symlinks, file_types, num_file_types, default_extension);
 }

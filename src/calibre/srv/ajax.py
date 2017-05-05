@@ -548,6 +548,7 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
             'offset':offset, 'num':len(ids), 'sort':sort,
             'base_url':ctx.url_for(search, library_id=db.server_library_id),
             'query': query,
+            'library_id': db.server_library_id,
             'book_ids':ids
     }
 

@@ -28,7 +28,7 @@ class SortAction(QAction):
 class SortByAction(InterfaceAction):
 
     name = 'Sort By'
-    action_spec = (_('Sort By'), 'arrow-up.png', _('Sort the list of books'), None)
+    action_spec = (_('Sort by'), 'arrow-up.png', _('Sort the list of books'), None)
     action_type = 'current'
     popup_type = QToolButton.InstantPopup
     action_add_menu = True

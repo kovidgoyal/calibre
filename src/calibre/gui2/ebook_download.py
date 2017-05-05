@@ -105,7 +105,7 @@ class EbookDownload(object):
             return
         ext = os.path.splitext(filename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
-            raise Exception(_('Not a support ebook format.'))
+            raise Exception(_('Not a support e-book format.'))
 
         from calibre.ebooks.metadata.meta import get_metadata
         with open(filename, 'rb') as f:
@@ -148,7 +148,7 @@ class EbookDownloadMixin(object):
 
     def downloaded_ebook(self, job):
         if job.failed:
-            self.job_exception(job, dialog_title=_('Failed to download ebook'))
+            self.job_exception(job, dialog_title=_('Failed to download e-book'))
             return
 
         self.status_bar.show_message(job.description + ' ' + _('finished'), 5000)

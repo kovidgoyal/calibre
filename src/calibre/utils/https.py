@@ -23,6 +23,7 @@ class HTTPError(ValueError):
         self.code = code
         self.url = url
 
+
 if ispy3:
     from urllib.parse import urlparse
     import http.client as httplib
@@ -171,8 +172,9 @@ def get_https_resource_securely(
             ssl_version = ssl.PROTOCOL_TLSv1_2
         except AttributeError:
             ssl_version = ssl.PROTOCOL_TLSv1  # old python
+    cert_file = None
     if cacerts is not None:
-        cacerts = P(cacerts, allow_user_override=False)
+        cert_file = P(cacerts, allow_user_override=False)
     p = urlparse(url)
     if p.scheme != 'https':
         raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
@@ -192,7 +194,7 @@ def get_https_resource_securely(
                 # Invalid proxy, ignore
                 pass
 
-    c = HTTPSConnection(ssl_version, hostname, port, cert_file=cacerts, timeout=timeout)
+    c = HTTPSConnection(ssl_version, hostname, port, cert_file=cert_file, timeout=timeout)
     if has_proxy:
         c.set_tunnel(p.hostname, p.port)
 
@@ -217,6 +219,6 @@ def get_https_resource_securely(
             return response
         return response.read()
 
+
 if __name__ == '__main__':
     print (get_https_resource_securely('https://code.calibre-ebook.com/latest'))
-

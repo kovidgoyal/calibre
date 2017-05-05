@@ -187,7 +187,7 @@ class Rules(RulesBase):  # {{{
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
 
-    MSG = _('You can specify rules to transform styles here. Click the "Add Rule" button'
+    MSG = _('You can specify rules to transform styles here. Click the "Add rule" button'
             ' below to get started.')
 # }}}
 
@@ -209,7 +209,7 @@ class Tester(Dialog):  # {{{
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.css = t = TextEdit(self)
-        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the Test button'), 'css')
+        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the "Test" button'), 'css')
         la.setBuddy(t)
         c = t.textCursor()
         c.movePosition(c.End)
@@ -331,6 +331,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             traceback.print_exc()
             self.rules_widget.rules = []
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

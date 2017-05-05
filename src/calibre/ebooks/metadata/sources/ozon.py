@@ -22,6 +22,8 @@ from calibre.ebooks.metadata.book.base import Metadata
 
 class Ozon(Source):
     name = 'OZON.ru'
+    minimum_calibre_version = (2, 80, 0)
+    version = (1, 0, 0)
     description = _('Downloads metadata and covers from OZON.ru (updated)')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -35,7 +37,7 @@ class Ozon(Source):
     supports_gzip_transfer_encoding = True
     has_html_comments = True
 
-    ozon_url = 'http://www.ozon.ru'
+    ozon_url = 'https://www.ozon.ru'
 
     # match any ISBN10/13. From "Regular Expressions Cookbook"
     isbnPattern = r'(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}|' \
@@ -539,7 +541,7 @@ def _translateToBigCoverUrl(coverUrl):  # {{{
     # http://www.ozon.ru/multimedia/books_covers/1009493080.jpg
     m = re.match(r'.+\/([^\.\\]+).+$', coverUrl)
     if m:
-        coverUrl = 'http://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
+        coverUrl = 'https://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
     return coverUrl
 
 

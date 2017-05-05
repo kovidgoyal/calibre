@@ -25,7 +25,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         help_text = _('''
         <p>Here you can add and remove functions used in template processing. A
-        template function is written in python. It takes information from the
+        template function is written in Python. It takes information from the
         book, processes it in some way, then returns a string result. Functions
         defined here are usable in templates in the same way that builtin
         functions are usable. The function must be named <b>evaluate</b>, and
@@ -233,4 +233,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Advanced', 'TemplateFunctions')
-

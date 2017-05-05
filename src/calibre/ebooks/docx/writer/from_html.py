@@ -135,7 +135,7 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
+    def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False, parent_bg=None):
         self.namespace = namespace
         self.bookmarks = set()
         self.list_tag = (html_block, style) if is_list_item else None
@@ -148,7 +148,7 @@ class Block(object):
         if float_spec is not None:
             float_spec.blocks.append(self)
         self.html_style = style
-        self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
+        self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell, parent_bg=parent_bg)
         self.styles_manager, self.links_manager = styles_manager, links_manager
         self.keep_next = False
         self.runs = []
@@ -278,10 +278,19 @@ class Blocks(object):
         self.current_block = None
 
     def start_new_block(self, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
+        parent_bg = None
+        if html_block is not None:
+            p = html_block.getparent()
+            b = self.html_tag_start_blocks.get(p)
+            if b is not None:
+                ps = self.styles_manager.styles_for_html_blocks.get(p)
+                if ps is not None and ps.background_color is not None:
+                    parent_bg = ps.background_color
         self.end_current_block()
         self.current_block = Block(
             self.namespace, self.styles_manager, self.links_manager, html_block, style,
-            is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
+            is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item,
+            parent_bg=parent_bg)
         self.html_tag_start_blocks[html_block] = self.current_block
         self.open_html_blocks.add(html_block)
         return self.current_block
@@ -568,6 +577,9 @@ class Convert(object):
             if html_tag.text:
                 block = self.create_block_from_parent(html_tag, stylizer)
                 block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
+            elif bmark:
+                block = self.create_block_from_parent(html_tag, stylizer)
+                block.add_text('', tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
 
     def bookmark_for_anchor(self, anchor, html_tag):
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)

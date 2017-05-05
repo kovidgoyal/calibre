@@ -432,7 +432,7 @@ the directory related options below.
         ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all pdf files'))
     fadd('--add', 'add', _(
         'A filename (glob) pattern, files matching this pattern will be added when scanning directories for files,'
-        ' even if they are not of a known ebook file type. Can be specified multiple times for multiple patterns.'))
+        ' even if they are not of a known e-book file type. Can be specified multiple times for multiple patterns.'))
     parser.add_option_group(g)
 
     return parser
@@ -551,7 +551,7 @@ def add_format_option_parser():
 '''\
 %prog add_format [options] id ebook_file
 
-Add the ebook in ebook_file to the available formats for the logical book identified \
+Add the e-book in ebook_file to the available formats for the logical book identified \
 by id. You can get id by using the search command. If the format already exists, \
 it is replaced, unless the do not replace option is specified.\
 '''))
@@ -566,12 +566,12 @@ def command_add_format(args, dbpath):
     if len(args) < 3:
         parser.print_help()
         print
-        print >>sys.stderr, _('You must specify an id and an ebook file')
+        print >>sys.stderr, _('You must specify an id and an e-book file')
         return 1
 
     id, path, fmt = int(args[1]), args[2], os.path.splitext(args[2])[-1]
     if not fmt:
-        print _('ebook file must have an extension')
+        print _('e-book file must have an extension')
     do_add_format(get_db(dbpath, opts), id, fmt[1:], path, opts)
     return 0
 
@@ -992,7 +992,7 @@ def catalog_option_parser(args):
     log = Log()
     parser = get_parser(_(
     '''
-    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]
+    %prog catalog /path/to/destination.(csv|epub|mobi|xml...) [options]
 
     Export a catalog in format specified by path/to/destination extension.
     Options control how entries are displayed in the generated catalog output.
@@ -1369,6 +1369,8 @@ def command_check_library(args, dbpath):
         raise SystemExit(1)
 
     db = LibraryDatabase(dbpath)
+    print _('Vacuuming database...')
+    db.new_api.vacuum()
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:

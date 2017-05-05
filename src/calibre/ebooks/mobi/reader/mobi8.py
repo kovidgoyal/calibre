@@ -233,7 +233,7 @@ class Mobi8Reader(object):
         # The primary css style sheet is typically stored next followed by any
         # snippets of code that were previously inlined in the
         # original xhtml but have been stripped out and placed here.
-        # This can include local CDATA snippets and and svg sections.
+        # This can include local CDATA snippets and svg sections.
 
         # The problem is that for most browsers and ereaders, you can not
         # use <img src="imageXXXX.svg" /> to import any svg image that itself
@@ -512,6 +512,9 @@ class Mobi8Reader(object):
         ppd = getattr(self.header.exth, 'page_progression_direction', None)
         if ppd in {'ltr', 'rtl', 'default'}:
             opf.page_progression_direction = ppd
+        pwm = getattr(self.header.exth, 'primary_writing_mode', None)
+        if pwm is not None:
+            opf.primary_writing_mode = pwm
 
         with open('metadata.opf', 'wb') as of, open('toc.ncx', 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx')

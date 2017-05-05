@@ -16,7 +16,7 @@ from future_builtins import map
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints, as_unicode
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, iswindows, isosx, filesystem_encoding
 from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db.adding import find_books_in_directory, compile_rule
 from calibre.db.utils import find_identical_books
@@ -129,12 +129,27 @@ class Adder(QObject):
             import traceback
             traceback.print_exc()
 
-        def find_files(root):
-            for dirpath, dirnames, filenames in os.walk(root):
-                for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
-                    if self.abort_scan:
-                        return
-                    self.file_groups[len(self.file_groups)] = files
+        if iswindows or isosx:
+            def find_files(root):
+                for dirpath, dirnames, filenames in os.walk(root):
+                    for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
+                        if self.abort_scan:
+                            return
+                        self.file_groups[len(self.file_groups)] = files
+        else:
+            def find_files(root):
+                if isinstance(root, type(u'')):
+                    root = root.encode(filesystem_encoding)
+                for dirpath, dirnames, filenames in os.walk(root):
+                    try:
+                        dirpath = dirpath.decode(filesystem_encoding)
+                    except UnicodeDecodeError:
+                        prints('Ignoring non-decodable directory:', dirpath)
+                        continue
+                    for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
+                        if self.abort_scan:
+                            return
+                        self.file_groups[len(self.file_groups)] = files
 
         def extract(source):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
@@ -171,8 +186,9 @@ class Adder(QObject):
                         unreadable_files.append(path)
                 if unreadable_files:
                     if not self.file_groups:
-                        self.scan_error = _('You do not have permission to read the selected file(s).') + '\n'
-                        self.scan_error += '\n'.join(unreadable_files)
+                        m = ngettext('You do not have permission to read the selected file.',
+                                     'You do not have permission to read the selected files.', len(unreadable_files))
+                        self.scan_error = m + '\n' + '\n'.join(unreadable_files)
                     else:
                         a = self.report.append
                         for f in unreadable_files:
@@ -194,7 +210,7 @@ class Adder(QObject):
             return
         if not self.file_groups:
             error_dialog(self.pd, _('Could not add'), _(
-                'No ebook files were found in %s') % self.source, show=True)
+                'No e-book files were found in %s') % self.source, show=True)
             self.break_cycles()
             return
         self.pd.max = len(self.file_groups)
@@ -281,7 +297,8 @@ class Adder(QObject):
         a = self.report.append
         paths = self.file_groups[group_id]
         a(''), a('-' * 70)
-        a(_('Failed to read metadata from the file(s):'))
+        m = ngettext('Failed to read metadata from the file:', 'Failed to read metadata from the files:', len(paths))
+        a(m)
         [a('\t' + f) for f in paths]
         a(_('With error:')), a(details)
         mi = Metadata(_('Unknown'))

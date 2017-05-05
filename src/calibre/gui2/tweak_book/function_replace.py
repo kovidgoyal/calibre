@@ -141,6 +141,7 @@ def builtin_functions():
         if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
 
+
 _functions = None
 
 
@@ -174,6 +175,7 @@ def remove_function(name, gui_parent=None):
     functions(refresh=True)
     refresh_boxes()
     return True
+
 
 boxes = []
 
@@ -269,11 +271,11 @@ class FunctionEditor(Dialog):
         try:
             mod = compile_code(source, self.func_name)
         except Exception as err:
-            return error_dialog(self, _('Invalid python code'), _(
-                'The code you created is not valid python code, with error: %s') % err, show=True)
+            return error_dialog(self, _('Invalid Python code'), _(
+                'The code you created is not valid Python code, with error: %s') % err, show=True)
         if not callable(mod.get('replace')):
             return error_dialog(self, _('No replace function'), _(
-                'You must create a python function named replace in your code'), show=True)
+                'You must create a Python function named replace in your code'), show=True)
         user_functions[self.func_name] = source
         functions(refresh=True)
         refresh_boxes()
@@ -289,6 +291,7 @@ def builtin(name, *args):
         func.imports = args
         return func
     return f
+
 
 EMPTY_FUNC = '''\
 def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
@@ -364,6 +367,7 @@ def replace_titlecase_ignore_tags(match, number, file_name, metadata, dictionari
 def replace_swapcase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Swap the case of the matched text, ignoring the text inside tag definitions.'''
     return apply_func_to_html_text(match, swapcase)
+
 
 if __name__ == '__main__':
     app = QApplication([])

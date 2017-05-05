@@ -106,7 +106,7 @@ class TestLock(BaseTest):
             t.daemon = True
             t.start()
             self.assertRaises(LockingError, lock.release)
-            t.join(4)
+            t.join(15)
             self.assertFalse(t.is_alive())
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
@@ -178,4 +178,3 @@ class TestLock(BaseTest):
         self.assertEqual(len(done), len(threads), 'SHLock locking failed')
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
-

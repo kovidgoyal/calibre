@@ -12,7 +12,7 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('DOCX Input')
+    TITLE = _('DOCX input')
     HELP = _('Options specific to')+' DOCX '+_('input')
     COMMIT_NAME = 'docx_input'
     ICON = I('mimetypes/docx.png')
@@ -21,4 +21,3 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
             ['docx_no_cover', 'docx_no_pagebreaks_between_notes', 'docx_inline_subsup'])
         self.initialize_options(get_option, get_help, db, book_id)
-

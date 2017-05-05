@@ -13,7 +13,7 @@ from math import floor
 from collections import defaultdict
 
 from PyQt5.Qt import (
-    QObject, QPainter, Qt, QSize, QTimer, pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
+    QObject, QPainter, Qt, QSize, QTimer, QEventLoop, QPixmap, QRect, pyqtSlot)
 from PyQt5.QtWebKit import QWebSettings
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
@@ -21,15 +21,13 @@ from calibre import fit_image
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
-                                              didot, PAPER_SIZES)
+                                              didot, PAPER_SIZES, current_log)
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 
 
 def get_page_size(opts, for_comic=False):  # {{{
-    use_profile = not (opts.override_profile_size or
-                       opts.output_profile.short_name == 'default' or
-                       opts.output_profile.width > 9999)
+    use_profile = opts.use_profile_size and opts.output_profile.short_name != 'default' and opts.output_profile.width <= 9999
     if use_profile:
         w = (opts.output_profile.comic_screen_size[0] if for_comic else
                 opts.output_profile.width)
@@ -129,16 +127,6 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
 
 class PDFWriter(QObject):
 
-    def _pass_json_value_getter(self):
-        val = json.dumps(self.bridge_value)
-        return val
-
-    def _pass_json_value_setter(self, value):
-        self.bridge_value = json.loads(unicode(value))
-
-    _pass_json_value = pyqtProperty(str, fget=_pass_json_value_getter,
-            fset=_pass_json_value_setter)
-
     @pyqtSlot(result=unicode)
     def title(self):
         return self.doc_title
@@ -161,6 +149,7 @@ class PDFWriter(QObject):
         QObject.__init__(self)
 
         self.logger = self.log = log
+        current_log(log)
         self.opts = opts
         self.cover_data = cover_data
         self.paged_js = None
@@ -185,10 +174,16 @@ class PDFWriter(QObject):
         opts = self.opts
         page_size = get_page_size(self.opts)
         xdpi, ydpi = self.view.logicalDpiX(), self.view.logicalDpiY()
+
+        def margin(which):
+            val = getattr(opts, 'pdf_page_margin_' + which)
+            if val == 0.0:
+                val = getattr(opts, 'margin_' + which)
+            return val
+        ml, mr, mt, mb = map(margin, 'left right top bottom'.split())
         # We cannot set the side margins in the webview as there is no right
         # margin for the last page (the margins are implemented with
         # -webkit-column-gap)
-        ml, mr = opts.margin_left, opts.margin_right
         self.doc = PdfDevice(out_stream, page_size=page_size, left_margin=ml,
                              top_margin=0, right_margin=mr, bottom_margin=0,
                              xdpi=xdpi, ydpi=ydpi, errors=self.log.error,
@@ -204,18 +199,18 @@ class PDFWriter(QObject):
         if self.header:
             self.header = self.header.strip()
         min_margin = 1.5 * opts._final_base_font_size
-        if self.footer and opts.margin_bottom < min_margin:
+        if self.footer and mb < min_margin:
             self.log.warn('Bottom margin is too small for footer, increasing it to %.1fpts' % min_margin)
-            opts.margin_bottom = min_margin
-        if self.header and opts.margin_top < min_margin:
+            mb = min_margin
+        if self.header and mt < min_margin:
             self.log.warn('Top margin is too small for header, increasing it to %.1fpts' % min_margin)
-            opts.margin_top = min_margin
+            mt = min_margin
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
         self.total_items = len(items)
 
-        mt, mb = map(self.doc.to_px, (opts.margin_top, opts.margin_bottom))
+        mt, mb = map(self.doc.to_px, (mt, mb))
         self.margin_top, self.margin_bottom = map(lambda x:int(floor(x)), (mt, mb))
 
         self.painter = QPainter(self.doc)
@@ -356,33 +351,32 @@ class PDFWriter(QObject):
         evaljs(self.paged_js)
         self.load_mathjax()
 
-        evaljs('''
-        Object.defineProperty(py_bridge, 'value', {
-               get : function() { return JSON.parse(this._pass_json_value); },
-               set : function(val) { this._pass_json_value = JSON.stringify(val); }
-        });
-
+        amap = evaljs('''
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, %d, %d, %d);
         paged_display.layout();
         paged_display.fit_images();
-        py_bridge.value = book_indexing.all_links_and_anchors();
+        ret = book_indexing.all_links_and_anchors();
         window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
+        ret;
         '''%(self.margin_top, 0, self.margin_bottom))
 
-        amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
+        for val in amap['anchors'].itervalues():
+            if isinstance(val, dict) and 'column' in val:
+                val['column'] = int(val['column'])
+        for href, val in amap['links']:
+            if isinstance(val, dict) and 'column' in val:
+                val['column'] = int(val['column'])
         sections = self.get_sections(amap['anchors'])
         tl_sections = self.get_sections(amap['anchors'], True)
         col = 0
 
         if self.header:
-            self.bridge_value = self.header
-            evaljs('paged_display.header_template = py_bridge.value')
+            evaljs('paged_display.header_template = ' + json.dumps(self.header))
         if self.footer:
-            self.bridge_value = self.footer
-            evaljs('paged_display.footer_template = py_bridge.value')
+            evaljs('paged_display.footer_template = ' + json.dumps(self.footer))
         if self.header or self.footer:
             evaljs('paged_display.create_header_footer("%s");'%self.hf_uuid)
 
@@ -420,3 +414,52 @@ class PDFWriter(QObject):
         if not self.doc.errors_occurred and self.doc.current_page_num > 1:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
+
+
+class ImagePDFWriter(object):
+
+    def __init__(self, opts, log, cover_data=None, toc=None):
+        from calibre.gui2 import must_use_qt
+        must_use_qt()
+
+        self.logger = self.log = log
+        self.opts = opts
+        self.cover_data = cover_data
+        self.toc = toc
+
+    def dump(self, items, out_stream, pdf_metadata):
+        opts = self.opts
+        page_size = get_page_size(self.opts)
+        ml, mr = opts.margin_left, opts.margin_right
+        self.doc = PdfDevice(
+            out_stream, page_size=page_size, left_margin=ml,
+            top_margin=opts.margin_top, right_margin=mr,
+            bottom_margin=opts.margin_bottom,
+            errors=self.log.error, debug=self.log.debug, compress=not
+            opts.uncompressed_pdf, opts=opts, mark_links=opts.pdf_mark_links)
+        self.painter = QPainter(self.doc)
+        self.doc.set_metadata(title=pdf_metadata.title,
+                              author=pdf_metadata.author,
+                              tags=pdf_metadata.tags, mi=pdf_metadata.mi)
+        self.doc_title = pdf_metadata.title
+        self.doc_author = pdf_metadata.author
+        page_rect = QRect(*self.doc.full_page_rect)
+
+        for imgpath in items:
+            self.log.debug('Processing %s...' % imgpath)
+            self.doc.init_page()
+            p = QPixmap()
+            with lopen(imgpath, 'rb') as f:
+                if not p.loadFromData(f.read()):
+                    raise ValueError('Could not read image from: {}'.format(imgpath))
+            draw_image_page(page_rect,
+                    self.painter, p,
+                    preserve_aspect_ratio=True)
+            self.doc.end_page()
+        if self.toc is not None and len(self.toc) > 0:
+            self.doc.add_outline(self.toc)
+
+        self.painter.end()
+
+        if self.doc.errors_occurred:
+            raise Exception('PDF Output failed, see log for details')

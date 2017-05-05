@@ -23,7 +23,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;calibre can automatically send books by email to your Kindle. To do that you have to setup email delivery below. The easiest way is to setup a free &lt;a href=&quot;https://gmx.com&quot;&gt;GMX account&lt;/a&gt; and click the Use GMX button below. You will also have to register your email address in your Amazon account.</string>
+      <string>&lt;p&gt;calibre can automatically send books by email to your Kindle. To do that you have to setup email delivery below. The easiest way is to setup a free &lt;a href=&quot;https://gmx.com&quot;&gt;GMX account&lt;/a&gt; and click the "Use GMX" button below. You will also have to register your email address in your Amazon account.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

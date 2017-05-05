@@ -306,6 +306,7 @@ class _CompileParser(_Parser):
         else:
             self.error(_('expression is not function or constant'))
 
+
 compile_counter = 0
 
 
@@ -316,7 +317,7 @@ class TemplateFormatter(string.Formatter):
 
     _validation_string = 'This Is Some Text THAT SHOULD be LONG Enough.%^&*'
 
-    # Dict to do recursion detection. It is up the the individual get_value
+    # Dict to do recursion detection. It is up to the individual get_value
     # method to use it. It is cleared when starting to format a template
     composite_values = {}
 
@@ -544,8 +545,8 @@ class ValidateFormatter(TemplateFormatter):
 
     def validate(self, x):
         from calibre.ebooks.metadata.book.base import Metadata
-        self.book = Metadata('')
-        return self.vformat(x, [], {})
+        return self.safe_format(x, {}, 'VALIDATE ERROR', Metadata(''))
+
 
 validation_formatter = ValidateFormatter()
 
@@ -561,6 +562,6 @@ class EvalFormatter(TemplateFormatter):
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 
+
 # DEPRECATED. This is not thread safe. Do not use.
 eval_formatter = EvalFormatter()
-

@@ -1,0 +1,167 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.cover_grid import BORDER_RADIUS
+from book_list.globals import get_db
+from book_list.library_data import sync_library_books
+from book_list.router import open_book, update_window_title
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_default_panel_handler, show_panel
+from dom import add_extra_css, build_rule, ensure_id
+from session import get_device_uuid, get_interface_data
+from utils import conditional_timeout, username_key
+from widgets import create_button
+
+CLASS_NAME = 'home-page'
+
+add_extra_css(def():
+    ans = ''
+    sel = f'.{CLASS_NAME} '
+    ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
+    sel += '.recently-read img'
+    ans += build_rule(sel, max_width='25vw', height='auto', border_radius=f'{BORDER_RADIUS}px')
+    ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
+    ans += build_rule(f'{sel}:active', transform='scale(2)')
+    return ans
+)
+
+
+def show_cover(blob, name, mt, book):
+    img = document.getElementById(this)
+    if not img:
+        return
+    img.onload = def():
+        window.URL.revokeObjectURL(this.src)
+    img.src = window.URL.createObjectURL(blob)
+
+
+def read_book(library_id, book_id, fmt):
+    open_book(book_id, fmt, library_id)
+
+
+def get_last_read_position(last_read_positions, prev_last_read):
+    prev_epoch = prev_last_read.getTime()
+    dev = get_device_uuid()
+    newest_epoch = ans = None
+    for data in last_read_positions:
+        if data.device is not dev and data.epoch > prev_epoch:
+            if ans is None or data.epoch > newest_epoch:
+                newest_epoch = data.epoch
+                ans = data
+    return ans
+
+
+def sync_data_received(library_id, lrmap, load_type, xhr, ev):
+    if load_type is not 'load':
+        print('Failed to get book sync data')
+        return
+    data = JSON.parse(xhr.responseText)
+    for key in data:
+        prev_last_read = lrmap[key]
+        if not prev_last_read:
+            continue
+        last_read_positions = data[key]
+        new_last_read = get_last_read_position(last_read_positions, prev_last_read)
+        if not new_last_read:
+            continue
+        last_read = new Date(new_last_read.epoch * 1000)
+        cfi = new_last_read.cfi
+        if cfi:
+            db = get_db()
+            book_id, fmt = key.partition(':')[::2]
+            db.update_last_read_data_from_key(library_id, int(book_id), fmt, last_read, cfi)
+
+
+def start_sync(to_sync):
+    libraries = {}
+    for key, last_read in to_sync:
+        library_id = key[0]
+        if not libraries[library_id]:
+            libraries[library_id] = v'[]'
+        libraries[library_id].push(v'[key, last_read]')
+    for lid in libraries:
+        sync_library_books(lid, libraries[lid], sync_data_received)
+
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container or not books.length:
+        return
+    container.style.display = 'block'
+    container.style.borderBottom = 'solid 1px currentColor'
+    container.style.paddingBottom = '1em'
+    container.appendChild(E.h2(_(
+        'Continue reading…')))
+    container.appendChild(E.div(style='display:flex'))
+    images = container.lastChild
+    db = get_db()
+    to_sync = v'[]'
+    username = get_interface_data().username
+    for book in books:
+        if username and to_sync.length < 10:
+            lr = book.last_read[username_key(username)] or new Date(0)  # noqa: unused-local
+            to_sync.push(v'[book.key, lr]')
+        img = E.img(
+            alt=_('{} by {}').format(book.metadata.title, book.metadata.authors.join(' & '))
+        )
+        img_id = ensure_id(img)
+        images.appendChild(E.div(style='margin: 0 1em',
+            E.a(img, href='javascript: void(0)', title=img.alt,
+                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2])
+            ),
+        ))
+        if book.cover_name:
+            db.get_file(book, book.cover_name, show_cover.bind(img_id))
+    if username:
+        start_sync(to_sync)
+    container.appendChild(E.div(style='margin: 1rem 1rem',
+        create_button(
+            _('Browse all previously downloaded books…'),
+            action=def():
+                show_panel('local_books')
+    )))
+
+
+def show_recent():
+    container = this
+    db = get_db()
+    if not db.initialized:
+        conditional_timeout(container.id, 5, show_recent)
+        return
+    db.get_recently_read_books(show_recent_stage2.bind(container.id))
+
+
+def init(container_id):
+    update_window_title()
+    container = document.getElementById(container_id)
+    container.classList.add(CLASS_NAME)
+    create_top_bar(container, run_animation=True)
+    interface_data = get_interface_data()
+
+    # Recent books
+    recent = E.div(style='display:none', class_='recently-read')
+    recent_container_id = ensure_id(recent)
+    container.appendChild(recent)
+    conditional_timeout(recent_container_id, 5, show_recent)
+
+    # Choose library
+    container.appendChild(E.h2(_('Choose the calibre library to browse…')))
+    container.appendChild(E.div(style='display: flex'))
+    cl = container.lastChild
+    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
+    for library_id in lids:
+        library_name = interface_data.library_map[library_id]
+        if library_name:
+            cl.appendChild(
+                create_button(library_name, icon='library', action=def(ev):
+                    lib_id = ev.currentTarget.dataset.lid
+                    show_panel('book_list', {'library_id': lib_id})
+            ))
+            cl.lastChild.style.margin = '1ex 1rem'
+
+
+set_default_panel_handler(init)

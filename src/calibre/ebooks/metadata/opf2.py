@@ -948,10 +948,24 @@ class OPF(object):  # {{{
                 return self.get_text(match) or None
 
         def fset(self, val):
+            uuid_id = None
+            for attr in self.root.attrib:
+                if attr.endswith('unique-identifier'):
+                    uuid_id = self.root.attrib[attr]
+                    break
+
             matches = self.isbn_path(self.metadata)
             if not val:
                 for x in matches:
-                    x.getparent().remove(x)
+                    xid = x.get('id', None)
+                    is_package_identifier = uuid_id is not None and uuid_id == xid
+                    if is_package_identifier:
+                        self.set_text(x, str(uuid.uuid4()))
+                        for attr in x.attrib:
+                            if attr.endswith('scheme'):
+                                x.attrib[attr] = 'uuid'
+                    else:
+                        x.getparent().remove(x)
                 return
             if not matches:
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
@@ -1148,6 +1162,11 @@ class OPF(object):  # {{{
             for k, v in spine[0].attrib.iteritems():
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
                     return v
+
+    @property
+    def primary_writing_mode(self):
+        for m in self.XPath('//*[local-name()="meta" and @name="primary-writing-mode" and @content]')(self.root):
+            return m.get('content')
 
     def guess_cover(self):
         '''
@@ -1370,6 +1389,7 @@ class OPFCreator(Metadata):
         Metadata.__init__(self, title='', other=other)
         self.base_path = os.path.abspath(base_path)
         self.page_progression_direction = None
+        self.primary_writing_mode = None
         if self.application_id is None:
             self.application_id = str(uuid.uuid4())
         if not isinstance(self.toc, TOC):
@@ -1532,6 +1552,8 @@ class OPFCreator(Metadata):
             from calibre.ebooks.metadata.book.json_codec import object_to_unicode
             a(CAL_ELEM('calibre:user_categories',
                        json.dumps(object_to_unicode(self.user_categories))))
+        if self.primary_writing_mode:
+            a(M.meta(name='primary-writing-mode', content=self.primary_writing_mode))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:

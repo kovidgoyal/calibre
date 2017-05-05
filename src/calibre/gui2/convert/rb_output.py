@@ -12,7 +12,7 @@ format_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('RB Output')
+    TITLE = _('RB output')
     HELP = _('Options specific to')+' RB '+_('output')
     COMMIT_NAME = 'rb_output'
     ICON = I('mimetypes/unknown.png')

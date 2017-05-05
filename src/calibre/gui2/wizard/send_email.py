@@ -89,7 +89,7 @@ class RelaySetup(QDialog):
         self.tl = QLabel(('<p>'+_('Setup sending email using') +
                 ' <b>{name}</b><p>' +
             _('If you don\'t have an account, you can sign up for a free {name} email '
-            'account at <a href="http://{url}">http://{url}</a>. {extra}')).format(
+            'account at <a href="https://{url}">https://{url}</a>. {extra}')).format(
                 **service))
         l.addWidget(self.tl, 0, 0, 3, 0)
         self.tl.setWordWrap(True)
@@ -289,6 +289,3 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_password', hexlify(password.encode('utf-8')))
         conf.set('encryption', enc_method)
         return True
-
-
-

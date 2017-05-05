@@ -17,7 +17,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Here you can control how calibre will save your books when you click the Save to Disk button:</string>
+      <string>Here you can control how calibre will save your books when you click the "Save to disk" button:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

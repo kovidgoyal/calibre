@@ -1,26 +1,28 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-def base64encode(bytes):
+def base64encode(bytes, altchars, pad_char):
     # Convert an array of bytes into a base-64 encoded string
     l = bytes.length
     remainder = l % 3
     main_length = l - remainder
-    encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + (altchars or '+/')
+    pad_char = '=' if pad_char is undefined else pad_char
     ans = v'[]'
     for v'var i = 0; i < main_length; i += 3':
         chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
         ans.push(encodings[(chunk & 16515072) >> 18], encodings[(chunk & 258048) >> 12], encodings[(chunk & 4032) >> 6], encodings[chunk & 63])
     if remainder is 1:
         chunk = bytes[main_length]
-        ans.push(encodings[(chunk & 252) >> 2], encodings[(chunk & 3) << 4], '=', '=')
+        ans.push(encodings[(chunk & 252) >> 2], encodings[(chunk & 3) << 4], pad_char, pad_char)
     elif remainder is 2:
         chunk = (bytes[main_length] << 8) | bytes[main_length + 1]
-        ans.push(encodings[(chunk & 64512) >> 10], encodings[(chunk & 1008) >> 4], encodings[(chunk & 15) << 2], '=')
+        ans.push(encodings[(chunk & 64512) >> 10], encodings[(chunk & 1008) >> 4], encodings[(chunk & 15) << 2], pad_char)
     return ans.join('')
 
 def base64decode(string):
-    # convert the output of base64encode back into an array of bytes (Uint8Array)
+    # convert the output of base64encode back into an array of bytes
+    # (Uint8Array) only works with the standard altchars and pad_char
     if jstype(window) is not 'undefined':
         chars = window.atob(string)
     else:
@@ -29,6 +31,13 @@ def base64decode(string):
     for i in range(ans.length):
         ans[i] = chars.charCodeAt(i)
     return ans
+
+def urlsafe_b64encode(bytes, pad_char):
+    return base64encode(bytes, '-_', pad_char)
+
+def urlsafe_b64decode(string):
+    string = String.prototype.replace.call(string, /[_-]/g, def(m): return '+' if m is '-' else '/';)
+    return base64decode(string)
 
 def hexlify(bytes):
     ans = v'[]'

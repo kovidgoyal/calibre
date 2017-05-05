@@ -19,7 +19,7 @@ from calibre.utils.date import parse_date
 
 USAGE=_('%prog ebook_file [options]\n') + \
 _('''
-Read/Write metadata from/to ebook files.
+Read/Write metadata from/to e-book files.
 
 Supported formats for reading metadata: {0}
 
@@ -50,13 +50,13 @@ def config():
     c.add_opt('cover', ['--cover'],
               help=_('Set the cover to the specified file.'))
     c.add_opt('comments', ['-c', '--comments'],
-              help=_('Set the ebook description.'))
+              help=_('Set the e-book description.'))
     c.add_opt('publisher', ['-p', '--publisher'],
-              help=_('Set the ebook publisher.'))
+              help=_('Set the e-book publisher.'))
     c.add_opt('category', ['--category'],
               help=_('Set the book category.'))
     c.add_opt('series', ['-s', '--series'],
-              help=_('Set the series this ebook belongs to.'))
+              help=_('Set the series this e-book belongs to.'))
     c.add_opt('series_index', ['-i', '--index'],
               help=_('Set the index of the book in this series.'))
     c.add_opt('rating', ['-r', '--rating'],
@@ -78,14 +78,14 @@ def config():
               help=_('Set the published date.'))
 
     c.add_opt('get_cover', ['--get-cover'],
-              help=_('Get the cover from the ebook and save it at as the '
+              help=_('Get the cover from the e-book and save it at as the '
                      'specified file.'))
     c.add_opt('to_opf', ['--to-opf'],
               help=_('Specify the name of an OPF file. The metadata will '
                      'be written to the OPF file.'))
     c.add_opt('from_opf', ['--from-opf'],
               help=_('Read metadata from the specified OPF file and use it to '
-                     'set metadata in the ebook. Metadata specified on the '
+                     'set metadata in the e-book. Metadata specified on the '
                      'command line will override metadata read from the OPF file'))
 
     c.add_opt('lrf_bookid', ['--lrf-bookid'],
@@ -220,6 +220,7 @@ def main(args=sys.argv):
             prints(_('No cover found'), file=sys.stderr)
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

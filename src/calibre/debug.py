@@ -17,11 +17,11 @@ def option_parser():
 {0}
 
 Various command line interfaces useful for debugging calibre. With no options,
-this command starts an embedded python interpreter. You can also run the main
+this command starts an embedded Python interpreter. You can also run the main
 calibre GUI, the calibre viewer and the calibre editor in debug mode.
 
 It also contains interfaces to various bits of calibre that do not have
-dedicated command line tools, such as font subsetting, the ebook diff tool and so
+dedicated command line tools, such as font subsetting, the e-book diff tool and so
 on.
 
 You can also use %prog to run standalone scripts. To do that use it like this:
@@ -30,8 +30,8 @@ You can also use %prog to run standalone scripts. To do that use it like this:
 
 Everything after the -- is passed to the script.
 ''').format(_('%prog [options]'), '%prog myscript.py -- --option1 --option2 file1 file2 ...'))
-    parser.add_option('-c', '--command', help=_('Run python code.'))
-    parser.add_option('-e', '--exec-file', help=_('Run the python code in file.'))
+    parser.add_option('-c', '--command', help=_('Run Python code.'))
+    parser.add_option('-e', '--exec-file', help=_('Run the Python code in file.'))
     parser.add_option('-f', '--subset-font', action='store_true', default=False,
                       help=_('Subset the specified font. Use -- after this option to pass option to the font subsetting program.'))
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
@@ -44,7 +44,7 @@ Everything after the -- is passed to the script.
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
-                      help=_('Run the ebook viewer in debug mode'))
+                      help=_('Run the e-book viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',
             help=_('Output the paths necessary to setup the calibre environment'))
     parser.add_option('--add-simple-plugin', default=None,
@@ -58,7 +58,7 @@ Everything after the -- is passed to the script.
             default=False,
             help=_('Inspect the MOBI file(s) at the specified path(s)'))
     parser.add_option('-t', '--edit-book', action='store_true',
-            help=_('Launch the calibre Edit Book tool in debug mode.'))
+            help=_('Launch the calibre "Edit book" tool in debug mode.'))
     parser.add_option('-x', '--explode-book', default=None,
             help=_('Explode the book (exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
@@ -317,6 +317,7 @@ def main(args=sys.argv):
         ipython()
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

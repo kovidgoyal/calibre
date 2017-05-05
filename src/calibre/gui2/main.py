@@ -1,23 +1,31 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import sys, os, time, socket, traceback, re
+import os
+import re
+import socket
+import sys
+import time
+import traceback
 from functools import partial
 
 import apsw
-from PyQt5.Qt import (
-    QCoreApplication, QIcon, QObject, QTimer)
+from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 
-from calibre import prints, plugins, force_unicode
-from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
-        filesystem_encoding, get_portable_base)
-from calibre.utils.ipc import gui_socket_address, RC
+from calibre import force_unicode, plugins, prints
+from calibre.constants import (
+    DEBUG, __appname__, filesystem_encoding, get_portable_base, islinux, isosx,
+    iswindows, MAIN_APP_UID
+)
 from calibre.gui2 import (
-    initialize_file_icon_provider, Application, choose_dir,
-    error_dialog, question_dialog, gprefs, setup_gui_option_parser)
+    Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
+    question_dialog, setup_gui_option_parser
+)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
-from calibre.utils.config import prefs, dynamic
+from calibre.utils.config import dynamic, prefs
+from calibre.utils.ipc import RC, gui_socket_address
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -31,7 +39,7 @@ def option_parser():
     parser = _option_parser(_('''\
 %prog [options] [path_to_ebook]
 
-Launch the main calibre Graphical User Interface and optionally add the ebook at
+Launch the main calibre Graphical User Interface and optionally add the e-book at
 path_to_ebook to the database.
 '''))
     parser.add_option('--with-library', default=None, action='store',
@@ -525,7 +533,7 @@ def main(args=sys.argv):
         # launched from within calibre, as both use calibre-parallel.exe
         import ctypes
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.main-gui')
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(MAIN_APP_UID)
         except Exception:
             pass  # Only available on windows 7 and newer
 

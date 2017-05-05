@@ -78,7 +78,7 @@ class BulkConfig(Config):
             return cls(self.stack, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db)
 
-        self.setWindowTitle(_('Bulk Convert'))
+        self.setWindowTitle(_('Bulk convert'))
         lf = widget_factory(LookAndFeelWidget)
         hw = widget_factory(HeuristicsWidget)
         sr = widget_factory(SearchAndReplaceWidget)
@@ -142,5 +142,3 @@ class BulkConfig(Config):
             gprefs['convert_bulk_dialog_geom'] = \
                 bytearray(self.saveGeometry())
         return QDialog.done(self, r)
-
-

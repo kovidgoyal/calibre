@@ -133,14 +133,15 @@ def anchor_map(root):
 def get_length(root):
     strip_space = re.compile(r'\s+')
     ans = 0
+    ignore_tags = frozenset('script style title noscript'.split())
 
     def count(elem):
         num = 0
         tname = elem.tag.rpartition('}')[-1].lower()
-        if elem.text and tname not in 'script style':
-            num += len(strip_space.sub(elem.text, ''))
+        if elem.text and tname not in ignore_tags:
+            num += len(strip_space.sub('', elem.text))
         if elem.tail:
-            num += len(strip_space.sub(elem.tail, ''))
+            num += len(strip_space.sub('', elem.tail))
         if tname in 'img svg':
             num += 2000
         return num

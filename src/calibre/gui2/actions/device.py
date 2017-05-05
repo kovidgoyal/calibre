@@ -7,15 +7,16 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
+from PyQt5.Qt import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
 
-from calibre.gui2.actions import InterfaceAction
-from calibre.utils.smtp import config as email_config
-from calibre.utils.config import tweaks
-from calibre.constants import iswindows, isosx, get_osx_version
-from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
+from calibre.constants import get_osx_version, isosx, iswindows
 from calibre.gui2 import info_dialog, question_dialog
+from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.library.server import server_config as content_server_config
+from calibre.utils.config import tweaks
+from calibre.utils.icu import primary_sort_key
+from calibre.utils.smtp import config as email_config
 
 
 class ShareConnMenu(QMenu):  # {{{
@@ -48,7 +49,7 @@ class ShareConnMenu(QMenu):  # {{{
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
-            _('Start Content Server'))
+            _('Start Content server'))
         self.toggle_server_action.triggered.connect(lambda x:
                 self.toggle_server.emit())
         self.control_smartdevice_action = \
@@ -70,12 +71,12 @@ class ShareConnMenu(QMenu):  # {{{
                 ac = getattr(self, 'connect_to_%s_action'%attr)
                 r(prefix + attr, unicode(ac.text()), action=ac,
                         group=gr)
-            r(prefix+' content server', _('Start/stop content server'),
+            r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ipV4_address
-        text = _('Start Content Server')
+        text = _('Start Content server')
         if running:
             listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
                     get_external_ip())
@@ -85,7 +86,7 @@ class ShareConnMenu(QMenu):  # {{{
                         port=cs_port)
             except:
                 ip_text = ' [%s]'%listen_on
-            text = _('Stop Content Server') + ip_text
+            text = _('Stop Content server') + ip_text
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):
@@ -105,7 +106,11 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_to_and_delete_menu = QMenu(
                     _('Email to and delete from library')+'...', self)
             keys = sorted(opts.accounts.keys())
-            for account in keys:
+
+            def sk(account):
+                return primary_sort_key(opts.aliases.get(account) or account)
+
+            for account in sorted(keys, key=sk):
                 formats, auto, default = opts.accounts[account]
                 subject = opts.subjects.get(account, '')
                 alias = opts.aliases.get(account, '')

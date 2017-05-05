@@ -2,15 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-''' Changelog
- 2012-04-27 DrMerry:
-  Added cover picture
-  removed some extra tags
-'''
-
 __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
+''' Changelog
+2012-04-27 DrMerry:
+Added cover picture
+removed some extra tags
+'''
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -24,13 +23,23 @@ class Tweakers(BasicNewsRecipe):
     max_articles_per_feed = 40
     cover_url = 'http://tweakers.net/ext/launch/g/logo.gif'
 
-    keep_only_tags = [dict(name='div', attrs={'class': 'columnwrapper news'})]
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'columnwrapper news'}),
+        dict(name='div', attrs={'class': 'article'})
+    ]
 
-    remove_tags = [dict(name='div', attrs={'class': 'reacties'}),
-                   {'id': ['utracker', 'socialButtons', 'b_ac']},
-                   {'class': ['sidebar', 'advertorial']},
-                   {'class': re.compile('nextPrevious')},
-                   ]
+    remove_tags = [
+        dict(name='div', attrs={'class': 'reacties'}),
+        {
+            'id': ['utracker', 'socialButtons', 'b_ac']
+        },
+        {
+            'class': ['sidebar', 'advertorial']
+        },
+        {
+            'class': re.compile('nextPrevious')
+        },
+    ]
     no_stylesheets = True
     filter_regexps = [r'ads\.doubleclick\.net', r'ad\.doubleclick\.net']
 

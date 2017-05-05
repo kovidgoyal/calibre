@@ -322,7 +322,7 @@ OptionRecommendation(name='chapter',
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
-                '"chapter","book","section", "prologue", "epilogue", or "part" as chapter titles as '
+                '"chapter", "book", "section", "prologue", "epilogue" or "part" as chapter titles as '
                 'well as any tags that have class="chapter". The expression '
                 'used must evaluate to a list of elements. To disable chapter '
                 'detection, use the expression "/". See the XPath Tutorial '
@@ -345,7 +345,7 @@ OptionRecommendation(name='chapter_mark',
 OptionRecommendation(name='start_reading_at',
         recommended_value=None, level=OptionRecommendation.LOW,
         help=_('An XPath expression to detect the location in the document'
-            ' at which to start reading. Some ebook reading programs'
+            ' at which to start reading. Some e-book reading programs'
             ' (most prominently the Kindle) use this location as the'
             ' position at which to open the book. See the XPath tutorial'
             ' in the calibre User Manual for further help using this'
@@ -410,28 +410,32 @@ OptionRecommendation(name='margin_top',
         help=_('Set the top margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the bottom margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the left margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the right margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='change_justification',
         recommended_value='original', level=OptionRecommendation.LOW,
@@ -482,7 +486,7 @@ OptionRecommendation(name='insert_blank_line_size',
 
 OptionRecommendation(name='remove_first_image',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Remove the first image from the input ebook. Useful if the '
+        help=_('Remove the first image from the input e-book. Useful if the '
         'input document has a cover image that is not identified as a cover. '
         'In this case, if you set a cover in calibre, the output document will '
         'end up with two cover images if you do not specify this option.'
@@ -492,7 +496,7 @@ OptionRecommendation(name='remove_first_image',
 OptionRecommendation(name='insert_metadata',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Insert the book metadata at the start of '
-            'the book. This is useful if your ebook reader does not support '
+            'the book. This is useful if your e-book reader does not support '
             'displaying/searching metadata directly.'
             )
         ),
@@ -570,15 +574,15 @@ OptionRecommendation(name='cover',
 
 OptionRecommendation(name='comments',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook description.')),
+    help=_('Set the e-book description.')),
 
 OptionRecommendation(name='publisher',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook publisher.')),
+    help=_('Set the e-book publisher.')),
 
 OptionRecommendation(name='series',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the series this ebook belongs to.')),
+    help=_('Set the series this e-book belongs to.')),
 
 OptionRecommendation(name='series_index',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -706,7 +710,7 @@ OptionRecommendation(name='search_replace',
         'Path to a file containing search and replace regular expressions. '
         'The file must contain alternating lines of regular expression '
         'followed by replacement pattern (which can be an empty line). '
-        'The regular expression must be in the python regex syntax and '
+        'The regular expression must be in the Python regex syntax and '
         'the file must be UTF-8 encoded.')),
 ]
         # }}}
@@ -718,6 +722,7 @@ OptionRecommendation(name='search_replace',
         if view_kepub and input_fmt.lower() == 'kepub':
             input_fmt = 'epub'
         self.archive_input_tdir = None
+        self.changed_options = set()
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_pl_arc')
@@ -813,7 +818,7 @@ OptionRecommendation(name='search_replace',
         html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
         html_files = [f for f in files if html_pat.search(f) is not None]
         if not html_files:
-            raise ValueError(_('Could not find an ebook inside the archive'))
+            raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
         html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         html_files = [f[0] for f in html_files]
@@ -853,11 +858,24 @@ OptionRecommendation(name='search_replace',
         level is >= the baseline recommended level, the UI value is used,
         *except* if the baseline has a recommendation level of `HIGH`.
         '''
+
+        def eq(name, a, b):
+            if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css'}:
+                if not a and not b:
+                    return True
+            if name in {'transform_css_rules', 'search_replace'}:
+                if b == '[]':
+                    b = None
+            return a == b
+
         for name, val, level in recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
+                changed = not eq(name, rec.recommended_value, val)
                 rec.recommended_value = val
                 rec.level = level
+                if changed:
+                    self.changed_options.add(rec)
 
     def opts_to_mi(self, mi):
         from calibre.ebooks.metadata import string_to_authors
@@ -956,6 +974,11 @@ OptionRecommendation(name='search_replace',
                 and self.output_fmt == 'mobi'
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
+        if self.changed_options:
+            self.log('Conversion options changed from defaults:')
+            for rec in self.changed_options:
+                if rec.option.name not in ('username', 'password'):
+                    self.log(' ', '%s:' % rec.option.name, repr(rec.recommended_value))
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
@@ -1087,7 +1110,7 @@ OptionRecommendation(name='search_replace',
             self.input_plugin.specialize(self.oeb, self.opts, self.log,
                     self.output_fmt)
 
-        pr(0., _('Running transforms on ebook...'))
+        pr(0., _('Running transforms on e-book...'))
 
         self.oeb.plumber_output_format = self.output_fmt or ''
 
@@ -1101,6 +1124,8 @@ OptionRecommendation(name='search_replace',
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
 
+        from calibre.ebooks.oeb.transforms.jacket import RemoveFirstImage
+        RemoveFirstImage()(self.oeb, self.opts, self.user_metadata)
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
         MergeMetadata()(self.oeb, self.user_metadata, self.opts,
                 override_input_metadata=self.override_input_metadata)

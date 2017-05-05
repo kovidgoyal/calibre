@@ -390,7 +390,7 @@ class BasicRecipe(QWidget):  # {{{
             self.feed_title.clear()
             self.feed_url.clear()
             if src is None:
-                self.title.setText(_('My News Source'))
+                self.title.setText(_('My news source'))
                 self.oldest_article.setValue(7)
                 self.max_articles.setValue(100)
             else:
@@ -494,7 +494,7 @@ class CustomRecipes(Dialog):
         else:
             bb.setStandardButtons(bb.Cancel | bb.Save)
             if self.stack.currentIndex() == 1:
-                text = _('S&witch to Advanced mode')
+                text = _('S&witch to advanced mode')
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
                 b = bb.addButton(text, bb.ActionRole)
@@ -604,7 +604,7 @@ class CustomRecipes(Dialog):
     def load_recipe(self):
         files = choose_files(self, 'recipe loader dialog',
             _('Choose a recipe file'),
-            filters=[(_('Recipes'), ['.py', '.recipe'])],
+            filters=[(_('Recipes'), ['py', 'recipe'])],
             all_files=False, select_only_single_file=True)
         if files:
             path = files[0]
@@ -660,6 +660,7 @@ class CustomRecipes(Dialog):
         src = src.replace('BasicUserRecipe', 'AdvancedUserRecipe')
         self.advanced_recipe.recipe_source = src
         self.stack.setCurrentIndex(2)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

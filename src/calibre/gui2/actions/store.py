@@ -18,9 +18,9 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', _('Search dozens of online ebook retailers for the cheapest books'), _('G'))
+    action_spec = (_('Get books'), 'store.png', _('Search dozens of online e-book retailers for the cheapest books'), _('G'))
     action_add_menu = True
-    action_menu_clone_qaction = _('Search for ebooks')
+    action_menu_clone_qaction = _('Search for e-books')
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
@@ -132,7 +132,7 @@ class StoreAction(InterfaceAction):
 
     def show_disclaimer(self):
         confirm(('<p>' +
-            _('Calibre helps you find the ebooks you want by searching '
+            _('calibre helps you find the e-books you want by searching '
             'the websites of various commercial and public domain '
             'book sources for you.') +
             '<p>' +
@@ -141,7 +141,7 @@ class StoreAction(InterfaceAction):
             'You also get DRM status and other useful information.') + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
             'you and the book seller. '
-            'Calibre is not part of this process and any issues related '
+            'calibre is not part of this process and any issues related '
             'to a purchase should be directed to the website you are '
             'buying from. Be sure to double check that any books you get '
             'will work with your e-book reader, especially if the book you '
@@ -150,4 +150,4 @@ class StoreAction(InterfaceAction):
             )), 'about_get_books_msg',
             parent=self.gui, show_cancel_button=False,
             confirm_msg=_('Show this message again'),
-            pixmap='dialog_information.png', title=_('About Get Books'))
+            pixmap='dialog_information.png', title=_('About Get books'))

@@ -3,233 +3,310 @@
 from __python__ import hash_literals
 
 import traceback
-from ajax import ajax_send
-from dom import set_css, add_extra_css, unique_id
 from elementmaker import E
 from gettext import gettext as _
-from modals import error_dialog, ajax_progress_dialog
 
-from book_list.globals import get_session_data, get_boss
-from book_list.cover_grid import cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid, append_item as cover_grid_append_item
+from ajax import ajax_send
+from book_list.cover_grid import (
+    append_item as cover_grid_append_item, cover_grid_css,
+    create_item as create_cover_grid_item, init as init_cover_grid
+)
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list
+from book_list.library_data import (
+    book_metadata, current_library_id, current_sorted_field,
+    ensure_current_library_data, library_data, load_status, loaded_books_query,
+    thumbnail_cache, url_books_query
+)
+from book_list.router import back, update_window_title
+from book_list.search import (
+    init as init_search_panel, set_apply_search, tb_config_panel_handler
+)
+from book_list.top_bar import add_button, create_top_bar
+from book_list.ui import set_panel_handler, show_panel
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css
+from modals import error_dialog
+from session import get_interface_data
+from utils import conditional_timeout
 from widgets import create_button, create_spinner
 
-bv_counter = 0
-
-CLASS_NAME = 'books-main-list'
-COVER_GRID = unique_id('cover-grid')
+CLASS_NAME = 'book-list-container'
+ALLOWED_MODES = {'cover_grid'}
+DEFAULT_MODE = 'cover_grid'
 
 add_extra_css(def():
-    ans = cover_grid_css.call(COVER_GRID)
+    sel = '.' + CLASS_NAME + ' '
+    ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
+    ans += build_rule(sel + '[data-component="top_message"] a', color='blue')
+    ans += cover_grid_css.call()
     return ans
 )
 
-class BooksView:
+book_list_data = {
+    'container_id': None, 'shown_book_ids': set(), 'mode': None, 'fetching_more_books': None,
+}
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal bv_counter
-        bv_counter += 1
-        self.interface_data = interface_data
-        self.is_fetching = None
-        self.shown_book_ids = set()
-        self.container_id = 'books-view-' + bv_counter
-        # We have to apply the transform on the containing div not the img because of a bug in WebKit
-        # that causes img aspect ratios to be messed up on window resize if the transform is specified
-        # on the img itself
-        div = E.div(
-            id=self.container_id, style='display:block', class_=CLASS_NAME,
-            E.div(),
-            E.div()
-        )
-        book_list_container.appendChild(div)
-        self.set_view_mode(get_session_data().get('view_mode'))
-        self.create_more_button(div)
+def component(name):
+    return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
-    def create_more_button(self, div):
-        more = div.lastChild
-        more.appendChild(create_button(
-            _('Show more books'), 'cloud-download', def():self.get_more_books()
+
+def clear_grid():
+    container = document.getElementById(book_list_data.container_id)
+    # We replace the div entirely so that any styles associated with it are also removed
+    e = component('book_list')
+    bl = E.div(data_component='book_list')
+    container.insertBefore(bl, e)
+    container.removeChild(e)
+    book_list_data.init_grid(bl)
+
+
+def show_book_details(book_id):
+    show_panel('book_details', {'book_id':book_id})
+
+
+def create_image(book_id, max_width, max_height, on_load):
+    return thumbnail_cache.get(book_id, max_width, max_height, on_load)
+
+
+def render_id(book_id):
+    l = book_list_data.shown_book_ids.length
+    book_list_data.shown_book_ids.add(book_id)
+    if l < book_list_data.shown_book_ids.length:
+        metadata = book_metadata(book_id)
+        return book_list_data.render_book(book_id, metadata, create_image, show_book_details.bind(None, book_id))
+
+
+def render_ids(book_ids):
+    book_ids = book_ids or library_data.search_result.book_ids
+    div = component('book_list')
+    for book_id in book_ids:
+        child = render_id(book_id)
+        if child is not None:
+            book_list_data.append_item(div, child)
+
+
+def apply_view_mode(mode=DEFAULT_MODE):
+    if book_list_data.mode is mode:
+        return
+    if mode not in ALLOWED_MODES:
+        mode = DEFAULT_MODE
+    book_list_data.mode = mode
+    if mode is 'cover_grid':
+        book_list_data.render_book = create_cover_grid_item
+        book_list_data.init_grid = init_cover_grid
+        book_list_data.append_item = cover_grid_append_item
+    clear_grid()
+    render_ids()
+
+
+# More button {{{
+
+def update_fetching_status():
+    more = component('more_button')
+    if book_list_data.fetching_more_books:
+        more.firstChild.style.display = 'none'
+        more.lastChild.style.display = 'block'
+    elif library_data.search_result.total_num > book_list_data.shown_book_ids.length:
+        more.firstChild.style.display = 'block'
+        more.lastChild.style.display = 'none'
+    else:
+        more.firstChild.style.display = 'none'
+        more.lastChild.style.display = 'none'
+
+
+def abort_get_more_books(no_update):
+    if book_list_data.fetching_more_books:
+        book_list_data.fetching_more_books.abort()
+        book_list_data.fetching_more_books = None
+        if not no_update:
+            update_fetching_status()
+
+
+def got_more_books(end_type, xhr, event):
+    if book_list_data.fetching_more_books is not xhr:
+        return  # Fetching was aborted
+    book_list_data.fetching_more_books = None
+    update_fetching_status()
+    if end_type is 'load':
+        try:
+            data = JSON.parse(xhr.responseText)
+            for key in data.metadata:
+                library_data.metadata[key] = data.metadata[key]
+            if not data.search_result.book_ids:
+                raise Exception('No books ids object in search result from server')
+            library_data.search_result = data.search_result
+            render_ids(data.search_result.book_ids)
+        except Exception:
+            error_dialog(_('Could not get more books'), _('Server returned an invalid response'), traceback.format_exc())
+    elif end_type is not 'abort':
+        error_dialog(_('Could not get more books'), xhr.error_html)
+
+
+def get_more_books():
+    data = {'offset':book_list_data.shown_book_ids.length}
+    for key in 'query', 'sort', 'sort_order':
+        data[key] = library_data.search_result[key]
+    book_list_data.fetching_more_books = ajax_send(
+        'interface-data/more-books', data, got_more_books,
+        query={'library_id':loaded_books_query().library_id}
+    )
+    update_fetching_status()
+
+
+def create_more_button(more):
+    more.appendChild(create_button(
+        _('Show more books'), 'cloud-download', get_more_books
+    ))
+    more.lastChild.setAttribute('rel', 'next')
+    set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
+    set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', text_align='center', display='flex')
+    more.appendChild(E.div(
+        create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
+        style='margin-left:auto; margin-right:auto; display:none')
+    )
+    update_fetching_status()
+
+
+# }}}
+
+def show_top_message():
+    container = component('top_message')
+    if library_data.search_result?.query:
+        text = _('Showing books matching: {} ')
+        if not library_data.search_result.total_num:
+            text = _('No books matching: {} ')
+        container.appendChild(E.span(
+            E.span(text.format(library_data.search_result.query)),
+            E.a(_('Clear'), href='javascript:void(0)', onclick=def():search();, class_='simple-link', title=_('Clear this search'))
         ))
-        more.lastChild.setAttribute('rel', 'next')
-        set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
-        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', text_align='center', display='flex')
-        more.appendChild(E.div(
-            create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
-            style='margin-left:auto; margin-right:auto; display:none')
+    else:
+        container.style.display = 'none'
+
+def create_books_list(container):
+    book_list_data.container_id = ensure_id(container)
+    book_list_data.shown_book_ids = set()
+    book_list_data.mode = None
+    abort_get_more_books(True)
+    container.appendChild(E.div(data_component='top_message'))
+    container.appendChild(E.div(data_component='book_list'))
+    container.appendChild(E.div(data_component='more_button'))
+    show_top_message()
+    apply_view_mode(get_session_data().get('view_mode'))
+    create_more_button(container.lastChild)
+    add_button(container.parentNode, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
+    add_button(container.parentNode, icon='search', action=show_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
+    add_button(container.parentNode, icon='ellipsis-v', action=show_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
+
+
+def check_for_books_loaded():
+    container = this
+    if load_status.loading:
+        conditional_timeout(container.id, 5, check_for_books_loaded)
+        return
+    container = container.lastChild
+    clear(container)
+    if not load_status.ok:
+        err = E.div()
+        err.innerHTML = load_status.error_html
+        container.appendChild(E.div(
+            style='margin: 1ex 1em',
+            E.div(_('Failed to load books from calibre library, with error:')),
+            err,
+            E.div(
+                style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
+                E.a(onclick=back, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+            ),
         )
-        self.update_fetching_status()
+        return
+    create_books_list(container)
 
-    def set_view_mode(self, mode='cover_grid'):
-        if self.mode is mode:
-            return
-        if mode not in v"['cover_grid']":
-            mode = 'cover_grid'
-        self.mode = mode
-        if mode is 'cover_grid':
-            self.render_book = create_cover_grid_item
-            self.init_grid = init_cover_grid.bind(COVER_GRID)
-            self.append_item = cover_grid_append_item
-        self.clear()
-        self.render_ids()
 
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
+def init(container_id):
+    interface_data = get_interface_data()
+    ensure_current_library_data()
+    container = document.getElementById(container_id)
+    lid = container.dataset.library_id = url_books_query().library_id
+    title = interface_data.library_map[lid]
+    update_window_title(title)
+    create_top_bar(container, title=title, action=back, icon='home')
+    container.appendChild(E.div(class_=CLASS_NAME))
+    container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_books_loaded)
 
-    @property
-    def grid(self):
-        return self.container.lastChild.previousSibling
 
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
+# Sorting {{{
 
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
+def change_sort(field, order):
+    abort_get_more_books()
+    sd = get_session_data()
+    so = sd.get('last_sort_order')
+    order = order or so[field] or 'asc'
+    order = 'asc' if order is 'asc' else 'desc'
+    q = loaded_books_query()
+    q.sort = field + '.' + order
+    so[field] = order
+    sd.set('last_sort_order', so)
+    sd.set_library_option(q.library_id, 'sort', q.sort)
+    show_panel('book_list', query=q, replace=True)
 
-    def clear(self):
-        # We replace the div entirely so that any styles associated with it are
-        # also removed
-        c = self.container
-        c.removeChild(self.grid)
-        c.insertBefore(E.div(), c.lastChild)
-        self.shown_book_ids.clear()
-        self.init_grid(self.grid)
 
-    def render_id(self, book_id):
-        l = self.shown_book_ids.length
-        self.shown_book_ids.add(book_id)
-        if l < self.shown_book_ids.length:
-            return self.render_book(book_id, self.interface_data, self.show_book_details.bind(self, book_id))
-
-    def render_ids(self, book_ids):
-        book_ids = book_ids or self.interface_data['search_result']['book_ids']
-        div = self.grid
-        for book_id in book_ids:
-            child = self.render_id(book_id)
-            if child is not None:
-                self.append_item(div, child)
-
-    def update_fetching_status(self):
-        c = self.container
-        more = c.lastChild
-        if self.is_fetching is not None:
-            more.firstChild.style.display = 'none'
-            more.lastChild.style.display = 'block'
-        elif self.interface_data['search_result']['total_num'] > self.shown_book_ids.length:
-            more.firstChild.style.display = 'block'
-            more.lastChild.style.display = 'none'
+def create_sort_panel(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
+    items = []
+    csf, csf_order = current_sorted_field()
+    new_sort_order = 'desc' if csf_order is 'asc' else 'asc'
+    if csf is 'date':
+        csf = 'timestamp'
+    for field, name in library_data.sortable_fields:
+        subtitle = icon_name = None
+        if field is csf:
+            subtitle = _('Reverse current sort order')
+            icon_name = 'sort-amount-asc' if csf_order is 'asc' else 'sort-amount-desc'
+            action = change_sort.bind(None, field, new_sort_order)
         else:
-            more.firstChild.style.display = 'none'
-            more.lastChild.style.display = 'none'
+            action = change_sort.bind(None, field, None)
+        items.push(create_item(name, subtitle=subtitle, icon=icon_name, action=action))
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items, _('Change how the list of books is sorted'))
+# }}}
 
-    def get_more_books(self):
-        data = {'offset':self.shown_book_ids.length}
-        for key in 'query', 'sort', 'sort_order':
-            data[key] = self.interface_data['search_result'][key]
-        self.is_fetching = ajax_send('interface-data/more-books', data, self.got_more_books.bind(self),
-                                     query={'library_id':self.interface_data.library_id})
-        self.update_fetching_status()
+# Searching {{{
 
-    def abort_get_more_books(self):
-        if self.is_fetching:
-            a, self.is_fetching = self.is_fetching, None
-            a.abort()
-            self.update_fetching_status()
+def search(query, replace=False):
+    q = loaded_books_query()
+    if query:
+        q.search = query
+    else:
+        v'delete q.search'
+    show_panel('book_list', query=q, replace=replace)
 
-    def got_more_books(self, end_type, xhr, event):
-        if self.is_fetching is None or self.is_fetching is not xhr:
-            return  # Fetching was aborted
-        self.is_fetching = None
-        self.update_fetching_status()
-        if end_type is 'load':
-            try:
-                data = JSON.parse(xhr.responseText)
-                for key in data.metadata:
-                    self.interface_data.metadata[key] = data.metadata[key]
-                if not data.search_result.book_ids:
-                    raise Exception('No books ids object in search result from server')
-                self.render_ids(data.search_result.book_ids)
-                self.interface_data.search_result = data.search_result
-            except Exception:
-                error_dialog(_('Could not get more books'), _('Server returned an invalid response'), traceback.format_exc())
-        elif end_type is not 'abort':
-            error_dialog(_('Could not get more books'), xhr.error_html)
+set_apply_search(def(query): search(query, True);)
 
-    def sort_panel_data(self, create_item):
-        current_sorted_field = self.interface_data.search_result.sort.partition(',')[0]
-        current_sorted_field_order = self.interface_data.search_result.sort_order.partition(',')[0]
-        new_sort_order = 'desc' if current_sorted_field_order is 'asc' else 'asc'
-        if current_sorted_field is 'date':
-            current_sorted_field = 'timestamp'
-        ans = []
-        ans.subtitle = _('Change how the list of books is sorted')
-        for field, name in self.interface_data.sortable_fields:
-            subtitle = icon_name = None
-            if field is current_sorted_field:
-                subtitle = _('Reverse current sort order')
-                icon_name = 'sort-amount-asc' if current_sorted_field_order is 'asc' else 'sort-amount-desc'
-                action = self.change_sort.bind(self, field, new_sort_order)
-            else:
-                action = self.change_sort.bind(self, field, None)
-            ans.push(create_item(name, subtitle=subtitle, icon_name=icon_name, action=action))
-        return ans
+# }}}
 
-    def change_sort(self, field, order):
-        self.abort_get_more_books()
-        key = 'sort-order-for-' + field
-        sd = get_session_data()
-        order = order or sd.get(key, 'asc')
-        order = 'asc' if order is 'asc' else 'desc'
-        sd.set(key, order)
-        sr = self.interface_data.search_result
-        sort = field + '.' + order + ',' + sr.sort + '.' + sr.order
-        data = {'search':sr.query or '', 'sort':sort, 'num':self.shown_book_ids.length, 'library_id':self.interface_data.library_id}
-        ajax_progress_dialog('interface-data/get-books', self.sort_change_completed.bind(self), _(
-            'Fetching data from server, please wait') + '…', query=data)
+# More actions {{{
 
-    def sort_change_completed(self, end_type, xhr, ev):
-        if end_type is 'load':
-            boss = get_boss()
-            try:
-                data = JSON.parse(xhr.responseText)
-                boss.change_books(data)
-            except Exception as err:
-                return error_dialog(_('Could not change sort order'), err + '', details=traceback.format_exc())
-            boss.ui.show_panel(boss.ui.ROOT_PANEL)
-            window.scrollTo(0, 0)
-        elif end_type is not 'abort':
-            error_dialog(_('Could not change sort order'), xhr.error_html)
+def create_more_actions_panel(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
+    items = [
+        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed')),
+        create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
+                    query = {'library_id': current_library_id(), 'book_id':'0'}
+                    show_panel('book_details', query=query, replace=True)
+        ),
+    ]
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
 
-    def change_search(self, query, push_state=True, panel_to_show=None):
-        self.abort_get_more_books()
-        query = query or ''
-        sd = get_session_data()
-        data = {'search':query, 'sort':sd.get_library_option(self.interface_data.library_id, 'sort'), 'library_id':self.interface_data.library_id}
-        ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
-            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state, 'panel_to_show': panel_to_show})
+# }}}
 
-    def search_change_completed(self, end_type, xhr, ev):
-        if end_type is 'load':
-            boss = get_boss()
-            try:
-                data = JSON.parse(xhr.responseText)
-                boss.change_books(data)
-            except Exception as err:
-                return error_dialog(_('Could not change search query'), err + '', details=traceback.format_exc())
-            self.update_fetching_status()
-            ed = xhr.extra_data_for_callback
-            boss.ui.show_panel(ed.panel_to_show or boss.ui.ROOT_PANEL, push_state=ed.push_state)
-            window.scrollTo(0, 0)
-        elif end_type is not 'abort':
-            msg = xhr.error_html
-            if xhr.status is 400 and xhr.responseText.startswith('Invalid search expression:'):
-                msg = _('The search expression could not be parsed: ') + xhr.responseText
-            error_dialog(_('Could not change search query'), msg)
-
-    def refresh(self):
-        self.clear()
-        self.render_ids()
-
-    def show_book_details(self, book_id):
-        get_boss().ui.show_panel('book-details', extra_query_data={'book-id':'' + book_id})
+set_panel_handler('book_list', init)
+set_panel_handler('book_list^sort', create_sort_panel)
+set_panel_handler('book_list^search', init_search_panel)
+set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
+set_panel_handler('book_list^more_actions', create_more_actions_panel)

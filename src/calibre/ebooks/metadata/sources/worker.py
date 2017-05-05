@@ -1,27 +1,23 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from threading import Event, Thread
-from Queue import Queue, Empty
-from io import BytesIO
 from collections import Counter
+from io import BytesIO
+from Queue import Empty, Queue
+from threading import Event, Thread
 
-from calibre.utils.date import as_utc
-from calibre.ebooks.metadata.sources.identify import identify, msprefs
-from calibre.ebooks.metadata.book.base import Metadata
 from calibre.customize.ui import metadata_plugins
-from calibre.ebooks.metadata.sources.covers import (download_cover,
-        run_download)
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.base import dump_caches, load_caches
+from calibre.ebooks.metadata.sources.covers import download_cover, run_download
+from calibre.ebooks.metadata.sources.identify import identify, msprefs
+from calibre.ebooks.metadata.sources.update import patch_plugins
+from calibre.utils.date import as_utc
 from calibre.utils.logging import GUILog
-from calibre.ebooks.metadata.opf2 import metadata_to_opf, OPF
 
 
 def merge_result(oldmi, newmi, ensure_fields=None):
@@ -56,6 +52,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
     failed_covers = set()
     all_failed = True
     log = GUILog()
+    patch_plugins()
 
     for book_id, mi in metadata.iteritems():
         mi = OPF(BytesIO(mi), basedir=tdir,
@@ -102,6 +99,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
 
 def single_identify(title, authors, identifiers):
     log = GUILog()
+    patch_plugins()
     results = identify(log, Event(), title=title, authors=authors,
             identifiers=identifiers)
     return [metadata_to_opf(r) for r in results], [r.has_cached_cover_url for
@@ -109,6 +107,7 @@ def single_identify(title, authors, identifiers):
 
 
 def single_covers(title, authors, identifiers, caches, tdir):
+    patch_plugins()
     load_caches(caches)
     log = GUILog()
     results = Queue()
@@ -133,5 +132,3 @@ def single_covers(title, authors, identifiers, caches, tdir):
             os.mkdir(os.path.join(tdir, name+'.done'))
 
     return log.dump()
-
-

@@ -60,12 +60,12 @@ class AddAction(InterfaceAction):
         self.add_menu = self.qaction.menu()
         ma = partial(self.create_menu_action, self.add_menu)
         ma('recursive-single', _('Add books from directories, including '
-            'sub-directories (One book per directory, assumes every ebook '
+            'sub-directories (One book per directory, assumes every e-book '
             'file is the same book in a different format)')).triggered.connect(
             self.add_recursive_single)
         ma('recursive-multiple', _('Add books from directories, including '
             'sub-directories (Multiple books per directory, assumes every '
-            'ebook file is a different book)')).triggered.connect(
+            'e-book file is a different book)')).triggered.connect(
                     self.add_recursive_multiple)
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add multiple books from archive (ZIP/RAR)'))
         self.create_menu_action(arm, 'recursive-single-archive', _(
@@ -73,7 +73,7 @@ class AddAction(InterfaceAction):
         self.create_menu_action(arm, 'recursive-multiple-archive', _(
             'Multiple books per directory in the archive')).triggered.connect(partial(self.add_archive, False))
         self.add_menu.addSeparator()
-        ma('add-empty', _('Add Empty book. (Book entry with no formats)'),
+        ma('add-empty', _('Add empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
         ma('add-isbn', _('Add from ISBN')).triggered.connect(self.add_from_isbn)
         self.add_menu.addSeparator()
@@ -133,8 +133,10 @@ class AddAction(InterfaceAction):
                 override = formats.intersection(nformats)
                 if override:
                     title = db.title(ids[0], index_is_id=True)
-                    msg = _('The {0} format(s) will be replaced in the book {1}. Are you sure?').format(
-                        ', '.join(override), title)
+                    msg = ngettext(
+                        'The {0} format will be replaced in the book {1}. Are you sure?',
+                        'The {0} formats will be replaced in the book {1}. Are you sure?',
+                        len(override)).format(', '.join(override), title)
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 

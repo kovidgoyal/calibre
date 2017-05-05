@@ -13,7 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 class TagMapAction(InterfaceAction):
 
     name = 'Tag Mapper'
-    action_spec = (_('Tag Mapper'), 'tags.png', _('Filter/transform the tags for books in the library'), None)
+    action_spec = (_('Tag mapper'), 'tags.png', _('Filter/transform the tags for books in the library'), None)
     action_type = 'current'
 
     def genesis(self):

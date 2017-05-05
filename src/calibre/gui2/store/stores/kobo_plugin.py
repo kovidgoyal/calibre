@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -11,8 +11,6 @@ import urllib
 from contextlib import closing
 
 from lxml import html, etree
-
-from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.metadata import authors_to_string
@@ -25,7 +23,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
-    url = 'http://www.kobobooks.com/search/search.html?q=' + urllib.quote_plus(query)
+    url = 'https://www.kobobooks.com/search/search.html?q=' + urllib.quote_plus(query)
 
     br = browser()
 
@@ -42,7 +40,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
             for img in select('.item-image img[src]', item):
                 cover_url = img.get('src')
                 if cover_url.startswith('//'):
-                    cover_url = 'http:' + cover_url
+                    cover_url = 'https:' + cover_url
                 break
             else:
                 cover_url = None
@@ -50,7 +48,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
             for p in select('p.title', item):
                 title = etree.tostring(p, method='text', encoding=unicode).strip()
                 for a in select('a[href]', p):
-                    url = 'http://store.kobobooks.com' + a.get('href')
+                    url = a.get('href')
                     break
                 else:
                     url = None
@@ -59,7 +57,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 title = None
 
             authors = []
-            for a in select('p.author a.contributor', item):
+            for a in select('p.contributor-list a.contributor-name', item):
                 authors.append(etree.tostring(a, method='text', encoding=unicode).strip())
             authors = authors_to_string(authors)
 
@@ -79,7 +77,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 s.formats = 'EPUB'
                 s.drm = SearchResult.DRM_UNKNOWN
 
-            yield s
+                yield s
 
 
 class KoboStore(BasicStoreConfig, StorePlugin):
@@ -88,17 +86,17 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         pub_id = '0dsO3kDu/AU'
-        murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
+        murl = 'https://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
 
         if detail_item:
-            purl = 'http://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, urllib.quote_plus(detail_item))
+            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, urllib.quote_plus(detail_item))
             url = purl
         else:
             purl = None
             url = murl
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(url_slash_cleaner(url))
         else:
             d = WebStoreDialog(self.gui, murl, parent, purl)
             d.setWindowTitle(self.name)
@@ -115,6 +113,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             idata = html.fromstring(nf.read())
             search_result.author = ', '.join(idata.xpath('.//h2[contains(@class, "author")]//a/text()'))
         return True
+
 
 if __name__ == '__main__':
     import sys

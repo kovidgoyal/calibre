@@ -40,7 +40,7 @@ All the calibre python code is in the ``calibre`` package. This package contains
       * For details, see: ``devices.interface`` which defines the interface supported by device drivers and ``devices.usbms`` which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
 
-    * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
+    * e-books  - All the e-book conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
       module powering the :command:`ebook-convert` command. The conversion process is controlled via ``conversion.plumber``.
       The format independent code is all in ``ebooks.oeb`` and the format dependent code is in ``ebooks.format_name``.
 
@@ -49,20 +49,20 @@ All the calibre python code is in the ``calibre`` package. This package contains
           see :ref:`conversion-introduction`. The pipeline consists of an input
           plugin, various transforms and an output plugin. The code that constructs
           and drives the pipeline is in :file:`plumber.py`. The pipeline works on a
-          representation of an ebook that is like an unzipped epub, with
+          representation of an e-book that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The
           class that manages this representation is OEBBook in ``ebooks.oeb.base``. The
           various transformations that are applied to the book during
           conversions live in :file:`oeb/transforms/*.py`. And the input and output
           plugins live in :file:`conversion/plugins/*.py`.
-        * Ebook editing happens using a different container object. It is
+        * E-book editing happens using a different container object. It is
           documented in :ref:`polish_api`.
 
     * db - The database back-end. See :ref:`db_api` for the interface to the calibre library. 
 
-    * content server: ``library.server`` is the calibre Content Server.
+    * Content server: ``library.server`` is the calibre Content server.
 
-    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
+    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The e-book-viewer is in ``gui2.viewer``. The e-book editor is in ``gui2.tweak_book``.
 
 If you want to locate the entry points for all the various calibre executables,
 look at the ``entry_points`` structure in `linux.py
@@ -286,18 +286,18 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
-Similarly, you can start the ebook-viewer as::
+Similarly, you can start the e-book-viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
 
-The ebook-editor can be started as::
+The e-book-editor can be started as::
 
     calibre-debug -t /path/to/be/edited
 
-Using an interactive python interpreter
+Using an interactive Python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can insert the following two lines of code to start an interactive python session at that point::
+You can insert the following two lines of code to start an interactive Python session at that point::
 
     from calibre import ipython
     ipython(locals())
@@ -307,10 +307,10 @@ locally defined variables (variables in the local scope). The interactive prompt
 for object properties and you can use the various Python facilities for introspection, such as
 :func:`dir`, :func:`type`, :func:`repr`, etc.
 
-Using the python debugger as a remote debugger
+Using the Python debugger as a remote debugger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use the builtin python debugger (pdb) as a remote debugger from the
+You can use the builtin Python debugger (pdb) as a remote debugger from the
 command line. First, start the remote debugger at the point in the calibre code
 you are interested in, like this::
 
@@ -326,7 +326,7 @@ the debugging session::
 
     calibre-debug -c "from calibre.rpdb import cli; cli()"
 
-You can read about how to use the python debugger in the `python stdlib docs
+You can read about how to use the Python debugger in the `Python stdlib docs
 for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
 
 .. note::
@@ -336,13 +336,13 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
     ``cli(port=1234)``.
 
 .. note:: 
-    The python debugger cannot handle multiple threads, so you have to
+    The Python debugger cannot handle multiple threads, so you have to
     call set_trace once per thread, each time with a different port number.
 
-Using the debugger in your favorite python IDE
+Using the debugger in your favorite Python IDE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is possible to use the builtin debugger in your favorite python IDE, if it
+It is possible to use the builtin debugger in your favorite Python IDE, if it
 supports remote debugging. The first step is to add the calibre src checkout to
 the ``PYTHONPATH`` in your IDE. In other words, the directory you set as
 ``CALIBRE_DEVELOP_FROM`` above, must also be in the ``PYTHONPATH`` of your IDE.
@@ -353,15 +353,15 @@ remote debugger to calibre at the point of interest, for example in the main
 function. Then run calibre as normal. Your IDE should now be able to connect to
 the remote debugger running inside calibre.
 
-Executing arbitrary scripts in the calibre python environment
+Executing arbitrary scripts in the calibre Python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :command:`calibre-debug` command provides a couple of handy switches to execute your own
 code, with access to the calibre modules::
 
-    calibre-debug -c "some python code"
+    calibre-debug -c "some Python code"
 
-is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
+is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the Python interpreter::
 
     calibre-debug myscript.py
 

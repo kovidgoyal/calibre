@@ -23,7 +23,7 @@ class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
     gui_name       = 'Netronix EB600'
-    description    = _('Communicate with the EB600 eBook reader.')
+    description    = _('Communicate with the EB600 e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -305,7 +305,7 @@ class ELONEX(EB600):
 class POCKETBOOK301(USBMS):
 
     name           = 'PocketBook 301 Device Interface'
-    description    = _('Communicate with the PocketBook 301 reader.')
+    description    = _('Communicate with the PocketBook 301 Reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
@@ -415,4 +415,3 @@ class PI2(EB600):
     WINDOWS_CARD_A_MEM = 'INFIBEAM_PI'
 
     DELETE_EXTS = ['.rec']
-

@@ -42,9 +42,9 @@ class TagBrowserMixin(object):  # {{{
                         self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
              (_('Manage Tags'),
                         self.do_tags_list_edit, (None, 'tags'), 'tags'),
-             (_('Manage User Categories'),
+             (_('Manage User categories'),
                         self.do_edit_user_categories, (None,), 'user:'),
-             (_('Manage Saved Searches'),
+             (_('Manage Saved searches'),
                         self.do_saved_search_edit, (None,), 'search')
             ):
             m.addAction(QIcon(I(category_icon_map[cat_name])), text,
@@ -87,6 +87,13 @@ class TagBrowserMixin(object):  # {{{
                                                  type=Qt.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
         self.populate_tb_manage_menu(db)
+        self.tags_view.model().user_categories_edited.connect(self.user_categories_edited,
+                type=Qt.QueuedConnection)
+        self.tags_view.model().user_category_added.connect(self.user_categories_edited,
+                type=Qt.QueuedConnection)
+
+    def user_categories_edited(self):
+        self.library_view.model().refresh()
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -139,6 +146,7 @@ class TagBrowserMixin(object):  # {{{
             db.new_api.set_pref('user_categories', d.categories)
             db.new_api.refresh_search_locations()
             self.tags_view.recount()
+            self.user_categories_edited()
 
     def do_delete_user_category(self, category_name):
         '''
@@ -172,6 +180,7 @@ class TagBrowserMixin(object):  # {{{
                 del user_cats[k]
         db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
         '''
@@ -190,6 +199,7 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.model().delete_item_from_user_category(user_cat,
                                                       item_name, item_category)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_add_item_to_user_cat(self, dest_category, src_name, src_category):
         '''
@@ -217,6 +227,7 @@ class TagBrowserMixin(object):  # {{{
             user_cats[dest_category].append([src_name, src_category, 0])
         db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
+        self.user_categories_edited()
 
     def do_tags_list_edit(self, tag, category):
         '''
@@ -346,7 +357,7 @@ class TagBrowserWidget(QWidget):  # {{{
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         try:
             self.item_search.lineEdit().setPlaceholderText(
-                                                _('Find item in tag browser'))
+                                                _('Find item in Tag browser'))
         except:
             pass             # Using Qt < 4.7
         self.item_search.setToolTip(_(
@@ -361,7 +372,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
                 _('Find item'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
@@ -372,7 +383,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find button',
                 _('Find button'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
         self.expand_button = QToolButton()
@@ -386,7 +397,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser collapse all',
                 _('Collapse all'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.expand_button.clicked)
 
         self.current_find_position = None
@@ -419,7 +430,7 @@ class TagBrowserWidget(QWidget):  # {{{
                                                    type=Qt.QueuedConnection)
 
         parent.alter_tb = l = QPushButton(parent)
-        l.setText(_('Alter Tag Browser'))
+        l.setText(_('Alter Tag browser'))
         l.setIcon(QIcon(I('tags.png')))
         l.m = QMenu()
         l.setMenu(l.m)
@@ -427,8 +438,8 @@ class TagBrowserWidget(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
-                _('Alter tag browser'), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                _('Alter Tag browser'), default_keys=(),
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 
         sb = l.m.addAction(_('Sort by'))
@@ -437,15 +448,15 @@ class TagBrowserWidget(QWidget):  # {{{
         sb.bg = QActionGroup(sb)
 
         # Must be in the same order as db2.CATEGORY_SORTS
-        for i, x in enumerate((_('Sort by name'), _('Sort by number of books'),
-                  _('Sort by average rating'))):
+        for i, x in enumerate((_('Name'), _('Number of books'),
+                  _('Average rating'))):
             a = sb.m.addAction(x)
             sb.bg.addAction(a)
             a.setCheckable(True)
             if i == 0:
                 a.setChecked(True)
         sb.setToolTip(
-                _('Set the sort order for entries in the Tag Browser'))
+                _('Set the sort order for entries in the Tag browser'))
         sb.setStatusTip(sb.toolTip())
 
         ma = l.m.addAction(_('Search type when selecting multiple items'))
@@ -461,7 +472,7 @@ class TagBrowserWidget(QWidget):  # {{{
             if i == 0:
                 a.setChecked(True)
         ma.setToolTip(
-                _('When selecting multiple entries in the Tag Browser '
+                _('When selecting multiple entries in the Tag browser '
                     'match any or all of them'))
         ma.setStatusTip(ma.toolTip())
 
@@ -475,7 +486,7 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser toggle item',
                 _("'Click' found item"), default_keys=(),
-                action=ac, group=_('Tag Browser'))
+                action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_item)
 
         # self.leak_test_timer = QTimer(self)

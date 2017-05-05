@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 from contextlib import closing
 import urllib
@@ -18,10 +18,10 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-SEARCH_BASE_URL = 'http://www.amazon.ca/s/'
+SEARCH_BASE_URL = 'https://www.amazon.ca/s/'
 SEARCH_BASE_QUERY = {'url': 'search-alias=digital-text'}
-DETAILS_URL = 'http://amazon.ca/dp/'
-STORE_LINK =  'http://www.amazon.ca'
+DETAILS_URL = 'https://amazon.ca/dp/'
+STORE_LINK =  'https://www.amazon.ca'
 DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
 DRM_FREE_TEXT = 'Unlimited'
 
@@ -66,7 +66,7 @@ def search_amazon(query, max_results=10, timeout=60,
             cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
             title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
             author_xpath = './/span[starts-with(text(), "by ")]/following-sibling::span//text()'
-            price_xpath = '(.//span[contains(@class, " s-price ")])[last()]//text()'
+            price_xpath = 'descendant::span[contains(@class, "sx-price")]/../@aria-label'
         else:
             return
 
@@ -141,6 +141,7 @@ class AmazonKindleStore(StorePlugin):
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
+
 
 if __name__ == '__main__':
     import sys

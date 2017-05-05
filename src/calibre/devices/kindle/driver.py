@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Amazon's Kindle
 '''
 
-import datetime, os, re, sys, json, hashlib, shutil
+import datetime, os, re, sys, json, hashlib, errno
 
 from calibre.constants import DEBUG
 from calibre.devices.kindle.bookmark import Bookmark
@@ -36,10 +36,6 @@ Adding a book to a collection on the Kindle does not change the book file at all
 (i.e. it is binary identical). Therefore collection information is not stored in
 file metadata.
 '''
-
-
-def get_kfx_path(path):
-    return os.path.dirname(os.path.dirname(path)).rpartition('.')[0] + '.kfx'
 
 
 class KINDLE(USBMS):
@@ -86,40 +82,30 @@ class KINDLE(USBMS):
         ' Click "Show details" to see the list of books.'
     )
 
-    def is_a_book_file(self, filename, path, prefix):
+    def is_allowed_book_file(self, filename, path, prefix):
         lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2].replace('\\', '/')
-        return lpath.endswith('.sdr/assets/metadata.kfx')
-
-    def delete_single_book(self, path):
-        if path.replace('\\', '/').endswith('.sdr/assets/metadata.kfx'):
-            kfx_path = get_kfx_path(path)
-            if DEBUG:
-                prints('Kindle driver: Attempting to delete kfx: %r -> %r' % (path, kfx_path))
-            if os.path.exists(kfx_path):
-                os.unlink(kfx_path)
-            sdr_path = kfx_path.rpartition('.')[0] + '.sdr'
-            if os.path.exists(sdr_path):
-                shutil.rmtree(sdr_path)
-            try:
-                os.removedirs(os.path.dirname(kfx_path))
-            except Exception:
-                pass
-
-        else:
-            return USBMS.delete_single_book(self, path)
+        return '.sdr/' not in lpath
 
     @classmethod
     def metadata_from_path(cls, path):
-        if path.replace('\\', '/').endswith('.sdr/assets/metadata.kfx'):
+        if path.endswith('.kfx'):
             from calibre.ebooks.metadata.kfx import read_metadata_kfx
             try:
-                with lopen(path, 'rb') as f:
-                    mi = read_metadata_kfx(f)
+                kfx_path = path
+                with lopen(kfx_path, 'rb') as f:
+                    if f.read(8) != b'\xeaDRMION\xee':
+                        f.seek(0)
+                        mi = read_metadata_kfx(f)
+                    else:
+                        kfx_path = os.path.join(path.rpartition('.')[0] + '.sdr', 'assets', 'metadata.kfx')
+                        with lopen(kfx_path, 'rb') as mf:
+                            mi = read_metadata_kfx(mf)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                path = get_kfx_path(path)
-                mi = cls.metadata_from_formats([get_kfx_path(path)])
+                if DEBUG:
+                    prints('failed kfx path:', kfx_path)
+                mi = cls.metadata_from_formats([path])
         else:
             mi = cls.metadata_from_formats([path])
         if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
@@ -229,13 +215,13 @@ class KINDLE(USBMS):
         spanTag['style'] = 'font-weight:bold'
         if bookmark.book_format == 'pdf':
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % dict(
+                _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)))
         else:
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % dict(
+                _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)))
@@ -335,7 +321,7 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
     description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite/Voyage eBook reader.')
 
-    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
     # On the Touch, there's also .asc files, but not using the same basename
     # (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in
@@ -415,7 +401,7 @@ class KINDLE2(KINDLE):
         return vals
 
     def formats_to_scan_for(self):
-        ans = USBMS.formats_to_scan_for(self) | {'azw3'}
+        ans = USBMS.formats_to_scan_for(self) | {'azw3', 'kfx'}
         return ans
 
     def books(self, oncard=None, end_session=True):
@@ -475,26 +461,44 @@ class KINDLE2(KINDLE):
         # Upload the apnx file
         self.upload_apnx(path, filename, metadata, filepath)
 
-    def upload_kindle_thumbnail(self, metadata, filepath):
+    def thumbpath_from_filepath(self, filepath):
+        from calibre.ebooks.mobi.reader.headers import MetadataHeader
         from calibre.utils.logging import default_log
-        coverdata = getattr(metadata, 'thumbnail', None)
-        if not coverdata or not coverdata[2]:
-            return
         thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
         if not os.path.exists(thumb_dir):
             return
-
-        from calibre.ebooks.mobi.reader.headers import MetadataHeader
         with lopen(filepath, 'rb') as f:
             mh = MetadataHeader(f, default_log)
         if mh.exth is None or not mh.exth.uuid or not mh.exth.cdetype:
             return
-        thumbfile = os.path.join(thumb_dir,
+        return os.path.join(thumb_dir,
                 'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
                     uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
-        with lopen(thumbfile, 'wb') as f:
-            f.write(coverdata[2])
-            fsync(f)
+
+    def upload_kindle_thumbnail(self, metadata, filepath):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if not coverdata or not coverdata[2]:
+            return
+
+        tp = self.thumbpath_from_filepath(filepath)
+        if tp:
+            with lopen(tp, 'wb') as f:
+                f.write(coverdata[2])
+                fsync(f)
+
+    def delete_single_book(self, path):
+        try:
+            tp = self.thumbpath_from_filepath(path)
+            if tp:
+                try:
+                    os.remove(tp)
+                except EnvironmentError as err:
+                    if err.errno != errno.ENOENT:
+                        prints(u'Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        USBMS.delete_single_book(self, path)
 
     def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder
@@ -557,13 +561,16 @@ class KINDLE_DX(KINDLE2):
     def upload_kindle_thumbnail(self, metadata, filepath):
         pass
 
+    def delete_single_book(self, path):
+        USBMS.delete_single_book(self, path)
+
 
 class KINDLE_FIRE(KINDLE2):
 
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
-    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]
@@ -577,3 +584,6 @@ class KINDLE_FIRE(KINDLE2):
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         pass
+
+    def delete_single_book(self, path):
+        USBMS.delete_single_book(self, path)

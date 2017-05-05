@@ -17,6 +17,8 @@ USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45
 class GoogleImages(Source):
 
     name = 'Google Images'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
     config_help_message = _('Configure the Google Image Search plugin')
@@ -94,6 +96,7 @@ def test():
     p.download_cover(default_log, rq, Event(), title='The Heroes',
                      authors=('Joe Abercrombie',))
     print ('Downloaded', rq.qsize(), 'covers')
+
 
 if __name__ == '__main__':
     test()

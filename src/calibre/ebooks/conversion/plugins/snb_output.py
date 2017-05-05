@@ -134,9 +134,9 @@ class SNBOutput(OutputFormatPlugin):
                     # the tocInfoTree directly instead of modifying the toc
                     ch = etree.SubElement(tocBody, "chapter")
                     ch.set("src", ProcessFileName(first.href) + ".snbc")
-                    ch.text = _('Cover Pages')
+                    ch.text = _('Cover pages')
                     outputFiles[first.href] = []
-                    outputFiles[first.href].append(("", _("Cover Pages")))
+                    outputFiles[first.href].append(("", _("Cover pages")))
 
             for tocitem in oeb_book.toc:
                 if tocitem.href.find('#') != -1:
@@ -249,6 +249,7 @@ class SNBOutput(OutputFormatPlugin):
             img = resize_image(img, x / scale, y / scale)
         with lopen(imagePath, 'wb') as f:
             f.write(image_to_data(img, fmt=imagePath.rpartition('.')[-1]))
+
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.reader import OEBReader

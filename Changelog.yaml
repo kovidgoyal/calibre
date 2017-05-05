@@ -20,6 +20,276 @@
 #   new recipes:
 #     - title:
 
+- version: 2.84.0
+  date: 2017-05-05
+
+  new features:
+    - title: "Kindle driver: Also delete book thumbnails from the system directory when deleting books."
+
+    - title: "Conversion: Use the same regular expression engine as is used by the Edit Book tool. The new engine has much better support for Unicode characters/character classes."
+
+    - title: "Edit Book: Add keyboard shortcuts to jump to opening and closing tags (Ctrl+{ and Ctrl+})"
+
+    - title: "Add API to pre-process image data in recipes easily"
+
+    - title: "fetch-ebook-metadata: add option to use only a single metadata plugin"
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression in the previous release that broke printing from inside the viewer."
+
+    - title: "DOCX Output: When the input document contains paragraphs inside a block with a background color preserve the background color in the resulting paragraphs in the DOCX document."
+      tickets: [1683188]
+
+    - title: "DOCX Output: Fix links to empty inline tags not working."
+      tickets: [1683188]
+
+    - title: "DOCX Input: Fix links that point to anchors placed in empty paragraphs not working."
+      tickets: [1683017]
+
+    - title: "PDF Output: Do not crash when unable to find page for link destination, instead use previous page."
+      tickets: [1687914]
+
+    - title: "Edit Book: Fix sorting by language in Report->Words not working"
+
+    - title: "Edit Book: Fix drag and drop of multiple items in the File Browser causing item order to be reversed."
+
+    - title: "Get Books: Update Baen store plugin for website changes"
+
+    - title: "Linux: When adding books from directories ignore files that have undecodable names."
+      tickets: [1685819]
+
+    - title: "AZW3: Preserve the primary-writing-mode EXTH header field when round-tripping AZW3 files. Should fix editing/conversion of RTL AZW3 files causing page turning to become left-to-right on the Kindle"
+
+    - title: "AZW3 Output: Set the primary-writing-mode EXTH header when the input document has page-progression-direction set to RTL as this is apparently required on newer Kindle firmware for right-to-left page turning"
+
+    - title: "Fix a misbehaving wireless device connection can cause calibre to hang when opening the Connect/Share menu."
+      tickets: [1676522]
+
+  improved recipes:
+    - Private Eye
+    - Die Zeit
+    - NYTimes Tech Beat
+
+  new recipes:
+    - title: First Things
+      author: John Hutson
+
+- version: 2.83.0
+  date: 2017-04-15
+
+  new features:
+    - title: "PDF Output: Default to generating PDFs with a page size of letter instead of taking the page size from the output profile."
+      description: 'This avoids user confusion/bug reports about PDF Output having "too large fonts". There is a new option "Use profile size" to have the conversion use the output profile page size instead.'
+
+    - title: "PDF/DOCX Output: Add separate, pdf/docx specific, page margin settings that override the common settings."
+      description: "Useful because page margin settings for page oriented formats, such as PDF and DOCX are usually different than those for reflowable formats such as EPUB"
+
+    - title: "Table of Contents tool: Add an undo button"
+
+    - title: "Metadata jacket: Show custom rating columns using stars"
+
+    - title: "Metadata jacket: Change formatting of series to match that used by the book details panel. Also allow access to the raw series name and number when customizing the jacket template."
+
+    - title: "calibredb check_library: Vacuum database when running the check"
+
+    - title: "Check Book: Add a check for empty identifier elements"
+
+  bug fixes:
+    - title: "Edit book/Book polishing: When adding a cover to an EPUB 3.0 file set the svg property if a SVG cover wrapper is used"
+
+    - title: "Refresh the book list when a User Category is added/edited."
+      tickets: [1675535]
+
+    - title: "EPUB metadata: Fix deleting ISBN from EPUB file could result in an EPUB file without a package identifier if the ISBN was used as the package identifier."
+      tickets: [1677383]
+
+    - title: "Amazon metadata download: Fix title and author names being bold in the downloaded comments when using bing to get amazon metadata."
+      tickets: [1674088]
+
+    - title: "PDF Output: Fix a regression that broke PDF Output for documents containing mathematics."
+      tickets: [1673983]
+
+    - title: 'E-book viewer: Fix a regression that broke the "Clear recently read books" action in the viewer'
+
+  improved recipes:
+    - Go Comics
+    - Die Zeit (subscription)
+    - Pagina12
+    - New York Magazine
+
+  new recipes:
+    - title: Jacobin magazine
+      author: Darko Miletic
+
+
+- version: 2.82.0
+  date: 2017-03-18
+
+  new features:
+    - title: "Edit Book: Saved Searches: Add keyboard shortcut (Alt+Up/Down Arrow) to move selected searches"
+
+  bug fixes:
+    - title: "Fix a typo in the previous release that caused dynamically updated metadata source plugins to stop working."
+      tickets: [1673884]
+
+    - title: "Catalog generation: Ignore tags with commas in them when generating genres"
+
+    - title: "News download: Do not use Microsoft user agents as more and more websites are serving JPEG XR images to these browsers"
+
+    - title: "Amazon metadata download: Fix spurious results when searching for books that are not present on amazon using a search engine."
+
+    - title: "Get Books: Fix free samples being detected as independent books when searching OPDS based stores such as Feedbooks."
+      tickets: [1672500]
+
+    - title: "Edit Book: Saved Searches: Preserve selection when using arrows to move multiple items"
+
+    - title: "Fix template formatter functions not being reloaded after a check library operation"
+
+    - title: "Fix an error during shutdown caused by some library closed plugins"
+
+  improved recipes:
+    - The Economist
+    - Telegraph UK
+
+  new recipes:
+    - title: The Morning Paper
+      author: Darko Miletic
+
+- version: 2.81.0
+  date: 2017-03-10
+
+  new features:
+    - title: "Amazon metadata download: Allow downloading amazon metadata from multiple sources. You can now configure the Amazon plugin via Preferences->Metadata download to use either the amazon servers, or various search engine caches to get the metadata. Should help with the recent CAPTCHA problems when downloading metadata from amazon"
+
+    - title: "Kobo driver: Add support for new firmware"
+
+    - title: "Edit Book: Spell Check dialog: Always add the original word as one of the spelling corrections, so that small edits to the word can be made easily."
+      tickets: [1667914]
+
+    - title: "Edit Book: Saved searched Dialog: Allow re-arranging the saved searches using drag and drop."
+      tickets: [1669514]
+
+    - title: "Implement auto update of built-in metadata download plugins, just as for recipes and Get Books plugins. Needed as the websites they get data from often change."
+
+    - title: "Edit Book: When inserting full screen images, use the actual image dimensions in the generated SVG code, when available"
+
+    - title: "Linux installer: Check that the umask is suitable before running the installer. Should fix breakage on systems where users have changed the user umask but neglected to also alter it for sudo"
+
+    - title: "Bulk metadata edit: Remove the control to delete specific formats as it is redundant. This functionality is already present by right clicking the Remove books button"
+
+  bug fixes:
+    - title: "TXT Input: When detecting the encoding of txt files only use the first four kilobytes of text. Fixes excessively slow conversion of very large text files."
+      tickets: [1668246]
+
+    - title: "Get Books: Fix price not being displayed for books from Amazon dues to website changes"
+
+    - title: "GetBooks: Update Google Books plugin for website changes"
+
+    - title: "E-book viewer: Fix slow startup when recently opened files are on a slow/malfunctioning networked filesystem."
+      tickets: [1669497]
+
+    - title: "Google metadata download: Fix metadata not being found when the title of the book includes a sub-title"
+
+    - title: "Improve downloading of covers from the google books metadata source"
+
+    - title: "News download: Fix a bug that could cause a crash when downloading an SVG image."
+      tickets: [1669530]
+
+    - title: "Edit book: Fix a regression that caused pasting copied text from programs that generate both HTML and plain text when copying to paste the HTML in preference to the plain text"
+
+  improved recipes:
+    - tyzden
+    - The Economist
+    - Kansas City Star
+    - NYTimes
+    - The Spectator
+
+- version: 2.80.0
+  date: 2017-02-24
+
+  new features:
+    - title: "Add support for sideloading of KFX files created with the third-party KFX calibre plugin"
+      tickets: [1666040]
+
+    - title: "Edit book: Allow drag and drop of image files, stylesheets and html files into the editor to insert the appropriate <img> and <link> tags and add the files to the book automatically."
+
+    - title: "Kobo driver: Add support for updated firmware"
+
+    - title: "Edit Book: Spell Check: If there are no suggestions fill the suggested word box with the original word."
+      tickets: [1664284]
+
+    - title: "Viewer: add a shortcut (Ctrl+F11) to show/hide toolbars."
+      tickets: [1664077]
+
+  bug fixes:
+    - title: "PDF Output: Fix courier font not being rendered when converting on windows."
+      tickets: [1665835]
+
+    - title: "E-mail delivery: Add a Message-ID header when sending emails. Reduces probability of mails sent from calibre being marked as spam"
+
+    - title: "Save to disk: Fix path shortening being applied to entire save template even when saving to singe directory."
+      tickets: [1665964]
+
+    - title: "Get Books: Update the Virualo and Publi store plugins for website changes"
+
+    - title: "Viewer: Fix regression that caused slow opening of some books with missing font/css/image files"
+
+    - title: "Viewer: Pressing Ctrl+F in fullscreen mode should show the controls."
+      tickets: [1664076]
+
+    - title: "Edit book: Do not allow creating multiple new files whose names differ only by case."
+      tickets: [1664027]
+
+    - title: "Viewer: Use heuristics to try to detect comics encoded as fixed layout EPUBs to ensure they are displayed as intended."
+      tickets: [1667357]
+
+  improved recipes:
+    - The Atlantic
+    - The Financial Times
+
+  new recipes:
+    - title: Various new and improved Belgian news sources
+      author: erkfuizfeuadjfjzefzfuzeff
+
+- version: 2.79.1
+  date: 2017-02-10
+
+  new features:
+    - title: "Windows: Make recently opened books show up in the jump lists for the standalone viewer and editor programs"
+
+    - title: "OS X/Linux: Show an informational popup message when an Android device is plugged in that needs the user to tap Allow for the connection to work."
+
+    - title: "Conversion: Log options that are different from the defaults separately, for easy reference"
+
+  bug fixes:
+    - title: "2.79.1 fixes a regression in 2.79.0 that broke the file open dialogs on windows vista"
+
+    - title: "Conversion: Fix regression that broke conversion of some epub files when using the 'Remove first image' option."
+      tickets: [1660699]
+
+    - title: "Get Books: Update Kobo plugin for website changes"
+
+    - title: "Windows MTP driver: Fix error when enumerating device storage not being reported during debug device detection"
+
+    - title: "Tag Browser: When dragging and dropping a book onto a series increment the series number."
+      tickets: [1661588]
+
+    - title: "Fix crash when generating covers with Qt 5.8 on linux"
+
+    - title: "Fix Get Books result list and jobs list not being populated on Qt 5.8"
+
+    - title: "Fix importing rules in the coloring/icon rules dialog not enabling the apply button"
+
+  improved recipes:
+    - Strange Horizons
+    - Wall Street Journal
+    - Bangkok Post
+    - The Atlantic
+    - NYTimes
+    - LA Times
+    - New Yorker
+    - The Straits Times
+
 - version: 2.78.0
   date: 2017-01-27
 

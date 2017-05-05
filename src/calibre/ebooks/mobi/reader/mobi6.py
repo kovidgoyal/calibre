@@ -30,7 +30,12 @@ class TopazError(ValueError):
 
 
 class KFXError(ValueError):
-    pass
+
+    def __init__(self):
+        ValueError.__init__(self, _(
+            'This is an Amazon KFX book. It cannot be processed.'
+            ' See {} for information on how to handle KFX books.'
+        ).format('https://www.mobileread.com/forums/showthread.php?t=283371'))
 
 
 class MobiReader(object):
@@ -76,7 +81,7 @@ class MobiReader(object):
         if raw.startswith('TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):
-            raise KFXError(_('This is an Amazon KFX book. It cannot be processed.'))
+            raise KFXError()
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')

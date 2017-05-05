@@ -64,7 +64,7 @@ class IdLinksRuleEdit(Dialog):
         self.key = k = QLineEdit(self)
         l.addRow(_('&Key:'), k)
         l.addRow(QLabel(_(
-            'The name that will appear in the book details panel')))
+            'The name that will appear in the Book details panel')))
         self.nw = n = QLineEdit(self)
         l.addRow(_('&Name:'), n)
         la = QLabel(_(
@@ -551,7 +551,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def change_cover_grid_color(self):
         col = QColorDialog.getColor(self.cg_bg_widget.bcol,
-                              self.gui, _('Choose background color for cover grid'))
+                              self.gui, _('Choose background color for the Cover grid'))
         if col.isValid():
             col = tuple(col.getRgb())[:3]
             self.set_cg_color(col)

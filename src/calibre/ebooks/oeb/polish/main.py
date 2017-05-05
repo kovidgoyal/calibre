@@ -46,14 +46,14 @@ SUPPORTED = {'EPUB', 'AZW3'}
 HELP = {'about': _(
 '''\
 <p><i>Polishing books</i> is all about putting the shine of perfection onto
-your carefully crafted ebooks.</p>
+your carefully crafted e-books.</p>
 
-<p>Polishing tries to minimize the changes to the internal code of your ebook.
+<p>Polishing tries to minimize the changes to the internal code of your e-book.
 Unlike conversion, it <i>does not</i> flatten CSS, rename files, change font
 sizes, adjust margins, etc. Every action performs only the minimum set of
 changes needed for the desired effect.</p>
 
-<p>You should use this tool as the last step in your ebook creation process.</p>
+<p>You should use this tool as the last step in your e-book creation process.</p>
 {0}
 <p>Note that polishing only works on files in the %s formats.</p>\
 ''')%_(' or ').join(sorted('<b>%s</b>'%x for x in SUPPORTED)),
@@ -123,6 +123,7 @@ def hfix(name, raw):
     raw = raw.replace('__XX__', '\n')
     raw = raw.replace('&lt;', '<').replace('&gt;', '>')
     return raw
+
 
 CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
 # }}}
@@ -229,6 +230,7 @@ def polish(file_map, opts, log, report):
         report('-'*70)
     report(_('Polishing took: %.1f seconds')%(time.time()-st))
 
+
 REPORT = '{0} REPORT {0}'.format('-'*30)
 
 
@@ -273,7 +275,7 @@ def option_parser():
     o('--embed-fonts', '-e', dest='embed', help=CLI_HELP['embed'])
     o('--subset-fonts', '-f', dest='subset', help=CLI_HELP['subset'])
     a('--cover', '-c', help=_(
-        'Path to a cover image. Changes the cover specified in the ebook. '
+        'Path to a cover image. Changes the cover specified in the e-book. '
         'If no cover is present, or the cover is not properly identified, inserts a new cover.'))
     a('--opf', '-o', help=_(
         'Path to an OPF file. The metadata in the book is updated from the OPF file.'))
@@ -327,6 +329,6 @@ def main(args=None):
 
     log('Output written to:', outbook)
 
+
 if __name__ == '__main__':
     main()
-

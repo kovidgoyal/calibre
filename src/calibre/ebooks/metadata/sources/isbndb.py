@@ -13,12 +13,14 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.utils.icu import lower
 from calibre.ebooks.metadata.book.base import Metadata
 
-BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%s&page_number=1&results=subjects,authors,texts&'
+BASE_URL = 'https://isbndb.com/api/books.xml?access_key=%s&page_number=1&results=subjects,authors,texts&'
 
 
 class ISBNDB(Source):
 
     name = 'ISBNDB'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata from isbndb.com')
 
     capabilities = frozenset(['identify'])
@@ -37,7 +39,7 @@ class ISBNDB(Source):
     config_help_message = ('<p>'+_('To use metadata from isbndb.com you must sign'
             ' up for a free account and get an isbndb key and enter it below.'
             ' Instructions to get the key are '
-            '<a href="%s">here</a>.')) % 'http://isbndb.com/api/v1/docs/keys'
+            '<a href="%s">here</a>.')) % 'https://isbndb.com/api/v1/docs/keys'
 
     def __init__(self, *args, **kwargs):
         Source.__init__(self, *args, **kwargs)
@@ -221,6 +223,7 @@ class ISBNDB(Source):
         return candidates
     # }}}
 
+
 if __name__ == '__main__':
     # To run these test use:
     # calibre-debug -e src/calibre/ebooks/metadata/sources/isbndb.py
@@ -242,4 +245,3 @@ if __name__ == '__main__':
                 [title_test('Flatland', exact=False)]
             ),
     ])
-

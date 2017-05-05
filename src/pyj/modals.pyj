@@ -125,7 +125,7 @@ class ModalContainer:
                 return
             self.clear_current_modal()
 
-def create_simple_dialog(title, msg, details, icon_name, prefix):
+def create_simple_dialog(title, msg, details, icon, prefix):
     details = details or ''
     def create_func(parent):
         show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
@@ -146,7 +146,7 @@ def create_simple_dialog(title, msg, details, icon_name, prefix):
             E.div(
                 style='max-width:60em; text-align: left',
                 E.h2(
-                    E.span(svgicon(icon_name), style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
+                    E.span(svgicon(icon), style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
                     style='font-weight: bold; font-size: ' + get_font_size('title')
                 ),
                 E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),

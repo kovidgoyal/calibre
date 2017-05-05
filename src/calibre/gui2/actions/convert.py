@@ -20,7 +20,7 @@ from calibre.customize.ui import plugin_for_input_format
 class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
-    action_spec = (_('Convert books'), 'convert.png', _('Convert books between different ebook formats'), _('C'))
+    action_spec = (_('Convert books'), 'convert.png', _('Convert books between different e-book formats'), _('C'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
@@ -264,8 +264,8 @@ class ConvertAction(InterfaceAction):
             with open(temp_files[-1].name, 'rb') as data:
                 db.add_format(book_id, fmt, data, index_is_id=True)
             self.gui.book_converted.emit(book_id, fmt)
-            self.gui.status_bar.show_message(job.description +
-                    (' completed'), 2000)
+            self.gui.status_bar.show_message(job.description + ' ' +
+                    _('completed'), 2000)
         finally:
             for f in temp_files:
                 try:

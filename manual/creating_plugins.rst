@@ -17,7 +17,7 @@ Here, we will teach you how to create your own plugins to add new features to ca
 Anatomy of a calibre plugin
 ---------------------------
 
-A calibre plugin is very simple, it's just a zip file that contains some python code
+A calibre plugin is very simple, it's just a zip file that contains some Python code
 and any other resources like image files needed by the plugin. Without further ado,
 let's see a basic example.
 
@@ -70,11 +70,11 @@ The first thing to note is that this zip file has a lot more files in it, explai
 
         The prefix ``calibre_plugins`` must always be present. ``some_name`` comes from the filename of the empty text file.
         ``some_module`` refers to  :file:`some_module.py` file inside the zip file. Note that this importing is just as
-        powerful as regular python imports. You can create packages and subpackages of .py modules inside the zip file,
+        powerful as regular Python imports. You can create packages and subpackages of .py modules inside the zip file,
         just like you would normally (by defining __init__.py in each sub-directory), and everything should Just Work.
 
         The name you use for ``some_name`` enters a global namespace shared by all plugins, **so make it as unique as possible**.
-        But remember that it must be a valid python identifier (only alphabets, numbers and the underscore).
+        But remember that it must be a valid Python identifier (only alphabets, numbers and the underscore).
 
     **__init__.py**
         As before, the file that defines the plugin class
@@ -151,7 +151,7 @@ calibre's plugin loading system defines a couple of built-in functions that allo
 Enabling user configuration of your plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To allow users to configure your plugin, you must define three methods in your base plugin class, '**is_customizable**, **config_widget** and **save_settings** as shown below:
+To allow users to configure your plugin, you must define three methods in your base plugin class, **is_customizable**, **config_widget** and **save_settings** as shown below:
 
 .. literalinclude:: plugin_examples/interface_demo/__init__.py
   :pyobject: InterfacePluginDemo.is_customizable
@@ -180,7 +180,7 @@ You can see the ``prefs`` object being used in main.py:
     :lines: 151-
 
 
-Edit Book plugins
+Edit book plugins
 ------------------------------------------
 
 Now let's change gears for a bit and look at creating a plugin to add tools to
@@ -278,7 +278,7 @@ typical User Interface plugin you would call it at the top of ``ui.py`` but not
 ``__init__.py``.
 
 You can test the translations of your plugins by changing the user interface
-language in calibre under Preferences->Look & Feel or by running calibre like
+language in calibre under :guilabel:`Preferences->Look & feel` or by running calibre like
 this::
 
     CALIBRE_OVERRIDE_LANG=de calibre
@@ -302,11 +302,11 @@ The first, most important step is to run calibre in debug mode. You can do this 
 
     calibre-debug -g
 
-Or from within calibre by right-clicking the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
+Or from within calibre by right-clicking the :guilabel:`Preferences` button or using the `Ctrl+Shift+R` keyboard shortcut.
 
 When running from the command line, debug output will be printed to the console, when running from within calibre the output will go to a txt file.
 
-You can insert print statements anywhere in your plugin code, they will be output in debug mode. Remember, this is python, you really shouldn't need anything more than print statements to debug ;) I developed all of calibre using just this debugging technique.
+You can insert print statements anywhere in your plugin code, they will be output in debug mode. Remember, this is Python, you really shouldn't need anything more than print statements to debug ;) I developed all of calibre using just this debugging technique.
 
 You can quickly test changes to your plugin by using the following command
 line::

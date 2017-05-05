@@ -19,7 +19,7 @@ class DeviceDefaults(object):
                 # Amazon devices
                 ({'vendor':0x1949}, {
                     'format_map': ['azw3', 'mobi', 'azw',
-                                    'azw1', 'azw4', 'pdf'],
+                                    'azw1', 'azw4', 'kfx', 'pdf'],
                     'send_to': ['documents', 'books', 'kindle'],
                     }
                 ),
@@ -61,5 +61,3 @@ class DeviceDefaults(object):
                 return ans
 
         return {}
-
-

@@ -30,6 +30,8 @@ def get_urls(br, tokens):
 class BigBookSearch(Source):
 
     name = 'Big Book Search'
+    version = (1, 0, 0)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads multiple book covers from Amazon. Useful to find alternate covers.')
     capabilities = frozenset(['cover'])
     config_help_message = _('Configure the Big Book Search plugin')
@@ -56,6 +58,6 @@ def test():
     urls = get_urls(br, ['consider', 'phlebas', 'banks'])
     pprint.pprint(urls)
 
+
 if __name__ == '__main__':
     test()
-

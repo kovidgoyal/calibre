@@ -64,12 +64,12 @@ class AppleOpenFeedback(OpenFeedback):
                 msg.setText(_(
                             '<p>If you do not want calibre to recognize your Apple iDevice '
                             'when it is connected to your computer, '
-                            'click <b>Disable Apple Driver</b>.</p>'
+                            'click <b>Disable Apple driver</b>.</p>'
                             '<p>To transfer books to your iDevice, '
-                            'click <b>Disable Apple Driver</b>, '
+                            'click <b>Disable Apple driver</b>, '
                             "then use the 'Connect to iTunes' method recommended in the "
                             '<a href="https://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
-                            'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
+                            'using the <em>Connect/share</em>--<em>Connect to iTunes</em> menu item.</p>'
                             '<p>Enabling the Apple driver for direct connection to iDevices '
                             'is an unsupported advanced user mode.</p>'
                             '<p></p>'
@@ -217,7 +217,7 @@ class ITUNES(DriverBase):
     DEBUG_LOGGING = 3
 
     OPEN_FEEDBACK_MESSAGE = _(
-        'Apple iDevice detected, launching iTunes, please wait ...')
+        'Apple iDevice detected, launching iTunes, please wait...')
     BACKLOADING_ERROR_MESSAGE = _(
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
@@ -720,7 +720,7 @@ class ITUNES(DriverBase):
         self.problem_titles = []
         self.problem_msg = _("Some books not found in iTunes database.\n"
                               "Delete using the iBooks app.\n"
-                              "Click 'Show Details' for a list.")
+                              "Click 'Show details' for a list.")
         logger().info("%s.delete_books()" % self.__class__.__name__)
         for path in paths:
             if self.cached_books[path]['lib_book']:
@@ -3647,7 +3647,7 @@ class BookList(list):
         self.log = log
 
     def supports_collections(self):
-        ''' Return True if the the device supports collections for this book list. '''
+        ''' Return True if the device supports collections for this book list. '''
         return False
 
     def add_book(self, book, replace_metadata):

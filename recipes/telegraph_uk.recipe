@@ -5,12 +5,21 @@ telegraph.co.uk
 '''
 
 import json
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+def absolutize(url):
+    if url.startswith('/'):
+        url = 'http://www.telegraph.co.uk' + url
+    return url
 
 
 class TelegraphUK(BasicNewsRecipe):
@@ -29,19 +38,18 @@ class TelegraphUK(BasicNewsRecipe):
     use_embedded_content = False
 
     feeds = [
-
-    (u'UK News', u'http://www.telegraph.co.uk/news/uknews/rss'),
-    (u'World News', u'http://www.telegraph.co.uk/news/worldnews/rss'),
-    (u'Politics', u'http://www.telegraph.co.uk/news/newstopics/politics/rss'),
-    (u'Finance', u'http://www.telegraph.co.uk/finance/rss'),
-    (u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss'),
-    (u'UK News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologyreviews/rss'),
-    (u'Science News', u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss'),
-    (u'Sport', u'http://www.telegraph.co.uk/sport/rss'),
-    (u'Earth News', u'http://www.telegraph.co.uk/earth/earthnews/rss'),
-    (u'Comment', u'http://www.telegraph.co.uk/comment/rss'),
-    (u'Travel', u'http://www.telegraph.co.uk/travel/rss'),
-    (u'How about that?', u'http://www.telegraph.co.uk/news/newstopics/howaboutthat/rss')
+        (u'UK News', u'http://www.telegraph.co.uk/news/uknews/rss'),
+        (u'World News', u'http://www.telegraph.co.uk/news/worldnews/rss'),
+        (u'Politics', u'http://www.telegraph.co.uk/news/newstopics/politics/rss'),
+        (u'Finance', u'http://www.telegraph.co.uk/finance/rss'),
+        (u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss'),
+        (u'UK News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologyreviews/rss'),
+        (u'Science News', u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss'),
+        (u'Sport', u'http://www.telegraph.co.uk/sport/rss'),
+        (u'Earth News', u'http://www.telegraph.co.uk/earth/earthnews/rss'),
+        (u'Comment', u'http://www.telegraph.co.uk/comment/rss'),
+        (u'Travel', u'http://www.telegraph.co.uk/travel/rss'),
+        (u'How about that?', u'http://www.telegraph.co.uk/news/newstopics/howaboutthat/rss')
     ]
 
     keep_only_tags = [
@@ -54,6 +62,11 @@ class TelegraphUK(BasicNewsRecipe):
     ]
     remove_attributes = 'width height'.split()
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(
+            self, user_agent=random_user_agent(allow_ie=False)
+        )
+
     def get_article_url(self, article):
         url = article.get('link', None)
         if 'picture-galleries' in url or 'pictures' in url or 'picturegalleries' in url:
@@ -61,10 +74,12 @@ class TelegraphUK(BasicNewsRecipe):
         return url
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-frz-src-array': True}):
+        for img in soup.findAll(attrs={'data-frz-src-array': True}):
+            img['style'] = ''
+            img.name = 'img'
             d = json.loads(img['data-frz-src-array'].replace("'", '"'))
             for item in d:
                 if int(item.get('width', 0)) > 700:
-                    img['src'] = item['src']
+                    img['src'] = absolutize(item['src'])
                     break
         return soup

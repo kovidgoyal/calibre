@@ -233,7 +233,7 @@ class CursorPositionWidget(QWidget):  # {{{
 
 class Main(MainWindow):
 
-    APP_NAME = _('Edit Book')
+    APP_NAME = _('Edit book')
     STATE_VERSION = 0
 
     def __init__(self, opts, notify=None):
@@ -309,7 +309,7 @@ class Main(MainWindow):
         return self.central.editor_tabs
 
     def create_actions(self):
-        group = _('Global Actions')
+        group = _('Global actions')
 
         def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
             if not isinstance(icon, QIcon):
@@ -387,8 +387,8 @@ class Main(MainWindow):
                                       _('Insert special character'))
         self.action_rationalize_folders = treg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
                                       _('Arrange into folders'))
-        self.action_set_semantics = treg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
-                                        _('Set Semantics'))
+        self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (),
+                                        _('Set semantics'))
         self.action_filter_css = treg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
                                      _('Filter style information'))
         self.action_manage_fonts = treg('font.png', _('Manage &fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
@@ -410,7 +410,7 @@ class Main(MainWindow):
         register_text_editor_actions(ereg, self.palette())
 
         # Polish actions
-        group = _('Polish Book')
+        group = _('Polish book')
         self.action_subset_fonts = treg(
             'subset-fonts.png', _('&Subset embedded fonts'), partial(
                 self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
@@ -432,18 +432,18 @@ class Main(MainWindow):
         self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5',), _('Refresh preview'))
         self.action_split_in_preview = reg('document-split.png', _('Split this file'), None, 'split-in-preview', (), _(
             'Split file in the preview panel'))
-        self.action_find_next_preview = reg('arrow-down.png', _('Find Next'), None, 'find-next-preview', (), _('Find next in preview'))
-        self.action_find_prev_preview = reg('arrow-up.png', _('Find Previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
+        self.action_find_next_preview = reg('arrow-down.png', _('Find next'), None, 'find-next-preview', (), _('Find next in preview'))
+        self.action_find_prev_preview = reg('arrow-up.png', _('Find previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
 
         # Search actions
         group = _('Search')
-        self.action_find = treg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+        self.action_find = treg('search.png', _('&Find/replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/replace panel'))
 
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
             return reg(icon, text, partial(self.boss.search_action_triggered, action, overrides), name, keys, description or text.replace('&', ''))
-        self.action_find_next = sreg('find-next', _('Find &Next'),
+        self.action_find_next = sreg('find-next', _('Find &next'),
                                      'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
-        self.action_find_previous = sreg('find-previous', _('Find &Previous'),
+        self.action_find_previous = sreg('find-previous', _('Find &previous'),
                                          'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
         self.action_replace = sreg('replace', _('Replace'),
                                    'replace', keys=('Ctrl+R'), description=_('Replace current match'))
@@ -465,8 +465,8 @@ class Main(MainWindow):
                                           self.boss.show_text_search, 'text-search', (), _('Show the text search panel'))
 
         # Check Book actions
-        group = _('Check Book')
-        self.action_check_book = treg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        group = _('Check book')
+        self.action_check_book = treg('debug.png', _('&Check book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
         self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
             'Check book for spelling errors'))
         self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
@@ -566,7 +566,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
-        er = e.addMenu(_('External Links'))
+        er = e.addMenu(_('External links'))
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
@@ -689,13 +689,13 @@ class Main(MainWindow):
             setattr(self, oname.replace('-', '_'), d)
             return d
 
-        d = create(_('Files Browser'), 'files-browser')
+        d = create(_('File browser'), 'files-browser')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        d = create(_('File Preview'), 'preview')
+        d = create(_('File preview'), 'preview')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
@@ -708,7 +708,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Check Book'), 'check-book')
+        d = create(_('Check book'), 'check-book')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.check_book)
         self.addDockWidget(Qt.TopDockWidgetArea, d)
@@ -728,7 +728,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Text Search'), 'text-search')
+        d = create(_('Text search'), 'text-search')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.text_search)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
@@ -741,7 +741,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-        d = create(_('Saved Searches'), 'saved-searches')
+        d = create(_('Saved searches'), 'saved-searches')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.saved_searches)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)

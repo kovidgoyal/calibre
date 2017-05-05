@@ -113,7 +113,7 @@ class Rules(RulesBase):
             ' when auto-adding. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every file until either an'
             ' "add" or an "ignore" rule matches. If no rules match, the file will be added only'
-            ' if its file extension is of a known ebook type.')
+            ' if its file extension is of a known e-book type.')
 
 
 class Tester(TesterBase):
@@ -121,7 +121,7 @@ class Tester(TesterBase):
     DIALOG_TITLE = _('Test filename filter rules')
     PREFS_NAME = 'test-file-filter-rules'
     LABEL = _('Enter a filename to test:')
-    PLACEHOLDER = _('Enter filename and click the Test button')
+    PLACEHOLDER = _('Enter filename and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
     def do_test(self):
@@ -140,6 +140,7 @@ class RulesDialog(RulesDialogBase):
     RulesClass = Rules
     TesterClass = Tester
     PREFS_OBJECT = add_filters
+
 
 if __name__ == '__main__':
     app = Application([])

@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-		 <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.appstafarian.com/marvin.html&quot;&gt;Marvin&lt;/a&gt; e-book reading app (or similar OPDS enabled apps) on your Apple iDevice, you can access your calibre book collection wirelessly, directly on the device. To do this you have to turn on the calibre content server.</string>
+		 <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.appstafarian.com/marvin.html&quot;&gt;Marvin&lt;/a&gt; e-book reading app (or similar OPDS enabled apps) on your Apple iDevice, you can access your calibre book collection wirelessly, directly on the device. To do this you have to turn on the calibre Content server.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -49,7 +49,7 @@
    <item>
     <widget class="QCheckBox" name="content_server">
      <property name="text">
-      <string>Turn on the &amp;content server</string>
+      <string>Turn on the &amp;Content server</string>
      </property>
     </widget>
    </item>

@@ -115,9 +115,9 @@ class EditorWidget(QWebView):  # {{{
                 ('Paste', 'paste', 'edit-paste', _('Paste'), False),
                 ('Cut', 'cut', 'edit-cut', _('Cut'), False),
                 ('Indent', 'indent', 'format-indent-more',
-                    _('Increase Indentation'), False),
+                    _('Increase indentation'), False),
                 ('Outdent', 'outdent', 'format-indent-less',
-                    _('Decrease Indentation'), False),
+                    _('Decrease indentation'), False),
                 ('SelectAll', 'select_all', 'edit-select-all',
                     _('Select all'), False),
             ]:
@@ -235,6 +235,7 @@ class EditorWidget(QWebView):  # {{{
         d = QDialog(self)
         d.setWindowTitle(_('Create link'))
         l = QFormLayout()
+        l.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         d.setLayout(l)
         d.url = QLineEdit(d)
         d.name = QLineEdit(d)
@@ -664,7 +665,7 @@ class Editor(QWidget):  # {{{
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('N&ormal view'))
-        self.tabs.addTab(self.code_edit, _('&HTML Source'))
+        self.tabs.addTab(self.code_edit, _('&HTML source'))
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)

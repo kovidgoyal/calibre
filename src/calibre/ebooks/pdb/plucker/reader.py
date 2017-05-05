@@ -246,7 +246,7 @@ class SectionText(object):
 
 class SectionCompositeImage(object):
     '''
-    A composite image consists of a a 2D array
+    A composite image consists of a 2D array
     of rows and columns. The entries in the array
     are uid's.
     '''

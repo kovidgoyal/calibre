@@ -782,6 +782,7 @@ class Metadata(object):
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = defaultdict(list)
+        self.primary_writing_mode = None
 
     def add(self, term, value, attrib={}, nsmap={}, **kwargs):
         """Add a new metadata item."""
@@ -864,6 +865,8 @@ class Metadata(object):
         for term in self.items:
             for item in self.items[term]:
                 item.to_opf2(elem, nsrmap=nsrmap)
+        if self.primary_writing_mode:
+            elem.append(elem.makeelement(OPF('meta'), attrib={'name':'primary-writing-mode', 'content':self.primary_writing_mode}))
         return elem
 
 
@@ -1002,7 +1005,7 @@ class Manifest(object):
             entry's associated content.
 
             - XHTML, HTML, and variant content is parsed as necessary to
-              convert and and return as an lxml.etree element in the XHTML
+              convert and return as an lxml.etree element in the XHTML
               namespace.
             - XML content is parsed and returned as an lxml.etree element.
             - CSS and CSS-variant content is parsed and returned as a cssutils

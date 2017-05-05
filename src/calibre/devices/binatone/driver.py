@@ -15,7 +15,7 @@ class README(USBMS):
 
     name           = 'Binatone Readme Device Interface'
     gui_name       = 'Binatone Readme'
-    description    = _('Communicate with the Binatone Readme eBook reader.')
+    description    = _('Communicate with the Binatone Readme e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -54,4 +54,3 @@ class README(USBMS):
             drives['main'] = carda
             drives['carda'] = main
         return drives
-

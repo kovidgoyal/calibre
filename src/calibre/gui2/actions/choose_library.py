@@ -256,7 +256,7 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.rename_separator = self.choose_menu.addSeparator()
 
-        self.maintenance_menu = QMenu(_('Library Maintenance'))
+        self.maintenance_menu = QMenu(_('Library maintenance'))
         ac = self.create_action(spec=(_('Library metadata backup status'),
                         'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
@@ -291,9 +291,9 @@ class ChooseLibraryAction(InterfaceAction):
         if isportable:
             return error_dialog(self.gui, _('Cannot export/import'), _(
                 'You are running calibre portable, all calibre data is already in the'
-                ' calibre portable folder. Export/Import is unavailable.'), show=True)
+                ' calibre portable folder. Export/import is unavailable.'), show=True)
         if self.gui.job_manager.has_jobs():
-            return error_dialog(self.gui, _('Cannot Export/Import'),
+            return error_dialog(self.gui, _('Cannot export/import'),
                     _('Cannot export/import data while there are running jobs.'), show=True)
         from calibre.gui2.dialogs.exim import EximDialog
         d = EximDialog(parent=self.gui)
@@ -493,16 +493,16 @@ class ChooseLibraryAction(InterfaceAction):
         m.stop_metadata_backup()
         db = m.db
         db.prefs.disable_setting = True
+        library_path = db.library_path
 
         d = DBCheck(self.gui, db)
         d.start()
         try:
-            d.conn.close()
+            m.close()
         except:
             pass
         d.break_cycles()
-        self.gui.library_moved(db.library_path, call_close=not
-                d.closed_orig_conn)
+        self.gui.library_moved(library_path, call_close=False)
         if d.rejected:
             return
         if d.error is None:
@@ -633,4 +633,3 @@ class ChooseLibraryAction(InterfaceAction):
             return False
 
         return True
-

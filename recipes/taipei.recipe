@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TN(BasicNewsRecipe):
     title = u'Taipei Times'
-    language = 'en_CN'
+    language = 'en_TW'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
     max_articles_per_feed = 25

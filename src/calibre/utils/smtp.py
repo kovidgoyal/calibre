@@ -13,6 +13,42 @@ import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
 
 
+def safe_localhost():
+    # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
+    # if that can't be calculated, that we should use a domain literal
+    # instead (essentially an encoded IP address like [A.B.C.D]).
+    fqdn = socket.getfqdn()
+    if '.' in fqdn:
+        # Some mail servers have problems with non-ascii local hostnames, see
+        # https://bugs.launchpad.net/bugs/1256549
+        try:
+            local_hostname = idna.ToASCII(force_unicode(fqdn))
+        except:
+            local_hostname = 'localhost.localdomain'
+    else:
+        # We can't find an fqdn hostname, so use a domain literal
+        addr = '127.0.0.1'
+        try:
+            addr = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            pass
+        local_hostname = '[%s]' % addr
+    return local_hostname
+
+
+def get_msgid_domain(from_):
+    from email.utils import parseaddr
+    try:
+        # Parse out the address from the From line, and then the domain from that
+        from_email = parseaddr(from_)[1]
+        msgid_domain = from_email.partition('@')[2].strip()
+        # This can sometimes sneak through parseaddr if the input is malformed
+        msgid_domain = msgid_domain.rstrip('>').strip()
+    except Exception:
+        msgid_domain = ''
+    return msgid_domain or safe_localhost()
+
+
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
     assert text or attachment_data
@@ -20,12 +56,14 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     from email.mime.multipart import MIMEMultipart
     from email.utils import formatdate
     from email import encoders
+    import uuid
 
     outer = MIMEMultipart()
     outer['Subject'] = subject
     outer['To'] = to
     outer['From'] = from_
     outer['Date'] = formatdate(localtime=True)
+    outer['Message-Id'] = "<{}@{}>".format(uuid.uuid4(), get_msgid_domain(from_))
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:
@@ -62,29 +100,6 @@ def get_mx(host, verbose=0):
     answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
-
-
-def safe_localhost():
-    # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
-    # if that can't be calculated, that we should use a domain literal
-    # instead (essentially an encoded IP address like [A.B.C.D]).
-    fqdn = socket.getfqdn()
-    if '.' in fqdn:
-        # Some mail servers have problems with non-ascii local hostnames, see
-        # https://bugs.launchpad.net/bugs/1256549
-        try:
-            local_hostname = idna.ToASCII(force_unicode(fqdn))
-        except:
-            local_hostname = 'localhost.localdomain'
-    else:
-        # We can't find an fqdn hostname, so use a domain literal
-        addr = '127.0.0.1'
-        try:
-            addr = socket.gethostbyname(socket.gethostname())
-        except socket.gaierror:
-            pass
-        local_hostname = '[%s]' % addr
-    return local_hostname
 
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,

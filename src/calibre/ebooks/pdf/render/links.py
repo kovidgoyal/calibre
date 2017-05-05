@@ -11,17 +11,23 @@ import os
 from urlparse import urlparse
 from urllib2 import unquote
 
-from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String
+from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log
 
 
 class Destination(Array):
 
     def __init__(self, start_page, pos, get_pageref):
         pnum = start_page + max(0, pos['column'])
-        try:
-            pref = get_pageref(pnum)
-        except IndexError:
-            pref = get_pageref(pnum-1)
+        q = pnum
+        while q > -1:
+            try:
+                pref = get_pageref(q)
+                break
+            except IndexError:
+                pos['left'] = pos['top'] = 0
+                q -= 1
+        if q != pnum:
+            current_log().warn('Could not find page {} for link destination, using page {} instead'.format(pnum, q))
         super(Destination, self).__init__([
             pref, Name('XYZ'), pos['left'], pos['top'], None
         ])
@@ -139,5 +145,3 @@ class Links(object):
         item = Dictionary({'Parent':parentref, 'Dest':dest,
                            'Title':UTF16String(toc.text or _('Unknown'))})
         return self.pdf.objects.add(item)
-
-

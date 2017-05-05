@@ -102,13 +102,13 @@ class KOBO(USBMS):
         _('Create tags for automatic management'),
         _('Upload covers for books (newer readers)') +
         ':::'+_('Normally, the KOBO readers get the cover image from the'
-                ' ebook file itself. With this option, calibre will send a '
+                ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),
         _('Upload Black and White Covers'),
         _('Show expired books') +
         ':::'+_('A bug in an earlier version left non kepubs book records'
-                ' in the database.  With this option Calibre will show the '
+                ' in the database.  With this option calibre will show the '
                 'expired records and allow you to delete them with '
                 'the new delete logic.'),
         _('Show Previews') +
@@ -1036,7 +1036,7 @@ class KOBO(USBMS):
         them as much grief as it does me :-)
 
         This has to make a temporary copy of the book files with a
-        epub extension to allow Calibre's normal processing to
+        epub extension to allow calibre's normal processing to
         deal with the file appropriately
         '''
         for idx, path in enumerate(paths):
@@ -1193,13 +1193,13 @@ class KOBO(USBMS):
         spanTag['style'] = 'font-weight:normal'
         if bookmark.book_format == 'epub':
             spanTag.insert(0,NavigableString(
-                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % dict(
+                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
                     pr=percent_read)))
         else:
             spanTag.insert(0,NavigableString(
-                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % dict(
+                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
                     pr=percent_read)))
@@ -1313,7 +1313,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 131
+    supported_dbversion             = 137
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1325,7 +1325,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 2, 8283)
+    max_supported_fwversion         = (4, 3, 8945)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)

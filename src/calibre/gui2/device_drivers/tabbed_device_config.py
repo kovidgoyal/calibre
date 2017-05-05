@@ -81,7 +81,7 @@ class TabbedDeviceConfig(QTabWidget):
 
         self.base = QWidget(self)
 #         self.insertTab(0, self.base, _('Configure %s') % self.device.current_friendly_name)
-        self.insertTab(0, self.base, _("File Formats"))
+        self.insertTab(0, self.base, _("File formats"))
         l = self.base.l = QGridLayout(self.base)
         self.base.setLayout(l)
 
@@ -140,7 +140,7 @@ class TabbedDeviceConfig(QTabWidget):
                                             self.device_settings)
         # Only display the extra customization tab if there are options on it.
         if self.extra_tab.has_extra_customizations:
-            self.addTab(self.extra_tab, _('Extra Customization'))
+            self.addTab(self.extra_tab, _('Extra customization'))
 
         self.setCurrentIndex(0)
 
@@ -394,5 +394,3 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         cw.commit()
     dev.shutdown()
-
-

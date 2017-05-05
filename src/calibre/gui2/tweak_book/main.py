@@ -1,28 +1,36 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import importlib
+import os
+import sys
+import time
+
+from PyQt5.Qt import QIcon
+
+from calibre.constants import EDITOR_APP_UID, islinux, iswindows
+from calibre.gui2 import (
+    Application, decouple, set_gui_prefs, setup_gui_option_parser
+)
+from calibre.ptempfile import reset_base_dir
+from calibre.utils.config import OptionParser
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, importlib, time
-
-from PyQt5.Qt import QIcon
-
-from calibre.constants import islinux, iswindows
-from calibre.gui2 import Application, setup_gui_option_parser, decouple, set_gui_prefs
-from calibre.ptempfile import reset_base_dir
-from calibre.utils.config import OptionParser
-
 
 def option_parser():
-    parser =  OptionParser(_('''\
+    parser = OptionParser(
+        _(
+            '''\
 %prog [opts] [path_to_ebook] [name_of_file_inside_book ...]
 
 Launch the calibre edit book tool. You can optionally also specify the names of
 files inside the book which will be opened for editing automatically.
-'''))
+'''
+        )
+    )
     setup_gui_option_parser(parser)
     return parser
 
@@ -51,7 +59,9 @@ def _run(args, notify=None):
         # launched from within calibre, as both use calibre-parallel.exe
         import ctypes
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.edit-book')
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                EDITOR_APP_UID
+            )
         except Exception:
             pass  # Only available on windows 7 and newer
 
@@ -93,6 +103,6 @@ def _run(args, notify=None):
 def main(args=sys.argv):
     _run(args)
 
+
 if __name__ == '__main__':
     main()
-

@@ -6,7 +6,7 @@ from dom import unique_id, set_css, add_extra_css, rule, element
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button
-from book_list.globals import get_session_data, get_boss
+from book_list.globals import get_session_data, get_read_ui
 from book_list.theme import get_color
 
 CONTAINER = unique_id('font-size-prefs')
@@ -23,7 +23,7 @@ def change_font_size(sz):
     sd = get_session_data()
     if sd.get('base_font_size') is not sz:
         sd.set('base_font_size', sz)
-        get_boss().read_ui.update_font_size()
+        get_read_ui().update_font_size()
 
 def set_quick_size(ev):
     li = ev.currentTarget

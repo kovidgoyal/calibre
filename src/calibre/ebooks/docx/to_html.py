@@ -464,6 +464,10 @@ class Convert(object):
                     for a, t in tuple(self.anchor_map.iteritems()):
                         if t == old_anchor:
                             self.anchor_map[a] = current_anchor
+        if current_anchor is not None:
+            # This paragraph had no <w:r> descendants
+            dest.set('id', current_anchor)
+            current_anchor = None
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:

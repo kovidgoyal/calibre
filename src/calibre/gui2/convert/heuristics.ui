@@ -53,7 +53,7 @@
    <item>
     <widget class="QGroupBox" name="heuristic_options">
      <property name="title">
-      <string>Heuristic Processing</string>
+      <string>Heuristic processing</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>

@@ -213,7 +213,7 @@ class InterfaceAction(QObject):
             description=None, triggered=None, shortcut_name=None):
         '''
         Convenience method to easily add actions to a QMenu.
-        Returns the created QAction, This action has one extra attribute
+        Returns the created QAction. This action has one extra attribute
         calibre_shortcut_unique_name which if not None refers to the unique
         name under which this action is registered with the keyboard manager.
 
@@ -233,7 +233,7 @@ class InterfaceAction(QObject):
             tooltips.
         :param triggered: A callable which is connected to the triggered signal
             of the created action.
-        :param shortcut_name: The test displayed to the user when customizing
+        :param shortcut_name: The text displayed to the user when customizing
             the keyboard shortcuts for this action. By default it is set to the
             value of ``text``.
 

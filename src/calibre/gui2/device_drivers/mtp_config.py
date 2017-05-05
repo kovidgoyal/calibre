@@ -130,7 +130,7 @@ class SendToConfig(QWidget):  # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
         self.m = m = QLabel('<p>'+_('''A <b>list of &folders</b> on the device to
-        which to send ebooks. The first one that exists will be used:'''))
+        which to send e-books. The first one that exists will be used:'''))
         m.setWordWrap(True)
         m.setBuddy(t)
         l.addWidget(m, 0, 0, 1, 2)
@@ -281,7 +281,7 @@ class FormatRules(QGroupBox):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel('<p>'+_(
-            '''You can create rules that control where ebooks of a specific
+            '''You can create rules that control where e-books of a specific
             format are sent to on the device. These will take precedence over
             the folders specified above.'''))
         la.setWordWrap(True)
@@ -502,9 +502,9 @@ class SendError(QDialog):
         self.la = la = QLabel('<p>'+
             _('You are trying to send books into the <b>%s</b> folder. This '
               'folder is currently ignored by calibre when scanning the '
-              'device. You have tell calibre you want this folder scanned '
+              'device. You have to tell calibre you want this folder scanned '
               'in order to be able to send books to it. Click the '
-              '<b>configure</b> button below to send books to it.')%error.folder)
+              '<b>Configure</b> button below to send books to it.')%error.folder)
         la.setWordWrap(True)
         la.setMinimumWidth(500)
         l.addWidget(la)
@@ -524,6 +524,7 @@ class SendError(QDialog):
         dev.highlight_ignored_folders = True
         self.parent().configure_connected_device()
         dev.highlight_ignored_folders = False
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -548,5 +549,3 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         cw.commit()
     dev.shutdown()
-
-

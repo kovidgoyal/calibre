@@ -159,12 +159,12 @@ class DoPrint(Thread):
 
 def do_print():
     data = cPickle.loads(sys.stdin.read())
-    args = ['ebook-convert', data['input'], data['output'], '--override-profile-size', '--paper-size', data['paper_size'], '--pdf-add-toc',
+    args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',
             '--disable-remove-fake-margins', '--disable-font-rescaling', '--page-breaks-before', '/', '--chapter-mark', 'none', '-vv']
     if data['page_numbers']:
         args.append('--pdf-page-numbers')
     for edge in 'left top right bottom'.split():
-        args.append('--margin-' + edge), args.append('%.1f' % (data['margin_' + edge] * 72))
+        args.append('--pdf-page-margin-' + edge), args.append('%.1f' % (data['margin_' + edge] * 72))
     from calibre.ebooks.conversion.cli import main
     main(args)
 
@@ -214,6 +214,7 @@ def print_book(path_to_book, parent=None, book_title=None):
         t = DoPrint(data)
         t.start()
         Printing(t, data['show_file'], parent).exec_()
+
 
 if __name__ == '__main__':
     app = Application([])

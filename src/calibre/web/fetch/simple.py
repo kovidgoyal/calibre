@@ -153,7 +153,8 @@ class RecursiveFetcher(object):
         self.preprocess_raw_html = getattr(options, 'preprocess_raw_html',
                 lambda raw, url: raw)
         self.prepreprocess_html_ext = getattr(options, 'skip_ad_pages', lambda soup: None)
-        self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
+        self.postprocess_html_ext = getattr(options, 'postprocess_html', None)
+        self.preprocess_image_ext = getattr(options, 'preprocess_image', None)
         self._is_link_wanted     = getattr(options, 'is_link_wanted',
                 default_is_link_wanted)
         self.compress_news_images_max_size = getattr(options, 'compress_news_images_max_size', None)
@@ -396,8 +397,11 @@ class RecursiveFetcher(object):
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
+            data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
+            if data is None:
+                continue
             itype = what(None, data)
-            if itype is None and b'<svg' in data[:1024]:
+            if itype == 'svg' or (itype is None and b'<svg' in data[:1024]):
                 # SVG image
                 imgpath = os.path.join(diskpath, fname+'.svg')
                 with self.imagemap_lock:
@@ -562,7 +566,7 @@ class RecursiveFetcher(object):
         return res
 
 
-def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
+def option_parser(usage=_('%prog URL\n\nWhere URL is for example https://google.com')):
     parser = OptionParser(usage=usage)
     parser.add_option('-d', '--base-dir',
                       help=_('Base directory into which URL is saved. Default is %default'),

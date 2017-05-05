@@ -12,7 +12,7 @@ format_model = None
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('PDB Output')
+    TITLE = _('PDB output')
     HELP = _('Options specific to')+' PDB '+_('output')
     COMMIT_NAME = 'pdb_output'
     ICON = I('mimetypes/unknown.png')

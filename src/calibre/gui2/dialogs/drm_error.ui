@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>This book is DRMed</string>
+   <string>This book has DRM</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">

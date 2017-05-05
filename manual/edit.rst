@@ -1,6 +1,6 @@
 .. _edit:
 
-Editing E-books
+Editing e-books
 ========================
 
 calibre has an integrated e-book editor that can be used to edit books in the
@@ -13,7 +13,7 @@ You can use this editor by right clicking on any book in calibre and selecting
 :guilabel:`Edit book`.
 
 .. image:: images/edit-book.png
-    :alt: The Edit Book tool
+    :alt: The Edit book tool
     :align: center
     :class: fit-img
 
@@ -39,8 +39,8 @@ Tutorial <http://html.net/tutorials/html/>`_ and `CSS Tutorial
 
 As you make changes to the HTML or CSS in the editor, the changes will be
 previewed, live, in the preview panel to the right. When you are happy with how
-the changes you have made look, click the Save button or use
-:guilabel:`File->Save` to save your changes into the ebook.
+the changes you have made look, click the :guilabel:`Save` button or use
+:guilabel:`File->Save` to save your changes into the e-book.
 
 One useful feature is :guilabel:`Checkpoints`. Before you embark on some
 ambitious set of edits, you can create a checkpoint. The checkpoint
@@ -49,7 +49,7 @@ you don't like the changes you have made to you can go back to the state when
 you created the checkpoint. To create a checkpoint, use :guilabel:`Edit->Create
 checkpoint`. Checkpoints will also be automatically created for you whenever you
 run any automated tool like global search and replace. The checkpointing
-functionality is in addition to the normal Undo/redo mechanism when editing
+functionality is in addition to the normal undo/redo mechanism when editing
 individual files. Checkpoints are useful for when changes are spread over
 multiple files in the book.
 
@@ -57,14 +57,14 @@ That is the basic work flow for editing books -- Open a file, make changes,
 preview and save. The rest of this manual will discuss the various tools and
 features present to allow you to perform specific tasks efficiently.
 
-The Files Browser
+The File browser
 ------------------
 
 .. image:: images/files_browser.png
-    :alt: The Files Browser
+    :alt: The File browser
     :class: float-left-img
 
-The :guilabel:`Files Browser` gives you an overview of the various files inside
+The :guilabel:`File browser` gives you an overview of the various files inside
 the book you are editing. The files are arranged by category, with text (HTML)
 files at the top, followed by stylesheet (CSS) files, images and so on. Simply
 double click on a file to start editing it. Editing is supported for HTML, CSS
@@ -74,7 +74,7 @@ alphabetically.
 
 By hovering your mouse over an entry, you can see its size, and also, at
 the bottom of the screen, the full path to the file inside the book. Note that
-files inside ebooks are compressed, so the size of the final book is not the
+files inside e-books are compressed, so the size of the final book is not the
 sum of the individual file sizes.
 
 Many files have special meaning, in the book. These will typically have
@@ -83,7 +83,7 @@ the picture to the left, you can see that the files :guilabel:`cover_image.jpg`
 and :guilabel:`titlepage.xhtml` have the icon of a cover next to them, this
 indicates they are the book cover image and titlepage. Similarly, the
 :guilabel:`content.opf` file has a metadata icon next to it, indicating the
-book metadata is present in it and the the :guilabel:`toc.ncx` file has a T
+book metadata is present in it and the :guilabel:`toc.ncx` file has a T
 icon next to it, indicating it is the Table of Contents.
 
 You can perform many actions on individual files, by right clicking them.
@@ -114,7 +114,7 @@ Merging files
 Sometimes, you may want to merge two HTML files or two CSS files together. It
 can sometimes be useful to have everything in a single file. Be wary, though,
 putting a lot of content into a single file will cause performance problems
-when viewing the book in a typical ebook reader.
+when viewing the book in a typical e-book reader.
 
 To merge multiple files together, select them by holding the Ctrl key and
 clicking on them (make sure you only select files of one type, either all HTML
@@ -136,10 +136,10 @@ little fiddly until you get used to it.
 Marking the cover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-E-books typically have a cover image. This image is indicated in the Files
-Browser by the icon of a brown book next to the image name. If you want to
-designate some other image as the cover, you can do so by right clicking on the
-file and choosing :guilabel:`Mark as cover`.
+E-books typically have a cover image. This image is indicated in the
+:guilabel:`File browser` by the icon of a brown book next to the image name. If
+you want to designate some other image as the cover, you can do so by right
+clicking on the file and choosing :guilabel:`Mark as cover`.
 
 In addition, EPUB files has the concept of a *titlepage*. A title page is a
 HTML file that acts as the title page/cover for the book. You can mark an HTML
@@ -194,7 +194,7 @@ being replaced.
 Linking stylesheets to HTML files efficiently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As a convenience, you can select multiple HTML files in the Files Browser,
+As a convenience, you can select multiple HTML files in the File browser,
 right click and choose Link stylesheets to have calibre automatically insert the
 <link> tags for those stylesheets into all the selected HTML files.
 
@@ -206,14 +206,14 @@ right click and choose Link stylesheets to have calibre automatically insert the
 Search & Replace
 -------------------
 
-Edit Book has a very powerful search and replace interface that allows you to
+Edit book has a very powerful search and replace interface that allows you to
 search and replace text in the current file, across all files and even in a
 marked region of the current file. You can search using a normal search or
 using regular expressions. To learn how to use regular expressions for advanced
 searching, see :ref:`regexptutorial`.
 
 .. image:: images/sr.png
-    :alt: The Edit Book tool
+    :alt: The Edit book tool
     :align: center
 
 Start the search and replace via the :guilabel:`Search->Find/replace` menu
@@ -254,7 +254,7 @@ expressions in a single operation.
 Function mode
 ^^^^^^^^^^^^^^^^^^^^^
 
-Function mode allows you to write arbitrarily powerful python functions that
+Function mode allows you to write arbitrarily powerful Python functions that
 are run on every Find/replace. You can do pretty much any text manipulation you
 like in function mode. For more information, see :doc:`function_mode`.
 
@@ -416,7 +416,7 @@ Fixing HTML
 ^^^^^^^^^^^
 
 This tool simply converts HTML that cannot be parsed as XML into well-formed
-XML. It is very common in ebooks to have non-well-formed XML, so this tool
+XML. It is very common in e-books to have non-well-formed XML, so this tool
 simply automates the process of fixing such HTML. The tool works by parsing the
 HTML using the HTML5 algorithm (the algorithm used in all modern browsers) and
 then converting the result into XML. Be aware that auto-fixing can sometimes
@@ -450,8 +450,8 @@ beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
 Inserting an inline Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally in ebooks, the Table of Contents is separate from the main text and is
-typically accessed via a special Table of Contents button/menu in the ebook
+Normally in e-books, the Table of Contents is separate from the main text and is
+typically accessed via a special Table of Contents button/menu in the e-book
 reading device. You can also have calibre automatically generate an *inline*
 Table of Contents that becomes part of the text of the book. It is
 generated based on the currently defined Table of Contents.
@@ -507,14 +507,14 @@ the :guilabel:`Compare` button. The :guilabel:`Revert to` button restores the
 book to the selected checkpoint, undoing all changes since that checkpoint was
 created.
 
-The Live Preview panel
+The Live preview panel
 ------------------------
 
 .. image:: images/live-preview.png
-    :alt: The Live Preview Panel
+    :alt: The Live preview Panel
     :class: float-left-img
 
-The :guilabel:`File Preview` gives you an overview of the various files inside
+The :guilabel:`File preview` gives you an overview of the various files inside
 The live preview panel shows you the changes you are making live (with a second
 or two of delay). As you edit HTML or CSS files, the preview panel is updated
 automatically to reflect your changes. As you move the cursor around in the
@@ -572,7 +572,7 @@ The Live CSS panel
 ---------------------
 
 .. image:: images/live_css.png
-    :alt: The Live Preview Panel
+    :alt: The Live CSS Panel
     :class: float-left-img
 
 
@@ -596,12 +596,12 @@ You can enable the Live CSS panel via :guilabel:`View->Live CSS`.
 
     <div style="clear:both"></div>
 
-Miscellaneous Tools
+Miscellaneous tools
 ----------------------
 
 There are a few more tools that can be useful while you edit the book.
 
-The Table of Contents View
+The Table of Contents view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Table of Contents view shows you the current table of contents in the book.
@@ -736,7 +736,7 @@ the files inside the EPUB are arranged haphazardly, in different sub-folders.
 This tool allows you to automatically move all files into sub-folders based on
 their types. Access it via :guilabel:`Tools->Arrange into folders`. Note that
 this tool only changes how the files are arranged inside the EPUB, it does not
-change how they are displayed in the Files Browser.
+change how they are displayed in the File browser.
 
 Importing files in other e-book formats as EPUB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -783,7 +783,8 @@ The HTML editor has very sophisticated syntax highlighting. Features include:
 
     * The text inside bold, italic and heading tags is made bold/italic
     * As you move your cursor through the HTML, the matching HTML tags are
-      highlighted
+      highlighted, and you can jump to the opening or closing tag with the
+      keyboard shortcuts :kbd:`Ctrl+{` and :kbd:`Ctrl+}`
     * Invalid HTML is highlighted with a red underline
     * Spelling errors in the text inside HTML tags and attributes such as title
       are highlighted. The spell checking is language aware, based on the value
@@ -808,7 +809,7 @@ to open that file in the editor automatically.
 Auto-complete
 ^^^^^^^^^^^^^^^^
 
-When editing an ebook, one of the most tedious tasks is creating links to other
+When editing an e-book, one of the most tedious tasks is creating links to other
 files inside the book, or to CSS stylesheets, or images. You have to figure out
 the correct filename and relative path to the file. The editor has
 auto-complete to make that easier.

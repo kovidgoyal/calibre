@@ -13,7 +13,7 @@ from calibre.gui2 import error_dialog
 
 class StructureDetectionWidget(Widget, Ui_Form):
 
-    TITLE = _('Structure\nDetection')
+    TITLE = _('Structure\ndetection')
     ICON  = I('chapters.png')
     HELP  = _('Fine tune the detection of chapter headings and '
             'other document structure.')
@@ -46,4 +46,3 @@ class StructureDetectionWidget(Widget, Ui_Form):
                 _('The XPath expression %s is invalid.')%x.text).exec_()
                 return False
         return True
-

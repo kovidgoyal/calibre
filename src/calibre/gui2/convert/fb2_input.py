@@ -10,7 +10,7 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('FB2 Input')
+    TITLE = _('FB2 input')
     HELP = _('Options specific to')+' FB2 '+_('input')
     COMMIT_NAME = 'fb2_input'
     ICON = I('mimetypes/fb2.png')

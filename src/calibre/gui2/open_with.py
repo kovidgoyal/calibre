@@ -63,6 +63,7 @@ def entry_to_icon_text(entry, only_text=False):
         icon = QIcon(pmap)
     return icon, entry.get('name', entry.get('Name')) or _('Unknown')
 
+
 if iswindows:
     # Windows {{{
     from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
@@ -300,6 +301,7 @@ class ChooseProgram(Dialog):  # {{{
         self.select_manually = True
         self.reject()
 
+
 oprefs.defaults['entries'] = {}
 
 
@@ -353,7 +355,7 @@ class EditPrograms(Dialog):  # {{{
         self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
         self.rb = b = self.bb.addButton(_('&Remove'), self.bb.ActionRole)
         b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
-        self.cb = b = self.bb.addButton(_('Change &Icon'), self.bb.ActionRole)
+        self.cb = b = self.bb.addButton(_('Change &icon'), self.bb.ActionRole)
         b.clicked.connect(self.change_icon), b.setIcon(QIcon(I('icon_choose.png')))
         l.addWidget(self.bb)
 
@@ -408,6 +410,7 @@ def edit_programs(file_type, parent):
     d.exec_()
 # }}}
 
+
 registered_shortcuts = {}
 
 
@@ -435,6 +438,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
             registered_shortcuts[unique_name] = ac
     if finalize:
         gui.keyboard.finalize()
+
 
 if __name__ == '__main__':
     from pprint import pprint

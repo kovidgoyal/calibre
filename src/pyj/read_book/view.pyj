@@ -2,13 +2,16 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from ajax import ajax_send
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from utils import html_escape
+from session import get_interface_data, get_device_uuid
 
 from modals import error_dialog, warning_dialog
-from book_list.globals import get_session_data, get_boss
+from book_list.globals import get_session_data, main_js, get_translations
+from book_list.router import push_state, read_book_mode
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
@@ -193,9 +196,9 @@ class View:
         side_margin('left', margin_left), side_margin('right', margin_right)
 
     def create_src_doc(self):
-        iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
-        self.ui.interface_data.main_js = None
-        self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
+        iframe_script = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
+        main_js(None)
+        self.src_doc = LOADING_DOC.replace(
             '__BS__', _('Bootstrapping book reader...')).replace(
             '__SCRIPT__', iframe_script)
 
@@ -205,9 +208,10 @@ class View:
 
     def send_message(self, action, **data):
         data.action = action
+        msg = {'data':data, 'encrypted':self.encrypted_communications}
         if self.encrypted_communications:
-            data = messenger.encrypt(data)
-        self.iframe.contentWindow.postMessage(data, '*')
+            msg.data = messenger.encrypt(data)
+        self.iframe.contentWindow.postMessage(msg, '*')
 
     def handle_message(self, event):
         if event.source is not self.iframe.contentWindow:
@@ -228,8 +232,12 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message('initialize', secret=messenger.secret, translations=self.ui.interface_data.translations)
+        self.send_message('initialize', secret=messenger.secret, translations=get_translations())
+        self.encrypted_communications = True
         self.iframe_ready = True
+        self.do_pending_load()
+
+    def do_pending_load(self):
         if self.pending_load:
             data = self.pending_load
             self.pending_load = None
@@ -263,12 +271,31 @@ class View:
     def hide_loading(self):
         self.overlay.hide_loading_message()
 
+    def parse_cfi(self, encoded_cfi, book):
+        name = cfi = None
+        if encoded_cfi and encoded_cfi.startswith('epubcfi(/'):
+            cfi = encoded_cfi[len('epubcfi(/'):-1]
+            snum, rest = cfi.partition('/')[::2]
+            try:
+                snum = int(snum)
+            except Exception:
+                print('Invalid spine number in CFI:', snum)
+            if jstype(snum) is 'number':
+                name = book.manifest.spine[(int(snum) // 2) - 1] or name
+                cfi =  '/' + rest
+        return name, cfi
+
     def display_book(self, book):
+        self.overlay.hide()
+        self.search_overlay.hide()
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
+        # Ensure the iframe is cleared so that no state is persisted between
+        # book loads
+        self.iframe_ready = False
         pos = {'replace_history':True}
-        unkey = username_key(self.ui.interface_data.username)
+        unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
         cfi = None
         q = parse_url_params()
@@ -276,16 +303,10 @@ class View:
             cfi = q.bookpos
         elif book.last_read_position and book.last_read_position[unkey]:
             cfi = book.last_read_position[unkey]
-        if cfi and cfi.startswith('epubcfi(/'):
-            cfi = cfi[len('epubcfi(/'):-1]
-            snum, rest = cfi.partition('/')[::2]
-            try:
-                snum = int(snum)
-            except Exception:
-                print('Invalid spine number in CFI:', snum)
-            if jstype(snum) == 'number':
-                name = book.manifest.spine[(int(snum) // 2) - 1] or name
-                pos.type, pos.cfi = 'cfi', '/' + rest
+        cfiname, internal_cfi = self.parse_cfi(cfi, book)
+        if cfiname and internal_cfi:
+            name = cfiname
+            pos.type, pos.cfi = 'cfi', internal_cfi
         self.show_name(name, initial_position=pos)
 
     def redisplay_book(self):
@@ -321,6 +342,14 @@ class View:
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
+    def goto_bookpos(self, bookpos):
+        cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
+        if cfiname and internal_cfi:
+            pos = {}
+            name = cfiname
+            pos.type, pos.cfi = 'cfi', internal_cfi
+            self.show_name(name, initial_position=pos)
+
     def goto_named_destination(self, name, frag):
         if self.currently_showing.name is name:
             self.send_message('scroll_to_anchor', frag=frag)
@@ -354,25 +383,38 @@ class View:
 
     def on_update_cfi(self, data):
         self.currently_showing.bookpos = data.cfi
-        get_boss().push_state(replace=data.replace_history)
-        unkey = username_key(self.ui.interface_data.username)
+        push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
+        username = get_interface_data().username
+        unkey = username_key(username)
         if not self.book.last_read_position:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi
         self.ui.db.update_last_read_time(self.book)
+        lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+        key = self.book.key
+        if username:
+            ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
+                library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
+                    if end_type is not 'load':
+                        print('Failed to update last read position, AJAX call did not succeed')
+            )
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
 
     def show_spine_item(self, resource_data):
         self.loaded_resources = resource_data
-        # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
-        self.init_iframe()
-        # Now wait for iframe to message that it is ready
         self.pending_load = resource_data
+        if self.iframe_ready:
+            self.do_pending_load()
+        else:
+            self.init_iframe()
 
     def show_spine_item_stage2(self, resource_data):
         self.currently_showing.loading = False
+        # We cannot encrypt this message because the resource data contains
+        # Blob objects which do not survive encryption
+        self.encrypted_communications = False
         self.send_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,

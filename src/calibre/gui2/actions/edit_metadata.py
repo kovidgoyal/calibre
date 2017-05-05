@@ -110,6 +110,8 @@ class EditMetadataAction(InterfaceAction):
             db = self.gui.library_view.model().db
             ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata.bulk_download import start_download
+        from calibre.ebooks.metadata.sources.update import update_sources
+        update_sources()
         start_download(self.gui, ids,
                 Dispatcher(self.metadata_downloaded),
                 ensure_fields=ensure_fields)

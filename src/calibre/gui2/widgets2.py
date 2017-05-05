@@ -129,7 +129,7 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
     m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
     m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
     m.addSeparator()
-    m.addAction(_('Select &All') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
+    m.addAction(_('Select &all') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
     m.addSeparator()
     m.addAction(_('&Step up'), spinbox.stepUp)
     m.addAction(_('Step &down'), spinbox.stepDown)

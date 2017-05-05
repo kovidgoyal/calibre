@@ -147,10 +147,13 @@ class DOCXStyle(object):
     def __init__(self, namespace):
         self.namespace = namespace
         self.w = lambda x: '{%s}%s' % (namespace.namespaces['w'], x)
-        self._hash = hash(tuple(
-            getattr(self, x) for x in self.ALL_PROPS))
         self.id = self.name = None
         self.next_style = None
+        self.calculate_hash()
+
+    def calculate_hash(self):
+        self._hash = hash(tuple(
+            getattr(self, x) for x in self.ALL_PROPS))
 
     def makeelement(self, parent, name, **attrs):
         return parent.makeelement(self.w(name), **{self.w(k):v for k, v in attrs.iteritems()})
@@ -179,6 +182,7 @@ class DOCXStyle(object):
             style.append(makeelement(style, 'basedOn', val=normal_style.id))
         styles.append(style)
         return style
+
 
 LINE_STYLES = {
     'none'  : 'none',
@@ -481,7 +485,7 @@ class BlockStyle(DOCXStyle):
         [x%edge for edge in border_edges for x in border_props]
     )
 
-    def __init__(self, namespace, css, html_block, is_table_cell=False):
+    def __init__(self, namespace, css, html_block, is_table_cell=False, parent_bg=None):
         read_css_block_borders(self, css)
         if is_table_cell:
             for edge in border_edges:
@@ -507,6 +511,8 @@ class BlockStyle(DOCXStyle):
             except (TypeError, ValueError):
                 self.line_height = max(0, int(1.2 * css.fontSize * 20))
             self.background_color = None if is_table_cell else convert_color(css['background-color'])
+            if not is_table_cell and self.background_color is None:
+                self.background_color = parent_bg
             try:
                 self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
                     css['text-align'].lower(), 'left')
@@ -623,6 +629,7 @@ class StylesManager(object):
         self.document_lang = lang_as_iso639_1(document_lang) or 'en'
         self.log = log
         self.block_styles, self.text_styles = {}, {}
+        self.styles_for_html_blocks = {}
 
     def create_text_style(self, css_style, is_parent_style=False):
         ans = TextStyle(self.namespace, css_style, is_parent_style=is_parent_style)
@@ -633,13 +640,14 @@ class StylesManager(object):
             ans = existing
         return ans
 
-    def create_block_style(self, css_style, html_block, is_table_cell=False):
-        ans = BlockStyle(self.namespace, css_style, html_block, is_table_cell=is_table_cell)
+    def create_block_style(self, css_style, html_block, is_table_cell=False, parent_bg=None):
+        ans = BlockStyle(self.namespace, css_style, html_block, is_table_cell=is_table_cell, parent_bg=parent_bg)
         existing = self.block_styles.get(ans, None)
         if existing is None:
             self.block_styles[ans] = ans
         else:
             ans = existing
+        self.styles_for_html_blocks[html_block] = ans
         return ans
 
     def finalize(self, all_blocks):

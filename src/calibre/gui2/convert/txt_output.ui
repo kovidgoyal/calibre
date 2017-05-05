@@ -23,7 +23,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Output &amp;Encoding:</string>
+         <string>Output &amp;encoding:</string>
         </property>
         <property name="buddy">
          <cstring>opt_txt_output_encoding</cstring>

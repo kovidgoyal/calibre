@@ -51,6 +51,13 @@ def in_paged_mode():
     return _in_paged_mode
 col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
 is_full_screen_layout = False
+current_scroll_animation = None
+
+def reset_paged_mode_globals():
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, current_scroll_animation
+    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
+    is_full_screen_layout = _in_paged_mode = False
+    current_scroll_animation = None
 
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
@@ -121,6 +128,13 @@ def layout(is_single_page):
         # cover, if so we treat it specially.
         single_screen = (document.body.scrollHeight < window.innerHeight + 75)
         first_layout = True
+        has_svg = document.getElementsByTagName('svg').length > 0
+        imgs = document.getElementsByTagName('img')
+        only_img = imgs.length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
+        if only_img and window.getComputedStyle(imgs[0]).zIndex < 0:
+            # Needed for some stupidly coded fixed layout EPUB comics, see for
+            # instance: https://bugs.launchpad.net/calibre/+bug/1667357
+            imgs[0].style.zIndex = '0'
         if not single_screen and cps > 1:
             num = cps - 1
             elems = document.querySelectorAll('body > *')
@@ -177,8 +191,6 @@ def layout(is_single_page):
         # width 100% are wider than body and lead to a blank page after the
         # current page (when cols_per_screen == 1). Similarly img elements
         # with height=100% overflow the first column
-        has_svg = document.getElementsByTagName('svg').length > 0
-        only_img = document.getElementsByTagName('img').length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
         is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth < 2*ww + 10)
         if is_single_page:
             is_full_screen_layout = True
@@ -197,7 +209,7 @@ def layout(is_single_page):
         if ncols is not Math.floor(ncols):
             n = Math.floor(ncols)
             dw = n*col_width + (n-1)*gap
-            data = {'col_with':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
+            data = {'col_width':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
             return data
     data = check_column_widths()
     if data:
@@ -237,7 +249,6 @@ def scroll_to_fraction(frac):
     xpos = Math.floor(document.body.scrollWidth * frac)
     scroll_to_xpos(xpos)
 
-current_scroll_animation = None
 
 def animated_scroll(pos, duration=1000, notify=True):
     # Scroll the window to X-position pos in an animated fashion over
@@ -290,13 +301,6 @@ def column_boundaries():
     l = column_at(window.pageXOffset + 10)
     return l, l + cols_per_screen
 
-def current_pos(frac):
-    # The current scroll position as a fraction between 0 and 1
-    limit = document.body.scrollWidth - window.innerWidth
-    if limit <= 0:
-        return 0.0
-    return window.pageXOffset / limit
-
 def current_column_location():
     # The location of the left edge of the left most column currently
     # visible in the viewport
@@ -319,6 +323,8 @@ def next_screen_location():
         if cols_left < cols_per_screen:
             return -1  # Only blank, dummy pages left
     limit = document.body.scrollWidth - window.innerWidth
+    if limit < col_and_gap:
+        return -1
     if ans > limit:
         ans = limit if window.pageXOffset < limit else -1
     return ans
@@ -452,6 +458,20 @@ def current_cfi():
     # if ans:
     #     print('Viewport cfi:', ans)
     return ans
+
+
+def progress_frac(frac):
+    # The current scroll position as a fraction between 0 and 1
+    if in_paged_mode:
+        limit = document.body.scrollWidth - window.innerWidth
+        if limit <= 0:
+            return 0.0
+        return window.pageXOffset / limit
+    limit = document.body.scrollHeight - window.innerHeight
+    if limit <= 0:
+        return 0.0
+    return window.pageYOffset / limit
+
 
 def onwheel(evt):
     if evt.deltaY:

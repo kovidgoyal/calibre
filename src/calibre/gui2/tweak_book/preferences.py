@@ -326,7 +326,7 @@ class MainWindowSettings(BasicSettings):
         l.addRow(nd)
 
         nd = self('file_list_shows_full_pathname')
-        nd.setText(_('Show full file paths in the Files Browser'))
+        nd.setText(_('Show full file paths in the File browser'))
         nd.setToolTip('<p>' + _(
             'Showing the full file paths is useful when editing books that contain'
             ' multiple files with the same file name.'
@@ -662,7 +662,7 @@ class Preferences(QDialog):
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
-        self.setWindowTitle(_('Preferences for Edit Book'))
+        self.setWindowTitle(_('Preferences for Edit book'))
         self.setWindowIcon(QIcon(I('config.png')))
 
         self.stacks = QStackedWidget(self)

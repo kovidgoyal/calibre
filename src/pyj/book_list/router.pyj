@@ -1,0 +1,94 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from ajax import encode_query as ajax_encode_query
+
+from book_list.constants import read_book_container_id, book_list_container_id
+from book_list.globals import get_current_query
+from book_list.library_data import current_library_id
+from utils import parse_url_params
+
+mode_handlers = {}
+default_mode_handler = None
+read_book_mode = 'read_book'
+
+
+def set_mode_handler(mode, handler):
+    mode_handlers[mode] = handler
+
+
+def set_default_mode_handler(handler):
+    nonlocal default_mode_handler
+    default_mode_handler = handler
+
+
+def update_window_title(subtitle, title='calibre', sep=' :: '):
+    extra = (sep + subtitle) if subtitle else ''
+    document.title = title + extra
+
+
+def is_reading_book():
+    cq = get_current_query()
+    return cq and cq.mode is read_book_mode
+
+
+def apply_mode(mode):
+    divid = read_book_container_id if is_reading_book() else book_list_container_id
+    for div in document.getElementById(divid).parentNode.childNodes:
+        div.style.display = 'block' if div.id is divid else 'none'
+
+
+def apply_url(ignore_handler):
+    data = parse_url_params()
+    data.mode = data.mode or 'book_list'
+    get_current_query(data)
+    apply_mode()
+    if not ignore_handler:
+        handler = mode_handlers[data.mode] or default_mode_handler
+        handler(data)
+
+
+def open_book(book_id, fmt, library_id=None, replace=False):
+    library_id = library_id or current_library_id()
+    push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
+
+
+def encode_query(query):
+    ans = ajax_encode_query(query)
+    return '#' + ans[1:]
+
+
+def push_state(query, replace=False, mode='book_list', call_handler=True):
+    query = {k:query[k] for k in query}
+    if mode is not 'book_list':
+        query.mode = mode
+    query = encode_query(query)
+    if replace:
+        window.history.replaceState(None, '', query)
+    else:
+        window.history.pushState(None, '', query)
+        push_state.history_count += 1
+    apply_url(not call_handler)
+
+push_state.history_count = 0
+
+def on_pop_state(ev):
+    push_state.history_count = max(0, push_state.history_count - 1)
+    apply_url()
+
+
+def back():
+    if push_state.history_count > 0:
+        window.history.back()
+    else:
+        cq = get_current_query()
+        handler = mode_handlers[cq.mode] or default_mode_handler
+        if handler.back_from_current:
+            q = handler.back_from_current(cq)
+        else:
+            q = {}
+        push_state(q, replace=True)
+
+def home(replace=False):
+    push_state({})

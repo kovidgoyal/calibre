@@ -79,7 +79,7 @@ class MultiDeleter(QObject):  # {{{
         if self.failures:
             msg = ['==> '+x[1]+'\n'+x[2] for x in self.failures]
             error_dialog(self.gui, _('Failed to delete'),
-                    _('Failed to delete some books, click the Show Details button'
+                    _('Failed to delete some books, click the "Show details" button'
                     ' for details.'), det_msg='\n\n'.join(msg), show=True)
 # }}}
 

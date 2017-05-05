@@ -108,6 +108,7 @@ class FormatterFunctions(object):
             for a in c.aliases:
                 self._functions[a] = c
 
+
 _ff = FormatterFunctions()
 
 
@@ -597,7 +598,7 @@ class BuiltinRe(BuiltinFormatterFunction):
     __doc__ = doc = _('re(val, pattern, replacement) -- return val after applying '
             'the regular expression. All instances of `pattern` are replaced '
             'with `replacement`. As in all of calibre, these are '
-            'python-compatible regular expressions')
+            'Python-compatible regular expressions')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val, flags=re.I)
@@ -848,10 +849,10 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
     arg_count = 2
     category = 'Formatting values'
     __doc__ = doc = _('format_number(v, template) -- format the number v using '
-                  'a python formatting template such as "{0:5.2f}" or '
+                  'a Python formatting template such as "{0:5.2f}" or '
                   '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
                   'template must be a 0 (zero) (the "{0:" in the above examples). '
-                  'See the template language and python documentation for more '
+                  'See the template language and Python documentation for more '
                   'examples. Returns the empty string if formatting fails.'
             )
 
@@ -1564,6 +1565,7 @@ class BuiltinAuthorSorts(BuiltinFormatterFunction):
         names = [sort_data.get(n) for n in mi.authors if n.strip()]
         return val_sep.join(n for n in names)
 
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
@@ -1597,6 +1599,7 @@ class FormatterUserFunction(FormatterFunction):
         self.doc = doc
         self.arg_count = arg_count
         self.program_text = program_text
+
 
 tabs = re.compile(r'^\t*')
 

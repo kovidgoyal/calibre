@@ -12,6 +12,7 @@ from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
 from future_builtins import zip
+from time import time
 
 from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
@@ -562,7 +563,7 @@ class Cache(object):
             slow filesystem access is done. The cache values could be out of date
             if access was performed to the filesystem outside of this API.
 
-        :param update_db: If ``True`` The max_size field of the database is updates for this book.
+        :param update_db: If ``True`` The max_size field of the database is updated for this book.
         '''
         if not fmt:
             return {}
@@ -734,7 +735,7 @@ class Cache(object):
     @read_api
     def format_abspath(self, book_id, fmt):
         '''
-        Return absolute path to the ebook file of format `format`. You should
+        Return absolute path to the e-book file of format `format`. You should
         almost never use this, as it breaks the threadsafe promise of this API.
         Instead use, :meth:`copy_format_to`.
 
@@ -826,10 +827,10 @@ class Cache(object):
     @api
     def format(self, book_id, fmt, as_file=False, as_path=False, preserve_filename=False):
         '''
-        Return the ebook format as a bytestring or `None` if the format doesn't exist,
-        or we don't have permission to write to the ebook file.
+        Return the e-book format as a bytestring or `None` if the format doesn't exist,
+        or we don't have permission to write to the e-book file.
 
-        :param as_file: If True the ebook format is returned as a file object. Note
+        :param as_file: If True the e-book format is returned as a file object. Note
                         that the file object is a SpooledTemporaryFile, so if what you want to
                         do is copy the format to another file, use :meth:`copy_format_to`
                         instead for performance.
@@ -1229,7 +1230,7 @@ class Cache(object):
         if mi contains empty values. In this case, 'None' is distinguished from
         'empty'. If mi.XXX is None, the XXX is not replaced, otherwise it is.
         The tags, identifiers, and cover attributes are special cases. Tags and
-        identifiers cannot be set to None so then will always be replaced if
+        identifiers cannot be set to None so they will always be replaced if
         force_changes is true. You must ensure that mi contains the values you
         want the book to have. Covers are always changed if a new cover is
         provided, but are never deleted. Also note that force_changes has no
@@ -2130,6 +2131,30 @@ class Cache(object):
                         self.fields['size'].table.update_sizes({book_id: max_size})
             if report_progress is not None:
                 report_progress(i+1, len(book_ids), mi)
+
+    @read_api
+    def get_last_read_positions(self, book_id, fmt, user):
+        fmt = fmt.upper()
+        ans = []
+        for device, cfi, epoch, pos_frac in self.backend.execute(
+                'SELECT device,cfi,epoch,pos_frac FROM last_read_positions WHERE book=? AND format=? AND user=?',
+                (book_id, fmt, user)):
+            ans.append({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac})
+        return ans
+
+    @write_api
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+        fmt = fmt.upper()
+        device = device or '_'
+        user = user or '_'
+        if not cfi:
+            self.backend.execute(
+                'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
+                (book_id, fmt, user, device))
+        else:
+            self.backend.execute(
+                'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
+                (book_id, fmt, user, device, cfi, epoch or time(), pos_frac))
 
     @read_api
     def export_library(self, library_key, exporter, progress=None, abort=None):

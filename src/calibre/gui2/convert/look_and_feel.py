@@ -16,7 +16,7 @@ from calibre.gui2.convert import Widget
 
 class LookAndFeelWidget(Widget, Ui_Form):
 
-    TITLE = _('Look & Feel')
+    TITLE = _('Look & feel')
     ICON  = I('lookfeel.png')
     HELP  = _('Control the look and feel of the output')
     COMMIT_NAME = 'look_and_feel'
@@ -131,5 +131,3 @@ class LookAndFeelWidget(Widget, Ui_Form):
             self.opt_font_size_mapping.setText(', '.join(['%.1f'%x for x in
                 d.fsizes]))
             self.opt_base_font_size.setValue(d.dbase)
-
-

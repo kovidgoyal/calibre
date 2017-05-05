@@ -318,15 +318,23 @@ def get_landmarks(container):
     return ans
 
 
-def ensure_id(elem):
+def ensure_id(elem, all_ids):
+    elem_id = elem.get('id')
+    if elem_id:
+        return False, elem_id
     if elem.tag == XHTML('a'):
         anchor = elem.get('name', None)
         if anchor:
+            elem.set('id', anchor)
             return False, anchor
-    elem_id = elem.get('id', None)
-    if elem_id:
-        return False, elem_id
-    elem.set('id', uuid_id())
+    c = 0
+    while True:
+        c += 1
+        q = 'toc_{}'.format(c)
+        if q not in all_ids:
+            elem.set('id', q)
+            all_ids.add(q)
+            break
     return True, elem.get('id')
 
 
@@ -412,6 +420,7 @@ def from_xpaths(container, xpaths):
         root = container.parsed(name)
         item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
         item_dirtied = False
+        all_ids = set(root.xpath('//*/@id'))
 
         for item in root.iterdescendants(etree.Element):
             lvl = item_level_map.get(item, None)
@@ -422,7 +431,7 @@ def from_xpaths(container, xpaths):
             if item_at_top(item):
                 dirtied, elem_id = False, None
             else:
-                dirtied, elem_id = ensure_id(item)
+                dirtied, elem_id = ensure_id(item, all_ids)
             item_dirtied = dirtied or item_dirtied
             toc = parent.add(text, name, elem_id)
             node_level_map[toc] = lvl
@@ -530,7 +539,8 @@ def add_id(container, name, loc, totals=None):
                                     ' before editing.') % name)
         container.replace(name, root)
 
-    node.set('id', node.get('id', uuid_id()))
+    if not node.get('id'):
+        ensure_id(node, set(root.xpath('//*/@id')))
     container.commit_item(name, keep_parsed=True)
     return node.get('id')
 

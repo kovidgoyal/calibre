@@ -17,7 +17,7 @@ If you want *all* of your library cataloged, remove any search or filtering crit
 If you want only *some* of your library cataloged, you have two options:
 
     * Create a multiple selection of the books you want cataloged. With more than one book selected in calibre's main window, only the selected books will be cataloged.
-    * Use the Search field or the Tag Browser to filter the displayed books. Only the displayed books will be cataloged.
+    * Use the Search field or the Tag browser to filter the displayed books. Only the displayed books will be cataloged.
 
 To begin catalog generation, select the menu item :guilabel:`Convert books > Create a catalog of the books in your calibre library`. You may also add a :guilabel:`Create Catalog` button to a toolbar in :guilabel:`Preferences > Interface > Toolbars` for easier access to the Generate catalog dialog.
 
@@ -114,7 +114,7 @@ Other options
 
 :guilabel:`Extra Description note` specifies a custom column's contents to be inserted into the Description page, next to the cover thumbnail. For example, you might want to display the date you last read a book using a :guilabel:`Last Read` custom column. For advanced use of the Description note feature, see `this post in the calibre forum <https://www.mobileread.com/forums/showpost.php?p=1335767&postcount=395>`_.
 
-:guilabel:`Thumb width` specifies a width preference for cover thumbnails included with Descriptions pages. Thumbnails are cached to improve performance.To experiment with different widths, try generating a catalog with just a few books until you've determined your preferred width, then generate your full catalog. The first time a catalog is generated with a new thumbnail width, performance will be slower, but subsequent builds of the catalog will take advantage of the thumbnail cache.
+:guilabel:`Thumb width` specifies a width preference for cover thumbnails included with Descriptions pages. Thumbnails are cached to improve performance. To experiment with different widths, try generating a catalog with just a few books until you've determined your preferred width, then generate your full catalog. The first time a catalog is generated with a new thumbnail width, performance will be slower, but subsequent builds of the catalog will take advantage of the thumbnail cache.
 
 :guilabel:`Merge with Comments` specifies a custom column whose content will be non-destructively merged with the Comments metadata during catalog generation. For example, you might have a custom column :guilabel:`Author Bio` that you'd like to append to the Comments metadata. You can choose to insert the custom column contents *before or after* the Comments section, and optionally separate the appended content with a horizontal rule separator. Eligible custom column types include ``text, comments, and composite``.
 

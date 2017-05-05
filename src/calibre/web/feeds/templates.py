@@ -226,10 +226,10 @@ class NavBarTemplate(Template):
             navbar.append(A(_('Next'), href=href))
         href = '%s../index.html#article_%d'%(prefix, art)
         navbar.iterchildren(reversed=True).next().tail = ' | '
-        navbar.append(A(_('Section Menu'), href=href))
+        navbar.append(A(_('Section menu'), href=href))
         href = '%s../../index.html#feed_%d'%(prefix, feed)
         navbar.iterchildren(reversed=True).next().tail = ' | '
-        navbar.append(A(_('Main Menu'), href=href))
+        navbar.append(A(_('Main menu'), href=href))
         if art > 0 and not bottom:
             href = '%s../article_%d/index.html'%(prefix, art-1)
             navbar.iterchildren(reversed=True).next().tail = ' | '
@@ -428,4 +428,3 @@ class TouchscreenNavBarTemplate(Template):
         # print "\n%s\n" % etree.tostring(navbar, pretty_print=True)
 
         self.root = HTML(head, BODY(navbar))
-

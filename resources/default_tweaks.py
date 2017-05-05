@@ -83,11 +83,11 @@ author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
 # Default: r'(?i),?\s+(and|with)\s+'
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
-#: Use author sort in Tag Browser
+#: Use author sort in Tag browser
 # Set which author field to display in the tags pane (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
-# category in the tags pane and content server. Please note that if you set this
+# category in the tags pane and Content server. Please note that if you set this
 # to author_sort, it is very possible to see duplicate names in the list because
 # although it is guaranteed that author names are unique, there is no such
 # guarantee for author_sort values. Showing duplicates won't break anything, but
@@ -98,7 +98,7 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
-#: Control partitioning of Tag Browser
+#: Control partitioning of Tag browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
 # name, categories_collapsed_rating_template if sorting by average rating, and
@@ -120,9 +120,9 @@ categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:s
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
-#: Control order of categories in the tag browser
+#: Control order of categories in the Tag browser
 # Change the following dict to change the order that categories are displayed in
-# the tag browser. Items are named using their lookup name, and will be sorted
+# the Tag browser. Items are named using their lookup name, and will be sorted
 # using the number supplied. The lookup name '*' stands for all names that
 # otherwise do not appear. Two names with the same value will be sorted
 # using the default order; the one used when the dict is empty.
@@ -183,7 +183,7 @@ gui_last_modified_display_format = 'dd MMM yyyy'
 # sorted as-is (sort by title instead of title sort). For example, with
 # library_order, The Client will sort under 'C'. With strictly_alphabetic, the
 # book will sort under 'T'.
-# This flag affects Calibre's library display. It has no effect on devices. In
+# This flag affects calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
 # order until the title is edited. Double-clicking on a title and hitting return
 # without changing anything is sufficient to change the sort.
@@ -350,10 +350,10 @@ sony_collection_sorting_rules = []
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-#: Set the maximum number of tags to show per book in the content server
+#: Set the maximum number of tags to show per book in the Content server
 max_content_server_tags_shown=5
 
-#: Set custom metadata fields that the content server will or will not display.
+#: Set custom metadata fields that the Content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
@@ -409,7 +409,7 @@ horizontal_scrolling_per_column = True
 # calibre in English but want sorting to work in the language where you live.
 # Set the tweak to the desired ISO 639-1 language code, in lower case.
 # You can find the list of supported locales at
-# http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusortsequencetables.htm
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # Default: locale_for_sorting = '' -- use the language calibre displays in
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
@@ -457,8 +457,8 @@ maximum_cover_size = (1650, 2200)
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
 
-#: What interfaces should the content server listen on
-# By default, the calibre content server listens on '0.0.0.0' which means that it
+#: What interfaces should the Content server listen on
+# By default, the calibre Content server listens on '0.0.0.0' which means that it
 # accepts IPv4 connections on all interfaces. You can change this to, for
 # example, '127.0.0.1' to only listen for connections from the local machine, or
 # to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
@@ -484,7 +484,7 @@ save_original_format = True
 save_original_format_when_polishing = True
 
 #: Number of recently viewed books to show
-# Right-clicking the View button shows a list of recently viewed books. Control
+# Right-clicking the "View" button shows a list of recently viewed books. Control
 # how many should be shown, here.
 gui_view_history_size = 15
 
@@ -494,7 +494,7 @@ gui_view_history_size = 15
 # negative number to increase or decrease the font size.
 change_book_details_font_size_by = 0
 
-#: Compile General Program Mode templates to Python
+#: Compile general program mode templates to Python
 # Compiled general program mode templates are significantly faster than
 # interpreted templates. Setting this tweak to True causes calibre to compile
 # (in most cases) general program mode templates. Setting it to False causes
@@ -504,14 +504,14 @@ change_book_details_font_size_by = 0
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
 
-#: What format to default to when using the Tweak feature
-# The Tweak feature of calibre allows direct editing of a book format.
+#: What format to default to when using the "Unpack book" feature
+# The "Unpack book" feature of calibre allows direct editing of a book format.
 # If multiple formats are available, calibre will offer you a choice
 # of formats, defaulting to your preferred output format if it is available.
 # Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
 # to that format rather than your output format preference.
 # Set to a value of 'remember' to use whichever format you chose last time you
-# used the Tweak feature.
+# used the "Unpack book" feature.
 # Examples:
 #   default_tweak_format = None       (Use output format)
 #   default_tweak_format = 'EPUB'
@@ -548,9 +548,9 @@ numeric_collation = False
 # number here. The default is ten libraries.
 many_libraries = 10
 
-#: Highlight the virtual library name when using a Virtual Library
-# The virtual library name next to the Virtual Library button is highlighted in
-# yellow when using a Virtual Library. You can choose the color used for the
+#: Highlight the virtual library name when using a Virtual library
+# The virtual library name next to the Virtual library button is highlighted in
+# yellow when using a Virtual library. You can choose the color used for the
 # highlight with this tweak. Set it to 'transparent' to disable highlighting.
 highlight_virtual_library = 'yellow'
 
@@ -561,7 +561,7 @@ highlight_virtual_library = 'yellow'
 # all available output formats to be present.
 restrict_output_formats = None
 
-#: Set the thumbnail image quality used by the content server
+#: Set the thumbnail image quality used by the Content server
 # The quality of a thumbnail is largely controlled by the compression quality
 # used when creating it. Set this to a larger number to improve the quality.
 # Note that the thumbnails get much larger with larger compression quality
@@ -569,10 +569,10 @@ restrict_output_formats = None
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
 
-#: Image file types to treat as ebooks when dropping onto the Book Details panel
+#: Image file types to treat as e-books when dropping onto the "Book details" panel
 # Normally, if you drop any image file in a format known to calibre onto the
-# Book Details panel, it will be used to set the cover. If you want to store
-# some image types as ebooks instead, you can set this tweak.
+# "Book details" panel, it will be used to set the cover. If you want to store
+# some image types as e-books instead, you can set this tweak.
 # Examples:
 #    cover_drop_exclude = {'tiff', 'webp'}
 cover_drop_exclude = ()

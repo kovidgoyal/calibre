@@ -186,7 +186,7 @@ class BookInfo(QDialog):
             tt += '\n\n'
         if self.cover_pixmap is not None:
             sz = self.cover_pixmap.size()
-            tt += _('Cover size: %(width)d x %(height)d')%dict(width=sz.width(), height=sz.height())
+            tt += _('Cover size: %(width)d x %(height)d pixels')%dict(width=sz.width(), height=sz.height())
         self.cover.setToolTip(tt)
 
     def refresh(self, row, mi=None):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import defaultdict
 from pprint import pformat
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -26,7 +27,6 @@ class LATimes(BasicNewsRecipe):
     language = 'en'
     remove_empty_feeds = True
     publication_type = 'newspaper'
-    masthead_url = 'http://www.latimes.com/images/logo.png'
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
@@ -42,11 +42,19 @@ class LATimes(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('http://www.latimes.com')
         feeds = defaultdict(list)
-        for x in soup.findAll(attrs={'data-content-type': 'story', 'data-content-section': True, 'data-content-url': True, 'data-content-title': True}):
-            url = absurl(x['data-content-url'])
-            section = x['data-content-section'].capitalize()
-            title = x['data-content-title']
-            feeds[section].append({'title': title, 'url': url})
+        for x in soup.findAll(
+            attrs={
+                'data-content-type': 'story',
+                'data-content-section': True,
+                'data-content-slug': True,
+            }
+        ):
+            a = x.find('a', attrs={'class': lambda x: not x or 'SectionHeading' not in x})
+            if a is not None:
+                url = absurl(a['href'])
+                section = x['data-content-section'].capitalize()
+                title = self.tag_to_string(a)
+                feeds[section].append({'title': title, 'url': url})
         self.log(pformat(dict(feeds)))
         return [(k, feeds[k]) for k in sorted(feeds)]
 

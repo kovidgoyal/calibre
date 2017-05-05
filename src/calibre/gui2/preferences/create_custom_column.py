@@ -26,17 +26,17 @@ class CreateCustomColumn(QDialog):
     column_types = dict(enumerate((
         {
             'datatype':'text',
-            'text':_('Text, column shown in the tag browser'),
+            'text':_('Text, column shown in the Tag browser'),
             'is_multiple':False
         },
         {
             'datatype':'*text',
-            'text':_('Comma separated text, like tags, shown in the tag browser'),
+            'text':_('Comma separated text, like tags, shown in the Tag browser'),
             'is_multiple':True
         },
         {
             'datatype':'comments',
-            'text':_('Long text, like comments, not shown in the tag browser'),
+            'text':_('Long text, like comments, not shown in the Tag browser'),
             'is_multiple':False
         },
         {
@@ -272,7 +272,7 @@ class CreateCustomColumn(QDialog):
 
         # Heading
         self.column_heading_box = chb = QLineEdit(self)
-        chb.setToolTip(_("Column heading in the library view and category name in the tag browser"))
+        chb.setToolTip(_("Column heading in the library view and category name in the Tag browser"))
         add_row(_("Column &heading"), chb)
 
         # Column Type
@@ -323,7 +323,7 @@ class CreateCustomColumn(QDialog):
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
-                        'Details panel and, if shown, where'))
+                        'details panel and, if shown, where'))
         self.comments_heading_position_label = add_row(_('Column heading'), ct)
 
         self.comments_type = ct = QComboBox(self)
@@ -335,7 +335,7 @@ class CreateCustomColumn(QDialog):
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose how the data in this column is interpreted.\n'
-                        'This controls how the data is displayed in the Book Details panel\n'
+                        'This controls how the data is displayed in the Book details panel\n'
                         'and how it is edited.'))
         self.comments_type_label = add_row(_('Interpret this column as:') + ' ', ct)
 
@@ -368,13 +368,13 @@ class CreateCustomColumn(QDialog):
         self.composite_sort_by = csb = QComboBox(self)
         la.setBuddy(csb), csb.setToolTip(_("How this column should handled in the GUI when sorting and searching"))
         l.addWidget(la), l.addWidget(csb)
-        self.composite_make_category = cmc = QCheckBox(_("Show in tags browser"))
-        cmc.setToolTip(_("If checked, this column will appear in the tags browser as a category"))
+        self.composite_make_category = cmc = QCheckBox(_("Show in Tag browser"))
+        cmc.setToolTip(_("If checked, this column will appear in the Tag browser as a category"))
         l.addWidget(cmc)
-        self.composite_contains_html = cch = QCheckBox(_("Show as HTML in book details"))
+        self.composite_contains_html = cch = QCheckBox(_("Show as HTML in Book details"))
         cch.setToolTip('<p>' +
                 _('If checked, this column will be displayed as HTML in '
-                  'book details and the content server. This can be used to '
+                  'Book details and the Content server. This can be used to '
                   'construct links with the template language. For example, '
                   'the template '
                   '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
@@ -382,9 +382,9 @@ class CreateCustomColumn(QDialog):
                   'will create a field displaying the title in bold large '
                   'characters, along with the series, for example <br>"<big><b>'
                   'An Oblique Approach</b></big> [Belisarius [1]]". The template '
-                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
+                  '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
                   ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
+                  'will generate a link to the book on the Beam e-books site.') + '</p>')
         l.addWidget(cch)
         add_row(None, l)
 
@@ -406,13 +406,13 @@ class CreateCustomColumn(QDialog):
                     "<p>Date format. Use 1-4 \'d\'s for day, 1-4 \'M\'s for month, and 2 or 4 \'y\'s for year.</p>\n"
                     "<p>For example:\n"
                     "<ul>\n"
-                    "<li> ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
+                    "<li>ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
                     "<li>dd MMMM yy gives 05 January 10</li>\n"
                     "</ul> "))
             else:
                 l, dl = _('&Format for numbers'), (
                     '<p>' + _('Default: Not formatted. For format language details see'
-                    ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the python documentation</a>'))
+                    ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the Python documentation</a>'))
                 if col_type == 'int':
                     self.format_box.setToolTip('<p>' +
                         _('Examples: The format <code>{0:0>4d}</code> '

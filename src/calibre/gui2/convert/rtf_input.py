@@ -12,7 +12,7 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('RTF Input')
+    TITLE = _('RTF input')
     HELP = _('Options specific to')+' RTF '+_('input')
     COMMIT_NAME = 'rtf_input'
     ICON = I('mimetypes/rtf.png')
@@ -21,4 +21,3 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
             ['ignore_wmf', ])
         self.initialize_options(get_option, get_help, db, book_id)
-

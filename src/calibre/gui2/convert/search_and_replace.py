@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, json
+import codecs, json
 
 from PyQt5.Qt import Qt, QTableWidgetItem
 
@@ -14,11 +14,12 @@ from calibre.gui2 import (error_dialog, question_dialog, choose_files,
         choose_save_file)
 from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
+from calibre.ebooks.conversion.search_replace import compile_regular_expression
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
-    TITLE = _('Search\n&\nReplace')
+    TITLE = _('Search &\nreplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
     ICON = I('search.png')
@@ -42,7 +43,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
 
-        self.sr_search.set_msg(_('&Search Regular Expression'))
+        self.sr_search.set_msg(_('&Search regular expression:'))
         self.sr_search.set_book_id(book_id)
         self.sr_search.set_db(db)
 
@@ -55,7 +56,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setColumnWidth(0, 320)
         self.search_replace.setColumnWidth(1, 320)
         self.search_replace.setHorizontalHeaderLabels([
-            _('Search Regular Expression'), _('Replacement Text')])
+            _('Search regular expression'), _('Replacement text')])
 
         self.sr_add.clicked.connect(self.sr_add_clicked)
         self.sr_change.clicked.connect(self.sr_change_clicked)
@@ -107,9 +108,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_load_clicked(self):
         files = choose_files(self, 'sr_saved_patterns',
-                _('Load Calibre Search-Replace definitions file'),
+                _('Load calibre search-replace definitions file'),
                 filters=[
-                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre search-replace definitions file'), ['csr'])
                     ], select_only_single_file=True)
         if files:
             from calibre.ebooks.conversion.cli import read_sr_patterns
@@ -119,15 +120,15 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 self.search_replace.setCurrentCell(0, 0)
             except Exception as e:
                 error_dialog(self, _('Failed to read'),
-                        _('Failed to load patterns from %s, click Show details'
+                        _('Failed to load patterns from %s, click "Show details"'
                             ' to learn more.')%files[0], det_msg=as_unicode(e),
                         show=True)
 
     def sr_save_clicked(self):
         filename = choose_save_file(self, 'sr_saved_patterns',
-                _('Save Calibre Search-Replace definitions file'),
+                _('Save calibre search-replace definitions file'),
                 filters=[
-                    (_('Calibre Search-Replace definitions file'), ['csr'])
+                    (_('calibre search-replace definitions file'), ['csr'])
                     ])
         if filename:
             with codecs.open(filename, 'w', 'utf-8') as f:
@@ -199,8 +200,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     found = True
                     break
             if not found and not question_dialog(self,
-                    _('Unused Search & Replace definition'),
-                    _('The search / replace definition being edited '
+                    _('Unused search & replace definition'),
+                    _('The search/replace definition being edited '
                         ' has not been added to the list of definitions. '
                         'Do you wish to continue with the conversion '
                         '(the definition will not be used)?')):
@@ -209,7 +210,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         # Verify all search expressions are valid
         for search, replace in definitions:
             try:
-                re.compile(search)
+                compile_regular_expression(search)
             except Exception as err:
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
@@ -300,4 +301,3 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 'to this conversion.')
             self.setup_widget_help(self.search_replace)
         return True
-

@@ -13,7 +13,7 @@ from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWid
 
 class PluginWidget(QWidget):
 
-    TITLE = _('CSV/XML Options')
+    TITLE = _('CSV/XML options')
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
     formats = set(['csv', 'xml'])
@@ -46,7 +46,7 @@ class PluginWidget(QWidget):
             if x == 'isbn':
                 return 'ISBN'
             if x == 'library_name':
-                return _('Library Name')
+                return _('Library name')
             if x.endswith('_index'):
                 return name(x[:-len('_index')]) + ' ' + _('Number')
             return fm[x].get('name') or x

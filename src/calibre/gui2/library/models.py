@@ -38,6 +38,7 @@ def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
     return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
 
+
 TIME_FMT = '%d %b %Y'
 
 ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
@@ -333,9 +334,10 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.new_bookdisplay_data.emit(self.get_book_display_info(current_row))
 
     def close(self):
-        self.db.close()
-        self.db = None
-        self.beginResetModel(), self.endResetModel()
+        if self.db is not None:
+            self.db.close()
+            self.db = None
+            self.beginResetModel(), self.endResetModel()
 
     def add_books(self, paths, formats, metadata, add_duplicates=False,
             return_ids=False):
@@ -1710,6 +1712,3 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.editable = []
 
 # }}}
-
-
-

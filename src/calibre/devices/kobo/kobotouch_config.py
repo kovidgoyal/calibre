@@ -170,7 +170,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super(BookUploadsGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Book Uploading"))
+        self.setTitle(_("Book uploading"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
@@ -179,7 +179,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
         self.modify_css_checkbox = create_checkbox(
                 _("Modify CSS"),
                 _('This allows addition of user CSS rules and removal of some CSS. '
-                'When sending a book, the driver adds the contents of {0} to all stylesheets in the ePub. '
+                'When sending a book, the driver adds the contents of {0} to all stylesheets in the EPUB. '
                 'This file is searched for in the root directory of the main memory of the device. '
                 'As well as this, if the file contains settings for the "orphans" or "widows", '
                 'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
@@ -208,7 +208,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.setChecked(device.get_pref('manage_collections'))
         self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
-        self.collections_columns_label = QLabel(_('Collections Columns'))
+        self.collections_columns_label = QLabel(_('Collections Columns:'))
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
                 ' These are created on the Kobo. ' +
@@ -226,7 +226,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                          device.get_pref('delete_empty_collections')
                          )
 
-        self.ignore_collections_names_label = QLabel(_('Ignore Collections'))
+        self.ignore_collections_names_label = QLabel(_('Ignore collections:'))
         self.ignore_collections_names_edit = QLineEdit(self)
         self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by ' +
                 'the collection management. The collections listed ' +
@@ -316,7 +316,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
         self.setLayout(self.options_layout)
 
         self.show_recommendations_checkbox = create_checkbox(
-                             _("Show Recommendations"),
+                             _("Show recommendations"),
                              _('Kobo shows recommendations on the device.  In some cases these have '
                                'files but in other cases they are just pointers to the web site to buy. '
                                'Enable if you wish to see/delete them.'),
@@ -331,7 +331,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.show_previews_checkbox = create_checkbox(
-                             _('Show Previews'),
+                             _('Show previews'),
                              _('Kobo previews are included on the Touch and some other versions'
                                ' by default they are no longer displayed as there is no good reason to '
                                'see them.  Enable if you wish to see/delete them.'),
@@ -359,7 +359,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 class AdvancedGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super(AdvancedGroupBox, self).__init__(parent, device, _("Advanced Options"))
+        super(AdvancedGroupBox, self).__init__(parent, device, _("Advanced options"))
 #         self.setTitle(_("Advanced Options"))
 
         self.options_layout = QGridLayout()
@@ -384,7 +384,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                                'The better the match, the less extraneous output.'),
                              device.get_pref('debugging_title')
                              )
-        self.debugging_title_label = QLabel(_('Title to test when debugging'))
+        self.debugging_title_label = QLabel(_('Title to test when debugging:'))
         self.debugging_title_edit = QLineEdit(self)
         self.debugging_title_edit.setToolTip(_('Part of title of a book that can be used when doing some tests for debugging. '
                     'The test is to see if the string is contained in the title of a book. '
@@ -422,7 +422,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Be careful when doing this as it will take time and could make the initial connection take a long time.')))
 
         self.update_series_checkbox = create_checkbox(
-                             _("Set Series information"),
+                             _("Set series information"),
                              _('The book lists on the Kobo devices can display series information. '
                                'This is not read by the device from the sideloaded books. '
                                'Series information can only be added to the device after the book has been processed by the device. '
@@ -465,5 +465,3 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         cw.commit()
     dev.shutdown()
-
-

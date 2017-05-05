@@ -54,7 +54,7 @@ IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *clien
     hr = CoCreateInstance(CLSID_PortableDevice, NULL, CLSCTX_INPROC_SERVER,
             IID_PPV_ARGS(&device));
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) hresult_set_exc("Failed to create IPortableDevice", hr);
+    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDevice", hr); device = NULL; }
     else {
         Py_BEGIN_ALLOW_THREADS;
         hr = device->Open(pnp_id, client_information);
@@ -354,7 +354,17 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
 
     if (t == Py_True) {
         storage = get_storage_info(device);
-        if (storage == NULL) goto end;
+        if (storage == NULL) {
+            PyObject *exc_type, *exc_value, *exc_tb;
+            PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
+            if (exc_type != NULL && exc_value != NULL) { 
+                PyErr_NormalizeException(&exc_type, &exc_value, &exc_tb);
+                PyDict_SetItemString(ans, "storage_error", exc_value); 
+                Py_DECREF(exc_value); exc_value = NULL; 
+            }
+            Py_XDECREF(exc_type); Py_XDECREF(exc_value); Py_XDECREF(exc_tb);
+            goto end;
+        }
         PyDict_SetItemString(ans, "storage", storage);
         
     }

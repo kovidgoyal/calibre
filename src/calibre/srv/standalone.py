@@ -178,9 +178,9 @@ def manage_users(path=None):
 
 def create_option_parser():
     parser=opts_to_parser('%prog '+ _(
-'''[options] [path to library folder ...]
+'''[options] [path to library folder...]
 
-Start the calibre content server. The calibre content server
+Start the calibre Content server. The calibre Content server
 exposes your calibre libraries over the internet. You can specify
 the path to the library folders as arguments to %prog. If you do
 not specify any paths, the library last opened (if any) in the main calibre

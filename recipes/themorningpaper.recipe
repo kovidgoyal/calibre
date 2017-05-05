@@ -1,0 +1,42 @@
+#!/usr/bin/env  python2
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2017, Darko Miletic <darko.miletic at gmail.com>'
+'''
+blog.acolyer.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Themorningpaper(BasicNewsRecipe):
+    title = 'The Morning Paper'
+    __author__ = 'Darko Miletic'
+    description = ('an interesting/influential/important paper from'
+                   ' the world of CS every weekday morning, as selected by Adrian Colyer')
+    publisher = 'Adrian Colyer'
+    category = 'news, tech'
+    oldest_article = 180
+    max_articles_per_feed = 200
+    no_stylesheets = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+    language = 'en'
+    remove_empty_feeds = True
+    auto_cleanup = True
+    publication_type = 'blog'
+    extra_css = """
+                               body{font-family: Georgia,Palatino,serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    feeds = [(u'Articles', u'https://blog.acolyer.org/feed/')]

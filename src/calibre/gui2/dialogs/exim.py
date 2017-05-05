@@ -152,7 +152,7 @@ class EximDialog(Dialog):
         self.initial_panel = initial_panel
         self.abort_disk_usage = Event()
         self.restart_needed = False
-        Dialog.__init__(self, _('Export/Import all calibre data'), 'exim-calibre', parent=parent)
+        Dialog.__init__(self, _('Export/import all calibre data'), 'exim-calibre', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -281,9 +281,9 @@ class EximDialog(Dialog):
         g = get_gui()
         if g is not None:
             if g.iactions['Connect Share'].content_server_is_running:
-                error_dialog(self, _('Content Server running'), _(
-                    'Cannot import while the content server is running, shut it down first by clicking the'
-                    ' Connect/share button on the calibre toolbar'), show=True)
+                error_dialog(self, _('Content server running'), _(
+                    'Cannot import while the Content server is running, shut it down first by clicking the'
+                    ' "Connect/share" button on the calibre toolbar'), show=True)
                 return False
         if self.import_panel.stack.currentIndex() == 0:
             error_dialog(self, _('No folder selected'), _(

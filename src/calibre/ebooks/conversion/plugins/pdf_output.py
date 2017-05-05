@@ -10,7 +10,7 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import islinux
+from calibre.constants import islinux, iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
@@ -52,11 +52,10 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
-        OptionRecommendation(name='override_profile_size', recommended_value=False,
-            help=_('Normally, the PDF page size is set by the output profile'
-                   ' chosen under the page setup options. This option will cause the '
-                   ' page size settings under PDF Output to override the '
-                   ' size specified by the output profile.')),
+        OptionRecommendation(name='use_profile_size', recommended_value=False,
+            help=_('Instead of using the paper size specified in the PDF Output options,'
+                   ' use a paper size corresponding to the current output profile.'
+                   ' Useful if you want to generate a PDF for viewing on a specific device.')),
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure for page sizes. Default is inch. Choices '
@@ -97,8 +96,6 @@ class PDFOutput(OutputFormatPlugin):
                 'The default font size for monospaced text')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
-        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
-            help=_('Use the old, less capable engine to generate the PDF')),
         OptionRecommendation(name='uncompressed_pdf',
             recommended_value=False, help=_(
                 'Generate an uncompressed PDF, useful for debugging, '
@@ -119,13 +116,38 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for generated table of contents.')
         ),
-        ])
+
+        OptionRecommendation(name='pdf_page_margin_left', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the left page margin, in pts. Default is 72pt.'
+                   ' Overrides the common left page margin setting.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_top', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the top page margin, in pts. Default is 72pt.'
+                   ' Overrides the common top page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_right', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the right page margin, in pts. Default is 72pt.'
+                   ' Overrides the common right page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_bottom', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the bottom page margin, in pts. Default is 72pt.'
+                   ' Overrides the common bottom page margin setting, unless set to zero.')
+        ),
+    ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.gui2 import must_use_qt, load_builtin_fonts
         from calibre.ebooks.oeb.transforms.split import Split
         # Turn off hinting in WebKit (requires a patched build of QtWebKit)
         os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
+        self.filtered_font_warnings = set()
         try:
             # split on page breaks, as the JS code to convert page breaks to
             # column breaks will not work because of QWebSettings.LocalContentCanAccessFileUrls
@@ -157,7 +179,7 @@ class PDFOutput(OutputFormatPlugin):
             os.environ.pop('CALIBRE_WEBKIT_NO_HINTING', None)
 
     def convert_images(self, images):
-        from calibre.ebooks.pdf.writer import ImagePDFWriter
+        from calibre.ebooks.pdf.render.from_html import ImagePDFWriter
         self.write(ImagePDFWriter, images, None)
 
     def get_cover_data(self):
@@ -168,8 +190,8 @@ class PDFOutput(OutputFormatPlugin):
             item = oeb.manifest.ids[cover_id]
             self.cover_data = item.data
 
-    def handle_embedded_fonts(self):
-        ''' Make sure all fonts are embeddable. '''
+    def process_fonts(self):
+        ''' Make sure all fonts are embeddable. Also remove some fonts that causes problems. '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
 
@@ -199,19 +221,28 @@ class PDFOutput(OutputFormatPlugin):
                         if nraw != raw:
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
+                elif iswindows and rule.type == rule.STYLE_RULE:
+                    from tinycss.fonts3 import parse_font_family, serialize_font_family
+                    s = rule.style
+                    f = s.getProperty(u'font-family')
+                    if f is not None:
+                        font_families = parse_font_family(f.propertyValue.cssText)
+                        ff = [x for x in font_families if x.lower() != u'courier']
+                        if len(ff) != len(font_families):
+                            if 'courier' not in self.filtered_font_warnings:
+                                # See https://bugs.launchpad.net/bugs/1665835
+                                self.filtered_font_warnings.add(u'courier')
+                                self.log.warn(u'Removing courier font family as it does not render on windows')
+                            f.propertyValue.cssText = serialize_font_family(ff or [u'monospace'])
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
-        if self.opts.old_pdf_engine:
-            from calibre.ebooks.pdf.writer import PDFWriter
-            PDFWriter
-        else:
-            from calibre.ebooks.pdf.render.from_html import PDFWriter
+        from calibre.ebooks.pdf.render.from_html import PDFWriter
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
-        self.handle_embedded_fonts()
+        self.process_fonts()
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format

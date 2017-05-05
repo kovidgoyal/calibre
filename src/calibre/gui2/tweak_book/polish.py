@@ -137,7 +137,7 @@ class ImageItemDelegate(QStyledItemDelegate):
 class CompressImages(Dialog):
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Compress Images'), 'compress-images', parent=parent)
+        Dialog.__init__(self, _('Compress images'), 'compress-images', parent=parent)
 
     def setup_ui(self):
         from calibre.ebooks.oeb.polish.images import get_compressible_images
@@ -200,7 +200,7 @@ class CompressImagesProgress(Dialog):
         self.names, self.jpeg_quality = names, jpeg_quality
         self.keep_going = True
         self.result = (None, '')
-        Dialog.__init__(self, _('Compressing Images...'), 'compress-images-progress', parent=parent)
+        Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
         self.gui_loop.connect(self.update_progress, type=Qt.QueuedConnection)
         self.cidone.connect(self.accept, type=Qt.QueuedConnection)
         t = Thread(name='RunCompressImages', target=self.run_compress)

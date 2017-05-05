@@ -109,23 +109,26 @@ class WSJ(BasicNewsRecipe):
 
         articles = []
 
-        for a in CSSSelect('a.mjLinkItem[href]')(root):
-            container = a.xpath('ancestor::li')
-            meta = CSSSelect('.meta_sectionName')(a)
-            if meta:
-                meta = meta[0]
-                meta.getparent().remove(meta)
-                meta = self.tag_to_string(meta)
+        for container in root.xpath('//li[contains(@class, "mjItemMain")]'):
+            meta = container.xpath('descendant::span[@class="meta_sectionName"]')
+            if not meta:
+                continue
+            meta = meta[0]
+            a = meta.xpath('ancestor::a')[0]
+            meta.getparent().remove(meta)
+            meta = self.tag_to_string(meta)
             title = self.tag_to_string(a)
             if meta:
                 title += ' [%s]' % meta
             url = self.abs_wsj_url(a.get('href'))
             desc = ''
             if container:
-                for p in CSSSelect('p')(container[0]):
-                    desc = self.tag_to_string(p)
-                    if 'Subscriber Content' not in desc:
-                        break
+                for p in container.xpath('descendant::p'):
+                    q = self.tag_to_string(p)
+                    if 'Subscriber Content' in q:
+                        continue
+                    desc += q
+                    break
 
             articles.append({'title': title, 'url': url,
                              'description': desc, 'date': ''})
@@ -176,14 +179,15 @@ class WSJ(BasicNewsRecipe):
         return articles
 
     def wsj_add_feed(self, feeds, title, url):
-        self.log('Found section:', title)
+        self.log('Found section:', title, '[' + url + ']')
         try:
             if url.endswith('whatsnews'):
                 articles = self.wsj_find_wn_articles(url)
             else:
                 articles = self.wsj_find_articles(
                     url, ahed=title == 'Front Section')
-        except:
+        except Exception:
+            self.log.exception('Failed to parse section:', title)
             articles = []
         if articles:
             feeds.append((title, articles))

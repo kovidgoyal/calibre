@@ -399,7 +399,7 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('language', default=None,
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='EPUB',
-              help=_('The default output format for ebook conversions.'))
+              help=_('The default output format for e-book conversions.'))
     c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
         'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'DOCX', 'ODT', 'RTF', 'PDF',
         'TXT'],
@@ -425,7 +425,7 @@ def create_global_prefs(conf_obj=None):
     # these are here instead of the gui preferences because calibredb and
     # calibre server can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
-    c.add_opt('user_categories', default={}, help=_('User-created tag browser categories'))
+    c.add_opt('user_categories', default={}, help=_('User-created Tag browser categories'))
     c.add_opt('manage_device_metadata', default='manual',
         help=_('How and when calibre updates metadata on the device.'))
     c.add_opt('limit_search_columns', default=False,

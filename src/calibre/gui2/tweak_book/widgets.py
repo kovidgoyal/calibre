@@ -122,7 +122,7 @@ class RationalizeFolders(Dialog):  # {{{
             l.addWidget(le, i + 1, 1)
         self.la2 = la = QLabel(_(
             'Note that this will only arrange files inside the book,'
-            ' it will not affect how they are displayed in the Files Browser'))
+            ' it will not affect how they are displayed in the File browser'))
         la.setWordWrap(True)
         l.addWidget(la, i + 2, 0, 1, -1)
         l.addWidget(self.bb, i + 3, 0, 1, -1)
@@ -622,7 +622,7 @@ class InsertLink(Dialog):
         self.container = container
         self.source_name = source_name
         self.initial_text = initial_text
-        Dialog.__init__(self, _('Insert Hyperlink'), 'insert-hyperlink', parent=parent)
+        Dialog.__init__(self, _('Insert hyperlink'), 'insert-hyperlink', parent=parent)
         self.anchor_cache = {}
 
     def sizeHint(self):
@@ -657,6 +657,7 @@ class InsertLink(Dialog):
         h.addLayout(fnl), h.setStretch(1, 1)
 
         self.tl = tl = QFormLayout()
+        tl.setFieldGrowthPolicy(tl.AllNonFixedFieldsGrow)
         self.target = t = QLineEdit(self)
         t.setPlaceholderText(_('The destination (href) for the link'))
         tl.addRow(_('&Target:'), t)
@@ -742,7 +743,7 @@ class InsertSemantics(Dialog):
             for item in container.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
         self.final_type_map = self.original_type_map.copy()
         self.create_known_type_map()
-        Dialog.__init__(self, _('Set Semantics'), 'insert-semantics', parent=parent)
+        Dialog.__init__(self, _('Set semantics'), 'insert-semantics', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -761,8 +762,8 @@ class InsertSemantics(Dialog):
             'dedication': _('Dedication'),
             'epigraph': _('Epigraph'),
             'foreword': _('Foreword'),
-            'loi': _('List of Illustrations'),
-            'lot': _('List of Tables'),
+            'loi': _('List of illustrations'),
+            'lot': _('List of tables'),
             'notes': _('Notes'),
             'preface': _('Preface'),
             'text': _('Text'),
@@ -930,7 +931,7 @@ class FilterCSS(Dialog):  # {{{
 
     def __init__(self, current_name=None, parent=None):
         self.current_name = current_name
-        Dialog.__init__(self, _('Filter Style Information'), 'filter-css', parent=parent)
+        Dialog.__init__(self, _('Filter style information'), 'filter-css', parent=parent)
 
     def setup_ui(self):
         from calibre.gui2.convert.look_and_feel_ui import Ui_Form

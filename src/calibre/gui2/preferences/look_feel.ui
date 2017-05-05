@@ -25,7 +25,7 @@
         <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Main Interface</string>
+       <string>Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="9" column="0">
@@ -139,7 +139,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Choose &amp;language (requires restart):</string>
+          <string>Choose &amp;language (needs restart):</string>
          </property>
          <property name="buddy">
           <cstring>opt_language</cstring>
@@ -250,7 +250,7 @@
         <normaloff>:/images/grid.png</normaloff>:/images/grid.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Cover Grid</string>
+       <string>Cover grid</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -269,7 +269,7 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>Control the cover grid view. You can enable this view by clicking the grid button in the bottom right corner of the main calibre window.</string>
+              <string>Control the Cover grid view. You can enable this view by clicking the "Cover grid" button in the bottom right corner of the main calibre window.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -337,7 +337,7 @@
            <item row="7" column="0" colspan="2">
             <widget class="QGroupBox" name="cg_background_box">
              <property name="title">
-              <string>Background for the cover grid</string>
+              <string>Background for the Cover grid</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_5"/>
             </widget>
@@ -368,7 +368,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>Cover &amp;Width: </string>
+                 <string>Cover &amp;width: </string>
                 </property>
                 <property name="buddy">
                  <cstring>opt_cover_grid_width</cstring>
@@ -409,7 +409,7 @@ A value of zero means calculate automatically.</string>
               <item row="2" column="0">
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>Cover &amp;Height: </string>
+                 <string>Cover &amp;height: </string>
                 </property>
                 <property name="buddy">
                  <cstring>opt_cover_grid_height</cstring>
@@ -665,7 +665,7 @@ A value of zero means calculate automatically.</string>
         <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Book Details</string>
+       <string>Book details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
        <item row="3" column="1">
@@ -734,7 +734,7 @@ A value of zero means calculate automatically.</string>
          <item>
           <widget class="QCheckBox" name="opt_bd_show_cover">
            <property name="text">
-            <string>Show &amp;cover in the book details panel</string>
+            <string>Show &amp;cover in the Book details panel</string>
            </property>
           </widget>
          </item>
@@ -823,7 +823,7 @@ Manage Authors. You can use the values {author} and
         <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Tag Browser</string>
+       <string>Tag browser</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
@@ -842,7 +842,7 @@ Manage Authors. You can use the values {author} and
        <item row="2" column="1">
         <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
          <property name="toolTip">
-          <string>If a Tag Browser category has more than this number of items, it is divided
+          <string>If a Tag browser category has more than this number of items, it is divided
 up into subcategories. If the partition method is set to disable, this value is ignored.</string>
          </property>
          <property name="maximum">
@@ -908,7 +908,7 @@ then the tags will be displayed each on their own line.</string>
        <item row="8" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_old_look">
          <property name="text">
-          <string>Use &amp;alternating row colors in the Tag Browser</string>
+          <string>Use &amp;alternating row colors in the Tag browser</string>
          </property>
         </widget>
        </item>
@@ -921,14 +921,14 @@ then the tags will be displayed each on their own line.</string>
  box will cause these empty categories to be hidden.</string>
          </property>
          <property name="text">
-          <string>Hi&amp;de empty categories (columns) in the tag browser</string>
+          <string>Hi&amp;de empty categories (columns) in the Tag browser</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="opt_tags_browser_partition_method">
          <property name="toolTip">
-          <string>Choose how tag browser subcategories are displayed when
+          <string>Choose how Tag browser subcategories are displayed when
 there are more items than the limit. Select by first
 letter to see an A, B, C list. Choose partitioned to
 have a list of fixed-sized groups. Set to disabled
@@ -939,7 +939,7 @@ if you never want subcategories</string>
        <item row="1" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&amp;Tags browser category partitioning method:</string>
+          <string>&amp;Tag browser category partitioning method:</string>
          </property>
          <property name="buddy">
           <cstring>opt_tags_browser_partition_method</cstring>
@@ -949,7 +949,7 @@ if you never want subcategories</string>
        <item row="6" column="0">
         <widget class="QCheckBox" name="opt_show_avg_rating">
          <property name="text">
-          <string>Show &amp;average ratings in the tags browser</string>
+          <string>Show &amp;average ratings in the Tag browser</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -959,12 +959,12 @@ if you never want subcategories</string>
        <item row="7" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_show_counts">
          <property name="toolTip">
-          <string>Show counts for items in the Tag Browser. Such as the number of books
+          <string>Show counts for items in the Tag browser. Such as the number of books
 by each author, the number of authors, etc. If you turn it off, you can still
 see the counts by hovering your mouse over any item.</string>
          </property>
          <property name="text">
-          <string>Show &amp;counts in the Tag Browser</string>
+          <string>Show &amp;counts in the Tag browser</string>
          </property>
         </widget>
        </item>
@@ -976,7 +976,7 @@ see the counts by hovering your mouse over any item.</string>
         <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Cover Browser</string>
+       <string>Cover browser</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
        <item row="5" column="1">
@@ -1032,14 +1032,14 @@ see the counts by hovering your mouse over any item.</string>
        <item row="7" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
-          <string>When showing cover browser in separate window, show it &amp;fullscreen</string>
+          <string>When showing the Cover browser in a separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_separate_cover_flow">
          <property name="text">
-          <string>Show cover &amp;browser in a separate window (needs restart)</string>
+          <string>Show Cover &amp;browser in a separate window (needs restart)</string>
          </property>
         </widget>
        </item>
@@ -1050,14 +1050,14 @@ see the counts by hovering your mouse over any item.</string>
 them to all have the same width and height</string>
          </property>
          <property name="text">
-          <string>Preserve &amp;aspect ratio of covers displayed in the cover browser</string>
+          <string>Preserve &amp;aspect ratio of covers displayed in the Cover browser</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cover_browser_reflections">
          <property name="text">
-          <string>Show &amp;reflections in the cover browser</string>
+          <string>Show &amp;reflections in the Cover browser</string>
          </property>
         </widget>
        </item>

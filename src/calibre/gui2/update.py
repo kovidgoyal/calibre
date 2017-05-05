@@ -223,13 +223,13 @@ class UpdateMixin(object):
         if not plugin:
             return
         if number_of_updates:
-            plugin.qaction.setText(_('Plugin Updates')+'*')
+            plugin.qaction.setText(_('Plugin updates')+'*')
             plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater_updates.png')))
             plugin.qaction.setToolTip(
                 ngettext('A plugin update is available',
                          'There are {} plugin updates available', number_of_updates).format(number_of_updates))
         else:
-            plugin.qaction.setText(_('Plugin Updates'))
+            plugin.qaction.setText(_('Plugin updates'))
             plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater.png')))
             plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
@@ -238,6 +238,7 @@ class UpdateMixin(object):
         if url.startswith('update:'):
             calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

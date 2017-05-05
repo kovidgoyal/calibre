@@ -55,7 +55,7 @@ class ComicInput(InputFormatPlugin):
               "alphabetically by name. Instead use the order they were "
               "added to the comic.")),
         OptionRecommendation(name='output_format', choices=['png', 'jpg'],
-            recommended_value='png', help=_('The format that images in the created ebook '
+            recommended_value='png', help=_('The format that images in the created e-book '
                 'are converted to. You can experiment to see which format gives '
                 'you optimal size and look on your device.')),
         OptionRecommendation(name='no_process', recommended_value=False,
@@ -261,4 +261,3 @@ class ComicInput(InputFormatPlugin):
                 f.write(wrapper.encode('utf-8'))
             wrappers.append(page)
         return wrappers
-

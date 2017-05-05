@@ -48,7 +48,7 @@ class TXTInput(InputFormatPlugin):
                    'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
-            help=_('Formatting used within the document.'
+            help=_('Formatting used within the document.\n'
                    '* auto: Automatically decide which formatting processor to use.\n'
                    '* plain: Do not process the document formatting. Everything is a '
                    'paragraph and no styling is applied.\n'
@@ -110,7 +110,7 @@ class TXTInput(InputFormatPlugin):
             ienc = options.input_encoding
             log.debug('Using user specified input encoding of %s' % ienc)
         else:
-            det_encoding = detect(txt)
+            det_encoding = detect(txt[:4096])
             det_encoding, confidence = det_encoding['encoding'], det_encoding['confidence']
             if det_encoding and det_encoding.lower().replace('_', '-').strip() in (
                     'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',

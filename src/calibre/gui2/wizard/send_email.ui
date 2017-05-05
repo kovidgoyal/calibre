@@ -67,7 +67,7 @@
       <item row="1" column="1" colspan="2">
        <widget class="QLineEdit" name="relay_host">
         <property name="toolTip">
-         <string>The hostname of your mail server. For e.g. smtp.gmail.com</string>
+         <string>The hostname of your mail server. For example, smtp.gmail.com</string>
         </property>
        </widget>
       </item>

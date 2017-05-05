@@ -6,12 +6,14 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
+
+COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
 BORDER_RADIUS = 10
 
 def cover_grid_css():
-    sel = '#' + this
+    sel = '.' + COVER_GRID_CLASS
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
 
     # Container for an individual cover
@@ -34,35 +36,31 @@ def cover_grid_css():
 
 def init(container):
     clear(container)
-    container.appendChild(E.div(id=this))
+    container.appendChild(E.div(class_=COVER_GRID_CLASS))
     for i in range(12):
         container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
 
-def on_img_load_error(err):
-    img = err.target
+def on_img_load(img, load_type):
     div = img.parentNode
     if not div:
         return
-    clear(div)
-    div.appendChild(E.div(
-        E.h2(img.getAttribute('data-title'), style='text-align:center; font-size:larger; font-weight: bold'),
-        E.div(_('by'), style='text-align: center'),
-        E.h2(img.getAttribute('data-authors'), style='text-align:center; font-size:larger; font-weight: bold')
-    ))
-    set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+    if load_type is not 'load':
+        clear(div)
+        div.appendChild(E.div(
+            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
+            E.div(_('by'), style='text-align: center'),
+            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
+        ))
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
-def create_item(book_id, interface_data, onclick):
-    cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
-    metadata = interface_data['metadata'][book_id]
-    alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
-    img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '))
-    img.onerror = on_img_load_error
-
-    ans = E.div(img, data_book_id=str(book_id))
-    ans.addEventListener('click', onclick)
+def create_item(book_id, metadata, create_image, show_book_details):
+    authors = metadata.authors.join(' & ')
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
+    img.dataset.title, img.dataset.authors = metadata.title, authors
+    ans = E.div(img, data_book_id=str(book_id), onclick=show_book_details)
     return ans
 
 def append_item(container, item):
     first_filler = container.lastChild.querySelector('.cover-grid-filler')
     container.lastChild.insertBefore(item, first_filler)
-

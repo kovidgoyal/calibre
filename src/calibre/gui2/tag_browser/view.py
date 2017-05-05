@@ -353,7 +353,7 @@ class TagsView(QTreeView):  # {{{
             if action == 'set_icon':
                 try:
                     path = choose_files(self, 'choose_category_icon',
-                                _('Change Icon for: %s')%key, filters=[
+                                _('Change icon for: %s')%key, filters=[
                                 ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
                             all_files=False, select_only_single_file=True)
                     if path:

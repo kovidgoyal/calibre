@@ -201,13 +201,13 @@
     },
     {
         "name": "libusb",
-        "only": "osx linux",
+        "only": "osx linux haiku",
         "sources": "calibre/devices/libusb/libusb.c",
         "libraries": "usb-1.0"
     },
     {
         "name": "libmtp",
-        "only": "osx linux",
+        "only": "osx linux haiku",
         "sources": "calibre/devices/mtp/unix/devices.c calibre/devices/mtp/unix/libmtp.c",
         "headers": "calibre/devices/mtp/unix/devices.h calibre/devices/mtp/unix/upstream/music-players.h calibre/devices/mtp/unix/upstream/device-flags.h",
         "libraries": "mtp"
@@ -218,6 +218,8 @@
         "inc_dirs": "unrar",
         "defines": "SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE",
         "windows_defines": "SILENT RARDLL UNRAR",
+        "haiku_defines": "LITTLE_ENDIAN SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE _BSD_SOURCE",
+        "haiku_libraries": "bsd",
         "optimize_level": 2,
         "windows_libraries": "User32 Advapi32 kernel32 Shell32"
     }

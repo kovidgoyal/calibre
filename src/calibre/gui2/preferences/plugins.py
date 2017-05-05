@@ -325,7 +325,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             info_dialog(self, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
-                        ' {1} plugins</b>. You may have to restart calibre '
+                        '{1} plugins</b>. You may have to restart calibre '
                         'for the plugin to take effect.').format(plugin.name, plugin.type),
                     show=True, show_copy_button=False)
             idx = self._plugin_model.plugin_to_index_by_properties(plugin)
@@ -456,9 +456,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             from calibre.gui2.tweak_book.plugin import install_plugin
             install_plugin(plugin)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Advanced', 'Plugins')
-
-
