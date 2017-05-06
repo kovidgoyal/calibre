@@ -19,7 +19,7 @@ class AdvancedUserRecipe1359406781(BasicNewsRecipe):
 
     def get_cover_url(self):
         cover_url = None
-        soup = self.index_to_soup('http://www.private-eye.co.uk/current_issue')
+        soup = self.index_to_soup('http://www.private-eye.co.uk/current_issue.php')
         for citem in soup.findAll('img'):
             if citem['src'].endswith('big.jpg'):
                 return 'http://www.private-eye.co.uk/' + citem['src']
