@@ -333,7 +333,7 @@ class Main(MainWindow):
         self.action_new_file = treg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
                                    'new-file', (), _('Create a new file in the current book'))
         self.action_import_files = treg('document-import.png', _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
-        self.action_open_book = treg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
         self.action_open_book_folder = treg('mimetypes/dir.png', _('Open &folder (unzipped EPUB) as book'), partial(self.boss.open_book, open_folder=True),
                                             'open-folder-as-book', (), _('Open a folder (unzipped EPUB) as a book'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
@@ -445,7 +445,7 @@ class Main(MainWindow):
                                      'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
         self.action_find_previous = sreg('find-previous', _('Find &previous'),
                                          'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
-        self.action_replace = sreg('replace', _('Replace'),
+        self.action_replace = sreg('replace', _('&Replace'),
                                    'replace', keys=('Ctrl+R'), description=_('Replace current match'))
         self.action_replace_next = sreg('replace-next', _('&Replace and find next'),
                                         'replace-find', {'direction':'down'}, ('Ctrl+]'), _('Replace current match and find next'))
@@ -461,7 +461,7 @@ class Main(MainWindow):
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
         self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
                                           self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
-        self.action_text_search = treg('view.png', _('Search ignoring HTML markup'),
+        self.action_text_search = treg('view.png', _('&Search ignoring HTML markup'),
                                           self.boss.show_text_search, 'text-search', (), _('Show the text search panel'))
 
         # Check Book actions
@@ -566,7 +566,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
-        er = e.addMenu(_('External links'))
+        er = e.addMenu(_('External &links'))
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
@@ -617,7 +617,7 @@ class Main(MainWindow):
         e = b.addMenu(_('&Help'))
         a = e.addAction
         a(self.action_help)
-        a(QIcon(I('donate.png')), _('Donate to support calibre development'), open_donate)
+        a(QIcon(I('donate.png')), _('&Donate to support calibre development'), open_donate)
         a(self.action_preferences)
 
     def search_menu_about_to_show(self):

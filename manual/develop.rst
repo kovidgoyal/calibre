@@ -26,7 +26,7 @@ For example, adding support for a new device to calibre typically involves writi
 a device driver plugin. You can browse the
 `built-in drivers <https://github.com/kovidgoyal/calibre/tree/master/src/calibre/devices>`_. Similarly, adding support
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for
-fetching news. For more examples of plugins designed to add features to calibre, see the `plugin index <https://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
+fetching news. For more examples of plugins designed to add features to calibre, see the `Index of plugins <https://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
 
 .. _code_layout:
 

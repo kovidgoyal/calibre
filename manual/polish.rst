@@ -17,7 +17,7 @@ You obtain a container object for a book at a path like this::
     from calibre.ebooks.oeb.polish.container import get_container
     container = get_container('Path to book file', tweak_mode=True)
 
-If you are writing a plugin for the e-book editor, you get the current container
+If you are writing a plugin for the E-book editor, you get the current container
 for the book being edited like this::
 
     from calibre.gui2.tweak_book import current_container

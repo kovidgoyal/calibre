@@ -154,4 +154,4 @@ def update_mark_text_action(ed=None):
     if ed is not None and ed.has_line_numbers:
         has_mark = bool(ed.selected_text) or not ed.has_marked_text
     ac = actions['mark-selected-text']
-    ac.setText(ac.default_text if has_mark else _('Unmark marked text'))
+    ac.setText(ac.default_text if has_mark else _('&Unmark marked text'))

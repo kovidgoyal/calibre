@@ -26,7 +26,7 @@ class Plugin(object):  # {{{
     '''
     A calibre plugin. Useful members include:
 
-       * ``self.plugin_path``: Stores path to the zip file that contains
+       * ``self.plugin_path``: Stores path to the ZIP file that contains
                                this plugin or None if it is a builtin
                                plugin
        * ``self.site_customization``: Stores a customization string entered
@@ -91,7 +91,7 @@ class Plugin(object):  # {{{
         plugin will be initialized for every new worker process.
 
         Perform any plugin specific initialization here, such as extracting
-        resources from the plugin zip file. The path to the zip file is
+        resources from the plugin ZIP file. The path to the ZIP file is
         available as ``self.plugin_path``.
 
         Note that ``self.site_customization`` is **not** available at this point.
@@ -213,10 +213,10 @@ class Plugin(object):  # {{{
             pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
             icon = QIcon(pixmap)
 
-        :param names: List of paths to resources in the zip file using / as separator
+        :param names: List of paths to resources in the ZIP file using / as separator
 
         :return: A dictionary of the form ``{name: file_contents}``. Any names
-                 that were not found in the zip file will not be present in the
+                 that were not found in the ZIP file will not be present in the
                  dictionary.
 
         '''
@@ -402,7 +402,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
-    #: Set of file types for which this plugin should be run
+    #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
     file_types     = set([])
 
@@ -434,7 +434,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
-    #: Set of file types for which this plugin should be run
+    #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
     file_types     = set([])
 
@@ -470,7 +470,7 @@ class CatalogPlugin(Plugin):  # {{{
 
     resources_path = None
 
-    #: Output file type for which this plugin should be run
+    #: Output file type for which this plugin should be run.
     #: For example: 'epub' or 'xml'
     file_types = set([])
 
@@ -546,7 +546,7 @@ class CatalogPlugin(Plugin):  # {{{
     def initialize(self):
         '''
         If plugin is not a built-in, copy the plugin's .ui and .py files from
-        the zip file to $TMPDIR.
+        the ZIP file to $TMPDIR.
         Tab will be dynamically generated and added to the Catalog Options dialog in
         calibre.gui2.dialogs.catalog.py:Catalog
         '''

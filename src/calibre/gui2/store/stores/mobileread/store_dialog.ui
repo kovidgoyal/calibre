@@ -106,7 +106,7 @@
      <item>
       <widget class="QPushButton" name="close_button">
        <property name="text">
-        <string>Close</string>
+        <string>&amp;Close</string>
        </property>
       </widget>
      </item>

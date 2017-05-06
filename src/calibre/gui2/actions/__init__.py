@@ -279,10 +279,10 @@ class InterfaceAction(QObject):
             pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
             icon = QIcon(pixmap)
 
-        :param names: List of paths to resources in the zip file using / as separator
+        :param names: List of paths to resources in the ZIP file using / as separator
 
         :return: A dictionary of the form ``{name : file_contents}``. Any names
-                 that were not found in the zip file will not be present in the
+                 that were not found in the ZIP file will not be present in the
                  dictionary.
 
         '''

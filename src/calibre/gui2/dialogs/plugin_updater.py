@@ -706,8 +706,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         plugin_zip_url = display_plugin.zip_url
         if DEBUG:
-            prints('Downloading plugin zip attachment: ', plugin_zip_url)
-        self.gui.status_bar.showMessage(_('Downloading plugin zip attachment: %s') % plugin_zip_url)
+            prints('Downloading plugin ZIP attachment: ', plugin_zip_url)
+        self.gui.status_bar.showMessage(_('Downloading plugin ZIP attachment: %s') % plugin_zip_url)
         zip_path = self._download_zip(plugin_zip_url)
 
         if DEBUG:

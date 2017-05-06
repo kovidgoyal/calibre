@@ -52,7 +52,7 @@ def find_plugin(name):
 
 def load_plugin(path_to_zip_file):  # {{{
     '''
-    Load plugin from zip file or raise InvalidPlugin error
+    Load plugin from ZIP file or raise InvalidPlugin error
 
     :return: A :class:`Plugin` instance.
     '''
@@ -669,7 +669,7 @@ def initialize_plugin(plugin, path_to_zip_file):
 
 
 def has_external_plugins():
-    'True if there are updateable (zip file based) plugins'
+    'True if there are updateable (ZIP file based) plugins'
     return bool(config['plugins'])
 
 
@@ -756,10 +756,10 @@ def option_parser():
     Customize calibre by loading external plugins.
     '''))
     parser.add_option('-a', '--add-plugin', default=None,
-                      help=_('Add a plugin by specifying the path to the zip file containing it.'))
+                      help=_('Add a plugin by specifying the path to the ZIP file containing it.'))
     parser.add_option('-b', '--build-plugin', default=None,
             help=_('For plugin developers: Path to the directory where you are'
-                ' developing the plugin. This command will automatically zip '
+                ' developing the plugin. This command will automatically ZIP '
                 'up the plugin and update it in calibre.'))
     parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))

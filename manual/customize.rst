@@ -94,7 +94,7 @@ up your icons into a theme. To do so, go to
 :guilabel:`Preferences->Miscellaneous->Create icon theme`, select the folder
 where you have put your icons (usually the :file:`resources/images` folder in
 the calibre config directory, as described above). Then fill up the theme
-metadata and click OK.  This will result in a zip file containing the theme
+metadata and click OK.  This will result in a ZIP file containing the theme
 icons. You can upload that to the calibre forum at `Mobileread
 <https://www.mobileread.com/forums/forumdisplay.php?f=166>`_ and then I will
 make your theme available via calibre's builtin icon theme system.

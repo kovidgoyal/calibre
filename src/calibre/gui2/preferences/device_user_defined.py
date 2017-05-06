@@ -79,7 +79,7 @@ class UserDefinedDevice(QDialog):
             trailer = _(
                     'Copy these values to the clipboard, paste them into an '
                     'editor, then enter them into the USER_DEVICE by '
-                    'customizing the device plugin in Preferences->Plugins. '
+                    'customizing the device plugin in Preferences->Advanced->Plugins. '
                     'Remember to also enter the folders where you want the books to '
                     'be put. You must restart calibre for your changes '
                     'to take effect.\n')
@@ -89,6 +89,7 @@ class UserDefinedDevice(QDialog):
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.log.toPlainText())
+
 
 if __name__ == '__main__':
     app = QApplication([])

@@ -79,9 +79,9 @@ The four sub-directories are:
     ==========    =============
 
 If you want to edit the input document a little before having calibre convert it, the best thing to 
-do is edit the files in the :file:`input` sub-directory, then zip it up, and use the zip file as the 
+do is edit the files in the :file:`input` sub-directory, then ZIP it up, and use the ZIP file as the 
 input format for subsequent conversions. To do this use the :guilabel:`Edit meta information` dialog
-to add the zip file as a format for the book and then, in the top left corner of the conversion dialog,
+to add the ZIP file as a format for the book and then, in the top left corner of the conversion dialog,
 select ZIP as the input format.
 
 This document will deal mainly with the various transforms that operate on the intermediate XHTML
@@ -735,7 +735,7 @@ output ranging anywhere from decent to unusable, depending on the input PDF.
 Comic book collections
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A comic book collection is a .cbc file. A .cbc file is a zip file that contains other CBZ/CBR files. In addition the
+A comic book collection is a .cbc file. A .cbc file is a ZIP file that contains other CBZ/CBR files. In addition the
 .cbc file must contain a simple text file called comics.txt, encoded in UTF-8. The comics.txt file must contain
 a list of the comics files inside the .cbc file, in the form filename:title, as shown below::
 
