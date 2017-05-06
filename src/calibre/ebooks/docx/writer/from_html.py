@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from collections import Counter
 
-from calibre.ebooks.docx.writer.container import create_skeleton, page_size
+from calibre.ebooks.docx.writer.container import create_skeleton, page_size, page_effective_area
 from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
 from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.ebooks.docx.writer.images import ImagesManager
@@ -413,6 +413,8 @@ class Convert(object):
         self.log, self.opts = docx.log, docx.opts
         self.mi = mi
         self.cover_img = None
+        p = self.opts.output_profile
+        p.width_pts, p.height_pts = page_effective_area(self.opts)
 
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
@@ -464,7 +466,7 @@ class Convert(object):
         self.current_item = item
         stylizer = self.svg_rasterizer.stylizer_cache.get(item)
         if stylizer is None:
-            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile, base_css=self.base_css)
+            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, profile=self.opts.output_profile, base_css=self.base_css)
         self.abshref = self.images_manager.abshref = item.abshref
 
         self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang
