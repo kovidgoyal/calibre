@@ -421,7 +421,7 @@ class Convert(object):
 
         self.styles_manager = StylesManager(self.docx.namespace, self.log, self.mi.language)
         self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships, self.log)
-        self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
+        self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships, self.opts)
         self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
         self.blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)

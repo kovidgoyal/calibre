@@ -14,10 +14,12 @@ from future_builtins import map
 
 from lxml import etree
 
+from calibre import fit_image
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.docx.images import pt_to_emu
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import identify
+from calibre.ebooks.docx.writer.container import page_effective_area
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
@@ -40,8 +42,9 @@ def get_image_margins(style):
 
 class ImagesManager(object):
 
-    def __init__(self, oeb, document_relationships):
+    def __init__(self, oeb, document_relationships, opts):
         self.oeb, self.log = oeb, oeb.log
+        self.page_width, self.page_height = page_effective_area(opts)
         self.images = {}
         self.seen_filenames = set()
         self.document_relationships = document_relationships
@@ -100,7 +103,9 @@ class ImagesManager(object):
         self.count += 1
         img = self.images[href]
         name = urlunquote(posixpath.basename(href))
-        width, height = map(pt_to_emu, style.img_size(img.width, img.height))
+        width, height = style.img_size(img.width, img.height)
+        scaled, width, height = fit_image(width, height, self.page_width, self.page_height)
+        width, height = map(pt_to_emu, (width, height))
 
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
 

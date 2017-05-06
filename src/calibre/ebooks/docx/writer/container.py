@@ -36,6 +36,20 @@ def page_size(opts):
     return width, height
 
 
+def page_margin(opts, which):
+    val = getattr(opts, 'docx_page_margin_' + which)
+    if val == 0.0:
+        val = getattr(opts, 'margin_' + which)
+    return val
+
+
+def page_effective_area(opts):
+    width, height = page_size(opts)
+    width -= page_margin(opts, 'left') + page_margin(opts, 'right')
+    height -= page_margin(opts, 'top') + page_margin(opts, 'bottom')
+    return width, height  # in pts
+
+
 def create_skeleton(opts, namespaces=None):
     namespaces = namespaces or DOCXNamespace().namespaces
 
@@ -50,9 +64,7 @@ def create_skeleton(opts, namespaces=None):
     width, height = int(20 * width), int(20 * height)
 
     def margin(which):
-        val = getattr(opts, 'docx_page_margin_' + which)
-        if val == 0.0:
-            val = getattr(opts, 'margin_' + which)
+        val = page_margin(opts, which)
         return w(which), str(int(val * 20))
     body.append(E.sectPr(
         E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
