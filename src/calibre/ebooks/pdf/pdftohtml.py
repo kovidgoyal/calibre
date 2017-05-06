@@ -97,7 +97,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
             raise DRMError()
 
         if not as_xml:
-            with open(index, 'r+b') as i:
+            with lopen(index, 'r+b') as i:
                 raw = i.read()
                 raw = flip_images(raw)
                 raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
@@ -107,6 +107,9 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 # breaks the pdf heuristics regexps, so replace them
                 raw = raw.replace(b'<br/>', b'<br>')
                 raw = re.sub(br'<a\s+name=(\d+)', br'<a id="\1"', raw, flags=re.I)
+                raw = re.sub(br'<a id="(\d+)"', br'<a id="p\1"', raw, flags=re.I)
+                raw = re.sub(br'<a href="index.html#(\d+)"', br'<a href="#p\1"', raw, flags=re.I)
+
                 i.write(raw)
 
             cmd = [exe, b'-f', b'1', '-l', '1', b'-xml', b'-i', b'-enc', b'UTF-8', b'-noframes', b'-p', b'-nomerge',
@@ -143,7 +146,7 @@ def parse_outline(raw, output_dir):
                     process_node(child, parent)
                 else:
                     page = child.get('page', '1')
-                    toc.add(child.text, 'index.html', page)
+                    toc.add(child.text, 'index.html', 'p' + page)
                     count[0] += 1
         process_node(outline, toc)
         if count[0] > 2:
