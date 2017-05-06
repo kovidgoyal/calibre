@@ -59,7 +59,9 @@ class TOCItem(object):
 
 
 def sanitize_bookmark_name(base):
-    return re.sub(r'[^0-9a-zA-Z]', '_', ascii_text(base))
+    # Max length allowed by Word appears to be 40, we use 32 to leave some
+    # space for making the name non-unique
+    return re.sub(r'[^0-9a-zA-Z]', '_', ascii_text(base))[:32].rstrip('_')
 
 
 class LinksManager(object):
@@ -102,6 +104,17 @@ class LinksManager(object):
         item, url, tooltip = link
         purl = urlparse(url)
         href = purl.path
+
+        def make_link(parent, anchor=None, id=None, tooltip=None):
+            kw = {}
+            if anchor is not None:
+                kw['w_anchor'] = anchor
+            elif id is not None:
+                kw['r_id'] = id
+            if tooltip:
+                kw['w_tooltip'] = tooltip
+            return self.namespace.makeelement(parent, 'w:hyperlink', **kw)
+
         if not purl.scheme:
             href = item.abshref(href)
             if href in self.document_hrefs:
@@ -110,13 +123,13 @@ class LinksManager(object):
                     bmark = self.anchor_map[key]
                 else:
                     bmark = self.anchor_map[(href, self.top_anchor)]
-                return self.namespace.makeelement(parent, 'w:hyperlink', w_anchor=bmark, w_tooltip=tooltip or '')
+                return make_link(parent, anchor=bmark, tooltip=tooltip)
             else:
                 self.log.warn('Ignoring internal hyperlink with href (%s) pointing to unknown destination' % url)
         if purl.scheme in {'http', 'https', 'ftp'}:
             if url not in self.external_links:
                 self.external_links[url] = self.document_relationships.add_relationship(url, self.namespace.names['LINKS'], target_mode='External')
-            return self.namespace.makeelement(parent, 'w:hyperlink', r_id=self.external_links[url], w_tooltip=tooltip or '')
+            return make_link(parent, id=self.external_links[url], tooltip=tooltip)
         return parent
 
     def process_toc_node(self, toc, level=0):
