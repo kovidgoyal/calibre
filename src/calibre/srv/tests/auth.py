@@ -108,8 +108,11 @@ class TestAuth(BaseTest):
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
             self.ae((httplib.OK, b'closed'), request())
             self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request('', ''))
             self.ae(1, len(warnings))
             self.ae((httplib.UNAUTHORIZED, b''), request('testuser', 'y'))
+            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
+            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request(''))
             self.ae((httplib.UNAUTHORIZED, b''), request('asf', 'testpw'))
     # }}}
 
@@ -172,6 +175,9 @@ class TestAuth(BaseTest):
             # Check that incorrect user/password fails
             fail_test(conn, lambda da:setattr(da, 'pw', '/'))
             fail_test(conn, lambda da:setattr(da, 'username', '/'))
+            fail_test(conn, lambda da:setattr(da, 'username', ''))
+            fail_test(conn, lambda da:setattr(da, 'pw', ''))
+            fail_test(conn, lambda da:(setattr(da, 'pw', ''), setattr(da, 'username', '')))
 
             # Check against python's stdlib
             self.ae(urlopen(server).read(), b'closed')
