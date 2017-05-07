@@ -100,17 +100,17 @@ class ReadUI:
         div = document.getElementById(self.progress_id)
         div.lastChild.textContent = msg or ''
 
-    def load_book(self, book_id, fmt, metadata, force_reload):
-        self.base_url_data = {'book_id':book_id, 'fmt':fmt}
+    def load_book(self, library_id, book_id, fmt, metadata, force_reload):
+        self.base_url_data = {'library_id': library_id, 'book_id':book_id, 'fmt':fmt}
         if not self.db.initialized:
             self.pending_load = [book_id, fmt, metadata, force_reload]
             return
         self.start_load(book_id, fmt, metadata, force_reload)
 
     def reload_book(self):
-        book_id = self.base_url_data.book_id
+        library_id, book_id, fmt = self.base_url_data.library_id, self.base_url_data.book_id, self.base_url_data.fmt
         metadata = self.metadata or library_data.metadata[book_id]
-        self.load_book(book_id, self.base_url_data.fmt, metadata, True)
+        self.load_book(library_id, book_id, fmt, metadata, True)
 
     def redisplay_book(self):
         self.view.redisplay_book()
@@ -123,7 +123,7 @@ class ReadUI:
 
     @property
     def url_data(self):
-        ans = {'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}
+        ans = {'library_id':self.base_url_data.library_id, 'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}
         bookpos = self.view.currently_showing.bookpos
         if bookpos:
             ans.bookpos = bookpos
@@ -413,13 +413,10 @@ class ReadUI:
     def apply_url_state(self, current_query):
         same = True
         current_state = self.url_data
-        for k in v"['book_id', 'fmt']":
-            if str(current_query[k]) is not str(current_state[k]):
-                same = False
-                break
+        same = current_query.library_id is current_state.library_id and str(current_query.book_id) is str(current_state.book_id) and current_query.fmt is current_state.fmt
         self.view.overlay.hide()
         if same:
             if current_state.bookpos is not current_query.bookpos and current_query.bookpos:
                 self.view.goto_bookpos(current_query.bookpos)
         else:
-            self.load_book(int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
+            self.load_book(current_query.library_id, int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
