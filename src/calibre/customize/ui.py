@@ -759,7 +759,7 @@ def option_parser():
                       help=_('Add a plugin by specifying the path to the ZIP file containing it.'))
     parser.add_option('-b', '--build-plugin', default=None,
             help=_('For plugin developers: Path to the directory where you are'
-                ' developing the plugin. This command will automatically ZIP '
+                ' developing the plugin. This command will automatically zip '
                 'up the plugin and update it in calibre.'))
     parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))

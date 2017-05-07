@@ -1,6 +1,6 @@
 .. _catalog_tut:
 
-Creating AZW3 • EPUB • MOBI Catalogs 
+Creating AZW3 • EPUB • MOBI catalogs 
 =====================================
 
 calibre's Create catalog feature enables you to create a catalog of your library in a variety of formats. This help file describes cataloging options when generating a catalog in AZW3, EPUB and MOBI formats.

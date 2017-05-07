@@ -120,9 +120,12 @@ View
 .. |vi| image:: images/view.png
     :class: float-right-img
 
-|vi| The :guilabel:`View` action displays the book in an e-book viewer program. calibre has a built-in viewer for many e-book formats.
-For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
-Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button.
+|vi| The :guilabel:`View` action displays the book in an e-book viewer program.
+calibre has a built-in viewer for many e-book formats.  For other formats it
+uses the default operating system application. You can configure which formats
+should open with the internal viewer via
+:guilabel:`Preferences->Interface->Behavior`. If a book has more than one
+format, you can view a particular format by doing a right-click on the button.
 
 
 .. _send_to_device:
@@ -221,9 +224,9 @@ Save to disk
 
     For 1. and 2., all available formats, as well as metadata, are stored to disk for each selected book. Metadata is stored in an OPF file. Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
 
-    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the directory structure as shown in (1.) but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
+    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the directory structure as shown in (1.) but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
 
-    4. **Save only *<your preferred>* format to disk in a single directory**: Saves the selected books to disk in a single directory but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Behaviour->Preferred output format`
+    4. **Save only *<your preferred>* format to disk in a single directory**: Saves the selected books to disk in a single directory but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
 
     5. **Save single format to disk...**: Saves the selected books to disk in the directory structure as shown in (1.) but only in the format you select from the pop-out list.
 
@@ -457,7 +460,7 @@ Guessing metadata from file names
 
 Normally, calibre reads metadata from inside the book file. However, it can
 be configured to read metadata from the file name instead, via
-:guilabel:`Preferences->Adding Books->Read metadata from file contents`.
+:guilabel:`Preferences->Import/export->Adding Books->Read metadata from file contents`.
 
 You can also control how metadata is read from the filename using regular
 expressions (see :doc:`regexp`).  In the :guilabel:`Adding Books` section of
@@ -512,7 +515,7 @@ Double clicking the Book details panel will open it up in a separate popup
 window.
 
 Finally, you can customize exactly what information is displayed in the Book
-details panel via :guilabel:`Preferences->Look & feel->Book details`.
+details panel via :guilabel:`Preferences->Interface->Look & feel->Book details`.
 
 .. raw:: html epub
     
@@ -539,7 +542,7 @@ You can search user categories in the same way as built-in categories, by clicki
     3. "everything not matching an item in the category" shown by a single red minus sign.
     4. "everything not matching an item in the category or its sub-categories" shown by two red minus signs.
 
-It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to :guilabel:`Preferences->Look & feel` and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. See :ref:`Managing subgroups of books, for example "genre" <subgroups-tutorial>` for more information.
+It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to :guilabel:`Preferences->Interface->Look & feel` and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. See :ref:`Managing subgroups of books, for example "genre" <subgroups-tutorial>` for more information.
 
 Hierarchical items (items with children) use the same four 'click-on' searches as user categories. Items that do not have children use two of the searches: "everything matching" and "everything not matching".
 
@@ -559,13 +562,14 @@ Cover grid
 .. image:: images/cover_grid.png
     :align: center
 
-You can have calibre display a grid of book covers instead of a list of books, if
-you prefer to browse your collection by covers instead. The :guilabel:`Cover
-grid` is activated by clicking the grid button in the bottom right corner of
-the main calibre window. You can customize the cover sizes and the background of
-the :guilabel:`Cover grid` via :guilabel:`Preferences->Look & feel->Cover grid`. You can
-even have calibre display any specified field under the covers, such as title or
-authors or rating or a custom column of your own devising.
+You can have calibre display a grid of book covers instead of a list of books,
+if you prefer to browse your collection by covers instead. The 
+:guilabel:`Cover grid` is activated by clicking the grid button in the bottom right corner of
+the main calibre window. You can customize the cover sizes and the background
+of the :guilabel:`Cover grid` via 
+:guilabel:`Preferences->Interface->Look & feel->Cover grid`. You can even have
+calibre display any specified field under the covers, such as title or authors
+or rating or a custom column of your own devising.
 
 Cover browser
 ---------------
@@ -575,7 +579,7 @@ Cover browser
 
 In addition to the :guilabel:`Cover grid` described above, you can also have calibre display
 covers in the single row. This is activated via a button in the lower right
-corner of the main window. In :guilabel:`Preferences->Look & feel->Cover
+corner of the main window. In :guilabel:`Preferences->Interface->Look & feel->Cover
 browser` you can change the number of covers displayed, and even have the
 :guilabel:`Cover browser` display itself in a separate popup window.
 
@@ -665,7 +669,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`P`
       - Polish books
     * - :kbd:`S`
-      - Save to Disk
+      - Save to disk
     * - :kbd:`T`
       - Edit book
     * - :kbd:`V`

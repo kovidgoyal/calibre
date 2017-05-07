@@ -41,8 +41,8 @@ def archive_type(stream):
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
     author = 'Kovid Goyal'
-    description = _('Extract common e-book formats from archives '
-        '(ZIP/RAR) files. Also try to autodetect if they are actually '
+    description = _('Extract common e-book formats from archive files '
+        '(ZIP/RAR). Also try to autodetect if they are actually '
         'CBZ/CBR files.')
     file_types = set(['zip', 'rar'])
     supported_platforms = ['windows', 'osx', 'linux']

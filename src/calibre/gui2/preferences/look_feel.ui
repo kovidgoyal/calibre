@@ -25,7 +25,7 @@
         <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Main interface</string>
+       <string>&amp;Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="9" column="0">
@@ -250,7 +250,7 @@
         <normaloff>:/images/grid.png</normaloff>:/images/grid.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Cover grid</string>
+       <string>Cover &amp;grid</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -665,7 +665,7 @@ A value of zero means calculate automatically.</string>
         <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Book details</string>
+       <string>&amp;Book details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
        <item row="3" column="1">
@@ -823,7 +823,7 @@ Manage Authors. You can use the values {author} and
         <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Tag browser</string>
+       <string>&amp;Tag browser</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
@@ -976,7 +976,7 @@ see the counts by hovering your mouse over any item.</string>
         <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
       </attribute>
       <attribute name="title">
-       <string>Cover browser</string>
+       <string>Cover &amp;browser</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
        <item row="5" column="1">

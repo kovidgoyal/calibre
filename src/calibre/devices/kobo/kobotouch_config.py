@@ -369,7 +369,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
         self.support_newer_firmware_checkbox = create_checkbox(
                             _("Attempt to support newer firmware"),
                             _('Kobo routinely updates the firmware and the '
-                              'database version.  With this option Calibre will attempt '
+                              'database version. With this option calibre will attempt '
                               'to perform full read-write functionality - Here be Dragons!! '
                               'Enable only if you are comfortable with restoring your kobo '
                               'to factory defaults and testing software. '

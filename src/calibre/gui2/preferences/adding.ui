@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>The Add &amp;Process</string>
+       <string>The adding &amp;process</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="1" colspan="2">
@@ -161,7 +161,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
        <item row="3" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
          <property name="text">
-          <string>When using the &quot;Copy to Library&quot; action check for &amp;duplicates with the same title and author</string>
+          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title and author</string>
          </property>
         </widget>
        </item>
@@ -196,7 +196,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
-       <string>&amp;Automatic Adding</string>
+       <string>&amp;Automatic adding</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="5" column="0">

@@ -1325,7 +1325,7 @@ class Tweaks(PreferencesPlugin):
 class Keyboard(PreferencesPlugin):
     name = 'Keyboard'
     icon = I('keyboard-prefs.png')
-    gui_name = _('Keyboard')
+    gui_name = _('Shortcuts')
     category = 'Advanced'
     gui_category = _('Advanced')
     category_order = 5

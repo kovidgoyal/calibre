@@ -55,9 +55,8 @@ Overriding icons, templates, et cetera
 
 .. note:: 
     calibre has direct support for icon themes, there are several icon themes
-    available for calibre, that you can use by going to :guilabel:`Preferences->Look &
-    Feel->Change Icon theme`. The icon themes use the same mechanism as
-    described below for overriding static resources.
+    available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change Icon theme`.
+    The icon themes use the same mechanism as described below for overriding static resources.
 
 calibre allows you to override the static resources, like icons, javascript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
@@ -103,7 +102,7 @@ make your theme available via calibre's builtin icon theme system.
 Customizing calibre with plugins
 --------------------------------
 
-calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Plugins`.
+calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Advanced->Plugins`.
 
 You can write your own plugins to customize and extend the behavior of calibre. The plugin architecture in calibre is very simple, see the tutorial :ref:`pluginstutorial`.
 

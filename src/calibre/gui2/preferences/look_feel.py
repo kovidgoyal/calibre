@@ -281,7 +281,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.commit_icon_theme = None
         self.icon_theme_button.clicked.connect(self.choose_icon_theme)
         r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
-        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Calibre style'),
+        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'),
                     'calibre')])
         r('book_list_tooltips', gprefs)
         r('row_numbers_in_book_list', gprefs)

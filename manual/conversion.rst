@@ -79,7 +79,7 @@ The four sub-directories are:
     ==========    =============
 
 If you want to edit the input document a little before having calibre convert it, the best thing to 
-do is edit the files in the :file:`input` sub-directory, then ZIP it up, and use the ZIP file as the 
+do is edit the files in the :file:`input` sub-directory, then zip it up, and use the ZIP file as the 
 input format for subsequent conversions. To do this use the :guilabel:`Edit meta information` dialog
 to add the ZIP file as a format for the book and then, in the top left corner of the conversion dialog,
 select ZIP as the input format.
@@ -442,7 +442,7 @@ generate a Table of Contents in the converted e-book, based on the actual conten
     This will launch the ToC Editor tool after the conversion. It allows you to
     create entries in the Table of Contents by simply clicking the place in the
     book where you want the entry to point. You can also use the ToC Editor by
-    itself, without doing a conversion. Go to :guilabel:`Preferences->Toolbars`
+    itself, without doing a conversion. Go to :guilabel:`Preferences->Interface->Toolbars`
     and add the :guilabel:`ToC Editor` to the main toolbar. Then just select the book you
     want to edit and click the :guilabel:`ToC Editor` button.
 
@@ -622,7 +622,7 @@ the latest version of calibre as support for ``.docx`` files is very new).
     download it and convert it to EPUB or AZW3 to see what calibre can do.
 
 calibre will automatically generate a Table of Contents based on headings if you mark
-your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
+your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Microsoft Word. Open
 the output e-book in the calibre E-book viewer and click the :guilabel:`Table of Contents` button
 to view the generated Table of Contents.
 

@@ -62,8 +62,8 @@ class Plugin(object):  # {{{
     author         = _('Unknown')
 
     #: When more than one plugin exists for a filetype,
-    #: the plugins are run in order of decreasing priority
-    #: i.e. plugins with higher priority will be run first.
+    #: the plugins are run in order of decreasing priority.
+    #: Plugins with higher priority will be run first.
     #: The highest possible priority is ``sys.maxint``.
     #: Default priority is 1.
     priority = 1

@@ -3,7 +3,7 @@
 Writing your own plugins to extend calibre's functionality
 ====================================================================
 
-calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Plugins`.
+calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Advanced->Plugins`.
 
 Here, we will teach you how to create your own plugins to add new features to calibre.
 
@@ -63,7 +63,7 @@ The first thing to note is that this ZIP file has a lot more files in it, explai
 
     **plugin-import-name-interface_demo.txt**
         An empty text file used to enable the multi-file plugin magic. This file must be present in all plugins that use
-        more than one .py file. It should be empty and its filename must be of the form: plugin-import-name-**some_name**.txt
+        more than one .py file. It should be empty and its filename must be of the form: ``plugin-import-name-**some_name**.txt``.
         The presence of this file allows you to import code from the .py files present inside the ZIP file, using a statement like::
 
             from calibre_plugins.some_name.some_module import some_object
@@ -71,7 +71,7 @@ The first thing to note is that this ZIP file has a lot more files in it, explai
         The prefix ``calibre_plugins`` must always be present. ``some_name`` comes from the filename of the empty text file.
         ``some_module`` refers to  :file:`some_module.py` file inside the ZIP file. Note that this importing is just as
         powerful as regular Python imports. You can create packages and subpackages of .py modules inside the ZIP file,
-        just like you would normally (by defining __init__.py in each sub-directory), and everything should Just Work.
+        just like you would normally (by defining __init__.py in each sub-directory), and everything should "just work".
 
         The name you use for ``some_name`` enters a global namespace shared by all plugins, **so make it as unique as possible**.
         But remember that it must be a valid Python identifier (only alphabets, numbers and the underscore).
@@ -278,7 +278,7 @@ typical User Interface plugin you would call it at the top of ``ui.py`` but not
 ``__init__.py``.
 
 You can test the translations of your plugins by changing the user interface
-language in calibre under :guilabel:`Preferences->Look & feel` or by running calibre like
+language in calibre under :guilabel:`Preferences->Interface->Look & feel` or by running calibre like
 this::
 
     CALIBRE_OVERRIDE_LANG=de calibre

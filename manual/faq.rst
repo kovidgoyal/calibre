@@ -79,11 +79,11 @@ The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is caused by a bug in the Amazon software. You can work around it by going
-to :guilabel:`Preferences->Output Options->MOBI output` and setting the "Enable sharing
-of book content" option. If you are reconverting a previously converted book,
-you will also have to enable the option in the conversion dialog for that
-individual book (as per book conversion settings are saved and take
-precedence).
+to :guilabel:`Preferences->Conversion->Output Options->MOBI output` and setting
+the :guilabel:`Enable sharing of book content` option. If you are reconverting
+a previously converted book, you will also have to enable the option in the
+conversion dialog for that individual book (as per book conversion settings are
+saved and take precedence).
 
 Note that doing this will mean that the generated MOBI will show up under
 personal documents instead of Books on the Kindle Fire and Amazon whispersync
@@ -134,7 +134,7 @@ conversion dialog to control how the Table of Contents is generated.
     C.html and D.html, but B.html also links to D.html, then the files will be
     in the order A.html, B.html, D.html, C.html. If instead you want the order
     to be A.html, B.html, C.html, D.html then you must tell calibre to add your
-    files in *breadth first* order. Do this by going to Preferences->Plugins
+    files in *breadth first* order. Do this by going to :guilabel:`Preferences->Advanced->Plugins`
     and customizing the HTML to ZIP plugin.
 
 The EPUB I produced with calibre is not valid?
@@ -242,7 +242,7 @@ of which books are members are shown on the device view.
 
 When you send a book to the reader, calibre will add the book to collections based on the metadata for that book. By
 default, collections are created from tags and series. You can control what metadata is used by going to
-:guilabel:`Preferences->Plugins->Device Interface plugins` and customizing the SONY device interface plugin. If you remove all
+:guilabel:`Preferences->Advanced->Plugins->Device Interface plugins` and customizing the SONY device interface plugin. If you remove all
 values, calibre will not add the book to any collection.
 
 Collection management is largely controlled by the 'Metadata management' option found at
@@ -329,7 +329,7 @@ over the net. First perform the following steps in calibre
     selecting them and clicking the :guilabel:`Convert` button.
   * Turn on the Content server by clicking the :guilabel:`Connect/share` button
     and leave calibre running. You can also tell calibre to automatically start the
-    Content server via :guilabel:`Preferences->Sharing over the net`.
+    Content server via :guilabel:`Preferences->Sharing->Sharing over the net`.
 
 There are many apps for your iDevice that can connect to the calibre Content
 server.
@@ -469,7 +469,7 @@ Can I access my calibre books using the web browser in my Kindle or other readin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 calibre has a *Content server* that exports the books in calibre as a web page. You can turn it on under
-:guilabel:`Preferences->Sharing over the net`. Then just point the web browser on your device to the computer running
+:guilabel:`Preferences->Sharing->Sharing over the net`. Then just point the web browser on your device to the computer running
 the Content server and you will be able to browse your book collection. For example, if the computer running
 the server has IP address 63.45.128.5, in the browser, you would type::
 
@@ -493,7 +493,7 @@ The most common problem is if you are sending email directly (without a mail rel
 that does not come from a well known relay. The most robust way to setup email sending in calibre is to do the following:
 
   * Create a free GMX account at `GMX <https://www.gmx.com>`_.
-  * Goto :guilabel:`Preferences->Sharing by Email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
+  * Goto :guilabel:`Preferences->Sharing->Sharing by Email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
   * Log into your GMX account on the website and enable SMTP sending (`Settings->POP3 & IMAP->Send and receive emails via external program`)
   * calibre will then be able to use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
@@ -510,7 +510,7 @@ antivirus program.
     amounts of email. So, when using these services to send mail calibre automatically
     restricts itself to sending one book every five minutes. If you don't mind
     risking your account being blocked you can reduce this wait interval by going
-    to Preferences->Tweaks in calibre.
+    to :guilabel:`Preferences->Advanced->Tweaks` in calibre.
 
 .. note::
     Google recently deliberately broke their email sending protocol (SMTP) support in
@@ -634,11 +634,11 @@ Now coming to author name sorting:
     * When a new author is added to calibre (this happens whenever a book by a new author is added), calibre automatically computes a sort string for both the book and the author.
     * Authors in the Tag browser are sorted by the sort value for the **authors**. Remember that this is different from the Author sort field for a book.
     * By default, this sort algorithm assumes that the author name is in ``First name Last name`` format and generates a ``Last name, First name`` sort value.
-    * You can change this algorithm by going to Preferences->Tweaks and setting the :guilabel:`author_sort_copy_method` tweak.
+    * You can change this algorithm by going to :guilabel:`Preferences->Advanced->Tweaks` and setting the :guilabel:`author_sort_copy_method` tweak.
     * You can force calibre to recalculate the author sort values for every author by right clicking on any author and selecting :guilabel:`Manage authors`, then pushing the `Recalculate all author sort values` button. Do this after you have set the author_sort_copy_method tweak to what you want.
     * You can force calibre to recalculate the author sort values for all books by using the bulk metadata edit dialog (select all books and click edit metadata, check the `Automatically set author sort` checkbox, then press OK.)
     * When recalculating the author sort values for books, calibre uses the author sort values for each individual author. Therefore, ensure that the individual author sort values are correct before recalculating the books' author sort values.
-    * You can control whether the Tag browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in Preferences->Tweaks
+    * You can control whether the Tag browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in :guilabel:`Preferences->Advanced->Tweaks`
 
 Note that you can set an individual author's sort value to whatever you want using :guilabel:`Manage authors`. This is useful when dealing with names that calibre will not get right, such as complex multi-part names like Miguel de Cervantes Saavedra or when dealing with Asian names like Sun Tzu.
 
