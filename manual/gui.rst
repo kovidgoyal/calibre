@@ -460,7 +460,7 @@ Guessing metadata from file names
 
 Normally, calibre reads metadata from inside the book file. However, it can
 be configured to read metadata from the file name instead, via
-:guilabel:`Preferences->Import/export->Adding Books->Read metadata from file contents`.
+:guilabel:`Preferences->Import/export->Adding books->Read metadata from file contents`.
 
 You can also control how metadata is read from the filename using regular
 expressions (see :doc:`regexp`).  In the :guilabel:`Adding Books` section of
