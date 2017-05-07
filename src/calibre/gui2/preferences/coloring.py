@@ -495,7 +495,7 @@ class RuleEditor(QDialog):  # {{{
         self.color_label.setText('''
             <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
             <span style="color: {c}; background-color: {bg2}">&nbsp;{st}&nbsp;</span>
-            '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample Text')))
+            '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample text')))
 
     def sanitize_icon_file_name(self, icon_path):
         n = lower(sanitize_file_name_unicode(
@@ -887,10 +887,10 @@ class EditRules(QWidget):  # {{{
         l1.setWordWrap(True)
         l.addWidget(l1, l.rowCount(), 0, 1, 2)
 
-        self.add_button = QPushButton(QIcon(I('plus.png')), _('Add rule'),
+        self.add_button = QPushButton(QIcon(I('plus.png')), _('&Add rule'),
                 self)
         self.remove_button = QPushButton(QIcon(I('minus.png')),
-                _('Remove rule(s)'), self)
+                _('&Remove rule(s)'), self)
         self.add_button.clicked.connect(self.add_rule)
         self.remove_button.clicked.connect(self.remove_rule)
         l.addWidget(self.add_button, l.rowCount(), 0)

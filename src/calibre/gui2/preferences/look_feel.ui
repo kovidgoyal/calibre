@@ -263,7 +263,7 @@
          </property>
          <widget class="QWidget" name="tab_5">
           <attribute name="title">
-           <string>Layout</string>
+           <string>&amp;Layout</string>
           </attribute>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="0" colspan="2">
@@ -520,12 +520,12 @@ A value of zero means calculate automatically.</string>
          </widget>
          <widget class="QWidget" name="emblems_tab">
           <attribute name="title">
-           <string>Emblems</string>
+           <string>&amp;Emblems</string>
           </attribute>
          </widget>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
-           <string>Performance</string>
+           <string>&amp;Performance</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
@@ -1022,7 +1022,7 @@ see the counts by hovering your mouse over any item.</string>
        <item row="5" column="2">
         <widget class="QPushButton" name="cover_browser_title_template_button">
          <property name="text">
-          <string>Template editor</string>
+          <string>Template &amp;editor</string>
          </property>
         </widget>
        </item>

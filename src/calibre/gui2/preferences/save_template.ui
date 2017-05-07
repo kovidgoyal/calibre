@@ -59,7 +59,7 @@
       <item row="1" column="1">
        <widget class="QPushButton" name="open_editor">
         <property name="text">
-         <string>Template Editor</string>
+         <string>Template editor</string>
         </property>
        </widget>
       </item>

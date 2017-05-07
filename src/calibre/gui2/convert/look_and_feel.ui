@@ -33,7 +33,7 @@
      </property>
      <widget class="QWidget" name="tab1">
       <attribute name="title">
-       <string>Fonts</string>
+       <string>&amp;Fonts</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <item row="1" column="0">
@@ -207,7 +207,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Text</string>
+       <string>T&amp;ext</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
        <item row="1" column="1">
@@ -364,7 +364,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>Styling</string>
+       <string>&amp;Styling</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -477,7 +477,7 @@
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
-       <string>Transform styles</string>
+       <string>&amp;Transform styles</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="spacing">

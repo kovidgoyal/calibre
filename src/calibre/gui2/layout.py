@@ -180,7 +180,7 @@ class SearchBar(QWidget):  # {{{
         self._layout.setContentsMargins(0,5,0,0)
 
         x = QToolButton(self)
-        x.setText(_('Vi&rtual Library'))
+        x.setText(_('Vi&rtual library'))
         x.setIcon(QIcon(I('lt.png')))
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)

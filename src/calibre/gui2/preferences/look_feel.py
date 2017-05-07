@@ -387,12 +387,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.edit_rules,
-                QIcon(I('format-fill-color.png')), _('Column coloring'))
+                QIcon(I('format-fill-color.png')), _('Column &coloring'))
 
         self.icon_rules = EditRules(self.tabWidget)
         self.icon_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.icon_rules,
-                QIcon(I('icon_choose.png')), _('Column icons'))
+                QIcon(I('icon_choose.png')), _('Column &icons'))
 
         self.grid_rules = EditRules(self.emblems_tab)
         self.grid_rules.changed.connect(self.changed_signal)

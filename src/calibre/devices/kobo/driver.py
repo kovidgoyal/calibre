@@ -1228,7 +1228,7 @@ class KOBO(USBMS):
                 elif user_notes[location]['type'] == 'Highlight':
                     annotations.append(
                         _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br />'
-                          '<b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><hr />') % dict(
+                          '<b>Chapter progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><hr />') % dict(
                               chapter=user_notes[location]['chapter'],
                               dl=user_notes[location]['displayed_location'],
                               typ=user_notes[location]['type'],
@@ -1238,7 +1238,7 @@ class KOBO(USBMS):
                 elif user_notes[location]['type'] == 'Annotation':
                     annotations.append(
                         _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br />'
-                          '<b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br />'
+                          '<b>%(typ)s</b><br /><b>Chapter progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br />'
                           '<b>Notes:</b> %(annotation)s<br /><hr />') % dict(
                               chapter=user_notes[location]['chapter'],
                               dl=user_notes[location]['displayed_location'],
@@ -1250,7 +1250,7 @@ class KOBO(USBMS):
                 else:
                     annotations.append(
                         _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br />'
-                          '<b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br />'
+                          '<b>%(typ)s</b><br /><b>Chapter progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br />'
                           '<b>Notes:</b> %(annotation)s<br /><hr />') % dict(
                               chapter=user_notes[location]['chapter'],
                               dl=user_notes[location]['displayed_location'],
