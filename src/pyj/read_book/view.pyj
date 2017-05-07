@@ -51,6 +51,16 @@ add_extra_css(def():
     return ans
 )
 
+
+def bottom_margin(sd):
+    sz = sd.get('margin_bottom', 20)
+    fsz = min(max(0, sz - 6), 12)
+    return E.div(
+        style=f'height:{sz}px; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center', id='book-bottom-margin',
+        E.div(), E.div()
+    )
+
+
 class View:
 
     def __init__(self, container, ui):
@@ -69,7 +79,7 @@ class View:
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             E.div(style='height:{}px; width:100%; padding: 0; cursor: pointer'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
-                            E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
+                            bottom_margin(sd),
                         ),
                         right_margin,
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
@@ -391,6 +401,7 @@ class View:
         self.book.last_read_position[unkey] = data.cfi
         self.ui.db.update_last_read_time(self.book)
         lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+        self.update_read_percent(data.progress_frac)
         key = self.book.key
         if username:
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
@@ -398,6 +409,18 @@ class View:
                     if end_type is not 'load':
                         print('Failed to update last read position, AJAX call did not succeed')
             )
+
+    def update_read_percent(self, pos_frac):
+        sd = get_session_data()
+        div = document.getElementById('book-bottom-margin')
+        if not div:
+            return
+        pcelem = div.lastChild
+        percent = min(100, max(Math.round(pos_frac * 100), 0))
+        text = percent + '%'
+        if text is not pcelem.textContent:
+            pcelem.textContent = text
+        pcelem.style.display = 'block' if sd.get('margin_bottom', 20) > 5 else 'none'
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
