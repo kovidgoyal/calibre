@@ -84,6 +84,7 @@ class IframeBoss:
             'find': self.find,
         }
         self.last_window_ypos = 0
+        self.length_before = None
 
     def handle_message(self, event):
         if event.source is not window.parent:
@@ -136,6 +137,7 @@ class IframeBoss:
             console.log('There was an error in the iframe unhandled exception handler')
 
     def display(self, data):
+        self.length_before = None
         self.content_ready = False
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
@@ -237,20 +239,26 @@ class IframeBoss:
                 self.jump_to_cfi(ipos.cfi)
             elif ipos.type is 'search':
                 self.find(ipos.search_data, True)
+        spine = self.book.manifest.spine
+        files = self.book.manifest.files
+        current_name = current_spine_item().name
+        spine_index = spine.indexOf(current_name)
+        self.length_before = 0
+        if spine_index > -1:
+            for i in range(spine_index):
+                si = spine[i]
+                if si:
+                    self.length_before += files[si]?.length or 0
         self.onscroll()
         self.send_message('content_loaded')
 
     def get_progress_frac(self, current_name, spine_index):
-        length_before = 0
-        spine = self.book.manifest.spine
         files = self.book.manifest.files
-        for i in range(spine_index):
-            si = spine[i]
-            if si:
-                length_before += files[si]?.length or 0
         file_length = files[current_name]?.length or 0
+        if self.length_before is None:
+            return 0
         frac = progress_frac()
-        ans = (length_before + (file_length * frac)) / self.book.manifest.spine_length
+        ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
         return ans
 
     def update_cfi(self):
