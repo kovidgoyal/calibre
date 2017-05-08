@@ -108,7 +108,7 @@ def create_defs():
     defs['tags_browser_collapse_at'] = 100
     defs['tag_browser_dont_collapse'] = []
     defs['edit_metadata_single_layout'] = 'default'
-    defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
+    defs['default_author_link'] = 'https://www.goodreads.com/search?q={author}&search%5Bfield%5D=author&search%5Bsource%5D=goodreads&search_type=people&tab=people'
     defs['preserve_date_on_ctl'] = True
     defs['manual_add_auto_convert'] = False
     defs['auto_convert_same_fmt'] = False
