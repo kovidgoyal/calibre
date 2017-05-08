@@ -403,7 +403,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
 def show_restart_warning(msg, parent=None):
     d = warning_dialog(parent, _('Restart needed'), msg,
             show_copy_button=False)
-    b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+    b = d.bb.addButton(_('&Restart calibre now'), d.bb.AcceptRole)
     b.setIcon(QIcon(I('lt.png')))
     d.do_restart = False
 

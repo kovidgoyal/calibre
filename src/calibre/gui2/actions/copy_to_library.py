@@ -508,7 +508,7 @@ class CopyToLibraryAction(InterfaceAction):
             if delete_after:
                 msg += ' ' + _('No books were deleted from this library.')
             msg += ' ' + _('The best way to resume this operation is to re-copy all the books with the option to'
-                     ' "Check for duplicates when copying to library" in Preferences->Import/Export->Adding books turned on.')
+                     ' "Check for duplicates when copying to library" in Preferences->Import/export->Adding books turned on.')
             warning_dialog(self.gui, _('Canceled'), msg, show=True)
             return
 
@@ -531,7 +531,7 @@ class CopyToLibraryAction(InterfaceAction):
                         'records in the target library. Click "Show '
                         'details" to see which ones. This behavior is '
                         'controlled by the Automerge option in '
-                        'Preferences->Import/Export->Adding books.'), det_msg=books,
+                        'Preferences->Import/export->Adding books.'), det_msg=books,
                     show=True)
         if delete_after and self.worker.processed:
             v = self.gui.library_view

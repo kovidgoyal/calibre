@@ -733,7 +733,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                         ' {1} plugins</b>. You may have to restart calibre '
                         'for the plugin to take effect.').format(plugin.name, plugin.type),
                     show_copy_button=False)
-            b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
+            b = d.bb.addButton(_('&Restart calibre now'), d.bb.AcceptRole)
             b.setIcon(QIcon(I('lt.png')))
             d.do_restart = False
 
