@@ -12,20 +12,23 @@ AUTHOR_SEARCHES = {
     'wikipedia':
     'https://en.wikipedia.org/w/index.php?search={author}',
     'google':
-    'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22',
+    'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22',
 }
 
 BOOK_SEARCHES = {
     'goodreads':
     'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books',
     'google':
-    'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22',
+    'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22',
+    'gws':
+    'https://www.google.com/search?q=inauthor:%22{author}%22+intitle:%22{title}%22',
 }
 
 NAMES = {
-    'goodreads': 'Goodreads',
-    'google': 'Google Books',
-    'wikipedia': 'Wikipedia'
+    'goodreads': _('Goodreads'),
+    'google': _('Google books'),
+    'wikipedia': _('Wikipedia'),
+    'gws': _('Google web search'),
 }
 
 name_for = NAMES.get
