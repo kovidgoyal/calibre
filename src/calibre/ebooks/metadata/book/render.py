@@ -71,10 +71,13 @@ def author_search_href(which, title=None, author=None):
     tt_map = getattr(author_search_href, 'tt_map', None)
     if tt_map is None:
         tt = _('Search {0} for the author: {1}')
+        tb = _('Search {0} for the book: {1} by the author {2}')
         tt_map = author_search_href.tt_map = {
             'goodreads': tt.format('Goodreads', author),
             'wikipedia': tt.format('Wikipedia', author),
-            'goodreads-book': _('Search Goodreads for the book: {0} by the author {1}').format(title, author)
+            'goodreads-book': tb.format('Goodreads', title, author),
+            'google': tt.format('Google Books', author),
+            'google-book': tt.format('Google Books', title, author),
         }
     tt = tt_map.get(which)
     if tt is None:
@@ -85,7 +88,9 @@ def author_search_href(which, title=None, author=None):
         link_map = author_search_href.link_map = {
             'goodreads': 'https://www.goodreads.com/search?q={author}&search%5Bfield%5D=author&search%5Bsource%5D=goodreads&search_type=people&tab=people',
             'wikipedia': 'https://en.wikipedia.org/w/index.php?search={author}',
-            'goodreads-book': 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books'
+            'goodreads-book': 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books',
+            'google': 'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22',
+            'google-book': 'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22',
         }
     return link_map[which].format(title=qquote(title), author=qquote(author)), tt
 

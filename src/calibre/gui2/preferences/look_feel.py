@@ -63,7 +63,9 @@ class DefaultAuthorLink(QWidget):  # {{{
                 (_('Search for the author on Goodreads'), 'search-goodreads'),
                 (_('Search for the author in your calibre library'), 'search-calibre'),
                 (_('Search for the author on Wikipedia'), 'search-wikipedia'),
+                (_('Search for the author on Google Books'), 'search-google'),
                 (_('Search for the book on Goodreads'), 'search-goodreads-book'),
+                (_('Search for the book on Google Books'), 'search-google-book'),
                 (_('Use a custom search URL'), 'url'),
         ]:
             c.addItem(text, data)
