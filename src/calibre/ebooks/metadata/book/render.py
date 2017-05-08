@@ -8,11 +8,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, cPickle
 from functools import partial
-from urllib import quote_plus
 from binascii import hexlify
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
+from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
@@ -22,12 +22,6 @@ from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')
-
-
-def qquote(val):
-    if not isinstance(val, bytes):
-        val = val.encode('utf-8')
-    return quote_plus(val).decode('utf-8')
 
 
 def field_sort(mi, name):
@@ -68,31 +62,18 @@ DEFAULT_AUTHOR_LINK = 'search-goodreads'
 def author_search_href(which, title=None, author=None):
     if which == 'calibre':
         return search_href('authors', author), _('Search the calibre library for books by %s') % author
-    tt_map = getattr(author_search_href, 'tt_map', None)
-    if tt_map is None:
-        tt = _('Search {0} for the author: {1}')
-        tb = _('Search {0} for the book: {1} by the author {2}')
-        tt_map = author_search_href.tt_map = {
-            'goodreads': tt.format('Goodreads', author),
-            'wikipedia': tt.format('Wikipedia', author),
-            'goodreads-book': tb.format('Goodreads', title, author),
-            'google': tt.format('Google Books', author),
-            'google-book': tt.format('Google Books', title, author),
-        }
-    tt = tt_map.get(which)
-    if tt is None:
-        which = DEFAULT_AUTHOR_LINK.partition('-')[2]
-        tt = tt_map[which]
-    link_map = getattr(author_search_href, 'link_map', None)
-    if link_map is None:
-        link_map = author_search_href.link_map = {
-            'goodreads': 'https://www.goodreads.com/search?q={author}&search%5Bfield%5D=author&search%5Bsource%5D=goodreads&search_type=people&tab=people',
-            'wikipedia': 'https://en.wikipedia.org/w/index.php?search={author}',
-            'goodreads-book': 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books',
-            'google': 'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22',
-            'google-book': 'https://www.google.co.in/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22',
-        }
-    return link_map[which].format(title=qquote(title), author=qquote(author)), tt
+    search_type, key = 'author', which
+    if which.endswith('-book'):
+        key, search_type = which.rpartition('-')[::2]
+    name = name_for(key)
+    if name is None:
+        return author_search_href(DEFAULT_AUTHOR_LINK, title=title, author=author)
+    if search_type == 'author':
+        tt = _('Search {0} for the author: {1}').format(name, author)
+    else:
+        tt = _('Search {0} for the book: {1} by the author {2}').format(name, title, author)
+    func = url_for_book_search if search_type == 'book' else url_for_author_search
+    return func(key, title=title, author=author), tt
 
 
 def item_data(field_name, value, book_id):
