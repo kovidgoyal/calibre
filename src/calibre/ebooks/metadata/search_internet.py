@@ -23,9 +23,9 @@ BOOK_SEARCHES = {
     'gws':
     'https://www.google.com/search?q=inauthor:%22{author}%22+intitle:%22{title}%22',
     'amzn':
-    'http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}',
+    'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}',
     'gimg':
-    'http://www.google.com/images?q=%22{author}%22+%22{title}%22',
+    'https://www.google.com/images?q=%22{author}%22+%22{title}%22',
 }
 
 NAMES = {
