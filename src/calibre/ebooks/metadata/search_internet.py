@@ -38,6 +38,8 @@ NAMES = {
 }
 
 name_for = NAMES.get
+all_book_searches = BOOK_SEARCHES.__iter__
+all_author_searches = AUTHOR_SEARCHES.__iter__
 
 
 def qquote(val):

@@ -21,7 +21,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.ebooks.metadata.search_internet import url_for_book_search, NAMES, BOOK_SEARCHES
+from calibre.ebooks.metadata.search_internet import url_for_book_search, name_for, all_book_searches
 from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING, default_author_link)
 from calibre.utils.config import tweaks
 from calibre.utils.img import image_from_x, blend_image
@@ -51,8 +51,8 @@ def copy_all(web_view):
 
 def create_search_internet_menu(callback):
     m = QMenu(_('Search the internet for this book…'))
-    for k in sorted(BOOK_SEARCHES, key=lambda k: NAMES[k].lower()):
-        m.addAction(NAMES[k], partial(callback, k))
+    for k in sorted(all_book_searches(), key=lambda k: name_for(k).lower()):
+        m.addAction(name_for(k), partial(callback, k))
     return m
 
 
