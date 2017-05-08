@@ -1,33 +1,40 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import cPickle
 from binascii import unhexlify
+from collections import namedtuple
 from functools import partial
 
-from PyQt5.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, QIcon,
-    QPropertyAnimation, QEasingCurve, QApplication, QFontInfo, QAction,
-    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu,
-    QPen, QColor, QMimeData)
+from PyQt5.Qt import (
+    QAction, QApplication, QColor, QEasingCurve, QFontInfo, QIcon, QLayout, QMenu,
+    QMimeData, QPainter, QPalette, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
+    QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
+)
 from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
-from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
-    dnd_has_extension, image_extensions)
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
+from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.ebooks.metadata.search_internet import url_for_book_search, name_for, all_book_searches
-from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING, default_author_link)
+from calibre.ebooks.metadata.search_internet import (
+    all_author_searches, all_book_searches, name_for, url_for_author_search,
+    url_for_book_search
+)
+from calibre.gui2 import (
+    NO_URL_FORMATTING, config, default_author_link, gprefs, open_url, pixmap_to_data,
+    rating_font
+)
+from calibre.gui2.dnd import (
+    dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
+)
 from calibre.utils.config import tweaks
-from calibre.utils.img import image_from_x, blend_image
+from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
 
 _css = None
+InternetSearch = namedtuple('InternetSearch', 'author where')
 
 
 def css():
@@ -49,10 +56,15 @@ def copy_all(web_view):
     c.setMimeData(md)
 
 
-def create_search_internet_menu(callback):
-    m = QMenu(_('Search the internet for this book…'))
-    for k in sorted(all_book_searches(), key=lambda k: name_for(k).lower()):
-        m.addAction(name_for(k), partial(callback, k))
+def create_search_internet_menu(callback, author=None):
+    m = QMenu(
+        _('Search the internet for the author {}…').format(author)
+        if author is not None else
+        _('Search the internet for this book…')
+    )
+    items = all_book_searches() if author is None else all_author_searches()
+    for k in sorted(items, key=lambda k: name_for(k).lower()):
+        m.addAction(name_for(k), partial(callback, InternetSearch(author, k)))
     return m
 
 
@@ -151,6 +163,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
         if action is not ca:
             menu.removeAction(action)
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, book_info))
+    search_internet_added = False
     if not r.isNull():
         if url.startswith('format:'):
             parts = url.split(':')
@@ -219,6 +232,10 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 ac.current_fmt = author
                 ac.setText(_('Manage %s') % author)
                 menu.addAction(ac)
+                if hasattr(book_info, 'search_internet'):
+                    menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
+                    menu.addMenu(sia)
+                    search_internet_added = True
             if data:
                 try:
                     field, value, book_id = cPickle.loads(unhexlify(data))
@@ -230,7 +247,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                     ac.setText(_('Remove %s from this book') % value)
                     menu.addAction(ac)
 
-    if hasattr(book_info, 'search_internet'):
+    if not search_internet_added and hasattr(book_info, 'search_internet'):
         menu.addSeparator()
         menu.si = m = create_search_internet_menu(book_info.search_internet)
         menu.addMenu(m)
@@ -751,9 +768,12 @@ class BookDetails(QWidget):  # {{{
         self.book_info.manage_author.connect(self.manage_author)
         self.setCursor(Qt.PointingHandCursor)
 
-    def search_internet(self, where):
+    def search_internet(self, data):
         if self.last_data:
-            url = url_for_book_search(where, title=self.last_data['title'], author=self.last_data['authors'][0])
+            if data.author is None:
+                url = url_for_book_search(data.where, title=self.last_data['title'], author=self.last_data['authors'][0])
+            else:
+                url = url_for_author_search(data.where, author=data.author)
             open_url(url)
 
     def handle_click(self, link):
