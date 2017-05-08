@@ -234,10 +234,10 @@ class FontFamilyDialog(QDialog):
         self.search.returnPressed.connect(self.find)
         self.nb = QToolButton(self)
         self.nb.setIcon(QIcon(I('arrow-down.png')))
-        self.nb.setToolTip(_('Find Next'))
+        self.nb.setToolTip(_('Find next'))
         self.pb = QToolButton(self)
         self.pb.setIcon(QIcon(I('arrow-up.png')))
-        self.pb.setToolTip(_('Find Previous'))
+        self.pb.setToolTip(_('Find previous'))
         self.nb.clicked.connect(self.find_next)
         self.pb.clicked.connect(self.find_previous)
 

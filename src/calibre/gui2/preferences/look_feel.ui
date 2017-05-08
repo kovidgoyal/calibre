@@ -553,7 +553,7 @@ A value of zero means calculate automatically.</string>
               <item row="3" column="1">
                <widget class="QPushButton" name="cover_grid_open_cache">
                 <property name="text">
-                 <string>Open cache directory</string>
+                 <string>&amp;Open cache directory</string>
                 </property>
                </widget>
               </item>
@@ -613,14 +613,14 @@ A value of zero means calculate automatically.</string>
               <item row="2" column="0" colspan="2">
                <widget class="QLabel" name="label_18">
                 <property name="text">
-                 <string>Maximum amount of disk space to use for caching thumbnails: </string>
+                 <string>Maximum amount of &amp;disk space to use for caching thumbnails: </string>
                 </property>
                </widget>
               </item>
               <item row="3" column="0">
                <widget class="QPushButton" name="cover_grid_empty_cache">
                 <property name="text">
-                 <string>Empty disk cache</string>
+                 <string>&amp;Empty disk cache</string>
                 </property>
                </widget>
               </item>

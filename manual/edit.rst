@@ -177,7 +177,7 @@ Adding new images/fonts/etc. or creating new blank files
 
 You can add a new image, font, stylesheet, etc. from your computer into the
 book by clicking :guilabel:`File->New file`. This lets you either import a file
-by clicking the :guilabel:`Import resource file` button or create a new blank html file
+by clicking the :guilabel:`Import resource file` button or create a new blank HTML file
 or stylesheet by simply entering the file name into the box for the new file.
 
 You can also import multiple files into the book at once using File->Import

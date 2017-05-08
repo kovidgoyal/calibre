@@ -101,7 +101,7 @@ class KOBO(USBMS):
         _('The Kobo supports several collections including ')+ 'Read, Closed, Im_Reading. ' +
         _('Create tags for automatic management'),
         _('Upload covers for books (newer readers)') +
-        ':::'+_('Normally, the KOBO readers get the cover image from the'
+        ':::'+_('Normally, the Kobo readers get the cover image from the'
                 ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),

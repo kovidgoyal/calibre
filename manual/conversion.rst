@@ -319,7 +319,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     If this option is configured then calibre will replace scene break markers it finds with the replacement text specified by the
     user.  Please note that some ornamental characters may not be supported across all reading devices.
     
-    In general you should avoid using html tags, calibre will discard any tags and use pre-defined markup.  <hr />
+    In general you should avoid using HTML tags, calibre will discard any tags and use pre-defined markup.  <hr />
     tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
     choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
     tags can used, but calibre does not provide the ability to add the image during conversion, this must be done after the fact using 
@@ -690,7 +690,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
 
     :guilabel:`Formatting style: Heuristic`
         Analyzes the document for common chapter headings, scene breaks, and italicized words and applies the
-        appropriate html markup during conversion.
+        appropriate HTML markup during conversion.
 
     :guilabel:`Formatting style: Markdown`
         calibre also supports running TXT input though a transformation preprocessor known as markdown. Markdown
@@ -700,7 +700,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         You can learn more about the markdown syntax at `daringfireball <https://daringfireball.net/projects/markdown/syntax>`_.
 
     :guilabel:`Formatting style: None`
-        Applies no special formatting to the text, the document is converted to html with no other changes.
+        Applies no special formatting to the text, the document is converted to HTML with no other changes.
 
 .. _pdfconversion:
 

@@ -40,8 +40,8 @@ class HTMLZOutput(OutputFormatPlugin):
             )),
         OptionRecommendation(name='htmlz_title_filename',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('If set this option causes the file name of the html file'
-                ' inside the htmlz archive to be based on the book title.')
+            help=_('If set this option causes the file name of the HTML file'
+                ' inside the HTMLZ archive to be based on the book title.')
             ),
     ])
 
