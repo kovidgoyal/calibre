@@ -14,7 +14,6 @@ from PyQt5.Qt import (QIcon, Qt, QWidget, QSize,
 
 from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
-from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
@@ -286,13 +285,12 @@ class MainWindowMixin(object):  # {{{
         self._central_widget_layout = QVBoxLayout()
         self.centralwidget.setLayout(self._central_widget_layout)
         self.resize(1012, 740)
-        self.donate_button = ThrobbingButton()
         self.location_manager = LocationManager(self)
 
         self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
-        self.bars_manager = BarsManager(self.donate_button,
+        self.bars_manager = BarsManager(self.donate_action,
                 self.location_manager, self)
         for bar in self.bars_manager.main_bars:
             self.addToolBar(Qt.TopToolBarArea, bar)

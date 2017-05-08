@@ -14,6 +14,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
+from calibre.gui2.throbber import ThrobbingButton
 
 
 class RevealBar(QWidget):  # {{{
@@ -60,9 +61,20 @@ class RevealBar(QWidget):  # {{{
 # }}}
 
 
+def create_donate_button(action):
+    ans = ThrobbingButton()
+    ans.setAutoRaise(True)
+    ans.setCursor(Qt.PointingHandCursor)
+    ans.clicked.connect(action.trigger)
+    ans.setToolTip(action.text().replace('&', ''))
+    ans.setIcon(action.icon())
+    ans.setStatusTip(ans.toolTip())
+    return ans
+
+
 class ToolBar(QToolBar):  # {{{
 
-    def __init__(self, donate, location_manager, parent):
+    def __init__(self, donate_action, location_manager, parent):
         QToolBar.__init__(self, parent)
         self.setMovable(False)
         self.setFloatable(False)
@@ -71,12 +83,11 @@ class ToolBar(QToolBar):  # {{{
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
         self.preferred_width = self.sizeHint().width()
         self.gui = parent
-        self.donate_button = donate
+        self.donate_action = donate_action
+        self.donate_button = None
         self.added_actions = []
 
         self.location_manager = location_manager
-        donate.setAutoRaise(True)
-        donate.setCursor(Qt.PointingHandCursor)
         self.setAcceptDrops(True)
         self.showing_donate = False
 
@@ -84,7 +95,8 @@ class ToolBar(QToolBar):  # {{{
         QToolBar.resizeEvent(self, ev)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
-        self.donate_button.setToolButtonStyle(style)
+        if self.showing_donate:
+            self.donate_button.setToolButtonStyle(style)
 
     def get_text_style(self):
         style = Qt.ToolButtonTextUnderIcon
@@ -121,6 +133,7 @@ class ToolBar(QToolBar):  # {{{
 
         self.clear()
         self.added_actions = []
+        self.donate_button = None
 
         bar = self
 
@@ -134,7 +147,10 @@ class ToolBar(QToolBar):  # {{{
                     bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                     ac.setVisible(False)
             elif what == 'Donate':
+                self.donate_button = create_donate_button(self.donate_action)
                 bar.addWidget(self.donate_button)
+                self.donate_button.setIconSize(bar.iconSize())
+                self.donate_button.setToolButtonStyle(self.toolButtonStyle())
                 self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
@@ -486,12 +502,11 @@ else:
 
 class BarsManager(QObject):
 
-    def __init__(self, donate_button, location_manager, parent):
+    def __init__(self, donate_action, location_manager, parent):
         QObject.__init__(self, parent)
-        self.donate_button, self.location_manager = (donate_button,
-                location_manager)
+        self.location_manager = location_manager
 
-        bars = [ToolBar(donate_button, location_manager, parent) for i in
+        bars = [ToolBar(donate_action, location_manager, parent) for i in
                 range(3)]
         self.main_bars = tuple(bars[:2])
         self.child_bars = tuple(bars[2:])
@@ -519,6 +534,12 @@ class BarsManager(QObject):
             if b.isVisible() and b.showing_donate:
                 return True
         return False
+
+    def start_animation(self):
+        for b in self.bars:
+            if b.isVisible() and b.showing_donate:
+                b.donate_button.start_animation()
+                return True
 
     def init_bars(self):
         self.bar_actions = tuple(
@@ -566,5 +587,6 @@ class BarsManager(QObject):
         for bar in self.bars:
             bar.setIconSize(QSize(sz, sz))
             bar.setToolButtonStyle(style)
-        self.donate_button.setIconSize(bar.iconSize())
-        self.donate_button.setToolButtonStyle(style)
+            if bar.showing_donate:
+                bar.donate_button.setIconSize(bar.iconSize())
+                bar.donate_button.setToolButtonStyle(style)

@@ -278,10 +278,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon(I('page.png')), '')
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
         self.system_tray_menu.addAction(self.donate_action)
-        self.donate_button.clicked.connect(self.donate_action.trigger)
-        self.donate_button.setToolTip(self.donate_action.text().replace('&', ''))
-        self.donate_button.setIcon(self.donate_action.icon())
-        self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon(I('eject.png')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
@@ -401,8 +397,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.read_settings()
 
         self.finalize_layout()
-        if self.bars_manager.showing_donate:
-            self.donate_button.start_animation()
+        self.bars_manager.start_animation()
         self.set_window_title()
 
         for ac in self.iactions.values():
