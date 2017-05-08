@@ -11,8 +11,8 @@ from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
         QItemSelectionModel
 
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
-from calibre.gui2 import gprefs, warning_dialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2 import gprefs, warning_dialog, error_dialog
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 
 
 class FakeAction(object):
@@ -335,11 +335,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         lm_in_toolbar = self.models['toolbar-device'][1].has_action('Location Manager')
         lm_in_menubar = self.models['menubar-device'][1].has_action('Location Manager')
         if not pref_in_toolbar and not pref_in_menubar:
-            self.models['menubar'][1].add(['Preferences'])
+            error_dialog(self, _('Preferences missing'), _(
+                'The Preferences action must be in either the main toolbar or the menubar.'), show=True)
+            raise AbortCommit()
         if not lm_in_toolbar and not lm_in_menubar:
-            m = self.models['toolbar-device'][1]
-            m.add(['Location Manager'])
-            m.move(m.index(m.rowCount(None)-1), 5-m.rowCount(None))
+            error_dialog(self, _('Location Manager missing'), _(
+                'The Location Manager must be in either the main toolbar or the menubar when a device is connected.'), show=True)
+            raise AbortCommit()
 
         # Save data.
         for am, cm in self.models.values():
