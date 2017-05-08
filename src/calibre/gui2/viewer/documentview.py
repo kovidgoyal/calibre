@@ -247,10 +247,10 @@ class Document(QWebPage):  # {{{
         self.first_load = False
 
     def colors(self):
-        ans = self.javascript('''
+        ans = json.loads(self.javascript('''
             bs = getComputedStyle(document.body);
-            [bs.backgroundColor, bs.color]
-            ''')
+            JSON.stringify([bs.backgroundColor, bs.color])
+            '''))
         return ans if isinstance(ans, list) else ['white', 'black']
 
     def read_anchor_positions(self, use_cache=True):
@@ -299,8 +299,8 @@ class Document(QWebPage):  # {{{
     def column_boundaries(self):
         if not self.loaded_javascript:
             return (0, 1)
-        ans = self.javascript(u'paged_display.column_boundaries()')
-        return tuple(int(x) for x in ans)
+        ans = self.javascript(u'JSON.stringify(paged_display.column_boundaries())')
+        return tuple(int(x) for x in json.loads(ans))
 
     def after_resize(self):
         if self.in_paged_mode:

@@ -351,15 +351,15 @@ class PDFWriter(QObject):
         evaljs(self.paged_js)
         self.load_mathjax()
 
-        amap = evaljs('''
+        amap = json.loads(evaljs('''
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, %d, %d, %d);
         paged_display.layout();
         paged_display.fit_images();
         ret = book_indexing.all_links_and_anchors();
         window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
-        ret;
-        '''%(self.margin_top, 0, self.margin_bottom))
+        JSON.stringify(ret);
+        '''%(self.margin_top, 0, self.margin_bottom)))
 
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
