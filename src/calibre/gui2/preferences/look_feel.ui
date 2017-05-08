@@ -269,7 +269,7 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>Control the Cover grid view. You can enable this view by clicking the "Cover grid" button in the bottom right corner of the main calibre window.</string>
+              <string>Control the Cover grid view. You can enable this view by clicking the &quot;Cover grid&quot; button in the bottom right corner of the main calibre window.</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -773,45 +773,20 @@ A value of zero means calculate automatically.</string>
          </item>
         </layout>
        </item>
-       <item row="0" column="0" colspan="2">
-        <layout class="QHBoxLayout">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Default author &amp;link template:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_default_author_link</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="opt_default_author_link">
-           <property name="toolTip">
-            <string>&lt;p&gt;Enter a template to be used to create a link for
-an author in the books information dialog. This template will
-be used when no link has been provided for the author using
-Manage Authors. You can use the values {author} and
-{author_sort}, and any template function.</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="search_library_for_author_button">
-           <property name="toolTip">
-            <string>Search the calibre library for the author, instead of opening a link</string>
-           </property>
-           <property name="text">
-            <string>Search &amp;calibre library for author</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item row="2" column="0" colspan="2">
         <widget class="QPushButton" name="id_links_button">
          <property name="text">
           <string>Create rules to convert &amp;identifiers into links</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QWidget" name="default_author_link_container" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>

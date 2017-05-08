@@ -108,7 +108,6 @@ def create_defs():
     defs['tags_browser_collapse_at'] = 100
     defs['tag_browser_dont_collapse'] = []
     defs['edit_metadata_single_layout'] = 'default'
-    defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
     defs['preserve_date_on_ctl'] = True
     defs['manual_add_auto_convert'] = False
     defs['auto_convert_same_fmt'] = False
@@ -271,6 +270,15 @@ config = _config()
 QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
 QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope, config_dir)
 QSettings.setDefaultFormat(QSettings.IniFormat)
+
+
+def default_author_link():
+    from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
+    ans = gprefs.get('default_author_link')
+    if ans == 'https://en.wikipedia.org/w/index.php?search={author}':
+        # The old default value for this setting
+        ans = DEFAULT_AUTHOR_LINK
+    return ans or DEFAULT_AUTHOR_LINK
 
 
 def available_heights():

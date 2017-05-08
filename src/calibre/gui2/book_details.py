@@ -21,7 +21,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING)
+from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING, default_author_link)
 from calibre.utils.config import tweaks
 from calibre.utils.img import image_from_x, blend_image
 from calibre.utils.localization import is_rtl
@@ -127,7 +127,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata))
     field_list = [(x, all_fields or display) for x, display in field_list]
     return mi_to_html(mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
-                      rating_font=rating_font(), default_author_link=gprefs.get('default_author_link'))
+                      rating_font=rating_font(), default_author_link=default_author_link())
 
 # }}}
 

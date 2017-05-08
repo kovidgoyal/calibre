@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, cPickle
 from functools import partial
+from urllib import quote_plus
 from binascii import hexlify
 
 from calibre import prepare_string_for_xml, force_unicode
@@ -21,6 +22,12 @@ from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')
+
+
+def qquote(val):
+    if not isinstance(val, bytes):
+        val = val.encode('utf-8')
+    return quote_plus(val).decode('utf-8')
 
 
 def field_sort(mi, name):
@@ -53,6 +60,34 @@ def get_field_list(mi):
 def search_href(search_term, value):
     search = '%s:"=%s"' % (search_term, value.replace('"', '\\"'))
     return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
+
+
+DEFAULT_AUTHOR_LINK = 'search-goodreads'
+
+
+def author_search_href(which, title=None, author=None):
+    if which == 'calibre':
+        return search_href('authors', author), _('Search the calibre library for books by %s') % author
+    tt_map = getattr(author_search_href, 'tt_map', None)
+    if tt_map is None:
+        tt = _('Search {0} for the author: {1}')
+        tt_map = author_search_href.tt_map = {
+            'goodreads': tt.format('Goodreads', author),
+            'wikipedia': tt.format('Wikipedia', author),
+            'goodreads-book': _('Search Goodreads for the book: {0} by the author {1}').format(title, author)
+        }
+    tt = tt_map.get(which)
+    if tt is None:
+        which = DEFAULT_AUTHOR_LINK.partition('-')[2]
+        tt = tt_map[which]
+    link_map = getattr(author_search_href, 'link_map', None)
+    if link_map is None:
+        link_map = author_search_href.link_map = {
+            'goodreads': 'https://www.goodreads.com/search?q={author}&search%5Bfield%5D=author&search%5Bsource%5D=goodreads&search_type=people&tab=people',
+            'wikipedia': 'https://en.wikipedia.org/w/index.php?search={author}',
+            'goodreads-book': 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books'
+        }
+    return link_map[which].format(title=qquote(title), author=qquote(author)), tt
 
 
 def item_data(field_name, value, book_id):
@@ -175,27 +210,29 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             links = u', '.join(links)
             if links:
                 ans.append((field, row % (_('Ids')+':', links)))
-        elif field == 'authors' and not isdevice:
+        elif field == 'authors':
             authors = []
             formatter = EvalFormatter()
             for aut in mi.authors:
                 link = ''
-                if mi.author_link_map[aut]:
+                if mi.author_link_map.get(aut):
                     link = lt = mi.author_link_map[aut]
                 elif default_author_link:
-                    if default_author_link == 'search-calibre':
-                        link = search_href('authors', aut)
-                        lt = a(_('Search the calibre library for books by %s') % aut)
+                    if isdevice and default_author_link == 'search-calibre':
+                        default_author_link = DEFAULT_AUTHOR_LINK
+                    if default_author_link.startswith('search-'):
+                        which_src = default_author_link.partition('-')[2]
+                        link, lt = author_search_href(which_src, title=mi.title, author=aut)
                     else:
-                        vals = {'author': aut.replace(' ', '+')}
+                        vals = {'author': qquote(aut), 'title': qquote(mi.title)}
                         try:
-                            vals['author_sort'] =  mi.author_sort_map[aut].replace(' ', '+')
-                        except:
-                            vals['author_sort'] = aut.replace(' ', '+')
-                        link = lt = a(formatter.safe_format(default_author_link, vals, '', vals))
+                            vals['author_sort'] =  qquote(mi.author_sort_map[aut])
+                        except KeyError:
+                            vals['author_sort'] = qquote(aut)
+                        link = lt = formatter.safe_format(default_author_link, vals, '', vals)
                 aut = p(aut)
                 if link:
-                    authors.append(u'<a calibre-data="authors" title="%s" href="%s">%s</a>'%(lt, link, aut))
+                    authors.append(u'<a calibre-data="authors" title="%s" href="%s">%s</a>'%(a(lt), a(link), aut))
                 else:
                     authors.append(aut)
             ans.append((field, row % (name, u' & '.join(authors))))

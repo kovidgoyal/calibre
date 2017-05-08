@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
     QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
 
-from calibre.gui2 import rating_font, error_dialog
+from calibre.gui2 import rating_font, error_dialog, open_url
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
@@ -74,21 +74,30 @@ class Metadata(QWebView):  # {{{
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, False)
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+        self.page().linkClicked.connect(self.link_clicked)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.setVisible(False)
 
+    def link_clicked(self, qurl):
+        if qurl.scheme() in ('http', 'https'):
+            return open_url(qurl)
+
     def update_layout(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
 
     def show_metadata(self, mi, ext=''):
+        from calibre.gui2 import default_author_link
         from calibre.gui2.book_details import render_html, css
         from calibre.ebooks.metadata.book.render import mi_to_html
 
         def render_data(mi, use_roman_numbers=True, all_fields=False):
-            return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl())
+            return mi_to_html(
+                mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl(),
+                default_author_link=default_author_link()
+            )
 
         html = render_html(mi, css(), True, self, render_data_func=render_data)
         self.setHtml(html)
