@@ -330,7 +330,14 @@ def add_html_context(app, pagename, templatename, context, *args):
     context['search_box_text'] = cli_index_strings()[6]
 
 
+def guilabel_role(typ, rawtext, text, *args, **kwargs):
+    from sphinx.roles import menusel_role
+    text = text.replace(u'->', u'\N{THIN SPACE}\N{RIGHTWARDS ARROW}\N{THIN SPACE}')
+    return menusel_role(typ, rawtext, text, *args, **kwargs)
+
+
 def setup(app):
+    from docutils.parsers.rst import roles
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
@@ -338,6 +345,7 @@ def setup(app):
     app.connect('builder-inited', generate_docs)
     app.connect('html-page-context', add_html_context)
     app.connect('build-finished', finished)
+    roles.register_local_role('guilabel', guilabel_role)
 
 
 def finished(app, exception):
