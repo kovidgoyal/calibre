@@ -493,7 +493,7 @@ The most common problem is if you are sending email directly (without a mail rel
 that does not come from a well known relay. The most robust way to setup email sending in calibre is to do the following:
 
   * Create a free GMX account at `GMX <https://www.gmx.com>`_.
-  * Goto :guilabel:`Preferences->Sharing->Sharing by Email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
+  * Goto :guilabel:`Preferences->Sharing->Sharing by email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
   * Log into your GMX account on the website and enable SMTP sending (`Settings->POP3 & IMAP->Send and receive emails via external program`)
   * calibre will then be able to use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
