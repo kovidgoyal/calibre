@@ -13,9 +13,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class PrivateEyeRecipe(BasicNewsRecipe):
-    title = 'Private Eye'
+    title = 'Private Eye Online'
+    title_author = 'Private Eye'
     __author__ = 'Sophist at sodalis.co.uk'
-    description = 'Private Eye is a fortnightly British satirical news and current affairs magazine, edited by Ian Hislop, offering a unique blend of humour, social and political observations and investigative journalism.'  # noqa
+    description = '''Private Eye is a fortnightly British satirical news and current affairs magazine,\
+ edited by Ian Hislop, offering a unique blend of humour, social and political observations and\
+ investigative journalism. This e-book is a download of the online-edition. The full edition is\
+ available only on subscription.'''
     publication_type = 'magazine'
     language = 'en'
     encoding = 'utf-8'
@@ -23,15 +27,20 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     INDEX = DOMAIN + 'current-issue'
     oldest_article = 13
     max_articles_per_feed = 100
-    # remove_empty_feeds = True
     remove_javascript = True
-    # no_stylesheets = True
     ignore_duplicate_articles = {'url'}
 
+    conversion_options = {
+        'authors': title_author,
+        'author_sort': title_author,
+        'smarten_punctuation': True,
+        'series': title,
+        'publisher': title_author,
+    }
     remove_tags_before = [
         {
             'id': 'story',
-            'class': 'article'
+            'class': 'article',
         },
         {
             'id': 'page'
@@ -39,7 +48,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ]
     remove_tags_after = [
         {
-            'class': 'section'
+            'class': 'section',
         },
     ]
     remove_tags = [
@@ -49,10 +58,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                                 'class': 'text'}),
         dict(name='span', attrs={'class': 'section'}),
     ]
-
     preprocess_regexps = [
         (
-            re.compile(r'../grfx', re.DOTALL | re.IGNORECASE),
+            re.compile(r'\.\./grfx', re.DOTALL | re.IGNORECASE),
             lambda match: 'http://www.private-eye.co.uk/grfx'
         ),
     ]
@@ -116,6 +124,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 self.cover_url = self.DOMAIN + img['src']
                 filename = img['src'].split('/')[-1]
                 self.issue_no = filename.replace('_big.jpg', '')
+                self.conversion_options['series_index'] = self.issue_no
                 self.log.debug('Cover image found. Issue: %s' % self.issue_no)
                 break
         else:
@@ -129,12 +138,16 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                     day, month, year = tag_contents[2].split()
                     day = ''.join(c for c in day if c.isdigit())
                     date = datetime.strptime(
-                        " ".join((day, month, year)), "%d %B %Y"
+                        " ".join((day, month, year)),
+                        "%d %B %Y"
                     )
                     date = date - timedelta(14)
-                    self.publication_date = datetime.strftime(date, "%d %B %Y"
-                                                              ).lstrip("0")
+                    self.publication_date = datetime.strftime(
+                        date,
+                        "%d %B %Y"
+                        ).lstrip("0")
                     self.log.debug("Publication date: %s" % self.publication_date)
+                    self.title += " " + datetime.strftime(date, "%Y-%m-%d")
                     break
                 except:
                     self.log.warning(
@@ -211,10 +224,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             self.DOMAIN + "about",
             """Private Eye is the UK's number one best-selling news and current affairs magazine, edited by Ian Hislop.
 
-It offers a unique blend of humour, social and political observations and investigative journalism.
-Published fortnightly, the magazine is read by over 700,000 readers and costs just £1.80 an issue.""",
-            date=""
-        )
+It offers a unique blend of humour, social and political observations and investigative journalism.\
+ Published fortnightly, the magazine is read by over 700,000 readers and costs just £1.80 an issue.""",
+            date="")
         self.page_index_append("About Private Eye")
 
         return self.page_index
