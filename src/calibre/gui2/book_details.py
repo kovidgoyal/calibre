@@ -21,6 +21,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
+from calibre.ebooks.metadata.search_internet import url_for_book_search, NAMES, BOOK_SEARCHES
 from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING, default_author_link)
 from calibre.utils.config import tweaks
 from calibre.utils.img import image_from_x, blend_image
@@ -46,6 +47,13 @@ def copy_all(web_view):
     md.setText(mf.toPlainText())
     md.setHtml(mf.toHtml())
     c.setMimeData(md)
+
+
+def create_search_internet_menu(callback):
+    m = QMenu(_('Search the internet for this book…'))
+    for k in sorted(BOOK_SEARCHES, key=lambda k: NAMES[k].lower()):
+        m.addAction(NAMES[k], partial(callback, k))
+    return m
 
 
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
@@ -222,6 +230,10 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                     ac.setText(_('Remove %s from this book') % value)
                     menu.addAction(ac)
 
+    if hasattr(book_info, 'search_internet'):
+        menu.addSeparator()
+        menu.si = m = create_search_internet_menu(book_info.search_internet)
+        menu.addMenu(m)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
@@ -232,6 +244,7 @@ class CoverView(QWidget):  # {{{
     cover_changed = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
     open_cover_with = pyqtSignal(object, object)
+    search_internet = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
@@ -339,6 +352,7 @@ class CoverView(QWidget):  # {{{
         copy = cm.addAction(_('Copy Cover'))
         remove = cm.addAction(_('Remove Cover'))
         gc = cm.addAction(_('Generate Cover from metadata'))
+        cm.addSeparator()
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
@@ -355,6 +369,8 @@ class CoverView(QWidget):  # {{{
             m.addAction(_('Add another application to open cover...'), self.choose_open_with)
             m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'cover_image', self))
             cm.addMenu(m)
+        cm.si = m = create_search_internet_menu(self.search_internet.emit)
+        cm.addMenu(m)
         cm.exec_(ev.globalPos())
 
     def open_with(self, entry):
@@ -708,17 +724,20 @@ class BookDetails(QWidget):  # {{{
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
+        self.last_data = {}
         self.setAcceptDrops(True)
         self._layout = DetailsLayout(vertical, self)
         self.setLayout(self._layout)
         self.current_path = ''
 
         self.cover_view = CoverView(vertical, self)
+        self.cover_view.search_internet.connect(self.search_internet)
         self.cover_view.cover_changed.connect(self.cover_changed.emit)
         self.cover_view.open_cover_with.connect(self.open_cover_with.emit)
         self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
+        self.book_info.search_internet = self.search_internet
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.remove_format.connect(self.remove_specific_format)
@@ -731,6 +750,11 @@ class BookDetails(QWidget):  # {{{
         self.book_info.copy_link.connect(self.copy_link)
         self.book_info.manage_author.connect(self.manage_author)
         self.setCursor(Qt.PointingHandCursor)
+
+    def search_internet(self, where):
+        if self.last_data:
+            url = url_for_book_search(where, title=self.last_data['title'], author=self.last_data['authors'][0])
+            open_url(url)
 
     def handle_click(self, link):
         typ, val = link.partition(':')[0::2]
@@ -755,6 +779,10 @@ class BookDetails(QWidget):  # {{{
         self.show_book_info.emit()
 
     def show_data(self, data):
+        try:
+            self.last_data = {'title':data.title, 'authors':data.authors}
+        except Exception:
+            self.last_data = {}
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
         self.current_path = getattr(data, u'path', u'')
