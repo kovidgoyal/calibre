@@ -1313,7 +1313,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 137
+    supported_dbversion             = 141
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1325,7 +1325,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 3, 8945)
+    max_supported_fwversion         = (4, 4, 9278)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1345,10 +1345,8 @@ class KOBOTOUCH(KOBO):
     MAX_PATH_LEN = 185  # 250 - (len(" - N3_LIBRARY_SHELF.parsed") + len("F:\.kobo\images\"))
     KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
 
-    EXTRA_CUSTOMIZATION_MESSAGE = [
-                                   ]
-    EXTRA_CUSTOMIZATION_DEFAULT = [
-                                   ]
+    EXTRA_CUSTOMIZATION_MESSAGE = []
+    EXTRA_CUSTOMIZATION_DEFAULT = []
 
     opts = None
 
@@ -1358,16 +1356,18 @@ class KOBOTOUCH(KOBO):
     AURA_EDITION2_PRODUCT_ID    = [0x4226]
     AURA_HD_PRODUCT_ID  = [0x4193]
     AURA_H2O_PRODUCT_ID = [0x4213]
+    AURA_H2O_EDITION2_PRODUCT_ID = [0x4227]
     AURA_ONE_PRODUCT_ID = [0x4225]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
-    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + \
+    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
+                          AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -1446,6 +1446,41 @@ class KOBOTOUCH(KOBO):
     def get_device_information(self, end_session=True):
         self.set_device_name()
         return super(KOBOTOUCH, self).get_device_information(end_session)
+
+
+    def open_linux(self):
+        super(KOBOTOUCH, self).open_linux()
+        
+        # Check the drives have been mounted as expected and swap if needed.
+        if self._card_a_prefix is None:
+            return
+        
+        if not self.is_main_drive(self._main_prefix):
+            temp_prefix = self._main_prefix
+            self._main_prefix = self._card_a_prefix
+            self._card_a_prefix = temp_prefix
+        
+    def osx_sort_names(self, names):
+        return self.sort_drives(names)
+
+    def windows_sort_drives(self, drives):
+        return self.sort_drives(drives)
+
+    def sort_drives(self, drives):
+        if len(drives) < 2:
+            return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda and not self.is_main_drive(main):
+            debug_print('KoboTouch::windows_sort_drives - main=%s, carda=%s' % (main, carda))
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+
+    def is_main_drive(self, drive):
+        debug_print('KoboTouch::is_main_drive - main_drive=%s, path=%s' % (drive, os.path.join(drive, '.kobo')))
+        return os.path.exists(self.normalize_path(os.path.join(drive, '.kobo')))
+
 
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
@@ -2933,6 +2968,9 @@ class KOBOTOUCH(KOBO):
     def isAuraH2O(self):
         return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
 
+    def isAuraH2OEdition2(self):
+        return self.detected_device.idProduct in self.AURA_H2O_EDITION2_PRODUCT_ID
+
     def isAuraOne(self):
         return self.detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
 
@@ -2959,6 +2997,8 @@ class KOBOTOUCH(KOBO):
         elif self.isAuraHD():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraH2O():
+            _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
+        elif self.isAuraH2OEdition2():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraOne():
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
@@ -2987,6 +3027,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Aura HD'
         elif self.isAuraH2O():
             device_name = 'Kobo Aura H2O'
+        elif self.isAuraH2OEdition2():
+            device_name = 'Kobo Aura H2O Edition 2'
         elif self.isAuraOne():
             device_name = 'Kobo Aura ONE'
         elif self.isGlo():
