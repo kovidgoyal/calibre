@@ -125,6 +125,11 @@ class ModalContainer:
                 return
             self.clear_current_modal()
 
+    def close_all_modals(self):
+        while self.current_modal is not None:
+            self.close_current_modal()
+
+
 def create_simple_dialog(title, msg, details, icon, prefix):
     details = details or ''
     def create_func(parent):
@@ -222,6 +227,11 @@ def create_modal_container():
 
 def show_modal(create_func, on_close=None, show_close=True):
     return modal_container.show_modal(create_func, on_close, show_close)
+
+
+def close_all_modals():
+    return modal_container.close_all_modals()
+
 
 def error_dialog(title, msg, details=None):
     create_simple_dialog(title, msg, details, 'bug', _('Error:'))

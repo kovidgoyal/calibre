@@ -1,11 +1,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from book_list.constants import read_book_container_id, book_list_container_id
+from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.globals import get_current_query
 from book_list.library_data import current_library_id
-from utils import parse_url_params, encode_query_with_path
+from modals import close_all_modals
+from utils import encode_query_with_path, parse_url_params
 
 mode_handlers = {}
 default_mode_handler = None
@@ -38,6 +39,7 @@ def apply_mode(mode):
 
 
 def apply_url(ignore_handler):
+    close_all_modals()  # needed to close any error dialogs, etc when clicking back or forward in the browser or using push_state() to go to a new page
     data = parse_url_params()
     data.mode = data.mode or 'book_list'
     get_current_query(data)
