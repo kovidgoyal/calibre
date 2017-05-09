@@ -1447,19 +1447,18 @@ class KOBOTOUCH(KOBO):
         self.set_device_name()
         return super(KOBOTOUCH, self).get_device_information(end_session)
 
-
     def open_linux(self):
         super(KOBOTOUCH, self).open_linux()
-        
+
         # Check the drives have been mounted as expected and swap if needed.
         if self._card_a_prefix is None:
             return
-        
+
         if not self.is_main_drive(self._main_prefix):
             temp_prefix = self._main_prefix
             self._main_prefix = self._card_a_prefix
             self._card_a_prefix = temp_prefix
-        
+
     def osx_sort_names(self, names):
         return self.sort_drives(names)
 
@@ -1480,7 +1479,6 @@ class KOBOTOUCH(KOBO):
     def is_main_drive(self, drive):
         debug_print('KoboTouch::is_main_drive - main_drive=%s, path=%s' % (drive, os.path.join(drive, '.kobo')))
         return os.path.exists(self.normalize_path(os.path.join(drive, '.kobo')))
-
 
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
