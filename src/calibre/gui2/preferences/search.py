@@ -139,7 +139,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         idx = self.gst_names.currentIndex()
         name = icu_lower(unicode(self.gst_names.currentText()))
         if not name:
-            return error_dialog(self.gui, _('Grouped Search Terms'),
+            return error_dialog(self.gui, _('Grouped search terms'),
                                 _('The search term cannot be blank'),
                                 show=True)
         if idx != 0:
@@ -149,17 +149,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if name != orig_name:
             if name in self.db.field_metadata.get_search_terms() and \
                     name not in self.orig_gst_keys:
-                return error_dialog(self.gui, _('Grouped Search Terms'),
+                return error_dialog(self.gui, _('Grouped search terms'),
                     _('That name is already used for a column or grouped search term'),
                     show=True)
             if name in [icu_lower(p) for p in self.db.prefs.get('user_categories', {})]:
-                return error_dialog(self.gui, _('Grouped Search Terms'),
+                return error_dialog(self.gui, _('Grouped search terms'),
                     _('That name is already used for user category'),
                     show=True)
 
         val = [v.strip() for v in unicode(self.gst_value.text()).split(',') if v.strip()]
         if not val:
-            return error_dialog(self.gui, _('Grouped Search Terms'),
+            return error_dialog(self.gui, _('Grouped search terms'),
                 _('The value box cannot be empty'), show=True)
 
         if orig_name and name != orig_name:
@@ -172,7 +172,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def gst_delete_clicked(self):
         if self.gst_names.currentIndex() == 0:
-            return error_dialog(self.gui, _('Grouped Search Terms'),
+            return error_dialog(self.gui, _('Grouped search terms'),
                 _('The empty grouped search term cannot be deleted'), show=True)
         name = unicode(self.gst_names.currentText())
         if name in self.gst:

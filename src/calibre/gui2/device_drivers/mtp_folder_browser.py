@@ -135,9 +135,9 @@ class IgnoredFolders(QDialog):
                                    QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
-        self.sab = self.bb.addButton(_('Select &All'), self.bb.ActionRole)
+        self.sab = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
         self.sab.clicked.connect(self.select_all)
-        self.snb = self.bb.addButton(_('Select &None'), self.bb.ActionRole)
+        self.snb = self.bb.addButton(_('Select &none'), self.bb.ActionRole)
         self.snb.clicked.connect(self.select_none)
         l.addWidget(self.bb)
         self.setWindowTitle(_('Choose folders to scan'))
@@ -243,7 +243,7 @@ def ignored_folders():
     dev.shutdown()
     return d.ignored_folders
 
+
 if __name__ == '__main__':
     print (browse())
     # print ('Ignored:', ignored_folders())
-

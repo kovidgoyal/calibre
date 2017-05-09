@@ -349,7 +349,7 @@ def check_links(container):
                     elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
                         a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
                     elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
-                        a(InvalidCharInLink(_('The link %s contains a : character, this will cause errors on windows computers') % fl(href), name, lnum, col))
+                        a(InvalidCharInLink(_('The link %s contains a : character, this will cause errors on Windows computers') % fl(href), name, lnum, col))
 
     spine_docs = {name for name, linear in container.spine_names}
     spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}

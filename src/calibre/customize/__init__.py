@@ -595,7 +595,7 @@ class InterfaceActionBase(Plugin):  # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
-    type = _('User Interface Action')
+    type = _('User interface action')
     can_be_disabled = False
 
     actual_plugin = None

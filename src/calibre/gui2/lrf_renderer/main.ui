@@ -146,7 +146,7 @@
      <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
    </property>
    <property name="text">
-    <string>Next Page</string>
+    <string>Next page</string>
    </property>
   </action>
   <action name="action_previous_page">

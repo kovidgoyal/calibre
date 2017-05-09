@@ -124,7 +124,7 @@ class SNBOutput(OutputFormatPlugin):
                 log.warn('This SNB file has no Table of Contents. '
                     'Creating a default TOC')
                 first = iter(oeb_book.spine).next()
-                oeb_book.toc.add(_('Start Page'), first.href)
+                oeb_book.toc.add(_('Start page'), first.href)
             else:
                 first = iter(oeb_book.spine).next()
                 if oeb_book.toc[0].href != first.href:

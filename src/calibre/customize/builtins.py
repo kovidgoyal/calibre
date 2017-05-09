@@ -1187,7 +1187,7 @@ class Adding(PreferencesPlugin):
     icon = I('add_book.png')
     gui_name = _('Adding books')
     category = 'Import/Export'
-    gui_category = _('Import/Export')
+    gui_category = _('Import/export')
     category_order = 3
     name_order = 1
     config_widget = 'calibre.gui2.preferences.adding'
@@ -1200,7 +1200,7 @@ class Saving(PreferencesPlugin):
     icon = I('save.png')
     gui_name = _('Saving books to disk')
     category = 'Import/Export'
-    gui_category = _('Import/Export')
+    gui_category = _('Import/export')
     category_order = 3
     name_order = 2
     config_widget = 'calibre.gui2.preferences.saving'
@@ -1213,7 +1213,7 @@ class Sending(PreferencesPlugin):
     icon = I('sync.png')
     gui_name = _('Sending books to devices')
     category = 'Import/Export'
-    gui_category = _('Import/Export')
+    gui_category = _('Import/export')
     category_order = 3
     name_order = 3
     config_widget = 'calibre.gui2.preferences.sending'

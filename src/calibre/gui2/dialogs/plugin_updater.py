@@ -551,7 +551,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         sep1.setSeparator(True)
         self.plugin_view.addAction(sep1)
 
-        self.toggle_enabled_action = QAction(_('Enable/&Disable plugin'), self)
+        self.toggle_enabled_action = QAction(_('Enable/&disable plugin'), self)
         self.toggle_enabled_action.setToolTip(_('Enable or disable this plugin'))
         self.toggle_enabled_action.triggered.connect(self._toggle_enabled_clicked)
         self.toggle_enabled_action.setEnabled(False)

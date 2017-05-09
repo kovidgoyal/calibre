@@ -1368,7 +1368,7 @@ class Guide(object):
             a fragment identifier.
         """
         _TYPES_TITLES = [('cover', __('Cover')),
-                         ('title-page', __('Title Page')),
+                         ('title-page', __('Title page')),
                          ('toc', __('Table of Contents')),
                          ('index', __('Index')),
                          ('glossary', __('Glossary')),
@@ -1379,11 +1379,11 @@ class Guide(object):
                          ('dedication', __('Dedication')),
                          ('epigraph', __('Epigraph')),
                          ('foreword', __('Foreword')),
-                         ('loi', __('List of Illustrations')),
-                         ('lot', __('List of Tables')),
+                         ('loi', __('List of illustrations')),
+                         ('lot', __('List of tables')),
                          ('notes', __('Notes')),
                          ('preface', __('Preface')),
-                         ('text', __('Main Text'))]
+                         ('text', __('Main text'))]
         TYPES = set(t for t, _ in _TYPES_TITLES)  # noqa
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for i, (t, _) in enumerate(_TYPES_TITLES))  # noqa
