@@ -366,13 +366,18 @@ if isosx:
             t.setInterval(200), t.setSingleShot(True), t.timeout.connect(self.refresh_bar)
 
         def init_bar(self, actions):
+            mb = self.native_menubar
+            if mb.parent() is None:
+                # Without this the menubar does not update correctly with Qt >=
+                # 5.6. See the last couple of lines in updateMenuBarImmediately
+                # in qcocoamenubar.mm
+                mb.setParent(self.gui)
             self.last_actions = actions
             for ac in self.added_actions:
                 m = ac.menu()
                 if m is not None:
                     m.setVisible(False)
 
-            mb = self.native_menubar
             for ac in self.added_actions:
                 mb.removeAction(ac)
                 if ac is not self.donate_action:
