@@ -124,11 +124,17 @@ class DB:
             transaction = self.idb.transaction(stores)
             # Microsoft Edge currently does not support complex keys so the
             # next line will throw a DataError in Edge when data is an
-            # object key like an array. You can probably show a nicer error
-            # is Microsoft does not fix this and lots of users try to read
-            # books on Edge.
+            # object key like an array.
             # https://gist.github.com/nolanlawson/a841ee23436410f37168
-            req = transaction.objectStore(store).get(data)
+            try:
+                req = transaction.objectStore(store).get(data)
+            except Exception:
+                if /Edge\/\d+/.test(window.navigator.userAgent):
+                    self.show_error(_('Cannot read book'), _(
+                        'Reading of books is not supported on Microsoft Edge. Use a better'
+                        ' browser such as Google Chrome or Mozilla Firefox'))
+                    return
+                raise
             req.onsuccess = def(event): proceed(req.result)
         elif op is 'put':
             transaction = self.idb.transaction(stores, 'readwrite')
