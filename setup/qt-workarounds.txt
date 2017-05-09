@@ -1,3 +1,0 @@
-Undo the workaround for WindowBlocked/Unblocked in Qt >= 5.6 
-https://bugreports.qt-project.org/browse/QTBUG-42281
-
