@@ -4,11 +4,11 @@
 from __python__ import hash_literals
 
 import traceback
-from ajax import ajax, encode_query
+from ajax import ajax
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
-from utils import human_readable, debounce
+from utils import human_readable, debounce, encode_query_with_path
 
 from book_list.constants import read_book_container_id
 from read_book.db import get_db
@@ -73,11 +73,11 @@ class ReadUI:
         error_dialog(title, msg, details)
         a = div.lastChild.firstChild
         if self.current_book_id:
-            a.setAttribute('href', encode_query({
+            a.setAttribute('href', encode_query_with_path({
                 'library_id':current_library_id(),
                 'vl': current_virtual_library(),
-                'book-id': (self.current_book_id + ''),
-                'panel':'book-details'
+                'book_id': (self.current_book_id + ''),
+                'panel':'book_details'
             }))
             a.textContent = _(
                 'Click to go back to the details page for: {}').format(self.current_metadata.title)
