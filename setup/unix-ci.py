@@ -21,10 +21,13 @@ def setenv(key, val):
 
 if isosx:
 
+    SWBASE = '/Users/kovid'
+    SW = SWBASE + '/sw'
+
     def install_env():
         # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
-        setenv('SWBASE', '/Users/kovid')
-        setenv('SW', '$SWBASE/sw')
+        setenv('SWBASE', SWBASE)
+        setenv('SW', SW)
         setenv(
             'PATH',
             '$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH'
@@ -85,8 +88,8 @@ def main():
     action = sys.argv[1]
     if action == 'install':
         if isosx:
-            run('sudo', 'mkdir', '-p', os.environ['SWBASE'])
-            run('sudo', 'chown', os.environ['USER'], os.environ['SWBASE'])
+            run('sudo', 'mkdir', '-p', SWBASE)
+            run('sudo', 'chown', os.environ['USER'], SWBASE)
             download_and_decompress(
                 'https://download.calibre-ebook.com/travis/sw-osx.tar.bz2',
                 os.environ['SWBASE']
