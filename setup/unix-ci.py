@@ -71,7 +71,7 @@ def main():
     python = os.path.join(os.environ['SW'], 'bin', 'python')
     if action == 'install':
         if isosx:
-            os.makedirs(os.environ['SWBASE'])
+            run('sudo', 'mkdir', '-p', os.environ['SWBASE'])
             run('sudo', 'chown', os.environ['USER'], os.environ['SWBASE'])
             download_and_decompress(
                 'https://download.calibre-ebook.com/travis/sw-osx.tar.bz2',
