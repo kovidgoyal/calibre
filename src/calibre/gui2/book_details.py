@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import cPickle
+import cPickle, re
 from binascii import unhexlify
 from collections import namedtuple
 from functools import partial
@@ -40,9 +40,10 @@ InternetSearch = namedtuple('InternetSearch', 'author where')
 def css():
     global _css
     if _css is None:
-        _css = P('templates/book_details.css', data=True).decode('utf-8')
+        val = P('templates/book_details.css', data=True).decode('utf-8')
         col = QApplication.instance().palette().color(QPalette.Link).name()
-        _css = _css.replace('LINK_COLOR', col)
+        val = val.replace('LINK_COLOR', col)
+        _css = re.sub(ur'/\*.*?\*/', '', val, flags=re.DOTALL)
     return _css
 
 
