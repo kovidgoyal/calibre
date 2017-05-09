@@ -214,7 +214,10 @@ class Adder(QObject):
             self.break_cycles()
             return
         self.pd.max = len(self.file_groups)
-        self.pd.title = _('Reading metadata and adding to library (%d books)...') % self.pd.max
+        self.pd.title = ngettext(
+            'Reading metadata and adding to library (one book)...',
+            'Reading metadata and adding to library ({} books)...',
+            self.pd.max).format(self.pd.max)
         self.pd.msg = ''
         self.pd.value = 0
         self.pool = Pool(name='AddBooks') if self.pool is None else self.pool
