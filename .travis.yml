@@ -18,11 +18,6 @@ matrix:
             - SWBASE=/Users/kovid SW=$SWBASE/sw PATH=$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then python setup/ci-download.py https://download.calibre-ebook.com/travis/sw-linux.tar.xz J $HOME; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SWBASE && sudo chown $USER $SWBASE; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then python setup/ci-download.py https://download.calibre-ebook.com/travis/sw-osx.tar.bz2 j $SWBASE; fi
-    - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
-    - python setup.py bootstrap --ephemeral
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export SSL_CERT_FILE=$PWD/resources/mozilla-ca-certs.pem; fi
+    - python setup/unix-ci.py install
 
-script: python setup.py test
+script: python setup/unix-ci.py test
