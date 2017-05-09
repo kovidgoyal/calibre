@@ -10,12 +10,7 @@ matrix:
     include:
         - os: linux
           sudo: false
-          env:
-            - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
         - os: osx
-          env:
-            # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
-            - SWBASE=/Users/kovid SW=$SWBASE/sw PATH=$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
 
 before_install:
     - python setup/unix-ci.py install
