@@ -128,7 +128,7 @@ class DB:
             # https://gist.github.com/nolanlawson/a841ee23436410f37168
             try:
                 req = transaction.objectStore(store).get(data)
-            except Exception:
+            except:
                 if /Edge\/\d+/.test(window.navigator.userAgent):
                     self.show_error(_('Cannot read book'), _(
                         'Reading of books is not supported on Microsoft Edge. Use a better'
@@ -342,5 +342,5 @@ class DB:
 
 def get_db(callback, show_read_book_error):
     if not get_db.ans:
-        get_db.ans = DB(callback)
+        get_db.ans = DB(callback, show_read_book_error)
     return get_db.ans
