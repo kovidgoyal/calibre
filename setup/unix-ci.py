@@ -20,23 +20,30 @@ def setenv(key, val):
 
 
 if isosx:
-    # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
-    setenv('SWBASE', '/Users/kovid')
-    setenv('SW', '$SWBASE/sw')
-    setenv('PATH', '$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH')
-    setenv('CFLAGS', '-I$SW/include')
-    setenv('LDFLAGS', '-L$SW/lib')
-    setenv('QMAKE', '$SW/qt/bin/qmake')
-    setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
+
+    def install_env():
+        # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
+        setenv('SWBASE', '/Users/kovid')
+        setenv('SW', '$SWBASE/sw')
+        setenv(
+            'PATH',
+            '$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH'
+        )
+        setenv('CFLAGS', '-I$SW/include')
+        setenv('LDFLAGS', '-L$SW/lib')
+        setenv('QMAKE', '$SW/qt/bin/qmake')
+        setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
 else:
-    setenv('SW', '$HOME/sw')
-    setenv('PATH', '$SW/bin:$PATH')
-    setenv('CFLAGS', '-I$SW/include')
-    setenv('LDFLAGS', '-L$SW/lib')
-    setenv('LD_LIBRARY_PATH', '$SW/qt/lib:$SW/lib')
-    setenv('PKG_CONFIG_PATH', '$SW/lib/pkgconfig')
-    setenv('QMAKE', '$SW/qt/bin/qmake')
-    setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
+
+    def install_env():
+        setenv('SW', '$HOME/sw')
+        setenv('PATH', '$SW/bin:$PATH')
+        setenv('CFLAGS', '-I$SW/include')
+        setenv('LDFLAGS', '-L$SW/lib')
+        setenv('LD_LIBRARY_PATH', '$SW/qt/lib:$SW/lib')
+        setenv('PKG_CONFIG_PATH', '$SW/lib/pkgconfig')
+        setenv('QMAKE', '$SW/qt/bin/qmake')
+        setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
 
 
 def run(*args):
@@ -66,9 +73,16 @@ def download_and_decompress(url, dest, compression=None):
     raise SystemExit('Failed to download ' + url)
 
 
+def run_python(*args):
+    python = os.path.expandvars('$SW/bin/python')
+    if len(args) == 1:
+        args = shlex.split(args[0])
+    args = [python] + list(args)
+    return run(*args)
+
+
 def main():
     action = sys.argv[1]
-    python = os.path.join(os.environ['SW'], 'bin', 'python')
     if action == 'install':
         if isosx:
             run('sudo', 'mkdir', '-p', os.environ['SWBASE'])
@@ -88,12 +102,19 @@ def main():
         run('which rapydscript')
         run('rapydscript --version')
 
-        run(python, 'setup.py', 'bootstrap', '--ephemeral')
+    elif action == 'bootstrap':
+        install_env()
+        run_python('setup.py bootstrap --ephemeral')
+
     elif action == 'test':
         if isosx:
             os.environ['SSL_CERT_FILE'
                        ] = os.path.abspath('resources/mozilla-ca-certs.pem')
-        run(python, 'setup.py', 'test')
+
+        install_env()
+        run_python('setup.py test')
+    else:
+        raise SystemExit('Unknown action: {}'.format(action))
 
 
 if __name__ == '__main__':

@@ -14,5 +14,6 @@ matrix:
 
 before_install:
     - python setup/unix-ci.py install
+    - python setup/unix-ci.py bootstrap
 
 script: python setup/unix-ci.py test
