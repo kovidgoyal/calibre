@@ -44,6 +44,7 @@ def download_and_decompress(url, dest, compression=None):
 
 def main():
     action = sys.argv[1]
+    python = os.path.join(os.environ['SW'], 'bin', 'python')
     if action == 'install':
         if isosx:
             os.makedirs(os.environ['SWBASE'])
@@ -57,11 +58,11 @@ def main():
         run('which rapydscript')
         run('rapydscript --version')
 
-        run(sys.executable, 'setup.py', 'bootstrap', '--ephemeral')
+        run(python, 'setup.py', 'bootstrap', '--ephemeral')
     elif action == 'test':
         if isosx:
             os.environ['SSL_CERT_FILE'] = os.path.abspath('resources/mozilla-ca-certs.pem')
-        run(sys.executable, 'setup.py', 'test')
+        run(python, 'setup.py', 'test')
 
 
 if __name__ == '__main__':
