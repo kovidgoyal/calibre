@@ -92,7 +92,7 @@ def main():
             run('sudo', 'chown', os.environ['USER'], SWBASE)
             download_and_decompress(
                 'https://download.calibre-ebook.com/travis/sw-osx.tar.bz2',
-                os.environ['SWBASE']
+                SWBASE
             )
         else:
             download_and_decompress(
