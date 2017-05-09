@@ -21,7 +21,7 @@ def setenv(key, val):
 
 if isosx:
 
-    SWBASE = '/Users/kovid'
+    SWBASE = '/sw'
     SW = SWBASE + '/sw'
 
     def install_env():
@@ -38,8 +38,10 @@ if isosx:
         setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
 else:
 
+    SW = os.path.expanduser('~/sw')
+
     def install_env():
-        setenv('SW', '$HOME/sw')
+        setenv('SW', SW)
         setenv('PATH', '$SW/bin:$PATH')
         setenv('CFLAGS', '-I$SW/include')
         setenv('LDFLAGS', '-L$SW/lib')
@@ -88,17 +90,15 @@ def main():
     action = sys.argv[1]
     if action == 'install':
         if isosx:
-            run('sudo', 'mkdir', '-p', SWBASE)
-            run('sudo', 'chown', os.environ['USER'], SWBASE)
-            download_and_decompress(
-                'https://download.calibre-ebook.com/travis/sw-osx.tar.bz2',
-                SWBASE
-            )
+            run('sudo', 'mkdir', '-p', SW)
+            run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
+            tball = 'osx'
         else:
-            download_and_decompress(
-                'https://download.calibre-ebook.com/travis/sw-linux.tar.xz',
-                os.path.expanduser('~')
-            )
+            tball = 'linux-64'
+            os.makedirs(SW)
+        download_and_decompress(
+            'https://download.calibre-ebook.com/travis/{}.tar.xz'.format(tball), SW
+        )
 
         run('npm install --no-optional rapydscript-ng')
         print(os.environ['PATH'])
