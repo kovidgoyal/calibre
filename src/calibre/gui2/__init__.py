@@ -1061,7 +1061,7 @@ class Application(QApplication):
         try:
             if self.clipboard().ownsClipboard():
                 import ctypes
-                ctypes.WinDLL('ole32.dll').OleFlushClipboard()
+                ctypes.WinDLL(b'ole32.dll').OleFlushClipboard()
         except Exception:
             import traceback
             traceback.print_exc()
