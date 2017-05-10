@@ -127,6 +127,7 @@ class Detect(object):
                 if f(self.file_handle, byref(mode)):
                     # Stream is a console
                     self.set_console = windll.kernel32.SetConsoleTextAttribute
+                    self.default_console_text_attributes = WCOLORS['white']
                     kernel32 = WinDLL(b'kernel32', use_last_error=True)
                     self.write_console = kernel32.WriteConsoleW
                     self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
@@ -134,7 +135,6 @@ class Detect(object):
                     kernel32.GetConsoleScreenBufferInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(CONSOLE_SCREEN_BUFFER_INFO)]
                     kernel32.GetConsoleScreenBufferInfo.restype = wintypes.BOOL
                     csbi = CONSOLE_SCREEN_BUFFER_INFO()
-                    self.default_console_text_attributes = WCOLORS['white']
                     if kernel32.GetConsoleScreenBufferInfo(self.file_handle, byref(csbi)):
                         self.default_console_text_attributes = csbi.wAttributes
                     self.is_console = True
