@@ -28,6 +28,7 @@ if iswindows:
 def fmt(code):
     return ('\033[%dm'%code).encode('ascii')
 
+
 RATTRIBUTES = dict(
         izip(xrange(1, 9), (
             'bold',
@@ -126,7 +127,7 @@ class Detect(object):
                 if f(self.file_handle, byref(mode)):
                     # Stream is a console
                     self.set_console = windll.kernel32.SetConsoleTextAttribute
-                    kernel32 = WinDLL('kernel32', use_last_error=True)
+                    kernel32 = WinDLL(b'kernel32', use_last_error=True)
                     self.write_console = kernel32.WriteConsoleW
                     self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
                     self.write_console.restype = wintypes.BOOL
@@ -180,7 +181,7 @@ class Detect(object):
 class ColoredStream(Detect):
 
     def __init__(self, stream=None, fg=None, bg=None, bold=False):
-        super(ColoredStream, self).__init__(stream)
+        Detect.__init__(self, stream)
         self.fg, self.bg, self.bold = fg, bg, bold
         if self.set_console is not None:
             self.wval = to_flag(self.fg, self.bg, bold)
@@ -402,4 +403,3 @@ def test():
     print()
     s.write_unicode_text(u)
     print()
-
