@@ -57,10 +57,10 @@ def copy_all(web_view):
 
 
 def create_search_internet_menu(callback, author=None):
-    m = QMenu(
-        _('Search the internet for the author {}…').format(author)
+    m = QMenu((
+        _('Search the internet for the author {}').format(author)
         if author is not None else
-        _('Search the internet for this book…')
+        _('Search the internet for this book')) + '…'
     )
     items = all_book_searches() if author is None else all_author_searches()
     for k in sorted(items, key=lambda k: name_for(k).lower()):
