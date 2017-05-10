@@ -230,7 +230,7 @@ class MainOverlay:
 
                 E.ul(
                     ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
-                    ac(_('Bookmarks'), None, None, 'bookmark'),
+                    # ac(_('Bookmarks'), None, None, 'bookmark'),
                 ),
 
                 E.ul(
