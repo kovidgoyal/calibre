@@ -33,6 +33,7 @@ class LargeZipFile(Exception):
     and those extensions are disabled.
     """
 
+
 error = BadZipfile      # The exception raised by this module
 
 ZIP64_LIMIT = (1 << 31) - 1
@@ -1122,6 +1123,10 @@ class ZipFile:
             raise BadZipfile('The member %r has an invalid name'%member.filename)
 
         targetpath = os.path.normpath(os.path.join(base_target, fname))
+        # Added by Kovid as normpath fails to convert forward slashes for UNC
+        # paths, i.e. paths of the form \\?\C:\some/path
+        if os.sep != '/':
+            targetpath = targetpath.replace('/', os.sep)
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)
@@ -1681,6 +1686,7 @@ def main(args=None):
             addToZip(zf, src, os.path.basename(src))
 
         zf.close()
+
 
 if __name__ == "__main__":
     main()
