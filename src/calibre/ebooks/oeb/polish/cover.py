@@ -435,7 +435,7 @@ def set_epub_cover(container, cover_path, report, options=None):
     # pages and handle possibly removing stylesheets referred to by them.
 
     spine_items = tuple(container.spine_items)
-    if cover_page is None:
+    if cover_page is None and spine_items:
         # Check if the first item in the spine is a simple cover wrapper
         candidate = container.abspath_to_name(spine_items[0])
         if find_cover_image_in_page(container, candidate) is not None:
