@@ -40,13 +40,12 @@ def build_list(container, items, subtitle):
             if item.icon:
                 ic = svgicon(item.icon)
             ic = E.span(ic, '\xa0')
-        ul.appendChild(E.li(E.a(href='javascript:void(0)',
+        ul.appendChild(E.li(
             E.div(ic, item.title, class_='item-title')
-        )))
-        a = ul.lastChild.firstChild
+        ))
+        div = ul.lastChild.firstChild
         if item.subtitle:
-            a.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
-        a.addEventListener('click', def(event): event.preventDefault();)
+            div.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
         if item.action:
             ul.lastChild.addEventListener('click', item.action)
 
