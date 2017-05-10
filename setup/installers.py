@@ -21,6 +21,8 @@ def build_single(which, bitness, shutdown=True):
     if bitness:
         cmd.append(bitness)
     cmd.append('calibre')
+    if not sys.stdout.isatty():
+        cmd.append('--no-tty')
     cmd.append('--sign-installers')
     env = os.environ.copy()
     env['CALIBRE_SRC_DIR'] = base
