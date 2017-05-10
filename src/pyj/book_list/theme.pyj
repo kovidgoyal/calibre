@@ -41,6 +41,6 @@ def get_color(name):
 def get_font_size(name):
     return {
         'title': '1.4rem',
-        'item-list-title': '1.2rem',
-        'item-list-subtitle': '0.8 rem',
+        'item-list-title': '1.1rem',
+        'item-list-subtitle': '0.8rem',
     }[name]
