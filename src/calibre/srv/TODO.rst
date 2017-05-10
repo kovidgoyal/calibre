@@ -5,6 +5,9 @@ particular order.
 New features for the in-browser viewer
 ----------------------------------------
 
+- Welcome screen that explains the touch controls the first time the viewer is
+  used on a device
+
 - Footnote popups
 
 - Bookmarks and more generally, annotations such as highlighting text and
