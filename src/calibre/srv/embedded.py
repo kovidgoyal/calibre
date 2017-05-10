@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import errno
 import os
 from threading import Thread
 
@@ -12,8 +13,8 @@ from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
-from calibre.srv.utils import RotatingLog
 from calibre.srv.opts import server_config
+from calibre.srv.utils import RotatingLog
 
 
 def log_paths():
@@ -30,6 +31,11 @@ class Server(object):
     def __init__(self, library_broker, notify_changes):
         opts = server_config()
         lp, lap = log_paths()
+        try:
+            os.makedirs(cache_dir())
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
         log_size = opts.max_log_size * 1024 * 1024
         log = RotatingLog(lp, max_size=log_size)
         access_log = RotatingLog(lap, max_size=log_size)
