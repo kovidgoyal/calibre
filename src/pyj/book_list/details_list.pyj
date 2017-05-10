@@ -74,7 +74,7 @@ def create_item(book_id, metadata, create_image, show_book_details):
         except Exception:
             ival = 1.0
         ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
-        extra_data.appendChild(E.span(ival, _(' of '), E.i(metadata.series)))
+        extra_data.appendChild(E.span(ival, ' ' + _('of') + ' ', E.i(metadata.series)))
     right = E.div(
         class_='details-list-right',
         E.div(style='display:flex; justify-content: space-between',
