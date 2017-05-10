@@ -120,7 +120,9 @@ def generate_calibredb_help(preamble, app):
           If you are running the server from the main calibre program, use
           :guilabel:`Preferences->Sharing over the net->Require username/password`.
 
-
+    To connect to a running Content server, pass the URL of the server to the
+    :option:`--with-library` option, see the documentation of that option for
+    details and examples.
     ''')
 
     global_parser = get_parser('')
