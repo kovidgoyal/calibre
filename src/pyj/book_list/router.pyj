@@ -50,6 +50,8 @@ def apply_url(ignore_handler):
 
 
 def open_book(book_id, fmt, library_id=None, replace=False):
+    # Note that full screen requests only succeed if they are in response to a
+    # user action like clicking/tapping a button
     request_full_screen()
     library_id = library_id or current_library_id()
     push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
