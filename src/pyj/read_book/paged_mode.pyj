@@ -525,7 +525,8 @@ def onkeydown(evt):
 def handle_gesture(gesture):
     if gesture.type is 'swipe':
         if gesture.axis is 'vertical':
-            get_boss().send_message('next_section', forward=gesture.direction is 'up')
+            if not gesture.active:
+                get_boss().send_message('next_section', forward=gesture.direction is 'up')
         else:
             if not gesture.active or gesture.is_held:
                 scroll_by_page(gesture.direction is 'right', True)
