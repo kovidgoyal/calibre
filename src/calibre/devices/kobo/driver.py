@@ -3063,7 +3063,7 @@ class KOBOTOUCH(KOBO):
         # Cache the collection from the options string.
         if not hasattr(self.opts, '_ignore_collections_names'):
             icn = self.get_pref('ignore_collections_names')
-            self.opts._ignore_collections_names = [x.lower().strip() for x in icn.split(',')] if icn else []
+            self.opts._ignore_collections_names = [x.strip() for x in icn.split(',')] if icn else []
         return self.opts._ignore_collections_names
 
     @property
