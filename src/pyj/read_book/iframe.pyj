@@ -250,9 +250,9 @@ class IframeBoss:
                 if si:
                     self.length_before += files[si]?.length or 0
         self.onscroll()
-        self.send_message('content_loaded')
+        self.send_message('content_loaded', progress_frac=self.get_progress_frac())
 
-    def get_progress_frac(self, current_name, spine_index):
+    def calculate_progress_frac(self, current_name, spine_index):
         files = self.book.manifest.files
         file_length = files[current_name]?.length or 0
         if self.length_before is None:
@@ -260,6 +260,14 @@ class IframeBoss:
         frac = progress_frac()
         ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
         return ans
+
+    def get_progress_frac(self):
+        spine = self.book.manifest.spine
+        current_name = current_spine_item().name
+        index = spine.indexOf(current_name)
+        if index < 0:
+            return 0
+        return self.calculate_progress_frac(current_name, index)
 
     def update_cfi(self):
         cfi = at_current()
@@ -272,7 +280,7 @@ class IframeBoss:
                 if cfi != self.last_cfi:
                     self.last_cfi = cfi
                     self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                                      progress_frac=self.get_progress_frac(current_name, index))
+                                      progress_frac=self.calculate_progress_frac(current_name, index))
                     self.replace_history_on_next_cfi_update = True
 
     def update_toc_position(self):
