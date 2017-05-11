@@ -11,6 +11,7 @@ from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
+from utils import full_screen_element, request_full_screen
 from read_book.goto import create_goto_panel
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
@@ -202,44 +203,51 @@ class MainOverlay:
 
             return E.li(icon, '\xa0', text, onclick=action, title=tooltip)
 
+        actions_div = E.div( # actions
+            E.ul(
+                ac(_('Home'), _('Return to list of books'), def(): home();, 'home'),
+                ac(_('Back'), None, self.back, 'arrow-left'),
+                ac(_('Forward'), None, self.forward, 'arrow-right'),
+            ),
+
+            E.ul(
+                ac(_('Search'), _('Search for text in this book'), self.overlay.show_search, 'search'),
+                ac(_('Go to'), _('Go to a specific location in the book'), self.overlay.show_goto, 'chevron-right'),
+            ),
+
+            E.ul(
+                ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download'),
+                ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash'),
+                ac(_('Reload'), _('Reload this book from the server'), self.overlay.reload_book, 'refresh')
+            ),
+
+            E.ul(
+                ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
+                # ac(_('Bookmarks'), None, None, 'bookmark'),
+            ),
+
+            E.ul(
+                ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
+                ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
+            ),
+
+            class_=MAIN_OVERLAY_ACTIONS_CLASS
+        )
+        if not full_screen_element():
+            actions_div.appendChild(
+            E.ul(
+                ac(_('Full screen'), _('Enter full screen mode'), def(): request_full_screen(), self.overlay.hide();, 'full-screen'),
+            ))
+
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 
             set_css(E.div(  # top row
-                E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold'),
-                E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis'),
-            ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'),
-
-            E.div( # actions
-                E.ul(
-                    ac(_('Home'), _('Return to list of books'), def(): home();, 'home'),
-                    ac(_('Back'), None, self.back, 'arrow-left'),
-                    ac(_('Forward'), None, self.forward, 'arrow-right'),
-                ),
-
-                E.ul(
-                    ac(_('Search'), _('Search for text in this book'), self.overlay.show_search, 'search'),
-                    ac(_('Go to'), _('Go to a specific location in the book'), self.overlay.show_goto, 'chevron-right'),
-                ),
-
-                E.ul(
-                    ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download'),
-                    ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash'),
-                    ac(_('Reload'), _('Reload this book from the server'), self.overlay.reload_book, 'refresh')
-                ),
-
-                E.ul(
-                    ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
-                    # ac(_('Bookmarks'), None, None, 'bookmark'),
-                ),
-
-                E.ul(
-                    ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
-                    ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
-                ),
-            class_=MAIN_OVERLAY_ACTIONS_CLASS
+                    E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold'),
+                    E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis'),
+                ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'
             ),
-
+            actions_div,
         ), user_select='none', background_color=get_color('window-background')))
 
         container.appendChild(
