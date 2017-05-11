@@ -349,6 +349,10 @@ class Overlay:
     def container(self):
         return document.getElementById('book-overlay')
 
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
     def container_clicked(self, evt):
         if self.panels.length and jstype(self.panels[-1].on_container_click) is 'function':
             self.panels[-1].on_container_click(evt)
