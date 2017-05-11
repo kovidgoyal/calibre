@@ -23,7 +23,7 @@ add_extra_css(def():
     sel = f'.{CLASS_NAME} '
     ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
     sel += '.recently-read img'
-    ans += build_rule(sel, max_width='25vw', height='auto', border_radius=f'{BORDER_RADIUS}px')
+    ans += build_rule(sel, max_width='25vw', max_height='40vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
     return ans
