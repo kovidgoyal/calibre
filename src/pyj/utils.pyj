@@ -59,6 +59,16 @@ def encode_query_with_path(query, path):
     return path + encode_query(query, '#')
 
 
+def request_full_screen(elem):
+    elem = elem or document.documentElement
+    if elem.requestFullScreen:
+        elem.requestFullScreen()
+    elif elem.webkitRequestFullScreen:
+        elem.webkitRequestFullScreen()
+    elif elem.mozRequestFullScreen:
+        elem.mozRequestFullScreen()
+
+
 _roman = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
 ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
