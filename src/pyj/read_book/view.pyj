@@ -392,6 +392,13 @@ class View:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
     def on_update_cfi(self, data):
+        if self.overlay.is_visible:
+            # Chrome on Android stupidly resizes the viewport when the on
+            # screen keyboard is displayed. This means that the push_state()
+            # below causes the overlay to be closed, making it impossible to
+            # type anything into text boxes.
+            # See https://bugs.chromium.org/p/chromium/issues/detail?id=404315
+            return
         self.currently_showing.bookpos = data.cfi
         push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
         username = get_interface_data().username
