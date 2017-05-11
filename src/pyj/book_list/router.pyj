@@ -32,7 +32,7 @@ def is_reading_book():
     return cq and cq.mode is read_book_mode
 
 
-def apply_mode(mode):
+def apply_mode():
     divid = read_book_container_id if is_reading_book() else book_list_container_id
     for div in document.getElementById(divid).parentNode.childNodes:
         div.style.display = 'block' if div.id is divid else 'none'

@@ -78,7 +78,7 @@ class View:
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             E.div(style='height:{}px; width:100%; padding: 0; cursor: pointer'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
-                            E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
+                            E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2', allowfullscreen='true'),
                             bottom_margin(sd),
                         ),
                         right_margin,
