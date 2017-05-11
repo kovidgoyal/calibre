@@ -267,10 +267,11 @@ left_margin_handler = BookTouchHandler('left')
 right_margin_handler = BookTouchHandler('right')
 
 def install_handlers(elem, handler):
-    elem.addEventListener('touchstart', handler.handle_touchstart, True)
-    elem.addEventListener('touchmove', handler.handle_touchmove, True)
-    elem.addEventListener('touchend', handler.handle_touchend, True)
-    elem.addEventListener('touchcancel', handler.handle_touchcancel, True)
+    options = {'capture': True, 'passive': False}
+    elem.addEventListener('touchstart', handler.handle_touchstart, options)
+    elem.addEventListener('touchmove', handler.handle_touchmove, options)
+    elem.addEventListener('touchend', handler.handle_touchend, options)
+    elem.addEventListener('touchcancel', handler.handle_touchcancel, options)
 
 def create_handlers():
     install_handlers(window, main_touch_handler)
