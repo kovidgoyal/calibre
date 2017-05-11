@@ -15,14 +15,19 @@ DESCRIPTION = _('A grid of book covers')
 
 def cover_grid_css():
     sel = '.' + COVER_GRID_CLASS
-    ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
+    margin, margin_unit = 10, 'px'
+    ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end',
+                     align_content='flex-start', user_select='none', overflow='hidden', margin_top=f'{margin / 2}{margin_unit}')
 
     # Container for an individual cover
     sel += ' > div'
     ans += build_rule(
-        sel, margin='10px', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
-        width='21vw', height='28vw', max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
+        sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
+        max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
         min_width=f'{THUMBNAIL_MAX_WIDTH // 2}px', min_height=f'{THUMBNAIL_MAX_HEIGHT // 2}px')
+    mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: 28{dim} }} }}'
+    for dim in 'vw', 'vh':
+        ans += mq.format(sel=sel, dim=dim, orient='portrait' if dim is 'vw' else 'landscape')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
     ans += build_rule(sel + '.cover-grid-filler', height='0', max_height='0', min_height='0')
