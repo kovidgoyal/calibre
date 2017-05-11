@@ -30,7 +30,7 @@ create_button.style = build_rule('a.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image='linear-gradient(to bottom, {}, {})'.format(get_color('button-start'), get_color('button-end')),
     padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
-    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)',
+    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)', white_space='nowrap'
 )
 create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
 create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
