@@ -1,7 +1,7 @@
 # Calibre recipe for Instapaper.com (Stable version)
 #
 # Homepage: http://khromov.wordpress.com/projects/instapaper-calibre-recipe/
-# Code Repository: https://bitbucket.org/khromov/calibre-instapaper
+# Source: https://github.com/kovidgoyal/calibre/blob/master/recipes/instapaper.recipe
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
