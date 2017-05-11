@@ -55,6 +55,10 @@ class SearchOverlay:
     def search_text(self):
         return self.container.querySelector('input').value
 
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
     def hide(self):
         self.container.style.display = 'none'
 

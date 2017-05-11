@@ -392,7 +392,7 @@ class View:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
     def on_update_cfi(self, data):
-        if self.overlay.is_visible:
+        if self.overlay.is_visible or self.search_overlay.is_visible:
             # Chrome on Android stupidly resizes the viewport when the on
             # screen keyboard is displayed. This means that the push_state()
             # below causes the overlay to be closed, making it impossible to
