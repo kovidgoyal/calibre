@@ -415,6 +415,7 @@ class ReadUI:
         current_state = self.url_data
         same = current_query.library_id is current_state.library_id and str(current_query.book_id) is str(current_state.book_id) and current_query.fmt is current_state.fmt
         self.view.overlay.hide()
+        window.scrollTo(0, 0)  # Ensure we are at the top of the window
         if same:
             if current_state.bookpos is not current_query.bookpos and current_query.bookpos:
                 self.view.goto_bookpos(current_query.bookpos)
