@@ -172,12 +172,10 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
                 for k in keys:
                     idval = val[k]
                     x = url_map[k]
-                    if isinstance(x, list) and x.length is 2:
+                    if x:
+                        if td.childNodes.length:
+                            td.appendChild(document.createTextNode(', '))
                         td.appendChild(E.a(title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
-                    else:
-                        td.appendChild(E.span(k, ':', idval))
-                    if k is not keys[-1]:
-                        td.appendChild(document.createTextNode(', '))
 
     def process_languages(field, fm, name, val):
         if val and val.length:
