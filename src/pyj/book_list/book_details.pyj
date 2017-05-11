@@ -17,8 +17,8 @@ from utils import fmt_sidx, parse_url_params, conditional_timeout
 from book_list.router import back, open_book, home
 from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status, current_virtual_library
 from book_list.top_bar import create_top_bar, set_title, add_button
-from book_list.ui import set_panel_handler
-from book_list.views import search
+from book_list.ui import set_panel_handler, query_as_href
+from book_list.views import search_query_for
 
 bd_counter = 0
 
@@ -55,10 +55,10 @@ def field_sorter(field_metadata):
         return lvl + (fm.name or 'zzzzz')
 
 
-def execute_search(ev):
-    name, val = JSON.parse(ev.currentTarget.dataset.search)
+def href_for_search(name, val):
     query = '{}:"={}"'.format(name, str.replace(val, '"', r'\"'))
-    search(query)
+    q = search_query_for(query)
+    return query_as_href(q)
 
 
 def on_fmt_click(ev):
@@ -106,8 +106,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
                 v += ''
             if is_searchable:
                 table.lastChild.lastChild.appendChild(E.a(
-                    data_search=JSON.stringify([is_searchable, v]), onclick=execute_search,
-                    title=_('Click to see books with {0}: {1}').format(name, v), href='javascript: void(0)', v))
+                    title=_('Click to see books with {0}: {1}').format(name, v), href=href_for_search(is_searchable, v), v))
             else:
                 if v.appendChild:
                     table.lastChild.lastChild.appendChild(v)
@@ -187,8 +186,8 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
             for k in val:
                 lang = mi.lang_names[k] or k
                 td.appendChild(E.a(lang,
-                    title=_('Click to see books with language: {}').format(lang), href='javascript: void(0)',
-                    data_search=JSON.stringify([field, k]), onclick=execute_search
+                    title=_('Click to see books with language: {}').format(lang),
+                    href=href_for_search(field, k)
                 ))
                 if k is not val[-1]:
                     td.appendChild(document.createTextNode(', '))
@@ -208,8 +207,8 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             table.lastChild.lastChild.appendChild(E.span(ival, _(' of '), E.a(
-                data_search=JSON.stringify([field, val]), onclick=execute_search,
-                title=_('Click to see books with {0}: {1}').format(name, val), href='javascript: void(0)', val)))
+                href=href_for_search(field, val),
+                title=_('Click to see books with {0}: {1}').format(name, val), val)))
 
     def process_field(field, fm):
         name = fm.name or field

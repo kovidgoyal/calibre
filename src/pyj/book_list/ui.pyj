@@ -9,6 +9,7 @@ from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
 from book_list.router import push_state
 from book_list.library_data import current_library_id, current_virtual_library
+from utils import encode_query_with_path
 
 
 panel_handlers = {}
@@ -46,26 +47,29 @@ def currently_showing_panel():
 
 
 def add_library_info(query):
-        if not query.library_id:
-            query.library_id = current_library_id()
-        if not query.vl:
-            if query.vl is None:
-                v'delete query.vl'
-            else:
-                vlid = current_virtual_library()
-                if vlid:
-                    query.vl = vlid
+    if not query.library_id:
+        query.library_id = current_library_id()
+    if not query.vl:
+        if query.vl is None:
+            v'delete query.vl'
+        else:
+            vlid = current_virtual_library()
+            if vlid:
+                query.vl = vlid
 
+def prepare_query(query, panel):
+    q = {k:query[k] for k in (query or {}) if k is not 'panel'}
+    if panel is not 'home':
+        q.panel = panel
+        add_library_info(q)
+    return q
+
+def query_as_href(query, panel):
+    q = prepare_query(query, panel or 'book_list')
+    return encode_query_with_path(q)
 
 def show_panel(panel, query=None, replace=False):
-    if query is None:
-        query = {}
-    else:
-        query = {k:query[k] for k in query if k is not 'panel'}
-    if panel is not 'home':
-        query.panel = panel
-        add_library_info(query)
-    push_state(query, replace=replace)
+    push_state(prepare_query(query, panel), replace=replace)
 
 
 def apply_url_state(state):
