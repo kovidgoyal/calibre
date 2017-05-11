@@ -6,7 +6,7 @@ from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.globals import get_current_query
 from book_list.library_data import current_library_id
 from modals import close_all_modals
-from utils import encode_query_with_path, parse_url_params
+from utils import encode_query_with_path, parse_url_params, request_full_screen
 
 mode_handlers = {}
 default_mode_handler = None
@@ -50,6 +50,7 @@ def apply_url(ignore_handler):
 
 
 def open_book(book_id, fmt, library_id=None, replace=False):
+    request_full_screen()
     library_id = library_id or current_library_id()
     push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
 
