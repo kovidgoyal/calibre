@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, struct, repr as reprlib, time
+import os, httplib, hashlib, uuid, struct, repr as reprlib
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -22,7 +22,7 @@ from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import (
     MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
-    sort_q_values, get_translator_for_lang, Cookie)
+    sort_q_values, get_translator_for_lang, Cookie, fast_now_strftime)
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
 
@@ -526,7 +526,7 @@ class HTTPConnection(HTTPRequest):
             return
         line = '%s port-%s %s %s "%s" %s %s' % (
             self.remote_addr, self.remote_port, username or '-',
-            time.strftime('%d/%b/%Y:%H:%M:%S %z'),
+            fast_now_strftime('%d/%b/%Y:%H:%M:%S %z'),
             force_unicode(self.request_line or '', 'utf-8'),
             status_code, ('-' if response_size is None else response_size))
         self.access_log(line)
