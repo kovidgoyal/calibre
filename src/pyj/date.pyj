@@ -64,7 +64,7 @@ def fd_format_day(dt, ampm, dy, as_utc):
         options = {'weekday': ('short' if dy.length is 3 else 'long')}
         if as_utc:
             options['timeZone'] = 'UTC'
-        return dt.toLocaleString(undefined, options)
+        return dt.toLocaleString(window.navigator.language, options)
     w = dt.getUTCDay() if as_utc else dt.getDay()
     return lcdata['abday' if dy.length is 3 else 'day'][(w + 1) % 7]
 
@@ -78,7 +78,7 @@ def fd_format_month(dt, ampm, mo, as_utc):
         options = {'month': {1:'numeric', 2:'2-digit', 3:'short', 4:'long'}[mo.length] or 'long'}
         if as_utc:
             options['timeZone'] = 'UTC'
-        return dt.toLocaleString(undefined, options)
+        return dt.toLocaleString(window.navigator.language, options)
     return lcdata['abmon' if mo.length is 3 else 'mon'][m]
 
 def fd_format_year(dt, ampm, yr, as_utc):
