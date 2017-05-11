@@ -150,7 +150,7 @@ def init(container_id):
 
     # Choose library
     container.appendChild(E.h2(_('Choose the calibre library to browse…')))
-    container.appendChild(E.div(style='display: flex'))
+    container.appendChild(E.div(style='display: flex; flex-wrap: wrap'))
     cl = container.lastChild
     lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
     for library_id in lids:
