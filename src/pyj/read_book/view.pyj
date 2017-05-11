@@ -452,8 +452,10 @@ class View:
         )
         self.encrypted_communications = True
 
-    def on_content_loaded(self):
+    def on_content_loaded(self, data):
         self.hide_loading()
+        frac = data.progress_frac or 0
+        self.update_read_percent(frac)
         # self.overlay.show()
 
     def update_font_size(self):
