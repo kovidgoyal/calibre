@@ -533,6 +533,12 @@ def identify(log, abort,  # {{{
 def urls_from_identifiers(identifiers):  # {{{
     identifiers = {k.lower():v for k, v in identifiers.iteritems()}
     ans = []
+    keys_left = set(identifiers)
+
+    def add(name, k, val, url):
+        ans.append((name, k, val, url))
+        keys_left.discard(k)
+
     rules = msprefs['id_link_rules']
     if rules:
         formatter = EvalFormatter()
@@ -546,40 +552,49 @@ def urls_from_identifiers(identifiers):  # {{{
                     import traceback
                     traceback.format_exc()
                     continue
-                ans.append((name, k, val, url))
+                add(name, k, val, url)
     for plugin in all_metadata_plugins():
         try:
             for id_type, id_val, url in plugin.get_book_urls(identifiers):
-                ans.append((plugin.get_book_url_name(id_type, id_val, url), id_type, id_val, url))
-        except:
+                add(plugin.get_book_url_name(id_type, id_val, url), id_type, id_val, url)
+        except Exception:
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append((isbn, 'isbn', isbn,
-            'https://www.worldcat.org/isbn/'+isbn))
+        add(isbn, 'isbn', isbn,
+            'https://www.worldcat.org/isbn/'+isbn)
     doi = identifiers.get('doi', None)
     if doi:
-        ans.append(('DOI', 'doi', doi,
-            'https://dx.doi.org/'+doi))
+        add('DOI', 'doi', doi,
+            'https://dx.doi.org/'+doi)
     arxiv = identifiers.get('arxiv', None)
     if arxiv:
-        ans.append(('arXiv', 'arxiv', arxiv,
-            'https://arxiv.org/abs/'+arxiv))
+        add('arXiv', 'arxiv', arxiv,
+            'https://arxiv.org/abs/'+arxiv)
     oclc = identifiers.get('oclc', None)
     if oclc:
-        ans.append(('OCLC', 'oclc', oclc,
-            'https://www.worldcat.org/oclc/'+oclc))
+        add('OCLC', 'oclc', oclc,
+            'https://www.worldcat.org/oclc/'+oclc)
     issn = check_issn(identifiers.get('issn', None))
     if issn:
-        ans.append((issn, 'issn', issn,
-            'https://www.worldcat.org/issn/'+issn))
+        add(issn, 'issn', issn,
+            'https://www.worldcat.org/issn/'+issn)
+    q = {'http', 'https', 'file'}
     for k, url in identifiers.iteritems():
         if url and re.match(r'ur[il]\d*$', k) is not None:
             url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
-            if url.partition(':')[0].lower() in {'http', 'file', 'https'}:
+            if url.partition(':')[0].lower() in q:
                 parts = urlparse(url)
                 name = parts.netloc or parts.path
-                ans.append((name, k, url, url))
+                add(name, k, url, url)
+    for k in tuple(keys_left):
+        val = identifiers.get(k)
+        if val:
+            url = val[:8].replace('|', ':') + val[8:].replace('|', ',')
+            if url.partition(':')[0].lower() in q:
+                parts = urlparse(url)
+                name = parts.netloc or parts.path
+                add(name, k, url, url)
     return ans
 # }}}
 
