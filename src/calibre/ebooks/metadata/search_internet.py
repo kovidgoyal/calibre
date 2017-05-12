@@ -8,7 +8,7 @@ from urllib import quote_plus
 
 AUTHOR_SEARCHES = {
     'goodreads':
-    'https://www.goodreads.com/search?q={author}&search%5Bfield%5D=author&search%5Bsource%5D=goodreads&search_type=people&tab=people',
+    'https://www.goodreads.com/book/author/{author}',
     'wikipedia':
     'https://en.wikipedia.org/w/index.php?search={author}',
     'google':
