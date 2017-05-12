@@ -33,7 +33,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>How to handle CSS</string>
+      <string>How to handle &amp;CSS</string>
      </property>
      <property name="buddy">
       <cstring>opt_htmlz_css_type</cstring>
@@ -50,7 +50,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>How to handle class based CSS</string>
+      <string>How to handle class &amp;based CSS</string>
      </property>
     </widget>
    </item>

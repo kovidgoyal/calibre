@@ -147,7 +147,7 @@ If not checked, the values can be Yes or No.</string>
      <item>
       <widget class="QLabel" name="label_170">
        <property name="text">
-        <string>Virtual library to apply when the current library is opened:</string>
+        <string>Virtual library to apply when the current &amp;library is opened:</string>
        </property>
        <property name="buddy">
         <cstring>opt_virtual_lib_on_startup</cstring>
@@ -180,7 +180,7 @@ If not checked, the values can be Yes or No.</string>
      <item>
       <widget class="QLabel" name="edit_metadata_single_label">
        <property name="text">
-        <string>Edit metadata (single) layout:</string>
+        <string>Edit metadata (single) &amp;layout:</string>
        </property>
        <property name="buddy">
         <cstring>opt_edit_metadata_single_layout</cstring>

@@ -309,14 +309,14 @@ to be shown as user categories</string>
    <item row="3" column="0">
     <widget class="QCheckBox" name="opt_case_sensitive">
      <property name="text">
-      <string>Case sensitive searching</string>
+      <string>Case &amp;sensitive searching</string>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
     <widget class="QCheckBox" name="opt_use_primary_find_in_search">
      <property name="text">
-      <string>Unaccented characters match accented characters</string>
+      <string>Unaccented characters match &amp;accented characters</string>
      </property>
     </widget>
    </item>
