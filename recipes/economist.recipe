@@ -90,6 +90,9 @@ class Economist(BasicNewsRecipe):
     delay = 1
 
     needs_subscription = False
+    useHighResImages = False
+    compress_news_images = True
+    compress_news_images_auto_size = 5
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
