@@ -151,9 +151,9 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
         if img.hasAlphaChannel():
             img = blend_image(img)
         # QImageWriter only gained the following options in Qt 5.5
-        if jpeg_optimized and hasattr(QImageWriter, 'setOptimizedWrite'):
+        if jpeg_optimized:
             w.setOptimizedWrite(True)
-        if jpeg_progressive and hasattr(QImageWriter, 'setProgressiveScanWrite'):
+        if jpeg_progressive:
             w.setProgressiveScanWrite(True)
         w.setQuality(compression_quality)
     elif fmt == 'PNG':
