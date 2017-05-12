@@ -548,7 +548,7 @@ class Win32Freeze(Command, WixMixIn):
             'https://calibre-ebook.com', '/tr']
 
         def runcmd(cmd):
-            for timeserver in ('http://timestamp.geotrust.com/tsa', 'http://timestamp.comodoca.com/rfc3161',):
+            for timeserver in ('http://sha256timestamp.ws.symantec.com/sha256/timestamp', 'http://timestamp.comodoca.com/rfc3161',):
                 try:
                     subprocess.check_call(cmd + [timeserver] + files)
                     break
@@ -771,7 +771,3 @@ class Win32Freeze(Command, WixMixIn):
                     zf.writestr(zinfo, f.read())
 
         self.zf_names.add(name)
-
-
-
-
