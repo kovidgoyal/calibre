@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title:
 
+- version: 2.85.0
+  date: 2017-05-12
+
+  new features:
+    - title: "Book details panel: Allow right click to search the internet for the current book"
+
+    - title: "Book details panel: Allow right clicking on an author name to search the internet for works by that author"
+
+    - title: "Book details panel: Clicking an author name now searches Goodreads by default instead of Wikipedia. Can be changed in Preferences->Look & feel->Book details"
+
+    - title: "Kobo driver: Add support for the Kobo Auro H2O Edition 2"
+
+  bug fixes:
+    - title: "PDF Output: Fix a regression in the previous release that broke conversion to PDF for some files."
+      tickets: [1689192]
+
+    - title: "DOCX Output: Fix lengths specified in percentage of page size not being converted correctly."
+      tickets: [1688690]
+
+    - title: "DOCX Output: Fix some hyperlinks not working in word because the bookmark name is longer than forty characters."
+      tickets: [1688690]
+
+    - title: "DOCX Output: Prevent images from being larger than the page size."
+      tickets: [1688690]
+
+    - title: "Comic Input: Fix the number of colors control not allowing values less than 8"
+
+    - title: "Kobo driver: Fix main memory and Card A being swapped on some systems"
+
+    - title: "Kobo driver: Fix the ignore collections option being accidentally case-insensitive"
+
+    - title: "Preferences->Toolbars: Show an error message when the user tries to remove either the Preferences or Location Manager buttons instead of just silently adding them back."
+      tickets: [1689022]
+
+  improved recipes:
+    - Private Eye
+
+  new recipes:
+    - title: Balkanist
+      author: Darko Miletic
+
 - version: 2.84.0
   date: 2017-05-05
 
