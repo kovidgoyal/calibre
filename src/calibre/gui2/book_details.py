@@ -209,6 +209,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                         m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
                         m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
                         menu.addMenu(m)
+                        menu.ow = m
                 ac = book_info.copy_link_action
                 ac.current_url = r.linkElement().attribute('data-full-path')
                 if ac.current_url:
@@ -249,8 +250,8 @@ def details_context_menu_event(view, ev, book_info):  # {{{
 
     if not search_internet_added and hasattr(book_info, 'search_internet'):
         menu.addSeparator()
-        menu.si = m = create_search_internet_menu(book_info.search_internet)
-        menu.addMenu(m)
+        menu.si = create_search_internet_menu(book_info.search_internet)
+        menu.addMenu(menu.si)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
