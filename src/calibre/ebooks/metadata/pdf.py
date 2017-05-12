@@ -35,7 +35,7 @@ def read_info(outputdir, get_cover):
     ans = {}
 
     try:
-        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
+        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', '-isodates', 'src.pdf'])
     except subprocess.CalledProcessError as e:
         prints('pdfinfo errored out with return code: %d'%e.returncode)
         return None
