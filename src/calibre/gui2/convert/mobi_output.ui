@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QCheckBox" name="opt_no_inline_toc">
      <property name="text">
-      <string>Do not add Table of Contents to book</string>
+      <string>Do not add &amp;Table of Contents to book</string>
      </property>
     </widget>
    </item>
@@ -65,7 +65,7 @@
    <item row="6" column="0">
     <widget class="QCheckBox" name="opt_dont_compress">
      <property name="text">
-      <string>Disable compression of the file contents</string>
+      <string>Disable &amp;compression of the file contents</string>
      </property>
     </widget>
    </item>
@@ -104,7 +104,7 @@
       <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_share_not_sync">
         <property name="text">
-         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
+         <string>Enable &amp;sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
         </property>
        </widget>
       </item>

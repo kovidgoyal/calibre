@@ -920,7 +920,7 @@ class EditRules(QWidget):  # {{{
         l.setRowStretch(l.rowCount() - 1, 10)
 
         self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
-                _('Add advanced rule'), self)
+                _('Add ad&vanced rule'), self)
         b.clicked.connect(self.add_advanced)
         self.hb = hb = QHBoxLayout()
         l.addLayout(hb, l.rowCount(), 0, 1, 2)

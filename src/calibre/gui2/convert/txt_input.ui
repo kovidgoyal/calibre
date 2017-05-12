@@ -29,7 +29,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Paragraph style:</string>
+         <string>&amp;Paragraph style:</string>
         </property>
        </widget>
       </item>
@@ -52,7 +52,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Formatting style:</string>
+         <string>&amp;Formatting style:</string>
         </property>
        </widget>
       </item>
@@ -85,7 +85,7 @@
       <item>
        <widget class="QCheckBox" name="opt_txt_in_remove_indents">
         <property name="text">
-         <string>Remove indents at the beginning of lines</string>
+         <string>Remove &amp;indents at the beginning of lines</string>
         </property>
        </widget>
       </item>

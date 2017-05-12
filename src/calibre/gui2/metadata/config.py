@@ -63,7 +63,7 @@ class ConfigWidget(QWidget):
         self.l = l = QGridLayout()
         self.setLayout(l)
 
-        self.gb = QGroupBox(_('Downloaded metadata fields'), self)
+        self.gb = QGroupBox(_('Metadata fields to download'), self)
         if plugin.config_help_message:
             self.pchm = QLabel(plugin.config_help_message)
             self.pchm.setWordWrap(True)

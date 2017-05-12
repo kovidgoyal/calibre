@@ -88,7 +88,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_force_max_line_length">
         <property name="text">
-         <string>Force maximum line length</string>
+         <string>Force maximum line &amp;length</string>
         </property>
        </widget>
       </item>

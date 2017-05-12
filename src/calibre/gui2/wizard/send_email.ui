@@ -209,7 +209,7 @@
      <item>
       <widget class="QToolButton" name="relay_use_gmx">
        <property name="text">
-        <string>Use GMX</string>
+        <string>Use &amp;GMX</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
@@ -229,7 +229,7 @@
      <item>
       <widget class="QToolButton" name="relay_use_hotmail">
        <property name="text">
-        <string>Use Hotmail</string>
+        <string>Use &amp;Hotmail</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">

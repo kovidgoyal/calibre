@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>The adding &amp;process</string>
+       <string>The add &amp;process</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="1" colspan="2">

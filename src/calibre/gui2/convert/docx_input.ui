@@ -24,14 +24,14 @@
    <item>
     <widget class="QCheckBox" name="opt_docx_no_pagebreaks_between_notes">
      <property name="text">
-      <string>Do not add a page after every endnote</string>
+      <string>Do not add a page after every &amp;endnote</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="opt_docx_inline_subsup">
      <property name="text">
-      <string>Render superscripts and subscripts so that they do not affect the line height.</string>
+      <string>Render &amp;superscripts and subscripts so that they do not affect the line height.</string>
      </property>
     </widget>
    </item>

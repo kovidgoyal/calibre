@@ -37,7 +37,7 @@
    <item row="3" column="0">
     <widget class="QCheckBox" name="opt_full_image_depth">
      <property name="text">
-      <string>Do not reduce image size and depth</string>
+      <string>Do not &amp;reduce image size and depth</string>
      </property>
     </widget>
    </item>
@@ -46,7 +46,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Output encoding:</string>
+        <string>Output &amp;encoding:</string>
        </property>
       </widget>
      </item>
