@@ -1978,7 +1978,4 @@ def try_opf(path, options, logger):
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:
-        logger.exception(_('Failed to process opf file'))
-
-
-
+        logger.exception(_('Failed to process OPF file'))

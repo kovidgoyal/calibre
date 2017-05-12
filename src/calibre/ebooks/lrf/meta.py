@@ -639,8 +639,8 @@ Show/edit the metadata in an LRF file.\n\n'''),
                     dest="thumbnail", help=_("Path to a graphic that will be"
                     " set as this files' thumbnail"))
     parser.add_option("--comment", action="store", type="string",
-                    dest="comment", help=_("Path to a txt file containing the "
-                    "comment to be stored in the lrf file."))
+                    dest="comment", help=_("Path to a TXT file containing the "
+                    "comment to be stored in the LRF file."))
     parser.add_option("--get-thumbnail", action="store_true",
                     dest="get_thumbnail", default=False,
                     help=_("Extract thumbnail from LRF file"))
@@ -746,6 +746,6 @@ def main(args=sys.argv):
         else:
             print 'Could not find cover in the LRF file'
 
+
 if __name__ == '__main__':
     sys.exit(main())
-

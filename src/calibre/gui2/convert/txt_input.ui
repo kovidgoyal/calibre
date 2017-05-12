@@ -101,7 +101,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;https://daringfireball.net/projects/markdown&quot;&gt;markdown&lt;/a&gt;.</string>
+         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;https://daringfireball.net/projects/markdown&quot;&gt;Markdown&lt;/a&gt;.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -114,7 +114,7 @@
       <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>You can optionally enable various extensions to the base markdown syntax, below.</string>
+         <string>You can optionally enable various extensions to the base Markdown syntax, below.</string>
         </property>
        </widget>
       </item>
@@ -124,7 +124,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>More information on &lt;a href=&quot;https://pythonhosted.org/Markdown/extensions/index.html&quot;&gt;markdown extensions&lt;/a&gt;</string>
+         <string>More information on &lt;a href=&quot;https://pythonhosted.org/Markdown/extensions/index.html&quot;&gt;Markdown extensions&lt;/a&gt;</string>
         </property>
         <property name="openExternalLinks">
          <bool>true</bool>

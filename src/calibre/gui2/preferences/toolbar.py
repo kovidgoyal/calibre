@@ -339,8 +339,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 'The Preferences action must be in either the main toolbar or the menubar.'), show=True)
             raise AbortCommit()
         if not lm_in_toolbar and not lm_in_menubar:
-            error_dialog(self, _('Location Manager missing'), _(
-                'The Location Manager must be in either the main toolbar or the menubar when a device is connected.'), show=True)
+            error_dialog(self, _('Location manager missing'), _(
+                'The Location manager must be in either the main toolbar or the menubar when a device is connected.'), show=True)
             raise AbortCommit()
 
         # Save data.

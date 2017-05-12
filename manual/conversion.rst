@@ -693,11 +693,11 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         appropriate HTML markup during conversion.
 
     :guilabel:`Formatting style: Markdown`
-        calibre also supports running TXT input though a transformation preprocessor known as markdown. Markdown
+        calibre also supports running TXT input though a transformation preprocessor known as Markdown. Markdown
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
         lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
-        You can learn more about the markdown syntax at `daringfireball <https://daringfireball.net/projects/markdown/syntax>`_.
+        You can learn more about the Markdown syntax at `daringfireball <https://daringfireball.net/projects/markdown/syntax>`_.
 
     :guilabel:`Formatting style: None`
         Applies no special formatting to the text, the document is converted to HTML with no other changes.

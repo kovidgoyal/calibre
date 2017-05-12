@@ -25,7 +25,7 @@ class GoogleImages(Source):
     can_get_multiple_covers = True
     supports_gzip_transfer_encoding = True
     options = (Option('max_covers', 'number', 5, _('Maximum number of covers to get'),
-                      _('The maximum number of covers to process from the google search result')),
+                      _('The maximum number of covers to process from the Google search result')),
                Option('size', 'choices', 'svga', _('Cover size'),
                       _('Search for covers larger than the specified size'),
                       choices=OrderedDict((
