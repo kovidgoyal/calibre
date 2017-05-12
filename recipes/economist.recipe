@@ -91,6 +91,15 @@ class Economist(BasicNewsRecipe):
 
     needs_subscription = False
 
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            # Reduce image sizes to get file size below amazon's email
+            # sending threshold
+            self.web2disk_options.compress_news_images = True
+            self.web2disk_options.compress_news_images_auto_size = 5
+            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         # Add a cookie indicating we have accepted Economist's cookie
