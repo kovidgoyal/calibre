@@ -861,7 +861,7 @@ class BasicNewsRecipe(Recipe):
         '''
         Initialize the recipe.
         :param options: Parsed commandline options
-        :param parser:  Command line option parser. Used to intelligently merge options.
+        :param log:  Logging object
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         self.log = ThreadSafeWrapper(log)
