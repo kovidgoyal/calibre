@@ -818,10 +818,19 @@ def choose_osx_app(window, name, title, default_dir='/Applications'):
         return app
 
 
-def pixmap_to_data(pixmap, format='JPEG', quality=90):
+def pixmap_to_data(pixmap, format='JPEG', quality=None):
     '''
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
+    if quality is None:
+        if format.upper() == "PNG":
+            # For some reason on windows with Qt 5.6 using a quality of 90
+            # generates invalid PNG data. Many other quality values work
+            # but we use -1 for the default quality which is most likely to
+            # work
+            quality = -1
+        else:
+            quality = 90
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
