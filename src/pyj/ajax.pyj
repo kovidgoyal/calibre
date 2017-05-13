@@ -50,8 +50,10 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr.request_path = path
     xhr.error_html = ''
 
-    def set_error(event):
-        if event is 'timeout':
+    def set_error(event, is_network_error):
+        if is_network_error:
+            xhr.error_html = str.format(_('Failed to communicate with "{}", network error, is the server running and accessible?'), xhr.request_path)
+        elif event is 'timeout':
             xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
         elif event is 'abort':
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
@@ -75,10 +77,11 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
                 on_progress(ev.loaded, ul, xhr)
 
     def complete_callback(end_type, ev):
+        is_network_error = ev if end_type is 'error' else False
         if xhr.status is not ok_code and end_type is 'load':
             end_type = 'error'
         if end_type is not 'load':
-            set_error(end_type)
+            set_error(end_type, is_network_error)
         on_complete(end_type, xhr, ev)
 
     if on_progress:
