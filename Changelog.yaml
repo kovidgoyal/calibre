@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 2.85.0
+- version: 2.85.1
   date: 2017-05-12
 
   new features:
@@ -53,6 +53,8 @@
 
     - title: "Preferences->Toolbars: Show an error message when the user tries to remove either the Preferences or Location Manager buttons instead of just silently adding them back."
       tickets: [1689022]
+
+    - title: "version 2.85.1 contains a fix for a regression that cause the Open with action to go missing from the right click menu of the Book details panel"
 
   improved recipes:
     - Private Eye
