@@ -220,7 +220,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
             data = el.attribute('data-item')
             author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
             if url and not url.startswith('search:'):
-                for a, t in [('copy', _('&Copy Link')),
+                for a, t in [('copy', _('&Copy link')),
                 ]:
                     ac = getattr(book_info, '%s_link_action'%a)
                     ac.current_url = url

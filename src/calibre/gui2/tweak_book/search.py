@@ -1203,7 +1203,7 @@ class SavedSearches(QWidget):
 
     def import_searches(self):
         path = choose_files(self, 'import_saved_searches', _('Choose file'), filters=[
-            (_('Saved Searches'), ['json'])], all_files=False, select_only_single_file=True)
+            (_('Saved searches'), ['json'])], all_files=False, select_only_single_file=True)
         if path:
             with open(path[0], 'rb') as f:
                 obj = json.loads(f.read())
@@ -1245,7 +1245,7 @@ class SavedSearches(QWidget):
                     'No searches selected'), show=True)
         [s.__setitem__('mode', s.get('mode', 'regex')) for s in searches]
         path = choose_save_file(self, 'export-saved-searches', _('Choose file'), filters=[
-            (_('Saved Searches'), ['json'])], all_files=False)
+            (_('Saved searches'), ['json'])], all_files=False)
         if path:
             if not path.lower().endswith('.json'):
                 path += '.json'
