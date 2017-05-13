@@ -115,10 +115,11 @@ def render_id(book_id):
 def render_ids(book_ids):
     book_ids = book_ids or library_data.search_result.book_ids
     div = component('book_list')
-    for book_id in book_ids:
-        child = render_id(book_id)
-        if child is not None:
-            book_list_data.append_item(div, child)
+    if div:
+        for book_id in book_ids:
+            child = render_id(book_id)
+            if child:
+                book_list_data.append_item(div, child)
 
 
 def apply_view_mode(mode=DEFAULT_MODE):
