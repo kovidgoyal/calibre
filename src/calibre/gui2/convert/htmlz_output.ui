@@ -52,6 +52,9 @@
      <property name="text">
       <string>How to handle class &amp;based CSS</string>
      </property>
+     <property name="buddy">
+      <cstring>opt_htmlz_class_style</cstring>
+     </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
