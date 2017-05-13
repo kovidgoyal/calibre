@@ -386,6 +386,7 @@ class CoverView(QWidget):  # {{{
             m.addSeparator()
             m.addAction(_('Add another application to open cover...'), self.choose_open_with)
             m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'cover_image', self))
+            cm.ocw = m
             cm.addMenu(m)
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
