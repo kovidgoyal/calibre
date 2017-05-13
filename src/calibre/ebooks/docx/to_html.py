@@ -331,6 +331,7 @@ class Convert(object):
             else:
                 self.theme(fromstring(raw))
 
+        styles_loaded = False
         if sname is not None:
             try:
                 raw = self.docx.read(sname)
@@ -338,6 +339,9 @@ class Convert(object):
                 self.log.warn('Styles %s do not exist' % sname)
             else:
                 self.styles(fromstring(raw), fonts, self.theme)
+                styles_loaded = True
+        if not styles_loaded:
+            self.styles(None, fonts, self.theme)
 
         if nname is not None:
             try:
