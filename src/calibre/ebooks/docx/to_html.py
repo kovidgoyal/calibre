@@ -271,6 +271,8 @@ class Convert(object):
                 cname[-1] = defname
                 if self.docx.exists('/'.join(cname)):
                     name = name
+            if name and name.startswith('word/word') and not self.docx.exists(name):
+                name = name.partition('/')[2]
             return name
 
         nname = get_name(self.namespace.names['NUMBERING'], 'numbering.xml')
