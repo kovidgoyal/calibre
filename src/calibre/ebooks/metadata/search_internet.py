@@ -37,6 +37,9 @@ NAMES = {
     'gimg': _('Google images'),
 }
 
+DEFAULT_AUTHOR_SOURCE = 'goodreads'
+assert DEFAULT_AUTHOR_SOURCE in AUTHOR_SEARCHES
+
 name_for = NAMES.get
 all_book_searches = BOOK_SEARCHES.__iter__
 all_author_searches = AUTHOR_SEARCHES.__iter__

@@ -12,7 +12,7 @@ from binascii import hexlify
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote
+from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote, DEFAULT_AUTHOR_SOURCE
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
@@ -56,7 +56,7 @@ def search_href(search_term, value):
     return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
 
 
-DEFAULT_AUTHOR_LINK = 'search-goodreads'
+DEFAULT_AUTHOR_LINK = 'search-{}'.format(DEFAULT_AUTHOR_SOURCE)
 
 
 def author_search_href(which, title=None, author=None):
@@ -67,7 +67,8 @@ def author_search_href(which, title=None, author=None):
         key, search_type = which.rpartition('-')[::2]
     name = name_for(key)
     if name is None:
-        return author_search_href(DEFAULT_AUTHOR_LINK, title=title, author=author)
+        search_type = 'author'
+        return author_search_href(DEFAULT_AUTHOR_LINK.partition('-')[2], title=title, author=author)
     if search_type == 'author':
         tt = _('Search {0} for the author: {1}').format(name, author)
     else:
