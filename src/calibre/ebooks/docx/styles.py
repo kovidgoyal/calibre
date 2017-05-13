@@ -121,6 +121,7 @@ class Styles(object):
         self.default_styles = {}
         self.tables = tables
         self.numbering_style_links = {}
+        self.default_paragraph_style = self.default_character_style = None
 
     def __iter__(self):
         for s in self.id_map.itervalues():
