@@ -28,8 +28,8 @@ def parse_restriction(raw):
     r = load_json(raw)
     if not isinstance(r, dict):
         r = {}
-    r['allowed_library_names'] = frozenset(r.get('allowed_library_names', ()))
-    r['blocked_library_names'] = frozenset(r.get('blocked_library_names', ()))
+    r['allowed_library_names'] = frozenset(map(lambda x: x.lower(), r.get('allowed_library_names', ())))
+    r['blocked_library_names'] = frozenset(map(lambda x: x.lower(), r.get('blocked_library_names', ())))
     return r
 
 
