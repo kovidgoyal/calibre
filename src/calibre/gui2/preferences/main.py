@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
     QLabel, QFrame, QToolBar, QSize, pyqtSignal, QDialogButtonBox,
     QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF,
-    QStatusTipEvent, QApplication)
+    QStatusTipEvent, QApplication, QTabWidget)
 
 from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import (gprefs, min_available_height, available_width,
@@ -259,10 +259,19 @@ class Preferences(QDialog):
         l.addWidget(self.title_bar), l.addWidget(self.stack), l.addWidget(self.bb)
 
         if initial_plugin is not None:
-            category, name = initial_plugin
+            category, name = initial_plugin[:2]
             plugin = get_plugin(category, name)
             if plugin is not None:
                 self.show_plugin(plugin)
+                if len(initial_plugin) > 2:
+                    w = self.findChild(QWidget, initial_plugin[2])
+                    if w is not None:
+                        for c in self.showing_widget.children():
+                            if isinstance(c, QTabWidget):
+                                idx = c.indexOf(w)
+                                if idx > -1:
+                                    c.setCurrentIndex(idx)
+                                    break
         else:
             self.hide_plugin()
 

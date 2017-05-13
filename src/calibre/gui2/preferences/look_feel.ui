@@ -19,7 +19,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="main_interface_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
@@ -662,7 +662,7 @@ A value of zero means calculate automatically.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="book_details_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
@@ -795,7 +795,7 @@ A value of zero means calculate automatically.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tag_browser_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
@@ -948,7 +948,7 @@ see the counts by hovering your mouse over any item.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="cover_browser_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
