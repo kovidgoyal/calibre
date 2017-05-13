@@ -15,6 +15,13 @@ from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
 
 
+def canonicalize_path(p):
+    if isinstance(p, bytes):
+        p = p.decode(filesystem_encoding)
+    p = os.path.abspath(p).replace(os.sep, '/').rstrip('/')
+    return os.path.normcase(p)
+
+
 def samefile(a, b):
     a, b = canonicalize_path(a), canonicalize_path(b)
     if a == b:
@@ -41,13 +48,6 @@ def make_library_id_unique(library_id, existing):
     return library_id
 
 
-def canonicalize_path(p):
-    if isinstance(p, bytes):
-        p = p.decode(filesystem_encoding)
-    p = os.path.abspath(p).replace(os.sep, '/').rstrip('/')
-    return p
-
-
 def library_id_from_path(path, existing):
     library_id = os.path.basename(path).replace(' ', '_')
     return make_library_id_unique(library_id, existing)
@@ -59,13 +59,19 @@ class LibraryBroker(object):
         self.lock = Lock()
         self.lmap = OrderedDict()
         seen = set()
-        for path in (canonicalize_path(p) for p in libraries):
+        for original_path in libraries:
+            path = canonicalize_path(original_path)
             if path in seen:
                 continue
+            is_samefile = False
+            for s in seen:
+                if samefile(s, path):
+                    is_samefile = True
+                    break
             seen.add(path)
-            if not LibraryDatabase.exists_at(path):
+            if is_samefile or not LibraryDatabase.exists_at(path):
                 continue
-            library_id = library_id_from_path(path, self.lmap)
+            library_id = library_id_from_path(original_path, self.lmap)
             self.lmap[library_id] = path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
