@@ -250,7 +250,6 @@ def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)
     if opts.gui:
         from calibre.gui_launch import calibre
-        print_basic_debug_info()
         calibre(['calibre'])
     elif opts.gui_debug is not None:
         run_debug_gui(opts.gui_debug)
