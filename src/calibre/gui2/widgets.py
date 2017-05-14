@@ -992,12 +992,12 @@ class LayoutButton(QToolButton):
         if ev.button() == Qt.RightButton:
             tab_name = {'book':'book_details', 'grid':'cover_grid', 'cover_flow':'cover_browser', 'tags':'tag_browser'}.get(self.icname)
             if tab_name:
-                ev.accept()
                 from calibre.gui2.ui import get_gui
                 gui = get_gui()
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
-                return
+                    ev.accept()
+                    return
         return QToolButton.mouseReleaseEvent(self, ev)
 
 
