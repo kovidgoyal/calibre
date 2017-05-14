@@ -83,11 +83,13 @@ class Server(object):
 
     def serve_forever(self):
         self.exception = None
+        from calibre.srv.content import reset_caches
         if self.state_callback is not None:
             try:
                 self.state_callback(True)
             except Exception:
                 pass
+        reset_caches()  # we reset the cache as the server tdir has changed
         try:
             self.loop.serve_forever()
         except BaseException as e:
