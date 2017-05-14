@@ -12,6 +12,7 @@ from functools import partial
 from calibre import as_unicode, prints
 from calibre.constants import plugins, iswindows, preferred_encoding
 from calibre.srv.loop import ServerLoop
+from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.bonjour import BonJour
 from calibre.srv.opts import opts_to_parser
 from calibre.srv.http_response import create_http_handler
@@ -245,11 +246,10 @@ def create_option_parser():
     parser=opts_to_parser('%prog '+ _(
 '''[options] [path to library folder...]
 
-Start the calibre Content server. The calibre Content server
-exposes your calibre libraries over the internet. You can specify
-the path to the library folders as arguments to %prog. If you do
-not specify any paths, the library last opened (if any) in the main calibre
-program will be used.
+Start the calibre Content server. The calibre Content server exposes your
+calibre libraries over the internet. You can specify the path to the library
+folders as arguments to %prog. If you do not specify any paths, all the
+libraries that the main calibre program knows about will be used.
 '''
     ))
     parser.add_option(
@@ -293,6 +293,7 @@ def main(args=sys.argv):
     for lib in libraries:
         if not lib or not LibraryDatabase.exists_at(lib):
             raise SystemExit(_('There is no calibre library at: %s') % lib)
+    libraries = libraries or load_gui_libraries()
     if not libraries:
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
