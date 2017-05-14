@@ -125,7 +125,7 @@ class ImageView(QDialog):
             self.current_image_name = unicode(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
         except AttributeError:
             self.current_image_name = self.current_url
-        title = _('View Image: %s')%self.current_image_name
+        title = _('View image: %s')%self.current_image_name
         self.setWindowTitle(title)
         if use_exec:
             self.exec_()

@@ -775,7 +775,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 files that are large undifferentiated blocks of text, this
                 splitting fails.
                 <p>You can <b>work around the problem</b> by either increasing the
-                maximum split size under EPUB Output in the conversion dialog,
+                maximum split size under <i>EPUB output</i> in the conversion dialog,
                 or by turning on Heuristic Processing, also in the conversion
                 dialog. Note that if you make the maximum split size too large,
                 your e-book reader may have trouble with the EPUB.

@@ -87,7 +87,7 @@ class Polish(QDialog):  # {{{
             ('jacket', _('Add/replace metadata as a "book &jacket" page')),
             ('remove_jacket', _('&Remove a previously inserted book jacket')),
             ('remove_unused_css', _('Remove &unused CSS rules from the book')),
-            ('compress_images', _('Losslessly compress images')),
+            ('compress_images', _('Losslessly &compress images')),
         ])
         prefs = gprefs.get('polishing_settings', {})
         for name, text in self.all_actions.iteritems():

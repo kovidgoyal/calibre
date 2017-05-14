@@ -108,7 +108,7 @@ class TextureChooser(QDialog):
         return self.selected_fname
 
     def add_texture(self):
-        path = choose_files(self, 'choose-texture-image', _('Choose Image'),
+        path = choose_files(self, 'choose-texture-image', _('Choose image'),
                             filters=[(_('Images'), ['jpeg', 'jpg', 'png'])], all_files=False, select_only_single_file=True)
         if not path:
             return

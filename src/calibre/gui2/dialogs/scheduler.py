@@ -597,7 +597,7 @@ class Scheduler(QObject):
         self.scheduler_action = QAction(QIcon(I('scheduler.png')), _('Schedule news download'), self)
         self.news_menu.addAction(self.scheduler_action)
         self.scheduler_action.triggered[bool].connect(self.show_dialog)
-        self.cac = QAction(QIcon(I('user_profile.png')), _('Add a custom news source'), self)
+        self.cac = QAction(QIcon(I('user_profile.png')), _('Add or edit a custom news source'), self)
         self.cac.triggered[bool].connect(self.customize_feeds)
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()
@@ -734,10 +734,10 @@ class Scheduler(QObject):
                 # No internet connection, we will try again in a minute
                 break
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     d = SchedulerDialog(RecipeModel())
     d.exec_()
     del app
-

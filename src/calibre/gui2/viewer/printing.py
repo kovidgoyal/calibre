@@ -80,7 +80,7 @@ class PrintDialog(Dialog):
         pnum.setChecked(vprefs.get('print-to-pdf-page-numbers', True))
         l.addRow(pnum)
 
-        self.show_file = sf = QCheckBox(_('Open PDF file after printing'), self)
+        self.show_file = sf = QCheckBox(_('&Open PDF file after printing'), self)
         sf.setChecked(vprefs.get('print-to-pdf-show-file', True))
         l.addRow(sf)
 

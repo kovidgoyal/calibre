@@ -272,7 +272,7 @@ class InsertImage(Dialog):
         self.model.refresh()
 
     def import_image(self):
-        path = choose_files(self, 'tweak-book-choose-image-for-import', _('Choose Image'),
+        path = choose_files(self, 'tweak-book-choose-image-for-import', _('Choose image'),
                             filters=[(_('Images'), ('jpg', 'jpeg', 'png', 'gif', 'svg'))], all_files=True, select_only_single_file=True)
         if path:
             path = path[0]
