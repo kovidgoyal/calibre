@@ -247,12 +247,16 @@ def create_books_list(container):
     add_button(container.parentNode, icon='search', action=show_subsequent_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
     add_button(container.parentNode, icon='ellipsis-v', action=show_subsequent_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
     q = parse_url_params()
+    scrolled = False
     if q.book_id:
         e = container.querySelector(f'.{ITEM_CLASS_NAME}[data-book-id="{q.book_id}"]')
         if e and e.scrollIntoView:
             e.scrollIntoView(True)
             # Now scroll extra corresponding to top bar size
             window.scrollBy(0, -container.offsetTop)
+            scrolled = True
+    if not scrolled:
+        window.scrollTo(0, 0)
     q = loaded_books_query()
     if not q.search and library_data.search_result.total_num < 1:
         div = component('book_list')
