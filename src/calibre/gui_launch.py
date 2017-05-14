@@ -63,6 +63,10 @@ def register_with_default_programs():
 
 
 def calibre(args=sys.argv):
+    from calibre.constants import DEBUG
+    if DEBUG:
+        from calibre.debug import print_basic_debug_info
+        print_basic_debug_info()
     detach_gui()
     init_dbus()
     with register_with_default_programs():
