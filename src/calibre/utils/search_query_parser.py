@@ -37,18 +37,21 @@ class SavedSearchQueries(object):
     def __init__(self, db, _opt_name):
         self.opt_name = _opt_name
         if db is not None:
-            self.queries = db.prefs.get(self.opt_name, {})
+            db = db.new_api
+            self._db = weakref.ref(db)
+            self.queries = db.pref(self.opt_name, {})
         else:
             self.queries = {}
-        try:
-            self._db = weakref.ref(db)
-        except TypeError:
-            # db could be None
             self._db = lambda : None
 
     @property
     def db(self):
         return self._db()
+
+    def save_queries(self):
+        db = self.db
+        if db is not None:
+            db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x):
         if not isinstance(x, unicode):
@@ -56,35 +59,29 @@ class SavedSearchQueries(object):
         return x
 
     def add(self, name, value):
-        db = self.db
-        if db is not None:
-            self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
-            db.prefs[self.opt_name] = self.queries
+        self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
+        self.save_queries()
 
     def lookup(self, name):
         return self.queries.get(self.force_unicode(name), None)
 
     def delete(self, name):
-        db = self.db
-        if db is not None:
-            self.queries.pop(self.force_unicode(name), False)
-            db.prefs[self.opt_name] = self.queries
+        self.queries.pop(self.force_unicode(name), False)
+        self.save_queries()
 
     def rename(self, old_name, new_name):
-        db = self.db
-        if db is not None:
-            self.queries[self.force_unicode(new_name)] = \
-                        self.queries.get(self.force_unicode(old_name), None)
-            self.queries.pop(self.force_unicode(old_name), False)
-            db.prefs[self.opt_name] = self.queries
+        self.queries[self.force_unicode(new_name)] = \
+                    self.queries.get(self.force_unicode(old_name), None)
+        self.queries.pop(self.force_unicode(old_name), False)
+        self.save_queries()
 
     def set_all(self, smap):
-        db = self.db
-        if db is not None:
-            self.queries = db.prefs[self.opt_name] = smap
+        self.queries = smap
+        self.save_queries()
 
     def names(self):
         return sorted(self.queries.keys(),key=sort_key)
+
 
 '''
 Create a global instance of the saved searches. It is global so that the searches
@@ -105,6 +102,7 @@ def saved_searches():
 
 def global_lookup_saved_search(name):
     return ss.lookup(name)
+
 
 '''
 Parse a search expression into a series of potentially recursive operations.
@@ -811,8 +809,8 @@ def main(args=sys.argv):
 
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
 
 # }}}
-
