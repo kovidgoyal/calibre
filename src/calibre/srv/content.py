@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, errno
 from binascii import hexlify
 from io import BytesIO
 from threading import Lock
@@ -41,6 +41,17 @@ lock = Lock()
 # have only one second precision for mtimes
 mtimes = {}
 rename_counter = 0
+
+
+def open_for_write(fname):
+    try:
+        return share_open(fname, 'w+b')
+    except EnvironmentError:
+        try:
+            os.makedirs(os.path.dirname(fname))
+        except EnvironmentError:
+            pass
+    return share_open(fname, 'w+b')
 
 
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
@@ -78,20 +89,21 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
                     os.remove(dname)
                 else:
                     os.remove(fname)
-            try:
-                ans = share_open(fname, 'w+b')
-            except EnvironmentError:
-                try:
-                    os.makedirs(base)
-                except EnvironmentError:
-                    pass
-                ans = share_open(fname, 'w+b')
+            ans = open_for_write(fname)
             mtimes[bname] = mtime
             copy_func(ans)
             ans.seek(0)
         else:
-            ans = share_open(fname, 'rb')
-            used_cache = 'yes'
+            try:
+                ans = share_open(fname, 'rb')
+                used_cache = 'yes'
+            except EnvironmentError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+                ans = open_for_write(fname)
+                mtimes[bname] = mtime
+                copy_func(ans)
+                ans.seek(0)
         if ctx.testing:
             rd.outheaders['Used-Cache'] = used_cache
             rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
