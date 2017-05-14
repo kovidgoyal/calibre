@@ -253,6 +253,10 @@ def create_books_list(container):
             e.scrollIntoView(True)
             # Now scroll extra corresponding to top bar size
             window.scrollBy(0, -container.offsetTop)
+    q = loaded_books_query()
+    if not q.search and library_data.search_result.total_num < 1:
+        div = component('book_list')
+        div.appendChild(E.div(_('No books found'), style='margin: 1ex 1em'))
 
 
 def check_for_books_loaded():
