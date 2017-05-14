@@ -43,6 +43,10 @@ mtimes = {}
 rename_counter = 0
 
 
+def reset_caches():
+    mtimes.clear()
+
+
 def open_for_write(fname):
     try:
         return share_open(fname, 'w+b')
