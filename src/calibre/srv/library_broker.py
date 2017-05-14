@@ -128,15 +128,21 @@ class LibraryBroker(object):
 EXPIRED_AGE = 300  # seconds
 
 
+def load_gui_libraries(gprefs=None):
+    if gprefs is None:
+        from calibre.utils.config import JSONConfig
+        gprefs = JSONConfig('gui')
+    stats = gprefs.get('library_usage_stats', {})
+    return sorted(stats, key=stats.get, reverse=True)
+
+
 class GuiLibraryBroker(LibraryBroker):
 
     def __init__(self, db):
         from calibre.gui2 import gprefs
-        stats = gprefs.get('library_usage_stats', {})
-        libraries = sorted(stats, key=stats.get, reverse=True)
         self.last_used_times = defaultdict(lambda: -EXPIRED_AGE)
         self.gui_library_id = None
-        LibraryBroker.__init__(self, libraries)
+        LibraryBroker.__init__(self, load_gui_libraries(gprefs))
         self.gui_library_changed(db)
 
     def init_library(self, library_path, is_default_library):
