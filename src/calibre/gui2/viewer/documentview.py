@@ -558,7 +558,7 @@ class DocumentView(QWebView):  # {{{
         copy_action.triggered.connect(self.copy, Qt.QueuedConnection)
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
-            [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
+            [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk, d.CopyImageUrlToClipboard,
                 d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement]))
 
         self.search_online_action = QAction(QIcon(I('search.png')), '', self)
@@ -725,6 +725,10 @@ class DocumentView(QWebView):  # {{{
             menu.removeAction(action)
 
         if not img.isNull():
+            cia = self.pageAction(self.document.CopyImageToClipboard)
+            for action in menu.actions():
+                if action is cia:
+                    action.setText(_('&Copy image'))
             menu.addAction(self.view_image_action)
         if table is not None:
             self.document.mark_element.emit(table)
@@ -762,7 +766,7 @@ class DocumentView(QWebView):  # {{{
                 menu.addAction(self.manager.action_font_size_smaller)
 
         menu.addSeparator()
-        menu.addAction(_('Inspect'), self.inspect)
+        menu.addAction(_('I&nspect'), self.inspect)
 
         if not text and img.isNull() and self.manager is not None:
             menu.addSeparator()
