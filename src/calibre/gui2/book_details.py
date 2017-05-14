@@ -366,10 +366,10 @@ class CoverView(QWidget):  # {{{
     def contextMenuEvent(self, ev):
         from calibre.gui2.open_with import populate_menu, edit_programs
         cm = QMenu(self)
-        paste = cm.addAction(_('Paste Cover'))
-        copy = cm.addAction(_('Copy Cover'))
-        remove = cm.addAction(_('Remove Cover'))
-        gc = cm.addAction(_('Generate Cover from metadata'))
+        paste = cm.addAction(_('Paste cover'))
+        copy = cm.addAction(_('Copy cover'))
+        remove = cm.addAction(_('Remove cover'))
+        gc = cm.addAction(_('Generate cover from metadata'))
         cm.addSeparator()
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
@@ -385,7 +385,7 @@ class CoverView(QWidget):  # {{{
         else:
             m.addSeparator()
             m.addAction(_('Add another application to open cover...'), self.choose_open_with)
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'cover_image', self))
+            m.addAction(_('Edit Open with applications...'), partial(edit_programs, 'cover_image', self))
             cm.ocw = m
             cm.addMenu(m)
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
