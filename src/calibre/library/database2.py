@@ -55,6 +55,19 @@ SPOOL_SIZE = 30*1024*1024
 ProxyMetadata = namedtuple('ProxyMetadata', 'book_size ondevice_col db_approx_formats')
 
 
+class DBPrefsWrapper(object):
+
+    def __init__(self, db):
+        self.db = db
+        self.new_api = self
+
+    def pref(self, name, default=None):
+        return self.db.prefs.get(name, default)
+
+    def set_pref(self, name, val):
+        self.db.prefs[name] = val
+
+
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     '''
     An ebook metadata database that stores references to ebook files on disk.
@@ -274,7 +287,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
         if not self.is_second_db:
-            set_saved_searches(self, 'saved_searches')
+            set_saved_searches(DBPrefsWrapper(self), 'saved_searches')
 
         # migrate grouped_search_terms
         if self.prefs.get('grouped_search_terms', None) is None:
@@ -3807,5 +3820,3 @@ books_series_link      feeds
             if auts:
                 ans.add(auts)
         return ans
-
-
