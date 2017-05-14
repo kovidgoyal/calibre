@@ -244,8 +244,7 @@ def icon(ctx, rd, which):
         except EnvironmentError:
             raise HTTPNotFound()
     with lock:
-        tdir = os.path.join(rd.tdir, 'icons')
-        cached = os.path.join(tdir, '%d-%s.png' % (sz, which))
+        cached = os.path.join(rd.tdir, 'icons', '%d-%s.png' % (sz, which))
         try:
             return share_open(cached, 'rb')
         except EnvironmentError:
@@ -260,14 +259,7 @@ def icon(ctx, rd, which):
         scaled, width, height = fit_image(img.width(), img.height(), sz, sz)
         if scaled:
             idata = scale_image(img, width, height, as_png=True)[-1]
-        try:
-            ans = share_open(cached, 'w+b')
-        except EnvironmentError:
-            try:
-                os.mkdir(tdir)
-            except EnvironmentError:
-                pass
-            ans = share_open(cached, 'w+b')
+        ans = open_for_write(cached)
         ans.write(idata)
         ans.seek(0)
         return ans
