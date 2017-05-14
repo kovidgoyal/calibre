@@ -25,32 +25,40 @@ def debounce(func, wait, immediate=False):
         if call_now:
             func.apply(context, args)
 
+if Object.assign:
+    copy_hash = def (obj):
+        return Object.assign({}, obj)
+else:
+    copy_hash = def (obj):
+        return {k:obj[k] for k in Object.keys(obj)}
+
+
 def parse_url_params(url=None, allow_multiple=False):
     cache = parse_url_params.cache
     url = url or window.location.href
     if cache[url]:
-        return parse_url_params.cache[url]
+        return copy_hash(parse_url_params.cache[url])
     qs = url.indexOf('#')
     ans = {}
     if qs < 0:
         cache[url] = ans
-        return ans
+        return copy_hash(ans)
     q = url.slice(qs + 1, (url.length + 1))
     if not q:
         cache[url] = ans
-        return ans
+        return copy_hash(ans)
     pairs = q.replace(/\+/g, " ").split("&")
     for pair in pairs:
         key, val = pair.partition('=')[::2]
         key, val = decodeURIComponent(key), decodeURIComponent(val)
         if allow_multiple:
             if ans[key] is undefined:
-                ans[key] = []
+                ans[key] = v'[]'
             ans[key].append(val)
         else:
             ans[key] = val
     cache[url] = ans
-    return ans
+    return copy_hash(ans)
 parse_url_params.cache = {}
 
 
