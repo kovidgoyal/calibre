@@ -204,6 +204,10 @@ class Cache(object):
         self.formatter_template_cache = {}
 
     @write_api
+    def set_user_template_functions(self, user_template_functions):
+        self.backend.set_user_template_functions(user_template_functions)
+
+    @write_api
     def clear_composite_caches(self, book_ids=None):
         for field in self.composites.itervalues():
             field.clear_caches(book_ids=book_ids)
@@ -351,12 +355,14 @@ class Cache(object):
             bools_are_tristate = self.backend.prefs['bools_are_tristate']
 
             for field, table in self.backend.tables.iteritems():
-                self.fields[field] = create_field(field, table, bools_are_tristate)
+                self.fields[field] = create_field(field, table, bools_are_tristate,
+                                          self.backend.get_user_template_functions)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
-                    VirtualTable('ondevice'), bools_are_tristate)
+                    VirtualTable('ondevice'), bools_are_tristate,
+                    self.backend.get_user_template_functions)
 
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
