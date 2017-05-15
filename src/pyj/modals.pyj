@@ -21,6 +21,10 @@ add_extra_css(def():
     style += build_rule(
         '#modal-container a.dialog-simple-link:hover', color='red !important'
     )
+    style += build_rule(
+        '.button-box', display='flex', justify_content='flex-end', padding='1rem 0rem', overflow='hidden'
+    )
+    style += build_rule('.button-box .calibre-push-button', transform_origin='right')
     return style
 )
 
