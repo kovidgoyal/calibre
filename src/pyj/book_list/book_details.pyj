@@ -263,16 +263,18 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
             print('Failed to render metadata field: ' + field)
             traceback.print_exc()
 
+    all_html = ''
     for i, field in enumerate(sorted(comments)):
         fm = field_metadata[field]
         comment = comments[field]
-        div = E.div(sandboxed_html(comment))
-        if fm.display?.heading_position is 'above':
-            name = fm.name or field
-            div.insertBefore(E.h3(name), div.firstChild or None)
-        table.parentNode.appendChild(div)
-        if i is 0:
-            div.style.marginTop = '2ex'
+        if comment:
+            if fm.display?.heading_position is 'above':
+                name = fm.name or field
+                all_html += f'<h3>{name}</h3>'
+            all_html += comment
+    iframe = sandboxed_html(all_html)
+    iframe.style.marginTop = '2ex'
+    table.parentNode.appendChild(iframe)
 # }}}
 
 CLASS_NAME = 'book-details-panel'
