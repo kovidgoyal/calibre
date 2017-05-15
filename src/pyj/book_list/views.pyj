@@ -23,7 +23,7 @@ from book_list.library_data import (
     ensure_current_library_data, library_data, load_status, loaded_books_query,
     thumbnail_cache, url_books_query
 )
-from book_list.router import back, update_window_title, push_state, home
+from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
@@ -32,7 +32,7 @@ from book_list.ui import set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
 from modals import error_dialog
 from session import get_interface_data
-from utils import conditional_timeout, parse_url_params
+from utils import conditional_timeout, parse_url_params, simple_markup
 from widgets import create_button, create_spinner
 
 CLASS_NAME = 'book-list-container'
@@ -272,7 +272,7 @@ def check_for_books_loaded():
     clear(container)
     if not load_status.ok:
         err = E.div()
-        err.innerHTML = load_status.error_html
+        err.innerHTML = simple_markup(load_status.error_html)
         container.appendChild(E.div(
             style='margin: 1ex 1em',
             E.div(_('Failed to load books from calibre library, with error:')),

@@ -10,6 +10,7 @@ from modals import create_modal_container, error_dialog
 from session import get_interface_data, UserSessionData, update_interface_data, get_translations
 from gettext import gettext as _, install
 from popups import install_event_filters
+from utils import simple_markup
 
 from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
@@ -87,9 +88,10 @@ def on_data_loaded(end_type, xhr, ev):
     else:
         p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
         if xhr.status is 401:
-            p.innerHTML = _('You are not authorized to view this site')
+            msg = _('You are not authorized to view this site')
         else:
-            p.innerHTML = xhr.error_html
+            msg = xhr.error_html
+        p.innerHTML = simple_markup(msg)
         document.body.appendChild(p)
 
 
