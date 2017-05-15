@@ -13,6 +13,7 @@ simple_vendor_prefixes = {
     'animation-fill-mode': v"['webkit', 'moz', 'o']",
     'animation-play-state': v"['webkit', 'moz', 'o']",
     'transform': v"['webkit', 'ms', 'moz', 'o']",
+    'transform-origin': v"['webkit', 'ms', 'moz', 'o']",
     'transition': v"['webkit', 'moz', 'o']",
     'filter': v"['webkit']",
     'user-select': v"['webkit', 'moz', 'ms']",
