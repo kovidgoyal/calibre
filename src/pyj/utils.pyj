@@ -217,6 +217,10 @@ def simple_markup(html):
 simple_markup.allowed_tags = v"'b|i|br|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
 
 
+def safe_set_inner_html(elem, html):
+    elem.innerHTML = simple_markup(html)
+
+
 if __name__ is '__main__':
     from pythonize import strings
     strings()
