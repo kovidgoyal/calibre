@@ -200,7 +200,7 @@ def conditional_timeout(elem_id, timeout, func):
 
 
 def simple_markup(html):
-    html = (html or '').replace(/\u{ffff}/ug, '').replace(
+    html = (html or '').replace(/\uffff/g, '').replace(
         /<\s*(\/?[a-zA-Z1-6]+)[^>]*>/g, def (match, tag):
             tag = tag.toLowerCase()
             is_closing = '/' if tag[0] is '/' else ''
@@ -213,7 +213,7 @@ def simple_markup(html):
     div = document.createElement('b')
     div.textContent = html
     html = div.innerHTML
-    return html.replace(/\u{ffff}(\/?[a-z1-6]+)\u{ffff}/ug, '<$1>')
+    return html.replace(/\uffff(\/?[a-z1-6]+)\uffff/g, '<$1>')
 simple_markup.allowed_tags = v"'b|i|br|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
 
 
