@@ -221,6 +221,17 @@ def safe_set_inner_html(elem, html):
     elem.innerHTML = simple_markup(html)
 
 
+def sandboxed_html(html, style):
+    ans = document.createElement('iframe')
+    ans.setAttribute('sandbox', '')
+    ans.setAttribute('seamless', '')
+    ans.style.width = '100%'
+    html = html or ''
+    css = 'html, body { margin: 0; padding: 0; } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'
+    css += style or ''
+    ans.srcdoc = f'<html><head><style>{css}</style></head><body>{html}</body></html>'
+    return ans
+
 if __name__ is '__main__':
     from pythonize import strings
     strings()

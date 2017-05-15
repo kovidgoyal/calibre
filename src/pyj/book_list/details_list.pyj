@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from dom import build_rule, clear, set_css, svgicon
 from session import get_interface_data
-from utils import fmt_sidx
+from utils import fmt_sidx, sandboxed_html
 
 DETAILS_LIST_CLASS = 'book-list-details-list'
 ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
@@ -29,7 +29,9 @@ def details_list_css():
     ans += build_rule(s, margin_right='1em', min_width=f'{THUMBNAIL_MAX_WIDTH}px')
     ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', max_height=f'{THUMBNAIL_MAX_HEIGHT}px', max_width=f'{THUMBNAIL_MAX_WIDTH}px')
     s = sel + ' .details-list-right'
-    ans += build_rule(s, flex_grow='10', overflow='hidden')
+    ans += build_rule(s, flex_grow='10', overflow='hidden', display='flex', flex_direction='column')
+    s += ' iframe'
+    ans += build_rule(s, flex_grow='10', height='50px')
     return ans
 
 
@@ -59,10 +61,10 @@ def create_item(book_id, metadata, create_image, show_book_details):
     img.dataset.title, img.dataset.authors = metadata.title, authors
     img_div = E.div(img, class_='details-list-left')
     extra_data = E.div(style='text-align: right')
-    comments = E.div(style='margin-top: 1ex')
+    comments = sandboxed_html(metadata.comments, 'html { overflow: hidden }')
+    comments.style.display = 'block' if metadata.comments else 'none'
+    comments.style.marginTop = '1ex'
     interface_data = get_interface_data()
-    if metadata.comments:
-        comments.innerHTML = metadata.comments
     if metadata.rating:
         stars = E.span(style='white-space:nowrap')
         for i in range(int(metadata.rating) // 2):

@@ -12,7 +12,7 @@ from modals import error_dialog, create_custom_dialog
 from widgets import create_spinner, create_button
 from date import format_date
 from session import get_interface_data
-from utils import fmt_sidx, parse_url_params, conditional_timeout, safe_set_inner_html
+from utils import fmt_sidx, parse_url_params, conditional_timeout, safe_set_inner_html, sandboxed_html
 
 from book_list.router import back, open_book, home
 from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status, current_virtual_library
@@ -115,7 +115,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html:
-            table.lastChild.lastChild.innerHTML = val + ''
+            table.lastChild.lastChild.appendChild(sandboxed_html(val + ''))
         else:
             if not join:
                 add_val(val)
@@ -266,8 +266,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
     for i, field in enumerate(sorted(comments)):
         fm = field_metadata[field]
         comment = comments[field]
-        div = E.div()
-        div.innerHTML = comment
+        div = E.div(sandboxed_html(comment))
         if fm.display?.heading_position is 'above':
             name = fm.name or field
             div.insertBefore(E.h3(name), div.firstChild or None)
