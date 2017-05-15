@@ -485,16 +485,6 @@ gui_view_history_size = 15
 # negative number to increase or decrease the font size.
 change_book_details_font_size_by = 0
 
-#: Compile general program mode templates to Python
-# Compiled general program mode templates are significantly faster than
-# interpreted templates. Setting this tweak to True causes calibre to compile
-# (in most cases) general program mode templates. Setting it to False causes
-# calibre to use the old behavior -- interpreting the templates. Set the tweak
-# to False if some compiled templates produce incorrect values.
-# Default:    compile_gpm_templates = True
-# No compile: compile_gpm_templates = False
-compile_gpm_templates = True
-
 #: What format to default to when using the "Unpack book" feature
 # The "Unpack book" feature of calibre allows direct editing of a book format.
 # If multiple formats are available, calibre will offer you a choice

@@ -25,7 +25,7 @@ class _Parser(object):
 
     LEX_CONSTANTS = frozenset([LEX_STR, LEX_NUM])
 
-    def __init__(self, val, prog, parent):
+    def __init__(self, val, prog, funcs, parent):
         self.lex_pos = 0
         self.prog = prog[0]
         self.prog_len = len(self.prog)
@@ -35,6 +35,7 @@ class _Parser(object):
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
         self.locals = {'$':val}
+        self.funcs = funcs
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
@@ -121,14 +122,13 @@ class _Parser(object):
 
     def expr(self):
         if self.token_is_id():
-            funcs = formatter_functions().get_functions()
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a_lparen():
                 if self.token_op_is_a_equals():
                     # classic assignment statement
                     self.consume()
-                    cls = funcs['assign']
+                    cls = self.funcs['assign']
                     return cls.eval_(self.parent, self.parent_kwargs,
                                     self.parent_book, self.locals, id, self.expr())
                 val = self.locals.get(id, None)
@@ -139,7 +139,7 @@ class _Parser(object):
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
             id = id.strip()
-            if id not in funcs:
+            if id not in self.funcs:
                 self.error(_('unknown function {0}').format(id))
 
             # Eat the paren
@@ -163,7 +163,7 @@ class _Parser(object):
                 self.error(_('missing closing parenthesis'))
 
             # Evaluate the function
-            cls = funcs[id]
+            cls = self.funcs[id]
             if cls.arg_count != -1 and len(args) != cls.arg_count:
                 self.error('incorrect number of arguments for function {}'.format(id))
             return cls.eval_(self.parent, self.parent_kwargs,
@@ -173,142 +173,6 @@ class _Parser(object):
             return self.token()
         else:
             self.error(_('expression is not function or constant'))
-
-
-class _CompileParser(_Parser):
-
-    def __init__(self, val, prog, parent, compile_text):
-        self.lex_pos = 0
-        self.prog = prog[0]
-        self.prog_len = len(self.prog)
-        if prog[1] != '':
-            self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
-        self.parent = parent
-        self.parent_kwargs = parent.kwargs
-        self.parent_book = parent.book
-        self.locals = {'$':val}
-        self.compile_text = compile_text
-
-    def program(self):
-        if self.compile_text:
-            t = self.compile_text
-            self.compile_text = '\n'
-        self.max_level = 0
-        val = self.statement()
-        if not self.token_is_eof():
-            self.error(_('syntax error - program ends before EOF'))
-        if self.compile_text:
-            t += "\targs=[[]"
-            for i in range(0, self.max_level):
-                t += ", None"
-            t += ']'
-            self.compile_text = t + self.compile_text + "\treturn args[0][0]\n"
-        return val
-
-    def statement(self, level=0):
-        while True:
-            val = self.expr(level)
-            if self.token_is_eof():
-                return val
-            if not self.token_op_is_a_semicolon():
-                return val
-            self.consume()
-            if self.token_is_eof():
-                return val
-            if self.compile_text:
-                self.compile_text += "\targs[%d] = list()\n"%(level,)
-
-    def expr(self, level):
-        if self.compile_text:
-            self.max_level = max(level+1, self.max_level)
-
-        if self.token_is_id():
-            funcs = formatter_functions().get_functions()
-            # We have an identifier. Determine if it is a function
-            id = self.token()
-            if not self.token_op_is_a_lparen():
-                if self.token_op_is_a_equals():
-                    # classic assignment statement
-                    self.consume()
-                    cls = funcs['assign']
-                    if self.compile_text:
-                        self.compile_text += '\targs[%d] = list()\n'%(level+1,)
-                    val = cls.eval_(self.parent, self.parent_kwargs,
-                                    self.parent_book, self.locals, id, self.expr(level+1))
-                    if self.compile_text:
-                        self.compile_text += "\tlocals['%s'] = args[%d][0]\n"%(id, level+1)
-                        self.compile_text += "\targs[%d].append(args[%d][0])\n"%(level, level+1)
-                    return val
-                val = self.locals.get(id, None)
-                if val is None:
-                    self.error(_('Unknown identifier ') + id)
-                if self.compile_text:
-                    self.compile_text += "\targs[%d].append(locals.get('%s'))\n"%(level, id)
-                return val
-            # We have a function.
-            # Check if it is a known one. We do this here so error reporting is
-            # better, as it can identify the tokens near the problem.
-            id = id.strip()
-            if id not in funcs:
-                self.error(_('unknown function {0}').format(id))
-
-            # Eat the paren
-            self.consume()
-            args = list()
-            if self.compile_text:
-                self.compile_text += '\targs[%d] = list()\n'%(level+1, )
-            if id == 'field':
-                val = self.expr(level+1)
-                val = self.parent.get_value(val, [], self.parent_kwargs)
-                if self.compile_text:
-                    self.compile_text += "\targs[%d].append(formatter.get_value(args[%d][0], [], kwargs))\n"%(level, level+1)
-                if self.token() != ')':
-                    self.error(_('missing closing parenthesis'))
-                return val
-            while not self.token_op_is_a_rparen():
-                if id == 'assign' and len(args) == 0:
-                    # Must handle the lvalue semantics of the assign function.
-                    # The first argument is the name of the destination, not
-                    # the value.
-                    if not self.token_is_id():
-                        self.error('assign requires the first parameter be an id')
-                    t = self.token()
-                    args.append(t)
-                    if self.compile_text:
-                        self.compile_text += "\targs[%d].append('%s')\n"%(level+1, t)
-                else:
-                    # evaluate the argument (recursive call)
-                    args.append(self.statement(level=level+1))
-                if not self.token_op_is_a_comma():
-                    break
-                self.consume()
-            if self.token() != ')':
-                self.error(_('missing closing parenthesis'))
-
-            # Evaluate the function
-            cls = funcs[id]
-            if cls.arg_count != -1 and len(args) != cls.arg_count:
-                self.error('incorrect number of arguments for function {}'.format(id))
-            if self.compile_text:
-                self.compile_text += (
-                    "\targs[%d].append(self.__funcs__['%s']"
-                    ".eval_(formatter, kwargs, book, locals, *args[%d]))\n")%(level, id, level+1)
-            return cls.eval_(self.parent, self.parent_kwargs,
-                            self.parent_book, self.locals, *args)
-        elif self.token_is_constant():
-            # String or number
-            v = unicode(self.token())
-            if self.compile_text:
-                tv = v.replace("\\", "\\\\")
-                tv = tv.replace("'", "\\'")
-                self.compile_text += "\targs[%d].append(unicode('%s'))\n"%(level, tv)
-            return v
-        else:
-            self.error(_('expression is not function or constant'))
-
-
-compile_counter = 0
-
 
 class TemplateFormatter(string.Formatter):
     '''
@@ -327,6 +191,7 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = None
         self.strip_results = True
         self.locals = {}
+        self.funcs = formatter_functions().get_functions()
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -388,36 +253,15 @@ class TemplateFormatter(string.Formatter):
         # keep a cache of the lex'ed program under the theory that re-lexing
         # is much more expensive than the cache lookup. This is certainly true
         # for more than a few tokens, but it isn't clear for simple programs.
-        if tweaks['compile_gpm_templates']:
-            if column_name is not None and self.template_cache is not None:
-                lprog = self.template_cache.get(column_name, None)
-                if lprog:
-                    return lprog.evaluate(self, self.kwargs, self.book, self.locals)
+        if column_name is not None and self.template_cache is not None:
+            lprog = self.template_cache.get(column_name, None)
+            if not lprog:
                 lprog = self.lex_scanner.scan(prog)
-                compile_text = ('__funcs__ = formatter_functions().get_functions()\n'
-                                'def evaluate(self, formatter, kwargs, book, locals):\n'
-                                )
-            else:
-                lprog = self.lex_scanner.scan(prog)
-                compile_text = None
-            parser = _CompileParser(val, lprog, self, compile_text)
-            val = parser.program()
-            if parser.compile_text:
-                global compile_counter
-                compile_counter += 1
-                f = compile_user_function("__A" + str(compile_counter), 'doc', -1, parser.compile_text)
-                self.template_cache[column_name] = f
+                self.template_cache[column_name] = lprog
         else:
-            if column_name is not None and self.template_cache is not None:
-                lprog = self.template_cache.get(column_name, None)
-                if not lprog:
-                    lprog = self.lex_scanner.scan(prog)
-                    self.template_cache[column_name] = lprog
-            else:
-                lprog = self.lex_scanner.scan(prog)
-            parser = _Parser(val, lprog, self)
-            val = parser.program()
-        return val
+            lprog = self.lex_scanner.scan(prog)
+        parser = _Parser(val, lprog, self.funcs, self)
+        return parser.program()
 
     # ################# Override parent classes methods #####################
 
@@ -462,10 +306,9 @@ class TemplateFormatter(string.Formatter):
                     dispfmt = fmt[0:colon]
                     colon += 1
 
-                funcs = formatter_functions().get_functions()
                 fname = fmt[colon:p].strip()
-                if fname in funcs:
-                    func = funcs[fname]
+                if fname in self.funcs:
+                    func = self.funcs[fname]
                     if func.arg_count == 2:
                         # only one arg expected. Don't bother to scan. Avoids need
                         # for escaping characters
@@ -516,12 +359,15 @@ class TemplateFormatter(string.Formatter):
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
-                    strip_results=True):
+                    strip_results=True, user_functions=None):
         self.strip_results = strip_results
         self.column_name = column_name
         self.template_cache = template_cache
         self.kwargs = kwargs
         self.book = book
+        if user_functions:
+            self.funcs = formatter_functions().get_builtins().copy()
+            self.funcs.update(user_functions)
         self.composite_values = {}
         self.locals = {}
         try:
