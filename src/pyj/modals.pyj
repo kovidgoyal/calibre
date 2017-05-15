@@ -2,12 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ajax import ajax, ajax_send
 from elementmaker import E
-from dom import set_css, clear, build_rule, svgicon, add_extra_css
 from gettext import gettext as _
+
+from ajax import ajax, ajax_send
 from book_list.theme import get_color, get_font_size
+from dom import add_extra_css, build_rule, clear, set_css, svgicon
 from popups import MODAL_Z_INDEX
+from utils import simple_markup
 
 modal_container = None
 modal_count = 0
@@ -145,10 +147,10 @@ def create_simple_dialog(title, msg, details, icon, prefix):
         is_html_msg = /<[a-zA-Z]/.test(msg)
         html_container = E.div()
         if is_html_msg:
-            html_container.innerHTML = msg
+            html_container.innerHTML = simple_markup(msg)
         details_container = E.span()
         if /<[a-zA-Z]/.test(details):
-            details_container.innerHTML = details
+            details_container.innerHTML = simple_markup(details)
         else:
             details_container.textContent = details
         parent.appendChild(
@@ -193,7 +195,7 @@ def create_progress_dialog(msg, on_close):
     return {
         'close': def(): modal_container.hide_modal(modal_id);,
         'update_progress': def(amount, total): pbar.max, pbar.value = total, amount;,
-        'set_msg': def(new_msg): msg_div.innerHTML = new_msg;,
+        'set_msg': def(new_msg): msg_div.innerHTML = simple_markup(new_msg);,
     }
 
 # def test_progress():
