@@ -31,7 +31,10 @@ def details_list_css():
     s = sel + ' .details-list-right'
     ans += build_rule(s, flex_grow='10', overflow='hidden', display='flex', flex_direction='column')
     s += ' iframe'
-    ans += build_rule(s, flex_grow='10', height='50px')
+    # To enable clicking anywhere on the item to load book details to work, we
+    # have to set pointer-events: none
+    # That has the side effect of disabling text selection
+    ans += build_rule(s, flex_grow='10', height='50px', cursor='pointer', pointer_events='none')
     return ans
 
 
@@ -89,9 +92,9 @@ def create_item(book_id, metadata, create_image, show_book_details):
     )
     ans = E.div(img_div, right,
                 style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
-                onclick=show_book_details,
                 class_=ITEM_CLASS,
     )
+    ans.addEventListener('click', show_book_details, True)
     return ans
 
 
