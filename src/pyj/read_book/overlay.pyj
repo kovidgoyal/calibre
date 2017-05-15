@@ -11,7 +11,7 @@ from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
-from utils import full_screen_element, request_full_screen, simple_markup
+from utils import full_screen_element, request_full_screen, safe_set_inner_html
 from read_book.goto import create_goto_panel
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
@@ -34,13 +34,13 @@ class LoadingMessage:  # {{{
                 E.div(create_spinner('100px', '100px')),
                 E.h2()
         ))
-        container.firstChild.lastChild.innerHTML = simple_markup(self.msg)
+        safe_set_inner_html(container.firstChild.lastChild, self.msg)
         set_css(container.firstChild, position='relative', top='50%', transform='translateY(-50%)')
 
     def set_msg(self, msg):
         self.msg = msg
         container = document.getElementById(self.container_id)
-        container.firstChild.lastChild.innerHTML = simple_markup(self.msg)
+        safe_set_inner_html(container.firstChild.lastChild, self.msg)
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
@@ -79,7 +79,7 @@ class DeleteBook:  # {{{
                 E.div(create_spinner('100px', '100px')),
                 E.h2()
         ))
-        container.lastChild.lastChild.innerHTML = simple_markup(_('Deleting local book copy, please wait...'))
+        safe_set_inner_html(container.lastChild.lastChild, _('Deleting local book copy, please wait...'))
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click

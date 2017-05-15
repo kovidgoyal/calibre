@@ -9,7 +9,7 @@ from ajax import ajax, ajax_send
 from book_list.theme import get_color, get_font_size
 from dom import add_extra_css, build_rule, clear, set_css, svgicon
 from popups import MODAL_Z_INDEX
-from utils import simple_markup
+from utils import safe_set_inner_html
 
 modal_container = None
 modal_count = 0
@@ -147,10 +147,10 @@ def create_simple_dialog(title, msg, details, icon, prefix):
         is_html_msg = /<[a-zA-Z]/.test(msg)
         html_container = E.div()
         if is_html_msg:
-            html_container.innerHTML = simple_markup(msg)
+            safe_set_inner_html(html_container, msg)
         details_container = E.span()
         if /<[a-zA-Z]/.test(details):
-            details_container.innerHTML = simple_markup(details)
+            safe_set_inner_html(details_container, details)
         else:
             details_container.textContent = details
         parent.appendChild(
@@ -195,7 +195,7 @@ def create_progress_dialog(msg, on_close):
     return {
         'close': def(): modal_container.hide_modal(modal_id);,
         'update_progress': def(amount, total): pbar.max, pbar.value = total, amount;,
-        'set_msg': def(new_msg): msg_div.innerHTML = simple_markup(new_msg);,
+        'set_msg': def(new_msg): safe_set_inner_html(msg_div, new_msg);,
     }
 
 # def test_progress():
