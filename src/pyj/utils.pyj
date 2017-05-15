@@ -221,9 +221,9 @@ def safe_set_inner_html(elem, html):
     elem.innerHTML = simple_markup(html)
 
 
-def sandboxed_html(html, style):
+def sandboxed_html(html, style, sandbox):
     ans = document.createElement('iframe')
-    ans.setAttribute('sandbox', '')
+    ans.setAttribute('sandbox', sandbox or '')
     ans.setAttribute('seamless', '')
     ans.style.width = '100%'
     html = html or ''

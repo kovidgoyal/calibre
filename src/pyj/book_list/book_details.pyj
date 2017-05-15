@@ -12,7 +12,7 @@ from modals import error_dialog, create_custom_dialog
 from widgets import create_spinner, create_button
 from date import format_date
 from session import get_interface_data
-from utils import fmt_sidx, parse_url_params, conditional_timeout, safe_set_inner_html, sandboxed_html
+from utils import fmt_sidx, parse_url_params, conditional_timeout, safe_set_inner_html, sandboxed_html, debounce
 
 from book_list.router import back, open_book, home
 from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status, current_virtual_library
@@ -22,6 +22,7 @@ from book_list.views import search_query_for
 
 bd_counter = 0
 
+CLASS_NAME = 'book-details-panel'
 FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
@@ -83,6 +84,29 @@ def on_fmt_click(ev):
     )
 
 
+def adjust_iframe_height(iframe):
+    de = iframe.contentWindow.document.documentElement
+    iframe.style.height = max(de.scrollHeight, de.offsetHeight) + 5 + 'px'
+    iframe.dataset.last_window_width = window.innerWidth + ''
+
+
+def adjust_all_iframes(ev):
+    for iframe in document.querySelectorAll(f'.{CLASS_NAME} iframe'):
+        ww = parseInt(iframe.dataset.last_window_width)
+        if ww is not window.innerWidth:
+            adjust_iframe_height(iframe)
+
+
+window.addEventListener('resize', debounce(adjust_all_iframes, 250))
+
+def adjusting_sandboxed_html(html):
+    ans = sandboxed_html(html, 'html, body { overflow: hidden }', 'allow-same-origin')
+    ans.addEventListener('load', def(ev): adjust_iframe_height(ev.target);)
+    ans.style.height = '50vh'
+    ans.dataset.last_window_width = '0'
+    return ans
+
+
 def render_metadata(mi, table, book_id, field_list=None):  # {{{
     field_metadata = library_data.field_metadata
     interface_data = get_interface_data()
@@ -115,7 +139,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html:
-            table.lastChild.lastChild.appendChild(sandboxed_html(val + ''))
+            table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + ''))
         else:
             if not join:
                 add_val(val)
@@ -272,12 +296,11 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
                 name = fm.name or field
                 all_html += f'<h3>{name}</h3>'
             all_html += comment
-    iframe = sandboxed_html(all_html)
+    iframe = adjusting_sandboxed_html(all_html)
     iframe.style.marginTop = '2ex'
     table.parentNode.appendChild(iframe)
 # }}}
 
-CLASS_NAME = 'book-details-panel'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
