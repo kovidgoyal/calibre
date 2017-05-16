@@ -48,14 +48,18 @@
 #include <qpa/qplatformservices.h>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#include <QtFontDatabaseSupport/private/qfontenginemultifontconfig_p.h>
+#  include <QtFontDatabaseSupport/private/qfontenginemultifontconfig_p.h>
 #else
-#include <QtPlatformSupport/private/qfontenginemultifontconfig_p.h>
+#  include <QtPlatformSupport/private/qfontenginemultifontconfig_p.h>
 #endif
-#include <QtGui/private/qfontengine_ft_p.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
+#  include <QtFontDatabaseSupport/private/qfontengine_ft_p.h>
+#else
+#  include <QtGui/private/qfontengine_ft_p.h>
+#endif
 #include <QtGui/private/qguiapplication_p.h>
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-#include <QtGui/private/qhighdpiscaling_p.h>
+#  include <QtGui/private/qhighdpiscaling_p.h>
 #endif
 
 #include <QtGui/qguiapplication.h>
@@ -763,7 +767,7 @@ QFontEngine *QFontconfigDatabase::fontEngine(const QFontDef &f, void *usrPtr)
 
 QFontEngine *QFontconfigDatabase::fontEngine(const QByteArray &fontData, qreal pixelSize, QFont::HintingPreference hintingPreference)
 {
-    QFontEngineFT *engine = static_cast<QFontEngineFT*>(QBasicFontDatabase::fontEngine(fontData, pixelSize, hintingPreference));
+    QFontEngineFT *engine = static_cast<QFontEngineFT*>(QFreeTypeFontDatabase::fontEngine(fontData, pixelSize, hintingPreference));
     if (engine == 0)
         return 0;
 
@@ -915,7 +919,7 @@ QStringList QFontconfigDatabase::addApplicationFont(const QByteArray &fontData, 
 
 QString QFontconfigDatabase::resolveFontFamilyAlias(const QString &family) const
 {
-    QString resolved = QBasicFontDatabase::resolveFontFamilyAlias(family);
+    QString resolved = QFreeTypeFontDatabase::resolveFontFamilyAlias(family);
     if (!resolved.isEmpty() && resolved != family)
         return resolved;
     FcPattern *pattern = FcPatternCreate();
