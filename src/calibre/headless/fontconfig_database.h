@@ -7,17 +7,21 @@
 #pragma once
 
 #include <qpa/qplatformfontdatabase.h>
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#include <QtFontDatabaseSupport/private/qbasicfontdatabase_p.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
+#  include <QtFontDatabaseSupport/private/qfreetypefontdatabase_p.h>
+#elif (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#  include <QtFontDatabaseSupport/private/qbasicfontdatabase_p.h>
+#  define QFreeTypeFontDatabase QBasicFontDatabase
 #else
-#include <QtPlatformSupport/private/qbasicfontdatabase_p.h>
+#  include <QtPlatformSupport/private/qbasicfontdatabase_p.h>
+#  define QFreeTypeFontDatabase QBasicFontDatabase
 #endif
 
 QT_BEGIN_NAMESPACE
 
 class QFontEngineFT;
 
-class QFontconfigDatabase : public QBasicFontDatabase
+class QFontconfigDatabase : public QFreeTypeFontDatabase
 {
 public:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
