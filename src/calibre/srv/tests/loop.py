@@ -12,14 +12,10 @@ from unittest import skipIf
 from glob import glob
 from threading import Event
 
-try:
-    from calibre.utils.certgen import create_server_cert
-except ImportError:
-    create_server_cert = None
-
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -187,7 +183,6 @@ class LoopTest(BaseTest):
         set(b'123456\n7', 4, 2, READ)
         self.ae(buf.readline(), b'56\n')
 
-    @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
         address = '127.0.0.1'
