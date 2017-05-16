@@ -560,6 +560,7 @@ class Users(QWidget):
         h.addStretch(2), h.addWidget(b)
 
         self.user_list = w = QListWidget(self)
+        w.doubleClicked.connect(self.current_user_activated)
         w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         lp.addWidget(w)
 
@@ -573,6 +574,9 @@ class Users(QWidget):
         self.user_list.setCurrentRow(0)
         self.user_list.currentItemChanged.connect(self.current_item_changed)
         self.current_item_changed()
+
+    def current_user_activated(self):
+        self.user_display.change_password()
 
     def current_item_changed(self):
         item = self.user_list.currentItem()
