@@ -12,7 +12,7 @@ from gettext import gettext as _, install
 from popups import install_event_filters
 from utils import safe_set_inner_html
 
-from book_list.constants import book_list_container_id, read_book_container_id
+from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
@@ -21,7 +21,7 @@ from book_list.ui import apply_url_state as book_list_mode_handler
 from read_book.ui import ReadUI
 
 # Register the various panels
-from book_list.home import change_user
+import book_list.home # noqa: unused-import
 import book_list.views # noqa: unused-import
 import book_list.local_books # noqa: unused-import
 import book_list.book_details # noqa: unused-import
@@ -84,8 +84,6 @@ def install_data_and_init_ui(raw_data):
         get_translations(data.translations)
     init_ui()
 
-change_user.install_data_and_init_ui = install_data_and_init_ui
-change_user.endpoint = 'interface-data/init'
 
 def on_data_loaded(end_type, xhr, ev):
     remove_initial_progress_bar()
@@ -114,7 +112,7 @@ def load_interface_data():
     if not idata.is_default:
         temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
         query = url_books_query(temp)
-    ajax(change_user.endpoint, on_data_loaded, on_data_load_progress, query=query).send()
+    ajax(INIT_ENDPOINT, on_data_loaded, on_data_load_progress, query=query).send()
 
 
 def do_update_interface_data():
