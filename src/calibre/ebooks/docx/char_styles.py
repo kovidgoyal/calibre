@@ -183,19 +183,26 @@ class RunStyle(object):
             for p in self.all_properties:
                 setattr(self, p, inherit)
         else:
+            X, g = namespace.XPath, namespace.get
             for p in (
                 'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint', 'rtl', 'shadow',
                 'smallCaps', 'strike', 'vanish', 'webHidden',
             ):
-                setattr(self, p, binary_property(rPr, p, namespace.XPath, namespace.get))
+                setattr(self, p, binary_property(rPr, p, X, g))
 
-            read_font(rPr, self, namespace.XPath, namespace.get)
-            for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'underline', 'vert_align', 'position', 'lang'):
-                f = globals()['read_%s' % x]
-                f(rPr, self, namespace.XPath, namespace.get)
+            read_font(rPr, self, X, g)
+            read_text_border(rPr, self, X, g)
+            read_color(rPr, self, X, g)
+            read_highlight(rPr, self, X, g)
+            read_shd(rPr, self, X, g)
+            read_letter_spacing(rPr, self, X, g)
+            read_underline(rPr, self, X, g)
+            read_vert_align(rPr, self, X, g)
+            read_position(rPr, self, X, g)
+            read_lang(rPr, self, X, g)
 
-            for s in namespace.XPath('./w:rStyle[@w:val]')(rPr):
-                self.linked_style = namespace.get(s, 'w:val')
+            for s in X('./w:rStyle[@w:val]')(rPr):
+                self.linked_style = g(s, 'w:val')
 
         self._css = None
 
