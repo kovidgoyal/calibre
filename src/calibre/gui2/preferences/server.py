@@ -2,22 +2,27 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
+import os
 import textwrap
 import time
 
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, QPushButton,
-    QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QPlainTextEdit, QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt,
+    QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import as_unicode
-from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog
+from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog, gprefs
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
+from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
-from calibre.srv.users import UserManager, validate_username, validate_password, create_user_data
+from calibre.srv.users import (
+    UserManager, create_user_data, validate_password, validate_username
+)
 from calibre.utils.icu import primary_sort_key
+
 
 # Advanced {{{
 
@@ -375,7 +380,10 @@ class ChangeRestriction(QDialog):
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
 
-        self.libraries = t = QPlainTextEdit(self)
+        self.libraries = t = QListWidget(self)
+        t.setSelectionMode(t.NoSelection)
+        t.itemClicked.connect(self.item_clicked)
+        t.setCursor(Qt.PointingHandCursor)
         self.atype = a = QComboBox(self)
         a.addItems([_('All libraries'), _('Only the specified libraries'), _('All except the specified libraries')])
         if restriction['allowed_library_names']:
@@ -392,7 +400,7 @@ class ChangeRestriction(QDialog):
         self.msg = la = QLabel(self)
         la.setWordWrap(True)
         l.addRow(la)
-        self.la = la = QLabel(_('Specify the names of libraries below, one per line:'))
+        self.la = la = QLabel(_('Specify the libraries below:'))
         la.setWordWrap(True)
         l.addRow(la), l.addRow(t)
         self.atype_changed()
@@ -402,15 +410,38 @@ class ChangeRestriction(QDialog):
         )
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         l.addRow(bb)
+        self.items = self.items
+
+    def item_clicked(self, item):
+        item.setCheckState(Qt.Checked if item.checkState() != Qt.Checked else Qt.Unchecked)
+
+    def __iter__(self):
+        for c in range(self.libraries.count()):
+            yield self.libraries.item(c)
 
     @property
     def items(self):
-        items = filter(None, [x.strip() for x in self.libraries.toPlainText().splitlines()])
-        return frozenset(items)
+        return frozenset(item.text() for item in self if item.checkState() == Qt.Checked)
 
     @items.setter
     def items(self, val):
-        self.libraries.setPlainText('\n'.join(sorted(val)))
+        checked_libraries = frozenset(val)
+        gui_libraries = frozenset(map(os.path.basename, load_gui_libraries(gprefs)))
+        case_map = {l.lower():l for l in checked_libraries}
+        lchecked_libraries = {v:k for k, v in case_map.iteritems()}
+        seen = set()
+        items = []
+        for x in checked_libraries | gui_libraries:
+            xl = x.lower()
+            if xl not in seen:
+                seen.add(xl)
+                items.append((x, xl in lchecked_libraries))
+        items.sort(key=lambda x: primary_sort_key(x[0]))
+        self.libraries.clear()
+        for l, checked in items:
+            i = QListWidgetItem(l, self.libraries)
+            i.setCheckState(Qt.Checked if checked else Qt.Unchecked)
+            i.setFlags(i.flags() & ~Qt.ItemIsUserCheckable)
 
     @property
     def restriction(self):
@@ -428,6 +459,7 @@ class ChangeRestriction(QDialog):
 
     def atype_changed(self):
         ci = self.atype.currentIndex()
+        sheet = 'QListView::item { padding: 3px }'
         if ci == 0:
             m = _('<b>{} is allowed access to all libraries')
             self.libraries.setEnabled(False), self.la.setEnabled(False)
@@ -438,8 +470,11 @@ class ChangeRestriction(QDialog):
             else:
                 m = _('{} is allowed access to all libraries, <b>except</b> those'
                       ' whose names match one of the names specified below.')
+                sheet += 'QListView { background-color: #FAE7B5}'
             self.libraries.setEnabled(True), self.la.setEnabled(True)
+            self.items = self.items
         self.msg.setText(m.format(self.username))
+        self.libraries.setStyleSheet(sheet)
 
 
 class User(QWidget):
