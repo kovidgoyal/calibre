@@ -5,3 +5,4 @@ from __python__ import hash_literals, bound_methods
 
 book_list_container_id = 'book-list-container'
 read_book_container_id = 'read-book-container'
+INIT_ENDPOINT = 'interface-data/init'
