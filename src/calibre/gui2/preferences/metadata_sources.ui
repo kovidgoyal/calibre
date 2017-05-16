@@ -33,7 +33,7 @@
        <item row="3" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_find_first_edition_date">
          <property name="text">
-          <string>Use published date of &quot;first edition&quot; (from worldcat.org)</string>
+          <string>Use &amp;published date of &quot;first edition&quot; (from worldcat.org)</string>
          </property>
         </widget>
        </item>
@@ -81,7 +81,7 @@
        <item row="2" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_swap_author_names">
          <property name="text">
-          <string>Swap author names from FN LN to LN, FN</string>
+          <string>Swap &amp;author names from FN LN to LN, FN</string>
          </property>
         </widget>
        </item>
