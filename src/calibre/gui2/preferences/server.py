@@ -595,6 +595,7 @@ class Users(QWidget):
         h.addStretch(2), h.addWidget(b)
 
         self.user_list = w = QListWidget(self)
+        w.setSpacing(1)
         w.doubleClicked.connect(self.current_user_activated)
         w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         lp.addWidget(w)
