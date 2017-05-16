@@ -90,7 +90,7 @@ def on_data_loaded(end_type, xhr, ev):
     if end_type is 'load':
         install_data_and_init_ui(xhr.responseText)
     else:
-        p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
+        p = E.p(style='color:{}; font-weight: bold; font-size:1.5em'.format(get_color('window-error-foreground')))
         if xhr.status is 401:
             msg = _('You are not authorized to view this site')
         else:
