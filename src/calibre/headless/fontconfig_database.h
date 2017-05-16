@@ -8,13 +8,13 @@
 
 #include <qpa/qplatformfontdatabase.h>
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-#  include <QtFontDatabaseSupport/private/qfreetypefontdatabase_p.h>
+#include <QtFontDatabaseSupport/private/qfreetypefontdatabase_p.h>
 #elif (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#  include <QtFontDatabaseSupport/private/qbasicfontdatabase_p.h>
-#  define QFreeTypeFontDatabase QBasicFontDatabase
+#include <QtFontDatabaseSupport/private/qbasicfontdatabase_p.h>
+#define QFreeTypeFontDatabase QBasicFontDatabase
 #else
-#  include <QtPlatformSupport/private/qbasicfontdatabase_p.h>
-#  define QFreeTypeFontDatabase QBasicFontDatabase
+#include <QtPlatformSupport/private/qbasicfontdatabase_p.h>
+#define QFreeTypeFontDatabase QBasicFontDatabase
 #endif
 
 QT_BEGIN_NAMESPACE

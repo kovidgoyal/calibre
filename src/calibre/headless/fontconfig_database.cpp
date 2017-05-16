@@ -48,18 +48,18 @@
 #include <qpa/qplatformservices.h>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#  include <QtFontDatabaseSupport/private/qfontenginemultifontconfig_p.h>
+#include <QtFontDatabaseSupport/private/qfontenginemultifontconfig_p.h>
 #else
-#  include <QtPlatformSupport/private/qfontenginemultifontconfig_p.h>
+#include <QtPlatformSupport/private/qfontenginemultifontconfig_p.h>
 #endif
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-#  include <QtFontDatabaseSupport/private/qfontengine_ft_p.h>
+#include <QtFontDatabaseSupport/private/qfontengine_ft_p.h>
 #else
-#  include <QtGui/private/qfontengine_ft_p.h>
+#include <QtGui/private/qfontengine_ft_p.h>
 #endif
 #include <QtGui/private/qguiapplication_p.h>
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-#  include <QtGui/private/qhighdpiscaling_p.h>
+#include <QtGui/private/qhighdpiscaling_p.h>
 #endif
 
 #include <QtGui/qguiapplication.h>
