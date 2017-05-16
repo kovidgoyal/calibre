@@ -21,7 +21,7 @@ from book_list.ui import apply_url_state as book_list_mode_handler
 from read_book.ui import ReadUI
 
 # Register the various panels
-import book_list.home  # noqa: unused-import
+from book_list.home import change_user
 import book_list.views # noqa: unused-import
 import book_list.local_books # noqa: unused-import
 import book_list.book_details # noqa: unused-import
@@ -59,7 +59,7 @@ def init_ui():
         install(translations)
         get_translations(translations)
     remove_initial_progress_bar()
-    document.head.appendChild(E.style('body { overflow-wrap: break-word; word-wrap: break-word; word-break: break-all; }\n' + get_widget_css()))
+    document.head.appendChild(E.style('body { overflow-wrap: break-word; word-wrap: break-word; }\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     document.body.appendChild(E.div())
     document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
@@ -73,18 +73,24 @@ def init_ui():
     apply_url()
 
 
+def install_data_and_init_ui(raw_data):
+    data = JSON.parse(raw_data)
+    update_interface_data(data)
+    update_library_data(data)
+    interface_data = get_interface_data()
+    sd = UserSessionData(interface_data.username, interface_data.user_session_data)
+    set_session_data(sd)
+    if data.translations:
+        get_translations(data.translations)
+    init_ui()
+
+change_user.install_data_and_init_ui = install_data_and_init_ui
+change_user.endpoint = 'interface-data/init'
+
 def on_data_loaded(end_type, xhr, ev):
     remove_initial_progress_bar()
     if end_type is 'load':
-        data = JSON.parse(xhr.responseText)
-        update_interface_data(data)
-        update_library_data(data)
-        interface_data = get_interface_data()
-        sd = UserSessionData(interface_data.username, interface_data.user_session_data)
-        set_session_data(sd)
-        if data.translations:
-            get_translations(data.translations)
-        init_ui()
+        install_data_and_init_ui(xhr.responseText)
     else:
         p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
         if xhr.status is 401:
@@ -97,8 +103,9 @@ def on_data_loaded(end_type, xhr, ev):
 
 def on_data_load_progress(loaded, total):
     p = document.querySelector('#page_load_progress > progress')
-    p.max = total
-    p.value = loaded
+    if p:
+        p.max = total
+        p.value = loaded
 
 
 def load_interface_data():
@@ -107,7 +114,7 @@ def load_interface_data():
     if not idata.is_default:
         temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
         query = url_books_query(temp)
-    ajax('interface-data/init', on_data_loaded, on_data_load_progress, query=query).send()
+    ajax(change_user.endpoint, on_data_loaded, on_data_load_progress, query=query).send()
 
 
 def do_update_interface_data():
