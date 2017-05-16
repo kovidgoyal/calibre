@@ -98,6 +98,7 @@ def parse_uri(uri, parse_query=True):
 
 # HTTP Header parsing {{{
 
+
 comma_separated_headers = {
     'Accept', 'Accept-Charset', 'Accept-Encoding',
     'Accept-Language', 'Accept-Ranges', 'Allow', 'Cache-Control',
@@ -288,7 +289,7 @@ class HTTPRequest(Connection):
         return 'State: %s Client: %s:%s Request: %s' % (
             getattr(self.handle_event, '__name__', None),
             self.remote_addr, self.remote_port,
-            force_unicode(self.request_line, 'utf-8'))
+            force_unicode(getattr(self, 'request_line', 'WebSocketConnection'), 'utf-8'))
 
     def parse_header_line(self, parser, buf, event):
         line = self.readline(buf)
