@@ -173,7 +173,7 @@ add_extra_css(def():
     sel += '> li'
     style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', align_items='center', cursor='pointer')
     style += build_rule(sel + ':last-child', border_right_style='none')
-    style += build_rule(sel + ':hover > *:first-child', color='red')
+    style += build_rule(sel + ':hover > *:first-child', color=get_color('window-hover-foreground'))
     style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
     return style
 )

@@ -39,12 +39,12 @@ add_extra_css(def():
     # search items list
     style += build_rule(sel + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
     style += build_rule(sel + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
-    style += build_rule(sel + ' ul.search-items > li:hover', color='red')
+    style += build_rule(sel + ' ul.search-items > li:hover', color=get_color('window-hover-foreground'))
     style += build_rule(sel + ' ul.search-items > li:active', transform='scale(1.5)')
 
     # Actions popup
     style +=  build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-    style += build_rule('#modal-container ul.tb-action-list > li:active', color='red', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule('#modal-container ul.tb-action-list > li:active', color=get_color('window-hover-foreground'), color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
 
     return style
 )

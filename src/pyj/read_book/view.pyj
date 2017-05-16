@@ -47,7 +47,7 @@ add_extra_css(def():
     sel = '.book-side-margin'
     ans = build_rule(sel, cursor='pointer', color='rgba(0, 0, 0, 0)', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
     ans += build_rule(sel + ':hover', background_color=get_color('window-background') + ' !important', color=get_color('window-foreground') + ' !important')
-    ans += build_rule(sel + ':active > svg', color='red', transform='scale(2)')
+    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), transform='scale(2)')
     return ans
 )
 

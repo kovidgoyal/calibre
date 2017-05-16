@@ -3,22 +3,28 @@
 from __python__ import hash_literals
 
 import traceback
-from ajax import ajax
-from book_list.theme import get_font_size
-from dom import clear, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from modals import error_dialog, create_custom_dialog
-from widgets import create_spinner, create_button
-from date import format_date
-from session import get_interface_data
-from utils import fmt_sidx, parse_url_params, conditional_timeout, safe_set_inner_html, sandboxed_html, debounce
 
-from book_list.router import back, open_book, home
-from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url, load_status, current_virtual_library
-from book_list.top_bar import create_top_bar, set_title, add_button
-from book_list.ui import set_panel_handler, query_as_href
+from ajax import ajax
+from book_list.library_data import (
+    book_metadata, cover_url, current_library_id, current_virtual_library,
+    download_url, library_data, load_status, set_book_metadata
+)
+from book_list.router import back, home, open_book
+from book_list.theme import get_color, get_font_size
+from book_list.top_bar import add_button, create_top_bar, set_title
+from book_list.ui import query_as_href, set_panel_handler
 from book_list.views import search_query_for
+from date import format_date
+from dom import add_extra_css, build_rule, clear, svgicon
+from modals import create_custom_dialog, error_dialog
+from session import get_interface_data
+from utils import (
+    conditional_timeout, debounce, fmt_sidx, parse_url_params, safe_set_inner_html,
+    sandboxed_html
+)
+from widgets import create_button, create_spinner
 
 bd_counter = 0
 
@@ -306,8 +312,8 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style  = build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
     style += build_rule(sel + 'table.metadata a[href]', color='blue')
-    style += build_rule(sel + 'table.metadata a[href]:hover', color='red')
-    style += build_rule(sel + 'table.metadata a[href]:active', color='red', transform='scale(1.5)')
+    style += build_rule(sel + 'table.metadata a[href]:hover', color=get_color('window-hover-foreground'))
+    style += build_rule(sel + 'table.metadata a[href]:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
     return style
 )
 
