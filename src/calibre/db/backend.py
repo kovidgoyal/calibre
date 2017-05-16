@@ -33,7 +33,8 @@ from calibre.utils.filenames import (
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.formatter_functions import (load_user_template_functions,
             unload_user_template_functions,
-            compile_user_template_functions)
+            compile_user_template_functions,
+            formatter_functions)
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, UUIDTable, RatingTable)
@@ -413,11 +414,16 @@ class DB(object):
         if load_user_formatter_functions:
             set_global_state(self)
 
+    def get_template_functions(self):
+        return self._template_functions
+
     def get_user_template_functions(self):
         return self._user_template_functions
 
     def set_user_template_functions(self, user_formatter_functions):
         self._user_template_functions = user_formatter_functions
+        self._template_functions = formatter_functions().get_builtins()
+        self._template_functions.update(user_formatter_functions)
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)

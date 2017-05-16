@@ -861,7 +861,7 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, template):
         if val == '' or val == 'None':
             return ''
-        if not '{' in template:
+        if '{' not in template:
             template = '{0:' + template + '}'
         try:
             v1 = float(val)

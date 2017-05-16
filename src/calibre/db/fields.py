@@ -41,7 +41,7 @@ class Field(object):
     is_many_many = False
     is_composite = False
 
-    def __init__(self, name, table, bools_are_tristate, get_user_formatter_functions):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
         self.name, self.table = name, table
         dt = self.metadata['datatype']
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
@@ -88,7 +88,7 @@ class Field(object):
             self.category_formatter = calibre_langcode_to_name
         self.writer = Writer(self)
         self.series_field = None
-        self.get_user_formatter_functions = get_user_formatter_functions
+        self.get_template_functions = get_template_functions
 
     @property
     def metadata(self):
@@ -204,8 +204,8 @@ class CompositeField(OneToOneField):
     is_composite = True
     SIZE_SUFFIX_MAP = {suffix:i for i, suffix in enumerate(('', 'K', 'M', 'G', 'T', 'P', 'E'))}
 
-    def __init__(self, name, table, bools_are_tristate, get_user_formatter_functions):
-        OneToOneField.__init__(self, name, table, bools_are_tristate, get_user_formatter_functions)
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
+        OneToOneField.__init__(self, name, table, bools_are_tristate, get_template_functions)
 
         self._render_cache = {}
         self._lock = Lock()
@@ -266,7 +266,7 @@ class CompositeField(OneToOneField):
         ans = formatter.safe_format(
             self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
             mi, column_name=self._composite_name, template_cache=template_cache,
-            user_functions=self.get_user_formatter_functions()).strip()
+            template_functions=self.get_template_functions()).strip()
         with self._lock:
             self._render_cache[book_id] = ans
         return ans
@@ -349,7 +349,7 @@ class CompositeField(OneToOneField):
 
 class OnDeviceField(OneToOneField):
 
-    def __init__(self, name, table, bools_are_tristate, get_user_formatter_functions):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
         self.name = name
         self.book_on_device_func = None
         self.is_multiple = False
@@ -735,7 +735,7 @@ class TagsField(ManyToManyField):
         return ans
 
 
-def create_field(name, table, bools_are_tristate, get_user_formatter_functions):
+def create_field(name, table, bools_are_tristate, get_template_functions):
     cls = {
             ONE_ONE: OneToOneField,
             MANY_ONE: ManyToOneField,
@@ -755,5 +755,5 @@ def create_field(name, table, bools_are_tristate, get_user_formatter_functions):
         cls = CompositeField
     elif table.metadata['datatype'] == 'series':
         cls = SeriesField
-    return cls(name, table, bools_are_tristate, get_user_formatter_functions)
+    return cls(name, table, bools_are_tristate, get_template_functions)
 
