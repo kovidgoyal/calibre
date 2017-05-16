@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 from xml.dom import minidom, Node
 import weakref
 
-from . import _base
+from . import base
 from .. import constants
 from ..constants import namespaces
 from ..utils import moduleFactoryFactory
@@ -42,9 +42,9 @@ def getDomBuilder(DomImplementation):
             else:
                 return self.element.hasAttribute(name)
 
-    class NodeBuilder(_base.Node):
+    class NodeBuilder(base.Node):
         def __init__(self, element):
-            _base.Node.__init__(self, element.nodeName)
+            base.Node.__init__(self, element.nodeName)
             self.element = element
 
         namespace = property(lambda self: hasattr(self.element, "namespaceURI")
@@ -109,7 +109,7 @@ def getDomBuilder(DomImplementation):
 
         nameTuple = property(getNameTuple)
 
-    class TreeBuilder(_base.TreeBuilder):
+    class TreeBuilder(base.TreeBuilder):
         def documentClass(self):
             self.dom = Dom.getDOMImplementation().createDocument(None, None, None)
             return weakref.proxy(self)
@@ -149,12 +149,12 @@ def getDomBuilder(DomImplementation):
             return self.dom
 
         def getFragment(self):
-            return _base.TreeBuilder.getFragment(self).element
+            return base.TreeBuilder.getFragment(self).element
 
         def insertText(self, data, parent=None):
             data = data
             if parent != self:
-                _base.TreeBuilder.insertText(self, data, parent)
+                base.TreeBuilder.insertText(self, data, parent)
             else:
                 # HACK: allow text nodes as children of the document node
                 if hasattr(self.dom, '_child_node_types'):

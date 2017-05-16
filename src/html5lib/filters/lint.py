@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from . import _base
+from . import base
 from ..constants import cdataElements, rcdataElements, voidElements
 
 from ..constants import spaceCharacters
@@ -11,11 +11,11 @@ class LintError(Exception):
     pass
 
 
-class Filter(_base.Filter):
+class Filter(base.Filter):
     def __iter__(self):
         open_elements = []
         contentModelFlag = "PCDATA"
-        for token in _base.Filter.__iter__(self):
+        for token in base.Filter.__iter__(self):
             type = token["type"]
             if type in ("StartTag", "EmptyTag"):
                 name = token["name"]

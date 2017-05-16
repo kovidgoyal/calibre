@@ -7,7 +7,7 @@ from . import inputstream
 from . import tokenizer
 
 from . import treebuilders
-from .treebuilders._base import Marker
+from .treebuilders.base import Marker
 
 from . import utils
 from .constants import (

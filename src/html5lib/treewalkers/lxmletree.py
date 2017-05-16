@@ -7,9 +7,9 @@ except NameError:
 from lxml import etree
 from ..treebuilders.etree import tag_regexp
 
-from . import _base
+from . import base
 
-from .. import ihatexml
+from .. import _ihatexml
 
 
 def ensure_str(s):
@@ -118,35 +118,35 @@ class FragmentWrapper(object):
         return len(self.obj)
 
 
-class TreeWalker(_base.NonRecursiveTreeWalker):
+class TreeWalker(base.NonRecursiveTreeWalker):
     def __init__(self, tree):
         if hasattr(tree, "getroot"):
             tree = Root(tree)
         elif isinstance(tree, list):
             tree = FragmentRoot(tree)
-        _base.NonRecursiveTreeWalker.__init__(self, tree)
-        self.filter = ihatexml.InfosetFilter()
+        base.NonRecursiveTreeWalker.__init__(self, tree)
+        self.filter = _ihatexml.InfosetFilter()
 
     def getNodeDetails(self, node):
         if isinstance(node, tuple):  # Text node
             node, key = node
             assert key in ("text", "tail"), "Text nodes are text or tail, found %s" % key
-            return _base.TEXT, ensure_str(getattr(node, key))
+            return base.TEXT, ensure_str(getattr(node, key))
 
         elif isinstance(node, Root):
-            return (_base.DOCUMENT,)
+            return (base.DOCUMENT,)
 
         elif isinstance(node, Doctype):
-            return _base.DOCTYPE, node.name, node.public_id, node.system_id
+            return base.DOCTYPE, node.name, node.public_id, node.system_id
 
         elif isinstance(node, FragmentWrapper) and not hasattr(node, "tag"):
-            return _base.TEXT, node.obj
+            return base.TEXT, node.obj
 
         elif node.tag == etree.Comment:
-            return _base.COMMENT, ensure_str(node.text)
+            return base.COMMENT, ensure_str(node.text)
 
         elif node.tag == etree.Entity:
-            return _base.ENTITY, ensure_str(node.text)[1:-1]  # strip &;
+            return base.ENTITY, ensure_str(node.text)[1:-1]  # strip &;
 
         else:
             # This is assumed to be an ordinary element
@@ -165,7 +165,7 @@ class TreeWalker(_base.NonRecursiveTreeWalker):
                     attrs[(match.group(1), match.group(2))] = value
                 else:
                     attrs[(None, name)] = value
-            return (_base.ELEMENT, namespace, self.filter.fromXmlName(tag),
+            return (base.ELEMENT, namespace, self.filter.fromXmlName(tag),
                     attrs, len(node) > 0 or node.text)
 
     def getFirstChild(self, node):
