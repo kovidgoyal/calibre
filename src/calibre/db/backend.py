@@ -422,7 +422,7 @@ class DB(object):
 
     def set_user_template_functions(self, user_formatter_functions):
         self._user_template_functions = user_formatter_functions
-        self._template_functions = formatter_functions().get_builtins()
+        self._template_functions = formatter_functions().get_builtins().copy()
         self._template_functions.update(user_formatter_functions)
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
