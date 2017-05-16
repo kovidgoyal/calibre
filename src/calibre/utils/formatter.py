@@ -359,15 +359,16 @@ class TemplateFormatter(string.Formatter):
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
-                    strip_results=True, user_functions=None):
+                    strip_results=True, template_functions=None):
         self.strip_results = strip_results
         self.column_name = column_name
         self.template_cache = template_cache
         self.kwargs = kwargs
         self.book = book
-        if user_functions:
-            self.funcs = formatter_functions().get_builtins().copy()
-            self.funcs.update(user_functions)
+        if template_functions:
+            self.funcs = template_functions
+        else:
+            self.funcs = formatter_functions().get_functions()
         self.composite_values = {}
         self.locals = {}
         try:

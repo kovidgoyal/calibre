@@ -356,13 +356,13 @@ class Cache(object):
 
             for field, table in self.backend.tables.iteritems():
                 self.fields[field] = create_field(field, table, bools_are_tristate,
-                                          self.backend.get_user_template_functions)
+                                          self.backend.get_template_functions)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'), bools_are_tristate,
-                    self.backend.get_user_template_functions)
+                    self.backend.get_template_functions)
 
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
