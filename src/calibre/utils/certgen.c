@@ -97,7 +97,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     RSA *KeyPair = NULL;
     PyObject *capsule = NULL, *ans = NULL, *t = NULL;
     X509_NAME *Name = NULL;
-    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, buf[1024];
+    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL, buf[1024];
     X509_REQ *Cert = NULL;
     EVP_PKEY *PrivateKey = NULL;
     PyObject *alt_names = NULL;
@@ -105,7 +105,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     Py_ssize_t i = 0;
     STACK_OF(X509_EXTENSION) *exts = NULL;
 
-    if(!PyArg_ParseTuple(args, "OOszzzzzz", &capsule, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email)) return NULL;
+    if(!PyArg_ParseTuple(args, "OOszzzzzzz", &capsule, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email, &basic_constraints)) return NULL;
     if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
     if(!PySequence_Check(alt_names)) return PyErr_Format(PyExc_TypeError, "alt_names must be a sequence");
     KeyPair = PyCapsule_GetPointer(capsule, NULL);
@@ -123,7 +123,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     if (!add_entry(Name, "emailAddress", email)) goto error;
     if (!add_entry(Name, "CN", common_name)) goto error;
 
-    if (PySequence_Length(alt_names) > 0) {
+    if (PySequence_Length(alt_names) > 0 || basic_constraints) {
         exts = sk_X509_EXTENSION_new_null();
         if (!exts) { set_error("sk_X509_EXTENSION_new_null"); goto error; }
         for (i = 0; i < PySequence_Length(alt_names); i++) {
@@ -132,6 +132,9 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
             snprintf(buf, 1023, "DNS:%s", PyBytes_AS_STRING(t));
             Py_XDECREF(t);
             if(!add_ext(exts, NID_subject_alt_name, buf)) goto error;
+        }
+        if (basic_constraints) {
+            if(!add_ext(exts, NID_basic_constraints, basic_constraints)) goto error;
         }
         X509_REQ_add_extensions(Cert, exts);
         sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
@@ -243,13 +246,11 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     if (!Name) { set_error("X509_REQ_get_subject_name(CA_cert)"); goto error; }
     if (!X509_set_issuer_name(Cert, Name)) { set_error("X509_set_issuer_name"); goto error; }
 
-    if (!req_is_for_CA_cert) {
-        exts = X509_REQ_get_extensions(req);
-        if (exts) {
-            X509V3_set_ctx(&ctx, CA_cert, Cert, NULL, NULL, 0);
-            for (i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-                if(!X509_add_ext(Cert, sk_X509_EXTENSION_value(exts, i), -1)) { set_error("X509_add_ext"); goto error; }
-            }
+    exts = X509_REQ_get_extensions(req);
+    if (exts) {
+        X509V3_set_ctx(&ctx, CA_cert, Cert, NULL, NULL, 0);
+        for (i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
+            if(!X509_add_ext(Cert, sk_X509_EXTENSION_value(exts, i), -1)) { set_error("X509_add_ext"); goto error; }
         }
     }
 
