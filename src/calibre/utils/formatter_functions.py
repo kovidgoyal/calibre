@@ -853,12 +853,16 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
                   '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
                   'template must be a 0 (zero) (the "{0:" in the above examples). '
                   'See the template language and Python documentation for more '
-                  'examples. Returns the empty string if formatting fails.'
+                  'examples. You can leave off the leading "{0:" and trailing '
+                  '"}" if the template contains only a format. Returns the empty '
+                  'string if formatting fails.'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals, val, template):
         if val == '' or val == 'None':
             return ''
+        if not '{' in template:
+            template = '{0:' + template + '}'
         try:
             v1 = float(val)
         except:
