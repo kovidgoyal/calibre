@@ -63,9 +63,9 @@ class Breadcrumbs:
         padding='0.5ex 1rem', position='relative'
     )
 
-    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:hover', color='red')
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:hover', color=get_color('window-hover-foreground'))
 
-    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:active', color='red', transform='scale(1.5)')
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
 
     STYLE_RULES += build_rule(
         '.calibre-breadcrumbs > li:before, .calibre-breadcrumbs > li:after',
@@ -205,7 +205,7 @@ def scroll_tree_item_into_view(item):
 
 add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
-    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-link:active { transform: scale(1.5) }\n'
+    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
     ans += create_button.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'
