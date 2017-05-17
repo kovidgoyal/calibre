@@ -3052,7 +3052,12 @@ class KOBOTOUCH(KOBO):
 
     @property
     def collections_columns(self):
-        return self.get_pref('collections_columns')
+        return self.get_pref('collections_columns') if self.manage_collections else ''
+
+    def get_collections_attributes(self):
+        collections_str = self.collections_columns
+        collections = [x.lower().strip() for x in collections_str.split(',')] if collections_str else []
+        return collections
 
     @property
     def delete_empty_collections(self):

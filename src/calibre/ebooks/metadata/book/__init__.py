@@ -113,7 +113,7 @@ SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
                                       'identifiers'])
 
 # Metadata fields that smart update should copy only if the source is not None
-SC_FIELDS_COPY_NOT_NULL =  frozenset(['lpath', 'size', 'comments', 'thumbnail'])
+SC_FIELDS_COPY_NOT_NULL =  frozenset(['device_collections', 'lpath', 'size', 'comments', 'thumbnail'])
 
 # Metadata fields that smart update should copy without special handling
 SC_COPYABLE_FIELDS =       SOCIAL_METADATA_FIELDS.union(
