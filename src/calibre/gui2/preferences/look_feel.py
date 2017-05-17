@@ -20,7 +20,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
-from calibre.constants import isosx
+from calibre.constants import isosx, iswindows
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import default_author_link
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -325,6 +325,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
+        if not isosx and not iswindows:
+            self.label_widget_style.setVisible(False)
+            self.opt_ui_style.setVisible(False)
+
         db = gui.library_view.model().db
 
         r = self.register

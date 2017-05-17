@@ -1077,6 +1077,10 @@ class Application(QApplication):
     def setup_styles(self, force_calibre_style):
         self.using_calibre_style = force_calibre_style or 'CALIBRE_IGNORE_SYSTEM_THEME' in os.environ or (
             gprefs['ui_style'] != 'system')
+        if not iswindows and not isosx:
+            # Force calibre style on linux as the system style causes
+            # crashes/hangs in Qt
+            self.using_calibre_style = True
         if self.using_calibre_style:
             self.load_calibre_style()
 
