@@ -281,6 +281,39 @@ class MainOverlay:
 
 # }}}
 
+# ControlsOverlay {{{
+
+class ControlsOverlay:
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        def msg(txt):
+            return set_css(E.div(txt), padding='1ex 1em', position='relative', top='50%', transform='translateY(-50%)')
+        container.appendChild(E.div(
+            style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
+                  'display:flex; flex-direction: column; align-items: stretch',
+            E.div(
+                msg(_('Tap for controls')),
+                style='height: 25vh; border-bottom: solid 2px currentColor',
+            ),
+            E.div(
+                style="display: flex; align-items: stretch; flex-grow: 10",
+                E.div(
+                    msg(_('Tap to turn back')),
+                    style='width: 25vw; border-right: solid 2px currentColor',
+                ),
+                E.div(
+                    msg(_('Tap to turn page')),
+                    style='width: 75vw;',
+                )
+            )
+        ))
+
+# }}}
+
 class TOCOverlay: # {{{
 
     def __init__(self, overlay, create_func, title):
@@ -361,6 +394,9 @@ class Overlay:
     def is_visible(self):
         return self.container.style.display is not 'none'
 
+    def update_visibility(self):
+        self.container.style.display = 'block' if self.panels.length else 'none'
+
     def container_clicked(self, evt):
         if self.panels.length and jstype(self.panels[-1].on_container_click) is 'function':
             self.panels[-1].on_container_click(evt)
@@ -373,24 +409,24 @@ class Overlay:
         self.show_current_panel()
 
     def hide_loading_message(self):
-        if self.panels.length and isinstance(self.panels[-1], LoadingMessage):
-            self.hide_current_panel()
+        self.panels = [p for p in self.panels if not isinstance(p, LoadingMessage)]
+        self.show_current_panel()
+
+    def show_controls_help(self):
+        self.panels.push(ControlsOverlay(self))
+        self.show_current_panel()
 
     def hide_current_panel(self):
         p = self.panels.pop()
         if p and callable(p.on_hide):
             p.on_hide()
-        if self.panels.length:
-            self.show_current_panel()
-        else:
-            self.container.style.display = 'none'
+        self.show_current_panel()
 
     def show_current_panel(self):
-        if self.panels.length > 1 and callable(self.panels[-2].on_hide):
-            self.panels[-2].on_hide()
-        c = self.clear_container()
         if self.panels.length:
+            c = self.clear_container()
             self.panels[-1].show(c)
+        self.update_visibility()
 
     def show(self):
         self.panels = [MainOverlay(self)]
@@ -399,7 +435,7 @@ class Overlay:
     def hide(self):
         while self.panels.length:
             self.hide_current_panel()
-        self.container.style.display = 'none'
+        self.update_visibility()
 
     def delete_book(self):
         self.hide_current_panel()
@@ -417,10 +453,12 @@ class Overlay:
         self.show_current_panel()
 
     def show_toc(self):
+        self.hide_current_panel()
         self.panels.push(TOCOverlay(self))
         self.show_current_panel()
 
     def show_goto(self):
+        self.hide_current_panel()
         self.panels.push(TOCOverlay(self, create_goto_panel, _('Go to…')))
         self.show_current_panel()
 
@@ -429,9 +467,11 @@ class Overlay:
         self.view.show_search()
 
     def show_prefs(self):
-        self.panels = [PrefsOverlay(self)]
+        self.hide_current_panel()
+        self.panels.push(PrefsOverlay(self))
         self.show_current_panel()
 
     def show_font_size_chooser(self):
-        self.panels = [FontSizeOverlay(self)]
+        self.hide_current_panel()
+        self.panels.push(FontSizeOverlay(self))
         self.show_current_panel()

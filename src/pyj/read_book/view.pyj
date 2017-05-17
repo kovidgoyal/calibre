@@ -318,6 +318,11 @@ class View:
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
         self.show_name(name, initial_position=pos)
+        sd = get_session_data()
+        c = sd.get('controls_help_shown_count', 0)
+        if c < 1:
+            self.overlay.show_controls_help()
+            sd.set('controls_help_shown_count', c + 1)
 
     def redisplay_book(self):
         self.display_book(self.book)
@@ -456,7 +461,6 @@ class View:
         self.hide_loading()
         frac = data.progress_frac or 0
         self.update_read_percent(frac)
-        # self.overlay.show()
 
     def update_font_size(self):
         self.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))

@@ -33,6 +33,7 @@ defaults = {
     'current_color_scheme': 'white',
     'user_color_schemes': {},
     'base_font_size': 16,
+    'controls_help_shown_count': 0,
 }
 
 is_local_setting = {
@@ -46,6 +47,7 @@ is_local_setting = {
     'columns_per_screen': True,
     'current_color_scheme': True,
     'base_font_size': True,
+    'controls_help_shown_count': True,
 }
 
 
