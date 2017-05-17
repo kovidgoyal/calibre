@@ -327,9 +327,9 @@ class TOCOverlay: # {{{
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
         container.appendChild(E.div(
-                style='padding: 1ex 1em; border-bottom: solid 1px currentColor',
-                E.h2(self.title, style='float:left'),
-                E.div(svgicon('close'), style='cursor:pointer; float:right', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
+            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
+                E.h2(self.title),
+                E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
             ))
         self.create_func(self.overlay.view.book, container, self.handle_activate)
 
