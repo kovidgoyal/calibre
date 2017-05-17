@@ -121,7 +121,7 @@ def show_recent_stage2(books):
         start_sync(to_sync)
     container.appendChild(E.div(style='margin: 1rem 1rem',
         create_button(
-            _('Browse all previously downloaded books…'),
+            _('Browse all downloaded books…'),
             action=def():
                 show_panel('local_books')
     )))
