@@ -76,9 +76,9 @@ class View:
         right_margin = E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked)
         set_right_margin_handler(right_margin)
         container.appendChild(
-            E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
-                  E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+            E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+                  E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked),
