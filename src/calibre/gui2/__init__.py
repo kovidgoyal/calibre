@@ -305,15 +305,6 @@ def available_width():
     return desktop.availableGeometry().width()
 
 
-def get_windows_color_depth():
-    import win32gui, win32con, win32print
-    hwin = win32gui.GetDesktopWindow()
-    hwindc = win32gui.GetWindowDC(hwin)
-    ans = win32print.GetDeviceCaps(hwindc, win32con.BITSPIXEL)
-    win32gui.ReleaseDC(hwin, hwindc)
-    return ans
-
-
 def get_screen_dpi():
     d = QApplication.desktop()
     return (d.logicalDpiX(), d.logicalDpiY())
@@ -1084,20 +1075,8 @@ class Application(QApplication):
         load_builtin_fonts()
 
     def setup_styles(self, force_calibre_style):
-        depth_ok = True
-        if iswindows:
-            # There are some people that still run 16 bit winxp installs. The
-            # new style does not render well on 16bit machines.
-            try:
-                depth_ok = get_windows_color_depth() >= 32
-            except:
-                import traceback
-                traceback.print_exc()
-            if not depth_ok:
-                prints('Color depth is less than 32 bits disabling modern look')
-
         self.using_calibre_style = force_calibre_style or 'CALIBRE_IGNORE_SYSTEM_THEME' in os.environ or (
-            depth_ok and gprefs['ui_style'] != 'system')
+            gprefs['ui_style'] != 'system')
         if self.using_calibre_style:
             self.load_calibre_style()
 
