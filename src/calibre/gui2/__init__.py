@@ -1075,12 +1075,15 @@ class Application(QApplication):
         load_builtin_fonts()
 
     def setup_styles(self, force_calibre_style):
-        self.using_calibre_style = force_calibre_style or 'CALIBRE_IGNORE_SYSTEM_THEME' in os.environ or (
-            gprefs['ui_style'] != 'system')
-        if not iswindows and not isosx:
-            # Force calibre style on linux as the system style causes
-            # crashes/hangs in Qt
-            self.using_calibre_style = True
+        if iswindows or isosx:
+            using_calibre_style = gprefs['ui_style'] != 'system'
+        else:
+            using_calibre_style = 'CALIBRE_USE_SYSTEM_THEME' in os.environ
+        if force_calibre_style:
+            using_calibre_style = True
+        self.using_calibre_style = using_calibre_style
+        if DEBUG:
+            prints('Using calibre Qt style:', self.using_calibre_style)
         if self.using_calibre_style:
             self.load_calibre_style()
 

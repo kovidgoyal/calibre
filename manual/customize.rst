@@ -32,7 +32,12 @@ Environment variables
     * ``CALIBRE_TEST_TRANSLATION`` - Used to test a translation .po file (should be the path to the .po file)
     * ``CALIBRE_NO_NATIVE_FILEDIALOGS`` - Causes calibre to not use native file dialogs for selecting files/directories. 
     * ``CALIBRE_NO_NATIVE_MENUBAR`` - Causes calibre to not create a native (global) menu on Ubuntu Unity and similar linux desktop environments. The menu is instead placed inside the window, as is traditional.
-    * ``CALIBRE_IGNORE_SYSTEM_THEME`` - Causes calibre to ignore any system Qt style plugins and use its builtin style plugin instead. Useful to workaround crashes caused by the system Qt plugin being incompatible with the version of Qt shipped with calibre.
+    * ``CALIBRE_USE_SYSTEM_THEME`` - By default, on Linux, calibre uses its own
+      builtin Qt style. This is to avoid crashes and hangs caused by incompatibilities
+      between the version of Qt calibre is built against and the system Qt. The
+      downside is that calibre may not follow the system look and feel. If
+      you set this environment variable on Linux, it will cause calibre to use
+      the system theme -- beware of crashes and hangs.
     * ``CALIBRE_SHOW_DEPRECATION_WARNINGS`` - Causes calibre to print deprecation warnings to stdout. Useful for calibre developers.
     * ``CALIBRE_NO_DEFAULT_PROGRAMS`` - Prevent calibre from automatically registering the filetypes it is capable of handling with Windows.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
