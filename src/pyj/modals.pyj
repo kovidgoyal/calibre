@@ -137,6 +137,7 @@ class ModalContainer:
 
 
 def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
+    details = details or ''
     show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
     show_details.addEventListener('click', def():
         show_details.style.display = 'none'
@@ -174,7 +175,6 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
 
 
 def create_simple_dialog(title, msg, details, icon, prefix):
-    details = details or ''
     show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
 
 
