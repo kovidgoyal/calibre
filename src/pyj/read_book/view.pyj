@@ -56,7 +56,7 @@ def bottom_margin(sd):
     sz = sd.get('margin_bottom', 20)
     fsz = min(max(0, sz - 6), 12)
     return E.div(
-        style=f'height:{sz}px; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center', id='book-bottom-margin',
+        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center', id='book-bottom-margin',
         E.div(), E.div()
     )
 
@@ -77,7 +77,7 @@ class View:
                     E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            E.div(style='height:{}px; width:100%; padding: 0; cursor: pointer'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
+                            E.div(style='height:{}px; overflow: hidden; width:100%; padding: 0; cursor: pointer'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2', allowfullscreen='true'),
                             bottom_margin(sd),
                         ),
