@@ -42,7 +42,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
     def got_one(data, name, mimetype):
         if False and name is book.manifest.title_page_name:
             # Enable to have cover image not preserve aspect ratio
-            data = data.replace('width: auto', 'width: 100%')
+            data = data.replace('width: auto; height: auto', 'width: 100vw; height: 100vh')
         ans[name] = v'[data, mimetype]'
         if jstype(data) is 'string':
             find_virtualized_resources(data)

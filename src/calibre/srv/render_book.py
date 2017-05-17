@@ -239,8 +239,12 @@ class Container(ContainerBase):
         templ = '''
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
         <head><style>
-        html, body, img { height: 100%%; display: block; margin: 0; padding: 0; border-width: 0; }
-        img { width: auto; margin-left:auto; margin-right: auto; }
+        html, body, img { height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }
+        img {
+            width: auto; height: auto;
+            margin-left: auto; margin-right: auto;
+            max-width: 100vw; max-height: 100vh
+        }
         </style></head><body><img src="%s"/></body></html>
         '''
         if input_fmt == 'epub':
