@@ -320,7 +320,10 @@ def create_sort_panel(container_id):
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
+    close_action, close_icon = back, 'close'
+    if parse_url_params().close_action is 'home':
+        close_action, close_icon = def(): home();, 'home'
+    create_top_bar(container, title=_('Sort books by…'), action=close_action, icon=close_icon)
     items = []
     csf, csf_order = current_sorted_field()
     new_sort_order = 'desc' if csf_order is 'asc' else 'asc'

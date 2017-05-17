@@ -219,6 +219,7 @@ simple_markup.allowed_tags = v"'b|i|br|h1|h2|h3|h4|h5|h6|div|em|strong|span'.spl
 
 def safe_set_inner_html(elem, html):
     elem.innerHTML = simple_markup(html)
+    return elem
 
 
 def sandboxed_html(html, style, sandbox):

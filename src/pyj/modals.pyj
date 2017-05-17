@@ -136,40 +136,46 @@ class ModalContainer:
             self.close_current_modal()
 
 
-def create_simple_dialog(title, msg, details, icon, prefix):
-    details = details or ''
-    def create_func(parent):
-        show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
-        show_details.addEventListener('click', def():
-            show_details.style.display = 'none'
-            show_details.nextSibling.style.display = 'block'
-        )
-        is_html_msg = /<[a-zA-Z]/.test(msg)
-        html_container = E.div()
-        if is_html_msg:
-            safe_set_inner_html(html_container, msg)
-        details_container = E.span()
-        if /<[a-zA-Z]/.test(details):
-            safe_set_inner_html(details_container, details)
-        else:
-            details_container.textContent = details
-        parent.appendChild(
-            E.div(
-                style='max-width:60em; text-align: left',
-                E.h2(
-                    E.span(svgicon(icon), style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
-                    style='font-weight: bold; font-size: ' + get_font_size('title')
-                ),
-                E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
-                E.div(style='display: ' + ('block' if details else 'none'),
-                    show_details,
-                    E.div(details_container,
-                          style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
-                    )
+def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
+    show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
+    show_details.addEventListener('click', def():
+        show_details.style.display = 'none'
+        show_details.nextSibling.style.display = 'block'
+    )
+    is_html_msg = /<[a-zA-Z]/.test(msg)
+    html_container = E.div()
+    if is_html_msg:
+        safe_set_inner_html(html_container, msg)
+    details_container = E.span()
+    if /<[a-zA-Z]/.test(details):
+        safe_set_inner_html(details_container, details)
+    else:
+        details_container.textContent = details
+    if prefix:
+        prefix = E.span(' ' + prefix + ' ', style='white-space:pre; font-variant: small-caps')
+    else:
+        prefix = '\xa0'
+    parent.appendChild(
+        E.div(
+            style='max-width:40em; text-align: left',
+            E.h2(
+                E.span(svgicon(icon), style='color:red'), prefix, title,
+                style='font-weight: bold; font-size: ' + get_font_size('title')
+            ),
+            E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+            E.div(style='display: ' + ('block' if details else 'none'),
+                show_details,
+                E.div(details_container,
+                        style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
                 )
             )
         )
-    show_modal(create_func)
+    )
+
+
+def create_simple_dialog(title, msg, details, icon, prefix):
+    details = details or ''
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
 
 
 def create_custom_dialog(title, content_generator_func):

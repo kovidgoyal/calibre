@@ -4,17 +4,22 @@
 from __python__ import hash_literals
 
 import traceback
-from ajax import ajax
 from elementmaker import E
 from gettext import gettext as _
-from modals import error_dialog
-from utils import human_readable, debounce, encode_query_with_path
 
+from ajax import ajax
 from book_list.constants import read_book_container_id
+from book_list.library_data import (
+    current_library_id, library_data
+)
+from book_list.ui import show_panel
+from book_list.router import update_window_title, home
+from dom import clear
+from modals import create_simple_dialog_markup
 from read_book.db import get_db
-from book_list.router import update_window_title
-from book_list.library_data import library_data, current_library_id, current_virtual_library
 from read_book.view import View
+from utils import debounce, human_readable
+from widgets import create_button
 
 RENDER_VERSION = __RENDER_VERSION__
 MATHJAX_VERSION = "__MATHJAX_VERSION__"
@@ -42,9 +47,7 @@ class ReadUI:
         ))
 
         container.appendChild(E.div(
-            id=self.error_id, style='display:none; text-align: center',
-            E.h2(_('Could not open book'), style='margin: 1ex; margin-top: 30vh;'),
-            E.div(style='margin: 1ex', E.a()),
+            id=self.error_id, style='display:none;',
         ))
 
         container.appendChild(E.div(
@@ -70,20 +73,38 @@ class ReadUI:
 
     def show_error(self, title, msg, details):
         div = self.show_stack(self.error_id)
-        error_dialog(title, msg, details)
-        a = div.lastChild.firstChild
-        if self.current_book_id:
-            a.setAttribute('href', encode_query_with_path({
-                'library_id':current_library_id(),
-                'vl': current_virtual_library(),
-                'book_id': (self.current_book_id + ''),
-                'panel':'book_details'
-            }))
-            a.textContent = _(
-                'Click to go back to the details page for: {}').format(self.current_metadata.title)
+        clear(div)
+        if self.current_metadata:
+            book = self.current_metadata.title
+        elif self.current_book_id:
+            book = _('Book id #{}').format(self.current_book_id)
         else:
-            a.textContent = ''
-            a.setAttribute('href', '')
+            book = _('book')
+
+        div.appendChild(E.div(style='padding: 2ex 2rem; display:table; margin: auto'))
+        div = div.lastChild
+        dp = E.div()
+        create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', dp)
+        div.appendChild(dp)
+        div.appendChild(E.div(
+            style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px currentColor',
+            _('Go back to:'), E.br(), E.br(),
+            create_button(_('Home'), 'home', def(): home(True);),
+        ))
+        q =  {}
+        if self.current_book_id:
+            q.book_id = self.current_book_id + ''
+        q.close_action = 'home'
+        div.lastChild.appendChild(E.span(
+            '\xa0',
+            create_button(_('Book list'), 'library', def(): show_panel('book_list', q, True);),
+        ))
+        if self.current_book_id:
+            q.close_action = 'book_list'
+            div.lastChild.appendChild(E.span(
+                '\xa0',
+                create_button(_('Book details'), 'book', def(): show_panel('book_details', q, True);),
+            ))
 
     def init_ui(self):
         div = self.show_stack(self.progress_id)

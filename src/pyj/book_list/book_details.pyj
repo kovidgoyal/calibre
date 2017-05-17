@@ -14,7 +14,7 @@ from book_list.library_data import (
 from book_list.router import back, home, open_book
 from book_list.theme import get_color, get_font_size
 from book_list.top_bar import add_button, create_top_bar, set_title
-from book_list.ui import query_as_href, set_panel_handler
+from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
 from dom import add_extra_css, build_rule, clear, svgicon
@@ -479,7 +479,15 @@ def check_for_books_loaded():
 
 def init(container_id):
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Book details'), action=back, icon='close')
+    close_action, close_icon = back, 'close'
+    q = parse_url_params()
+    ca = q.close_action
+    if ca is 'home':
+        close_action, close_icon = def(): home();, 'home'
+    elif ca is 'book_list':
+        close_action = def():
+            show_panel('book_list', {'book_id':q.book_id})
+    create_top_bar(container, title=_('Book details'), action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
     container.appendChild(E.div(class_=CLASS_NAME))
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
