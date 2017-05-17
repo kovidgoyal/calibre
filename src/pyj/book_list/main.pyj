@@ -59,7 +59,7 @@ def init_ui():
         install(translations)
         get_translations(translations)
     remove_initial_progress_bar()
-    document.head.appendChild(E.style('body { overflow-wrap: break-word; word-wrap: break-word; }\n' + get_widget_css()))
+    document.head.appendChild(E.style(get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     document.body.appendChild(E.div())
     document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
