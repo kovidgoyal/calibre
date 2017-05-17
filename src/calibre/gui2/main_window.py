@@ -165,7 +165,10 @@ def clone_menu(menu):
             return ans
         sc = ac.shortcut()
         sc = '' if sc.isEmpty() else sc.toString(sc.NativeText)
-        ans = QAction(ac.icon(), ac.text() + '\t' + sc, parent)
+        text = ac.text()
+        if '\t' not in text:
+            text += '\t' + sc
+        ans = QAction(ac.icon(), text, parent)
         ans.triggered.connect(ac.trigger)
         ans.setEnabled(ac.isEnabled())
         ans.setStatusTip(ac.statusTip())
