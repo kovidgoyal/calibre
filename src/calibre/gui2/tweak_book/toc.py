@@ -46,6 +46,10 @@ class TOCEditor(QDialog):
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.undo_button = b = bb.addButton(_('&Undo'), bb.ActionRole)
+        b.setToolTip(_('Undo the last action, if any'))
+        b.setIcon(QIcon(I('edit-undo.png')))
+        b.clicked.connect(self.toc_view.undo)
 
         self.read_toc()
 
@@ -99,6 +103,7 @@ class TOCEditor(QDialog):
         toc.toc_title = getattr(self.toc_view, 'toc_title', None)
         commit_toc(current_container(), toc, lang=self.toc_view.toc_lang,
                 uid=self.toc_view.toc_uid)
+
 
 DEST_ROLE = Qt.UserRole
 FRAG_ROLE = DEST_ROLE + 1
@@ -223,4 +228,3 @@ class TOCViewer(QWidget):
     def update_if_visible(self):
         if self.isVisible():
             self.build()
-
