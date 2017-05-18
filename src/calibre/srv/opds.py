@@ -367,8 +367,8 @@ class RequestContext(object):
         ans += '?' + urlencode(q)
         return ans
 
-    def all_book_ids(self):
-        return self.db.all_book_ids()
+    def allowed_book_ids(self):
+        return self.ctx.allowed_book_ids(self.rd, self.db)
 
     @property
     def outheaders(self):
@@ -414,7 +414,7 @@ def get_all_books(rc, which, page_url, up_url, offset=0):
     ascending = which == 'title'
     feed_title = {'newest':_('Newest'), 'title': _('Title')}.get(which, which)
     feed_title = default_feed_title + ' :: ' + _('By %s') % feed_title
-    ids = rc.all_book_ids()
+    ids = rc.allowed_book_ids()
     return get_acquisition_feed(rc, ids, offset, page_url, up_url,
             id_='calibre-all:'+sort, sort_by=sort, ascending=ascending,
             feed_title=feed_title)

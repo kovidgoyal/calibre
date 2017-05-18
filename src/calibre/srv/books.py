@@ -130,7 +130,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     force_reload = rd.query.get('force_reload') == '1'
     if plugin_for_input_format(fmt) is None:
         raise HTTPNotFound('The format %s cannot be viewed' % fmt.upper())
-    if not db.has_id(book_id):
+    if not ctx.has_id(rd, db, book_id):
         raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
     with db.safe_read_lock:
         fm = db.format_metadata(book_id, fmt)
@@ -166,7 +166,7 @@ def book_manifest(ctx, rd, book_id, fmt):
 @endpoint('/book-file/{book_id}/{fmt}/{size}/{mtime}/{+name}', types={'book_id':int, 'size':int, 'mtime':int})
 def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     db, library_id = get_library_data(ctx, rd)[:2]
-    if not db.has_id(book_id):
+    if not ctx.has_id(rd, db, book_id):
         raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
     bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
     base = abspath(os.path.join(books_cache_dir(), 'f'))
@@ -190,13 +190,14 @@ def get_last_read_position(ctx, rd, library_id, which):
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
     ans = {}
+    allowed_book_ids = ctx.allowed_book_ids(rd, db)
     for item in which.split('_'):
         book_id, fmt = item.partition('-')[::2]
         try:
             book_id = int(book_id)
         except Exception:
             continue
-        if not db.has_id(book_id):
+        if book_id not in allowed_book_ids:
             continue
         key = '{}:{}'.format(book_id, fmt)
         ans[key] = db.get_last_read_positions(book_id, fmt, user)
@@ -207,7 +208,7 @@ def get_last_read_position(ctx, rd, library_id, which):
 def set_last_read_position(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
-    if not db.has_id(book_id):
+    if not ctx.has_id(rd, db, book_id):
         raise HTTPNotFound('No book with id {} found'.format(book_id))
     try:
         data = jsonlib.load(rd.request_body_file)

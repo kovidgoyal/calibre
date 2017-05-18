@@ -8,7 +8,7 @@ from functools import partial
 
 from calibre import as_unicode
 from calibre.db.cli import module_for_cmd
-from calibre.srv.errors import HTTPBadRequest, HTTPNotFound
+from calibre.srv.errors import HTTPBadRequest, HTTPNotFound, HTTPForbidden
 from calibre.srv.routes import endpoint, msgpack_or_json
 from calibre.srv.utils import get_library_data
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
@@ -38,6 +38,8 @@ def cdb_run(ctx, rd, which, version):
     except Exception:
         raise HTTPBadRequest('args are not valid encoded data')
     db = get_library_data(ctx, rd, strict_library_id=True)[0]
+    if ctx.restriction_for(rd, db):
+        raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     if getattr(m, 'needs_srv_ctx', False):
         args = [ctx] + list(args)
     try:

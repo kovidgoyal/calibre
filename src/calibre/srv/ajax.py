@@ -168,7 +168,7 @@ def book(ctx, rd, book_id, library_id):
                     book_id = None
             except Exception:
                 book_id = None
-        if book_id is None or not db.has_id(book_id):
+        if book_id is None or not ctx.has_id(rd, db, book_id):
             raise HTTPNotFound('Book with id %r does not exist' % oid)
         category_urls = rd.query.get('category_urls', 'true').lower()
         device_compatible = rd.query.get('device_compatible', 'false').lower()
@@ -216,8 +216,9 @@ def books(ctx, rd, library_id):
         device_compatible = rd.query.get('device_compatible', 'false').lower() == 'true'
         device_for_template = rd.query.get('device_for_template', None)
         ans = {}
+        allowed_book_ids = ctx.allowed_book_ids(rd, db)
         for book_id in ids:
-            if not db.has_id(book_id):
+            if book_id not in allowed_book_ids:
                 ans[book_id] = None
                 continue
             data, lm = book_to_json(
@@ -483,7 +484,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
             raise HTTPNotFound('%s is not a valid sort field'%sort)
 
         if dname in ('allbooks', 'newest'):
-            ids = db.all_book_ids()
+            ids = ctx.allowed_book_ids(rd, db)
         elif dname == 'search':
             try:
                 ids = ctx.search(rd, db, 'search:"%s"'%ditem)
@@ -497,7 +498,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
             if dname == 'news':
                 dname = 'tags'
-            ids = db.get_books_for_category(dname, cid)
+            ids = db.get_books_for_category(dname, cid) & ctx.allowed_book_ids(rd, db)
 
         ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
         total_num = len(ids)

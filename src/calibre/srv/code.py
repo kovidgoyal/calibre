@@ -312,9 +312,9 @@ def book_metadata(ctx, rd, book_id):
         raise HTTPNotFound(_('No book with id: {} in library: {}').format(book_id, library_id))
 
     if not book_id:
-        all_ids = db.books_in_virtual_library(vl) if vl else db.all_book_ids()
+        all_ids = ctx.allowed_book_ids(rd, db)
         book_id = random.choice(tuple(all_ids))
-    elif not db.has_id(book_id):
+    elif not ctx.has_id(rd, db, book_id):
         notfound()
     data = book_as_json(db, book_id)
     if data is None:

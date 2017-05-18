@@ -280,7 +280,7 @@ def get(ctx, rd, what, book_id, library_id):
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
     with db.safe_read_lock:
-        if not db.has_id(book_id):
+        if not ctx.has_id(rd, db, book_id):
             raise HTTPNotFound('Book with id %r does not exist' % book_id)
         library_id = db.server_library_id  # in case library_id was None
         if what == 'thumb':
