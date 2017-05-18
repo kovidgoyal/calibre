@@ -1203,7 +1203,7 @@ not multiple and the destination field is multiple</string>
                <item row="8" column="0">
                 <widget class="QLabel" name="label_31">
                  <property name="text">
-                  <string>Your test:</string>
+                  <string>Your &amp;test:</string>
                  </property>
                 </widget>
                </item>

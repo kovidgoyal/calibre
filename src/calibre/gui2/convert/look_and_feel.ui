@@ -265,7 +265,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Layout</string>
+       <string>&amp;Layout</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="1">
@@ -370,7 +370,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Extra CSS</string>
+          <string>E&amp;xtra CSS</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">

@@ -40,7 +40,7 @@ def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
     QApplication.clipboard().setText(rule)
     QMessageBox.information(parent, _('Font file added'), _(
         'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
-        ' to the clipboard. You should paste it into whichever css file you want to add this font to.').format(added_name))
+        ' to the clipboard. You should paste it into whichever CSS file you want to add this font to.').format(added_name))
 
 
 class EmbeddingData(Dialog):
@@ -344,6 +344,7 @@ class ManageFonts(Dialog):
 
     def refresh(self):
         self.model.build()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

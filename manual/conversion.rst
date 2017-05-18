@@ -345,7 +345,7 @@ remove all non-breaking-space entities, or may include false positive matches re
 
 :guilabel:`Replace entity indents with CSS indents`
     Some documents use a convention of defining text indents using non-breaking space entities.  When this option is enabled calibre will
-    attempt to detect this sort of formatting and convert them to a 3% text indent using css.
+    attempt to detect this sort of formatting and convert them to a 3% text indent using CSS.
 
 .. _search-replace:
 
