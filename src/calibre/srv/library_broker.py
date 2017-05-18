@@ -138,6 +138,10 @@ def load_gui_libraries(gprefs=None):
     return sorted(stats, key=stats.get, reverse=True)
 
 
+def path_for_db(db):
+    return db.new_api.backend.library_path
+
+
 class GuiLibraryBroker(LibraryBroker):
 
     def __init__(self, db):
@@ -188,7 +192,7 @@ class GuiLibraryBroker(LibraryBroker):
 
     def gui_library_changed(self, db, olddb=None):
         # Must be called with lock held
-        original_path = db.backend.library_path
+        original_path = path_for_db(db)
         newloc = canonicalize_path(original_path)
         for library_id, path in self.lmap.iteritems():
             if samefile(newloc, path):
@@ -201,7 +205,7 @@ class GuiLibraryBroker(LibraryBroker):
             self.library_name_map[library_id] = os.path.basename(original_path)
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
-        if olddb is not None and samefile(olddb.backend.library_path, db.backend.library_path):
+        if olddb is not None and samefile(path_for_db(olddb), path_for_db(db)):
             # This happens after a restore database, for example
             olddb.close(), olddb.break_cycles()
         self._prune_loaded_dbs()

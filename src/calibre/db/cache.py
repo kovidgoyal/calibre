@@ -988,12 +988,17 @@ class Cache(object):
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
     @read_api
-    def books_in_virtual_library(self, vl):
+    def books_in_virtual_library(self, vl, search_restriction=None):
         ' Return the set of books in the specified virtual library '
         vl = self._pref('virtual_libraries', {}).get(vl) if vl else None
-        if vl is None:
+        if not vl and not search_restriction:
             return self.all_book_ids()
-        return frozenset(self._search('', vl))
+        # We utilize the search restriction cache to speed this up
+        if vl:
+            if search_restriction:
+                return frozenset(self._search('', vl) & self._search('', search_restriction))
+            return frozenset(self._search('', vl))
+        return frozenset(self._search('', search_restriction))
 
     @api
     def get_categories(self, sort='name', book_ids=None, already_fixed=None,

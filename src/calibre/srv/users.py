@@ -28,8 +28,12 @@ def parse_restriction(raw):
     r = load_json(raw)
     if not isinstance(r, dict):
         r = {}
+    lr = r.get('library_restrictions', {})
+    if not isinstance(lr, dict):
+        lr = {}
     r['allowed_library_names'] = frozenset(map(lambda x: x.lower(), r.get('allowed_library_names', ())))
     r['blocked_library_names'] = frozenset(map(lambda x: x.lower(), r.get('blocked_library_names', ())))
+    r['library_restrictions'] = {k.lower(): v or '' for k, v in lr.iteritems()}
     return r
 
 
@@ -39,6 +43,7 @@ def serialize_restriction(r):
         v = r.get(x)
         if v:
             ans[x] = list(v)
+    ans['library_restrictions'] = {l.lower(): v or '' for l, v in r.get('library_restrictions', {}).iteritems()}
     return json.dumps(ans)
 
 
@@ -242,3 +247,10 @@ class UserManager(object):
             self._restrictions.pop(username, None)
             self.conn.cursor().execute(
                 'UPDATE users SET restriction=? WHERE name=?', (serialize_restriction(restrictions), username))
+
+    def library_restriction(self, username, library_path):
+        r = self.restrictions(username)
+        if r is None:
+            return ''
+        library_name = os.path.basename(library_path).lower()
+        return r['library_restrictions'].get(library_name) or ''

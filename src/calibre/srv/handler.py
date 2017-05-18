@@ -10,7 +10,7 @@ from threading import Lock
 
 from calibre.srv.auth import AuthController
 from calibre.srv.errors import HTTPForbidden
-from calibre.srv.library_broker import LibraryBroker
+from calibre.srv.library_broker import LibraryBroker, path_for_db
 from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
@@ -76,6 +76,21 @@ class Context(object):
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
         return dict(allowed_libraries), next(allowed_libraries.iterkeys())
 
+    def restriction_for(self, request_data, db):
+        return self.user_manager.library_restriction(request_data.username, path_for_db(db))
+
+    def has_id(self, request_data, db, book_id):
+        restriction = self.restriction_for(request_data, db)
+        if restriction:
+            return book_id in db.search('', restriction=restriction)
+        return db.has_id(book_id)
+
+    def allowed_book_ids(self, request_data, db):
+        restriction = self.restriction_for(request_data, db)
+        if restriction:
+            return frozenset(db.search('', restriction=restriction))
+        return db.all_book_ids()
+
     def check_for_write_access(self, request_data):
         if not request_data.username:
             if request_data.is_local_connection and self.opts.local_write:
@@ -84,9 +99,12 @@ class Context(object):
         if self.user_manager.is_readonly(request_data.username):
             raise HTTPForbidden('The user {} does not have permission to make changes'.format(request_data.username))
 
+    def get_effective_book_ids(self, db, request_data, vl):
+        return db.books_in_virtual_library(vl, self.restriction_for(request_data, db))
+
     def get_categories(self, request_data, db, sort='name', first_letter_sort=True, vl=''):
-        restrict_to_ids = db.books_in_virtual_library(vl)
-        key = (restrict_to_ids, sort, first_letter_sort)
+        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+        key = restrict_to_ids, sort, first_letter_sort
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
             old = cache.pop(key, None)
@@ -100,8 +118,8 @@ class Context(object):
             return old[1]
 
     def get_tag_browser(self, request_data, db, opts, render, vl=''):
-        restrict_to_ids = db.books_in_virtual_library(vl)
-        key = (restrict_to_ids, opts)
+        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+        key = restrict_to_ids, opts
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
             old = cache.pop(key, None)
@@ -118,13 +136,13 @@ class Context(object):
             return old[1]
 
     def search(self, request_data, db, query, vl=''):
+        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+        key = query, restrict_to_ids
         with self.lock:
             cache = self.library_broker.search_caches[db.server_library_id]
-            vl = db.pref('virtual_libraries', {}).get(vl) or ''
-            key = query, vl
             old = cache.pop(key, None)
             if old is None or old[0] < db.clear_search_cache_count:
-                matches = db.search(query, restriction=vl)
+                matches = db.search(query, book_ids=restrict_to_ids)
                 cache[key] = old = (db.clear_search_cache_count, matches)
                 if len(cache) > self.SEARCH_CACHE_SIZE:
                     cache.popitem(last=False)
