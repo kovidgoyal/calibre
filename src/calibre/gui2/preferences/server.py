@@ -376,6 +376,7 @@ class ChangeRestriction(QDialog):
 
     def __init__(self, username, restriction, parent=None):
         QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Change library access permissions for {}').format(username))
         self.username = username
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
