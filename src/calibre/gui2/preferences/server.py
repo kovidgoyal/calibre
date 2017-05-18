@@ -426,12 +426,13 @@ class ChangeRestriction(QDialog):
     @items.setter
     def items(self, val):
         checked_libraries = frozenset(val)
-        gui_libraries = frozenset(map(os.path.basename, load_gui_libraries(gprefs)))
+        library_paths = load_gui_libraries(gprefs)
+        gui_libraries = {os.path.basename(l):l for l in library_paths}
         case_map = {l.lower():l for l in checked_libraries}
         lchecked_libraries = {v:k for k, v in case_map.iteritems()}
         seen = set()
         items = []
-        for x in checked_libraries | gui_libraries:
+        for x in checked_libraries | set(gui_libraries):
             xl = x.lower()
             if xl not in seen:
                 seen.add(xl)
@@ -442,6 +443,8 @@ class ChangeRestriction(QDialog):
             i = QListWidgetItem(l, self.libraries)
             i.setCheckState(Qt.Checked if checked else Qt.Unchecked)
             i.setFlags(i.flags() & ~Qt.ItemIsUserCheckable)
+            if l in gui_libraries:
+                i.setToolTip(gui_libraries[l])
 
     @property
     def restriction(self):
