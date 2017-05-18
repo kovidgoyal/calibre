@@ -58,6 +58,7 @@ class LibraryBroker(object):
     def __init__(self, libraries):
         self.lock = Lock()
         self.lmap = OrderedDict()
+        self.library_name_map = {}
         seen = set()
         for original_path in libraries:
             path = canonicalize_path(original_path)
@@ -73,6 +74,7 @@ class LibraryBroker(object):
                 continue
             library_id = library_id_from_path(original_path, self.lmap)
             self.lmap[library_id] = path
+            self.library_name_map[library_id] = os.path.basename(original_path)
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
             defaultdict(OrderedDict), defaultdict(OrderedDict), defaultdict(OrderedDict))
@@ -111,7 +113,7 @@ class LibraryBroker(object):
     @property
     def library_map(self):
         with self:
-            return {k: os.path.basename(v) for k, v in self.lmap.iteritems()}
+            return {k: v for k, v in self.library_name_map.iteritems()}
 
     def allowed_libraries(self, filter_func):
         with self:
@@ -154,8 +156,8 @@ class GuiLibraryBroker(LibraryBroker):
         finally:
             self.last_used_times[library_id or self.default_library] = monotonic()
 
-    def get_library(self, library_path):
-        library_path = canonicalize_path(library_path)
+    def get_library(self, original_library_path):
+        library_path = canonicalize_path(original_library_path)
         with self:
             for library_id, path in self.lmap.iteritems():
                 if samefile(library_path, path):
@@ -168,6 +170,7 @@ class GuiLibraryBroker(LibraryBroker):
             library_id = library_id_from_path(library_path, self.lmap)
             db.new_api.server_library_id = library_id
             self.lmap[library_id] = library_path
+            self.library_name_map[library_id] = os.path.basename(original_library_path)
             self.loaded_dbs[library_id] = db
             return db
 
@@ -185,7 +188,8 @@ class GuiLibraryBroker(LibraryBroker):
 
     def gui_library_changed(self, db, olddb=None):
         # Must be called with lock held
-        newloc = canonicalize_path(db.backend.library_path)
+        original_path = db.backend.library_path
+        newloc = canonicalize_path(original_path)
         for library_id, path in self.lmap.iteritems():
             if samefile(newloc, path):
                 self.loaded_dbs[library_id] = db
@@ -194,6 +198,7 @@ class GuiLibraryBroker(LibraryBroker):
         else:
             library_id = self.gui_library_id = library_id_from_path(newloc, self.lmap)
             self.lmap[library_id] = newloc
+            self.library_name_map[library_id] = os.path.basename(original_path)
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
         if olddb is not None and samefile(olddb.backend.library_path, db.backend.library_path):
@@ -227,7 +232,7 @@ class GuiLibraryBroker(LibraryBroker):
                     break
             else:
                 return
-            self.lmap.pop(library_id, None)
+            self.lmap.pop(library_id, None), self.library_name_map.pop(library_id, None)
             db = self.loaded_dbs.pop(library_id, None)
             if db is not None:
                 db.close()
