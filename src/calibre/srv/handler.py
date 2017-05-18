@@ -151,6 +151,9 @@ class Context(object):
             return old[1]
 
 
+SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds')
+
+
 class Handler(object):
 
     def __init__(self, libraries, opts, testing=False, notify_changes=None):
@@ -161,7 +164,7 @@ class Handler(object):
             prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, False)
             self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
-        for module in ('content', 'ajax', 'code', 'legacy', 'opds', 'books', 'cdb'):
+        for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).itervalues())
         self.router.finalize()
