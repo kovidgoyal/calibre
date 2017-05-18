@@ -96,6 +96,7 @@ class TestServer(Thread):
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
         kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
         kwargs['port'] = kwargs.get('port', 0)
+        kwargs['userdb'] = kwargs.get('userdb', ':memory:')
 
     def run(self):
         try:

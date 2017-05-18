@@ -554,7 +554,10 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
 @endpoint('/ajax/search/{library_id=None}', postprocess=json)
 def search(ctx, rd, library_id):
     '''
-    Return the books (as list of ids) matching the specified search query.
+    Return the books matching the specified search query.
+    The returned object is a dict with the field book_ids which
+    is a list of matched book ids. For all the other fields in the object, see
+    :func:`search_result`.
 
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=&vl=
     '''

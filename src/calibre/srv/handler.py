@@ -137,6 +137,7 @@ class Context(object):
 
     def search(self, request_data, db, query, vl=''):
         restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+        query = query or ''
         key = query, restrict_to_ids
         with self.lock:
             cache = self.library_broker.search_caches[db.server_library_id]
@@ -181,3 +182,7 @@ class Handler(object):
 
     def close(self):
         self.router.ctx.library_broker.close()
+
+    @property
+    def ctx(self):
+        return self.router.ctx
