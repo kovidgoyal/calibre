@@ -175,7 +175,7 @@ class UserManager(object):
             c = self.conn.cursor()
             remove = self.all_user_names - set(users)
             if remove:
-                c.executemany('DELETE FROM users WHERE name=?', (remove,))
+                c.executemany('DELETE FROM users WHERE name=?', [(n,) for n in remove])
             for name, data in users.iteritems():
                 res = serialize_restriction(data['restriction'])
                 r = 'y' if data['readonly'] else 'n'
