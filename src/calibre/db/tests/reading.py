@@ -509,8 +509,11 @@ class ReadingTest(BaseTest):
         se(set(), cache.search('authors:=Unknown', 'not authors:=Unknown', book_ids={1,2,3}))
         se(cache.all_book_ids(), cache.books_in_virtual_library(''))
         se(cache.all_book_ids(), cache.books_in_virtual_library('does not exist'))
-        cache.set_pref('virtual_libraries', {'1':'title:"=Title One"'})
+        cache.set_pref('virtual_libraries', {'1':'title:"=Title One"', '12':'id:1 or id:2'})
         se({2}, cache.books_in_virtual_library('1'))
+        se({1,2}, cache.books_in_virtual_library('12'))
+        se({1}, cache.books_in_virtual_library('12', 'id:1'))
+        se({2}, cache.books_in_virtual_library('1', 'id:1 or id:2'))
     # }}}
 
     def test_search_caching(self):  # {{{
