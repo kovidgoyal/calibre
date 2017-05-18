@@ -55,36 +55,36 @@ class Context(object):
     def finalize_session(self, endpoint, data, output):
         pass
 
-    def get_library(self, data, library_id=None):
-        if not data.username:
+    def get_library(self, request_data, library_id=None):
+        if not request_data.username:
             return self.library_broker.get(library_id)
-        lf = partial(self.user_manager.allowed_library_names, data.username)
+        lf = partial(self.user_manager.allowed_library_names, request_data.username)
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
-            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
+            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
         library_id = library_id or next(allowed_libraries.iterkeys())
         if library_id in allowed_libraries:
             return self.library_broker.get(library_id)
-        raise HTTPForbidden('The user {} is not allowed to access the library {}'.format(data.username, library_id))
+        raise HTTPForbidden('The user {} is not allowed to access the library {}'.format(request_data.username, library_id))
 
-    def library_info(self, data):
-        if not data.username:
+    def library_info(self, request_data):
+        if not request_data.username:
             return self.library_broker.library_map, self.library_broker.default_library
-        lf = partial(self.user_manager.allowed_library_names, data.username)
+        lf = partial(self.user_manager.allowed_library_names, request_data.username)
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
-            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(data.username))
+            raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
         return dict(allowed_libraries), next(allowed_libraries.iterkeys())
 
-    def check_for_write_access(self, data):
-        if not data.username:
-            if data.is_local_connection and self.opts.local_write:
+    def check_for_write_access(self, request_data):
+        if not request_data.username:
+            if request_data.is_local_connection and self.opts.local_write:
                 return
             raise HTTPForbidden('Anonymous users are not allowed to make changes')
-        if self.user_manager.is_readonly(data.username):
-            raise HTTPForbidden('The user {} does not have permission to make changes'.format(data.username))
+        if self.user_manager.is_readonly(request_data.username):
+            raise HTTPForbidden('The user {} does not have permission to make changes'.format(request_data.username))
 
-    def get_categories(self, data, db, sort='name', first_letter_sort=True, vl=''):
+    def get_categories(self, request_data, db, sort='name', first_letter_sort=True, vl=''):
         restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, sort, first_letter_sort)
         with self.lock:
@@ -99,7 +99,7 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def get_tag_browser(self, data, db, opts, render, vl=''):
+    def get_tag_browser(self, request_data, db, opts, render, vl=''):
         restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, opts)
         with self.lock:
@@ -117,7 +117,7 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def search(self, data, db, query, vl=''):
+    def search(self, request_data, db, query, vl=''):
         with self.lock:
             cache = self.library_broker.search_caches[db.server_library_id]
             vl = db.pref('virtual_libraries', {}).get(vl) or ''
