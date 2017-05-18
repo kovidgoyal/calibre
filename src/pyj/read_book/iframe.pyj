@@ -353,6 +353,8 @@ class IframeBoss:
                     elem = c[0]
             if elem:
                 scroll_to_elem(elem)
+        else:
+            window.scrollTo(0, 0)
 
     def find(self, data, from_load):
         if data.searched_in_spine:
