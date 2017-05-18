@@ -463,7 +463,7 @@ class TreeWidget(QTreeWidget):  # {{{
             # have to ensure that selectedIndexes returns an ordered list of
             # indexes.
             sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iteritems())}
-            ans = sorted(ans, key=lambda x:sort_map.get(x, -1), reverse=True)
+            ans = sorted(ans, key=lambda x:sort_map.get(x, -1))
         return ans
 
     def highlight_item(self, item):
