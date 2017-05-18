@@ -185,7 +185,7 @@ def got_more_books(end_type, xhr, event):
 
 def get_more_books():
     data = {'offset':book_list_data.shown_book_ids.length}
-    for key in 'query', 'sort', 'sort_order':
+    for key in 'query', 'sort', 'sort_order', 'vl':
         data[key] = library_data.search_result[key]
     book_list_data.fetching_more_books = ajax_send(
         'interface-data/more-books', data, got_more_books,
