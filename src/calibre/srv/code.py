@@ -10,7 +10,7 @@ from calibre import as_unicode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
-from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
+from calibre.srv.errors import HTTPNotFound, HTTPBadRequest, BookNotFound
 from calibre.srv.metadata import book_as_json, categories_as_json, icon_map, categories_settings
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
@@ -308,17 +308,14 @@ def book_metadata(ctx, rd, book_id):
     '''
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
 
-    def notfound():
-        raise HTTPNotFound(_('No book with id: {} in library: {}').format(book_id, library_id))
-
     if not book_id:
         all_ids = ctx.allowed_book_ids(rd, db)
         book_id = random.choice(tuple(all_ids))
     elif not ctx.has_id(rd, db, book_id):
-        notfound()
+        raise BookNotFound(book_id, db)
     data = book_as_json(db, book_id)
     if data is None:
-        notfound()
+        raise BookNotFound(book_id, db)
     data['id'] = book_id  # needed for random book view (when book_id=0)
     return data
 

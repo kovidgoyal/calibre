@@ -56,3 +56,9 @@ class HTTPForbidden(HTTPSimpleResponse):
 
     def __init__(self, http_message='', close_connection=True):
         HTTPSimpleResponse.__init__(self, httplib.FORBIDDEN, http_message, close_connection)
+
+
+class BookNotFound(HTTPNotFound):
+
+    def __init__(self, book_id, db):
+        HTTPNotFound.__init__(self, 'No book with id: {} in library: {}'.format(book_id, db.server_library_id))

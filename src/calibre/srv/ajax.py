@@ -15,7 +15,7 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.content import get as get_content, icon as get_icon
 from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name, get_db
@@ -169,7 +169,7 @@ def book(ctx, rd, book_id, library_id):
             except Exception:
                 book_id = None
         if book_id is None or not ctx.has_id(rd, db, book_id):
-            raise HTTPNotFound('Book with id %r does not exist' % oid)
+            raise BookNotFound(oid, db)
         category_urls = rd.query.get('category_urls', 'true').lower()
         device_compatible = rd.query.get('device_compatible', 'false').lower()
         device_for_template = rd.query.get('device_for_template', None)

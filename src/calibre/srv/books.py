@@ -16,7 +16,7 @@ from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_db
 
@@ -131,7 +131,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     if plugin_for_input_format(fmt) is None:
         raise HTTPNotFound('The format %s cannot be viewed' % fmt.upper())
     if not ctx.has_id(rd, db, book_id):
-        raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
+        raise BookNotFound(book_id, db)
     with db.safe_read_lock:
         fm = db.format_metadata(book_id, fmt)
         if not fm:
@@ -167,7 +167,7 @@ def book_manifest(ctx, rd, book_id, fmt):
 def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     db, library_id = get_library_data(ctx, rd)[:2]
     if not ctx.has_id(rd, db, book_id):
-        raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
+        raise BookNotFound(book_id, db)
     bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
     base = abspath(os.path.join(books_cache_dir(), 'f'))
     mpath = abspath(os.path.join(base, bhash, name))
@@ -209,7 +209,7 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
     if not ctx.has_id(rd, db, book_id):
-        raise HTTPNotFound('No book with id {} found'.format(book_id))
+        raise BookNotFound(book_id, db)
     try:
         data = jsonlib.load(rd.request_body_file)
         device, cfi, pos_frac = data['device'], data['cfi'], data['pos_frac']

@@ -21,7 +21,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import http_date, get_db, get_use_roman
 from calibre.utils.config_base import tweaks
@@ -281,7 +281,7 @@ def get(ctx, rd, what, book_id, library_id):
         raise HTTPNotFound('Library %r not found' % library_id)
     with db.safe_read_lock:
         if not ctx.has_id(rd, db, book_id):
-            raise HTTPNotFound('Book with id %r does not exist' % book_id)
+            raise BookNotFound(book_id, db)
         library_id = db.server_library_id  # in case library_id was None
         if what == 'thumb':
             sz = rd.query.get('sz')

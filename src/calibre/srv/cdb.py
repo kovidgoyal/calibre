@@ -28,6 +28,9 @@ def cdb_run(ctx, rd, which, version):
         raise HTTPNotFound(('The module {} is not available in version: {}.'
                            'Make sure the version of calibre used for the'
                             ' server and calibredb match').format(which, version))
+    db = get_library_data(ctx, rd, strict_library_id=True)[0]
+    if ctx.restriction_for(rd, db):
+        raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     raw = rd.read()
     ct = rd.inheaders.get('Content-Type', all=True)
     try:
@@ -37,9 +40,6 @@ def cdb_run(ctx, rd, which, version):
             args = json_loads(raw)
     except Exception:
         raise HTTPBadRequest('args are not valid encoded data')
-    db = get_library_data(ctx, rd, strict_library_id=True)[0]
-    if ctx.restriction_for(rd, db):
-        raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     if getattr(m, 'needs_srv_ctx', False):
         args = [ctx] + list(args)
     try:
