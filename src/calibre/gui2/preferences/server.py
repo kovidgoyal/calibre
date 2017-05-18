@@ -6,15 +6,18 @@ import os
 import textwrap
 import time
 
+import sip
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QPlainTextEdit, QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt,
-    QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit,
+    QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
+    QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import as_unicode
-from calibre.gui2 import config, error_dialog, info_dialog, open_url, warning_dialog, gprefs
+from calibre.gui2 import (
+    config, error_dialog, gprefs, info_dialog, open_url, warning_dialog
+)
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
@@ -372,21 +375,75 @@ class NewUser(QDialog):
         return QDialog.accept(self)
 
 
+class Library(QWidget):
+
+    restriction_changed = pyqtSignal(object, object)
+
+    def __init__(self, name, is_checked=False, path='', restriction='', parent=None, is_first=False, enable_on_checked=True):
+        QWidget.__init__(self, parent)
+        self.name = name
+        self.enable_on_checked = enable_on_checked
+        self.l = l = QVBoxLayout(self)
+        l.setSizeConstraint(l.SetMinAndMaxSize)
+        if not is_first:
+            self.border = b = QFrame(self)
+            b.setFrameStyle(b.HLine)
+            l.addWidget(b)
+        self.cw = cw = QCheckBox(name)
+        cw.setStyleSheet('QCheckBox { font-weight: bold }')
+        cw.setChecked(is_checked)
+        cw.stateChanged.connect(self.state_changed)
+        if path:
+            cw.setToolTip(path)
+        l.addWidget(cw)
+        self.la = la = QLabel(_('Further &restrict access to books in this library that match:'))
+        l.addWidget(la)
+        self.rw = rw = QLineEdit(self)
+        rw.setPlaceholderText(_('A search expression'))
+        rw.setToolTip(textwrap.fill(_(
+            'A search expression. If specified, access will be further restricted'
+            ' to only those books that match this expression. For example:'
+            ' tags:"=Share"')))
+        rw.setText(restriction or '')
+        rw.textChanged.connect(self.on_rchange)
+        la.setBuddy(rw)
+        l.addWidget(rw)
+        self.state_changed()
+
+    def state_changed(self):
+        c = self.cw.isChecked()
+        w = (self.enable_on_checked and c) or (not self.enable_on_checked and not c)
+        for x in (self.la, self.rw):
+            x.setEnabled(bool(w))
+
+    def on_rchange(self):
+        self.restriction_changed.emit(self.name, self.restriction)
+
+    @property
+    def is_checked(self):
+        return self.cw.isChecked()
+
+    @property
+    def restriction(self):
+        return self.rw.text().strip()
+
+
 class ChangeRestriction(QDialog):
 
     def __init__(self, username, restriction, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Change library access permissions for {}').format(username))
         self.username = username
+        self._items = []
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
 
-        self.libraries = t = QListWidget(self)
-        t.setSelectionMode(t.NoSelection)
-        t.itemClicked.connect(self.item_clicked)
-        t.setCursor(Qt.PointingHandCursor)
+        self.libraries = t = QWidget(self)
+        t.setObjectName('libraries')
+        t.l = QVBoxLayout(self.libraries)
         self.atype = a = QComboBox(self)
         a.addItems([_('All libraries'), _('Only the specified libraries'), _('All except the specified libraries')])
+        self.library_restrictions = restriction['library_restrictions'].copy()
         if restriction['allowed_library_names']:
             a.setCurrentIndex(1)
             self.items = restriction['allowed_library_names']
@@ -403,34 +460,43 @@ class ChangeRestriction(QDialog):
         l.addRow(la)
         self.la = la = QLabel(_('Specify the libraries below:'))
         la.setWordWrap(True)
-        l.addRow(la), l.addRow(t)
+        self.sa = sa = QScrollArea(self)
+        sa.setWidget(t), sa.setWidgetResizable(True)
+        l.addRow(la), l.addRow(sa)
         self.atype_changed()
 
         self.bb = bb = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        l.addRow(bb)
+        l.addWidget(bb)
         self.items = self.items
 
-    def item_clicked(self, item):
-        item.setCheckState(Qt.Checked if item.checkState() != Qt.Checked else Qt.Unchecked)
+    def sizeHint(self):
+        return QSize(800, 600)
 
     def __iter__(self):
-        for c in range(self.libraries.count()):
-            yield self.libraries.item(c)
+        return iter(self._items)
 
     @property
     def items(self):
-        return frozenset(item.text() for item in self if item.checkState() == Qt.Checked)
+        return frozenset(item.name for item in self if item.is_checked)
+
+    def clear(self):
+        for c in self:
+            self.libraries.l.removeWidget(c)
+            c.setParent(None)
+            c.restriction_changed.disconnect()
+            sip.delete(c)
+        self._items = []
 
     @items.setter
     def items(self, val):
+        self.clear()
         checked_libraries = frozenset(val)
         library_paths = load_gui_libraries(gprefs)
         gui_libraries = {os.path.basename(l):l for l in library_paths}
-        case_map = {l.lower():l for l in checked_libraries}
-        lchecked_libraries = {v:k for k, v in case_map.iteritems()}
+        lchecked_libraries = {l.lower() for l in checked_libraries}
         seen = set()
         items = []
         for x in checked_libraries | set(gui_libraries):
@@ -439,20 +505,29 @@ class ChangeRestriction(QDialog):
                 seen.add(xl)
                 items.append((x, xl in lchecked_libraries))
         items.sort(key=lambda x: primary_sort_key(x[0]))
-        self.libraries.clear()
-        for l, checked in items:
-            i = QListWidgetItem(l, self.libraries)
-            i.setCheckState(Qt.Checked if checked else Qt.Unchecked)
-            i.setFlags(i.flags() & ~Qt.ItemIsUserCheckable)
-            if l in gui_libraries:
-                i.setToolTip(gui_libraries[l])
+        enable_on_checked = self.atype.currentIndex() == 1
+        for i, (l, checked) in enumerate(items):
+            l = Library(
+                l, checked, path=gui_libraries.get(l, ''),
+                restriction=self.library_restrictions.get(l.lower(), ''),
+                parent=self.libraries, is_first=i == 0,
+                enable_on_checked=enable_on_checked
+            )
+            l.restriction_changed.connect(self.restriction_changed)
+            self.libraries.l.addWidget(l)
+            self._items.append(l)
+
+    def restriction_changed(self, name, val):
+        name = name.lower()
+        self.library_restrictions[name] = val
 
     @property
     def restriction(self):
-        ans = {'allowed_library_names': frozenset(), 'blocked_library_names': frozenset()}
+        ans = {'allowed_library_names': frozenset(), 'blocked_library_names': frozenset(), 'library_restrictions': {}}
         if self.atype.currentIndex() != 0:
             k = ['allowed_library_names', 'blocked_library_names'][self.atype.currentIndex() - 1]
             ans[k] = self.items
+            ans['library_restrictions'] = self.library_restrictions
         return ans
 
     def accept(self):
@@ -463,7 +538,7 @@ class ChangeRestriction(QDialog):
 
     def atype_changed(self):
         ci = self.atype.currentIndex()
-        sheet = 'QListView::item { padding: 3px }'
+        sheet = ''
         if ci == 0:
             m = _('<b>{} is allowed access to all libraries')
             self.libraries.setEnabled(False), self.la.setEnabled(False)
@@ -474,7 +549,7 @@ class ChangeRestriction(QDialog):
             else:
                 m = _('{} is allowed access to all libraries, <b>except</b> those'
                       ' whose names match one of the names specified below.')
-                sheet += 'QListView { background-color: #FAE7B5}'
+                sheet += 'QWidget#libraries { background-color: #FAE7B5}'
             self.libraries.setEnabled(True), self.la.setEnabled(True)
             self.items = self.items
         self.msg.setText(m.format(self.username))
