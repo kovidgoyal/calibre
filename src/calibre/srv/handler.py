@@ -84,9 +84,8 @@ class Context(object):
         if self.user_manager.is_readonly(data.username):
             raise HTTPForbidden('The user {} does not have permission to make changes'.format(data.username))
 
-    def get_categories(self, data, db, restrict_to_ids=None, sort='name', first_letter_sort=True, vl=''):
-        if restrict_to_ids is None:
-            restrict_to_ids = db.books_in_virtual_library(vl)
+    def get_categories(self, data, db, sort='name', first_letter_sort=True, vl=''):
+        restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, sort, first_letter_sort)
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
@@ -100,9 +99,8 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def get_tag_browser(self, data, db, opts, render, restrict_to_ids=None, vl=''):
-        if restrict_to_ids is None:
-            restrict_to_ids = db.books_in_virtual_library(vl)
+    def get_tag_browser(self, data, db, opts, render, vl=''):
+        restrict_to_ids = db.books_in_virtual_library(vl)
         key = (restrict_to_ids, opts)
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
@@ -119,14 +117,14 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def search(self, data, db, query, restrict_to_ids=None, vl=''):
+    def search(self, data, db, query, vl=''):
         with self.lock:
             cache = self.library_broker.search_caches[db.server_library_id]
             vl = db.pref('virtual_libraries', {}).get(vl) or ''
-            key = query, restrict_to_ids, vl
+            key = query, vl
             old = cache.pop(key, None)
             if old is None or old[0] < db.clear_search_cache_count:
-                matches = db.search(query, restriction=vl, book_ids=restrict_to_ids)
+                matches = db.search(query, restriction=vl)
                 cache[key] = old = (db.clear_search_cache_count, matches)
                 if len(cache) > self.SEARCH_CACHE_SIZE:
                     cache.popitem(last=False)
