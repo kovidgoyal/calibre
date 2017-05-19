@@ -464,8 +464,8 @@ class DB(object):
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
         defs['book_display_fields'] = [
-        ('title', False), ('authors', True), ('formats', True),
-        ('series', True), ('identifiers', True), ('tags', True),
+        ('title', False), ('authors', True), ('series', True),
+        ('identifiers', True), ('tags', True), ('formats', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
