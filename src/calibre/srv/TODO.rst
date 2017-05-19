@@ -17,8 +17,6 @@ New features for the in-browser viewer
 New features for the server generally
 ---------------------------------------
 
-- Preference to control what fields are showin in the book details view
-
 - Create a UI for making changes to the library such as editing metadta,
   adding/deleting books, converting, sending by email, etc.
 
