@@ -195,12 +195,33 @@ def manage_users(path=None):
         if r['blocked_library_names']:
             prints(_('{} is currently not allowed to access the libraries named: {}').format(
                 username, ', '.join(r['blocked_library_names'])))
+        if r['library_restrictions']:
+            prints(_('{} has the following additional per-library restrictions:').format(username))
+            for k, v in r['library_restrictions'].iteritems():
+                prints(k + ':', v)
+        else:
+            prints(_('{} has the no additional per-library restrictions'))
         c = choice(choices=[
             _('Allow access to all libraries'), _('Allow access to only specified libraries'),
-            _('Allow access to all, except specified libraries'), _('Cancel')])
+            _('Allow access to all, except specified libraries'), _('Change per-library restrictions'),
+            _('Cancel')])
         if c == 0:
             m.update_user_restrictions(username, {})
         elif c == 3:
+            while True:
+                library = get_input(_('Enter the name of the library:'))
+                if not library:
+                    break
+                prints(_('Enter a search expression, access will be granted only to books matching this expression.'
+                            ' An empty expression will grant access to all books.'))
+                plr = get_input(_('Search expression:'))
+                if plr:
+                    r['library_restrictions'][library] = plr
+                else:
+                    r['library_restrictions'].pop(library, None)
+                if get_input(_('Another restriction?') + ' (y/n):') != 'y':
+                    break
+        elif c == 4:
             pass
         else:
             names = get_input(_('Enter a comma separated list of library names:'))
