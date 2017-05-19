@@ -129,7 +129,8 @@ def main():
         document.body.innerHTML = '<p style="margin:1.5em; max-width: 40em">' + _(
             'You are using a browser that does not have the iframe srcdoc attribute.'
         ' This is not supported. Use a better browser such as <b>Google Chrome</b> or <b>Mozilla'
-        ' Firefox</b>, instead.')
+        ' Firefox</b>, instead. You can also use the simplified <a href="mobile">/mobile</a>'
+        ' interface if you do not have access to a modern browser.')
         return
     interface_data = get_interface_data()
     if interface_data.is_default or not interface_data.library_map:
