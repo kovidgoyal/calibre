@@ -219,6 +219,7 @@ def manage_users(path=None):
                     r['library_restrictions'][library] = plr
                 else:
                     r['library_restrictions'].pop(library, None)
+                m.update_user_restrictions(username, r)
                 if get_input(_('Another restriction?') + ' (y/n):') != 'y':
                     break
         elif c == 4:
