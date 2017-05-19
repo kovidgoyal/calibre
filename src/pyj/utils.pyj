@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 from ajax import encode_query
 from encodings import hexlify
+from book_list.theme import get_font_family
 
 def debounce(func, wait, immediate=False):
     # Returns a function, that, as long as it continues to be invoked, will not
@@ -228,7 +229,7 @@ def sandboxed_html(html, style, sandbox):
     ans.setAttribute('seamless', '')
     ans.style.width = '100%'
     html = html or ''
-    css = 'html, body { margin: 0; padding: 0; } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'
+    css = 'html, body { margin: 0; padding: 0; font-family: __FONT__ } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'.replace('__FONT__', get_font_family())
     css += style or ''
     ans.srcdoc = f'<html><head><style>{css}</style></head><body>{html}</body></html>'
     return ans

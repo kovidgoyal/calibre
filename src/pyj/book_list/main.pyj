@@ -14,7 +14,7 @@ from utils import safe_set_inner_html
 
 from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
-from book_list.theme import get_color
+from book_list.theme import get_color, get_font_family
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
 from book_list.globals import get_db, set_session_data, get_read_ui
 from book_list.ui import apply_url_state as book_list_mode_handler
@@ -47,6 +47,7 @@ def onerror(msg, script_url, line_number, column_number, error_object):
 
 
 def init_ui():
+    document.body.style.fontFamily = get_font_family()
     install_event_filters()
     set_default_mode_handler(book_list_mode_handler)
     window.onerror = onerror

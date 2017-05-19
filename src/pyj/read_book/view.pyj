@@ -21,7 +21,7 @@ from read_book.prefs.font_size import change_font_size_by
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from read_book.toc import update_visible_toc_nodes
 from read_book.goto import get_next_section
-from book_list.theme import get_color
+from book_list.theme import get_color, get_font_family
 from utils import parse_url_params, username_key
 
 LOADING_DOC = '''
@@ -34,8 +34,8 @@ LOADING_DOC = '''
 __SCRIPT__
 end_script
 </head>
-<body>
-<div style="font-family: sans-serif; font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
+<body style="font-family: __FONT__">
+<div style="font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
 __BS__
 </div>
 </body>
@@ -214,7 +214,8 @@ class View:
         main_js(None)
         self.src_doc = LOADING_DOC.replace(
             '__BS__', _('Bootstrapping book reader...')).replace(
-            '__SCRIPT__', iframe_script)
+            '__SCRIPT__', iframe_script).replace(
+            '__FONT__', get_font_family().replace('"', '&quot;'))
 
     def init_iframe(self, iframe_script):
         self.encrypted_communications = False
