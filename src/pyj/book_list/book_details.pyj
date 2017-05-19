@@ -92,7 +92,8 @@ def on_fmt_click(ev):
 
 def adjust_iframe_height(iframe):
     de = iframe.contentWindow.document.documentElement
-    iframe.style.height = max(de.scrollHeight, de.offsetHeight) + 5 + 'px'
+    # scrollHeight is inaccurate on Firefox
+    iframe.style.height = de.offsetHeight + 5 + 'px'
     iframe.dataset.last_window_width = window.innerWidth + ''
 
 
