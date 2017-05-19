@@ -12,7 +12,6 @@ from functools import partial
 from threading import Lock
 from urllib import quote
 
-from calibre import prepare_string_for_xml
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
@@ -41,6 +40,7 @@ def encode_datetime(dateval):
 
 
 empty_val = ((), '', {})
+passthrough_comment_types = {'long-text', 'short-text'}
 
 
 def add_field(field, db, book_id, ans, field_metadata):
@@ -56,11 +56,7 @@ def add_field(field, db, book_id, ans, field_metadata):
                 ctype = field_metadata.get('display', {}).get('interpret_as', 'html')
                 if ctype == 'markdown':
                     val = markdown(val)
-                elif ctype == 'long-text':
-                    val = '<pre style="white-space:pre-wrap">%s</pre>' % prepare_string_for_xml(val)
-                elif ctype == 'short-text':
-                    val = '<span">%s</span>' % prepare_string_for_xml(val)
-                else:
+                elif ctype not in passthrough_comment_types:
                     val = comments_to_html(val)
             elif datatype == 'composite' and field_metadata['display'].get('contains_html'):
                 val = comments_to_html(val)

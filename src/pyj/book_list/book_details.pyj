@@ -144,7 +144,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
                     table.lastChild.lastChild.appendChild(document.createTextNode(v))
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
-        if is_html:
+        if is_html and /[<>]/.test(val + ''):
             table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + ''))
         else:
             if not join:
@@ -154,6 +154,7 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
                     add_val(v)
                     if v is not val[-1]:
                         table.lastChild.lastChild.appendChild(document.createTextNode(join))
+        return table.lastChild.lastChild
 
     def process_composite(field, fm, name, val):
         if fm.display and fm.display.contains_html:
@@ -243,10 +244,26 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
         datatype = fm.datatype
         val = mi[field]
         if field is 'comments' or datatype is 'comments':
-            if fm.display?.heading_position is 'side':
+            if not val:
+                return
+            ias = fm.display?.interpret_as or 'html'
+            hp = fm.display?.heading_position or 'hide'
+            if ias is 'long-text':
+                if hp is 'side':
+                    add_row(name, val).style.whiteSpace = 'pre-wrap'
+                    return
+                val = E.pre(val, style='white-space:pre-wrap').outerHTML
+            elif ias is 'short-text':
+                if hp is 'side':
+                    add_row(name, val)
+                    return
+                val = E.span(val).outerHTML
+            if hp is 'side':
                 add_row(name, val, is_html=True)
-            else:
-                comments[field] = val
+                return
+            if hp is 'above':
+                val = E.h3(name).outerHTML + val
+            comments[field] = val
             return
         func = None
         if datatype is 'composite':
