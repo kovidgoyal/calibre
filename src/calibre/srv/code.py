@@ -125,6 +125,16 @@ def update_interface_data(ctx, rd):
     return basic_interface_data(ctx, rd)
 
 
+def get_field_list(db):
+    fieldlist = list(db.pref('book_display_fields', ()))
+    names = frozenset([x[0] for x in fieldlist])
+    available = frozenset(db.field_metadata.displayable_field_keys())
+    for field in available:
+        if field not in names:
+            fieldlist.append((field, True))
+    return [f for f, d in fieldlist if d and f in available]
+
+
 def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
     ans = {}
     with db.safe_read_lock:
@@ -147,6 +157,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
+        ans['book_display_fields'] = get_field_list(db)
         mdata = ans['metadata'] = {}
         try:
             extra_books = set(

@@ -71,7 +71,7 @@ def update_library_data(data):
     load_status.loading = False
     load_status.ok = True
     load_status.error_html = None
-    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries'.split(' '):
+    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
     if sr:

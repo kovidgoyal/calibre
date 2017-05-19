@@ -50,7 +50,7 @@ def get_preferred_format(metadata, output_format, input_formats):
                 break
     return fmt.toUpperCase()
 
-IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified'}
+IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path'}
 
 default_sort = {f:i+1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
 default_sort['formats'] = 999
@@ -113,7 +113,7 @@ def adjusting_sandboxed_html(html):
     return ans
 
 
-def render_metadata(mi, table, book_id, field_list=None):  # {{{
+def render_metadata(mi, table, book_id):  # {{{
     field_metadata = library_data.field_metadata
     interface_data = get_interface_data()
     def allowed_fields(field):
@@ -125,9 +125,15 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
             return True
         if field in IGNORED_FIELDS or field.endswith('_sort'):
             return False
+        if mi[field] is undefined:
+            return False
         return True
 
-    fields = field_list or sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+    fields = library_data.book_display_fields
+    if not fields or not fields.length:
+        fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+    else:
+        fields = filter(allowed_fields, fields)
     comments = {}
 
     def add_row(name, val, is_searchable=False, is_html=False, join=None):
@@ -173,25 +179,27 @@ def render_metadata(mi, table, book_id, field_list=None):  # {{{
         add_row(name, val, is_searchable=field)
 
     def process_formats(field, fm, name, val):
-        table.appendChild(E.tr(E.td(name + ':'), E.td()))
-        td = table.lastChild.lastChild
-        for fmt in val:
-            fmt = fmt.toUpperCase()
-            td.appendChild(E.a(
-                fmt, class_='simple-link', href='javascript:void(0)',
-                title=_('Read or download this book in the {} format').format(fmt),
-                onclick=on_fmt_click.bind(mi.title), data_format=fmt, data_book_id='' + book_id))
-            if fmt is not val[-1]:
-                td.appendChild(document.createTextNode(', '))
+        if val.length:
+            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            td = table.lastChild.lastChild
+            for fmt in val:
+                fmt = fmt.toUpperCase()
+                td.appendChild(E.a(
+                    fmt, class_='simple-link', href='javascript:void(0)',
+                    title=_('Read or download this book in the {} format').format(fmt),
+                    onclick=on_fmt_click.bind(mi.title), data_format=fmt, data_book_id='' + book_id))
+                if fmt is not val[-1]:
+                    td.appendChild(document.createTextNode(', '))
 
     def process_rating(field, fm, name, val):
         stars = E.span()
-        val = int(val)
-        for i in range(val // 2):
-            stars.appendChild(svgicon('star'))
-        if fm.display.allow_half_stars and (val % 2):
-            stars.appendChild(svgicon('star-half'))
-        add_row(name, stars)
+        val = int(val or 0)
+        if val > 0:
+            for i in range(val // 2):
+                stars.appendChild(svgicon('star'))
+            if fm.display.allow_half_stars and (val % 2):
+                stars.appendChild(svgicon('star-half'))
+            add_row(name, stars)
 
     def process_identifiers(field, fm, name, val):
         if val:
