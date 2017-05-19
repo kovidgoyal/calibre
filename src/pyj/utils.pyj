@@ -231,7 +231,9 @@ def sandboxed_html(html, style, sandbox):
     html = html or ''
     css = 'html, body { margin: 0; padding: 0; font-family: __FONT__ } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'.replace('__FONT__', get_font_family())
     css += style or ''
-    ans.srcdoc = f'<html><head><style>{css}</style></head><body>{html}</body></html>'
+    final_html = f'<!DOCTYPE html><html><head><style>{css}</style></head><body>{html}</body></html>'
+    # Microsoft Edge does not support srcdoc not does it work using a data URI.
+    ans.srcdoc = final_html
     return ans
 
 if __name__ is '__main__':

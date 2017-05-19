@@ -125,6 +125,12 @@ def do_update_interface_data():
 
 
 def main():
+    if document.createElement('iframe').srcdoc is undefined:
+        document.body.innerHTML = '<p style="margin:1.5em; max-width: 40em">' + _(
+            'You are using a browser that does not have the iframe srcdoc attribute.'
+        ' This is not supported. Use a better browser such as <b>Google Chrome</b> or <b>Mozilla'
+        ' Firefox</b>, instead.')
+        return
     interface_data = get_interface_data()
     if interface_data.is_default or not interface_data.library_map:
         load_interface_data()
