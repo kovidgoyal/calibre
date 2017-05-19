@@ -138,6 +138,8 @@ def render_metadata(mi, table, book_id):  # {{{
     comments = {}
 
     def add_row(name, val, is_searchable=False, is_html=False, join=None):
+        if val is undefined or val is None:
+            return
         def add_val(v):
             if not v.appendChild:
                 v += ''
@@ -297,17 +299,19 @@ def render_metadata(mi, table, book_id):  # {{{
             func(field, fm, name, val)
         else:
             if datatype is 'text' or datatype is 'enumeration':
-                join = fm.is_multiple.list_to_ui if fm.is_multiple else None
-                add_row(name, val, join=join, is_searchable=field)
+                if val is not undefined and val is not None:
+                    join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+                    add_row(name, val, join=join, is_searchable=field)
             elif datatype is 'bool':
                 add_row(name, _('Yes') if val else _('No'))
             elif datatype is 'int' or datatype is 'float':
-                fmt = (fm.display or {}).number_format
-                if fmt:
-                    val = fmt.format(val)
-                else:
-                    val += ''
-                add_row(name, val)
+                if val is not undefined and val is not None:
+                    fmt = (fm.display or {}).number_format
+                    if fmt:
+                        val = fmt.format(val)
+                    else:
+                        val += ''
+                    add_row(name, val)
 
     for field in fields:
         fm = field_metadata[field]
