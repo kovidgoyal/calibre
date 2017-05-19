@@ -280,8 +280,20 @@ libraries that the main calibre program knows about will be used.
 option_parser = create_option_parser
 
 
+def ensure_single_instance():
+    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
+        ext = '.exe' if iswindows else ''
+        raise SystemExit(_(
+            'Another calibre program such as another instance of {} or the main'
+            ' calibre program is running. Having multiple programs that can make'
+            ' changes to a calibre library running at the same time is not supported.'
+        ).format('calibre-server' + ext)
+        )
+
+
 def main(args=sys.argv):
     opts, args=create_option_parser().parse_args(args)
+    ensure_single_instance()
     if opts.manage_users:
         try:
             manage_users(opts.userdb)
@@ -298,15 +310,6 @@ def main(args=sys.argv):
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries=[prefs['library_path']]
-
-    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
-        ext = '.exe' if iswindows else ''
-        raise SystemExit(_(
-            'Another calibre program such as another instance of {} or the main'
-            ' calibre program is running. Having multiple programs that can make'
-            ' changes to a calibre library running at the same time is not supported.'
-        ).format('calibre-server' + ext)
-        )
 
     if opts.auto_reload:
         if opts.daemonize:
