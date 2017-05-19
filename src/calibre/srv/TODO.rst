@@ -5,9 +5,6 @@ particular order.
 New features for the in-browser viewer
 ----------------------------------------
 
-- Welcome screen that explains the touch controls the first time the viewer is
-  used on a device
-
 - Footnote popups
 
 - Bookmarks and more generally, annotations such as highlighting text and
@@ -19,6 +16,8 @@ New features for the in-browser viewer
 
 New features for the server generally
 ---------------------------------------
+
+- Preference to control what fields are showin in the book details view
 
 - Create a UI for making changes to the library such as editing metadta,
   adding/deleting books, converting, sending by email, etc.
@@ -32,5 +31,3 @@ New features for the server generally
 
 Bug fixes
 --------------
-
-- Fix search completion popups in the various search boxes not working
