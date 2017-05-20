@@ -60,8 +60,11 @@ def _makeelement(tag, *args, **kwargs):
 def maker_for_document(document):
     # Create an elementmaker to be used with the specified document
     E = _makeelement.bind(document)
-    for tag in html5_tags:
-        Object.defineProperty(E, tag, {'value':_makeelement.bind(document, tag)})
+    Object.defineProperties(E, {
+        tag: {
+            'value':_makeelement.bind(document, tag)
+        } for tag in html5_tags
+    })
     return E
 
 if jstype(document) is 'undefined':
