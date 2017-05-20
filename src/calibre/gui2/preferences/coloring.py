@@ -371,7 +371,7 @@ class RuleEditor(QDialog):  # {{{
             create_filename_box()
 
             vb = QVBoxLayout()
-            self.multiple_icon_cb = QCheckBox(_('Choose more than one icon'))
+            self.multiple_icon_cb = QCheckBox(_('Choose &more than one icon'))
             vb.addWidget(self.multiple_icon_cb)
             self.update_filename_box()
             self.multiple_icon_cb.clicked.connect(self.multiple_box_clicked)
@@ -395,7 +395,7 @@ class RuleEditor(QDialog):  # {{{
         l.addWidget(sa, 4, 0, 1, 8)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')),
-                _('Add another condition'))
+                _('Add &another condition'))
         l.addWidget(b, 5, 0, 1, 8)
         b.clicked.connect(self.add_blank_condition)
 
