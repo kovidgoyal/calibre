@@ -176,7 +176,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         if none:
             ans += (' and not ' if ans else 'not ') + none
         if any:
-            ans += (' or ' if ans else '') + any
+            if ans:
+                ans += ' and (' + any + ')'
+            else:
+                ans = any
         return ans
 
     def token(self):
