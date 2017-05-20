@@ -237,6 +237,9 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                     menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
                     menu.addMenu(sia)
                     search_internet_added = True
+                if hasattr(book_info, 'search_requested'):
+                    menu.addAction(_('Search calibre for %s') % author,
+                                   lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             if data:
                 try:
                     field, value, book_id = cPickle.loads(unhexlify(data))
@@ -757,6 +760,7 @@ class BookDetails(QWidget):  # {{{
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self.book_info.search_internet = self.search_internet
+        self.book_info.search_requested = self.search_requested.emit
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.remove_format.connect(self.remove_specific_format)
