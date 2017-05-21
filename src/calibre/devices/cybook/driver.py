@@ -136,5 +136,5 @@ class MUSE(CYBOOK):
     @classmethod
     def can_handle(cls, device_info, debug=False):
         if isunix:
-            return device_info[3] == 'Bookeen' and device_info[4] in ('Cybook', 'Lev', 'Nolimbook', 'Letto')
+            return device_info[3] == 'Bookeen' and device_info[4] in ('Cybook', 'Lev', 'Nolimbook', 'Letto', 'Nolim')
         return True
