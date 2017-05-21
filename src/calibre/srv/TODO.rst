@@ -20,9 +20,6 @@ New features for the server generally
 - Create a UI for making changes to the library such as editing metadta,
   adding/deleting books, converting, sending by email, etc.
 
-- Add links to easily search goodread/amazon/google books from the book
-  details page
-
 - Add a way to search the set of locally available books stored in offline
   storage.
 

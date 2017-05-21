@@ -6,7 +6,8 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax
+from ajax import ajax, encode_query_component
+from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
     book_metadata, cover_url, current_library_id, current_virtual_library,
     download_url, library_data, load_status, set_book_metadata
@@ -29,6 +30,7 @@ from widgets import create_button, create_spinner
 bd_counter = 0
 
 CLASS_NAME = 'book-details-panel'
+SEARCH_INTERNET_CLASS = 'book-details-search-internet'
 FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
@@ -347,6 +349,11 @@ add_extra_css(def():
     style += build_rule(sel + 'table.metadata a[href]', color='blue')
     style += build_rule(sel + 'table.metadata a[href]:hover', color=get_color('window-hover-foreground'))
     style += build_rule(sel + 'table.metadata a[href]:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
+
+    sel = '.' + SEARCH_INTERNET_CLASS
+    style += build_rule(sel, margin='1ex 1em')
+    style += build_rule(sel + ' ul > li', list_style_type='none')
+    style += build_rule(sel + ' ul > li > a', padding='2ex 1em', display='block', width='100%')
     return style
 )
 
@@ -388,6 +395,7 @@ def download_book(book_id):
 
 
 def render_book(container_id, book_id):
+    render_book.book_id = book_id
     c = document.getElementById(container_id)
     if not c:
         return
@@ -424,6 +432,15 @@ def render_book(container_id, book_id):
     render_metadata(metadata, table, book_id)
 
 
+def add_top_bar_buttons(container_id):
+    container = document.getElementById(container_id)
+    if container:
+        book_id = parse_url_params().book_id
+        if book_id is '0':
+            add_button(container.parentNode, 'random', def(): fetch_metadata(container_id, 0);)
+        add_button(container, 'ellipsis-v', action=show_subsequent_panel.bind(None, 'more_actions'), tooltip=_('More actions'))
+
+
 def metadata_fetched(container_id, book_id, end_type, xhr, event):
     nonlocal current_fetch
     if current_fetch is None or current_fetch is not xhr:
@@ -443,6 +460,7 @@ def metadata_fetched(container_id, book_id, end_type, xhr, event):
         book_id = int(data['id'])
         set_book_metadata(book_id, data)
         render_book(container_id, book_id)
+        add_top_bar_buttons(container_id)
     elif end_type is not 'abort':
         clear(c)
         c.appendChild(E.div(
@@ -480,9 +498,8 @@ def create_book_details(container):
     container_id = container.parentNode.id
     if current_book_id is not 0 and book_metadata(current_book_id):
         render_book(container_id, current_book_id)
+        add_top_bar_buttons(container_id)
     else:
-        if current_book_id is 0:
-            add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
         fetch_metadata(container_id, current_book_id)
 
 
@@ -526,4 +543,64 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
+def show_subsequent_panel(name, replace=False):
+    q = parse_url_params()
+    q.book_id = (read_book.book_id or q.book_id) + ''
+    show_panel('book_details^' + name, query=q, replace=replace)
+
+
+def create_more_actions_panel(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('More actions…'), action=back, icon='close')
+    items = [
+        create_item(_('Search the internet'), subtitle=_('Search for this author or book on various websites'),
+                    action=def():
+                        show_subsequent_panel('search_internet', replace=True)
+        ),
+    ]
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
+
+
+def return_to_book_details():
+    q = parse_url_params()
+    show_panel('book_details', query=q, replace=True)
+
+
+def url_for(template, data):
+    def eqc(x):
+        return encode_query_component(x).replace(/%20/g, '+')
+    return template.format(title=eqc(data.title), author=eqc(data.author))
+
+
+def search_internet(container_id):
+    if not render_book.book_id or not book_metadata(render_book.book_id):
+        return return_to_book_details()
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
+    mi = book_metadata(render_book.book_id)
+    data = {'title':mi.title, 'author':mi.authors[0]}
+
+    def link_for(name, template):
+        return E.a(name, class_='simple-link', href=url_for(template, data), target="_blank")
+
+    container.appendChild(E.div(class_=SEARCH_INTERNET_CLASS,
+        safe_set_inner_html(E.h2(), _('Search for the author <i>{}</i> at:').format(data.author)),
+        E.ul(
+            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/book/author/{author}')),
+            E.li(link_for(_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}')),
+            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22')),
+        ),
+        E.hr(),
+        safe_set_inner_html(E.h2(), _('Search for the book <i>{}</i> at:').format(data.title)),
+        E.ul(
+            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books')),
+            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22')),
+            E.li(link_for(_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}')),
+        ),
+
+    ))
+
 set_panel_handler('book_details', init)
+set_panel_handler('book_details^more_actions', create_more_actions_panel)
+set_panel_handler('book_details^search_internet', search_internet)
