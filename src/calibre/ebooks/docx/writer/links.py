@@ -93,6 +93,7 @@ class LinksManager(object):
             i += 1
             name  = bname + ('_%d' % i)
         self.anchor_map[key] = name
+        self.used_bookmark_names.add(name)
         return name
 
     @property
