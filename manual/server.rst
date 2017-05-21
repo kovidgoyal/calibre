@@ -47,7 +47,7 @@ Using a URL prefix
 -----------------------
 
 If you do not want to dedicate a full virtual host to calibre, you can have it
-use a URL prefix. Start the calisre server as::
+use a URL prefix. Start the calibre server as::
 
     calibre-server --url-prefix /calibre --port 8080 
 
