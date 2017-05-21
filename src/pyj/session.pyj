@@ -12,6 +12,7 @@ defaults = {
     'view_mode': 'cover_grid',
     'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
     'last_sort_order': {},
+    'show_all_metadata': False, # show all metadata fields in the book details panel
 
     # Tag Browser settings
     'partition_method': 'first letter',  # other choices: 'disable', 'partition'

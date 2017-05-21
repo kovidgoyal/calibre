@@ -13,6 +13,7 @@ from book_list.library_data import (
     download_url, library_data, load_status, set_book_metadata
 )
 from book_list.router import back, home, open_book
+from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
 from book_list.top_bar import add_button, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
@@ -133,7 +134,7 @@ def render_metadata(mi, table, book_id):  # {{{
         return True
 
     fields = library_data.book_display_fields
-    if not fields or not fields.length:
+    if not fields or not fields.length or get_session_data().get('show_all_metadata'):
         fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     else:
         fields = filter(allowed_fields, fields)
@@ -552,11 +553,16 @@ def show_subsequent_panel(name, replace=False):
 def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('More actions…'), action=back, icon='close')
+    if get_session_data().get('show_all_metadata'):
+        title, subtitle = _('Show important metadata'), _('Show only the important metadata fields in the book details')
+    else:
+        title, subtitle = _('Show all metadata'), _('Show all metadata fields in the book details')
     items = [
         create_item(_('Search the internet'), subtitle=_('Search for this author or book on various websites'),
                     action=def():
                         show_subsequent_panel('search_internet', replace=True)
         ),
+        create_item(title, subtitle=subtitle, action=toggle_fields),
     ]
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
@@ -565,6 +571,12 @@ def create_more_actions_panel(container_id):
 def return_to_book_details():
     q = parse_url_params()
     show_panel('book_details', query=q, replace=True)
+
+
+def toggle_fields():
+    sd = get_session_data()
+    sd.set('show_all_metadata', False if sd.get('show_all_metadata') else True)
+    return_to_book_details()
 
 
 def url_for(template, data):
