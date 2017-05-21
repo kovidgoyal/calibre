@@ -18,7 +18,7 @@ Click the book you want to edit and then click the :guilabel:`Edit metadata` but
 
     * You can click the button in between title and authors to swap them automatically. 
     * You can click the button next to author sort to have calibre automatically fill it in using the sort values stored with each author. Use the :guilabel:`Manage authors` dialog to see and change the authors' sort values. This dialog can be opened by clicking and holding the button next to author sort.
-    * You can click the button next to tags to use the Tag Editor to manage the tags associated with the book.
+    * You can click the button next to tags to use the :guilabel:`Tag editor` to manage the tags associated with the book.
     * The "Ids" box can be used to enter an ISBN (and many other types of id), it will have a red background if you enter an invalid ISBN. It will be green for valid ISBNs.
     * The author sort box will be red if the author sort value differs from what calibre thinks it should be.
 

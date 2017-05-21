@@ -355,7 +355,7 @@ for the tag ``Science Fiction`` you would need to search for ``tag:"=science fic
 ``tag:=science fiction`` you will find all books with the tag 'science' and containing the word 'fiction' in any
 metadata.
 
-You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog` accessed by
+You can build advanced search queries easily using the :guilabel:`Advanced search dialog` accessed by
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
@@ -433,7 +433,7 @@ Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note
 .. figure:: images/search.png
     :align: center
 
-    :guilabel:`Advanced Search Dialog`
+    :guilabel:`Advanced search dialog`
 
 .. _saved_searches:
 

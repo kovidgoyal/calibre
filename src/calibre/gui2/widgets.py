@@ -108,9 +108,9 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         fname = unicode(self.filename.text())
         ext = os.path.splitext(fname)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
-            return warning_dialog(self, _('Test name invalid'),
-                    _('The name <b>%s</b> does not appear to end with a'
-                        ' file extension. The name must end with a file '
+            return warning_dialog(self, _('Test file name invalid'),
+                    _('The file name <b>%s</b> does not appear to end with a'
+                        ' file extension. It must end with a file '
                         ' extension like .epub or .mobi')%fname, show=True)
 
         try:

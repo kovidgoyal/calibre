@@ -101,7 +101,7 @@ class RuleEdit(QWidget):
         h.addWidget(q)
         self.tag_editor_button = b = QToolButton(self)
         b.setIcon(QIcon(I('chapters.png')))
-        b.setToolTip(_('Edit the list of tags with the tag editor'))
+        b.setToolTip(_('Edit the list of tags with the Tag editor'))
         h.addWidget(b), b.clicked.connect(self.edit_tags)
         b.setVisible(self.can_use_tag_editor)
         self.h2 = h = QHBoxLayout()
@@ -150,7 +150,7 @@ class RuleEdit(QWidget):
 
     def specialise_context_menu(self, menu):
         if self.can_use_tag_editor:
-            menu.addAction(_('Use the tag editor to edit the list of tags'), self.edit_tags)
+            menu.addAction(_('Use the Tag editor to edit the list of tags'), self.edit_tags)
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor

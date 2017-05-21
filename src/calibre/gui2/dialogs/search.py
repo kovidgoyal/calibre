@@ -47,7 +47,7 @@ def create_msg_label(self):
     f.um_label = la = QLabel(_(
         "<p>You can also perform other kinds of advanced searches, for example checking"
         ' for books that have no covers, combining multiple search expression using Boolean'
-        ' operators and so on. See the <a href=\"%s\">The Search Interface</a> for more information.'
+        ' operators and so on. See the <a href=\"%s\">The search interface</a> for more information.'
     ) % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
     la.setMinimumSize(QSize(150, 0))
     la.setWordWrap(True)
@@ -81,7 +81,7 @@ def create_button_box(self):
 
 def create_adv_tab(self):
     self.adv_tab = w = QWidget(self.tab_widget)
-    self.tab_widget.addTab(w, _("A&dvanced Search"))
+    self.tab_widget.addTab(w, _("A&dvanced search"))
 
     w.g1 = QGroupBox(_("Find entries that have..."), w)
     w.g2 = QGroupBox(("But don't show entries that have..."), w)
@@ -223,7 +223,7 @@ def create_date_tab(self, db):
 
 
 def setup_ui(self, db):
-    self.setWindowTitle(_("Advanced Search"))
+    self.setWindowTitle(_("Advanced search"))
     self.setWindowIcon(QIcon(I('search.png')))
     self.l = l = QVBoxLayout(self)
     self.h = h = QHBoxLayout()

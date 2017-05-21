@@ -133,10 +133,10 @@ is completed. This can be slow on large libraries.</string>
            <item row="5" column="3">
             <widget class="QToolButton" name="tag_editor_button">
              <property name="toolTip">
-              <string>Open Tag Editor</string>
+              <string>Open Tag editor</string>
              </property>
              <property name="text">
-              <string>Open Tag Editor</string>
+              <string>Open Tag editor</string>
              </property>
              <property name="icon">
               <iconset resource="../../../../resources/images.qrc">
