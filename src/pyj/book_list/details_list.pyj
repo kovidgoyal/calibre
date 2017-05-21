@@ -35,7 +35,6 @@ def details_list_css():
     ans += f'{extra_data} {{ text-align: right }}'
     narrow_style = f'{s} iframe {{ display: none }} {top} {{ flex-direction: column }} {extra_data} {{ text-align: left; margin-top: 1ex }}'
     ans += f'@media (max-width: 450px) {{ {narrow_style} }}'
-    print(ans)
     s += ' iframe'
     # To enable clicking anywhere on the item to load book details to work, we
     # have to set pointer-events: none

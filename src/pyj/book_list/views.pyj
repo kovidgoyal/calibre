@@ -413,7 +413,7 @@ def create_mode_panel(container_id):
 
 def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
+    create_top_bar(container, title=_('More actions…'), action=back, icon='close')
     items = [
         create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed'), action=def():
                     show_panel('book_list^choose_mode', replace=True)
