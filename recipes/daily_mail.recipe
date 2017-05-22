@@ -1,4 +1,16 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class TheDailyMail(BasicNewsRecipe):
@@ -6,24 +18,22 @@ class TheDailyMail(BasicNewsRecipe):
     oldest_article = 2
     language = 'en_GB'
 
-    author = 'RufusA and Sujata Raman'
+    __author__ = 'Kovid Goyal'
     simultaneous_downloads = 1
     max_articles_per_feed = 50
     use_embedded_content = False
-    auto_cleanup = True
     compress_news_images = True
-    compress_news_images_max_size = 15
-
-    extra_css = '''#js-article-text{font-family:Arial,Helvetica,sans-serif;}
-                    h1{font-size:x-large; font-weight:bold;}
-                    a.author{color:#003580;}
-                    .js-article-text{font-size:50%;}
-                    .imageCaption{font-size:x-small; font-weight:bold}
-
-
-                '''
-
+    compress_news_images_auto_size = 8
     no_stylesheets = True
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('author-section byline-section'),
+        dict(itemprop='articleBody'),
+    ]
+    remove_tags = [
+        classes('related-carousel')
+    ]
 
     feeds = [
         (u'Home', u'http://www.dailymail.co.uk/home/index.rss'),
@@ -38,3 +48,11 @@ class TheDailyMail(BasicNewsRecipe):
         (u'Motoring', u'http://www.dailymail.co.uk/motoring/index.rss'),
         (u'Travel', u'http://www.dailymail.co.uk/travel/index.rss')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll(attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        all_h1s = soup.findAll('h1')
+        for h1 in all_h1s[1:]:
+            h1.extract()
+        return soup
