@@ -149,7 +149,7 @@
           <string>Delete tag from database. This will unapply the tag from all books and then remove it from the database.</string>
          </property>
          <property name="text">
-          <string>Delete tag</string>
+          <string>&amp;Delete tag</string>
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
@@ -229,7 +229,7 @@
           <string>Unapply (remove) tag from current book</string>
          </property>
          <property name="text">
-          <string>Unapply tag</string>
+          <string>&amp;Unapply tag</string>
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">

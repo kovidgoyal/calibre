@@ -347,7 +347,7 @@ class NewUser(QDialog):
                     self,
                     _('Username already exists'),
                     _(
-                        'A user witht he username {} already exists. Please choose a different username.'
+                        'A user with the username {} already exists. Please choose a different username.'
                     ).format(un),
                     show=True
                 )
