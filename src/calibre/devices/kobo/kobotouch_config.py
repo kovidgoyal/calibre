@@ -52,8 +52,8 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
 
-        self.addDeviceTab(self.tab1, _("Collections, Covers && Uploads"))
-        self.addDeviceTab(self.tab2, _('Metadata, On Device && Advanced'))
+        self.addDeviceTab(self.tab1, _("Collections, covers && uploads"))
+        self.addDeviceTab(self.tab2, _('Metadata, on device && advanced'))
 
     def get_pref(self, key):
         return self.device.get_pref(key)
@@ -208,7 +208,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.setChecked(device.get_pref('manage_collections'))
         self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
-        self.collections_columns_label = QLabel(_('Collections Columns:'))
+        self.collections_columns_label = QLabel(_('Collections columns:'))
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
                 ' These are created on the Kobo. ' +
@@ -216,12 +216,12 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
 
         self.create_collections_checkbox = create_checkbox(
-                         _("Create Collections"),
+                         _("Create collections"),
                          _('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
                          device.get_pref('create_collections')
                          )
         self.delete_empty_collections_checkbox = create_checkbox(
-                         _('Delete Empty Bookshelves'),
+                         _('Delete empty bookshelves'),
                          _('Delete any empty bookshelves from the Kobo when syncing is finished. This is only for firmware V2.0.0 or later.'),
                          device.get_pref('delete_empty_collections')
                          )
@@ -277,8 +277,8 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.setToolTip(wrap_msg(_('Upload cover images from the calibre library when sending books to the device.')))
 
         self.upload_grayscale_checkbox = create_checkbox(
-                             _('Upload Black and White Covers'),
-                             _('Convert covers to Black and White when uploading'),
+                             _('Upload black and white Covers'),
+                             _('Convert covers to black and white when uploading'),
                              device.get_pref('upload_grayscale')
                              )
 

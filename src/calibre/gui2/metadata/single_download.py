@@ -1046,7 +1046,7 @@ class FullFetch(QDialog):  # {{{
         self.prev_button = pb = QPushButton(QIcon(I('back.png')), _('&Back'), self)
         pb.clicked.connect(self.back_clicked)
         pb.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.log_button = self.bb.addButton(_('&View log'), self.bb.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.prev_button.setVisible(False)
@@ -1159,7 +1159,7 @@ class CoverFetch(QDialog):  # {{{
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         l.addWidget(self.bb)
-        self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.log_button = self.bb.addButton(_('&View log'), self.bb.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.bb.rejected.connect(self.reject)

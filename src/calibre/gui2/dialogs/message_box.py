@@ -230,6 +230,7 @@ class ViewLog(QDialog):  # {{{
         gprefs[self.unique_name] = bytearray(self.saveGeometry())
 # }}}
 
+
 _proceed_memory = []
 
 
@@ -270,7 +271,7 @@ class ProceedNotification(MessageBox):  # {{{
         self.log_is_file = log_is_file
         self.log_viewer_title = log_viewer_title
 
-        self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.vlb = self.bb.addButton(_('&View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
@@ -326,7 +327,7 @@ class ErrorNotification(MessageBox):  # {{{
         self.log_viewer_title = log_viewer_title
         self.finished.connect(self.do_close, type=Qt.QueuedConnection)
 
-        self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.vlb = self.bb.addButton(_('&View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
@@ -472,6 +473,7 @@ class JobError(QDialog):  # {{{
         self.do_pop.emit()
 
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import question_dialog, Application
