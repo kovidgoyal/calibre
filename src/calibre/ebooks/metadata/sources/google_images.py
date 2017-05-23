@@ -21,7 +21,6 @@ class GoogleImages(Source):
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
-    config_help_message = _('Configure the Google Image Search plugin')
     can_get_multiple_covers = True
     supports_gzip_transfer_encoding = True
     options = (Option('max_covers', 'number', 5, _('Maximum number of covers to get'),
