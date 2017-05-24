@@ -2,9 +2,6 @@ os: Visual Studio 2015
 
 clone_folder: C:\calibre
 clone_depth: 5
-branches:
-    only:
-    - vs2015
 
 cache:
     - .build-cache
