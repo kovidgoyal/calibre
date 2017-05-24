@@ -51,7 +51,7 @@
           <string/>
          </property>
          <property name="text">
-          <string>Arg &amp;count:</string>
+          <string>Argument &amp;count:</string>
          </property>
          <property name="buddy">
           <cstring>argument_count</cstring>

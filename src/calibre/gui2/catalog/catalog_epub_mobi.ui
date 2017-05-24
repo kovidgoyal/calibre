@@ -130,7 +130,7 @@
         <item>
          <widget class="QCheckBox" name="generate_genres">
           <property name="toolTip">
-           <string>List of books, sorted by Genre</string>
+           <string>List of books, sorted by genre</string>
           </property>
           <property name="text">
            <string>&amp;Genres</string>
@@ -140,7 +140,7 @@
         <item>
          <widget class="QComboBox" name="genre_source_field">
           <property name="toolTip">
-           <string>Field containing Genres</string>
+           <string>Field containing genres</string>
           </property>
          </widget>
         </item>
@@ -160,7 +160,7 @@
            <string>List of books, sorted by date added to calibre</string>
           </property>
           <property name="text">
-           <string>&amp;Recently Added</string>
+           <string>&amp;Recently added</string>
           </property>
          </widget>
         </item>

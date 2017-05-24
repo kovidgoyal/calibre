@@ -3887,7 +3887,7 @@ class CatalogBuilder(object):
          ncx_soup (file): updated
         """
 
-        self.update_progress_full_step(_("NCX for Genres"))
+        self.update_progress_full_step(_("NCX for genres"))
 
         if not len(self.genres):
             self.opts.log.warn(" No genres found\n"

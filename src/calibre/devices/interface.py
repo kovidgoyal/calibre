@@ -696,7 +696,7 @@ class DevicePlugin(Plugin):
         name is ignored in cases where the device uses a template to generate
         the file name, which most do. The second value in the returned tuple
         indicated whether the format is future-dated. Return True if it is,
-        otherwise return False. Calibre will display a dialog to the user
+        otherwise return False. calibre will display a dialog to the user
         listing all future dated books.
 
         Extremely important: this method is called on the GUI thread. It must

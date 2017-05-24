@@ -40,12 +40,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         template evaluation.</li>
         <li><b>kwargs</b>: a dictionary of metadata. Field values are in this
         dictionary.
-        <li><b>mi</b>: a Metadata instance. Used to get field information.
+        <li><b>mi</b>: a <i>Metadata</i> instance. Used to get field information.
         This parameter can be None in some cases, such as when evaluating
         non-book templates.</li>
         <li><b>locals</b>: the local variables assigned to by the current
         template program.</li>
-        <li><b>your parameters</b>: You must supply one or more formal
+        <li><b>your parameters</b>: you must supply one or more formal
         parameters. The number must match the arg count box, unless arg count is
         -1 (variable number or arguments), in which case the last argument must
         be *args. At least one argument is required, and is usually the value of

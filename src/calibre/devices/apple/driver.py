@@ -122,8 +122,8 @@ class DriverBase(DeviceConfig, DevicePlugin):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('Use Series as Category in iTunes/iBooks') +
-            ':::' + _('Enable to use the series name as the iTunes Genre, '
-                    'iBooks Category'),
+            ':::' + _('Enable to use the series name as the iTunes genre, '
+                    'iBooks category'),
             _('Cache covers from iTunes/iBooks') + ':::' + _(
                 'Enable to cache and display covers from iTunes/iBooks'),
             _(u'"Copy files to iTunes Media folder %s" is enabled in iTunes Preferences|Advanced') % u'\u2026' + ':::' + _(

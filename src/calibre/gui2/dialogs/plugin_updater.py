@@ -276,7 +276,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
-        self.headers = map(unicode, [_('Plugin Name'), _('Donate'), _('Status'), _('Installed'),
+        self.headers = map(unicode, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
                                       _('Available'), _('Released'), _('calibre'), _('Author')])
 
     def rowCount(self, *args):
@@ -467,7 +467,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png',
-                _('User Plugins'))
+                _('User plugins'))
         layout.addLayout(title_layout)
 
         header_layout = QHBoxLayout()
