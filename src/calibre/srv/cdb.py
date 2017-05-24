@@ -36,8 +36,10 @@ def cdb_run(ctx, rd, which, version):
     try:
         if MSGPACK_MIME in ct:
             args = msgpack_loads(raw)
-        else:
+        elif 'application/json' in ct:
             args = json_loads(raw)
+        else:
+            raise HTTPBadRequest('Only JSON or msgpack requests are supported')
     except Exception:
         raise HTTPBadRequest('args are not valid encoded data')
     if getattr(m, 'needs_srv_ctx', False):
