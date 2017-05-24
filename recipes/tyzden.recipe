@@ -17,14 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__license__ = 'GPL v3'
-__copyright__ = ('2014 - 2017 Martin Račák <martin.racak@riseup.net>,'
-                 '2011 Miroslav Vasko <zemiak@gmail.com>')
-
 import re
 
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+
+__copyright__ = (
+    '2014 - 2017 Martin Račák <martin.racak@riseup.net>,'
+    '2011 Miroslav Vasko <zemiak@gmail.com>')
+__license__ = 'GPL-3.0+'
 
 
 class Tyzden(BasicNewsRecipe):
@@ -40,9 +41,14 @@ class Tyzden(BasicNewsRecipe):
     issue_url = 'http://www.tyzden.sk/casopis/'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'section__content section__content--archive'}),
-        dict(name='article', attrs={'class': re.compile(r'\barticle\b')}),
-    ]
+        {
+            'name': 'div',
+            'attrs': {
+                'class': 'section__content section__content--archive'}},
+        {
+            'name': 'article',
+            'attrs': {
+                'class': re.compile(r'\barticle\b')}}, ]
 
     extra_css = """.theme-highlight {
         color: #999;
@@ -59,22 +65,25 @@ class Tyzden(BasicNewsRecipe):
         display: inline;
     }
 
-    .article__image-credit {
-        font: 12px "TheSerifSemiLight",arial;
+    .article__image-credit,
+    .content-photo__image-credit {
+        display: block;
+        font: 12px "TheSerifSemiLight", arial;
         text-transform: uppercase;
     }
 
-    .article__image-title {
+    .article__image-title,
+    .image-title {
         padding-top: 2px;
         padding-bottom: 2px;
         margin: 0;
-        font: 15px "TheSerifBold",arial;
+        font: 15px "TheSerifBold", arial;
         border-bottom: 2px solid #bf1f10;
         display: block;
     }
 
     .teaser__title {
-        font: 18px "TheSerifBold",arial;
+        font: 18px "TheSerifBold", arial;
         color: #bf1f10;
     }
 
@@ -109,11 +118,10 @@ class Tyzden(BasicNewsRecipe):
             article = {
                 'title': article_title,
                 'url': article_link['href'],
-                'date': strftime(' %a, %d %b')
-            }
+                'date': strftime(' %a, %d %b')}
 
             if not feeds:
-                # First cycle iteration.
+                # First iteration.
                 feeds.append((section, [article]))
                 continue
 
