@@ -49,7 +49,7 @@ class LifeHacker(BasicNewsRecipe):
                        ]})
     ]
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/lifehacker/vip?format=xml')]
+    feeds = [(u'Articles', u'https://lifehacker.com/rss')]
 
     conversion_options = {
         'title': title, 'comments': description, 'publisher': publisher, 'tags': category, 'language': LANGUAGE, 'linearize_tables': True
