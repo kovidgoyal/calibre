@@ -13,6 +13,7 @@ environment:
 
 platform:
     - x64
+    - x86
 
 before_build:
   - C:\Python36-x64\python.exe setup/win-ci.py sw

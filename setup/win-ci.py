@@ -164,7 +164,7 @@ def download_file(url):
     for i in range(5):
         try:
             printf('Downloading', url)
-            return subprocess.check_output(['curl.exe', '-fsSL', url])
+            return subprocess.check_output(['curl.exe', '-fSL', url])
         except subprocess.CalledProcessError:
             time.sleep(1)
     raise SystemExit('Failed to download: {}'.format(url))
@@ -174,7 +174,8 @@ def sw():
     sw = os.environ['SW']
     os.makedirs(sw)
     os.chdir(sw)
-    url = 'https://download.calibre-ebook.com/travis/win-64.tar.xz'
+    url = 'https://download.calibre-ebook.com/travis/win-{}.tar.xz'.format(
+        '64' if is64bit else '32')
     tarball = download_file(url)
     with tarfile.open(fileobj=io.BytesIO(tarball)) as tf:
         tf.extractall()
