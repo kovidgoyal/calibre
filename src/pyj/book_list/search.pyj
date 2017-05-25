@@ -131,7 +131,7 @@ def search_expression_for_item(node, node_state):
         name = str.replace(name, '"', r'\"')
         if name[0] is '.':
             name = '.' + name
-        if search_state is 'plusplus' or search_state is 'minusminus':
+        if search_state is '.true' or search_state is '.false':
             name = '.' + name
         expr = '{}:"={}{}"'.format(category, name, suffix)
 
