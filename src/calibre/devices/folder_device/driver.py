@@ -29,7 +29,7 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
 
 
 class FOLDER_DEVICE(USBMS):
-    type = _('Device Interface')
+    type = _('Device interface')
 
     name           = 'Folder Device Interface'
     gui_name       = 'Folder Device'

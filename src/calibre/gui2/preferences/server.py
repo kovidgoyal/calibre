@@ -211,7 +211,7 @@ class MainTab(QWidget):  # {{{
         fl.addRow(options['port'].shortdoc + ':', sb)
         l.addSpacing(25)
         self.opt_auth = cb = QCheckBox(
-            _('Require username/password to access the content server')
+            _('Require &username/password to access the content server')
         )
         l.addWidget(cb)
         self.auth_desc = la = QLabel(self)
@@ -745,7 +745,7 @@ class ConfigWidget(ConfigWidgetBase):
         m.show_logs.connect(self.view_server_logs)
         self.opt_autolaunch_server = m.opt_autolaunch_server
         self.users_tab = ua = Users(self)
-        t.addTab(ua, _('&User Accounts'))
+        t.addTab(ua, _('&User accounts'))
         self.advanced_tab = a = AdvancedTab(self)
         sa = QScrollArea(self)
         sa.setWidget(a), sa.setWidgetResizable(True)
@@ -872,7 +872,7 @@ class ConfigWidget(ConfigWidgetBase):
                     _(
                         'You have turned on the setting to require passwords to access'
                         ' the content server, but you have not created any user accounts.'
-                        ' Create at least one user account in the "User Accounts" tab to proceed.'
+                        ' Create at least one user account in the "User accounts" tab to proceed.'
                     ),
                     show=True
                 )
