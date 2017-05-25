@@ -64,6 +64,7 @@ class Server(object):
                 self.loop.initialize_socket()
             except Exception as e:
                 self.loop = None
+                self.exception = e
                 if self.start_failure_callback is not None:
                     try:
                         self.start_failure_callback(as_unicode(e))
@@ -86,6 +87,7 @@ class Server(object):
                 from calibre.utils.rapydscript import compile_srv
                 compile_srv()
         except BaseException as e:
+            self.exception = e
             if self.start_failure_callback is not None:
                 try:
                     self.start_failure_callback(as_unicode(e))

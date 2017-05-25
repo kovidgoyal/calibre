@@ -798,6 +798,7 @@ class ConfigWidget(ConfigWidgetBase):
                     _('Failed to start content server'),
                     as_unicode(self.gui.content_server.exception)
                 ).exec_()
+                self.gui.content_server = None
                 return
             self.main_tab.update_button_state()
         finally:
