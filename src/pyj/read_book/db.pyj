@@ -44,6 +44,7 @@ class DB:
 
     def __init__(self, callback, show_read_book_error):
         self.initialized = False
+        self.is_ok = False
         self.initialize_error_msg = None
         self.callback = callback
         self.show_read_book_error = show_read_book_error
@@ -93,6 +94,7 @@ class DB:
         self.idb = idb
         self.supports_blobs = supports_blobs
         self.initialized = True
+        self.is_ok = True
         if not supports_blobs:
             print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
 

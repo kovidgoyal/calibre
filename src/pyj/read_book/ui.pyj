@@ -15,7 +15,7 @@ from book_list.library_data import (
 from book_list.ui import show_panel
 from book_list.router import update_window_title, home
 from dom import clear
-from modals import create_simple_dialog_markup
+from modals import create_simple_dialog_markup, error_dialog
 from read_book.db import get_db
 from read_book.view import View
 from utils import debounce, human_readable
@@ -151,6 +151,9 @@ class ReadUI:
         return ans
 
     def db_initialized(self):
+        if not self.db.is_ok:
+            error_dialog(_('Could not initialize database'), self.db.initialize_error_msg)
+            return
         if self.pending_load is not None:
             pl, self.pending_load = self.pending_load, None
             if self.db.initialize_error_msg:

@@ -133,7 +133,10 @@ def show_recent():
     if not db.initialized:
         conditional_timeout(container.id, 5, show_recent)
         return
-    db.get_recently_read_books(show_recent_stage2.bind(container.id))
+    if db.is_ok:
+        db.get_recently_read_books(show_recent_stage2.bind(container.id))
+    else:
+        print(db.initialize_error_msg)
 
 
 def show_user_details():

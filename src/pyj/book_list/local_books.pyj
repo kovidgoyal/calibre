@@ -14,6 +14,7 @@ from book_list.router import back, open_book
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from book_list.views import ALLOWED_MODES, DEFAULT_MODE
+from modals import error_dialog
 from dom import clear, ensure_id
 from utils import conditional_timeout
 
@@ -122,7 +123,11 @@ def show_recent():
     if not db.initialized:
         conditional_timeout(container.id, 5, show_recent)
         return
-    db.get_recently_read_books(show_recent_stage2.bind(container.id), 200)
+    if db.is_ok:
+        db.get_recently_read_books(show_recent_stage2.bind(container.id), 200)
+    else:
+        error_dialog(_('Database not initialized'),
+            db.initialize_error_msg)
 
 
 def init(container_id):
