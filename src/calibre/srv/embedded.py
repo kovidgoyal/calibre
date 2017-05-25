@@ -46,10 +46,6 @@ class Server(object):
         self.opts = opts
         self.log, self.access_log = log, access_log
         self.handler.set_log(self.log)
-        _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-        if _df and os.path.exists(_df):
-            from calibre.utils.rapydscript import compile_srv
-            compile_srv()
 
     @property
     def user_manager(self):
@@ -91,6 +87,10 @@ class Server(object):
                 pass
         reset_caches()  # we reset the cache as the server tdir has changed
         try:
+            _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+            if _df and os.path.exists(_df):
+                from calibre.utils.rapydscript import compile_srv
+                compile_srv()
             self.loop.serve_forever()
         except BaseException as e:
             self.exception = e
