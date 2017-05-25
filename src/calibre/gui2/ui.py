@@ -517,6 +517,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             handle_changes(changes, self)
 
     def content_server_start_failed(self, msg):
+        self.content_server = None
         error_dialog(self, _('Failed to start Content server'),
                 _('Could not start the Content server. Error:\n\n%s')%msg,
                 show=True)
