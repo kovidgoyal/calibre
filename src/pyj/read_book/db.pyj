@@ -71,11 +71,13 @@ class DB:
         request.onblocked = def(event):
             self.initialize_error_msg = _('Please close all other browser tabs with calibre open')
             self.initialized = True
+            console.log(event)
             self.callback()
 
         request.onerror = def(event):
             self.initialize_error_msg = _('You must allow calibre to use IndexedDB storage in your browser to read books')
             self.initialized = True
+            console.log(event)
             self.callback()
 
         request.onsuccess = def(event):
