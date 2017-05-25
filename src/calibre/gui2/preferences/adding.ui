@@ -19,92 +19,148 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>The add &amp;process</string>
+       <string>Reading &amp;metadata</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="1" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="opt_swap_author_names">
-           <property name="toolTip">
-            <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
-           </property>
-           <property name="text">
-            <string>&amp;Swap author firstname and lastname</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_230">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>&amp;Tags to apply when adding a book:</string>
+          <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
          </property>
-         <property name="buddy">
-          <cstring>opt_new_book_tags</cstring>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="7" column="2">
-        <widget class="QLineEdit" name="opt_new_book_tags">
+       <item>
+        <widget class="QCheckBox" name="opt_read_file_metadata">
          <property name="toolTip">
-          <string>A comma-separated list of tags that will be applied to books added to the library</string>
+          <string/>
+         </property>
+         <property name="text">
+          <string>Read &amp;metadata from file contents rather than file name</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="3">
+       <item>
+        <widget class="QCheckBox" name="opt_swap_author_names">
+         <property name="toolTip">
+          <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Swap author firstname and lastname when reading author from filename</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="metadata_box">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>100</height>
+          </size>
+         </property>
          <property name="title">
           <string>&amp;Configure metadata from file name</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>363</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="3">
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="actions_tab">
+      <attribute name="title">
+       <string>Adding &amp;actions</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_mark_new_books">
+         <property name="text">
+          <string>&amp;Mark newly added books</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
          <property name="text">
           <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
          </property>
         </widget>
        </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
+         <property name="text">
+          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title and author</string>
+         </property>
+        </widget>
+       </item>
        <item row="4" column="0" colspan="2">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_manual_add_auto_convert">
          <property name="text">
           <string>Automatically &amp;convert added books to the current output format</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="2">
+       <item row="6" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_auto_convert_same_fmt">
+         <property name="toolTip">
+          <string>This will force an automatic conversion even if the file being added is the same format as the output format. For example, if you set your output format to EPUB and add an EPUB file, an EPUB to EPUB conversion will be run.</string>
+         </property>
+         <property name="text">
+          <string>When autoconverting, convert even if the format being added is the &amp;same as the output format</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="opt_add_formats_to_existing">
+         <property name="toolTip">
+          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+existing book records. The box to the right controls what happens when an existing record already has
+the incoming format. Note that this option also affects the Copy to library action.
+
+Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Automerge added books if they already exist:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
         <widget class="QComboBox" name="opt_automerge">
          <property name="toolTip">
           <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
@@ -120,75 +176,101 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
+       <item row="9" column="0">
+        <widget class="Line" name="line_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="opt_read_file_metadata">
-         <property name="text">
-          <string>Read &amp;metadata from file contents rather than file name</string>
+       <item row="10" column="0" colspan="2">
+        <widget class="Line" name="line_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
-        <widget class="QCheckBox" name="opt_mark_new_books">
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_230">
          <property name="text">
-          <string>&amp;Mark newly added books</string>
+          <string>&amp;Tags to apply when adding a book:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_new_book_tags</cstring>
          </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_add_formats_to_existing">
+       <item row="11" column="1">
+        <widget class="QLineEdit" name="opt_new_book_tags">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="toolTip">
-          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
-existing book records. The box to the right controls what happens when an existing record already has
-the incoming format. Note that this option also affects the Copy to library action.
-
-Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
-         </property>
-         <property name="text">
-          <string>&amp;Automerge added books if they already exist in the calibre library:</string>
+          <string>A comma-separated list of tags that will be applied to books added to the library</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="3">
-        <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
-         <property name="text">
-          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title and author</string>
+       <item row="12" column="0">
+        <widget class="Line" name="line_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="3">
-        <widget class="QCheckBox" name="opt_auto_convert_same_fmt">
-         <property name="toolTip">
-          <string>This will force an automatic conversion even if the file being added is the same format as the output format. For example, if you set your output format to EPUB and add an EPUB file, an EPUB to EPUB conversion will be run.</string>
-         </property>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>When autoconverting, convert even if the format being added is the &amp;same as the output format</string>
+          <string>Control &amp;how tags are processed:</string>
+         </property>
+         <property name="buddy">
+          <cstring>tag_map_rules_button</cstring>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="14" column="1">
         <widget class="QPushButton" name="tag_map_rules_button">
          <property name="toolTip">
           <string>Create rules that can filter or transform tags on added books automatically as soon as they are added. </string>
          </property>
          <property name="text">
-          <string>Create &amp;rules to filter/transform tags</string>
+          <string>&amp;Rules to filter tags read from metadata</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="2">
-        <widget class="QPushButton" name="add_filter_rules_button">
+       <item row="16" column="0" colspan="2">
+        <widget class="Line" name="line_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0">
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Rules to &amp;filter added files</string>
+          <string>Control &amp;which files are added during bulk imports:</string>
+         </property>
+         <property name="buddy">
+          <cstring>add_filter_rules_button</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="1">
+        <widget class="QPushButton" name="add_filter_rules_button">
+         <property name="toolTip">
+          <string>&lt;p&gt;You can specify rules to add/ignore files here. These will be used when recursively adding books from directories.</string>
+         </property>
+         <property name="text">
+          <string>Rules to filter added &amp;files</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0" colspan="2">
+        <widget class="Line" name="line_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
