@@ -29,7 +29,15 @@ class LifeHacker(BasicNewsRecipe):
         classes('headline author post-content'),
     ]
     remove_tags = [
-        classes('commerce-inset'),
+        classes('commerce-inset gmg-avatar js_ad-dynamic'),
+        dict(id='lifehacker-avatar-svg'),
     ]
+    remove_tags_after = classes('post-content')
 
     feeds = [(u'Articles', u'https://lifehacker.com/rss')]
+
+    def preprocess_soup(self, soup):
+        for source in soup.findAll('source', attrs={'data-srcset':True}):
+            for img in source.findAll('img'):
+                img['src'] = source['data-srcset']
+        return soup
