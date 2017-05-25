@@ -22,7 +22,7 @@ from PyQt5.Qt import (
 
 from calibre import prints, force_unicode, detect_ncpus
 from calibre.constants import (
-        __appname__, isosx, iswindows, filesystem_encoding, DEBUG)
+        __appname__, isosx, iswindows, filesystem_encoding, DEBUG, config_dir)
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.pool import Pool
 from calibre.db.legacy import LibraryDatabase
@@ -475,6 +475,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def start_content_server(self, check_started=True):
         from calibre.srv.embedded import Server
+        if not gprefs.get('server3_warning_done', False):
+            gprefs.set('server3_warning_done', True)
+            if os.path.exists(os.path.join(config_dir, 'server.py')):
+                try:
+                    os.remove(os.path.join(config_dir, 'server.py'))
+                except EnvironmentError:
+                    pass
+                warning_dialog(self, _('Content server changed!'), _(
+                    'calibre 3 comes with a completely re-written content server.'
+                    ' As such any custom configuration you have for the content'
+                    ' server no longer applies. You should check and refresh your'
+                    ' settings in Preferences->Sharing->Sharing over the net'), show=True)
         self.content_server = Server(self.library_broker, Dispatcher(self.handle_changes_from_server))
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
