@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from sphinx.builders.epub import EpubBuilder
+from sphinx.builders.epub3 import Epub3Builder as EpubBuilder
 
-from calibre.ebooks.oeb.base import OPF, DC
+from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.container import get_container, OEB_DOCS
 from calibre.ebooks.oeb.polish.check.links import check_links, UnreferencedResource
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
 from calibre.utils.imghdr import identify
+
 
 class EPUBHelpBuilder(EpubBuilder):
     name = 'myepub'
@@ -62,18 +63,18 @@ class EPUBHelpBuilder(EpubBuilder):
                 container.remove_from_xml(item)
             seen.add(name)
 
-        # Ensure that the meta cover tag is correct
+        # Remove the <guide> which is not needed in EPUB 3
+        for guide in container.opf_xpath('//*[local-name()="guide"]'):
+            guide.getparent().remove(guide)
+
+        # Ensure that the cover-image property is set
         cover_id = rmap['_static/' + self.config.epub_cover[0]]
+        for item in container.opf_xpath('//opf:item[@id="{}"]'.format(cover_id)):
+            item.set('properties', 'cover-image')
+
+        # Remove any <meta cover> tag as it is not needed in epub 3
         for meta in container.opf_xpath('//opf:meta[@name="cover"]'):
-            meta.set('content', cover_id)
-
-        # Add description metadata
-        metadata = container.opf_xpath('//opf:metadata')[0]
-        container.insert_into_xml(metadata, metadata.makeelement(DC('description')))
-        metadata[-1].text = 'Comprehensive documentation for calibre'
-
-        # Remove search.html since it is useless in EPUB
-        container.remove_item('search.html')
+            meta.getparent().remove(meta)
 
         # Remove unreferenced files
         for error in check_links(container):
@@ -83,4 +84,3 @@ class EPUBHelpBuilder(EpubBuilder):
         # Pretty print the OPF
         pretty_opf(container.parsed(container.opf_name))
         container.dirty(container.opf_name)
-

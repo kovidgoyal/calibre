@@ -12,6 +12,7 @@
 # serve to show the default value.
 
 import sys, os
+from datetime import date
 
 # If your extensions are in another directory, add it here.
 sys.path.append(os.path.abspath('.'))
@@ -141,10 +142,6 @@ html_static_path = ['resources', '../icons/favicon.ico']
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-html_use_smartypants = True
-
 # Overall title of the documentation
 # html_title       = title
 html_short_title = _('Start')
@@ -166,11 +163,13 @@ def sort_languages(x):
 html_context['other_languages'].sort(key=sort_languages)
 del sort_languages, get_language
 
-epub_author      = 'Kovid Goyal'
-epub_publisher   = 'Kovid Goyal'
-epub_identifier  = 'https://manual.calibre-ebook.com'
-epub_scheme      = 'url'
-epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
+epub_author      = u'Kovid Goyal'
+epub_publisher   = u'Kovid Goyal'
+epub_copyright   = u'© {} Kovid Goyal'.format(date.today().year)
+epub_description = u'Comprehensive documentation for calibre'
+epub_identifier  = u'https://manual.calibre-ebook.com'
+epub_scheme      = u'url'
+epub_uid         = u'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
 epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')
