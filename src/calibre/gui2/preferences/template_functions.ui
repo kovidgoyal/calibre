@@ -123,7 +123,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>&amp;Program code: (be sure to follow Python indenting rules)</string>
+          <string>&amp;Program code (Follow Python indenting rules):</string>
          </property>
          <property name="buddy">
           <cstring>program</cstring>
