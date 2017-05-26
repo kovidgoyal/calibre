@@ -32,9 +32,7 @@ def samefile(a, b):
 def init_library(library_path, is_default_library):
     db = Cache(
         create_backend(
-            library_path, load_user_formatter_functions=is_default_library
-        )
-    )
+            library_path, load_user_formatter_functions=is_default_library))
     db.init()
     return db
 
@@ -59,6 +57,7 @@ class LibraryBroker(object):
         self.lock = Lock()
         self.lmap = OrderedDict()
         self.library_name_map = {}
+        self.original_path_map = {}
         seen = set()
         for original_path in libraries:
             path = canonicalize_path(original_path)
@@ -75,9 +74,11 @@ class LibraryBroker(object):
             library_id = library_id_from_path(original_path, self.lmap)
             self.lmap[library_id] = path
             self.library_name_map[library_id] = os.path.basename(original_path)
+            self.original_path_map[path] = original_path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
-            defaultdict(OrderedDict), defaultdict(OrderedDict), defaultdict(OrderedDict))
+            defaultdict(OrderedDict), defaultdict(OrderedDict),
+            defaultdict(OrderedDict))
 
     def get(self, library_id=None):
         with self:
@@ -89,8 +90,7 @@ class LibraryBroker(object):
                 return
             try:
                 self.loaded_dbs[library_id] = ans = self.init_library(
-                    path, library_id == self.default_library
-                )
+                    path, library_id == self.default_library)
                 ans.new_api.server_library_id = library_id
             except Exception:
                 self.loaded_dbs[library_id] = None
@@ -98,6 +98,7 @@ class LibraryBroker(object):
             return ans
 
     def init_library(self, library_path, is_default_library):
+        library_path = self.original_path_map.get(library_path, library_path)
         return init_library(library_path, is_default_library)
 
     def close(self):
@@ -117,8 +118,11 @@ class LibraryBroker(object):
 
     def allowed_libraries(self, filter_func):
         with self:
-            allowed_names = filter_func(os.path.basename(l) for l in self.lmap.itervalues())
-            return OrderedDict(((lid, self.library_map[lid]) for lid, path in self.lmap.iteritems() if os.path.basename(path) in allowed_names))
+            allowed_names = filter_func(
+                os.path.basename(l) for l in self.lmap.itervalues())
+            return OrderedDict(((lid, self.library_map[lid])
+                                for lid, path in self.lmap.iteritems()
+                                if os.path.basename(path) in allowed_names))
 
     def __enter__(self):
         self.lock.acquire()
@@ -152,6 +156,7 @@ class GuiLibraryBroker(LibraryBroker):
         self.gui_library_changed(db)
 
     def init_library(self, library_path, is_default_library):
+        library_path = self.original_path_map.get(library_path, library_path)
         return LibraryDatabase(library_path, is_second_db=True)
 
     def get(self, library_id=None):
@@ -167,14 +172,19 @@ class GuiLibraryBroker(LibraryBroker):
                 if samefile(library_path, path):
                     db = self.loaded_dbs.get(library_id)
                     if db is None:
-                        db = self.loaded_dbs[library_id] = self.init_library(path, False)
+                        db = self.loaded_dbs[library_id] = self.init_library(
+                            path, False)
                     db.new_api.server_library_id = library_id
                     return db
+            # A new library
+            if library_path not in self.original_path_map:
+                self.original_path_map[library_path] = original_library_path
             db = self.init_library(library_path, False)
             library_id = library_id_from_path(library_path, self.lmap)
             db.new_api.server_library_id = library_id
             self.lmap[library_id] = library_path
-            self.library_name_map[library_id] = os.path.basename(original_library_path)
+            self.library_name_map[library_id] = os.path.basename(
+                original_library_path)
             self.loaded_dbs[library_id] = db
             return db
 
@@ -200,9 +210,12 @@ class GuiLibraryBroker(LibraryBroker):
                 self.gui_library_id = library_id
                 break
         else:
-            library_id = self.gui_library_id = library_id_from_path(newloc, self.lmap)
+            # A new library
+            library_id = self.gui_library_id = library_id_from_path(
+                newloc, self.lmap)
             self.lmap[library_id] = newloc
             self.library_name_map[library_id] = os.path.basename(original_path)
+            self.original_path_map[newloc] = original_path
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
         if olddb is not None and samefile(path_for_db(olddb), path_for_db(db)):
@@ -219,7 +232,8 @@ class GuiLibraryBroker(LibraryBroker):
     def _prune_loaded_dbs(self):
         now = monotonic()
         for library_id in tuple(self.loaded_dbs):
-            if library_id != self.gui_library_id and now - self.last_used_times[library_id] > EXPIRED_AGE:
+            if library_id != self.gui_library_id and now - self.last_used_times[
+                library_id] > EXPIRED_AGE:
                 db = self.loaded_dbs.pop(library_id)
                 db.close()
                 db.break_cycles()
@@ -236,7 +250,8 @@ class GuiLibraryBroker(LibraryBroker):
                     break
             else:
                 return
-            self.lmap.pop(library_id, None), self.library_name_map.pop(library_id, None)
+            self.lmap.pop(library_id, None), self.library_name_map.pop(
+                library_id, None), self.original_path_map.pop(path, None)
             db = self.loaded_dbs.pop(library_id, None)
             if db is not None:
                 db.close()
