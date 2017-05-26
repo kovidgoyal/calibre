@@ -34,7 +34,7 @@ class Catalog(QDialog, Ui_Dialog):
 
         # Display the last-used title
         self.title.setText(dynamic.get('catalog_last_used_title',
-            _('My Books')))
+            _('My books')))
 
         self.fmts, self.widgets = [], []
 

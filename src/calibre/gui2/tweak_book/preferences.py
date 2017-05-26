@@ -163,7 +163,7 @@ class EditorSettings(BasicSettings):
         fc = FontFamilyChooser(self)
         self('editor_font_family', widget=fc, getter=attrgetter('font_family'), setter=lambda x, val: setattr(x, 'font_family', val))
         fc.family_changed.connect(self.emit_changed)
-        l.addRow(_('Editor font &family:'), fc)
+        l.addRow(_('Editor font family:'), fc)
 
         fs = self('editor_font_size')
         fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
@@ -180,7 +180,7 @@ class EditorSettings(BasicSettings):
 
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
-        l.addRow(_('Width of &tabs:'), tw)
+        l.addRow(_('W&idth of tabs:'), tw)
 
         self.tb = b = QPushButton(_('Change &templates'))
         l.addRow(_('&Templates for new files:'), b)
@@ -199,7 +199,7 @@ class EditorSettings(BasicSettings):
         l.addRow(lw)
 
         lw = self('auto_close_tags')
-        lw.setText(_('Auto &close tags when typing </'))
+        lw.setText(_('Auto close t&ags when typing </'))
         lw.setToolTip('<p>' + prepare_string_for_xml(_(
             'With this option, every time you type </ the current HTML closing tag is auto-completed')))
         l.addRow(lw)
@@ -314,8 +314,8 @@ class MainWindowSettings(BasicSettings):
                        'horizontal':{'top':_('Top'), 'bottom':_('Bottom')}[v]}
             name = 'dock_%s_%s' % (v, h)
             w = self.choices_widget(name, choices, 'horizontal', 'horizontal')
-            cn = {('top', 'left'): _('The top-left corner'), ('top', 'right'):_('The top-right corner'),
-                  ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
+            cn = {('top', 'left'): _('The &top-left corner'), ('top', 'right'):_('The top-&right corner'),
+                  ('bottom', 'left'):_('The &bottom-left corner'), ('bottom', 'right'):_('The bottom-ri&ght corner')}[(v, h)]
             l.addRow(cn + ':', w)
         nd = self('restore_book_state')
         nd.setText(_('Restore &state of previously edited book when opening it again'))
@@ -354,7 +354,7 @@ class PreviewSettings(BasicSettings):
             l.addRow(_('Font family for &%s:') % text, w)
 
         w = self.choices_widget('preview_standard_font_family', families, 'serif', 'serif')
-        l.addRow(_('&Style for standard text:'), w)
+        l.addRow(_('Style for standard &text:'), w)
 
         w = self('preview_base_font_size')
         w.setMinimum(8), w.setMaximum(100), w.setSuffix(' px')

@@ -211,7 +211,7 @@ class MainTab(QWidget):  # {{{
         fl.addRow(options['port'].shortdoc + ':', sb)
         l.addSpacing(25)
         self.opt_auth = cb = QCheckBox(
-            _('Require &username/password to access the content server')
+            _('Require &username and password to access the content server')
         )
         l.addWidget(cb)
         self.auth_desc = la = QLabel(self)

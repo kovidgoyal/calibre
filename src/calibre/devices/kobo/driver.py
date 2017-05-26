@@ -105,7 +105,7 @@ class KOBO(USBMS):
                 ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),
-        _('Upload black and white Covers'),
+        _('Upload black and white covers'),
         _('Show expired books') +
         ':::'+_('A bug in an earlier version left non kepubs book records'
                 ' in the database.  With this option calibre will show the '

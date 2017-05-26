@@ -65,8 +65,8 @@ class Polish(QDialog):  # {{{
                         '<p>If the e-book file does not have'
                         ' an identifiable cover, a new cover is inserted.</p>'
                         ),
-            'jacket':_('<h3>Book Jacket</h3>%s')%HELP['jacket'],
-            'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['remove_jacket'],
+            'jacket':_('<h3>Book jacket</h3>%s')%HELP['jacket'],
+            'remove_jacket':_('<h3>Remove Book jacket</h3>%s')%HELP['remove_jacket'],
             'remove_unused_css':_('<h3>Remove unused CSS rules</h3>%s')%HELP['remove_unused_css'],
             'compress_images': _('<h3>Losslessly compress images</h3>%s') % HELP['compress_images'],
         }

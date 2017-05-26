@@ -47,7 +47,7 @@ def create_msg_label(self):
     f.um_label = la = QLabel(_(
         "<p>You can also perform other kinds of advanced searches, for example checking"
         ' for books that have no covers, combining multiple search expression using Boolean'
-        ' operators and so on. See the <a href=\"%s\">The search interface</a> for more information.'
+        ' operators and so on. See <a href=\"%s\">The search interface</a> for more information.'
     ) % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
     la.setMinimumSize(QSize(150, 0))
     la.setWordWrap(True)

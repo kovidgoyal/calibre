@@ -277,7 +277,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.setToolTip(wrap_msg(_('Upload cover images from the calibre library when sending books to the device.')))
 
         self.upload_grayscale_checkbox = create_checkbox(
-                             _('Upload black and white Covers'),
+                             _('Upload black and white covers'),
                              _('Convert covers to black and white when uploading'),
                              device.get_pref('upload_grayscale')
                              )
