@@ -105,7 +105,7 @@ class CheckExternalLinks(Dialog):
             self.rb.setEnabled(True)
             if self.tb is not None:
                 return error_dialog(self, _('Checking failed'), _(
-                    'There was an error while checking links, click "Show Details" for more information'),
+                    'There was an error while checking links, click "Show details" for more information'),
                              det_msg=self.tb, show=True)
             if not self.errors:
                 self.results.setText(_('No broken links found'))
