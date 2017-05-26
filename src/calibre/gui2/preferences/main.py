@@ -139,7 +139,8 @@ class Category(QWidget):  # {{{
             self.actions.append(ac)
             w = self.bar.widgetForAction(ac)
             w.setCursor(Qt.PointingHandCursor)
-            w.setAutoRaise(True)
+            if hasattr(w, 'setAutoRaise'):
+                w.setAutoRaise(True)
             w.setMinimumWidth(100)
 
     def triggered(self, plugin, *args):
