@@ -34,17 +34,17 @@ class TagBrowserMixin(object):  # {{{
         m = self.alter_tb.manage_menu
         m.clear()
         for text, func, args, cat_name in (
-             (_('Manage Authors'),
+             (_('Authors'),
                         self.do_author_sort_edit, (self, None), 'authors'),
-             (_('Manage Series'),
+             (_('Series'),
                         self.do_tags_list_edit, (None, 'series'), 'series'),
-             (_('Manage Publishers'),
+             (_('Publishers'),
                         self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
-             (_('Manage Tags'),
+             (_('Tags'),
                         self.do_tags_list_edit, (None, 'tags'), 'tags'),
-             (_('Manage User categories'),
+             (_('User categories'),
                         self.do_edit_user_categories, (None,), 'user:'),
-             (_('Manage Saved searches'),
+             (_('Saved searches'),
                         self.do_saved_search_edit, (None,), 'search')
             ):
             m.addAction(QIcon(I(category_icon_map[cat_name])), text,
@@ -65,7 +65,7 @@ class TagBrowserMixin(object):  # {{{
             for cat in sorted(categories, key=cat_key):
                 name = cat_key(cat)
                 if name:
-                    m.addAction(_('Manage {}').format(name), partial(self.do_tags_list_edit, None, cat))
+                    m.addAction(name, partial(self.do_tags_list_edit, None, cat))
 
     def init_tag_browser_mixin(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
