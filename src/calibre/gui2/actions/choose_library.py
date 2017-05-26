@@ -211,7 +211,7 @@ class ChooseLibraryAction(InterfaceAction):
     def genesis(self):
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
-        self.action_exim = ac = QAction(_('Export/Import all calibre data'), self.gui)
+        self.action_exim = ac = QAction(_('Export/import all calibre data'), self.gui)
         ac.triggered.connect(self.exim_data)
 
         self.stats = LibraryUsageStats()
