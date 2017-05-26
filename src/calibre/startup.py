@@ -105,7 +105,7 @@ if not _run_once:
         dl = locale.getdefaultlocale()
         try:
             if dl:
-                locale.setlocale(dl[0])
+                locale.setlocale(locale.LC_ALL, dl[0])
         except:
             pass
 
