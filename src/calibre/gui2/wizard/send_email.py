@@ -56,6 +56,10 @@ class TestEmail(QDialog):
         l.addWidget(bb)
 
     def start_test(self, *args):
+        if not self.to.text().strip():
+            return error_dialog(self, _('No email address'), _(
+                'No email address to send mail to has been specified. You'
+                ' must specify a To: address before running the test.'), show=True)
         self.log.setPlainText(_('Sending mail, please wait...'))
         self.test_button.setEnabled(False)
         t = Thread(target=self.run_test, name='TestEmailSending')
