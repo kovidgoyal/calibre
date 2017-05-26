@@ -377,7 +377,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     'confirm_plugin_removal_msg', parent=self):
                     return
 
-                msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
+                msg = _('Plugin <b>{0}</b> successfully removed. You will have'
+                        ' to restart calibre for it to be completely removed.').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.beginResetModel()
                     self._plugin_model.populate()
