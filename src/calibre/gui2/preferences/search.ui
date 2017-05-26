@@ -86,7 +86,10 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_221">
         <property name="text">
-         <string>Similar authors: </string>
+         <string>Similar auth&amp;ors: </string>
+        </property>
+        <property name="buddy">
+         <cstring>similar_authors_search_key</cstring>
         </property>
        </widget>
       </item>
@@ -106,7 +109,10 @@
       <item row="1" column="3">
        <widget class="QLabel" name="label_222">
         <property name="text">
-         <string>Similar series: </string>
+         <string>Similar s&amp;eries: </string>
+        </property>
+        <property name="buddy">
+         <cstring>similar_series_search_key</cstring>
         </property>
        </widget>
       </item>
@@ -126,7 +132,10 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_223">
         <property name="text">
-         <string>Similar tags: </string>
+         <string>Similar ta&amp;gs: </string>
+        </property>
+        <property name="buddy">
+         <cstring>similar_tags_search_key</cstring>
         </property>
        </widget>
       </item>
@@ -139,7 +148,10 @@
       <item row="2" column="3">
        <widget class="QLabel" name="label_224">
         <property name="text">
-         <string>Similar publishers: </string>
+         <string>Similar &amp;publishers: </string>
+        </property>
+        <property name="buddy">
+         <cstring>similar_publisher_search_key</cstring>
         </property>
        </widget>
       </item>
@@ -302,7 +314,7 @@ to be shown as user categories</string>
       <string>&lt;p&gt;This option will cause a small button to appear next to the search bar. Clicking the button will toggle between showing only the search results and showing all books with the search results highlighted.</string>
      </property>
      <property name="text">
-      <string>Show a quick &amp;toggle button to switch between highlighting and restricting results next to the searchbar</string>
+      <string>Show a &amp;quick toggle button to switch between highlighting and restricting results next to the searchbar</string>
      </property>
     </widget>
    </item>

@@ -183,7 +183,7 @@ class EditorSettings(BasicSettings):
         l.addRow(_('Width of &tabs:'), tw)
 
         self.tb = b = QPushButton(_('Change &templates'))
-        l.addRow(_('Templates for new files:'), b)
+        l.addRow(_('&Templates for new files:'), b)
         b.clicked.connect(lambda : TemplatesDialog(self).exec_())
 
         lw = self('editor_line_wrap')
@@ -205,25 +205,25 @@ class EditorSettings(BasicSettings):
         l.addRow(lw)
 
         lw = self('editor_show_char_under_cursor')
-        lw.setText(_('Show the name of the current character before the cursor along with the line and column number'))
+        lw.setText(_('Show the &name of the current character before the cursor along with the line and column number'))
         l.addRow(lw)
 
         lw = self('pretty_print_on_open')
-        lw.setText(_('Beautify individual files automatically when they are opened'))
+        lw.setText(_('Beautify individual &files automatically when they are opened'))
         lw.setToolTip('<p>' + _(
             'This will cause the beautify current file action to be performed automatically every'
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
 
         lw = self('inline_spell_check')
-        lw.setText(_('Show misspelled words underlined in the code view'))
+        lw.setText(_('Show &misspelled words underlined in the code view'))
         lw.setToolTip('<p>' + _(
             'This will cause spelling errors to be highlighted in the code view'
             ' for easy correction as you type.'))
         l.addRow(lw)
 
         lw = self('editor_accepts_drops')
-        lw.setText(_('Allow drag and drop editing of text'))
+        lw.setText(_('Allow drag and drop &editing of text'))
         lw.setToolTip('<p>' + _(
             'Allow using drag and drop to move text around in the editor.'
             ' It can be useful to turn this off if you have a misbehaving touchpad.'))
@@ -277,14 +277,14 @@ class IntegrationSettings(BasicSettings):
         self.setLayout(l)
 
         um = self('update_metadata_from_calibre')
-        um.setText(_('Update metadata embedded in the book when opening'))
+        um.setText(_('Update &metadata embedded in the book when opening'))
         um.setToolTip('<p>' + _(
             'When the file is opened, update the metadata embedded in the book file to the current metadata'
             ' in the calibre library.'))
         l.addRow(um)
 
         ask = self('choose_tweak_fmt')
-        ask.setText(_('Ask which format to edit if more than one format is available for the book'))
+        ask.setText(_('Ask which &format to edit if more than one format is available for the book'))
         l.addRow(ask)
 
         order = self.order_widget('tweak_fmt_order')
@@ -301,7 +301,7 @@ class MainWindowSettings(BasicSettings):
         self.setLayout(l)
 
         nd = self('nestable_dock_widgets')
-        nd.setText(_('Allow dockable windows to be nested inside the dock areas'))
+        nd.setText(_('Allow dockable &windows to be nested inside the dock areas'))
         nd.setToolTip('<p>' + _(
             'By default, you can have only a single row or column of windows in the dock'
             ' areas (the areas around the central editors). This option allows'
@@ -318,7 +318,7 @@ class MainWindowSettings(BasicSettings):
                   ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
             l.addRow(cn + ':', w)
         nd = self('restore_book_state')
-        nd.setText(_('Restore state of previously edited book when opening it again'))
+        nd.setText(_('Restore &state of previously edited book when opening it again'))
         nd.setToolTip('<p>' + _(
             'When opening a previously edited book again, restore its state. That means all open'
             ' files are automatically re-opened and the cursor is positioned at its previous location.'
@@ -326,7 +326,7 @@ class MainWindowSettings(BasicSettings):
         l.addRow(nd)
 
         nd = self('file_list_shows_full_pathname')
-        nd.setText(_('Show full file paths in the File browser'))
+        nd.setText(_('Show full &file paths in the File browser'))
         nd.setToolTip('<p>' + _(
             'Showing the full file paths is useful when editing books that contain'
             ' multiple files with the same file name.'
@@ -682,13 +682,13 @@ class Preferences(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        self.rdb = b = bb.addButton(_('Restore all defaults'), bb.ResetRole)
+        self.rdb = b = bb.addButton(_('Restore all &defaults'), bb.ResetRole)
         b.setToolTip(_('Restore defaults for all preferences'))
         b.clicked.connect(self.restore_all_defaults)
-        self.rcdb = b = bb.addButton(_('Restore current defaults'), bb.ResetRole)
+        self.rcdb = b = bb.addButton(_('Restore &current defaults'), bb.ResetRole)
         b.setToolTip(_('Restore defaults for currently displayed preferences'))
         b.clicked.connect(self.restore_current_defaults)
-        self.rconfs = b = bb.addButton(_('Restore confirmations'), bb.ResetRole)
+        self.rconfs = b = bb.addButton(_('Restore c&onfirmations'), bb.ResetRole)
         b.setToolTip(_('Restore all disabled confirmation prompts'))
         b.clicked.connect(self.restore_confirmations)
 
