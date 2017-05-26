@@ -1430,11 +1430,11 @@ class BasicNewsRecipe(Recipe):
                     aseen.add(a.title)
                     article_titles.append(force_unicode(a.title, 'utf-8'))
 
-        mi.comments = self.description
-        if not isinstance(mi.comments, unicode):
-            mi.comments = mi.comments.decode('utf-8', 'replace')
-        mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
-                '\n\n'.join(article_titles))
+        desc = self.description
+        if not isinstance(desc, unicode):
+            desc = desc.decode('utf-8', 'replace')
+        mi.comments = (_('Articles in this issue:') + '\n\n' +
+                '\n\n'.join(article_titles)) + '\n\n' + desc
 
         language = canonicalize_lang(self.language)
         if language is not None:
