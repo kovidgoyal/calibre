@@ -194,9 +194,13 @@ def create_manifest(html):
         h.hexdigest(), manifest).encode('utf-8')
 
 
-def compile_srv():
+def base_dir():
     d = os.path.dirname
-    base = d(d(d(d(os.path.abspath(__file__)))))
+    return d(d(d(d(os.path.abspath(__file__)))))
+
+
+def compile_srv():
+    base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
     execfile(iconf, g)
@@ -213,7 +217,7 @@ def compile_srv():
         if e.errno != errno.ENOENT:
             raise
         mathjax_version = '0'
-    base = P('content-server', allow_user_override=False)
+    base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
         js = compile_fast(f.read(), fname).replace(
