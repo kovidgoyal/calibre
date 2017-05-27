@@ -8,7 +8,7 @@ from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
 from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
-from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book, window_width, window_height
+from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book, scroll_viewport
 
 
 def update_visible_toc_nodes(visible_anchors):
@@ -137,7 +137,7 @@ def create_toc_panel(book, container, onclick):
 
 def current_toc_anchor_map(tam, anchor_funcs):
     current_map = toc_anchor_map()
-    if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is window_width() and current_map.height is window_height()):
+    if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
         name = current_spine_item().name
         am = {}
         anchors = v'[]'
@@ -154,7 +154,7 @@ def current_toc_anchor_map(tam, anchor_funcs):
         # stable sort by position in document
         anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
-        current_map = {'layout_mode': current_layout_mode, 'width': window_width(), 'height': window_height(), 'pos_map': am, 'sorted_anchors':anchors}
+        current_map = {'layout_mode': current_layout_mode, 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
         set_toc_anchor_map(current_map)
     return current_map
 

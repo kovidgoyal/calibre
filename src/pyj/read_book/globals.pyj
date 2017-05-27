@@ -39,6 +39,35 @@ class Messenger:
 messenger = Messenger()
 iframe_id = 'read-book-iframe'
 uid = 'calibre-' + hexlify(random_bytes(12))
+scroll_viewport = {}
+
+def flow_viewport_x():
+    return window.pageXOffset
+
+def flow_viewport_y():
+    return window.pageYOffset
+
+def flow_viewport_scroll_to(x, y):
+    window.scrollTo(x, y)
+
+scroll_viewport.x = flow_viewport_x
+scroll_viewport.y = flow_viewport_y
+scroll_viewport.scroll_to = flow_viewport_scroll_to
+
+if is_ios:
+    window_width = def ():
+        return window_width.from_parent or window.innerWidth
+    window_height = def():
+        return window_height.from_parent or window.innerHeight
+else:
+    window_width = def():
+        return window.innerWidth
+    window_height = def():
+        return window.innerHeight
+
+scroll_viewport.width = window_width
+scroll_viewport.height = window_height
+
 
 def current_layout_mode():
     return current_layout_mode.value
@@ -73,14 +102,3 @@ register_callback(def():
         scheme = default_color_schemes[key]
         scheme.name = gt(scheme.name)
 )
-
-if is_ios:
-    window_width = def ():
-        return window_width.from_parent or window.innerWidth
-    window_height = def():
-        return window_height.from_parent or window.innerHeight
-else:
-    window_width = def():
-        return window.innerWidth
-    window_height = def():
-        return window.innerHeight
