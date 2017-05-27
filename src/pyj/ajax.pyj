@@ -103,18 +103,11 @@ def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=30*
     return xhr
 
 
-allow_console_print = False
-
-def set_allow_console_print(val):
-    nonlocal allow_console_print
-    allow_console_print = bool(val)
-
 def console_print(*args):
-    print(*args)
-    if allow_console_print:
-        data = ' '.join(map(str, args)) + '\n'
-        xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
-        xhr.send(data)
+    ρσ_print(*args)  # noqa: undef
+    data = ' '.join(map(str, args)) + '\n'
+    xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
+    xhr.send(data)
 
 # TODO: Implement AJAX based switch user by:
 # 1) POST to a logout URL with an incorrect username and password

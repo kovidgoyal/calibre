@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from gettext import gettext as _
 
 import initialize  # noqa: unused-import
-from ajax import ajax
+from ajax import ajax, console_print
 from autoreload import create_auto_reload_watcher
 from book_list.globals import main_js
 from book_list.main import main
@@ -45,3 +45,9 @@ else:
                 autoreload_enabled = True
                 create_auto_reload_watcher(port)
     ).send()  # We must bypass cache as otherwise we could get stale port info
+    ajax('allow-console-print', def(end_type, xhr, event):
+         nonlocal print
+         if end_type is 'load':
+            if xhr.responseText == 'y':
+                print = console_print
+    ).send()
