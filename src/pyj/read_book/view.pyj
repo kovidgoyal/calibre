@@ -489,6 +489,7 @@ class View:
         self.hide_loading()
         frac = data.progress_frac or 0
         self.update_read_percent(frac)
+        window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
 
     def update_font_size(self):
         self.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
