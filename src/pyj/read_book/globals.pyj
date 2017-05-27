@@ -83,10 +83,11 @@ if is_ios:
         raw = document.documentElement.style.transform
         if not raw or raw is 'none':
             return 0
-        raw = raw[12:]
+        raw = raw[raw.indexOf('(') + 1:]
         ans = parseInt(raw)
         if isNaN(ans):
             return 0
+        ans *= -1
         return ans
     paged_viewport_scroll_into_view = def(elem):
         left = elem.offsetLeft
@@ -102,6 +103,8 @@ if is_ios:
         paged_viewport_scroll_to(max(0, left), 0)
     paged_reset_globals = def():
         document.documentElement.style.transform = 'none'
+    paged_content_width = def():
+        return document.documentElement.scrollWidth
 
 else:
     window_width = def():
@@ -112,9 +115,12 @@ else:
     paged_viewport_x = flow_viewport_x
     paged_viewport_scroll_into_view = flow_viewport_scroll_into_view
     paged_reset_globals = flow_reset_globals
+    paged_content_width = def():
+        return document.documentElement.scrollWidth
 
 scroll_viewport.width = window_width
 scroll_viewport.height = window_height
+scroll_viewport.paged_content_width = paged_content_width
 
 
 def current_layout_mode():

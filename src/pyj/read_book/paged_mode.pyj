@@ -60,7 +60,7 @@ def reset_paged_mode_globals():
 
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
-    sw = document.body.scrollWidth
+    sw = scroll_viewport.paged_content_width()
     if xpos >= sw - col_and_gap:
         xpos = sw - col_width + 10
     return (xpos + gap) // col_and_gap
@@ -190,7 +190,7 @@ def layout(is_single_page):
         # width 100% are wider than body and lead to a blank page after the
         # current page (when cols_per_screen == 1). Similarly img elements
         # with height=100% overflow the first column
-        is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth < 2*ww + 10)
+        is_full_screen_layout = (only_img or has_svg) and single_screen and (scroll_viewport.paged_content_width() < 2*ww + 10)
         if is_single_page:
             is_full_screen_layout = True
 
@@ -204,11 +204,11 @@ def layout(is_single_page):
     # themselves, unless the container width is an exact multiple, so we check
     # for that and manually set the container widths.
     def check_column_widths():
-        ncols = (document.body.scrollWidth + gap) / col_and_gap
+        ncols = (scroll_viewport.paged_content_width() + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
             n = Math.floor(ncols)
             dw = n*col_width + (n-1)*gap
-            data = {'col_width':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
+            data = {'col_width':col_width, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_width(), 'ncols':ncols, 'desired_width':dw}
             return data
     data = check_column_widths()
     if data:
@@ -233,7 +233,7 @@ def scroll_to_offset(x):
 
 def scroll_to_column(number, notify=False, duration=1000):
     pos = number * col_and_gap
-    limit = document.body.scrollWidth - screen_width
+    limit = scroll_viewport.paged_content_width() - screen_width
     pos = min(pos, limit)
     scroll_to_offset(pos)
 
@@ -250,7 +250,7 @@ def scroll_to_xpos(xpos, notify=False, duration=1000):
 
 def scroll_to_fraction(frac):
     # Scroll to the position represented by frac (number between 0 and 1)
-    xpos = Math.floor(document.body.scrollWidth * frac)
+    xpos = Math.floor(scroll_viewport.paged_content_width() * frac)
     scroll_to_xpos(xpos)
 
 
@@ -277,11 +277,11 @@ def next_screen_location():
     ans = cc + screen_width
     if cols_per_screen > 1:
         current_col = column_at(current_scroll_offset() + 10)
-        ncols = (document.body.scrollWidth + gap) // col_and_gap
+        ncols = (scroll_viewport.paged_content_width() + gap) // col_and_gap
         cols_left = ncols - (current_col + cols_per_screen)
         if cols_left < cols_per_screen:
             return -1  # Only blank, dummy pages left
-    limit = document.body.scrollWidth - scroll_viewport.width()
+    limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
     if limit < col_and_gap:
         return -1
     if ans > limit:
@@ -309,7 +309,7 @@ def next_col_location():
         return -1
     cc = current_column_location()
     ans = cc + col_and_gap
-    limit = document.body.scrollWidth - scroll_viewport.width()
+    limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
     if ans > limit:
         ans = limit if current_scroll_offset() < limit else -1
     return ans
@@ -396,7 +396,7 @@ def current_cfi():
             # Try the current column, the previous column and the next
             # column. Each column is tried from top to bottom.
             left, right = x, x + col_and_gap
-            if left < 0 or right > document.body.scrollWidth:
+            if left < 0 or right > scroll_viewport.paged_content_width():
                 continue
             deltax = col_and_gap // 25
             deltay = scroll_viewport.height() // 25
@@ -423,7 +423,7 @@ def current_cfi():
 def progress_frac(frac):
     # The current scroll position as a fraction between 0 and 1
     if in_paged_mode:
-        limit = document.body.scrollWidth - scroll_viewport.width()
+        limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
         if limit <= 0:
             return 0.0
         return current_scroll_offset() / limit
