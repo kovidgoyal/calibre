@@ -22,7 +22,7 @@ from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from read_book.toc import update_visible_toc_nodes
 from read_book.goto import get_next_section
 from book_list.theme import get_color, get_font_family
-from utils import parse_url_params, username_key
+from utils import parse_url_params, username_key, is_ios
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -62,6 +62,11 @@ def margin_elem(sd, which, id, onclick):
     )
     if onclick:
         ans.addEventListener('click', onclick)
+    if is_ios and which is 'margin_bottom':
+        # On iOS 100vh includes the size of the navbar and there is no way to
+        # go fullscreen, so to make the bottom bar visible we add a margin to
+        # the bottom bar
+        ans.style.marginBottom = '25px'
     return ans
 
 
@@ -140,14 +145,16 @@ class View:
         self.send_message('gesture_from_margin', gesture=gesture)
 
     def iframe_size(self):
-        w, h = window.innerWidth, window.innerHeight
         iframe = self.iframe
-        w -= 2 * iframe.offsetLeft
-        h -= 2 * iframe.offsetTop
+        l, r = document.getElementById('book-left-margin'), document.getElementById('book-right-margin')
+        w = r.offsetLeft - l.offsetLeft - iframe.offsetLeft
+        t, b = document.getElementById('book-top-margin'), document.getElementById('book-bottom-margin')
+        h = b.offsetTop - t.offsetTop - iframe.offsetTop
         return w, h
 
     def on_request_size(self, data):
         # On iOS/Safari window.innerWidth/Height are incorrect inside an iframe
+        window.scrollTo(0, 0)  # ensure the window is at 0 because otherwise it sometimes moves down a bit on mobile thanks to the disappearing nav bar
         w, h = self.iframe_size()
         self.send_message('window_size', width=w, height=h)
 
@@ -279,10 +286,12 @@ class View:
         ans = resolve_color_scheme()
         if apply_to_margins:
             for which in 'left top right bottom'.split(' '):
-                s = document.getElementById('book-{}-margin'.format(which)).style
+                m = document.getElementById('book-{}-margin'.format(which))
+                s = m.style
                 if which is 'top' or which is 'bottom':
                     s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
                 s.backgroundColor = ans.background
+            m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
         return ans
 
     def on_resize(self):
