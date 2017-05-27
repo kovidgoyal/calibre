@@ -66,6 +66,7 @@ class IframeBoss:
         self.encrypted_communications = False
         self.blob_url_map = {}
         self.content_ready = False
+        self.last_window_width = self.last_window_height = -1
         window.addEventListener('message', self.handle_message, False)
         window.addEventListener('load', def():
             if not self.ready_sent:
@@ -219,6 +220,7 @@ class IframeBoss:
         # document.body.appendChild(
         #     E.style()  # TODO: User style sheet
         # )
+        self.last_window_width, self.last_window_height = window_width(), window_height()
         self.apply_colors()
         self.apply_font_size()
         self.do_layout()
@@ -303,6 +305,10 @@ class IframeBoss:
             self.onresize_stage2()
 
     def onresize_stage2(self):
+        if window_width() is self.last_window_width and window_height() is self.last_window_height:
+            # Safari at least, generates lots of spurious resize events
+            return
+        self.last_window_width, self.last_window_height = window_width(), window_height()
         if current_layout_mode() is not 'flow':
             self.do_layout()
         if self.last_cfi:
