@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
 
 from calibre import prints
-from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
+from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx, is_running_from_develop,
         plugins, config_dir, filesystem_encoding, isxp, DEBUG, __version__, __appname__ as APP_UID)
 from calibre.ptempfile import base_dir
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
@@ -1420,9 +1420,8 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
         gprefs.set('migrated_forms_to_qt5', True)
 
 
-_df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-if _df and os.path.exists(_df):
-    build_forms(_df, check_for_migration=True)
+if is_running_from_develop:
+    build_forms(os.environ['CALIBRE_DEVELOP_FROM'], check_for_migration=True)
 
 
 def event_type_name(ev_or_etype):

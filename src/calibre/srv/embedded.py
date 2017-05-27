@@ -8,7 +8,7 @@ import os
 from threading import Thread
 
 from calibre import as_unicode
-from calibre.constants import cache_dir
+from calibre.constants import cache_dir, is_running_from_develop
 from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
@@ -82,8 +82,7 @@ class Server(object):
         self.exception = None
         from calibre.srv.content import reset_caches
         try:
-            _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-            if _df and os.path.exists(_df):
+            if is_running_from_develop:
                 from calibre.utils.rapydscript import compile_srv
                 compile_srv()
         except BaseException as e:

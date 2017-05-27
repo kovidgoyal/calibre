@@ -258,13 +258,17 @@ else:
 # }}}
 
 
+dv = os.environ.get('CALIBRE_DEVELOP_FROM')
+is_running_from_develop = bool(getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path)
+del dv
+
+
 def get_version():
     '''Return version string for display to user '''
-    dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     v = __version__
     if numeric_version[-1] == 0:
         v = v[:-2]
-    if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+    if is_running_from_develop:
         v += '*'
     if iswindows and is64bit:
         v += ' [64bit]'

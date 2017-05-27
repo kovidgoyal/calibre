@@ -10,7 +10,7 @@ import sys, os, signal
 from functools import partial
 
 from calibre import as_unicode, prints
-from calibre.constants import plugins, iswindows, preferred_encoding
+from calibre.constants import plugins, iswindows, preferred_encoding, is_running_from_develop
 from calibre.srv.loop import ServerLoop
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.bonjour import BonJour
@@ -77,8 +77,7 @@ class Server(object):
         self.handler.set_jobs_manager(self.loop.jobs_manager)
         self.serve_forever = self.loop.serve_forever
         self.stop = self.loop.stop
-        _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-        if _df and os.path.exists(_df):
+        if is_running_from_develop:
             from calibre.utils.rapydscript import compile_srv
             compile_srv()
 
