@@ -50,6 +50,9 @@ def flow_viewport_y():
 def flow_viewport_scroll_to(x, y):
     window.scrollTo(x, y)
 
+def paged_viewport_y():
+    return 0
+
 scroll_viewport.x = flow_viewport_x
 scroll_viewport.y = flow_viewport_y
 scroll_viewport.scroll_to = flow_viewport_scroll_to
@@ -59,11 +62,29 @@ if is_ios:
         return window_width.from_parent or window.innerWidth
     window_height = def():
         return window_height.from_parent or window.innerHeight
+    paged_viewport_scroll_to = def (x, y):
+        if x is 0:
+            document.documentElement.style.transform = 'none'
+            return
+        x *= -1
+        document.documentElement.style.transform = f'translateX({x}px)'
+    paged_viewport_x = def():
+        raw = document.documentElement.style.transform
+        if not raw:
+            return 0
+        raw = raw[12:]
+        ans = parseInt(raw)
+        if isNaN(ans):
+            return 0
+        return ans
+
 else:
     window_width = def():
         return window.innerWidth
     window_height = def():
         return window.innerHeight
+    paged_viewport_scroll_to = flow_viewport_scroll_to
+    paged_viewport_x = flow_viewport_x
 
 scroll_viewport.width = window_width
 scroll_viewport.height = window_height
@@ -75,6 +96,14 @@ current_layout_mode.value = 'flow'
 
 def set_layout_mode(val):
     current_layout_mode.value = val
+    if val is 'flow':
+        scroll_viewport.x = flow_viewport_x
+        scroll_viewport.y = flow_viewport_y
+        scroll_viewport.scroll_to = flow_viewport_scroll_to
+    else:
+        scroll_viewport.x = paged_viewport_x
+        scroll_viewport.y = paged_viewport_y
+        scroll_viewport.scroll_to = paged_viewport_scroll_to
 
 def current_spine_item():
     return current_spine_item.value
