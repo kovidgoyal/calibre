@@ -222,11 +222,19 @@ def layout(is_single_page):
     fit_images()
     return gap
 
+def current_scroll_offset():
+    return window.pageXOffset
+
+
+def scroll_to_offset(x):
+    window.scrollTo(x, 0)
+
+
 def scroll_to_column(number, notify=False, duration=1000):
     pos = number * col_and_gap
     limit = document.body.scrollWidth - screen_width
     pos = min(pos, limit)
-    window.scrollTo(pos, 0)
+    scroll_to_offset(pos)
 
 def scroll_to_xpos(xpos, notify=False, duration=1000):
     # Scroll so that the column containing xpos is the left most column in
@@ -235,7 +243,7 @@ def scroll_to_xpos(xpos, notify=False, duration=1000):
         print(xpos, 'is not a number, cannot scroll to it!')
         return
     if is_full_screen_layout:
-        window.scrollTo(0, 0)
+        scroll_to_offset(0)
         return
     scroll_to_column(column_at(xpos), notify=notify, duration=duration)
 
@@ -272,7 +280,7 @@ def column_location(elem):
 def column_boundaries():
     # Return the column numbers at the left edge and after the right edge
     # of the viewport
-    l = column_at(window.pageXOffset + 10)
+    l = column_at(current_scroll_offset() + 10)
     return l, l + cols_per_screen
 
 def current_column_location():
@@ -280,7 +288,7 @@ def current_column_location():
     # visible in the viewport
     if is_full_screen_layout:
         return 0
-    c = column_at(window.pageXOffset + 10)
+    c = column_at(current_scroll_offset() + 10)
     return c * col_and_gap
 
 def next_screen_location():
@@ -291,7 +299,7 @@ def next_screen_location():
     cc = current_column_location()
     ans = cc + screen_width
     if cols_per_screen > 1:
-        current_col = column_at(window.pageXOffset + 10)
+        current_col = column_at(current_scroll_offset() + 10)
         ncols = (document.body.scrollWidth + gap) // col_and_gap
         cols_left = ncols - (current_col + cols_per_screen)
         if cols_left < cols_per_screen:
@@ -300,7 +308,7 @@ def next_screen_location():
     if limit < col_and_gap:
         return -1
     if ans > limit:
-        ans = limit if window.pageXOffset < limit else -1
+        ans = limit if current_scroll_offset() < limit else -1
     return ans
 
 def previous_screen_location():
@@ -313,7 +321,7 @@ def previous_screen_location():
     if ans < 0:
         # We ignore small scrolls (less than 15px) when going to previous
         # screen
-        ans = 0 if window.pageXOffset > 15 else -1
+        ans = 0 if current_scroll_offset() > 15 else -1
     return ans
 
 def next_col_location():
@@ -326,7 +334,7 @@ def next_col_location():
     ans = cc + col_and_gap
     limit = document.body.scrollWidth - window_width()
     if ans > limit:
-        ans = limit if window.pageXOffset < limit else -1
+        ans = limit if current_scroll_offset() < limit else -1
     return ans
 
 def previous_col_location():
@@ -338,7 +346,7 @@ def previous_col_location():
     cc = current_column_location()
     ans = cc - col_and_gap
     if ans < 0:
-        ans = 0 if window.pageXOffset > 0 else -1
+        ans = 0 if current_scroll_offset() > 0 else -1
     return ans
 
 def jump_to_anchor(name):
@@ -418,7 +426,7 @@ def current_cfi():
             while cury < window_height():
                 curx = left
                 while curx < right - gap:
-                    cfi = cfi_at_point(curx-window.pageXOffset, cury-window.pageYOffset)
+                    cfi = cfi_at_point(curx-current_scroll_offset(), cury-window.pageYOffset)
                     if cfi:
                         # print('Viewport cfi:', cfi)
                         return cfi
@@ -440,7 +448,7 @@ def progress_frac(frac):
         limit = document.body.scrollWidth - window_width()
         if limit <= 0:
             return 0.0
-        return window.pageXOffset / limit
+        return current_scroll_offset() / limit
     limit = document.body.scrollHeight - window_height()
     if limit <= 0:
         return 0.0
@@ -472,13 +480,13 @@ def onkeydown(evt):
     if key is 'up' or key is 'down':
         handled = True
         if evt.ctrlKey:
-            window.scrollTo(0 if key is 'left' else document_width(), 0)
+            scroll_to_offset(0 if key is 'left' else document_width())
         else:
             scroll_by_page(key is 'up', True)
     elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
-            window.scrollTo(0 if key is 'left' else document_width(), 0)
+            scroll_to_offset(0 if key is 'left' else document_width())
         else:
             scroll_by_page(key is 'left', False)
     elif key is 'home' or key is 'end':
@@ -487,9 +495,9 @@ def onkeydown(evt):
             get_boss().send_message('goto_doc_boundary', start=key is 'home')
         else:
             if key is 'home':
-                window.scrollTo(0, 0)
+                scroll_to_offset(0)
             else:
-                window.scrollTo(document_width(), 0)
+                scroll_to_offset(document_width())
     elif key is 'pageup' or key is 'pagedown' or key is 'space':
         handled = True
         scroll_by_page(key is 'pageup', True)
@@ -519,7 +527,7 @@ anchor_funcs = {
         return column_at(x)
     ,
     'visibility': def visibility(pos):
-        first = column_at(window.pageXOffset + 10)
+        first = column_at(current_scroll_offset() + 10)
         if pos < first:
             return -1
         if pos < first + cols_per_screen:
