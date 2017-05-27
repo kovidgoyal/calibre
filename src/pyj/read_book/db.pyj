@@ -83,14 +83,17 @@ class DB:
         request.onsuccess = def(event):
             blob = Blob(['test'], {'type':"text/plain"})
             idb = event.target.result
+            store = idb.transaction(['files'], 'readwrite').objectStore('files')
             try:
-                req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
-            except Exception:
+                req = store.put(blob, ':-test-blob-:')
+            except:
                 self.initialize_stage2(idb, False)
             req.onsuccess = def(event):
                 self.initialize_stage2(idb, True)
             req.onerror = def(event):
-                self.initialize_stage2(idb, False)
+                # We use setTimeout as otherwise the idb.onerror handler is
+                # called with this error on Safari
+                setTimeout(self.initialize_stage2.bind(None, idb, False), 0)
 
     def initialize_stage2(self, idb, supports_blobs):
         self.idb = idb
