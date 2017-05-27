@@ -65,12 +65,15 @@ if is_ios:
     paged_viewport_scroll_to = def (x, y):
         if x is 0:
             document.documentElement.style.transform = 'none'
-            return
-        x *= -1
-        document.documentElement.style.transform = f'translateX({x}px)'
+        else:
+            x *= -1
+            document.documentElement.style.transform = f'translateX({x}px)'
+        boss = get_boss()
+        if boss:
+            boss.onscroll()
     paged_viewport_x = def():
         raw = document.documentElement.style.transform
-        if not raw:
+        if not raw or raw is 'none':
             return 0
         raw = raw[12:]
         ans = parseInt(raw)
