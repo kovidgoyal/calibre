@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from read_book.globals import get_boss
+from read_book.globals import get_boss, window_width, window_height
 from book_list.globals import get_read_ui
 
 HOLD_THRESHOLD = 750  # milliseconds
@@ -240,10 +240,10 @@ class BookTouchHandler(TouchHandler):
                 return
             if not gesture.active:
                 if self.for_side_margin or not tap_on_link(gesture):
-                    if gesture.viewport_y < min(100, window.innerHeight / 4):
+                    if gesture.viewport_y < min(100, window_height() / 4):
                         gesture.type = 'show-chrome'
                     else:
-                        if gesture.viewport_x < min(100, window.innerWidth / 4):
+                        if gesture.viewport_x < min(100, window_width() / 4):
                             gesture.type = 'prev-page'
                         else:
                             gesture.type = 'next-page'

@@ -8,7 +8,7 @@ from gettext import install, gettext as _
 from utils import html_escape
 
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
-from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode, current_book
+from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode, current_book, window_width, window_height
 from read_book.mathjax import apply_mathjax
 from read_book.toc import update_visible_toc_anchors
 from read_book.resources import finalize_resources, unserialize_html
@@ -25,7 +25,7 @@ from read_book.paged_mode import (
 )
 from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
-from utils import debounce
+from utils import debounce, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -82,6 +82,7 @@ class IframeBoss:
             'change_color_scheme': self.change_color_scheme,
             'gesture_from_margin': self.gesture_from_margin,
             'find': self.find,
+            'window_size': self.received_window_size,
         }
         self.last_window_ypos = 0
         self.length_before = None
@@ -113,6 +114,7 @@ class IframeBoss:
 
     def initialize(self, data):
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
+        window_width.from_parent, window_height.from_parent = data.width, data.height
         if data.translations:
             install(data.translations)
         window.onerror = self.onerror
@@ -294,14 +296,25 @@ class IframeBoss:
 
     def onresize(self):
         if self.content_ready:
-            if current_layout_mode() is not 'flow':
-                self.do_layout()
-            if self.last_cfi:
-                cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
-                if cfi:
-                    paged_jump_to_cfi('/' + cfi)
-            self.update_cfi()
-            self.update_toc_position()
+            if is_ios:
+                # On iOS window.innerWidth/Height are wrong inside the iframe
+                self.send_message('request_size')
+                return
+            self.onresize_stage2()
+
+    def onresize_stage2(self):
+        if current_layout_mode() is not 'flow':
+            self.do_layout()
+        if self.last_cfi:
+            cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+            if cfi:
+                paged_jump_to_cfi('/' + cfi)
+        self.update_cfi()
+        self.update_toc_position()
+
+    def received_window_size(self, data):
+        window_width.from_parent, window_height.from_parent = data.width, data.height
+        self.onresize_stage2()
 
     def onwheel(self, evt):
         if self.content_ready:

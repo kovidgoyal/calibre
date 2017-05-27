@@ -5,6 +5,7 @@ from __python__ import hash_literals
 from aes import GCM, random_bytes
 from encodings import hexlify
 from gettext import gettext as _, register_callback, gettext as gt
+from utils import is_ios
 
 _boss = None
 
@@ -72,3 +73,14 @@ register_callback(def():
         scheme = default_color_schemes[key]
         scheme.name = gt(scheme.name)
 )
+
+if is_ios:
+    window_width = def ():
+        return window_width.from_parent or window.innerWidth
+    window_height = def():
+        return window_height.from_parent or window.innerHeight
+else:
+    window_width = def():
+        return window.innerWidth
+    window_height = def():
+        return window.innerHeight

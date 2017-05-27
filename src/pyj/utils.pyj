@@ -6,6 +6,10 @@ from ajax import encode_query
 from encodings import hexlify
 from book_list.theme import get_font_family
 
+
+is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
+
+
 def debounce(func, wait, immediate=False):
     # Returns a function, that, as long as it continues to be invoked, will not
     # be triggered. The function will be called after it stops being called for

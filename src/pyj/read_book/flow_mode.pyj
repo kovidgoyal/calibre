@@ -3,7 +3,7 @@
 from __python__ import hash_literals, bound_methods
 
 from dom import set_css
-from read_book.globals import get_boss
+from read_book.globals import get_boss, window_width, window_height
 from keycodes import get_key
 from utils import document_height, document_width, viewport_to_document
 
@@ -31,14 +31,14 @@ def flow_onwheel(evt):
         elif evt.deltaMode is evt.DOM_DELTA_LINE:
             dy = 15 * evt.deltaY
         if evt.deltaMode is evt.DOM_DELTA_PAGE:
-            dy = (window.innerHeight - 30) * evt.deltaY
+            dy = (window_height() - 30) * evt.deltaY
     if evt.deltaX:
         if evt.deltaMode is evt.DOM_DELTA_PIXEL:
             dx = evt.deltaX
         elif evt.deltaMode is evt.DOM_DELTA_LINE:
             dx = 15 * evt.deltaX
         else:
-            dx = (window.innerWidth - 30) * evt.deltaX
+            dx = (window_width() - 30) * evt.deltaX
     if dx:
         window.scrollBy(dx, 0)
     elif dy:
@@ -63,7 +63,7 @@ def goto_boundary(y):
 
 @check_for_scroll_end
 def scroll_by_page(backward):
-    h = window.innerHeight - 10
+    h = window_height() - 10
     window.scrollBy(0, -h if backward else h)
 
 def flow_onkeydown(evt):
@@ -175,10 +175,10 @@ anchor_funcs = {
         y, x = pos
         if y < window.pageYOffset:
             return -1
-        if y < window.pageYOffset + window.innerHeight:
+        if y < window.pageYOffset + window_height():
             if x < window.pageXOffset:
                 return -1
-            if x < window.pageXOffset + window.innerWidth:
+            if x < window.pageXOffset + window_width():
                 return 0
         return 1
     ,

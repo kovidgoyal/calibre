@@ -6,7 +6,7 @@ from dom import set_css
 from elementmaker import E
 from keycodes import get_key
 from read_book.cfi import scroll_to as cfi_scroll_to, at_point as cfi_at_point, at_current as cfi_at_current
-from read_book.globals import get_boss
+from read_book.globals import get_boss, window_width, window_height
 from read_book.settings import opts
 import traceback
 from utils import get_elem_data, set_elem_data, viewport_to_document, document_width
@@ -114,19 +114,19 @@ def layout(is_single_page):
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
     cps = opts.columns_per_screen or {}
-    cps = cps.landscape if window.innerWidth > window.innerHeight else cps.portrait
+    cps = cps.landscape if window_width() > window_height() else cps.portrait
     try:
         cps = int(cps)
     except:
         cps = 0
     if not cps:
-        cps = int(Math.floor(window.innerWidth / 500.0))
+        cps = int(Math.floor(window_width() / 500.0))
     cps = max(1, min(cps or 1, 20))
     if first_layout:
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
-        single_screen = (document.body.scrollHeight < window.innerHeight + 75)
+        single_screen = (document.body.scrollHeight < window_height() + 75)
         first_layout = True
         has_svg = document.getElementsByTagName('svg').length > 0
         imgs = document.getElementsByTagName('img')
@@ -151,7 +151,7 @@ def layout(is_single_page):
     n = cols_per_screen = cps
     # Calculate the column width so that cols_per_screen columns fit exactly in
     # the window width, with their separator margins
-    ww = col_width = screen_width = window.innerWidth
+    ww = col_width = screen_width = window_width()
     gap = 0
     if n > 1:
         # Adjust the side margin so that the window width satisfies
@@ -160,7 +160,7 @@ def layout(is_single_page):
         gap = sm + ((ww + sm) % n)  # Ensure ww + gap is a multiple of n
         col_width = ((ww + gap) // n) - gap
 
-    screen_height = window.innerHeight
+    screen_height = window_height()
     col_and_gap = col_width + gap
 
     set_css(document.body, column_gap=gap + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
@@ -231,7 +231,7 @@ def scroll_to_column(number, animated=False, notify=False, duration=1000):
     if animated:
         animated_scroll(pos, duration=1000, notify=notify)
     else:
-        window.scrollTo(pos, 0)
+        window.scroll(pos, 0)
 
 def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
     # Scroll so that the column containing xpos is the left most column in
@@ -290,8 +290,8 @@ def column_location(elem):
     c = column_at(left)
     width = min(br.right, (c+1)*col_and_gap) - br.left
     if br.bottom < br.top:
-        br.bottom = window.innerHeight
-    height = min(br.bottom, window.innerHeight) - br.top
+        br.bottom = window_height()
+    height = min(br.bottom, window_height()) - br.top
     left -= c * col_and_gap
     return {'column':c, 'left':left, 'top':top, 'width':width, 'height':height}
 
@@ -322,7 +322,7 @@ def next_screen_location():
         cols_left = ncols - (current_col + cols_per_screen)
         if cols_left < cols_per_screen:
             return -1  # Only blank, dummy pages left
-    limit = document.body.scrollWidth - window.innerWidth
+    limit = document.body.scrollWidth - window_width()
     if limit < col_and_gap:
         return -1
     if ans > limit:
@@ -350,7 +350,7 @@ def next_col_location():
         return -1
     cc = current_column_location()
     ans = cc + col_and_gap
-    limit = document.body.scrollWidth - window.innerWidth
+    limit = document.body.scrollWidth - window_width()
     if ans > limit:
         ans = limit if window.pageXOffset < limit else -1
     return ans
@@ -439,9 +439,9 @@ def current_cfi():
             if left < 0 or right > document.body.scrollWidth:
                 continue
             deltax = col_and_gap // 25
-            deltay = window.innerHeight // 25
+            deltay = window_height() // 25
             cury = 0
-            while cury < window.innerHeight:
+            while cury < window_height():
                 curx = left
                 while curx < right - gap:
                     cfi = cfi_at_point(curx-window.pageXOffset, cury-window.pageYOffset)
@@ -463,11 +463,11 @@ def current_cfi():
 def progress_frac(frac):
     # The current scroll position as a fraction between 0 and 1
     if in_paged_mode:
-        limit = document.body.scrollWidth - window.innerWidth
+        limit = document.body.scrollWidth - window_width()
         if limit <= 0:
             return 0.0
         return window.pageXOffset / limit
-    limit = document.body.scrollHeight - window.innerHeight
+    limit = document.body.scrollHeight - window_height()
     if limit <= 0:
         return 0.0
     return window.pageYOffset / limit

@@ -21,6 +21,7 @@ from __python__ import hash_literals
 #    scroll_to(cfi): which scrolls the browser to a point corresponding to the
 #                    given cfi, and returns the x and y co-ordinates of the point.
 
+from read_book.globals import window_width, window_height
 
 # CFI escaping {{{
 escape_pat = /[\[\],^();~@!-]/g
@@ -539,7 +540,7 @@ def at_point(ox, oy):  # {{{
 
 def at_current():  # {{{
     winx, winy = window_scroll_pos()
-    winw, winh = window.innerWidth, window.innerHeight
+    winw, winh = window_width(), window_height()
     winw = max(winw, 400)
     winh = max(winh, 600)
     deltay = Math.floor(winh/50)

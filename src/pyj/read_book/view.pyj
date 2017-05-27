@@ -113,6 +113,7 @@ class View:
             'show_chrome': self.show_chrome,
             'bump_font_size': self.bump_font_size,
             'find_in_spine': self.on_find_in_spine,
+            'request_size': self.on_request_size,
         }
         self.currently_showing = {}
 
@@ -137,6 +138,18 @@ class View:
 
     def forward_gesture(self, gesture):
         self.send_message('gesture_from_margin', gesture=gesture)
+
+    def iframe_size(self):
+        w, h = window.innerWidth, window.innerHeight
+        iframe = self.iframe
+        w -= 2 * iframe.offsetLeft
+        h -= 2 * iframe.offsetTop
+        return w, h
+
+    def on_request_size(self, data):
+        # On iOS/Safari window.innerWidth/Height are incorrect inside an iframe
+        w, h = self.iframe_size()
+        self.send_message('window_size', width=w, height=h)
 
     def find(self, text, backwards):
         self.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
@@ -247,7 +260,8 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message('initialize', secret=messenger.secret, translations=get_translations())
+        w, h = self.iframe_size()
+        self.send_message('initialize', secret=messenger.secret, translations=get_translations(), width=w, height=h)
         self.encrypted_communications = True
         self.iframe_ready = True
         self.do_pending_load()
