@@ -448,7 +448,7 @@ def scroll_to(cfi, callback, doc):  # {{{
         span = ndoc.createElement('span')
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
-        span.scrollIntoView()
+        scroll_viewport.scroll_into_view(span)
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -482,7 +482,7 @@ def scroll_to(cfi, callback, doc):  # {{{
                 callback(x, y)
     else:
         node = point_.node
-        node.scrollIntoView()
+        scroll_viewport.scroll_into_view(node)
 
         fn = def():
             r = node.getBoundingClientRect()

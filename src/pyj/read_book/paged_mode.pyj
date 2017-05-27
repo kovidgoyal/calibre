@@ -54,6 +54,7 @@ is_full_screen_layout = False
 
 def reset_paged_mode_globals():
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    scroll_viewport.reset_globals()
     col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
     is_full_screen_layout = _in_paged_mode = False
 
@@ -339,7 +340,8 @@ def jump_to_anchor(name):
     scroll_to_elem(elem)
 
 def scroll_to_elem(elem):
-    elem.scrollIntoView()
+    scroll_viewport.scroll_into_view(elem)
+
     if in_paged_mode:
         # Ensure we are scrolled to the column containing elem
 
