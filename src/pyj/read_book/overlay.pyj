@@ -11,7 +11,7 @@ from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
-from utils import full_screen_element, request_full_screen, safe_set_inner_html
+from utils import full_screen_element, request_full_screen, safe_set_inner_html, is_ios
 from read_book.goto import create_goto_panel
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
@@ -233,7 +233,8 @@ class MainOverlay:
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS
         )
-        if not full_screen_element():
+        if not full_screen_element() and not is_ios:
+            # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen
             actions_div.appendChild(
             E.ul(
                 ac(_('Full screen'), _('Enter full screen mode'), def(): request_full_screen(), self.overlay.hide();, 'full-screen'),
