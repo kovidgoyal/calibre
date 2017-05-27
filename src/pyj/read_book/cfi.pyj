@@ -449,6 +449,7 @@ def scroll_to(cfi, callback, doc):  # {{{
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
         scroll_viewport.scroll_into_view(span)
+        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -483,6 +484,7 @@ def scroll_to(cfi, callback, doc):  # {{{
     else:
         node = point_.node
         scroll_viewport.scroll_into_view(node)
+        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
         fn = def():
             r = node.getBoundingClientRect()
