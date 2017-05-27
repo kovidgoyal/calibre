@@ -274,7 +274,9 @@ def install_handlers(elem, handler):
     elem.addEventListener('touchcancel', handler.handle_touchcancel, options)
 
 def create_handlers():
-    install_handlers(window, main_touch_handler)
+    # Safari does not work if we register the handler
+    # on window instead of document
+    install_handlers(document, main_touch_handler)
 
 def set_left_margin_handler(elem):
     install_handlers(elem, left_margin_handler)
