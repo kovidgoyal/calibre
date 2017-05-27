@@ -255,6 +255,9 @@ class IframeBoss:
                     self.length_before += files[si]?.length or 0
         self.onscroll()
         self.send_message('content_loaded', progress_frac=self.get_progress_frac())
+        self.last_cfi = None
+        window.setTimeout(self.update_cfi, 0)
+
 
     def calculate_progress_frac(self, current_name, spine_index):
         files = self.book.manifest.files
