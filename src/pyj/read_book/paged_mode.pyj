@@ -51,13 +51,11 @@ def in_paged_mode():
     return _in_paged_mode
 col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
 is_full_screen_layout = False
-current_scroll_animation = None
 
 def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, current_scroll_animation
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
     col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
     is_full_screen_layout = _in_paged_mode = False
-    current_scroll_animation = None
 
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
@@ -224,16 +222,13 @@ def layout(is_single_page):
     fit_images()
     return gap
 
-def scroll_to_column(number, animated=False, notify=False, duration=1000):
+def scroll_to_column(number, notify=False, duration=1000):
     pos = number * col_and_gap
     limit = document.body.scrollWidth - screen_width
     pos = min(pos, limit)
-    if animated:
-        animated_scroll(pos, duration=1000, notify=notify)
-    else:
-        window.scroll(pos, 0)
+    window.scrollTo(pos, 0)
 
-def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
+def scroll_to_xpos(xpos, notify=False, duration=1000):
     # Scroll so that the column containing xpos is the left most column in
     # the viewport
     if jstype(xpos) is not 'number':
@@ -242,34 +237,13 @@ def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
     if is_full_screen_layout:
         window.scrollTo(0, 0)
         return
-    scroll_to_column(column_at(xpos), animated=animated, notify=notify, duration=duration)
+    scroll_to_column(column_at(xpos), notify=notify, duration=duration)
 
 def scroll_to_fraction(frac):
     # Scroll to the position represented by frac (number between 0 and 1)
     xpos = Math.floor(document.body.scrollWidth * frac)
     scroll_to_xpos(xpos)
 
-
-def animated_scroll(pos, duration=1000, notify=True):
-    # Scroll the window to X-position pos in an animated fashion over
-    # duration milliseconds.
-    nonlocal current_scroll_animation
-    delta = pos - window.pageXOffset
-    interval = 50
-    steps = Math.floor(duration/interval)
-    step_size = Math.floor(delta/steps)
-    current_scroll_animation = {'target':pos, 'step_size':step_size, 'interval':interval, 'notify':notify, 'fn': def():
-        a = current_scroll_animation
-        npos = window.pageXOffset + a.step_size
-        completed = False
-        if abs(npos - a.target) < abs(a.step_size):
-            completed = True
-            npos = a.target
-        window.scrollTo(npos, 0)
-        if not completed:
-            setTimeout(a.fn, a.interval)
-    }
-    current_scroll_animation.fn()
 
 def column_location(elem):
     # Return the location of elem relative to its containing column.
