@@ -341,6 +341,7 @@ def jump_to_anchor(name):
 
 def scroll_to_elem(elem):
     scroll_viewport.scroll_into_view(elem)
+    scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
     if in_paged_mode:
         # Ensure we are scrolled to the column containing elem
@@ -365,6 +366,7 @@ def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
     # containing the start of the current selection
     if in_paged_mode:
+        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         sel = window.getSelection()
         r = sel.getRangeAt(0).getBoundingClientRect()
         node = sel.anchorNode
