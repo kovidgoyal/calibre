@@ -116,12 +116,6 @@
         "windows_inc_dirs": "calibre/utils/chm"
     },
     {
-        "name": "_regex",
-        "sources": "regex/_regex.c regex/_regex_unicode.c",
-        "headers": "regex/_regex.h",
-        "optimize_level": 2
-    },
-    {
         "name": "dukpy",
         "sources": "duktape/errors.c duktape/context.c duktape/conversions.c duktape/proxy.c duktape/module.c duktape/duktape/duktape.c",
         "headers": "duktape/dukpy.h duktape/duktape/duk_config.h duktape/duktape/duktape.h",

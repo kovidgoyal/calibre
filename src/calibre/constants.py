@@ -161,7 +161,6 @@ class Plugins(collections.Mapping):
                 'unrar',
                 'imageops',
                 'qt_hack',
-                '_regex',
                 'hunspell',
                 '_patiencediff_c',
                 'bzzdec',
