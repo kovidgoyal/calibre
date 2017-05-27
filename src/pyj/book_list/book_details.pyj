@@ -85,9 +85,9 @@ def on_fmt_click(ev):
         parent.appendChild(E.div(
             E.div(_('What would you like to do with the {} format?').format(fmt)),
             E.div(class_='button-box',
-                create_button(_('Read {}').format(fmt), 'book', action.bind(None, read_format)),
+                create_button(_('Read'), 'book', action.bind(None, read_format)),
                 '\xa0',
-                create_button(_('Download {}').format(fmt), 'cloud-download', action.bind(None, download_format)),
+                create_button(_('Download'), 'cloud-download', action.bind(None, download_format)),
             )
         ))
     )
