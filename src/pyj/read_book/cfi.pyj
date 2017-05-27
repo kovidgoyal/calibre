@@ -491,7 +491,7 @@ def scroll_to(cfi, callback, doc):  # {{{
                 x += (point_.x*node.offsetWidth)/100
             if jstype(point_.y) is 'number' and node.offsetHeight:
                 y += (point_.y*node.offsetHeight)/100
-            window.scrollTo(x, y)
+            scroll_viewport.scroll_to(x, y)
             if callback:
                 callback(x, y)
 

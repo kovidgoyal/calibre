@@ -4,28 +4,31 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from aes import GCM
-from gettext import install, gettext as _
-from utils import html_escape
+from gettext import gettext as _, install
 
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
-from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode, current_book, window_width, window_height
-from read_book.mathjax import apply_mathjax
-from read_book.toc import update_visible_toc_anchors
-from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import (
-    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture,
-    scroll_by_page as flow_scroll_by_page, anchor_funcs as flow_anchor_funcs
+    anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
+    flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
+from read_book.globals import (
+    current_book, current_layout_mode, current_spine_item, scroll_viewport, set_boss,
+    set_current_spine_item, set_layout_mode, window_height, window_width
+)
+from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
-    onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
-    jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
-    scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs,
-    snap_to_selection, reset_paged_mode_globals, progress_frac
+    anchor_funcs as paged_anchor_funcs, handle_gesture as paged_handle_gesture,
+    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
+    onkeydown as paged_onkeydown, onwheel as paged_onwheel, progress_frac,
+    reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page, scroll_to_elem,
+    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
+from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import apply_settings, opts
+from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
-from utils import debounce, is_ios
+from utils import debounce, html_escape, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -379,7 +382,7 @@ class IframeBoss:
             if elem:
                 scroll_to_elem(elem)
         else:
-            window.scrollTo(0, 0)
+            scroll_viewport.scroll_to(0, 0)
 
     def find(self, data, from_load):
         if data.searched_in_spine:

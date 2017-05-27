@@ -8,7 +8,7 @@ from keycodes import get_key
 from utils import document_height, document_width, viewport_to_document
 
 def flow_to_scroll_fraction(frac):
-    window.scrollTo(0, document_height() * frac)
+    scroll_viewport.scroll_to(0, document_height() * frac)
 
 def check_for_scroll_end(func):
     return def ():
@@ -59,7 +59,7 @@ def smooth_y_scroll(up):
 
 @check_for_scroll_end
 def goto_boundary(y):
-    window.scrollTo(window.pageXOffset, 0)
+    scroll_viewport.scroll_to(window.pageXOffset, 0)
 
 @check_for_scroll_end
 def scroll_by_page(backward):
@@ -78,7 +78,7 @@ def flow_onkeydown(evt):
     elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
-            window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
+            scroll_viewport.scroll_to(0 if key is 'left' else document_width(), window.pageYOffset)
         else:
             window.scrollBy(-15 if key is 'left' else 15, 0)
     elif key is 'home' or key is 'end':
@@ -87,9 +87,9 @@ def flow_onkeydown(evt):
             get_boss().send_message('goto_doc_boundary', start=key is 'home')
         else:
             if key is 'home':
-                window.scrollTo(window.pageXOffset, 0)
+                scroll_viewport.scroll_to(window.pageXOffset, 0)
             else:
-                window.scrollTo(window.pageXOffset, document_height())
+                scroll_viewport.scroll_to(window.pageXOffset, document_height())
     elif key is 'pageup' or key is 'pagedown' or key is 'space':
         handled = True
         scroll_by_page(key is 'pageup')

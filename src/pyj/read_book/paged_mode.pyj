@@ -223,11 +223,11 @@ def layout(is_single_page):
     return gap
 
 def current_scroll_offset():
-    return window.pageXOffset
+    return scroll_viewport.x()
 
 
 def scroll_to_offset(x):
-    window.scrollTo(x, 0)
+    scroll_viewport.scroll_to(x, 0)
 
 
 def scroll_to_column(number, notify=False, duration=1000):
@@ -381,7 +381,7 @@ def jump_to_cfi(cfi):
         if in_paged_mode:
             scroll_to_xpos(x)
         else:
-            window.scrollTo(0, y)
+            scroll_viewport.scroll_to(0, y)
     )
 
 def current_cfi():
