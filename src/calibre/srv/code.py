@@ -2,16 +2,27 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-import hashlib, random, zipfile, shutil, sys, cPickle
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import cPickle
+import hashlib
+import random
+import shutil
+import sys
+import zipfile
 from json import load as load_json_file
+from threading import Lock
 
 from calibre import as_unicode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
-from calibre.srv.errors import HTTPNotFound, HTTPBadRequest, BookNotFound, HTTPForbidden
-from calibre.srv.metadata import book_as_json, categories_as_json, icon_map, categories_settings
+from calibre.srv.errors import (
+    BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound
+)
+from calibre.srv.metadata import (
+    book_as_json, categories_as_json, categories_settings, icon_map
+)
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
@@ -49,12 +60,16 @@ def allow_console_print(ctx, rd):
     return 'y' if getattr(rd.opts, 'allow_console_print', False) else 'n'
 
 
+print_lock = Lock()
+
+
 @endpoint('/console-print', methods=('POST', ))
 def console_print(ctx, rd):
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPForbidden('console printing is not allowed')
-    print(rd.remote_addr, end=' ')
-    shutil.copyfileobj(rd.request_body_file, sys.stdout)
+    with print_lock:
+        print(rd.remote_addr, end=' ')
+        shutil.copyfileobj(rd.request_body_file, sys.stdout)
     return ''
 
 
