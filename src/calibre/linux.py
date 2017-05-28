@@ -932,15 +932,17 @@ complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
 pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
+pics = list(sorted(pics))  # for reproducability
 
 
 def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
                   file_map={}):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
-    exts='|'.join(exts)
+    exts='|'.join(sorted(exts))
     fname = name.replace('-', '_')
-    spics = '|'.join(tuple(pics) + tuple(x.upper() for x in pics))
+    spics = pics + [i.upper() for i in pics]
+    spics = '|'.join(sorted(spics))
     special_exts_template = '''\
       %s )
            _filedir %s
@@ -950,7 +952,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
     extras = []
     for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
         for opt in eopts:
-            extras.append(special_exts_template%(opt, sorted(eexts)))
+            extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
 
     return '_'+fname+'()'+\
@@ -981,7 +983,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=sorted(exts)) + fname + ' ' + name +"\n\n"
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\
