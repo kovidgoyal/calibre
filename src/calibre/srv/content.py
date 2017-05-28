@@ -220,6 +220,11 @@ def favicon(ctx, rd):
     return share_open(I('lt.png'), 'rb')
 
 
+@endpoint('/apple-touch-icon.png', auth_required=False, cache_control=24)
+def apple_touch_icon(ctx, rd):
+    return share_open(I('apple-touch-icon.png'), 'rb')
+
+
 @endpoint('/icon/{+which}', auth_required=False, cache_control=24)
 def icon(ctx, rd, which):
     sz = rd.query.get('sz')
