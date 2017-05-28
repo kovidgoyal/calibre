@@ -33,7 +33,8 @@ def remove_initial_progress_bar():
         p.parentNode.removeChild(p)
 
 def onerror(msg, script_url, line_number, column_number, error_object):
-    console.log(error_object)
+    if error_object:
+        console.log(error_object)
     try:
         fname = script_url.rpartition('/')[-1] or script_url
         msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
