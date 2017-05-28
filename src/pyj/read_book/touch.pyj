@@ -7,7 +7,7 @@ from read_book.globals import get_boss
 from read_book.viewport import scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
-TAP_THRESHOLD = 5  # pixels
+TAP_THRESHOLD = 7  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 10  # pixels
 
