@@ -119,6 +119,7 @@ class View:
             'bump_font_size': self.bump_font_size,
             'find_in_spine': self.on_find_in_spine,
             'request_size': self.on_request_size,
+            'print': self.on_print,
         }
         self.currently_showing = {}
 
@@ -157,6 +158,9 @@ class View:
         window.scrollTo(0, 0)  # ensure the window is at 0 because otherwise it sometimes moves down a bit on mobile thanks to the disappearing nav bar
         w, h = self.iframe_size()
         self.send_message('window_size', width=w, height=h)
+
+    def on_print(self, data):
+        print(data.string)
 
     def find(self, text, backwards):
         self.send_message('find', text=text, backwards=backwards, searched_in_spine=False)

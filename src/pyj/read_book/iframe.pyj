@@ -118,6 +118,7 @@ class IframeBoss:
             print('Unknown action in message to iframe from parent: ' + data.action)
 
     def initialize(self, data):
+        nonlocal print
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
         scroll_viewport.update_window_size(data.width, data.height)
         if data.translations:
@@ -128,9 +129,13 @@ class IframeBoss:
         window.addEventListener('wheel', self.onwheel)
         window.addEventListener('keydown', self.onkeydown)
         document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
-        create_touch_handlers()
         self.color_scheme = data.color_scheme
         self.encrypted_communications = True
+        print = self.print_to_parent
+        create_touch_handlers()
+
+    def print_to_parent(self, *args):
+        self.send_message('print', string=' '.join(map(str, args)))
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         if error_object:
