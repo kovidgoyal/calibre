@@ -791,9 +791,12 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
-        data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
-        return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
+        try:
+            data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
+            return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
                         for k,v in data)
+        except:
+            return ''
 
 
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
@@ -810,7 +813,10 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
-        return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+        try:
+            return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+        except:
+            return ''
 
 
 class BuiltinFormatsPaths(BuiltinFormatterFunction):
@@ -826,7 +832,10 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
-        return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+        try:
+            return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+        except:
+            return ''
 
 
 class BuiltinHumanReadable(BuiltinFormatterFunction):
