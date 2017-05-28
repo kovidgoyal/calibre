@@ -1,11 +1,13 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
 from dom import set_css
-from read_book.globals import get_boss, scroll_viewport
 from keycodes import get_key
+from read_book.globals import get_boss
+from read_book.viewport import scroll_viewport
 from utils import document_height, document_width, viewport_to_document
+
 
 def flow_to_scroll_fraction(frac):
     scroll_viewport.scroll_to(0, document_height() * frac)

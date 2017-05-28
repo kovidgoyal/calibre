@@ -13,8 +13,8 @@ from read_book.flow_mode import (
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
 from read_book.globals import (
-    current_book, current_layout_mode, current_spine_item, scroll_viewport, set_boss,
-    set_current_spine_item, set_layout_mode, window_height, window_width
+    current_book, current_layout_mode, current_spine_item, set_boss,
+    set_current_spine_item, set_layout_mode
 )
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
@@ -28,6 +28,7 @@ from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import apply_settings, opts
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
+from read_book.viewport import scroll_viewport
 from utils import debounce, html_escape, is_ios
 
 FORCE_FLOW_MODE = False
@@ -118,7 +119,7 @@ class IframeBoss:
 
     def initialize(self, data):
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
-        window_width.from_parent, window_height.from_parent = data.width, data.height
+        scroll_viewport.update_window_size(data.width, data.height)
         if data.translations:
             install(data.translations)
         window.onerror = self.onerror
@@ -224,7 +225,7 @@ class IframeBoss:
         # document.body.appendChild(
         #     E.style()  # TODO: User style sheet
         # )
-        self.last_window_width, self.last_window_height = window_width(), window_height()
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         self.apply_colors()
         self.apply_font_size()
         self.do_layout()
@@ -313,10 +314,10 @@ class IframeBoss:
             self.onresize_stage2()
 
     def onresize_stage2(self):
-        if window_width() is self.last_window_width and window_height() is self.last_window_height:
+        if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
             # Safari at least, generates lots of spurious resize events
             return
-        self.last_window_width, self.last_window_height = window_width(), window_height()
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if current_layout_mode() is not 'flow':
             self.do_layout()
         if self.last_cfi:
@@ -327,7 +328,7 @@ class IframeBoss:
         self.update_toc_position()
 
     def received_window_size(self, data):
-        window_width.from_parent, window_height.from_parent = data.width, data.height
+        scroll_viewport.update_window_size(data.width, data.height)
         if self.content_ready:
             self.onresize_stage2()
 

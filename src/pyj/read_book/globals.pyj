@@ -5,7 +5,6 @@ from __python__ import hash_literals
 from aes import GCM, random_bytes
 from encodings import hexlify
 from gettext import gettext as _, register_callback, gettext as gt
-from utils import is_ios
 
 _boss = None
 
@@ -39,97 +38,11 @@ class Messenger:
 messenger = Messenger()
 iframe_id = 'read-book-iframe'
 uid = 'calibre-' + hexlify(random_bytes(12))
-scroll_viewport = {}
 
-def flow_viewport_x():
-    return window.pageXOffset
-
-def flow_viewport_y():
-    return window.pageYOffset
-
-def flow_viewport_scroll_to(x, y):
-    window.scrollTo(x, y)
-
-def flow_viewport_scroll_into_view(elem):
-    elem.scrollIntoView()
-
-def flow_reset_globals():
-    pass
-
-def flow_reset_transforms():
-    pass
-
-def paged_viewport_y():
-    return 0
-
-scroll_viewport.x = flow_viewport_x
-scroll_viewport.y = flow_viewport_y
-scroll_viewport.scroll_to = flow_viewport_scroll_to
-scroll_viewport.scroll_into_view = flow_viewport_scroll_into_view
-scroll_viewport.reset_globals = flow_reset_globals
-scroll_viewport.reset_transforms = flow_reset_transforms
-
-if is_ios:
-    window_width = def ():
-        return window_width.from_parent or window.innerWidth
-    window_height = def():
-        return window_height.from_parent or window.innerHeight
-    paged_viewport_scroll_to = def (x, y):
-        if x is 0:
-            document.documentElement.style.transform = 'none'
-        else:
-            x *= -1
-            document.documentElement.style.transform = f'translateX({x}px)'
-        boss = get_boss()
-        if boss:
-            boss.onscroll()
-    paged_viewport_x = def():
-        raw = document.documentElement.style.transform
-        if not raw or raw is 'none':
-            return 0
-        raw = raw[raw.indexOf('(') + 1:]
-        ans = parseInt(raw)
-        if isNaN(ans):
-            return 0
-        ans *= -1
-        return ans
-    paged_viewport_scroll_into_view = def(elem):
-        left = elem.offsetLeft
-        if left is None:
-            return  # element has display: none
-        elem.scrollIntoView()
-        window.scrollTo(0, 0)
-        p = elem.offsetParent
-        while p:
-            left += p.offsetLeft
-            p = p.offsetParent
-        # left -= window_width() // 2
-        paged_viewport_scroll_to(max(0, left), 0)
-    paged_content_width = def():
-        return document.documentElement.scrollWidth
-    paged_reset_transforms = def():
-        document.documentElement.style.transform = 'none'
-    paged_reset_globals = def():
-        paged_reset_transforms()
-
-else:
-    window_width = def():
-        return window.innerWidth
-    window_height = def():
-        return window.innerHeight
-    paged_viewport_scroll_to = flow_viewport_scroll_to
-    paged_viewport_x = flow_viewport_x
-    paged_viewport_scroll_into_view = flow_viewport_scroll_into_view
-    paged_reset_globals = flow_reset_globals
-    paged_content_width = def():
-        return document.documentElement.scrollWidth
-    paged_reset_transforms = def():
-        pass
-
-scroll_viewport.width = window_width
-scroll_viewport.height = window_height
-scroll_viewport.paged_content_width = paged_content_width
-
+def viewport_mode_changer(val):
+    if val:
+        viewport_mode_changer.val = val
+    return viewport_mode_changer.val
 
 def current_layout_mode():
     return current_layout_mode.value
@@ -137,20 +50,7 @@ current_layout_mode.value = 'flow'
 
 def set_layout_mode(val):
     current_layout_mode.value = val
-    if val is 'flow':
-        scroll_viewport.x = flow_viewport_x
-        scroll_viewport.y = flow_viewport_y
-        scroll_viewport.scroll_to = flow_viewport_scroll_to
-        scroll_viewport.scroll_into_view = flow_viewport_scroll_into_view
-        scroll_viewport.reset_globals = flow_reset_globals
-        scroll_viewport.reset_transforms = flow_reset_transforms
-    else:
-        scroll_viewport.x = paged_viewport_x
-        scroll_viewport.y = paged_viewport_y
-        scroll_viewport.scroll_to = paged_viewport_scroll_to
-        scroll_viewport.scroll_into_view = paged_viewport_scroll_into_view
-        scroll_viewport.reset_globals = paged_reset_globals
-        scroll_viewport.reset_transforms = paged_reset_transforms
+    viewport_mode_changer()(val)
 
 def current_spine_item():
     return current_spine_item.value

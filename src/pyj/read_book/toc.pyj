@@ -8,7 +8,8 @@ from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
 from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
-from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book, scroll_viewport
+from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book
+from read_book.viewport import scroll_viewport
 
 
 def update_visible_toc_nodes(visible_anchors):

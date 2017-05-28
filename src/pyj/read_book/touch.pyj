@@ -1,9 +1,10 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from read_book.globals import get_boss, scroll_viewport
 from book_list.globals import get_read_ui
+from read_book.globals import get_boss
+from read_book.viewport import scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 5  # pixels

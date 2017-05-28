@@ -2,14 +2,20 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import set_css
-from elementmaker import E
-from keycodes import get_key
-from read_book.cfi import scroll_to as cfi_scroll_to, at_point as cfi_at_point, at_current as cfi_at_current
-from read_book.globals import get_boss, scroll_viewport
-from read_book.settings import opts
 import traceback
-from utils import get_elem_data, set_elem_data, viewport_to_document, document_width
+from elementmaker import E
+
+from dom import set_css
+from keycodes import get_key
+from read_book.cfi import (
+    at_current as cfi_at_current, at_point as cfi_at_point,
+    scroll_to as cfi_scroll_to
+)
+from read_book.globals import get_boss
+from read_book.settings import opts
+from read_book.viewport import scroll_viewport
+from utils import document_width, get_elem_data, set_elem_data, viewport_to_document
+
 
 def first_child(parent):
     c = parent.firstChild
