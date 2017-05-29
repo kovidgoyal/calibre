@@ -138,8 +138,14 @@ class IframeBoss:
         self.send_message('print', string=' '.join(map(str, args)))
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
-        if error_object:
-            console.log(error_object)
+        if error_object is None:
+            # This happens for cross-domain errors (probably javascript injected
+            # into the browser via extensions/ userscripts and the like). It also
+            # happens all the time when using Chrom on Safari, so ignore this
+            # type of error
+            console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
+            return
+        console.log(error_object)
         try:
             fname = script_url.rpartition('/')[-1] or script_url
             msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
