@@ -142,6 +142,8 @@ def create_simple_tab(self, db):
     self.general_combo = QComboBox(w)
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
+    self.general_box = le = QLineEdit(self)
+    l.addRow(self.general_combo, le)
     if self.box_last_values:
         for k,v in self.box_last_values.items():
             if k == 'general_index':
@@ -149,8 +151,6 @@ def create_simple_tab(self, db):
             getattr(self, k).setText(v)
         self.general_combo.setCurrentIndex(
                 self.general_combo.findText(self.box_last_values['general_index']))
-    self.general_box = le = QLineEdit(self)
-    l.addRow(self.general_combo, le)
 
 
 def create_date_tab(self, db):
