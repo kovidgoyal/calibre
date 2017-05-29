@@ -36,6 +36,13 @@ def get_error_details(event):
         desc = desc.error.toString()
     elif desc.errorCode:
         desc = desc.errorCode
+    elif desc.error:
+        desc = desc.error
+        if desc.name is 'QuotaExceededError':
+            desc = _('{}: Try deleting some stored books first').format('QuotaExceededError')
+        elif desc.name:
+            desc = desc.name
+    return desc or ''
 
 DB_NAME = 'calibre'
 DB_VERSION = 1
