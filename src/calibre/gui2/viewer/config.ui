@@ -543,14 +543,14 @@ QToolBox::tab:hover {
              <item>
               <widget class="QPushButton" name="change_background_color_button">
                <property name="text">
-                <string>Change</string>
+                <string>&amp;Change</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="reset_background_color_button">
                <property name="text">
-                <string>Reset</string>
+                <string>&amp;Reset</string>
                </property>
               </widget>
              </item>
@@ -575,7 +575,7 @@ QToolBox::tab:hover {
              <item>
               <widget class="QPushButton" name="change_text_color_button">
                <property name="text">
-                <string>Change</string>
+                <string>&amp;Change</string>
                </property>
               </widget>
              </item>
@@ -809,7 +809,7 @@ QToolBox::tab:hover {
            <item row="3" column="0">
             <widget class="QLabel" name="label_26">
              <property name="text">
-              <string>&amp;Search online URL:</string>
+              <string>Search &amp;online URL:</string>
              </property>
              <property name="buddy">
               <cstring>search_online_url</cstring>
@@ -835,7 +835,7 @@ You must enter the search URL for the search engine, with the placeholder
            <item row="5" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_remember_current_page">
              <property name="text">
-              <string>Remember the &amp;current page when quitting</string>
+              <string>Remember the current &amp;page when quitting</string>
              </property>
             </widget>
            </item>
@@ -855,7 +855,7 @@ You must enter the search URL for the search engine, with the placeholder
               <string>Normally, you can view multiple books in calibre, each in its own viewer window. With this option, if you attempt to view a second book, it will replace the previously opened book instead of using a new window.</string>
              </property>
              <property name="text">
-              <string>Allow only a &amp;single book to be viewed at a time (needs restart)</string>
+              <string>Allow only a single book to be &amp;viewed at a time (needs restart)</string>
              </property>
             </widget>
            </item>
@@ -869,7 +869,7 @@ You must enter the search URL for the search engine, with the placeholder
            <item row="9" column="0">
             <widget class="QPushButton" name="clear_search_history_button">
              <property name="text">
-              <string>Clear search history</string>
+              <string>Clear search &amp;history</string>
              </property>
             </widget>
            </item>

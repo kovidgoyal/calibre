@@ -75,7 +75,7 @@ One possible use for a plugboard is to alter the title to contain series informa
      <item row="1" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Add new plugboard:</string>
+        <string>Add &amp;new plugboard:</string>
        </property>
        <property name="buddy">
         <cstring>new_format</cstring>
@@ -91,7 +91,7 @@ One possible use for a plugboard is to alter the title to contain series informa
      <item row="2" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Edit existing plugboard:</string>
+        <string>Edit &amp;existing plugboard:</string>
        </property>
        <property name="buddy">
         <cstring>edit_format</cstring>
@@ -107,7 +107,7 @@ One possible use for a plugboard is to alter the title to contain series informa
      <item row="3" column="0">
       <widget class="QLabel" name="label_41">
        <property name="text">
-        <string>Existing plugboards:</string>
+        <string>Existing &amp;plugboards:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

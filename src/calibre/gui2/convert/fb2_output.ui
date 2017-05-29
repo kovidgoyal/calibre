@@ -30,7 +30,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Sectionize:</string>
+      <string>&amp;Sectionize:</string>
      </property>
      <property name="buddy">
       <cstring>opt_sectionize</cstring>
@@ -47,7 +47,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Genre</string>
+      <string>&amp;Genre</string>
      </property>
     </widget>
    </item>

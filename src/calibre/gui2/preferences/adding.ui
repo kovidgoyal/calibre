@@ -63,7 +63,7 @@
           </size>
          </property>
          <property name="title">
-          <string>&amp;Configure metadata from file name</string>
+          <string>Configure metadata from file name</string>
          </property>
         </widget>
        </item>
@@ -223,7 +223,7 @@ Author matching is exact.</string>
        <item row="14" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Control &amp;how tags are processed:</string>
+          <string>Control how tags are processed:</string>
          </property>
          <property name="buddy">
           <cstring>tag_map_rules_button</cstring>
@@ -250,7 +250,7 @@ Author matching is exact.</string>
        <item row="18" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Control &amp;which files are added during bulk imports:</string>
+          <string>Control which files are added during bulk imports:</string>
          </property>
          <property name="buddy">
           <cstring>add_filter_rules_button</cstring>
@@ -344,10 +344,13 @@ that have been explicitly ignored below.</string>
           <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>&lt;b&gt;Ignore&lt;/b&gt; files with the following extensions when automatically adding </string>
+             <string>&lt;b&gt;Ignore&lt;/b&gt; files with the following &amp;extensions when automatically adding </string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+            <property name="buddy">
+             <cstring>opt_blocked_auto_formats</cstring>
             </property>
            </widget>
           </item>
@@ -367,10 +370,13 @@ that have been explicitly ignored below.</string>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Specify a folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
+          <string>Specify a &amp;folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+         <property name="buddy">
+          <cstring>opt_auto_add_path</cstring>
          </property>
         </widget>
        </item>

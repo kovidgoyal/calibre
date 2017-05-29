@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
+    <width>628</width>
     <height>482</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>User Categories Editor</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
   <layout class="QGridLayout">
@@ -35,7 +35,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Category name: </string>
+        <string>Category &amp;name: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -78,7 +78,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
      </property>
     </widget>
@@ -107,9 +107,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>:/images/plus.png</normaloff>:/images/plus.png
-        </iconset>
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
        </property>
       </widget>
      </item>
@@ -124,7 +123,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
      </property>
     </widget>
@@ -134,10 +133,13 @@
      <item>
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Category filter: </string>
+        <string>Category &amp;filter: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>category_filter_box</cstring>
        </property>
       </widget>
      </item>
@@ -155,10 +157,10 @@
      <property name="toolTip">
       <string>&lt;p&gt;Show items in the Available items box only if they appear in the
       current virtual library. Applied items not in the VL will be marked
-      "not on any book".&lt;/p&gt;</string>
+      &quot;not on any book&quot;.&lt;/p&gt;</string>
      </property>
      <property name="text">
-      <string>Show only available items in current virtual library</string>
+      <string>&amp;Show only available items in current virtual library</string>
      </property>
     </widget>
    </item>
@@ -234,7 +236,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
        </property>
       </widget>
@@ -319,7 +321,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/list_remove.png</normaloff>:/images/list_remove.png</iconset>
        </property>
       </widget>
@@ -355,7 +357,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../../../calibre_datesearch/resources/images"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

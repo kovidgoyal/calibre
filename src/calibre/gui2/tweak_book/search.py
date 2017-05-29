@@ -246,7 +246,7 @@ class SearchWidget(QWidget):
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.find_text = ft = HistoryBox(self, _('Clear search history'))
+        self.find_text = ft = HistoryBox(self, _('Clear search &history'))
         ft.save_search.connect(self.save_search)
         ft.show_saved_searches.connect(self.show_saved_searches)
         ft.initialize('tweak_book_find_edit')
@@ -258,7 +258,7 @@ class SearchWidget(QWidget):
 
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.replace_text = rt = HistoryBox(self, _('Clear replace history'))
+        self.replace_text = rt = HistoryBox(self, _('Clear replace &history'))
         rt.save_search.connect(self.save_search)
         rt.show_saved_searches.connect(self.show_saved_searches)
         rt.initialize('tweak_book_replace_edit')

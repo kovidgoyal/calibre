@@ -118,14 +118,14 @@
       <item>
        <widget class="QCheckBox" name="opt_keep_image_references">
         <property name="text">
-         <string>Do not remove image references before processing</string>
+         <string>Do not remove image &amp;references before processing</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="opt_keep_color">
         <property name="text">
-         <string>Keep text color, when possible</string>
+         <string>Keep text &amp;color, when possible</string>
         </property>
        </widget>
       </item>
