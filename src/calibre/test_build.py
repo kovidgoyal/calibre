@@ -133,6 +133,7 @@ class BuildTest(unittest.TestCase):
         conn = apsw.Connection(':memory:')
         conn.close()
 
+    @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
         from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         from calibre.utils.img import image_from_data, image_to_data, test
