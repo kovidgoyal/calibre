@@ -109,6 +109,11 @@ def tap_on_link(gesture):
     return False
 
 
+def touch_id(touch):
+    # On Safari using touch.identifier as dict key yields a key of "NaN" for some reason
+    return touch.identifier + ''
+
+
 class TouchHandler:
 
     def __init__(self):
@@ -162,7 +167,7 @@ class TouchHandler:
         ev.preventDefault(), ev.stopPropagation()
         self.prune_expired_touches()
         for touch in ev.changedTouches:
-            self.ongoing_touches[touch.identifier] = copy_touch(touch)
+            self.ongoing_touches[touch_id(touch)] = copy_touch(touch)
             if self.gesture_id is None:
                 nonlocal gesture_id
                 gesture_id += 1
@@ -180,7 +185,7 @@ class TouchHandler:
     def handle_touchmove(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
-            t = self.ongoing_touches[touch.identifier]
+            t = self.ongoing_touches[touch_id(touch)]
             if t:
                 self.update_touch(t, touch)
                 self.dispatch_gesture()
@@ -188,7 +193,7 @@ class TouchHandler:
     def handle_touchend(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
-            t = self.ongoing_touches[touch.identifier]
+            t = self.ongoing_touches[touch_id(touch)]
             if t:
                 t.active = False
                 self.update_touch(t, touch)
