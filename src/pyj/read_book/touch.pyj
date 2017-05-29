@@ -13,10 +13,14 @@ PINCH_THRESHOLD = 10  # pixels
 
 gesture_id = 0
 
+def touch_id(touch):
+    # On Safari using touch.identifier as dict key yields a key of "NaN" for some reason
+    return touch.identifier + ''
+
 def copy_touch(t):
     now = window.performance.now()
     return {
-        'identifier':t.identifier,
+        'identifier':touch_id(t),
         'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
         'active':True, 'mtimes':v'[now]', 'ctime':now, 'is_held':False, 'x_velocity': 0, 'y_velocity': 0
     }
@@ -109,11 +113,6 @@ def tap_on_link(gesture):
     return False
 
 
-def touch_id(touch):
-    # On Safari using touch.identifier as dict key yields a key of "NaN" for some reason
-    return touch.identifier + ''
-
-
 class TouchHandler:
 
     def __init__(self):
@@ -129,7 +128,7 @@ class TouchHandler:
             t = self.ongoing_touches[tid]
             if t.active:
                 if now - t.mtimes[-1] > 3000:
-                    expired.push(t.identifier)
+                    expired.push(touch_id(t))
         for tid in expired:
             v'delete self.ongoing_touches[tid]'
 
@@ -207,7 +206,8 @@ class TouchHandler:
     def handle_touchcancel(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
-            v'delete self.ongoing_touches[touch.identifier]'
+            tid = touch_id(touch)  # noqa: unused-local
+            v'delete self.ongoing_touches[tid]'
         self.gesture_id = None
         self.handled_tap_hold = False
 
