@@ -62,10 +62,11 @@ def margin_elem(sd, which, id, onclick):
     )
     if onclick:
         ans.addEventListener('click', onclick)
-    if is_ios and which is 'margin_bottom' and not /CriOS\//.test(window.navigator.userAgent):
+    if is_ios and which is 'margin_bottom' and not window.navigator.standalone and not /CriOS\//.test(window.navigator.userAgent):
         # On iOS Safari 100vh includes the size of the navbar and there is no way to
         # go fullscreen, so to make the bottom bar visible we add a margin to
-        # the bottom bar. CriOS is for Chrome on iOS.
+        # the bottom bar. CriOS is for Chrome on iOS. And in standalone
+        # (web-app mode) there is no nav bar.
         ans.style.marginBottom = '25px'
     return ans
 
