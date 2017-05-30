@@ -205,7 +205,7 @@
           <item>
            <widget class="QPushButton" name="configure_plugin_button">
             <property name="text">
-             <string>Configure selected source</string>
+             <string>C&amp;onfigure selected source</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -225,7 +225,7 @@
           <string>When downloading comments, append the downloaded comments to any existing comment, instead of overwriting them.</string>
          </property>
          <property name="text">
-          <string>Append &amp;comments to existing</string>
+          <string>Append comments to &amp;existing</string>
          </property>
         </widget>
        </item>

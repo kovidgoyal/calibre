@@ -185,7 +185,7 @@ gui_last_modified_display_format = 'dd MMM yyyy'
 # book will sort under 'T'.
 # This flag affects calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
-# order until the title is edited. Double-clicking on a title and hitting return
+# order until the title is edited. Editing a title and hitting return
 # without changing anything is sufficient to change the sort. Or you can use
 # the 'Update title sort' action in the Bulk metadata edit dialog to update
 # it for many books at once.

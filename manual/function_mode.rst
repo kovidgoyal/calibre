@@ -1,4 +1,4 @@
-Function Mode for Search & Replace in the Editor
+Function mode for Search & replace in the Editor
 ================================================
 
 The :guilabel:`Search & replace` tool in the editor support a *function mode*.
@@ -340,7 +340,7 @@ to output an entire table of contents above.
 Choose file order when running on multiple HTML files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When you run a :guilabel:`Replace All` on multiple HTML files, the order in
+When you run a :guilabel:`Replace all` on multiple HTML files, the order in
 which the files are processes depends on what files you have open for editing.
 You can force the search to process files in the order in which the appear by
 setting the ``file_order`` attribute on your function, like this:

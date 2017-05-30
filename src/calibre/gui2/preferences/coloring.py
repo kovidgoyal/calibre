@@ -28,7 +28,7 @@ from calibre.library.coloring import (Rule, conditionable_columns,
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import lower
 
-all_columns_string = _('All Columns')
+all_columns_string = _('All columns')
 
 icon_rule_kinds = [(_('icon with text'), 'icon'),
                    (_('icon with no text'), 'icon_only'),

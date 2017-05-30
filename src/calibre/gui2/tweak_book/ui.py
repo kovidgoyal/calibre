@@ -357,7 +357,7 @@ class Main(MainWindow):
         group = _('Editor actions')
         self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z',
                                       _('Undo typing'))
-        self.action_editor_redo = reg('edit-redo.png', _('&Redo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
+        self.action_editor_redo = reg('edit-redo.png', _('R&edo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
                                       _('Redo typing'))
         self.action_editor_cut = reg('edit-cut.png', _('Cut &text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
                                       _('Cut text'))

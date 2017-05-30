@@ -39,7 +39,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         evaluate the current template. You can use this to do recursive
         template evaluation.</li>
         <li><b>kwargs</b>: a dictionary of metadata. Field values are in this
-        dictionary.
+        dictionary.</li>
         <li><b>mi</b>: a <i>Metadata</i> instance. Used to get field information.
         This parameter can be None in some cases, such as when evaluating
         non-book templates.</li>

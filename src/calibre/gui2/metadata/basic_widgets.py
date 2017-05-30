@@ -1051,7 +1051,7 @@ class Cover(ImageView):  # {{{
                     self.clicked.connect(action)
 
         self.select_cover_button = CB(_('&Browse'), 'document_open.png', self.select_cover)
-        self.trim_cover_button = b = CB(_('T&rim borders'), 'trim.png')
+        self.trim_cover_button = b = CB(_('Trim bord&ers'), 'trim.png')
         b.setToolTip(_(
             'Automatically detect and remove extra space at the cover\'s edges.\n'
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
@@ -1449,7 +1449,7 @@ class Identifiers(Dialog):
 
 
 class IdentifiersEdit(QLineEdit, ToMetadataMixin):
-    LABEL = _('I&ds:')
+    LABEL = _('&Ids:')
     BASE_TT = _('Edit the identifiers for this book. '
             'For example: \n\n%s')%(
             'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
@@ -1741,7 +1741,7 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
 
 
 class PubdateEdit(DateEdit):
-    LABEL = _('Publishe&d:')
+    LABEL = _('P&ublished:')
     FMT = 'MMM yyyy'
     ATTR = FIELD_NAME = 'pubdate'
     TWEAK = 'gui_pubdate_display_format'

@@ -203,7 +203,7 @@ right click and choose Link stylesheets to have calibre automatically insert the
     <div style="clear:both"></div>
 
 
-Search & Replace
+Search & replace
 -------------------
 
 Edit book has a very powerful search and replace interface that allows you to
@@ -246,7 +246,7 @@ You can save frequently used search/replace expressions and reuse them multiple 
 To save a search simply right click in the Find box and select :guilabel:`Save current search`.
 
 You can bring up the dialog of saved searches via :guilabel:`Search->Saved
-Searches`. This will present you with a list of search and replace expressions
+searches`. This will present you with a list of search and replace expressions
 that you can apply. You can even select multiple entries in the list by holding
 down the Ctrl Key while clicking so as to run multiple search and replace
 expressions in a single operation.

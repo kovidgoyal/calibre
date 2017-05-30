@@ -134,7 +134,7 @@ class InputFormatPlugin(Plugin):
     The main action happens in :meth:`convert`.
     '''
 
-    type = _('Conversion Input')
+    type = _('Conversion input')
     can_be_disabled = False
     supported_platforms = ['windows', 'osx', 'linux']
 
