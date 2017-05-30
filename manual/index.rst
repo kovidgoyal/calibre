@@ -40,6 +40,14 @@ Editing e-books
 
    edit
 
+The calibre Content server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   server
+
 Comparing e-books
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -30,6 +30,7 @@ Sections
    viewer
    conversion
    edit
+   server
    diff
    metadata
    faq 

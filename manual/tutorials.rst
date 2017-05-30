@@ -13,7 +13,6 @@ Here you will find tutorials to get you started using calibre's more advanced fe
    xpath
    template_lang
    regexp
-   server
    creating_plugins
    typesetting_math
    catalogs

@@ -351,11 +351,8 @@ like and in the URL field, enter the following::
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. If you have changed the port the calibre Content server is running on, you
-will have to change ``8080`` as well to the new port. The local IP address is
-the IP address your computer is assigned on your home network. A quick Google
-search will tell you how to find out your local IP address.   Now click "Save"
-and you are done.
+calibre. See :doc:`server` for details on running the server and finding out the
+right IP address to use.
 
 If you get timeout errors while browsing the calibre catalog in Stanza, try
 increasing the connection timeout value in the stanza settings. Go to
@@ -370,10 +367,8 @@ running the calibre server, like this::
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. If you have changed the port the calibre Content server is running on, you
-will have to change ``8080`` as well to the new port. The local IP address is
-the IP address your computer is assigned on your home network. A quick Google
-search will tell you how to find out your local IP address.
+calibre. See :doc:`server` for details on running the server and finding out the
+right IP address to use.
 
 You will see a list of books in Safari, just click on the epub link for
 whichever book you want to read, Safari will then prompt you to open it with
@@ -448,14 +443,10 @@ Now on your Android device, open the browser and browse to
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. If your local network supports the use of computer names, you can
-replace the IP address with the network name of the computer. If you have
-changed the port the calibre Content server is running on, you will have to
-change ``8080`` as well to the new port.
+calibre. See :doc:`server` for details on running the server and finding out the
+right IP address to use.
 
-The local IP address is the IP address your computer is assigned on your home
-network. A quick Google search will tell you how to find out your local IP
-address. You can now browse your book collection and download books from calibre
+You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
 android device.
 
@@ -468,22 +459,17 @@ reading software.
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre has a *Content server* that exports the books in calibre as a web page. You can turn it on under
-:guilabel:`Preferences->Sharing->Sharing over the net`. Then just point the web browser on your device to the computer running
-the Content server and you will be able to browse your book collection. For example, if the computer running
-the server has IP address 63.45.128.5, in the browser, you would type::
-
-    http://63.45.128.5:8080
+calibre has a *Content server* that exports the books in calibre as a web page. See :doc:`server` for details.
 
 Some devices, like the Kindle (1/2/DX), do not allow you to access port 8080 (the default port on which the content
 server runs). In that case, change the port in the calibre Preferences to 80. (On some operating systems,
 you may not be able to run the server on a port number less than 1024 because of security settings. In
 this case the simplest solution is to adjust your router to forward requests on port 80 to port 8080).
 
-I get the error message "Failed to start Content server: Port 8080 not free on '0.0.0.0'"?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Also some devices do not have browsers advanced enough to run the app-like
+interface used by the content server. For such devices, you can simply add
+``/mobile`` to the server URL to get a simplified, non-javascript interface.
 
-The most likely cause of this is your antivirus program. Try temporarily disabling it and see if it does the trick.
 
 I cannot send emails using calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -790,8 +776,7 @@ once again, bad things *will happen*.
 
 Consider using the calibre Content server to make your books available on other
 computers. Run calibre on a single computer and access it via the Content
-server
-or a Remote Desktop solution.
+server or a Remote Desktop solution.
 
 If you must share the actual library, use a file syncing tool like
 DropBox or rsync instead of a networked drive. If you are
@@ -1119,7 +1104,7 @@ a modern linux distro, you should have no problems installing calibre onto it.
 
 You can run the calibre server via the command::
 
-    /opt/calibre/calibre-server --with-library /path/to/the/library/you/want/to/share
+    /opt/calibre/calibre-server /path/to/the/library/you/want/to/share
 
 You can download news and convert it into an e-book with the command::
 
