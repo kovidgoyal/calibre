@@ -355,7 +355,7 @@ class Container(ContainerBase):
                     changed.add(name)
             elif mt == 'image/svg+xml':
                 self.virtualized_names.add(name)
-                changed = False
+                changed.add(name)
                 xlink = XLINK('href')
                 for elem in xlink_xpath(self.parsed(name)):
                     elem.set(xlink, link_replacer(name, elem.get(xlink)))
