@@ -39,7 +39,7 @@ def get_error_details(event):
     elif desc.error:
         desc = desc.error
         if desc.name is 'QuotaExceededError':
-            desc = _('{}: Try deleting some stored books first').format('QuotaExceededError')
+            desc = _('Offline storage quota exceeded! Try deleting some stored books first.')
         elif desc.name:
             desc = desc.name
     return desc or 'Unknown Error'
