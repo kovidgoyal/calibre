@@ -126,6 +126,9 @@ class ReadUI:
         if not self.db.initialized:
             self.pending_load = [book_id, fmt, metadata, force_reload]
             return
+        if not self.db.is_ok:
+            self.show_error(_('Cannot read books'), self.db.initialize_error_msg)
+            return
         self.start_load(book_id, fmt, metadata, force_reload)
 
     def reload_book(self):
