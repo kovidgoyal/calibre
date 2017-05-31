@@ -65,9 +65,12 @@ class DB:
 
     def initialize_stage1(self):
         if not window.indexedDB:
-            self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
+            self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Chrome or Firefox.')
             self.initialized = True
-            self.callback()
+            # Callers assume __init__ has finished before the callback is
+            # called, since we are called in __init__, only callback after
+            # event loop ticks over
+            window.setTimeout(self.callback, 0)
             return
 
         request = window.indexedDB.open(DB_NAME, DB_VERSION)
