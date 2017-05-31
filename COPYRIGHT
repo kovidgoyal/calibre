@@ -263,16 +263,6 @@ License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
 
-Files: src/chardet/*
-Copyright: Copyright (C) 1998-2001 Netscape Communications Corporation
-License: LGPL-2.1+
- The full text of the LGPL is distributed as in
- /usr/share/common-licenses/LGPL-2.1 on Debian systems.
-
-Files: src/regex/*
-Copyright: Matthew Barnett
-License: Python Software Foundation License
-
 Files: src/hunspell/*
 Copyright: Various
 License: GPL-2+
@@ -295,19 +285,6 @@ Copyright: Unknown
 License: Apache 2.0
   The full text of the Apache 2.0 license is available at:
   http://www.apache.org/licenses/LICENSE-2.0
-
-Files: /src/cherrypy/*
-Copyright: Copyright (c) 2004-2007, CherryPy Team (team@cherrypy.org)
-Copyright: Copyright (C) 2005, Tiago Cogumbreiro <cogumbreiro@users.sf.net>
-License: BSD
- The full text of the BSD license is distributed as in
- /usr/share/common-licenses/BSD on Debian systems.
-
-Files: /src/routes/*
-Copyright: Copyright (c) 2005-2008 Ben Bangert <ben@groovie.org>
-License: BSD
- The full text of the BSD license is distributed as in
- /usr/share/common-licenses/BSD on Debian systems.
 
 Files: src/odf/*
 Copyright: Copyright (C) 2006-2008 Søren Roug, European Environment Agency
