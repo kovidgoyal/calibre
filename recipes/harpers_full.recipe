@@ -1,5 +1,10 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+# vi: set fenc=utf-8 ft=python :
+# kate: encoding utf-8; syntax python;
+
 __license__ = 'GPL v3'
-__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2017, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org - paid subscription/ printed issue articles
 This recipe only get's article's published in text format
@@ -29,9 +34,9 @@ class Harpers_full(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf8'
     needs_subscription = 'optional'
-    masthead_url = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
+    masthead_url = 'https://harpers.org/wp-content/themes/harpers/images/pheader.gif'
     publication_type = 'magazine'
-    LOGIN = 'http://harpers.org/wp-admin/admin-ajax.php'
+    LOGIN = 'https://harpers.org/wp-admin/admin-ajax.php'
     extra_css             = """
                                 body{font-family: adobe-caslon-pro,serif}
                                 .category{font-size: small}
@@ -52,17 +57,17 @@ class Harpers_full(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://harpers.org/')
+        br.open('https://harpers.org/')
         if self.username is not None and self.password is not None:
             tt = time.localtime() * 1000
-            data = urllib.urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'http://harpers.org/', 'tt': tt
+            data = urllib.urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'https://harpers.org/', 'tt': tt
                                      })
             br.open(self.LOGIN, data)
         return br
 
     def parse_index(self):
         # find current issue
-        soup = self.index_to_soup('http://harpers.org/')
+        soup = self.index_to_soup('https://harpers.org/')
         currentIssue = soup.find('div', attrs={'class': 'mainNavi'}).find(
             'li', attrs={'class': 'curentIssue'})
         currentIssue_url = self.tag_to_string(currentIssue.a['href'])
