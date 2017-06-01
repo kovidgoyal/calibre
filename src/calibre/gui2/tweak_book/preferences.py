@@ -183,7 +183,7 @@ class EditorSettings(BasicSettings):
         l.addRow(_('W&idth of tabs:'), tw)
 
         self.tb = b = QPushButton(_('Change &templates'))
-        l.addRow(_('&Templates for new files:'), b)
+        l.addRow(_('Templates for new files:'), b)
         b.clicked.connect(lambda : TemplatesDialog(self).exec_())
 
         lw = self('editor_line_wrap')

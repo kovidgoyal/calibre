@@ -61,7 +61,7 @@
        <item row="9" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>&amp;Toolbar</string>
+          <string>Toolbar</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="1">
@@ -897,7 +897,7 @@ a few top-level elements.</string>
          </property>
          <property name="toolTip">
           <string>A comma-separated list of categories in which items containing
-periods are displayed in the tag browser trees. For example, if
+periods are displayed in the Tag browser trees. For example, if
 this box contains 'tags' then tags of the form 'Mystery.English'
 and 'Mystery.Thriller' will be displayed with English and Thriller
 both under 'Mystery'. If 'tags' is not in this box,
