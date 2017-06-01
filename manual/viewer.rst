@@ -23,6 +23,12 @@ Navigating around an e-book
 
 .. |pni| image:: images/prev_next.png
 
+.. |prev| image:: images/previous.png
+
+.. |next| image:: images/next.png
+
+.. |scroll| image:: images/scroll.png
+
 .. |bookmi| image:: images/bookmark.png
 
 .. |toci| image:: images/toc.png
@@ -32,9 +38,10 @@ Navigating around an e-book
 .. |refmi| image:: images/ref_mode_button.png
 
 
-You can "turn pages" in a book by using the :guilabel:`Page next` and :guilabel:`Page previous` buttons |pni|, or by pressing
-the :guilabel:`Page down`/:guilabel:`Page up` keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode. You can
-scroll by amounts less than a page by using the scroll bar or various customizable keyboard shortcuts. 
+You can "turn pages" in a book by using the :guilabel:`Page previous` |prev| and :guilabel:`Page next` |next| buttons, or by pressing
+the :guilabel:`Page down`/:guilabel:`Page up` keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode.
+You can switch to flow mode by clicking on the scroll mode button |scroll| at the top right. You can then scroll by amounts less than a page
+by using the scroll bar or various customizable keyboard shortcuts. 
 
 Bookmarks
 ^^^^^^^^^^^^
