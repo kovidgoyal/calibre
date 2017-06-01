@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Cyberpresse(BasicNewsRecipe):
 
-    title = u'Cyberpresse'
+    title = u'La Presse'
     __author__ = 'balok and Sujata Raman'
     description = 'Canadian news in French'
     language = 'fr'
