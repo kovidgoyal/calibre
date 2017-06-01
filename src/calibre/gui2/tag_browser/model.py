@@ -994,7 +994,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.categories[category] = tb_categories[category]['name']
 
         # Now build the list of fields in display order
-        order = tweaks['tag_browser_category_order']
+        try:
+            order = tweaks['tag_browser_category_order']
+            if not isinstance(order, dict):
+                raise TypeError()
+        except:
+            print ('Tweak tag_browser_category_order is not valid. Ignored')
+            order = {'*': 100}
         defvalue = order.get('*', 100)
         self.row_map = sorted(self.categories, key=lambda x: order.get(x, defvalue))
         return data
