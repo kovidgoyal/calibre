@@ -94,6 +94,8 @@ always available as an `archive <https://calibre-ebook.com/dist/src>`_.
 To update a branch to the latest code, use the command::
 
     git pull --no-edit
+    
+You can also browse the code at https://github.com/kovidgoyal/calibre
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
