@@ -13,21 +13,34 @@ from read_book.iframe import init
 
 is_running_in_iframe = False  # Changed before script is loaded in the iframe
 autoreload_enabled = False
+asked_appcache_update = False
+AUTO_UPDATE_THRESHOLD = 1000  # millisecs
 
 if is_running_in_iframe:
     init()
 else:
-    window.applicationCache.addEventListener('updateready', def():
+    start_time = window.performance.now()
+
+    on_appcache_ready = def ():
+        nonlocal asked_appcache_update
+        if asked_appcache_update:
+            return
         if window.applicationCache.status is window.applicationCache.UPDATEREADY:
+            asked_appcache_update = True
             try:
                 window.applicationCache.swapCache()
-                if autoreload_enabled or window.confirm(_('The calibre web application has been updated. Do you want reload the site?')):
+                time_since_start = window.performance.now() - start_time
+                if time_since_start <= AUTO_UPDATE_THRESHOLD or autoreload_enabled or window.confirm(_(
+                    'The calibre web application has been updated. Do you want reload the site?')):
                     window.location.reload()
             except Exception as e:
                 # For some reason swapCache occasionally fails even though status is UPDATEREADY
                 print('WARNING: failed to swap applicationCache')
                 console.log(e)
-    , False)
+
+    window.applicationCache.addEventListener('updateready', on_appcache_ready)
+    if window.applicationCache.status is window.applicationCache.UPDATEREADY:
+        on_appcache_ready()
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
