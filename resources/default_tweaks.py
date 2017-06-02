@@ -353,6 +353,8 @@ sony_collection_sorting_rules = []
 add_new_book_tags_when_importing_books = False
 
 #: Set custom metadata fields that the Content server will or will not display.
+# Controls what fields are displayed when clicking the "Search" button in the
+# browser to search your calibre library.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
