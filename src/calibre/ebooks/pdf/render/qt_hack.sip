@@ -1,7 +1,7 @@
 //Define the SIP wrapper to the qt_hack code
 //Author - Kovid Goyal <kovid@kovidgoyal.net>
 
-%Module(name=qt_hack, version=1)
+%Module(name=qt_hack)
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip

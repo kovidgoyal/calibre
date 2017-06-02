@@ -1,7 +1,7 @@
 //Define the SIP wrapper to the imageops code
 //Author - Kovid Goyal <kovid@kovidgoyal.net>
 
-%Module(name=imageops, version=1)
+%Module(name=imageops)
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
