@@ -446,7 +446,7 @@ class BasicNewsRecipe(Recipe):
         so, override in your subclass.
         '''
         if not self.feeds:
-            raise NotImplementedError
+            return []
         if self.test:
             return self.feeds[:self.test[0]]
         return self.feeds
