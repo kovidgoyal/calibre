@@ -259,4 +259,6 @@ def stanza(ctx, rd, rest):
 
 @endpoint('/legacy/get/{what}/{book_id}/{library_id}/{+filename=""}', android_workaround=True)
 def legacy_get(ctx, rd, what, book_id, library_id, filename):
+    # See https://www.mobileread.com/forums/showthread.php?p=3531644 for why
+    # this is needed for Kobo browsers
     return get(ctx, rd, what, book_id, library_id)
