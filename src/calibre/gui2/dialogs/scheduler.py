@@ -366,7 +366,7 @@ class SchedulerDialog(QDialog):
         b.setToolTip(_("Download all scheduled news sources at once"))
         b.clicked.connect(self.download_all_clicked)
         self.l.addWidget(b, 3, 0, 1, 1)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Save, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), bb.ActionRole)
         b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
