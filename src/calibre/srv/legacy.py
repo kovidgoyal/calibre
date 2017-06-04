@@ -13,6 +13,7 @@ from calibre import strftime
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string
+from calibre.srv.content import get, book_filename
 from calibre.srv.errors import HTTPRedirect, HTTPBadRequest
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
@@ -32,6 +33,7 @@ def E(tag, *children, **attribs):
     children = list(map(clean, children))
     attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.iteritems()}
     return getattr(E_, tag)(*children, **attribs)
+
 
 for tag in 'HTML HEAD TITLE LINK DIV IMG BODY OPTION SELECT INPUT FORM SPAN TABLE TR TD A HR META'.split():
     setattr(E, tag, partial(E, tag))
@@ -128,7 +130,7 @@ def build_choose_library(ctx, library_map):
         id='choose_library')
 
 
-def build_index(books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
+def build_index(rd, books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
     logo = E.div(E.img(src=ctx.url_for('/static', what='calibre.png'), alt=__appname__), id='logo')
     search_box = build_search_box(num, search, sort, order, ctx, field_metadata)
     navigation = build_navigation(start, num, total, url_base)
@@ -160,7 +162,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
             s = E.span(
                 E.a(
                     fmt.lower(),
-                    href=ctx.url_for('/get', what=fmt, book_id=book.id, library_id=library_id)
+                    href=ctx.url_for('/legacy/get', what=fmt, book_id=book.id, library_id=library_id, filename=book_filename(rd, book.id, book, fmt))
                 ),
                 class_='button')
             s.tail = u''
@@ -241,7 +243,7 @@ def mobile(ctx, rd):
     q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
     lm = {k:v for k, v in library_map.iteritems() if k != library_id}
-    return build_index(books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
+    return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 
 
@@ -253,3 +255,8 @@ def browse(ctx, rd, rest):
 @endpoint('/stanza/{+rest=""}')
 def stanza(ctx, rd, rest):
     raise HTTPRedirect(ctx.url_for('/opds'))
+
+
+@endpoint('/legacy/get/{what}/{book_id}/{library_id}/{+filename=""}')
+def legacy_get(ctx, rd, what, book_id, library_id, filename):
+    return get(ctx, rd, what, book_id, library_id)
