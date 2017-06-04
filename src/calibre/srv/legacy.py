@@ -257,6 +257,6 @@ def stanza(ctx, rd, rest):
     raise HTTPRedirect(ctx.url_for('/opds'))
 
 
-@endpoint('/legacy/get/{what}/{book_id}/{library_id}/{+filename=""}')
+@endpoint('/legacy/get/{what}/{book_id}/{library_id}/{+filename=""}', android_workaround=True)
 def legacy_get(ctx, rd, what, book_id, library_id, filename):
     return get(ctx, rd, what, book_id, library_id)

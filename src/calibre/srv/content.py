@@ -278,7 +278,7 @@ def icon(ctx, rd, which):
         return ans
 
 
-@endpoint('/get/{what}/{book_id}/{library_id=None}')
+@endpoint('/get/{what}/{book_id}/{library_id=None}', android_workaround=True)
 def get(ctx, rd, what, book_id, library_id):
     book_id, rest = book_id.partition('_')[::2]
     try:
