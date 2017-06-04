@@ -419,8 +419,10 @@ class WindowsAtomicFolderMove(object):
                         ' operation was started'%path)
             else:
                 raise ValueError(u'The file %r does not exist'%path)
+
+        hardlink = get_hardlink_function(path, dest)
         try:
-            windows_hardlink(path, dest)
+            hardlink(path, dest)
             return
         except:
             pass
