@@ -863,6 +863,9 @@ class DocumentView(QWebView):  # {{{
             self.manager.link_clicked(url)
 
     def footnote_link_clicked(self, qurl):
+        if qurl.scheme() in ('http', 'https'):
+            self.link_clicked(qurl)
+            return
         path = qurl.toLocalFile()
         self.link_clicked(self.as_url(path))
 
