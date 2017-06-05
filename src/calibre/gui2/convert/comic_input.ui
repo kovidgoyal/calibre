@@ -17,7 +17,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>&amp;Number of Colors:</string>
+      <string>&amp;Number of colors:</string>
      </property>
      <property name="buddy">
       <cstring>opt_colors</cstring>
