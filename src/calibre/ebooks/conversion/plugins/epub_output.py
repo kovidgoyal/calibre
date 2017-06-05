@@ -191,11 +191,15 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages(check_colorspaces=True)(oeb, opts)
 
-        from calibre.ebooks.oeb.transforms.split import Split
+        from calibre.ebooks.oeb.transforms.split import (Split, SplitError)
         split = Split(not self.opts.dont_split_on_page_breaks,
                 max_flow_size=self.opts.flow_size*1024
                 )
-        split(self.oeb, self.opts)
+        try:
+            split(self.oeb, self.opts)
+        except SplitError as error:
+            self.log.error(str(error))
+            pass
 
         from calibre.ebooks.oeb.transforms.cover import CoverManager
         cm = CoverManager(
