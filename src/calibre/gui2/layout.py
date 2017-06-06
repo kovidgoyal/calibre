@@ -282,8 +282,10 @@ class MainWindowMixin(object):  # {{{
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.centralwidget = QWidget(self)
         self.setCentralWidget(self.centralwidget)
-        self._central_widget_layout = QVBoxLayout()
-        self.centralwidget.setLayout(self._central_widget_layout)
+        self._central_widget_layout = l = QVBoxLayout(self.centralwidget)
+        m = l.contentsMargins()
+        m.setTop(2), m.setBottom(2)
+        l.setContentsMargins(m)
         self.resize(1012, 740)
         self.location_manager = LocationManager(self)
 
@@ -304,8 +306,6 @@ class MainWindowMixin(object):  # {{{
                 self.setUnifiedTitleAndToolBarOnMac(True)
             except AttributeError:
                 pass  # PyQt5 seems to be missing this property
-
-        l = self.centralwidget.layout()
 
         # And now, start adding the real widgets
         l.addWidget(self.search_bar)
