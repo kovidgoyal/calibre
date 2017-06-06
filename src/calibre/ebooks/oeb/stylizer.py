@@ -418,7 +418,10 @@ class Style(object):
         self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
-        return (self._element.getparent() is not None)
+        try:
+            return self._element.getparent() is not None
+        except AttributeError:
+            return False  # self._element is None
 
     def _get_parent(self):
         elem = self._element.getparent()
@@ -770,4 +773,3 @@ class Style(object):
     @property
     def is_hidden(self):
         return self._style.get('display') == 'none' or self._style.get('visibility') == 'hidden'
-
