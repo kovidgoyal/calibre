@@ -968,8 +968,6 @@ class DeviceMixin(object):  # {{{
                     _('Cannot configure the device while there are running'
                         ' device jobs.'), show=True)
         dev = self.device_manager.connected_device
-        prefname = 'plugin config dialog:' + dev.type + ':' + dev.name
-        geom = gprefs.get(prefname, None)
 
         cw = dev.config_widget()
         config_dialog = QDialog(self)
@@ -983,9 +981,9 @@ class DeviceMixin(object):  # {{{
         bb.rejected.connect(config_dialog.reject)
         l.addWidget(cw)
         l.addWidget(bb)
+        # We do not save/restore the size of this dialog as different devices
+        # have very different size requirements
         config_dialog.resize(config_dialog.sizeHint())
-        if geom is not None:
-            config_dialog.restoreGeometry(geom)
 
         def validate():
             if cw.validate():
@@ -993,8 +991,6 @@ class DeviceMixin(object):  # {{{
         config_dialog.accept = validate
         if config_dialog.exec_() == config_dialog.Accepted:
             dev.save_settings(cw)
-            geom = bytearray(config_dialog.saveGeometry())
-            gprefs[prefname] = geom
 
             do_restart = show_restart_warning(_('Restart calibre for the changes to %s'
                 ' to be applied.')%dev.get_gui_name(), parent=self)
