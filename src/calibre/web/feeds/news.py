@@ -1414,7 +1414,7 @@ class BasicNewsRecipe(Recipe):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        title = self.short_title()
+        title = force_unicode(self.short_title(), preferred_encoding)
         if self.output_profile.periodical_date_in_title:
             title += strftime(self.timefmt)
         mi = MetaInformation(title, [__appname__])
