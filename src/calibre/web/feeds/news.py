@@ -396,7 +396,7 @@ class BasicNewsRecipe(Recipe):
     # See the built-in recipes for examples of these settings.
 
     def short_title(self):
-        return self.title
+        return force_unicode(self.title, preferred_encoding)
 
     def is_link_wanted(self, url, tag):
         '''
@@ -1414,7 +1414,7 @@ class BasicNewsRecipe(Recipe):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        title = force_unicode(self.short_title(), preferred_encoding)
+        title = self.short_title()
         if self.output_profile.periodical_date_in_title:
             title += strftime(self.timefmt)
         mi = MetaInformation(title, [__appname__])
