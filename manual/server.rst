@@ -5,7 +5,7 @@ The calibre :guilabel:`Content server` allows you to access your calibre
 libraries and read books directly in a browser on your favorite mobile phone or
 tablet device. As a result, you do not need to install any dedicated book
 reading/management apps on your phone. Just use the browser. The server
-downloads and stores the book you are reading in an offline cache so that you
+downloads and stores the book you are reading in an off-line cache so that you
 can read it even when there is no internet connection.
 
 .. contents:: Contents
@@ -76,7 +76,7 @@ steps:
      ``http://127.0.0.1:8080`` in a browser running on the same computer as
      the server.
 
-  #. Check that your firewall/antivirus is allowing connections to your
+  #. Check that your firewall/anti-virus is allowing connections to your
      computer on the port ``8080`` and to the calibre program. The
      easiest way to eliminate the firewall/anti-virus as the source of
      problems is to temporarily turn them both off and then try connecting. You
@@ -85,7 +85,7 @@ steps:
 
   #. Check that your device and computer are on the same network. This means
      they should both be connected to the same wireless router. In particular
-     neither should be using a cellular or wifi broadband connection.
+     neither should be using a cellular or WiFi broadband connection.
 
   #. If you have non-standard networking setup, it might be that the IP
      address shown on the :guilabel:`Connect/share` menu is incorrect.
@@ -140,6 +140,72 @@ is as follows.
     the server, or you can setup a reverse proxy as described below, to use
     an existing https setup.
 
+
+The server interface
+-----------------------
+
+The server interface is a simplified version of the main calibre interface,
+optimised for use with touch screens. The home screen shows you books
+you are currently reading as well as allowing to choose a calibre library you
+want to browse. The server in calibre 3 gives you access to all your libraries,
+not just a single one, as before. 
+
+The book list
+^^^^^^^^^^^^^^
+
+The server book list is a simple grid of covers. Tap on a cover to see the
+detailed metadata for a book, or to read the book. If you prefer a more
+detailed list, you can change the default view by clicking the three vertical
+dots in the top right corner.
+
+Sorting and searching of the book list should be familiar to calibre users.
+They can be accessed by clicking their icons in the top right area. They both
+work exactly the same as in the main calibre program. The search page even
+allows you to construct search queries by clicking on authors/tags/etc., just as
+you can using the Tag browser in the main program.
+
+A much loved feature of the main program, :guilabel:`Virtual libraries` is
+present in the server interface as well. Click the three vertical dots in the
+top right corner to choose a virtual library.
+
+The book reader
+^^^^^^^^^^^^^^^^
+
+You can read any book in your calibre library by simply tapping on
+it and then tapping the :guilabel:`Read book` button. The books reader
+is very simple to operate. You can both tap and swipe to turn pages. Swiping
+up/down skips between chapters. Tapping the top quarter of the screen gets you
+the detailed controls and viewer preferences.
+
+If you leave the Content server running, you can even open the same book on
+multiple devices and it will remember your last read position. If it does not
+you can force a syn by tapping in the top quarter and choosing
+:guilabel:`Sync`.
+
+.. note:: On initial release, the book reader is fully functional but is
+    missing some more advanced features from the main calibre viewer, such as 
+    popup footnotes, bookmarks and annotations in general.
+    These will be added in dues course. In fact, the browser reader is designed
+    to eventually replace the main viewer, once it matures.
+
+Browser support
+------------------
+
+The new calibre server makes lots of use of advanced HTML 5 and CSS 3 features.
+As such it requires an up-to-date browser to use. It has been tested on Android
+Chrome and iOS Safari as well as Chrome and Firefox on the desktop. It is known
+not to work with Internet Explorer and Microsoft Edge (hopefully Edge will
+start working when Microsoft gets around to implementing a few missing
+standards). 
+
+The server is careful to use functionality that has either been already
+standardised or is on the standards track. As such if it does not currently
+work with your favorite browser, it probably will once that browser has caught
+up. 
+
+If you are using a particular old or limited browser or you don't like to run
+JavaScript, you can use the *mobile* view, by simply adding ``/mobile`` to the
+the server address.
 
 Integrating the calibre Content server into other servers
 ------------------------------------------------------------
