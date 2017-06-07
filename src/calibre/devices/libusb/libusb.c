@@ -119,7 +119,7 @@ static PyMethodDef libusb_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initlibusb(void) {
     PyObject *m;
 

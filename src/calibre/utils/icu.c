@@ -1175,7 +1175,7 @@ static PyMethodDef icu_methods[] = {
 
 #define ADDUCONST(x) PyModule_AddIntConstant(m, #x, x)
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initicu(void) 
 {
     PyObject* m;

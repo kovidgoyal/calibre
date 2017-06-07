@@ -1258,7 +1258,7 @@ static PyMethodDef cpatiencediff_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 init_patiencediff_c(void)
 {
     PyObject* m;

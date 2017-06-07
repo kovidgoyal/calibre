@@ -165,7 +165,7 @@ static PyTypeObject DictionaryType = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 inithunspell(void) {
     PyObject *mod;
 
@@ -185,4 +185,3 @@ inithunspell(void) {
     Py_INCREF(&DictionaryType);
     PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType);
 }
-

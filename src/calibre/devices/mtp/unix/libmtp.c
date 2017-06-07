@@ -712,7 +712,7 @@ static PyMethodDef libmtp_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initlibmtp(void) {
     PyObject *m;
 

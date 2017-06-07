@@ -293,7 +293,7 @@ PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initfreetype(void) {
     PyObject *m;
 

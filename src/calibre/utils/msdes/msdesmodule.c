@@ -78,7 +78,7 @@ static PyMethodDef msdes_methods[] = {
     { NULL, NULL }
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initmsdes(void)
 {
     PyObject *m;

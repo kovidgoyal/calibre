@@ -63,7 +63,12 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
-PyMODINIT_FUNC
+#ifdef _MSVC
+#define EXPORTED __declspec(dllexport)
+#else
+#define EXPORTED __attribute__ ((visibility ("default")))
+#endif
+EXPORTED PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_dukpy(void)
 #else 

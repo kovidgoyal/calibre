@@ -379,7 +379,7 @@ static PyMethodDef certgen_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initcertgen(void) {
     PyObject *m;
     m = Py_InitModule3("certgen", certgen_methods,

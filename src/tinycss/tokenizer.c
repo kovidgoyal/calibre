@@ -416,7 +416,7 @@ static PyMethodDef tokenizer_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 inittokenizer(void) {
     PyObject *m;
     if (PyType_Ready(&tokenizer_TokenType) < 0)

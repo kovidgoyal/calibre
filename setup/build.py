@@ -34,6 +34,13 @@ class Extension(object):
         self.error = d['error'] = kwargs.get('error', None)
         self.libraries = d['libraries'] = kwargs.get('libraries', [])
         self.cflags = d['cflags'] = kwargs.get('cflags', [])
+        if iswindows:
+            self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
+        else:
+            if self.needs_cxx:
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" __attribute__ ((visibility ("default"))) void')
+            else:
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC=__attribute__ ((visibility ("default"))) void')
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
         of = kwargs.get('optimize_level', None)
@@ -145,6 +152,7 @@ def init_env():
         ldflags = shlex.split(ldflags)
         cflags += shlex.split(os.environ.get('CFLAGS', ''))
         ldflags += shlex.split(os.environ.get('LDFLAGS', ''))
+        cflags += ['-fvisibility=hidden']
 
     if islinux:
         cflags.append('-pthread')

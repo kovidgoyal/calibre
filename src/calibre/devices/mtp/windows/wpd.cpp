@@ -182,7 +182,7 @@ static PyMethodDef wpd_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initwpd(void) {
     PyObject *m;
 

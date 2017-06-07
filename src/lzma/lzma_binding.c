@@ -412,7 +412,7 @@ static PyMethodDef lzma_binding_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initlzma_binding(void) {
     PyObject *m = NULL, *preset_map = NULL, *temp = NULL;
     int i = 0;

@@ -384,7 +384,7 @@ be a unicode string. Returns unicode strings."
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initwinutil(void) {
     PyObject *m;
     m = Py_InitModule3("winutil", WinutilMethods,

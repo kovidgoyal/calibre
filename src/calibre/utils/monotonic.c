@@ -71,7 +71,7 @@ static PyMethodDef monotonic_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initmonotonic(void) {
     PyObject *m;
 #ifdef _MSC_VER

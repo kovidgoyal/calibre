@@ -482,7 +482,7 @@ static PyMethodDef usbobserver_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initusbobserver(void) {
     (void) Py_InitModule("usbobserver", usbobserver_methods);
 }

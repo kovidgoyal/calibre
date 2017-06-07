@@ -694,7 +694,7 @@ static PyMethodDef bzzdecmethods[] = {
 
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initbzzdec(void) {
     PyObject *m;
     m = Py_InitModule3("bzzdec", bzzdecmethods,

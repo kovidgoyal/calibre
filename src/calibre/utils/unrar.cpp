@@ -526,7 +526,7 @@ static PyTypeObject RARArchiveType = { // {{{
 // }}} End RARArchive
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initunrar(void) {
     PyObject *m;
 

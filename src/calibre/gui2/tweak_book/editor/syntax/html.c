@@ -474,7 +474,7 @@ static PyMethodDef html_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 inithtml(void) {
     PyObject *m, *temp;
     if (PyType_Ready(&html_TagType) < 0)

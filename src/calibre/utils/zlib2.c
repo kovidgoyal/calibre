@@ -383,7 +383,7 @@ static PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initzlib2(void) {
     PyObject *m, *ver;
     Comptype.tp_new = PyType_GenericNew;

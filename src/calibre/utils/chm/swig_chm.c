@@ -1106,7 +1106,7 @@ static swig_const_info swig_const_table[] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-SWIGEXPORT(void) SWIG_init(void) {
+CALIBRE_MODINIT_FUNC SWIG_init(void) {
     static PyObject *SWIG_globals = 0; 
     static int       typeinit = 0;
     PyObject *m, *d;

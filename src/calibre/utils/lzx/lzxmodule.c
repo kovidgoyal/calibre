@@ -202,7 +202,7 @@ static PyMethodDef lzx_methods[] = {
     { NULL }
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initlzx(void)
 {
     PyObject *m;

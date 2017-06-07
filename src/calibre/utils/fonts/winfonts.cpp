@@ -235,7 +235,7 @@ PyMethodDef winfonts_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initwinfonts(void) {
     PyObject *m;
     m = Py_InitModule3(

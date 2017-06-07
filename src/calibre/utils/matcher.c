@@ -508,7 +508,7 @@ static PyMethodDef matcher_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initmatcher(void) {
     PyObject *m;
     MatcherType.tp_new = PyType_GenericNew;

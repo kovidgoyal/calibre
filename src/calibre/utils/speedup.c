@@ -483,7 +483,7 @@ static PyMethodDef speedup_methods[] = {
 };
 
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initspeedup(void) {
     PyObject *m;
     m = Py_InitModule3("speedup", speedup_methods,

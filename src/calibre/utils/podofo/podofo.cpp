@@ -38,7 +38,7 @@ class PyLogMessage : public PdfError::LogMessageCallback {
 
 PyLogMessage log_message;
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initpodofo(void) 
 {
     PyObject* m;

@@ -708,7 +708,7 @@ IndexMethods[] = {
 #ifdef __cplusplus
 extern "C"
 #endif
-MODEXPORT(void)
+CALIBRE_MODINIT_FUNC
 initchm_extra (void) {
   Py_InitModule ("chm_extra", IndexMethods);
 }

@@ -195,7 +195,7 @@ static PyMethodDef cPalmdocMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initcPalmdoc(void) {
     PyObject *m;
     m = Py_InitModule3("cPalmdoc", cPalmdocMethods,

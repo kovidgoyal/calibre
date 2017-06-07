@@ -10,7 +10,7 @@ SQLITE_EXTENSION_INIT1
 #ifdef _MSC_VER
 #define MYEXPORT __declspec(dllexport)
 #else
-#define MYEXPORT
+#define MYEXPORT __attribute__ ((visibility ("default")))
 #endif
 
 // sortconcat {{{
@@ -271,7 +271,7 @@ static PyMethodDef sqlite_custom_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initsqlite_custom(void) {
     PyObject *m;
     m = Py_InitModule3("sqlite_custom", sqlite_custom_methods,
