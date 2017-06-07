@@ -185,7 +185,7 @@ you can force a syn by tapping in the top quarter and choosing
 .. note:: On initial release, the book reader is fully functional but is
     missing some more advanced features from the main calibre viewer, such as 
     popup footnotes, bookmarks and annotations in general.
-    These will be added in dues course. In fact, the browser reader is designed
+    These will be added in due course. In fact, the browser reader is designed
     to eventually replace the main viewer, once it matures.
 
 Browser support
