@@ -2,9 +2,12 @@ import os
 import sys
 import tempfile
 import unittest
-from threading import Thread, Event
-from duktape import dukpy
+from threading import Event, Thread
+
+import dukpy
+
 undefined, JSError, Context = dukpy.undefined, dukpy.JSError, dukpy.Context
+
 
 class ContextTests(unittest.TestCase):
 

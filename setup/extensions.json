@@ -116,12 +116,6 @@
         "windows_inc_dirs": "calibre/utils/chm"
     },
     {
-        "name": "dukpy",
-        "sources": "duktape/errors.c duktape/context.c duktape/conversions.c duktape/proxy.c duktape/module.c duktape/duktape/duktape.c",
-        "headers": "duktape/dukpy.h duktape/duktape/duk_config.h duktape/duktape/duktape.h",
-        "optimize_level": 2
-    },
-    {
         "name": "podofo",
         "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/podofo.cpp",
         "headers": "calibre/utils/podofo/global.h",

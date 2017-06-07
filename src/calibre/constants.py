@@ -167,7 +167,6 @@ class Plugins(collections.Mapping):
                 'matcher',
                 'tokenizer',
                 'certgen',
-                'dukpy',
                 'lzma_binding',
             ]
         if iswindows:

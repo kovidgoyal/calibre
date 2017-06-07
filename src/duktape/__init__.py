@@ -12,13 +12,11 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
-from calibre.constants import plugins, iswindows
+import dukpy
+
+from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
 
-dukpy, err = plugins['dukpy']
-if err:
-    raise RuntimeError('Failed to load dukpy with error: %s' % err)
-del err
 Context_, undefined = dukpy.Context, dukpy.undefined
 
 fs = '''
