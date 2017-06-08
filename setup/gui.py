@@ -20,16 +20,19 @@ class GUI(Command):
         parser.add_option('--summary', default=False, action='store_true',
                 help='Only display a summary about how many files were compiled')
 
-    @classmethod
-    def find_forms(cls):
+    def find_forms(self):
         # We do not use the calibre function find_forms as
-        # mporting calibre.gui2 may not work
+        # importing calibre.gui2 may not work
         forms = []
-        for root, _, files in os.walk(cls.PATH):
+        for root, _, files in os.walk(self.PATH):
             for name in files:
+                path = os.path.abspath(os.path.join(root, name))
                 if name.endswith('.ui'):
-                    forms.append(os.path.abspath(os.path.join(root, name)))
-
+                    forms.append(path)
+                elif name.endswith('_ui.py') or name.endswith('_ui.pyc'):
+                    fname = path.rpartition('_')[0] + '.ui'
+                    if not os.path.exists(fname):
+                        os.remove(path)
         return forms
 
     @classmethod
