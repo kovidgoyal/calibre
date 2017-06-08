@@ -21,8 +21,6 @@ first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
 Navigating around an e-book
 -----------------------------
 
-.. |pni| image:: images/prev_next.png
-
 .. |prev| image:: images/previous.png
 
 .. |next| image:: images/next.png
