@@ -317,6 +317,35 @@ class GridViewButton(LayoutButton):  # {{{
 
 # }}}
 
+class SearchBarButton(LayoutButton):  # {{{
+
+    def __init__(self, gui):
+        sc = 'Shift+Alt+/'
+        LayoutButton.__init__(self, I('search.png'), _('Search bar'), parent=gui, shortcut=sc)
+        self.set_state_to_show()
+        self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+        gui.addAction(self.action_toggle)
+        gui.keyboard.register_shortcut('search bar toggle' + self.label, unicode(self.action_toggle.text()),
+                                    default_keys=(sc,), action=self.action_toggle)
+        self.action_toggle.triggered.connect(self.toggle)
+        self.toggled.connect(self.update_state)
+
+    def update_state(self, checked):
+        if checked:
+            self.set_state_to_hide()
+        else:
+            self.set_state_to_show()
+
+    def save_state(self):
+        gprefs['search bar visible'] = bool(self.isChecked())
+
+    def restore_state(self):
+        if gprefs.get('search bar visible', True):
+            self.toggle()
+
+
+# }}}
+
 class VLTabs(QTabBar):  # {{{
 
     def __init__(self, parent):
@@ -481,7 +510,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'bd', 'gv', 'cb')
+            button_order = ('sb', 'tb', 'bd', 'gv', 'cb')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -496,16 +525,21 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'cb', 'gv', 'bd')
+            button_order = ('sb', 'tb', 'cb', 'gv', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
         self.grid_view_button = GridViewButton(self)
+        self.search_bar_button = SearchBarButton(self)
         self.grid_view_button.toggled.connect(self.toggle_grid_view)
+        self.search_bar_button.toggled.connect(self.toggle_search_bar)
 
         for x in button_order:
-            button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
+            if hasattr(self, x + '_splitter'):
+                button = getattr(self, x + '_splitter').button
+            else:
+                button = self.grid_view_button if x == 'gv' else self.search_bar_button
             button.setIconSize(QSize(24, 24))
             if isosx and stylename != u'Calibre':
                 button.setStyleSheet('''
@@ -561,6 +595,11 @@ class LayoutMixin(object):  # {{{
 
     def toggle_grid_view(self, show):
         self.library_view.alternate_views.show_view('grid' if show else None)
+
+    def toggle_search_bar(self, show):
+        self.search_bar.setVisible(show)
+        if show:
+            self.search.setFocus(Qt.OtherFocusReason)
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
@@ -622,12 +661,14 @@ class LayoutMixin(object):  # {{{
             s.update_desired_state()
             s.save_state()
         self.grid_view_button.save_state()
+        self.search_bar_button.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         for x in ('cb', 'tb', 'bd'):
             getattr(self, x+'_splitter').restore_state()
         self.grid_view_button.restore_state()
+        self.search_bar_button.restore_state()
 
     def update_status_bar(self, *args):
         v = self.current_view()

@@ -490,6 +490,7 @@ class SearchBoxMixin(object):  # {{{
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def focus_search_box(self, *args):
+        self.search_bar_button.setChecked(True)
         self.search.setFocus(Qt.OtherFocusReason)
         self.search.lineEdit().selectAll()
 
