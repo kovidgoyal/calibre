@@ -229,12 +229,6 @@ class SearchBar(QWidget):  # {{{
         self.search_button.setToolTip(
             _('Do Quick Search (you can also press the Enter key)'))
 
-        x = parent.clear_button = QToolButton(self)
-        x.setIcon(QIcon(I('clear_left.png')))
-        x.setObjectName("clear_button")
-        l.addWidget(x)
-        x.setToolTip(_("Reset Quick Search"))
-
         x = parent.highlight_only_button = QToolButton(self)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)

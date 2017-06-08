@@ -447,7 +447,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     'log will be displayed automatically.')%self.gui_debug, show=True)
 
     def esc(self, *args):
-        self.clear_button.click()
+        self.search.clear()
 
     def shift_esc(self):
         self.current_view().setFocus(Qt.OtherFocusReason)

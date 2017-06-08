@@ -234,10 +234,7 @@ class SchedulerDialog(QDialog):
         self.go_button = b = QToolButton(self)
         b.setText(_("Go"))
         b.clicked.connect(self.search.do_search)
-        self.clear_search_button = cb = QToolButton(self)
-        self.clear_search_button.clicked.connect(self.search.clear_clicked)
-        cb.setIcon(QIcon(I('clear_left.png')))
-        h.addWidget(s), h.addWidget(b), h.addWidget(cb)
+        h.addWidget(s), h.addWidget(b)
         self.recipes = RecipesView(self)
         l.addWidget(self.recipes, 1, 0, 1, 1)
         self.recipe_model = recipe_model

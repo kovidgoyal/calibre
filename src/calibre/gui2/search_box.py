@@ -102,11 +102,14 @@ class SearchBox2(QComboBox):  # {{{
     changed = pyqtSignal()
     focus_to_library = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, add_clear_action=True):
         QComboBox.__init__(self, parent)
         self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
+        if add_clear_action:
+            self.clear_action = self.lineEdit().addAction(QIcon(I('clear_left.png')), self.lineEdit().TrailingPosition)
+            self.clear_action.triggered.connect(self.clear_clicked)
 
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
@@ -166,6 +169,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def clear_clicked(self, *args):
         self.clear()
+        self.setFocus(Qt.OtherFocusReason)
 
     def search_done(self, ok):
         if isinstance(ok, basestring):
@@ -443,7 +447,6 @@ class SearchBoxMixin(object):  # {{{
         self.search.changed.connect(self.search_box_changed,
                 type=Qt.QueuedConnection)
         self.search.focus_to_library.connect(self.focus_to_library)
-        self.clear_button.clicked.connect(self.search.clear_clicked)
         self.advanced_search_button.clicked[bool].connect(self.do_advanced_search)
 
         self.search.clear()
@@ -460,7 +463,6 @@ class SearchBoxMixin(object):  # {{{
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
-        self.clear_button.setStatusTip(self.clear_button.toolTip())
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'
@@ -525,7 +527,7 @@ class SavedSearchBoxMixin(object):  # {{{
 
     def init_saved_seach_box_mixin(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
-        self.clear_button.clicked.connect(self.saved_search.clear)
+        self.search.clear_action.triggered.connect(self.saved_search.clear)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
         self.copy_search_button.clicked.connect(
