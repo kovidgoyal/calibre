@@ -992,10 +992,14 @@ class LayoutButton(QToolButton):
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.RightButton:
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            if self.icname == 'search':
+                gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
+                ev.accept()
+                return
             tab_name = {'book':'book_details', 'grid':'cover_grid', 'cover_flow':'cover_browser', 'tags':'tag_browser'}.get(self.icname)
             if tab_name:
-                from calibre.gui2.ui import get_gui
-                gui = get_gui()
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
                     ev.accept()
