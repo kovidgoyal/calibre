@@ -613,6 +613,22 @@ else:
     replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
 
 
+def html5_parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None, replace_entities=True, fix_newlines=True):
+    if isinstance(raw, bytes):
+        raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    if replace_entities:
+        raw = xml_replace_entities(raw)
+    if fix_newlines:
+        raw = raw.replace('\r\n', '\n').replace('\r', '\n')
+    raw = replace_chars.sub('', raw)
+    from html5_parser import parse
+    root = parse(raw, maybe_xhtml=not discard_namespaces, line_number_attr=linenumber_attribute, keep_doctype=False)
+    if (discard_namespaces and root.tag != 'html') or (
+        not discard_namespaces and (root.tag != '{%s}%s' % (namespaces['html'], 'html') or root.prefix)):
+        raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
+    return root
+
+
 def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None, replace_entities=True, fix_newlines=True):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)

@@ -12,7 +12,7 @@ from lxml import etree
 from html5lib.constants import cdataElements, rcdataElements
 
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
-from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
+from calibre.ebooks.oeb.polish.parsing import html5_parse as parse
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
 from calibre.ebooks.oeb.parse_utils import html5_parse
 

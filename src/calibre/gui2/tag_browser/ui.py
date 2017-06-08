@@ -11,9 +11,9 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
-    QTimer, QMenu, QPushButton, QActionGroup, QAction)
+    QTimer, QMenu, QActionGroup, QAction)
 
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import sort_key
@@ -345,21 +345,17 @@ class TagBrowserWidget(QWidget):  # {{{
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.parent = parent
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
 
         # Set up the find box & button
         search_layout = QHBoxLayout()
-        self._layout.addLayout(search_layout)
+        search_layout.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
+        search_layout.setContentsMargins(0, 0, 0, 0)
         self.item_search = HistoryLineEdit(parent)
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
-        try:
-            self.item_search.lineEdit().setPlaceholderText(
-                                                _('Find item in Tag browser'))
-        except:
-            pass             # Using Qt < 4.7
+        self.item_search.lineEdit().setPlaceholderText(_('Find in Tag browser'))
         self.item_search.setToolTip(_(
         'Search for items. This is a "contains" search; items containing the\n'
         'text anywhere in the name will be found. You can limit the search\n'
@@ -387,9 +383,9 @@ class TagBrowserWidget(QWidget):  # {{{
         ac.triggered.connect(self.search_button.click)
 
         self.expand_button = QToolButton()
-        self.expand_button.setText('-')
+        self.expand_button.setText('▶')
         self.expand_button.setToolTip(_('Collapse all categories'))
-        search_layout.addWidget(self.expand_button)
+        search_layout.insertWidget(0, self.expand_button)
         search_layout.setStretch(0, 10)
         search_layout.setStretch(1, 1)
         search_layout.setStretch(2, 1)
@@ -428,13 +424,22 @@ class TagBrowserWidget(QWidget):  # {{{
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
                                                    type=Qt.QueuedConnection)
-
-        parent.alter_tb = l = QPushButton(parent)
-        l.setText(_('Alter Tag browser'))
-        l.setIcon(QIcon(I('tags.png')))
+        self.toggle_search_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('search.png')))
+        b.setCheckable(True)
+        search_layout.insertWidget(1, b)
+        b.setChecked(gprefs.get('tag browser search box visible', False))
+        b.setToolTip(_('Search for items in the Tag browser'))
+        b.toggled.connect(self.update_search_state)
+        parent.alter_tb = l = QToolButton(parent)
+        l.setPopupMode(l.InstantPopup)
+        l.setToolTip(_('Alter Tag browser'))
+        l.setIcon(QIcon(I('config.png')))
         l.m = QMenu()
         l.setMenu(l.m)
-        self._layout.addWidget(l)
+        self._layout.addLayout(search_layout)
+        search_layout.insertWidget(0, l)
+        self.update_search_state()
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
@@ -492,6 +497,14 @@ class TagBrowserWidget(QWidget):  # {{{
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
+
+    def save_state(self):
+        gprefs.set('tag browser search box visible', self.toggle_search_button.isChecked())
+
+    def update_search_state(self):
+        shown = self.toggle_search_button.isChecked()
+        self.search_button.setVisible(shown)
+        self.item_search.setVisible(shown)
 
     def toggle_item(self):
         self.tags_view.toggle_current_index()

@@ -890,6 +890,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             config.set('main_window_geometry', self.saveGeometry())
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
+            self.stack.tb_widget.save_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True):
