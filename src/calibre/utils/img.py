@@ -13,10 +13,9 @@ import tempfile
 from io import BytesIO
 from threading import Thread
 
-from PyQt5.Qt import (
-    QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QPixmap, Qt,
-    QTransform
-)
+# We use explicit module imports so tracebacks when importing are more useful
+from PyQt5.QtCore import QBuffer, QByteArray, Qt
+from PyQt5.QtGui import QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins
