@@ -372,6 +372,7 @@ class TagBrowserWidget(QWidget):  # {{{
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
+        self.search_button.setCursor(Qt.PointingHandCursor)
         self.search_button.setText(_('Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         search_layout.addWidget(self.search_button)
@@ -383,6 +384,7 @@ class TagBrowserWidget(QWidget):  # {{{
         ac.triggered.connect(self.search_button.click)
 
         self.expand_button = QToolButton()
+        self.expand_button.setCursor(Qt.PointingHandCursor)
         self.expand_button.setText('▶')
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.insertWidget(0, self.expand_button)
@@ -425,6 +427,7 @@ class TagBrowserWidget(QWidget):  # {{{
         self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
                                                    type=Qt.QueuedConnection)
         self.toggle_search_button = b = QToolButton(self)
+        b.setCursor(Qt.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
         search_layout.insertWidget(1, b)
@@ -432,6 +435,7 @@ class TagBrowserWidget(QWidget):  # {{{
         b.setToolTip(_('Search for items in the Tag browser'))
         b.toggled.connect(self.update_search_state)
         parent.alter_tb = l = QToolButton(parent)
+        l.setCursor(Qt.PointingHandCursor)
         l.setPopupMode(l.InstantPopup)
         l.setToolTip(_('Alter Tag browser'))
         l.setIcon(QIcon(I('config.png')))

@@ -179,6 +179,7 @@ class SearchBar(QWidget):  # {{{
         self._layout.setContentsMargins(0,5,0,0)
 
         x = QToolButton(self)
+        x.setCursor(Qt.PointingHandCursor)
         x.setText(_('Virtual library'))
         x.setIcon(QIcon(I('lt.png')))
         x.setObjectName("virtual_library")
@@ -201,6 +202,7 @@ class SearchBar(QWidget):  # {{{
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         parent.advanced_search_button = x = QToolButton(self)
+        x.setCursor(Qt.PointingHandCursor)
         parent.advanced_search_toggle_action = ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('advanced search toggle',
@@ -222,6 +224,7 @@ class SearchBar(QWidget):  # {{{
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.search_button.setText(_('Go!'))
+        self.search_button.setCursor(Qt.PointingHandCursor)
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
                 QSizePolicy.Minimum)
@@ -241,6 +244,7 @@ class SearchBar(QWidget):  # {{{
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.copy_search_button = QToolButton(self)
+        x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
@@ -248,12 +252,14 @@ class SearchBar(QWidget):  # {{{
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.save_search_button = RightClickButton(self)
+        x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.add_saved_search_button = RightClickButton(self)
+        x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("plus.png")))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
