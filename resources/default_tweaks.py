@@ -559,3 +559,9 @@ content_server_thumbnail_compression_quality = 75
 # Examples:
 #    cover_drop_exclude = {'tiff', 'webp'}
 cover_drop_exclude = ()
+
+#: Show the Saved searches box in the search bar
+# In newer version of calibre, only a button that allows you to add a new Saved
+# search is shown in the search bar. If you would like to have the old
+# Saved searches box with its two buttons back, set this tweak to True.
+show_saved_search_box = False

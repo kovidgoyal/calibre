@@ -553,6 +553,9 @@ class SavedSearchBoxMixin(object):  # {{{
             QIcon(I('trash.png')), _('Delete saved search'), self.saved_search.delete_current_search)
         self.save_search_button.menu().addAction(
             QIcon(I('search.png')), _('Manage saved searches'), partial(self.do_saved_search_edit, None))
+        self.add_saved_search_button.clicked.connect(self.add_saved_search)
+        self.add_saved_search_button.setMenu(QMenu())
+        self.add_saved_search_button.menu().addActions(self.save_search_button.menu().actions())
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()
@@ -570,5 +573,11 @@ class SavedSearchBoxMixin(object):  # {{{
     def do_rebuild_saved_searches(self):
         self.saved_searches_changed()
         self.saved_search.clear()
+
+    def add_saved_search(self):
+        from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch
+        d = AddSavedSearch(parent=self, search=self.search.current_text)
+        if d.exec_() == d.Accepted:
+            self.do_rebuild_saved_searches()
 
     # }}}

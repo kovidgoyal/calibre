@@ -238,17 +238,25 @@ class SearchBar(QWidget):  # {{{
         x.setMinimumContentsLength(10)
         x.setObjectName("saved_search")
         l.addWidget(x)
+        x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.copy_search_button = QToolButton(self)
         x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
         x.setToolTip(_("Copy current search text (instead of search name)"))
+        x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.save_search_button = RightClickButton(self)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
+        x.setVisible(tweaks['show_saved_search_box'])
+
+        x = parent.add_saved_search_button = RightClickButton(self)
+        x.setIcon(QIcon(I("plus.png")))
+        l.addWidget(x)
+        x.setVisible(not tweaks['show_saved_search_box'])
 
 # }}}
 
