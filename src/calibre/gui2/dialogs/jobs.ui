@@ -33,17 +33,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QToolButton" name="clear_button">
-       <property name="toolTip">
-        <string>Find previous match</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="1" column="0" colspan="2">

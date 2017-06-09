@@ -591,7 +591,6 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.search.search.connect(self.find)
         self.search_button.clicked.connect(lambda :
                 self.find(self.search.current_text))
-        self.clear_button.clicked.connect(lambda : self.search.clear())
         self.restore_state()
 
     def restore_state(self):
