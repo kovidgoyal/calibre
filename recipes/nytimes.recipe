@@ -240,6 +240,7 @@ class NYTimes(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'skip-to-text-link' in x.split()}),
         dict(attrs={'class': lambda x: x and 'sharetools' in x.split()}),
         dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'video' in x.split()}),
         dict(attrs={'class': lambda x: x and 'visually-hidden' in x.split()}),
         dict(name='div', attrs={'class': re.compile('toolsList')}),  # bits
         dict(name='div', attrs={
