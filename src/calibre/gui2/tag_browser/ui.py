@@ -385,7 +385,7 @@ class TagBrowserWidget(QWidget):  # {{{
 
         self.expand_button = QToolButton()
         self.expand_button.setCursor(Qt.PointingHandCursor)
-        self.expand_button.setText('▶')
+        self.expand_button.setText('▸')
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.insertWidget(0, self.expand_button)
         search_layout.setStretch(0, 10)
