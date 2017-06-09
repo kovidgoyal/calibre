@@ -48,8 +48,8 @@ Accessing the server from devices on your home network
 After starting the server in calibre as described above, click the
 :guilabel:`Connect/share` button again. Instead of the :guilabel:`Start Content
 server` action, you should see a :guilabel:`Stop Content server` action
-instead. To the right of this action will be listed an IP addresses
-and port numbers. These look like a bunch of numbers separated by periods. For
+instead. To the right of this action will be listed an IP address
+and port number. These look like a bunch of numbers separated by periods. For
 example::
 
     Stop Content server [192.168.1.5, port 8080]
@@ -85,7 +85,7 @@ steps:
 
   #. Check that your device and computer are on the same network. This means
      they should both be connected to the same wireless router. In particular
-     neither should be using a cellular or WiFi broadband connection.
+     neither should be using a cellular or ISP provided direct-WiFi connection.
 
   #. If you have non-standard networking setup, it might be that the IP
      address shown on the :guilabel:`Connect/share` menu is incorrect.
