@@ -226,7 +226,7 @@ class SearchBar(QWidget):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.search_button.setText(_('Go!'))
+        self.search_button.setText(_('Search'))
         self.search_button.setCursor(Qt.PointingHandCursor)
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
