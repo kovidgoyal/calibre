@@ -268,7 +268,7 @@ class SearchBar(QWidget):  # {{{
         ))
         x.setCursor(Qt.PointingHandCursor)
         x.setPopupMode(x.InstantPopup)
-        x.setIcon(QIcon(I("plus.png")))
+        x.setIcon(QIcon(I("bookmarks.png")))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
 
