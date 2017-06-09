@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import (QIcon, Qt, QWidget, QSize,
+from PyQt5.Qt import (QIcon, Qt, QWidget, QSize, QFrame,
     pyqtSignal, QToolButton, QMenu, QAction, QCoreApplication,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
@@ -185,6 +185,9 @@ class SearchBar(QWidget):  # {{{
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(x)
+        self.vl_sep = QFrame(self)
+        self.vl_sep.setFrameShape(QFrame.VLine)
+        l.addWidget(self.vl_sep)
         parent.virtual_library = x
 
         x = QToolButton(self)
