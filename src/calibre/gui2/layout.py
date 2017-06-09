@@ -263,7 +263,11 @@ class SearchBar(QWidget):  # {{{
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.add_saved_search_button = RightClickButton(self)
+        x.setToolTip(_(
+            'Use an existing Saved search or create a new one'
+        ))
         x.setCursor(Qt.PointingHandCursor)
+        x.setPopupMode(x.InstantPopup)
         x.setIcon(QIcon(I("plus.png")))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])

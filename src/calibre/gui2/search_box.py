@@ -547,15 +547,24 @@ class SavedSearchBoxMixin(object):  # {{{
         self.save_search_button.setMenu(QMenu())
         self.save_search_button.menu().addAction(
                             QIcon(I('plus.png')),
-                            _('Create saved search'),
+                            _('Create Saved search'),
                             self.saved_search.save_search_button_clicked)
         self.save_search_button.menu().addAction(
-            QIcon(I('trash.png')), _('Delete saved search'), self.saved_search.delete_current_search)
+            QIcon(I('trash.png')), _('Delete Saved search'), self.saved_search.delete_current_search)
         self.save_search_button.menu().addAction(
-            QIcon(I('search.png')), _('Manage saved searches'), partial(self.do_saved_search_edit, None))
-        self.add_saved_search_button.clicked.connect(self.add_saved_search)
+            QIcon(I('search.png')), _('Manage Saved searches'), partial(self.do_saved_search_edit, None))
         self.add_saved_search_button.setMenu(QMenu())
-        self.add_saved_search_button.menu().addActions(self.save_search_button.menu().actions())
+        self.add_saved_search_button.menu().aboutToShow.connect(self.populate_add_saved_search_menu)
+
+    def populate_add_saved_search_menu(self):
+        m = self.add_saved_search_button.menu()
+        m.clear()
+        db = self.current_db
+        for name in db.saved_search_names():
+            m.addAction(name.strip(), partial(self.saved_search.saved_search_selected, name))
+        m.addSeparator()
+        m.addAction(QIcon(I('plus.png')), _('Add Saved search'), self.add_saved_search)
+        m.addActions(list(self.save_search_button.menu().actions())[-1:])
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()
