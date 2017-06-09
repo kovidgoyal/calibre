@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
 from functools import partial
 
 from PyQt5.Qt import (
@@ -355,7 +356,6 @@ class TagBrowserWidget(QWidget):  # {{{
         self.item_search = HistoryLineEdit(parent)
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
-        self.item_search.lineEdit().setPlaceholderText(_('Find in Tag browser'))
         self.item_search.setToolTip(_(
         'Search for items. This is a "contains" search; items containing the\n'
         'text anywhere in the name will be found. You can limit the search\n'
@@ -434,10 +434,16 @@ class TagBrowserWidget(QWidget):  # {{{
         b.setChecked(gprefs.get('tag browser search box visible', False))
         b.setToolTip(_('Search for items in the Tag browser'))
         b.toggled.connect(self.update_search_state)
-        parent.alter_tb = l = QToolButton(parent)
+        parent.alter_tb = self.alter_tb = l = QToolButton(parent)
+        l.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        l.setText(_('Alter Tag browser'))
         l.setCursor(Qt.PointingHandCursor)
         l.setPopupMode(l.InstantPopup)
-        l.setToolTip(_('Alter Tag browser'))
+        l.setToolTip(textwrap.fill(_(
+            'Change how the Tag browser works, such as,'
+            ' how it is sorted, what happens when you click'
+            ' items, etc.'
+        )))
         l.setIcon(QIcon(I('config.png')))
         l.m = QMenu()
         l.setMenu(l.m)
@@ -509,6 +515,7 @@ class TagBrowserWidget(QWidget):  # {{{
         shown = self.toggle_search_button.isChecked()
         self.search_button.setVisible(shown)
         self.item_search.setVisible(shown)
+        self.alter_tb.setToolButtonStyle(Qt.ToolButtonIconOnly if shown else Qt.ToolButtonTextBesideIcon)
 
     def toggle_item(self):
         self.tags_view.toggle_current_index()
