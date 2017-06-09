@@ -19,6 +19,7 @@ from calibre.gui2 import config, error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.utils.icu import primary_sort_key
 
 
 class AsYouType(unicode):
@@ -560,7 +561,7 @@ class SavedSearchBoxMixin(object):  # {{{
         m = self.add_saved_search_button.menu()
         m.clear()
         db = self.current_db
-        for name in db.saved_search_names():
+        for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
             m.addAction(name.strip(), partial(self.saved_search.saved_search_selected, name))
         m.addSeparator()
         m.addAction(QIcon(I('plus.png')), _('Add Saved search'), self.add_saved_search)
