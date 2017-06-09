@@ -560,12 +560,14 @@ class SavedSearchBoxMixin(object):  # {{{
     def populate_add_saved_search_menu(self):
         m = self.add_saved_search_button.menu()
         m.clear()
+        m.addAction(QIcon(I('plus.png')), _('Add Saved search'), self.add_saved_search)
+        m.addAction(QIcon(I("search_copy_saved.png")), _('Get Saved search text'),
+                    self.get_saved_search_text)
+        m.addActions(list(self.save_search_button.menu().actions())[-1:])
+        m.addSeparator()
         db = self.current_db
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
             m.addAction(name.strip(), partial(self.saved_search.saved_search_selected, name))
-        m.addSeparator()
-        m.addAction(QIcon(I('plus.png')), _('Add Saved search'), self.add_saved_search)
-        m.addActions(list(self.save_search_button.menu().actions())[-1:])
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()
@@ -590,4 +592,18 @@ class SavedSearchBoxMixin(object):  # {{{
         if d.exec_() == d.Accepted:
             self.do_rebuild_saved_searches()
 
+    def get_saved_search_text(self):
+        db = self.current_db
+        try:
+            current_search = self.search.currentText()
+            if not current_search.startswith('search:"'):
+                raise ValueError()
+            current_search = current_search[8:-1]
+            current_search = db.saved_search_lookup(current_search)
+            if not current_search:
+                raise ValueError()
+            self.search.set_search_string(current_search)
+        except:
+            from calibre.gui2.ui import get_gui
+            get_gui().status_bar.show_message(_('Current search is not a saved search'), 3000)
     # }}}
