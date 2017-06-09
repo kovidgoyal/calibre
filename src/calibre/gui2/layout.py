@@ -187,6 +187,7 @@ class SearchBar(QWidget):  # {{{
         l.addWidget(x)
         self.vl_sep = QFrame(self)
         self.vl_sep.setFrameShape(QFrame.VLine)
+        self.vl_sep.setFrameShadow(QFrame.Sunken)
         l.addWidget(self.vl_sep)
         parent.virtual_library = x
 
