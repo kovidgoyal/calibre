@@ -100,7 +100,7 @@ def main():
             'https://download.calibre-ebook.com/travis/{}.tar.xz'.format(tball), SW
         )
 
-        run('npm install --no-optional rapydscript-ng')
+        run('npm install --no-optional rapydscript-ng uglify-js regenerator')
         print(os.environ['PATH'])
         run('which rapydscript')
         run('rapydscript --version')
