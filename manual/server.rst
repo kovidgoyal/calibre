@@ -179,7 +179,7 @@ the detailed controls and viewer preferences.
 
 If you leave the Content server running, you can even open the same book on
 multiple devices and it will remember your last read position. If it does not
-you can force a syn by tapping in the top quarter and choosing
+you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
 .. note:: On initial release, the book reader is fully functional but is
