@@ -516,6 +516,8 @@ class TagBrowserWidget(QWidget):  # {{{
         self.search_button.setVisible(shown)
         self.item_search.setVisible(shown)
         self.alter_tb.setToolButtonStyle(Qt.ToolButtonIconOnly if shown else Qt.ToolButtonTextBesideIcon)
+        if shown:
+            self.item_search.setFocus(Qt.OtherFocusReason)
 
     def toggle_item(self):
         self.tags_view.toggle_current_index()
