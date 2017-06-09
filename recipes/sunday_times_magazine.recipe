@@ -2,7 +2,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.thetimes.co.uk
+www.thetimes.co.uk/magazine/the-sunday-times-magazine/
 '''
 import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -55,10 +55,9 @@ class TimesOnline(BasicNewsRecipe):
     ]
     remove_attributes = ['lang']
     keep_only_tags = [
-        dict(attrs={'class': 'Article Article--default'}
+        dict(attrs={'id': 'article-main'}
              ), dict(attrs={'class': 'f-author'}), dict(attrs={'id': 'bodycopy'})
     ]
-    remove_tags_after = dict(attrs={'class': 'Article-content'})
 
     feeds = [
     (u'The Sunday Times Magazine', u'http://www.thetimes.co.uk/magazine/the-sunday-times-magazine/'),
