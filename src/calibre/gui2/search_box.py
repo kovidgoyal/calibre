@@ -109,7 +109,7 @@ class SearchBox2(QComboBox):  # {{{
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
-            self.clear_action = self.lineEdit().addAction(QIcon(I('clear_left.png')), self.lineEdit().TrailingPosition)
+            self.clear_action = self.add_action('clear_left.png')
             self.clear_action.triggered.connect(self.clear_clicked)
 
         c = self.line_edit.completer()
@@ -130,6 +130,11 @@ class SearchBox2(QComboBox):  # {{{
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
+
+    def add_action(self, icon, position=QLineEdit.TrailingPosition):
+        if not isinstance(icon, QIcon):
+            icon = QIcon(I(icon))
+        return self.lineEdit().addAction(icon, position)
 
     def initialize(self, opt_name, colorize=False, help_text=_('Search')):
         self.as_you_type = config['search_as_you_type']
