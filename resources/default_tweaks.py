@@ -531,12 +531,6 @@ numeric_collation = False
 # number here. The default is ten libraries.
 many_libraries = 10
 
-#: Highlight the virtual library name when using a Virtual library
-# The virtual library name next to the Virtual library button is highlighted in
-# yellow when using a Virtual library. You can choose the color used for the
-# highlight with this tweak. Set it to 'transparent' to disable highlighting.
-highlight_virtual_library = 'yellow'
-
 #: Choose available output formats for conversion
 # Restrict the list of available output formats in the conversion dialogs.
 # For example, if you only want to convert to EPUB and AZW3, change this to

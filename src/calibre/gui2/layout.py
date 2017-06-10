@@ -174,11 +174,10 @@ class SearchBar(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self._layout = l = QHBoxLayout()
-        self.setLayout(self._layout)
-        self._layout.setContentsMargins(0,5,0,0)
+        self._layout = l = QHBoxLayout(self)
+        l.setContentsMargins(0,5,0,0)
 
-        x = QToolButton(self)
+        x = parent.virtual_library = QToolButton(self)
         x.setCursor(Qt.PointingHandCursor)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
@@ -186,19 +185,20 @@ class SearchBar(QWidget):  # {{{
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(x)
-        self.vl_sep = QFrame(self)
-        self.vl_sep.setFrameShape(QFrame.VLine)
-        self.vl_sep.setFrameShadow(QFrame.Sunken)
-        l.addWidget(self.vl_sep)
-        parent.virtual_library = x
 
         x = QToolButton(self)
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setAutoRaise(True)
         x.setIcon(QIcon(I('minus.png')))
         x.setObjectName('clear_vl')
         l.addWidget(x)
         x.setVisible(False)
         x.setToolTip(_('Close the Virtual library'))
         parent.clear_vl = x
+        self.vl_sep = QFrame(self)
+        self.vl_sep.setFrameShape(QFrame.VLine)
+        self.vl_sep.setFrameShadow(QFrame.Sunken)
+        l.addWidget(self.vl_sep)
 
         x = QLabel(self)
         x.setObjectName("search_count")

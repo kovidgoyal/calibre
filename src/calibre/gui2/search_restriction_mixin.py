@@ -15,7 +15,6 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
-from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.localization import localize_user_manual_link
@@ -342,7 +341,7 @@ class SearchRestrictionMixin(object):
 
         self.search_restriction = ComboBoxWithHelp(self)
         self.search_restriction.setVisible(False)
-        self.search_count.setText(_("(all books)"))
+        self.clear_vl.setText(_("(all books)"))
         self.ar_menu = QMenu(_('Additional restriction'))
         self.edit_menu = QMenu(_('Edit Virtual library'))
         self.rm_menu = QMenu(_('Remove Virtual library'))
@@ -624,18 +623,12 @@ class SearchRestrictionMixin(object):
             t = ' :: '.join(restrictions)
             if len(t) > 20:
                 t = t[:19] + u'…'
-            self.search_count.setStyleSheet(
-                    'QLabel { border-radius: 6px; background-color: %s }' %
-                    tweaks['highlight_virtual_library'])
             self.clear_vl.setVisible(True)
-            self.search_count.setVisible(not gprefs['show_vl_tabs'])
+            self.clear_vl.setVisible(not gprefs['show_vl_tabs'])
         else:  # No restriction or not library view
             t = ''
-            self.search_count.setStyleSheet(
-                    'QLabel { background-color: transparent; }')
             self.clear_vl.setVisible(False)
-            self.search_count.setVisible(False)
-        self.search_count.setText(t)
+        self.clear_vl.setText(t.replace('&', '&&'))
 
 
 if __name__ == '__main__':
