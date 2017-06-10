@@ -214,7 +214,7 @@ class SearchBar(QWidget):  # {{{
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
-        parent.advanced_search_toggle_action = ac = parent.search.add_action('search.png', QLineEdit.LeadingPosition)
+        parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.LeadingPosition)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('advanced search toggle',
                 _('Advanced search'), default_keys=("Shift+Ctrl+F",),
@@ -222,6 +222,8 @@ class SearchBar(QWidget):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.search_button.setIcon(QIcon(I('search.png')))
+        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.search_button.setText(_('Search'))
         self.search_button.setAutoRaise(True)
         self.search_button.setCursor(Qt.PointingHandCursor)
@@ -264,6 +266,8 @@ class SearchBar(QWidget):  # {{{
         x.setToolTip(_(
             'Use an existing Saved search or create a new one'
         ))
+        x.setText(_('Saved search'))
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         x.setCursor(Qt.PointingHandCursor)
         x.setPopupMode(x.InstantPopup)
         x.setAutoRaise(True)
