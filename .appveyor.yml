@@ -5,6 +5,15 @@ clone_depth: 5
 
 cache:
     - .build-cache
+    - node_modules -> .appveyor.yml
+
+install:
+    - ps: Install-Product node 7
+    - node --version
+    - npm --version
+    - appveyor-retry npm install --no-optional rapydscript-ng regenerator uglify-js
+    - set PATH=node_modules\.bin;%PATH%
+    - rapydscript --version
 
 environment:
     SW: C:\sw

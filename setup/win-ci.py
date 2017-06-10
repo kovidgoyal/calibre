@@ -184,7 +184,7 @@ def sw():
 
 def sanitize_path():
     needed_paths = []
-    executables = 'git.exe curl.exe'.split()
+    executables = 'git.exe curl.exe rapydscript.cmd node.exe'.split()
     for p in os.environ['PATH'].split(os.pathsep):
         for x in tuple(executables):
             if os.path.exists(os.path.join(p, x)):
@@ -195,6 +195,7 @@ def sanitize_path():
         sw
     ).split() + needed_paths
     os.environ[b'PATH'] = os.pathsep.join(paths).encode('ascii')
+    print('PATH:', os.environ[b'PATH'])
 
 
 def vcenv():

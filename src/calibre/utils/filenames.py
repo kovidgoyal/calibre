@@ -93,13 +93,13 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
 def find_executable_in_path(name, path=None):
     if path is None:
         path = os.environ.get('PATH', '')
-    if iswindows and not name.endswith('.exe'):
-        name += '.exe'
+    exts = '.exe .cmd .bat'.split() if iswindows and not name.endswith('.exe') else ('',)
     path = path.split(os.pathsep)
     for x in path:
-        q = os.path.abspath(os.path.join(x, name))
-        if os.access(q, os.X_OK):
-            return q
+        for ext in exts:
+            q = os.path.abspath(os.path.join(x, name)) + ext
+            if os.access(q, os.X_OK):
+                return q
 
 
 def is_case_sensitive(path):
