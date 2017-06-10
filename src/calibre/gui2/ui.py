@@ -252,7 +252,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # Jobs Button {{{
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.jobs_button = JobsButton(horizontal=True, parent=self)
+        self.jobs_button = JobsButton(parent=self)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 

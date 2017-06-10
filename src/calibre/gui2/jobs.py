@@ -10,9 +10,9 @@ Job management.
 import re, time
 from Queue import Empty, Queue
 
-from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt,
+from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
-    QSize, QStyleOptionProgressBar, QStyle, QToolTip, QFrame,
+    QSize, QStyleOptionProgressBar, QStyle, QToolTip, QWidget, QStyleOption,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
     QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit)
 
@@ -460,32 +460,25 @@ class DetailView(Dialog):  # {{{
 # }}}
 
 
-class JobsButton(QFrame):  # {{{
+class JobsButton(QWidget):  # {{{
 
     tray_tooltip_updated = pyqtSignal(object)
 
-    def __init__(self, horizontal=False, size=48, parent=None):
-        QFrame.__init__(self, parent)
-        if horizontal:
-            size = 24
-        self.pi = ProgressIndicator(self, size)
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.mouse_over = False
+        self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PM_ToolBarIconSize))
         self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
         self.shortcut = 'Shift+Alt+J'
 
-        if horizontal:
-            self.setLayout(QHBoxLayout())
-            self.layout().setDirection(self.layout().RightToLeft)
-        else:
-            self.setLayout(QVBoxLayout())
-            self._jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)
+        self.setLayout(QHBoxLayout())
+        self.layout().setDirection(self.layout().RightToLeft)
 
-        self.layout().addWidget(self.pi)
         self.layout().addWidget(self._jobs)
-        if not horizontal:
-            self.layout().setAlignment(self._jobs, Qt.AlignHCenter)
-        self._jobs.setMargin(0)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(self.pi)
+        m = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.layout().setContentsMargins(m, m, m, m)
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
         b = _('Click to see list of jobs')
@@ -495,6 +488,18 @@ class JobsButton(QFrame):  # {{{
         self.action_toggle.triggered.connect(self.toggle)
         if hasattr(parent, 'keyboard'):
             parent.keyboard.register_shortcut('toggle jobs list', _('Show/hide the Jobs List'), default_keys=(self.shortcut,), action=self.action_toggle)
+
+    def event(self, ev):
+        m = None
+        et = ev.type()
+        if et == ev.Enter:
+            m = True
+        elif et == ev.Leave:
+            m = False
+        if m is not None and m != self.mouse_over:
+            self.mouse_over = m
+            self.update()
+        return QWidget.event(self, ev)
 
     def initialize(self, jobs_dialog, job_manager):
         self.jobs_dialog = jobs_dialog
@@ -559,6 +564,17 @@ class JobsButton(QFrame):  # {{{
         if self.is_running:
             self.stop()
             QCoreApplication.instance().alert(self, 5000)
+
+    def paintEvent(self, ev):
+        if self.mouse_over:
+            p = QPainter(self)
+            tool = QStyleOption()
+            tool.rect = self.rect()
+            tool.state = QStyle.State_Raised | QStyle.State_Active | QStyle.State_MouseOver
+            s = self.style()
+            s.drawPrimitive(QStyle.PE_PanelButtonTool, tool, p, self)
+            p.end()
+        QWidget.paintEvent(self, ev)
 
 # }}}
 
