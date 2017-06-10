@@ -971,16 +971,13 @@ class LayoutButton(QToolButton):
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
-        self.setText(_('Show %(label)s [%(shortcut)s]')%dict(label=self.label, shortcut=self.shortcut) + '\n\n' +
-                     _('Right click to configure'))
+        self.setText(_('Show {}'.format(self.label) + '\t' + self.shortcut))
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
-        self.setText(_('Hide %(label)s [%(shortcut)s]')%dict(
-            label=self.label, shortcut=self.shortcut) + '\n\n' +
-                     _('Right click to configure'))
+        self.setText(_('Hide {}'.format(self.label) + '\t' + self.shortcut))
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
