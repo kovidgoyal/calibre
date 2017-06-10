@@ -70,7 +70,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>&amp;Icon size:</string>
+             <string>Icon si&amp;ze:</string>
             </property>
             <property name="buddy">
              <cstring>opt_toolbar_icon_size</cstring>
@@ -142,7 +142,7 @@
        <item row="5" column="0">
         <widget class="QCheckBox" name="opt_systray_icon">
          <property name="text">
-          <string>Enable system &amp;tray icon (needs restart)</string>
+          <string>Enable s&amp;ystem tray icon (needs restart)</string>
          </property>
         </widget>
        </item>
@@ -187,7 +187,7 @@
        <item row="6" column="0">
         <widget class="QCheckBox" name="opt_disable_tray_notification">
          <property name="text">
-          <string>Disable &amp;notifications in system tray</string>
+          <string>Disable n&amp;otifications in system tray</string>
          </property>
         </widget>
        </item>
@@ -245,7 +245,10 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_hidpi">
          <property name="text">
-          <string>Adjust for high resolution screens (needs restart):</string>
+          <string>Adjust for &amp;high resolution screens (needs restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_hidpi</cstring>
          </property>
         </widget>
        </item>
@@ -521,7 +524,7 @@ A value of zero means calculate automatically.</string>
            <item row="4" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_cover_grid_show_title">
              <property name="text">
-              <string>Show a field (such as title) &amp;under the covers</string>
+              <string>Show a &amp;field (such as title) under the covers</string>
              </property>
             </widget>
            </item>
