@@ -447,13 +447,13 @@ class SearchBoxMixin(object):  # {{{
 
     def init_search_box_mixin(self):
         self.search.initialize('main_search_history', colorize=True,
-                help_text=_('Search (For advanced search click the button to the left)'))
+                help_text=_('Search (For advanced search click the icon to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
         # Queued so that search.current_text will be correct
         self.search.changed.connect(self.search_box_changed,
                 type=Qt.QueuedConnection)
         self.search.focus_to_library.connect(self.focus_to_library)
-        self.advanced_search_button.clicked[bool].connect(self.do_advanced_search)
+        self.advanced_search_toggle_action.triggered.connect(self.do_advanced_search)
 
         self.search.clear()
         self.search.setMaximumWidth(self.width()-150)
@@ -468,7 +468,6 @@ class SearchBoxMixin(object):  # {{{
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',
             unicode(self.search.toolTip())))
-        self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (QIcon, Qt, QWidget, QSize, QFrame,
-    pyqtSignal, QToolButton, QMenu, QAction, QCoreApplication,
+    pyqtSignal, QToolButton, QMenu, QLineEdit, QCoreApplication,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
@@ -205,18 +205,6 @@ class SearchBar(QWidget):  # {{{
         parent.search_count = x
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-        parent.advanced_search_button = x = QToolButton(self)
-        x.setCursor(Qt.PointingHandCursor)
-        parent.advanced_search_toggle_action = ac = QAction(parent)
-        parent.addAction(ac)
-        parent.keyboard.register_shortcut('advanced search toggle',
-                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
-                action=ac)
-        ac.triggered.connect(x.click)
-        x.setIcon(QIcon(I('search.png')))
-        l.addWidget(x)
-        x.setToolTip(_("Advanced search"))
-
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
@@ -224,6 +212,12 @@ class SearchBar(QWidget):  # {{{
                        "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         x.setMinimumContentsLength(10)
         l.addWidget(x)
+
+        parent.advanced_search_toggle_action = ac = parent.search.add_action('search.png', QLineEdit.LeadingPosition)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('advanced search toggle',
+                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
+                action=ac)
 
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
