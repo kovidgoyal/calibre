@@ -525,7 +525,7 @@ completion_mode = 'prefix'
 numeric_collation = False
 
 #: Sort the list of libraries alphabetically
-# The list of libraries in the Copy to Library and Quick Switch menus are
+# The list of libraries in the Copy to library and Quick switch menus are
 # normally sorted by most used. However, if there are more than a certain
 # number of such libraries, the sorting becomes alphabetic. You can set that
 # number here. The default is ten libraries.
