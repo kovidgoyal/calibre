@@ -213,12 +213,15 @@ class SearchBox2(QComboBox):  # {{{
         if k in (Qt.Key_Enter, Qt.Key_Return):
             return self.do_search()
         if k not in (Qt.Key_Up, Qt.Key_Down):
-            QComboBox.keyPressEvent(self, event)
-        else:
-            self.blockSignals(True)
-            self.normalize_state()
-            QComboBox.keyPressEvent(self, event)
-            self.blockSignals(False)
+            return QComboBox.keyPressEvent(self, event)
+        self.blockSignals(True)
+        self.normalize_state()
+        if k == Qt.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+            self.setCurrentIndex(1), self.setCurrentIndex(0)
+            event.accept()
+            return
+        QComboBox.keyPressEvent(self, event)
+        self.blockSignals(False)
 
     def completer_used(self, text):
         self.timer.stop()
