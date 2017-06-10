@@ -1161,6 +1161,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                 val = val.split(',')
                 self.db.set_languages(id, val)
             else:
+                if column == 'authors' and val:
+                    val = authors_to_string(string_to_authors(val))
                 books_to_refresh |= self.db.set(row, column, val,
                                                 allow_case_change=True)
             self.refresh_ids(list(books_to_refresh), row)
