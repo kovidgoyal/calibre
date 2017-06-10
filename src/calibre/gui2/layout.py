@@ -170,10 +170,11 @@ class LocationManager(QObject):  # {{{
 # }}}
 
 
-class SearchBar(QWidget):  # {{{
+class SearchBar(QFrame):  # {{{
 
     def __init__(self, parent):
-        QWidget.__init__(self, parent)
+        QFrame.__init__(self, parent)
+        self.setFrameStyle(QFrame.NoFrame)
         self.setObjectName('search_bar')
         self._layout = l = QHBoxLayout(self)
         l.setContentsMargins(0, 4, 0, 4)
@@ -197,8 +198,7 @@ class SearchBar(QWidget):  # {{{
         x.setToolTip(_('Close the Virtual library'))
         parent.clear_vl = x
         self.vl_sep = QFrame(self)
-        self.vl_sep.setFrameShape(QFrame.VLine)
-        self.vl_sep.setFrameShadow(QFrame.Sunken)
+        self.vl_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
         l.addWidget(self.vl_sep)
 
         x = parent.search = SearchBox2(self)
@@ -297,9 +297,7 @@ class MainWindowMixin(object):  # {{{
         self.centralwidget = QWidget(self)
         self.setCentralWidget(self.centralwidget)
         self._central_widget_layout = l = QVBoxLayout(self.centralwidget)
-        m = l.contentsMargins()
-        m.setTop(0), m.setBottom(0)
-        l.setContentsMargins(m)
+        l.setContentsMargins(0, 0, 0, 0)
         l.setSpacing(0)
         self.resize(1012, 740)
         self.location_manager = LocationManager(self)
@@ -311,8 +309,10 @@ class MainWindowMixin(object):  # {{{
                 self.location_manager, self)
         for bar in self.bars_manager.main_bars:
             self.addToolBar(Qt.TopToolBarArea, bar)
+            bar.setStyleSheet('QToolBar { border: 0px }')
         for bar in self.bars_manager.child_bars:
             self.addToolBar(Qt.BottomToolBarArea, bar)
+            bar.setStyleSheet('QToolBar { border: 0px }')
         self.bars_manager.update_bars()
         # This is disabled because it introduces various toolbar related bugs
         # The width of the toolbar becomes the sum of both toolbars
