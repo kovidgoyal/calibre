@@ -176,7 +176,7 @@ class SearchBar(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.setObjectName('search_bar')
         self._layout = l = QHBoxLayout(self)
-        l.setContentsMargins(0,5,0,0)
+        l.setContentsMargins(0, 4, 0, 4)
 
         x = parent.virtual_library = QToolButton(self)
         x.setCursor(Qt.PointingHandCursor)
@@ -300,6 +300,7 @@ class MainWindowMixin(object):  # {{{
         m = l.contentsMargins()
         m.setTop(0), m.setBottom(0)
         l.setContentsMargins(m)
+        l.setSpacing(0)
         self.resize(1012, 740)
         self.location_manager = LocationManager(self)
 
