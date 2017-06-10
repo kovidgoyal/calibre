@@ -181,6 +181,7 @@ class SearchBar(QWidget):  # {{{
         x = QToolButton(self)
         x.setCursor(Qt.PointingHandCursor)
         x.setText(_('Virtual library'))
+        x.setAutoRaise(True)
         x.setIcon(QIcon(I('lt.png')))
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
@@ -222,6 +223,7 @@ class SearchBar(QWidget):  # {{{
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.search_button.setText(_('Search'))
+        self.search_button.setAutoRaise(True)
         self.search_button.setCursor(Qt.PointingHandCursor)
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
@@ -242,6 +244,7 @@ class SearchBar(QWidget):  # {{{
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.copy_search_button = QToolButton(self)
+        x.setAutoRaise(True)
         x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
@@ -250,6 +253,7 @@ class SearchBar(QWidget):  # {{{
         x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.save_search_button = RightClickButton(self)
+        x.setAutoRaise(True)
         x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
@@ -262,6 +266,7 @@ class SearchBar(QWidget):  # {{{
         ))
         x.setCursor(Qt.PointingHandCursor)
         x.setPopupMode(x.InstantPopup)
+        x.setAutoRaise(True)
         x.setIcon(QIcon(I("bookmarks.png")))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
