@@ -320,7 +320,7 @@ class GridViewButton(LayoutButton):  # {{{
 class SearchBarButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
-        sc = 'Shift+Alt+/'
+        sc = 'Shift+Alt+F'
         LayoutButton.__init__(self, I('search.png'), _('Search bar'), parent=gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
