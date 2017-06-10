@@ -174,6 +174,7 @@ class SearchBar(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.setObjectName('search_bar')
         self._layout = l = QHBoxLayout(self)
         l.setContentsMargins(0,5,0,0)
 
@@ -199,12 +200,6 @@ class SearchBar(QWidget):  # {{{
         self.vl_sep.setFrameShape(QFrame.VLine)
         self.vl_sep.setFrameShadow(QFrame.Sunken)
         l.addWidget(self.vl_sep)
-
-        x = QLabel(self)
-        x.setObjectName("search_count")
-        l.addWidget(x)
-        parent.search_count = x
-        x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
