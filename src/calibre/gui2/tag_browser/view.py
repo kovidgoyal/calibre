@@ -692,6 +692,8 @@ class TagsView(QTreeView):  # {{{
             self.context_menu.addSeparator()
             self.context_menu.addAction(_('E&xpand all children'), partial(self.expand_node_and_descendants, index))
 
+        self.context_menu.addAction(_('Collapse all levels'), self.collapseAll)
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True

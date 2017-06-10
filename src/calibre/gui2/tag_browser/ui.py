@@ -373,6 +373,8 @@ class TagBrowserWidget(QWidget):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setCursor(Qt.PointingHandCursor)
+        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.search_button.setIcon(QIcon(I('search.png')))
         self.search_button.setText(_('Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         search_layout.addWidget(self.search_button)
@@ -383,21 +385,12 @@ class TagBrowserWidget(QWidget):  # {{{
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
-        self.expand_button = QToolButton()
-        self.expand_button.setAutoRaise(True)
-        self.expand_button.setCursor(Qt.PointingHandCursor)
-        self.expand_button.setText('▸')
-        self.expand_button.setToolTip(_('Collapse all categories'))
-        search_layout.insertWidget(0, self.expand_button)
-        search_layout.setStretch(0, 10)
-        search_layout.setStretch(1, 1)
-        search_layout.setStretch(2, 1)
-        ac = QAction(parent)
+        self.collapse_all_action = ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser collapse all',
                 _('Collapse all'), default_keys=(),
                 action=ac, group=_('Tag browser'))
-        ac.triggered.connect(self.expand_button.clicked)
+        ac.triggered.connect(lambda : self.tags_view.collapseAll())
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
@@ -409,7 +402,6 @@ class TagBrowserWidget(QWidget):  # {{{
 
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
-        self.expand_button.clicked.connect(self.tags_view.collapseAll)
         self._layout.addWidget(parent.tags_view)
 
         # Now the floating 'not found' box
