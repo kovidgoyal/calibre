@@ -1013,8 +1013,12 @@ class Splitter(QSplitter):
 
     def __init__(self, name, label, icon, initial_show=True,
             initial_side_size=120, connect_button=True,
-            orientation=Qt.Horizontal, side_index=0, parent=None, shortcut=None):
+            orientation=Qt.Horizontal, side_index=0, parent=None,
+            shortcut=None, hide_handle_on_single_panel=True):
         QSplitter.__init__(self, parent)
+        if hide_handle_on_single_panel:
+            self.state_changed.connect(self.update_handle_width)
+        self.original_handle_width = self.handleWidth()
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         self.desired_side_size = initial_side_size
@@ -1063,6 +1067,9 @@ class Splitter(QSplitter):
     def splitter_moved(self, *args):
         self.desired_side_size = self.side_index_size
         self.state_changed.emit(not self.is_side_index_hidden)
+
+    def update_handle_width(self, not_one_panel):
+        self.setHandleWidth(self.original_handle_width if not_one_panel else 0)
 
     @property
     def is_side_index_hidden(self):
