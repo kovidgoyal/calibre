@@ -294,7 +294,7 @@ class MainWindowMixin(object):  # {{{
         self.setCentralWidget(self.centralwidget)
         self._central_widget_layout = l = QVBoxLayout(self.centralwidget)
         m = l.contentsMargins()
-        m.setTop(0), m.setBottom(2)
+        m.setTop(0), m.setBottom(0)
         l.setContentsMargins(m)
         self.resize(1012, 740)
         self.location_manager = LocationManager(self)
