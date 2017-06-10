@@ -468,15 +468,14 @@ class JobsButton(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.mouse_over = False
         self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PM_ToolBarIconSize))
-        self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
+        self._jobs = QLabel('<b>'+_('Jobs:')+' 0 ')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
         self.shortcut = 'Shift+Alt+J'
 
-        self.setLayout(QHBoxLayout())
-        self.layout().setDirection(self.layout().RightToLeft)
-
-        self.layout().addWidget(self._jobs)
-        self.layout().addWidget(self.pi)
+        self.l = l = QHBoxLayout(self)
+        l.setSpacing(3)
+        l.addWidget(self.pi)
+        l.addWidget(self._jobs)
         m = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.layout().setContentsMargins(m, m, m, m)
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
