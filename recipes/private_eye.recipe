@@ -130,7 +130,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         else:
             self.log.warning('Cover image NOT found')
 
-        # Get publication date as 14 days before next publication date
+        # Get publication cover date as 12 days before next publication date
         for tag in soup.findAll('span', {'class': 'only-smallest'}):
             tag_contents = tag.contents
             if tag_contents[0].string.lower().split()[:2] == ["next", "issue"]:
@@ -141,7 +141,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                         " ".join((day, month, year)),
                         "%d %B %Y"
                     )
-                    date = date - timedelta(14)
+                    date = date - timedelta(12)
                     self.publication_date = datetime.strftime(
                         date,
                         "%d %B %Y"
