@@ -141,7 +141,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                         " ".join((day, month, year)),
                         "%d %B %Y"
                     )
-                    date = date - timedelta(14)
+                    date = date - timedelta(12)
                     self.publication_date = datetime.strftime(
                         date,
                         "%d %B %Y"
