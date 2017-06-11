@@ -69,6 +69,10 @@ class BuildTest(unittest.TestCase):
         from calibre.ebooks.oeb.polish.parsing import parse_html5
         parse_html5('<p>xxx')
 
+    def test_html5_parser(self):
+        from html5_parser import parse
+        parse('<p>xxx')
+
     def test_plugins(self):
         exclusions = set()
         if is_ci:
