@@ -270,6 +270,26 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
 
+        parent.sort_sep = QFrame(self)
+        parent.sort_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        parent.sort_sep.setVisible(False)
+        l.addWidget(parent.sort_sep)
+        parent.sort_button = self.sort_button = sb = QToolButton(self)
+        sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        sb.setCursor(Qt.PointingHandCursor)
+        sb.setPopupMode(QToolButton.InstantPopup)
+        sb.setAutoRaise(True)
+        sb.setText(_('Sort'))
+        sb.setIcon(QIcon(I('sort.png')))
+        sb.setMenu(QMenu())
+        sb.menu().aboutToShow.connect(self.populate_sort_menu)
+        sb.setVisible(False)
+        l.addWidget(sb)
+
+    def populate_sort_menu(self):
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['Sort By'].update_menu(self.sort_button.menu())
+
 # }}}
 
 

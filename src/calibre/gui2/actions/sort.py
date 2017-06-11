@@ -38,13 +38,16 @@ class SortByAction(InterfaceAction):
 
     def genesis(self):
         self.sorted_icon = QIcon(I('ok.png'))
-        self.qaction.menu().aboutToShow.connect(self.update_menu)
+        self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
     def location_selected(self, loc):
         self.qaction.setEnabled(loc == 'library')
 
-    def update_menu(self):
-        menu = self.qaction.menu()
+    def about_to_show(self):
+        self.update_menu()
+
+    def update_menu(self, menu=None):
+        menu = self.qaction.menu() if menu is None else menu
         for action in menu.actions():
             action.sort_requested.disconnect()
         menu.clear()
@@ -57,7 +60,6 @@ class SortByAction(InterfaceAction):
             sort_col, order = 'date', True
         fm = db.field_metadata
         name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
-        self._sactions = []
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:
