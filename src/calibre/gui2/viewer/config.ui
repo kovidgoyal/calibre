@@ -68,7 +68,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>799</width>
-            <height>370</height>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -240,8 +240,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>370</height>
+            <width>371</width>
+            <height>312</height>
            </rect>
           </property>
           <attribute name="label">
@@ -414,8 +414,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>370</height>
+            <width>395</width>
+            <height>212</height>
            </rect>
           </property>
           <attribute name="label">
@@ -516,8 +516,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>370</height>
+            <width>349</width>
+            <height>76</height>
            </rect>
           </property>
           <attribute name="label">
@@ -596,179 +596,149 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>799</width>
-            <height>370</height>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Page fl&amp;ip/scrolling options</string>
           </attribute>
-          <widget class="QLabel" name="label_11">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>9</y>
-             <width>111</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Page flip &amp;duration:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_page_flip_duration</cstring>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
-           <property name="geometry">
-            <rect>
-             <x>251</x>
-             <y>9</y>
-             <width>76</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="specialValueText">
-            <string>disabled</string>
-           </property>
-           <property name="suffix">
-            <string> secs</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.500000000000000</double>
-           </property>
-          </widget>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>115</y>
-             <width>374</width>
-             <height>91</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>Scrolling in flow mode</string>
-           </property>
-           <layout class="QFormLayout" name="formLayout_3">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
-               <string>Control the amount the mouse &amp;wheel scrolls:</string>
-              </property>
-              <property name="buddy">
-               <cstring>opt_wheel_scroll_fraction</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="opt_wheel_scroll_fraction">
-              <property name="toolTip">
-               <string>This is a percentage, by making it less than 100 you can decrease the amount the wheel scrolls by, by making it more than 100 you can increase the scroll amount.</string>
-              </property>
-              <property name="suffix">
-               <string> %</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>2000</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_30">
-              <property name="text">
-               <string>Control the amount the arrow &amp;keys scroll:</string>
-              </property>
-              <property name="buddy">
-               <cstring>opt_line_scroll_fraction</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QSpinBox" name="opt_line_scroll_fraction">
-              <property name="toolTip">
-               <string>This is a percentage, by making it less than 100 you can decrease the amount the arrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
-              </property>
-              <property name="suffix">
-               <string> %</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>2000</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QCheckBox" name="opt_tap_flips_pages">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>37</y>
-             <width>219</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>&amp;Tapping on the page flips pages</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="opt_wheel_flips_pages">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>63</y>
-             <width>174</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Mouse &amp;wheel flips pages</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>89</y>
-             <width>236</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Line &amp;scrolling stops at page breaks</string>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="vlayout123">
+           <item>
+            <layout class="QFormLayout" name="formLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Page flip &amp;duration:</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_page_flip_duration</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
+               <property name="specialValueText">
+                <string>disabled</string>
+               </property>
+               <property name="suffix">
+                <string> secs</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>3.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.500000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="opt_tap_flips_pages">
+               <property name="text">
+                <string>&amp;Tapping on the page flips pages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="opt_wheel_flips_pages">
+               <property name="text">
+                <string>Mouse &amp;wheel flips pages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
+               <property name="text">
+                <string>Line &amp;scrolling stops at page breaks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Scrolling in flow mode</string>
+               </property>
+               <layout class="QFormLayout" name="formLayout_3">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_29">
+                  <property name="text">
+                   <string>Control the amount the mouse &amp;wheel scrolls:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_wheel_scroll_fraction</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="opt_wheel_scroll_fraction">
+                  <property name="toolTip">
+                   <string>This is a percentage, by making it less than 100 you can decrease the amount the wheel scrolls by, by making it more than 100 you can increase the scroll amount.</string>
+                  </property>
+                  <property name="suffix">
+                   <string> %</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>Control the amount the arrow &amp;keys scroll:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_line_scroll_fraction</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="opt_line_scroll_fraction">
+                  <property name="toolTip">
+                   <string>This is a percentage, by making it less than 100 you can decrease the amount the arrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
+                  </property>
+                  <property name="suffix">
+                   <string> %</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="page_4">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>370</height>
+            <width>505</width>
+            <height>304</height>
            </rect>
           </property>
           <attribute name="label">
