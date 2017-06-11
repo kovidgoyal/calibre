@@ -276,6 +276,7 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(parent.sort_sep)
         parent.sort_button = self.sort_button = sb = QToolButton(self)
         sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        sb.setToolTip(_('Change how the displayed books are sorted'))
         sb.setCursor(Qt.PointingHandCursor)
         sb.setPopupMode(QToolButton.InstantPopup)
         sb.setAutoRaise(True)
