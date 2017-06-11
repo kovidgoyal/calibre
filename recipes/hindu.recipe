@@ -6,6 +6,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import string
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheHindu(BasicNewsRecipe):
     title = u'The Hindu'
     language = 'en_IN'
@@ -14,11 +20,19 @@ class TheHindu(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
     no_stylesheets = True
+    remove_attributes = ['style']
 
-    auto_cleanup = True
     ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'title'}),
+        classes('lead-img-cont mobile-author-cont'),
+        dict(id=lambda x: x and x.startswith('content-body-')),
+    ]
 
-    extra_css = '.photo-caption { font-size: smaller }'
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src-template': True}):
+            img['src'] = img['data-src-template'].replace('BINARY/thumbnail', 'alternates/FREE_660')
+        return soup
 
     def articles_from_soup(self, soup):
         ans = []
@@ -34,8 +48,11 @@ class TheHindu(BasicNewsRecipe):
                     continue
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                ans.append({'title': title, 'url': url,
-                                            'description': '', 'date': ''})
+                ans.append({
+                    'title': title,
+                    'url': url,
+                    'description': '',
+                    'date': ''})
         return ans
 
     def parse_index(self):
@@ -64,21 +81,11 @@ class TheHindu(BasicNewsRecipe):
 
     def is_accepted_entry(self, entry):
         # Those sections in the top nav bar that we will omit
-        omit_list = ['tp-tamilnadu',
-                     'tp-karnataka',
-                     'tp-kerala',
-                     'tp-andhrapradesh',
-                     'tp-telangana',
-                     'tp-newdelhi',
-                     'tp-mumbai',
-                     'tp-otherstates',
-                     'tp-in-school',
-                     'tp-metroplus',
-                     'tp-youngworld',
-                     'tp-fridayreview',
-                     'tp-downtown',
-                     'tp-bookreview',
-                     'tp-others']
+        omit_list = [
+            'tp-tamilnadu', 'tp-karnataka', 'tp-kerala', 'tp-andhrapradesh',
+            'tp-telangana', 'tp-newdelhi', 'tp-mumbai', 'tp-otherstates',
+            'tp-in-school', 'tp-metroplus', 'tp-youngworld', 'tp-fridayreview',
+            'tp-downtown', 'tp-bookreview', 'tp-others']
 
         is_accepted = True
         for omit_entry in omit_list:
