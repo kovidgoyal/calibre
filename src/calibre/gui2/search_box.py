@@ -604,7 +604,7 @@ class SavedSearchBoxMixin(object):  # {{{
             current_search = self.search.currentText()
             if not current_search.startswith('search:"'):
                 raise ValueError()
-            current_search = current_search[8:-1]
+            current_search = current_search[8:-1].lstrip('=')
             current_search = db.saved_search_lookup(current_search)
             if not current_search:
                 raise ValueError()
