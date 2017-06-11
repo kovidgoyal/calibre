@@ -50,14 +50,18 @@ def serialize_recipe(urn, recipe_class):
         ns = 'no'
     if ns is True:
         ns = 'yes'
-    return E.recipe({
+    args = {
         'id'                 : str(urn),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
         'language'           : attr('language', 'und'),
         'needs_subscription' : ns,
         'description'        : attr('description', '')
-        })
+        }
+    co = attr('conversion_options',None)
+    if co is not None and isinstance(co,dict):
+        args.update(co)
+    return E.recipe(args)
 
 
 def serialize_collection(mapping_of_recipe_classes):
