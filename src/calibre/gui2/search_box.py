@@ -567,7 +567,7 @@ class SavedSearchBoxMixin(object):  # {{{
         m = self.add_saved_search_button.menu()
         m.clear()
         m.addAction(QIcon(I('plus.png')), _('Add Saved search'), self.add_saved_search)
-        m.addAction(QIcon(I("search_copy_saved.png")), _('Get Saved search text'),
+        m.addAction(QIcon(I("search_copy_saved.png")), _('Get Saved search expression'),
                     self.get_saved_search_text)
         m.addActions(list(self.save_search_button.menu().actions())[-1:])
         m.addSeparator()
@@ -602,9 +602,11 @@ class SavedSearchBoxMixin(object):  # {{{
         db = self.current_db
         try:
             current_search = self.search.currentText()
-            if not current_search.startswith('search:"'):
+            if not current_search.startswith('search:'):
                 raise ValueError()
-            current_search = current_search[8:-1].lstrip('=')
+            # This strange expression accounts for the four ways a search can be written:
+            # search:fff, search:"fff", search:"=fff". and search:="fff"
+            current_search = current_search[7:].lstrip('=').strip('"').lstrip('=')
             current_search = db.saved_search_lookup(current_search)
             if not current_search:
                 raise ValueError()
