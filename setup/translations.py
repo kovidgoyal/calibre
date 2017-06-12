@@ -36,7 +36,9 @@ class POT(Command):  # {{{
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
         if hasattr(cmd, 'format'):
             cmd = shlex.split(cmd)
-        return subprocess.check_call(['tx', '--traceback'] + cmd, **kw)
+        cmd = ['tx', '--traceback'] + cmd
+        self.info(' '.join(cmd))
+        return subprocess.check_call(cmd, **kw)
 
     def git(self, cmd, **kw):
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
@@ -45,7 +47,7 @@ class POT(Command):  # {{{
         f = getattr(subprocess, ('call' if kw.pop('use_call', False) else 'check_call'))
         return f(['git'] + cmd, **kw)
 
-    def upload_pot(self, pot, resource='main'):
+    def upload_pot(self, resource):
         self.tx(['push', '-r', 'calibre.'+resource, '-s'], cwd=self.TRANSLATIONS)
 
     def source_files(self):
@@ -97,7 +99,7 @@ class POT(Command):  # {{{
         dest = self.j(self.TRANSLATIONS, 'content-server', 'content-server.pot')
         with open(dest, 'wb') as f:
             f.write(pottext)
-        self.upload_pot(dest, resource='content_server')
+        self.upload_pot(resource='content_server')
         self.git(['add', dest])
 
     def get_user_manual_docs(self):
@@ -128,15 +130,28 @@ class POT(Command):  # {{{
                         self.info('Failed to add file_filter to config file')
                         raise SystemExit(1)
                 self.git('add .tx/config')
-            self.upload_pot(dest, resource=slug)
+            self.upload_pot(resource=slug)
             self.git(['add', dest])
         shutil.rmtree(base)
 
-    def run(self, opts):
-        require_git_master()
-        self.get_content_server_strings()
-        self.get_user_manual_docs()
-        pot_header = textwrap.dedent('''\
+    def get_website_strings(self):
+        self.info('Generating translation template for website')
+        self.wn_path = os.path.expanduser('~/work/srv/main/static/generate.py')
+        data = subprocess.check_output([self.wn_path, '--pot'])
+        bdir = os.path.join(self.TRANSLATIONS, 'website')
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
+        pot = os.path.join(bdir, 'website.pot')
+        with open(pot, 'wb') as f:
+            f.write(self.pot_header().encode('utf-8'))
+            f.write(b'\n')
+            f.write(data)
+        self.info('Website translations:', os.path.abspath(pot))
+        self.upload_pot(resource='website')
+        self.git(['add', os.path.abspath(pot)])
+
+    def pot_header(self, appname=__appname__, version=__version__):
+        return textwrap.dedent('''\
         # Translation template file..
         # Copyright (C) %(year)s Kovid Goyal
         # Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
@@ -154,12 +169,18 @@ class POT(Command):  # {{{
         "Content-Type: text/plain; charset=UTF-8\\n"
         "Content-Transfer-Encoding: 8bit\\n"
 
-        ''')%dict(appname=__appname__, version=__version__,
+        ''')%dict(appname=appname, version=version,
                 year=time.strftime('%Y'),
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
+    def run(self, opts):
+        require_git_master()
+        self.get_website_strings()
+        self.get_content_server_strings()
+        self.get_user_manual_docs()
         files = self.source_files()
         qt_inputs = qt_sources()
+        pot_header = self.pot_header()
 
         with tempfile.NamedTemporaryFile() as fl:
             fl.write('\n'.join(files))
@@ -194,8 +215,7 @@ class POT(Command):  # {{{
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
-            self.upload_pot(os.path.abspath(pot))
-
+            self.upload_pot(resource='main')
             self.git(['add', os.path.abspath(pot)])
 
         if self.git('diff-index --cached --quiet --ignore-submodules HEAD --', use_call=True) != 0:
