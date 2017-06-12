@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar,
-        QVBoxLayout, QWidget, QSplitter, QToolButton, QIcon)
+        QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar, QStyle,
+        QVBoxLayout, QWidget, QSplitter, QToolButton, QIcon, QPainter, QStyleOption)
 
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key, primary_sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
-from calibre.gui2 import config, is_widescreen, gprefs, error_dialog
+from calibre.gui2 import config, is_widescreen, gprefs, error_dialog, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.widgets import Splitter, LayoutButton
@@ -210,6 +210,44 @@ class UpdateLabel(QLabel):  # {{{
 # }}}
 
 
+class VersionLabel(QLabel):  # {{{
+
+    def __init__(self, parent):
+        QLabel.__init__(self, parent)
+        self.mouse_over = False
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip(_('See what\'s new in this calibre release'))
+
+    def mouseReleaseEvent(self, ev):
+        open_url('https://calibre-ebook.com/whats-new')
+        ev.accept()
+        return QLabel.mouseReleaseEvent(self, ev)
+
+    def event(self, ev):
+        m = None
+        et = ev.type()
+        if et == ev.Enter:
+            m = True
+        elif et == ev.Leave:
+            m = False
+        if m is not None and m != self.mouse_over:
+            self.mouse_over = m
+            self.update()
+        return QLabel.event(self, ev)
+
+    def paintEvent(self, ev):
+        if self.mouse_over:
+            p = QPainter(self)
+            tool = QStyleOption()
+            tool.rect = self.rect()
+            tool.state = QStyle.State_Raised | QStyle.State_Active | QStyle.State_MouseOver
+            s = self.style()
+            s.drawPrimitive(QStyle.PE_PanelButtonTool, tool, p, self)
+            p.end()
+        return QLabel.paintEvent(self, ev)
+# }}}
+
+
 class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
@@ -224,7 +262,7 @@ class StatusBar(QStatusBar):  # {{{
         self._font = QFont()
         self._font.setBold(True)
         self.setFont(self._font)
-        self.defmsg = QLabel('')
+        self.defmsg = VersionLabel(self)
         self.defmsg.setFont(self._font)
         self.addWidget(self.defmsg)
         self.set_label()
