@@ -12,7 +12,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
-    QTimer, QMenu, QActionGroup, QAction)
+    QTimer, QMenu, QActionGroup, QAction, QSizePolicy)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.widgets import HistoryLineEdit
@@ -345,6 +345,7 @@ class TagBrowserBar(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         parent = parent.parent()
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
