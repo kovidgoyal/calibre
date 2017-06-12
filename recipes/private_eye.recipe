@@ -86,7 +86,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             date = self.publication_date
         if url and url not in self.urls:
             self.urls.append(url)
-            self.log.info(
+            self.
+            info(
                 "Page added: %s: %s: %s (%s)" % (date, title, description, url)
             )
             self.current_articles.append({
@@ -103,6 +104,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # Process the Index page to get the content for the ebook
     def parse_index(self):
+        self.log.info('Private Eye: Parse Index: %s' % INDEX)
         self.page_index = []
 
         soup = self.index_to_soup(self.INDEX)
@@ -228,5 +230,7 @@ It offers a unique blend of humour, social and political observations and invest
  Published fortnightly, the magazine is read by over 700,000 readers and costs just £1.80 an issue.""",
             date="")
         self.page_index_append("About Private Eye")
+        
+        self.log.info('Private Eye: Parse Index complete')
 
         return self.page_index
