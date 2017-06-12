@@ -30,7 +30,7 @@
 
     - title: "Book details panel: Clicking an author name now searches Goodreads by default instead of Wikipedia. Can be changed in Preferences->Look & feel->Book details"
 
-    - title: "Kobo driver: Add support for the Kobo Auro H2O Edition 2"
+    - title: "Kobo driver: Add support for the Kobo Aura H2O Edition 2"
 
   bug fixes:
     - title: "PDF output: Fix a regression in the previous release that broke conversion to PDF for some files."
@@ -1702,7 +1702,7 @@
 
     - title: "When sending books without a cover to the device, generate a cover with book metadata instead of using the blank book icon"
 
-    - title: "Preferenes->Add your own columns: Show more information about existing columns"
+    - title: "Preferences->Add your own columns: Show more information about existing columns"
 
   bug fixes:
     - title: "PDF output: Handle input documents with fonts that do not have either postscript or full name information."
