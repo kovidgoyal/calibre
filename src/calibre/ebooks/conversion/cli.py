@@ -331,31 +331,29 @@ def abspath(x):
 
 
 def read_sr_patterns(path, log=None):
-    import json, re, codecs
+    import json, re
     pats = []
-    with codecs.open(path, 'r', 'utf-8') as f:
-        pat = None
-        for line in f.readlines():
-            if line.endswith(u'\n'):
-                line = line[:-1]
-
-            if pat is None:
-                if not line.strip():
-                    continue
-                try:
-                    re.compile(line)
-                except:
-                    msg = u'Invalid regular expression: %r from file: %r'%(
-                            line, path)
-                    if log is not None:
-                        log.error(msg)
-                        raise SystemExit(1)
-                    else:
-                        raise ValueError(msg)
-                pat = line
-            else:
-                pats.append((pat, line))
-                pat = None
+    with open(path, 'rb') as f:
+        lines = f.read().decode('utf-8').splitlines()
+    pat = None
+    for line in lines:
+        if pat is None:
+            if not line.strip():
+                continue
+            try:
+                re.compile(line)
+            except:
+                msg = u'Invalid regular expression: %r from file: %r'%(
+                        line, path)
+                if log is not None:
+                    log.error(msg)
+                    raise SystemExit(1)
+                else:
+                    raise ValueError(msg)
+            pat = line
+        else:
+            pats.append((pat, line))
+            pat = None
     return json.dumps(pats)
 
 
