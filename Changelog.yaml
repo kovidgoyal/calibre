@@ -1,4 +1,4 @@
-# vim:fileencoding=UTF-8:ts=2:sw=2:sta:et:sts=2:ai
+# vim:fileencoding=utf-8:ts=2:sw=2:sta:et:sts=2:ai
 # Each release can have new features and bug fixes. Each of which
 # must have a title and can optionally have linked tickets and a description.
 # In addition they can have a type field which defaults to minor, but should be major
@@ -1889,7 +1889,7 @@
 
     - title: "Edit book: Fix order of checkboxes in filter style information tool is random"
 
-    - title: "PDB input: Igore malformed metadata records"
+    - title: "PDB input: Ignore malformed metadata records"
       tickets: [1499878]
 
     - title: "Revert change in previous release to workaround broken xdg-open on Linux. Apparently xdg-open is so badly broken that working around it is not possible"
