@@ -603,7 +603,7 @@ class DeviceManager(Thread):  # {{{
                      metadata=None, plugboards=None, add_as_step_to_job=None):
         desc = ngettext('Upload one book to the device', 'Upload {} books to the device', len(names)).format(len(names))
         if titles:
-            desc += u':' + u', '.join(titles)
+            desc += u': ' + u', '.join(titles)
         return self.create_job_step(self._upload_books, done, to_job=add_as_step_to_job,
                                args=[files, names],
                 kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)

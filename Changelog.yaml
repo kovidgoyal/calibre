@@ -33,19 +33,19 @@
     - title: "Kobo driver: Add support for the Kobo Auro H2O Edition 2"
 
   bug fixes:
-    - title: "PDF Output: Fix a regression in the previous release that broke conversion to PDF for some files."
+    - title: "PDF output: Fix a regression in the previous release that broke conversion to PDF for some files."
       tickets: [1689192]
 
-    - title: "DOCX Output: Fix lengths specified in percentage of page size not being converted correctly."
+    - title: "DOCX output: Fix lengths specified in percentage of page size not being converted correctly."
       tickets: [1688690]
 
-    - title: "DOCX Output: Fix some hyperlinks not working in word because the bookmark name is longer than forty characters."
+    - title: "DOCX output: Fix some hyperlinks not working in word because the bookmark name is longer than forty characters."
       tickets: [1688690]
 
-    - title: "DOCX Output: Prevent images from being larger than the page size."
+    - title: "DOCX output: Prevent images from being larger than the page size."
       tickets: [1688690]
 
-    - title: "Comic Input: Fix the number of colors control not allowing values less than 8"
+    - title: "Comic input: Fix the number of colors control not allowing values less than 8"
 
     - title: "Kobo driver: Fix main memory and Card A being swapped on some systems"
 
@@ -69,9 +69,9 @@
   new features:
     - title: "Kindle driver: Also delete book thumbnails from the system directory when deleting books."
 
-    - title: "Conversion: Use the same regular expression engine as is used by the Edit Book tool. The new engine has much better support for Unicode characters/character classes."
+    - title: "Conversion: Use the same regular expression engine as is used by the Edit book tool. The new engine has much better support for Unicode characters/character classes."
 
-    - title: "Edit Book: Add keyboard shortcuts to jump to opening and closing tags (Ctrl+{ and Ctrl+})"
+    - title: "Edit book: Add keyboard shortcuts to jump to opening and closing tags (Ctrl+{ and Ctrl+})"
 
     - title: "Add API to pre-process image data in recipes easily"
 
@@ -80,30 +80,30 @@
   bug fixes:
     - title: "E-book viewer: Fix a regression in the previous release that broke printing from inside the viewer."
 
-    - title: "DOCX Output: When the input document contains paragraphs inside a block with a background color preserve the background color in the resulting paragraphs in the DOCX document."
+    - title: "DOCX output: When the input document contains paragraphs inside a block with a background color preserve the background color in the resulting paragraphs in the DOCX document."
       tickets: [1683188]
 
-    - title: "DOCX Output: Fix links to empty inline tags not working."
+    - title: "DOCX output: Fix links to empty inline tags not working."
       tickets: [1683188]
 
-    - title: "DOCX Input: Fix links that point to anchors placed in empty paragraphs not working."
+    - title: "DOCX input: Fix links that point to anchors placed in empty paragraphs not working."
       tickets: [1683017]
 
-    - title: "PDF Output: Do not crash when unable to find page for link destination, instead use previous page."
+    - title: "PDF output: Do not crash when unable to find page for link destination, instead use previous page."
       tickets: [1687914]
 
-    - title: "Edit Book: Fix sorting by language in Report->Words not working"
+    - title: "Edit book: Fix sorting by language in Report->Words not working"
 
-    - title: "Edit Book: Fix drag and drop of multiple items in the File Browser causing item order to be reversed."
+    - title: "Edit book: Fix drag and drop of multiple items in the File Browser causing item order to be reversed."
 
-    - title: "Get Books: Update Baen store plugin for website changes"
+    - title: "Get books: Update Baen store plugin for website changes"
 
     - title: "Linux: When adding books from directories ignore files that have undecodable names."
       tickets: [1685819]
 
     - title: "AZW3: Preserve the primary-writing-mode EXTH header field when round-tripping AZW3 files. Should fix editing/conversion of RTL AZW3 files causing page turning to become left-to-right on the Kindle"
 
-    - title: "AZW3 Output: Set the primary-writing-mode EXTH header when the input document has page-progression-direction set to RTL as this is apparently required on newer Kindle firmware for right-to-left page turning"
+    - title: "AZW3 output: Set the primary-writing-mode EXTH header when the input document has page-progression-direction set to RTL as this is apparently required on newer Kindle firmware for right-to-left page turning"
 
     - title: "Fix a misbehaving wireless device connection can cause calibre to hang when opening the Connect/Share menu."
       tickets: [1676522]
@@ -121,10 +121,10 @@
   date: 2017-04-15
 
   new features:
-    - title: "PDF Output: Default to generating PDFs with a page size of letter instead of taking the page size from the output profile."
-      description: 'This avoids user confusion/bug reports about PDF Output having "too large fonts". There is a new option "Use profile size" to have the conversion use the output profile page size instead.'
+    - title: "PDF output: Default to generating PDFs with a page size of letter instead of taking the page size from the output profile."
+      description: 'This avoids user confusion/bug reports about PDF output having "too large fonts". There is a new option "Use profile size" to have the conversion use the output profile page size instead.'
 
-    - title: "PDF/DOCX Output: Add separate, pdf/docx specific, page margin settings that override the common settings."
+    - title: "PDF/DOCX output: Add separate, pdf/docx specific, page margin settings that override the common settings."
       description: "Useful because page margin settings for page oriented formats, such as PDF and DOCX are usually different than those for reflowable formats such as EPUB"
 
     - title: "Table of Contents tool: Add an undo button"
@@ -149,7 +149,7 @@
     - title: "Amazon metadata download: Fix title and author names being bold in the downloaded comments when using bing to get amazon metadata."
       tickets: [1674088]
 
-    - title: "PDF Output: Fix a regression that broke PDF Output for documents containing mathematics."
+    - title: "PDF output: Fix a regression that broke PDF output for documents containing mathematics."
       tickets: [1673983]
 
     - title: 'E-book viewer: Fix a regression that broke the "Clear recently read books" action in the viewer'
@@ -169,7 +169,7 @@
   date: 2017-03-18
 
   new features:
-    - title: "Edit Book: Saved Searches: Add keyboard shortcut (Alt+Up/Down Arrow) to move selected searches"
+    - title: "Edit book: Saved Searches: Add keyboard shortcut (Alt+Up/Down Arrow) to move selected searches"
 
   bug fixes:
     - title: "Fix a typo in the previous release that caused dynamically updated metadata source plugins to stop working."
@@ -181,10 +181,10 @@
 
     - title: "Amazon metadata download: Fix spurious results when searching for books that are not present on amazon using a search engine."
 
-    - title: "Get Books: Fix free samples being detected as independent books when searching OPDS based stores such as Feedbooks."
+    - title: "Get books: Fix free samples being detected as independent books when searching OPDS based stores such as Feedbooks."
       tickets: [1672500]
 
-    - title: "Edit Book: Saved Searches: Preserve selection when using arrows to move multiple items"
+    - title: "Edit book: Saved Searches: Preserve selection when using arrows to move multiple items"
 
     - title: "Fix template formatter functions not being reloaded after a check library operation"
 
@@ -206,15 +206,15 @@
 
     - title: "Kobo driver: Add support for new firmware"
 
-    - title: "Edit Book: Spell Check dialog: Always add the original word as one of the spelling corrections, so that small edits to the word can be made easily."
+    - title: "Edit book: Spell Check dialog: Always add the original word as one of the spelling corrections, so that small edits to the word can be made easily."
       tickets: [1667914]
 
-    - title: "Edit Book: Saved searched Dialog: Allow re-arranging the saved searches using drag and drop."
+    - title: "Edit book: Saved searched Dialog: Allow re-arranging the saved searches using drag and drop."
       tickets: [1669514]
 
-    - title: "Implement auto update of built-in metadata download plugins, just as for recipes and Get Books plugins. Needed as the websites they get data from often change."
+    - title: "Implement auto update of built-in metadata download plugins, just as for recipes and Get books plugins. Needed as the websites they get data from often change."
 
-    - title: "Edit Book: When inserting full screen images, use the actual image dimensions in the generated SVG code, when available"
+    - title: "Edit book: When inserting full screen images, use the actual image dimensions in the generated SVG code, when available"
 
     - title: "Linux installer: Check that the umask is suitable before running the installer. Should fix breakage on systems where users have changed the user umask but neglected to also alter it for sudo"
 
@@ -224,7 +224,7 @@
     - title: "TXT Input: When detecting the encoding of txt files only use the first four kilobytes of text. Fixes excessively slow conversion of very large text files."
       tickets: [1668246]
 
-    - title: "Get Books: Fix price not being displayed for books from Amazon dues to website changes"
+    - title: "Get books: Fix price not being displayed for books from Amazon dues to website changes"
 
     - title: "GetBooks: Update Google Books plugin for website changes"
 
@@ -258,14 +258,14 @@
 
     - title: "Kobo driver: Add support for updated firmware"
 
-    - title: "Edit Book: Spell Check: If there are no suggestions fill the suggested word box with the original word."
+    - title: "Edit book: Spell Check: If there are no suggestions fill the suggested word box with the original word."
       tickets: [1664284]
 
     - title: "Viewer: add a shortcut (Ctrl+F11) to show/hide toolbars."
       tickets: [1664077]
 
   bug fixes:
-    - title: "PDF Output: Fix courier font not being rendered when converting on windows."
+    - title: "PDF output: Fix courier font not being rendered when converting on windows."
       tickets: [1665835]
 
     - title: "E-mail delivery: Add a Message-ID header when sending emails. Reduces probability of mails sent from calibre being marked as spam"
@@ -273,7 +273,7 @@
     - title: "Save to disk: Fix path shortening being applied to entire save template even when saving to singe directory."
       tickets: [1665964]
 
-    - title: "Get Books: Update the Virualo and Publi store plugins for website changes"
+    - title: "Get books: Update the Virualo and Publi store plugins for website changes"
 
     - title: "Viewer: Fix regression that caused slow opening of some books with missing font/css/image files"
 
@@ -310,16 +310,16 @@
     - title: "Conversion: Fix regression that broke conversion of some epub files when using the 'Remove first image' option."
       tickets: [1660699]
 
-    - title: "Get Books: Update Kobo plugin for website changes"
+    - title: "Get books: Update Kobo plugin for website changes"
 
     - title: "Windows MTP driver: Fix error when enumerating device storage not being reported during debug device detection"
 
-    - title: "Tag Browser: When dragging and dropping a book onto a series increment the series number."
+    - title: "Tag browser: When dragging and dropping a book onto a series increment the series number."
       tickets: [1661588]
 
     - title: "Fix crash when generating covers with Qt 5.8 on linux"
 
-    - title: "Fix Get Books result list and jobs list not being populated on Qt 5.8"
+    - title: "Fix Get books result list and jobs list not being populated on Qt 5.8"
 
     - title: "Fix importing rules in the coloring/icon rules dialog not enabling the apply button"
 
@@ -347,12 +347,12 @@
     - title: "Amazon metadata download: Add support for downloading from amazon.ca"
 
   bug fixes:
-    - title: "Edit Book: Do not condense CSS rules when saving AZW3 files regardless of the value of Preferences->Common Options->Look & Feel->Expand CSS"
+    - title: "Edit book: Do not condense CSS rules when saving AZW3 files regardless of the value of Preferences->Common Options->Look & Feel->Expand CSS"
 
-    - title: "EPUB Output: Fix a duplicate id created in rare circumstances when splitting on page breaks."
+    - title: "EPUB output: Fix a duplicate id created in rare circumstances when splitting on page breaks."
       tickets: [1658744]
 
-    - title: "DOCX Input: Fix error when converting documents that have images pointing to web resources."
+    - title: "DOCX input: Fix error when converting documents that have images pointing to web resources."
       tickets: [1659142]
 
     - title: "E-book viewer: Fix a regression that caused an increase in load times when loading the individual HTML files inside an EPUB book."
@@ -369,7 +369,7 @@
     - title: "HTML Input: Remove the # character from input filenames, for maximum compatibility."
       tickets: [1656833 ]
 
-    - title: "Edit Book: Fix spell check treating the unicode hyphen (U+2010) differently from the normal hyphen (U+002d)."
+    - title: "Edit book: Fix spell check treating the unicode hyphen (U+2010) differently from the normal hyphen (U+002d)."
       tickets: [1656319]
 
   improved recipes:
@@ -397,23 +397,23 @@
 
     - title: "E-book viewer: Fix a regression that caused clicking links in the footnote popup window to stop working"
 
-    - title: "Edit Book: Fix importing DOCX file as new book not setting the version attribute in the OPF"
+    - title: "Edit book: Fix importing DOCX file as new book not setting the version attribute in the OPF"
 
     - title: "Kindle driver: Fix some newer KFX books not being recognized on e-ink kindles, because of a change in how metadata is stored in the KFX format"
 
-    - title: "DOCX Output: Fix missing <td> tag causing conversion to fail."
+    - title: "DOCX output: Fix missing <td> tag causing conversion to fail."
       tickets: [1654463]
 
-    - title: "Edit Book: Fix group references causing errors when used in replace string in the normal mode search and replace"
+    - title: "Edit book: Fix group references causing errors when used in replace string in the normal mode search and replace"
 
-    - title: "Edit Book: Fix Check Book reporting a spurious mime/type mismatch error after replacing a file with a file having a different mime type."
+    - title: "Edit book: Fix Check Book reporting a spurious mime/type mismatch error after replacing a file with a file having a different mime type."
       tickets: [1653977]
 
     - title: "Amazon metadata download: Fix detection of series not working for some books due to changes in the amazon website"
 
     - title: "Fix Nook HD+ not being detected on windows"
 
-    - title: "Edit Book: Ensure keyboard focus stays with Files Browser when renaming files."
+    - title: "Edit book: Ensure keyboard focus stays with Files Browser when renaming files."
       tickets: [1653311]
 
   improved recipes:
@@ -430,9 +430,9 @@
   bug fixes:
     - title: "E-book viewer: Fix a regression in the previous release that broke the viewer on systems where the temporary directory is a symlink (common on OSX)."
 
-    - title: "EPUB Input: Fix EPUB2 files that specify a cover image via a <meta> tag but not in the <guide> not getting a cover when converted to PDF"
+    - title: "EPUB input: Fix EPUB2 files that specify a cover image via a <meta> tag but not in the <guide> not getting a cover when converted to PDF"
 
-    - title: "PDF Output: Fix conversion failure when input document contains first page with no renderable content."
+    - title: "PDF output: Fix conversion failure when input document contains first page with no renderable content."
       tickets: [1652825]
 
     - title: "Editor: Fix incorrect handling of some regular expressions in the Search tool."
@@ -444,7 +444,7 @@
     - title: "Fix a crash when running with assertions turned on in Qt."
       tickets: [1652685]
 
-    - title: "Edit Book: Reports tool: Fix an error when right clicking on items in the Links view."
+    - title: "Edit book: Reports tool: Fix an error when right clicking on items in the Links view."
       tickets: [1652960]
 
   improved recipes:
@@ -474,7 +474,7 @@
     - title: "E-book viewer: Prevent javascript in the book from accessing files on the computer using XMLHttpRequest."
       tickets: [1651728]
 
-    - title: "Edit Book: Fix the 'Search ignoring markup tool' not ignoring comments/processing instructions, etc."
+    - title: "Edit book: Fix the 'Search ignoring markup tool' not ignoring comments/processing instructions, etc."
       tickets: [1651160]
 
     - title: "CSS Transforms: Fix 'is'/'is not' rules not matching currentColor."
@@ -483,16 +483,16 @@
     - title: "E-book viewer: Make the swipe up gesture move to next section instead of previous section."
       tickets: [1651034]
 
-    - title: "Edit Book: Allow the Spell Check dialog and the search panel to be made much narrower than before."
+    - title: "Edit book: Allow the Spell Check dialog and the search panel to be made much narrower than before."
       tickets: [1650932]
 
-    - title: "Edit Book: Fix customize template window not freely resizable on windows."
+    - title: "Edit book: Fix customize template window not freely resizable on windows."
       tickets: [1650924]
 
-    - title: "Edit Book: Fix newlines not being matched by the 'Search ignoring markup' tool."
+    - title: "Edit book: Fix newlines not being matched by the 'Search ignoring markup' tool."
       tickets: [1649383]
 
-    - title: "EPUB Input: Fix incorrect handling of html files that are in a folder above the OPF file."
+    - title: "EPUB input: Fix incorrect handling of html files that are in a folder above the OPF file."
       tickets: [1649357]
 
   improved recipes:
@@ -510,10 +510,10 @@
   new features:
     - title: "Amazon metadata download: Allow downloading from amazon.cn as well. To use go to Preferences->Metadata download and customize the amazon plugin to download from amazon.cn"
 
-    - title: "Edit Book: Allow disabling the 'Files already arranged into folders' message popup"
+    - title: "Edit book: Allow disabling the 'Files already arranged into folders' message popup"
 
   bug fixes:
-    - title: "Edit Book: Fix selected text not being fully highlighted when using the solarized color schemes."
+    - title: "Edit book: Fix selected text not being fully highlighted when using the solarized color schemes."
       tickets: [1647448]
 
     - title: "calibredb: Fix CSV output for the check_library command not being properly escaped"
@@ -525,18 +525,18 @@
 
     - title: "Fix third party plugins that create dynamic context menus not working in linux"
 
-    - title: "DOCX Input: Fix images wider than 50% of the page width being incorrectly right aligned even when anchored to the center of the page."
+    - title: "DOCX input: Fix images wider than 50% of the page width being incorrectly right aligned even when anchored to the center of the page."
       tickets: [1646086]
 
     - title: "Catalog generation: Ensure all citation keys in BiBTeX catalogs have only ascii characters."
       tickets: [1646239]
 
-    - title: "Get Books: Update ebookpoint and legimi plugins for website changes"
+    - title: "Get books: Update ebookpoint and legimi plugins for website changes"
 
     - title: "EPUB3 metadata: Ensure updating metadata never produces empty dc:contributor elements."
       tickets: [1644702]
 
-    - title: "DOCX Output: Fix an error when converting tables with spanning cells."
+    - title: "DOCX output: Fix an error when converting tables with spanning cells."
       tickets: [1644912]
 
     - title: "Nicer error message if the user tries to import data while the content server is running"
@@ -565,17 +565,17 @@
     - title: "Allow Export/Import of column coloring and icon rules."
       tickets: [1643314]
 
-    - title: "Edit Book: Allow bulk changing of file extension for selected files by right clicking ont he selected files in the file browser."
+    - title: "Edit book: Allow bulk changing of file extension for selected files by right clicking ont he selected files in the file browser."
       tickets: [1643232]
 
-    - title: "Edit Book: Check Book: Add a check for nav documents that contain no ToC in EPUB 3 books"
+    - title: "Edit book: Check Book: Add a check for nav documents that contain no ToC in EPUB 3 books"
 
-    - title:  "Edit Book: Check Book: Add a test to check if the embedded fonts in the book have their embedding permissions enabled"
+    - title:  "Edit book: Check Book: Add a test to check if the embedded fonts in the book have their embedding permissions enabled"
 
   bug fixes:
     - title: "Pressing the up arrow in an date edit with undefined value should jump to the current date rather than Feb 101"
 
-    - title: "EPUB Input: When an invalid nav based ToC is used in an EPUB 3.0 document that also has a fallback NCX ToC, use the fallback ToC."
+    - title: "EPUB input: When an invalid nav based ToC is used in an EPUB 3.0 document that also has a fallback NCX ToC, use the fallback ToC."
       tickets: [1643247]
 
     - title: "Fix a regression that broke the icon theme creation tool in the previous release"
@@ -597,27 +597,27 @@
     - title: "Allow aborting an in-progress Copy-to-library action."
       tickets: [1641458]
 
-    - title: "Edit Book: When adding a font file via File->New automatically generate the appropriate @font-face rule and copy it to the clipboard so that it can be easily inserted into the appropriate CSS files."
+    - title: "Edit book: When adding a font file via File->New automatically generate the appropriate @font-face rule and copy it to the clipboard so that it can be easily inserted into the appropriate CSS files."
 
-    - title: "Edit Book: Check Book: Add a warning for links with the : character in them on windows"
+    - title: "Edit book: Check Book: Add a warning for links with the : character in them on windows"
 
     - title: "Conversion: When converting markdown documents recognize basic metadata in the markdown document formatted as per the markdown metadata extension."
 
-    - title: "Edit Book: Spell Check dialog: Various small usability enhancements -- preserve position in word list on refresh, ensure that new current word is highlighted after changing a word, etc."
+    - title: "Edit book: Spell Check dialog: Various small usability enhancements -- preserve position in word list on refresh, ensure that new current word is highlighted after changing a word, etc."
 
-    - title: "Edit Book: Flash the taskbar icon after beautify all files completes."
+    - title: "Edit book: Flash the taskbar icon after beautify all files completes."
       tickets: [1639024]
 
   bug fixes:
     - title: "Fix creating an empty library with the same structure as current library not creating custom columns on the first restart after creating the new custom columns."
       tickets: [1641278]
 
-    - title: "Edit Book: Dont fail to rename files on windows if there is a link containing the colon character."
+    - title: "Edit book: Dont fail to rename files on windows if there is a link containing the colon character."
       tickets: [1641202]
 
-    - title: "PDF Output: Dont fail if one of the embedded fonts has no names"
+    - title: "PDF output: Dont fail if one of the embedded fonts has no names"
 
-    - title: "Edit Book: When downloading external resources, ensure the generated filenames are valid."
+    - title: "Edit book: When downloading external resources, ensure the generated filenames are valid."
       tickets: [1639448]
 
     - title: "Windows: Fix file extension not being added automatically when missing in save dialogs."
@@ -626,12 +626,12 @@
     - title: "Fix calibre not opening full-screen in windows tablet mode."
       tickets: [1638158]
 
-    - title: "Edit Book: Fix check external links tool not detecting changes that have not yet been saved"
+    - title: "Edit book: Fix check external links tool not detecting changes that have not yet been saved"
 
     - title: "Generate covers: Fix & in the series causing incorrect formatting of series number."
       tickets: [1638759]
 
-    - title: "Edit Book: Fix a regression in the last release that broke the Arrange into folders tool when arranging into sub-folders of a folder that does not exist."
+    - title: "Edit book: Fix a regression in the last release that broke the Arrange into folders tool when arranging into sub-folders of a folder that does not exist."
 
   improved recipes:
     - Mediapart
@@ -654,9 +654,9 @@
       tickets: [1633477]
 
   bug fixes:
-    - title: "Get Books: Update ebookpoint and woblink store plugins for website changes"
+    - title: "Get books: Update ebookpoint and woblink store plugins for website changes"
 
-    - title: "Edit Book: When un-marking text auto-change the 'search where' location to what it was before text was marked rather than 'current file'."
+    - title: "Edit book: When un-marking text auto-change the 'search where' location to what it was before text was marked rather than 'current file'."
 
     - title: "Automatic adding: Show an error if the user specifies a folder whose name starts with a dot or underscore."
       tickets: [1637021]
@@ -669,7 +669,7 @@
 
     - title: "Kobo driver: Fix a regression that broke handling of reading status for devices running old 1.9x versions of the Kobo firmware"
 
-    - title: "Edit Book: When using the arrange into folders tool do not change the case of already existing folders in the book."
+    - title: "Edit book: When using the arrange into folders tool do not change the case of already existing folders in the book."
       tickets: [1633875]
 
   improved recipes:
@@ -683,22 +683,22 @@
   date: 2016-10-14
 
   new features:
-    - title: "Edit Book: Add a tool to download external resources (images/stylesheets/etc.) that are not included in the book."
+    - title: "Edit book: Add a tool to download external resources (images/stylesheets/etc.) that are not included in the book."
       tickets: [1620058]
 
-    - title: "Make custom columns available in the Alter Tag Browser->Manage categories sub menu"
+    - title: "Make custom columns available in the Alter Tag browser->Manage categories sub menu"
 
   bug fixes:
     - title: "Conversion: Fix incorrect resolution of references to resources in HTML files that exist in a folder level above the OPF file. This could lead to styles being incorrectly processed in such HTML files."
 
-    - title: "Get Books: Update the amazon store plugins for website changes"
+    - title: "Get books: Update the amazon store plugins for website changes"
 
     - title: "Update ozon.ru metadata download plugin to fix searching for books by ISBN"
 
-    - title: "Edit Book: Fix a regression in the previous release that broke the preferences dialog for changing color schemes."
+    - title: "Edit book: Fix a regression in the previous release that broke the preferences dialog for changing color schemes."
       tickets: [1629294]
 
-    - title: "Edit Book: Better error message when user tries to open a Check Book item that refers to a file that has been deleted since the last time Check Book was run."
+    - title: "Edit book: Better error message when user tries to open a Check Book item that refers to a file that has been deleted since the last time Check Book was run."
       tickets: [1632897]
 
   improved recipes:
@@ -730,7 +730,7 @@
   new features:
     - title: "Kobo driver: Support for firmware version 4.1 and Overdrive books on the device"
 
-    - title: "Edit Book: Highlight class names inside HTML tags"
+    - title: "Edit book: Highlight class names inside HTML tags"
 
     - title: "Bulk metadata edit dialog: Allow search & replace to work for ratings columns as well."
 
@@ -743,10 +743,10 @@
 
     - title: "Cover Browser: Fix setting an empty template for the title causes an error"
 
-    - title: "Edit Book: On windows do not trigger shortcuts when using the right Alt (AltGr) key. This allows it to be used for entering special characters instead."
+    - title: "Edit book: On windows do not trigger shortcuts when using the right Alt (AltGr) key. This allows it to be used for entering special characters instead."
       tickets: [1627487]
 
-    - title: "Edit Book: Auto-add file extension when using the Save a Copy dialog if it is missing."
+    - title: "Edit book: Auto-add file extension when using the Save a Copy dialog if it is missing."
       tickets: [1627482]
 
     - title: "Linux: Fix calibre not launching when used with some old VNC server implementations"
@@ -795,7 +795,7 @@
 
     - title: "Fix regression in previous release that caused incorrect display of ratings in the side panel of the metadata download dialog"
 
-    - title: "Get Books: Update publio and virtualo store plugins for website changes"
+    - title: "Get books: Update publio and virtualo store plugins for website changes"
 
     - title: "Fix reading metadata from PDF files broken by poppler >= 0.47.0"
 
@@ -813,17 +813,17 @@
   new features:
     - title: "Allow creating custom rating columns that support half-stars via Preferences->Add your own columns"
 
-    - title: "Tag Browser: Add an option in Preferences->Look & Feel->Tag Browser to turn off the display of counts in the Tag Browser"
+    - title: "Tag browser: Add an option in Preferences->Look & Feel->Tag browser to turn off the display of counts in the Tag browser"
 
-    - title: "Tag browser: Show the book counts on the right edge of the Tag Browser"
+    - title: "Tag browser: Show the book counts on the right edge of the Tag browser"
 
     - title: "Cover Browser: Allow any metadata field to be used as the sub-title, not just the rating"
 
-    - title: "Edit Book: A new tool to sort the rules in a CSS stylesheet. To use it add it to the toolbar for CSS editors"
+    - title: "Edit book: A new tool to sort the rules in a CSS stylesheet. To use it add it to the toolbar for CSS editors"
 
-    - title: "Edit Book: The Remove Unused CSS tool now has an option to also merge CSS rules that have identical selectors"
+    - title: "Edit book: The Remove Unused CSS tool now has an option to also merge CSS rules that have identical selectors"
 
-    - title: "Add a tweak in Preferences->Tweaks to exclude some images types from being treated a covers when dropped onto the Book Details panel."
+    - title: "Add a tweak in Preferences->Tweaks to exclude some images types from being treated a covers when dropped onto the Book details panel."
       tickets: [1620198]
 
     - title: "Allow reading more image formats as covers (All images will be converted to JPEG when stored)."
@@ -837,16 +837,16 @@
     - title: "ODT Input: Add support for continued lists."
       tickets: [1620581]
 
-    - title: "Edit Book: Fix high-dpi rendering of emblems in the File Browser"
+    - title: "Edit book: Fix high-dpi rendering of emblems in the File Browser"
 
     - title: "Fix regression in previous release that caused wide column icons to be scaled incorrectly"
 
     - title: "Metadata download dialog: Fix https links in the download summary not working"
 
-    - title: "DOCX Output: Handle nested display:table tags with no rows."
+    - title: "DOCX output: Handle nested display:table tags with no rows."
       tickets: [1619662]
 
-    - title: "PDF Output: Fix OpenType fonts with CFF font data not embeddable on windows"
+    - title: "PDF output: Fix OpenType fonts with CFF font data not embeddable on windows"
 
   improved recipes:
     - Ars Technica
@@ -858,7 +858,7 @@
   new features:
     - title: "A simplified calibre logo"
 
-    - title: "Edit Book: Allow restricting a search to the files currently open for editing"
+    - title: "Edit book: Allow restricting a search to the files currently open for editing"
 
     - title: "Driver for the PocketBook Touch HD"
       tickets: [1618962]
@@ -866,7 +866,7 @@
     - title: "Kobo driver: Add support for firmware version 3.20"
 
   bug fixes:
-    - title: "DOCX Input: Fix right-to-left alignment not working for footnotes."
+    - title: "DOCX input: Fix right-to-left alignment not working for footnotes."
       tickets: [1617254]
 
     - title: "Sending email: Allow setting up a mail relay that uses encryption without a username and password."
@@ -875,7 +875,7 @@
     - title: "Linux: Fix calibre not working when the username is non-ASCII."
       tickets: [1619056]
 
-    - title: "DOCX Output: Ignore invalid text-indent values in the input document instead of erroring out."
+    - title: "DOCX output: Ignore invalid text-indent values in the input document instead of erroring out."
       tickets: [1618869]
 
     - title: "Portable Installer: Auto-create the installation folder specified on the command line if it does not exist"
@@ -884,7 +884,7 @@
 
     - title: "More user interface fixes for high DPI screens"
 
-    - title: "DOCX Input: Fix a regression in the previous release that could cause invalid values to be output for the text-align CSS property"
+    - title: "DOCX input: Fix a regression in the previous release that could cause invalid values to be output for the text-align CSS property"
 
   new recipes:
     - title: Contropiano
@@ -900,18 +900,18 @@
 
     - title: "Add an option in Preferences->Searching to make searching case-sensitive"
 
-    - title: "DOCX Input: Add support for right-to-left text/tables"
+    - title: "DOCX input: Add support for right-to-left text/tables"
       tickets: [1569771]
 
   bug fixes:
     - title: "Fix some icons/images in the user interface looking blurred in environments with High DPI scaling enabled, such as OS X retina screens"
 
-    - title: "DOCX Input: Fix images that have the # character in their filenames not being converted correctly."
+    - title: "DOCX input: Fix images that have the # character in their filenames not being converted correctly."
       tickets: [1616482]
 
     - title: "ToC wizard: Fix generating toc from headings/xpath yielding unexpected results when tags are present out of sequence"
 
-    - title: "Edit Book: Fix drag and drop of text replacing non-breaking spaces with normal spaces"
+    - title: "Edit book: Fix drag and drop of text replacing non-breaking spaces with normal spaces"
 
     - title: "E-book viewer: Fix duplicate names in hyphenation dictionary chooser."
       tickets: [1615040]
@@ -931,15 +931,15 @@
 
   new features:
     - title: "Custom columns: Add a new 'Short text' column type that behaves like the builtin title column"
-      description: "More generally, you can now customize Comments-like columns, controlling how their headings are displayed in the Book Details panel and also specifying what kind of data they contain (plain text, HTML or even Markdown)"
+      description: "More generally, you can now customize Comments-like columns, controlling how their headings are displayed in the Book details panel and also specifying what kind of data they contain (plain text, HTML or even Markdown)"
     - title: "Edit book: Function mode: Allow appending text to the end of the marked text when running function mode search/replace on marked text"
 
-    - title: "PDF Output: Add a new variable _TOP_LEVEL_SECTION_ for use in header/footer templates that resolves to the current top-most section in the Table of Contents"
+    - title: "PDF output: Add a new variable _TOP_LEVEL_SECTION_ for use in header/footer templates that resolves to the current top-most section in the Table of Contents"
 
     - title: "Linux/OSX: Shutdown gracefully on receiving the interrupt or terminate Unix signals"
 
   bug fixes:
-    - title: "PDF Output: Fix a regression that caused the last page of a chapter to sometimes be dropped from the output"
+    - title: "PDF output: Fix a regression that caused the last page of a chapter to sometimes be dropped from the output"
 
     - title: "Do not show an error if the user tries to quit calibre while editing a cell in the book list. Instead, just silently abort the edit."
       tickets: [1610539]
@@ -947,10 +947,10 @@
     - title: "E-book viewer: Fix 0px margins and percentage margins not being respected when the option to override book margins is turned off."
       tickets: [1608458]
 
-    - title: "Book Details: Do not show the 'Copy link' context menu item unless there is an actual link at the cursor location."
+    - title: "Book details: Do not show the 'Copy link' context menu item unless there is an actual link at the cursor location."
       tickets: [1605594]
 
-    - title: "Get Books: Update store plugin for nexto"
+    - title: "Get books: Update store plugin for nexto"
 
   improved recipes:
     - Private Eye
@@ -971,13 +971,13 @@
   new features:
     - title: "News download: Allow controlling which periodicals are automatically sent to a specific email in Preferences->Sharing by email"
 
-    - title: "Edit Book: Update regex engine to support Unicode 9.0"
+    - title: "Edit book: Update regex engine to support Unicode 9.0"
 
   bug fixes:
     - title: "Edit metadata dialog: Fix pasting ISBN from clipboard not stripping garbage characters after a valid ISBN."
       tickets: [1604956]
 
-    - title: "Edit Book: Also refresh the Preview and Live CSS panels after performing any action that changes files other than the currently displayed file."
+    - title: "Edit book: Also refresh the Preview and Live CSS panels after performing any action that changes files other than the currently displayed file."
 
     - title: "E-book viewer: Fix the show metadata button not reading EPUB 3 metadata"
 
@@ -1027,9 +1027,9 @@
     - title: "HTML Input: Sanitize semi-colons from HTML filenames as they can cause problems with other EPUB consuming software."
       tickets: [1598719]
 
-    - title: "EPUB Input: Speed up reading of the book spine from the OPF file for books with a very large number of entries in the spine"
+    - title: "EPUB input: Speed up reading of the book spine from the OPF file for books with a very large number of entries in the spine"
 
-    - title: "Edit Book: Reports: Characters: Fix sorting by count and name not working."
+    - title: "Edit book: Reports: Characters: Fix sorting by count and name not working."
       tickets: [1598518]
 
     - title: "Fix KoboTouch configuration migration not working for older settings"
@@ -1049,11 +1049,11 @@
     - title: "Driver for FNAC (re-branded Bq) with new firmware."
       tickets: [1596952, 1595924]
 
-    - title: "Edit Book: Check Book: Add an auto fix action to remove all links to a missing resource (such as a deleted stylesheet) automatically."
+    - title: "Edit book: Check Book: Add an auto fix action to remove all links to a missing resource (such as a deleted stylesheet) automatically."
       tickets: [1596048]
 
   bug fixes:
-    - title: "Edit Book: Check Book: Fix incorrect handling of font family names with spaces in them that are not quoted."
+    - title: "Edit book: Check Book: Fix incorrect handling of font family names with spaces in them that are not quoted."
       tickets: [1596053]
 
     - title: "E-book viewer: Fix Qt 5.7 breaking mouse wheel scrolling"
@@ -1061,7 +1061,7 @@
     - title: "Kobo driver: Fix a regression in the last release that broke connecting to older devices"
       tickets: [1596801]
 
-    - title: "Get Books: Fix detection of book formats broken for the Legimi plugin by a website change"
+    - title: "Get books: Fix detection of book formats broken for the Legimi plugin by a website change"
 
     - title: "Update builtin metadata source ozon.ru to handle website changes"
 
@@ -1081,7 +1081,7 @@
     - title: "Edit metadata: In the drop down list for languages, show the five most recently used languages first."
       tickets: [1594089]
 
-    - title: "Edit Book: Check Book: Add a check for missing navigation documents in EPUB 3 books"
+    - title: "Edit book: Check Book: Add a check for missing navigation documents in EPUB 3 books"
 
     - title: "Kobo driver: Improved configuration dialog for the Kobo Touch device driver"
 
@@ -1103,7 +1103,7 @@
 
     - title: "Fix a regression that broke scheduling a new news download in timezones west of GMT"
 
-    - title: "Edit Book: Fix undocked windows not resizable on OS X"
+    - title: "Edit book: Fix undocked windows not resizable on OS X"
 
     - title: "Fix a regression in 2.57 that broke rescaling of images to fit the output profile screen size during conversion."
       tickets: [1594098]
@@ -1126,9 +1126,9 @@
 
     - title: "Amazon metadata download: Recognize common patterns of embedding the series name after the title and remove it automatically"
 
-    - title: "Edit Book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX table of contents for backwards compatibility."
+    - title: "Edit book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX table of contents for backwards compatibility."
 
-    - title: "EPUB Input: Implement reading of Table of Contents from EPUB 3 files that do not specify a fallback NCX ToC"
+    - title: "EPUB input: Implement reading of Table of Contents from EPUB 3 files that do not specify a fallback NCX ToC"
 
     - title: "EPUB metadata: When setting a cover image for an EPUB file that has no metadata cover image defined, add the new cover image as a pure metadata cover instead of aborting."
 
@@ -1139,17 +1139,17 @@
     - title: "Copy to library: Speed up checking for duplicates when copying multiple books to a large library."
       tickets: [1593027]
 
-    - title: "Get Books: Update Smashwords plugin for website changes."
+    - title: "Get books: Update Smashwords plugin for website changes."
       tickets: [1590653]
 
-    - title: "Edit Book: Fix a bug in the new text search facility that could cause searches to fail when searching from the current cursor position instead of the top of the file."
+    - title: "Edit book: Fix a bug in the new text search facility that could cause searches to fail when searching from the current cursor position instead of the top of the file."
       tickets: [1588778]
 
     - title: "Bulk conversion dialog: Fix page margin settings being ignored when converting to DOCX"
 
     - title: "Make the default shortcut for remove books Backspace on OS X since many mac keyboards have no delete key and the backspace key is labelled as delete"
 
-    - title: "Edit Book: Check Book: Do not warn if a cover image is not referenced in the text"
+    - title: "Edit book: Check Book: Do not warn if a cover image is not referenced in the text"
 
     - title: "E-book viewer: Fix a bug that could cause incorrect rendering of chapter titles in some rare circumstances."
 
@@ -1166,7 +1166,7 @@
   date: 2016-06-02
 
   new features:
-    - title: "Edit Book: A text search tool to conveniently search for text even if it crosses multiple HTML tags (Search->Search ignoring HTML markup)"
+    - title: "Edit book: A text search tool to conveniently search for text even if it crosses multiple HTML tags (Search->Search ignoring HTML markup)"
 
     - title: "OSX: Allow drag and drop of file onto viewer dock icon to view file"
 
@@ -1176,9 +1176,9 @@
 
     - title: "Windows: Workaround for explorer shell extensions on windows that write to stdout"
 
-    - title: "Edit Book: When jumping to next occurrence of a word, take language into account"
+    - title: "Edit book: When jumping to next occurrence of a word, take language into account"
 
-    - title: "Edit Book: Fix import of words into user dictionary not working"
+    - title: "Edit book: Fix import of words into user dictionary not working"
 
     - title: "Fix use of non-ascii characters in identifiers causing an error when identifier rules are used."
       tickets: [1584470]
@@ -1214,13 +1214,13 @@
     - title: "Use 'Not rated' for zero stars in all rating spin boxes"
 
   bug fixes:
-    - title: "Edit Book: Fix a crash in the Insert Link tool if one of the HTML files contains an empty id."
+    - title: "Edit book: Fix a crash in the Insert Link tool if one of the HTML files contains an empty id."
       tickets: [1580928]
 
-    - title: "Fix tag like custom columns not sorted when displayed in the Book Details panel."
+    - title: "Fix tag like custom columns not sorted when displayed in the Book details panel."
       tickets: [1578688]
 
-    - title: "Fix transient window shown during Edit Book startup"
+    - title: "Fix transient window shown during Edit book startup"
 
     - title: "Preserve booklist horizontal scroll position when merging books."
       tickets: [1579637]
@@ -1259,7 +1259,7 @@
   date: 2016-04-29
 
   new features:
-    - title: "Edit Book: Add an option to show full file paths in the Files Browser instead of just the file name (in Preferences->Main window)"
+    - title: "Edit book: Add an option to show full file paths in the Files Browser instead of just the file name (in Preferences->Main window)"
 
     - title: "Allow creating a keyboard shortcut to minimize the calibre window (Preferences->Keyboard->Miscellaneous)."
       tickets: [1573775]
@@ -1276,9 +1276,9 @@
 
     - title: "Fix for OS X upgrade 10.11.4 breaking detection of Kobo devices on some systems"
 
-    - title: "Edit Book: Fix filename being duplicated in the Files Browser when multiple files with the same name are present."
+    - title: "Edit book: Fix filename being duplicated in the Files Browser when multiple files with the same name are present."
 
-    - title: "PDF Output: Make fix for blank page at end of HTML file also work when headers/footers are specified"
+    - title: "PDF output: Make fix for blank page at end of HTML file also work when headers/footers are specified"
 
   improved recipes:
     - Forbes
@@ -1330,13 +1330,13 @@
     - title: "Fix device detection on windows failing if the registry entries for the device contain a very long item."
       tickets: [1567569]
 
-    - title: "Edit Book: Fix an extra colon being added when setting the 'notes' semantic"
+    - title: "Edit book: Fix an extra colon being added when setting the 'notes' semantic"
 
     - title: "Ensure that author folder names are never windows reserved names"
 
     - title: "E-book viewer: When displaying an EPUB 3 document that uses epub:switch to provide a fallback for MathML content, prevent both the MathML and fallback from being shown together."
 
-    - title: "PDF Output: When displaying an EPUB 3 document that uses epub:switch to provide a fallback for MathML content, prevent both the MathML and fallback from being rendered together."
+    - title: "PDF output: When displaying an EPUB 3 document that uses epub:switch to provide a fallback for MathML content, prevent both the MathML and fallback from being rendered together."
 
     - title: "Fix exception in custom column preferences when the column lookup key is changed"
 
@@ -1366,9 +1366,9 @@
 
     - title: "When running the content server do not hide the main calibre window during shutdown until the content server has stopped. Show a shutting down message in the window so that the user knows what is happening."
 
-    - title: "Edit Book: Check Book: Add a check for empty links"
+    - title: "Edit book: Check Book: Add a check for empty links"
 
-    - title: "DOCX Input: When the document has a Table of Contents created using the Word Table of Contents tool, keep a reference to it in the metadata.  This is useful when converting to old style MOBI and you want to precisely control placement of the ToC."
+    - title: "DOCX input: When the document has a Table of Contents created using the Word Table of Contents tool, keep a reference to it in the metadata.  This is useful when converting to old style MOBI and you want to precisely control placement of the ToC."
       tickets: [1556983]
 
   bug fixes:
@@ -1379,7 +1379,7 @@
 
     - title: "E-book viewer: Fix mathematics being typeset at too small a font size on windows"
 
-    - title: "PDF Output: Fix occasional blank pages erroneously inserted in the text (at the end of an internal html file)."
+    - title: "PDF output: Fix occasional blank pages erroneously inserted in the text (at the end of an internal html file)."
       tickets: [1559855]
 
     - title: "Book details panel: Fix url:file:// identifiers not becoming links"
@@ -1405,7 +1405,7 @@
   date: 2016-03-11
 
   new features:
-    - title: "Edit Book: A new tool to transform book styling using easy to create rules."
+    - title: "Edit book: A new tool to transform book styling using easy to create rules."
       description: "For example, you can create rules to change colors in the book or to double the font size of all text in the book, etc. For details, see https://manual.calibre-ebook.com/edit.html#transforming-css-properties"
       type: major
 
@@ -1418,7 +1418,7 @@
   bug fixes:
     - title: "E-book viewer: Hide list numbers for popup footnotes when the footnotes are use <ol> as the number are likely to be incorrect."
 
-    - title: "DOCX Input: Ignore the hidden bookmark Word 2010 inserts to enable the go to last edit feature."
+    - title: "DOCX input: Ignore the hidden bookmark Word 2010 inserts to enable the go to last edit feature."
       tickets: [1552972]
 
     - title: "Fix keyboard focus lost after merging book records"
@@ -1427,7 +1427,7 @@
     - title: "E-book viewer: Handle <![CDATA[ escapes correctly."
       tickets: [1550966]
 
-    - title: "Edit Book: Fix spelling correction suggestions not being shown when using the context menu key with the cursor at the end of the word"
+    - title: "Edit book: Fix spelling correction suggestions not being shown when using the context menu key with the cursor at the end of the word"
 
   improved recipes:
     - Mediapart
@@ -1451,7 +1451,7 @@
     - title: "FB2 metadata: Fix error when adding books with non-numeric series numbers."
       tickets: [1548405]
 
-    - title: "DOCX Input: Fix handling of toggle properties such as bold/italic/strikethrough/etc. when specified as document defaults."
+    - title: "DOCX input: Fix handling of toggle properties such as bold/italic/strikethrough/etc. when specified as document defaults."
       tickets: [1548187]
 
     - title: "Conversion pipeline: Add support for the q CSS length unit"
@@ -1487,13 +1487,13 @@
     - title: "PDF metadata: Workaround for PDF files with corrupted XMP metadata packets, generated by Nitro PDF."
       tickets: [1541981]
 
-    - title: "Edit Book Beautify: Do not beautify the insides of heading/p tags even when they are the only child of body"
+    - title: "Edit book Beautify: Do not beautify the insides of heading/p tags even when they are the only child of body"
 
     - title: "Amazon metadata download: Fix published date not being downloaded from amazon.it"
 
     - title: "Fix a regression in 2.50 that broke the user created device driver feature on windows"
 
-    - title: "EPUB Input: Fix error when processing EPUB files that uses non-ascii characters for their unique ids."
+    - title: "EPUB input: Fix error when processing EPUB files that uses non-ascii characters for their unique ids."
       tickets: [1540496]
 
     - title: "When reading the cover from comic files, ignore any image files inside __MACOSX/ directories."
@@ -1512,22 +1512,22 @@
   new features:
     - title: "Change the way that devices are detected on Windows. This fixes device detection problems on some Windows 10 computers"
 
-    - title: "Edit Book: When inserting images, add an option to insert the image as a full page image"
+    - title: "Edit book: When inserting images, add an option to insert the image as a full page image"
 
-    - title: "DOCX Input: Add support for framed text created by setting the same border style on neighboring paragraphs."
+    - title: "DOCX input: Add support for framed text created by setting the same border style on neighboring paragraphs."
       tickets: [1526663]
 
     - title: "Update PocketBook 650 driver for latest firmware revision"
       tickets: [1535801]
 
   bug fixes:
-    - title: "DOCX Input: Fix empty paragraphs with borders being rendered with an empty line inside the borders"
+    - title: "DOCX input: Fix empty paragraphs with borders being rendered with an empty line inside the borders"
 
     - title: "ODT Input: Fix fallback PNG images generated by LibreOffice 4.x for SVG images not being ignored"
 
     - title: "Fix restore library failing on some windows systems with non-ascii library paths"
 
-    - title: "Edit Book: Fix error when merging an empty HTML document or one that contains only text and no tags."
+    - title: "Edit book: Fix error when merging an empty HTML document or one that contains only text and no tags."
       tickets: [1535427]
 
     - title: "Fix failure to add FB2 files that contain published dates."
@@ -1561,7 +1561,7 @@
   bug fixes:
     - title: "Fix splash screen getting stuck on OSX when restarting calibre in debug mode"
 
-    - title: "Get Books: Update plugins for various Polish language book stores to handle changes to the website"
+    - title: "Get books: Update plugins for various Polish language book stores to handle changes to the website"
 
     - title: "Amazon metadata download: Handle a change in the amazon website that prevented review metadata from being downloaded"
 
@@ -1602,10 +1602,10 @@
     - title: "Driver for Energy Ereader Screenlight."
       tickets: [1529108]
 
-    - title: "DOCX Input: Add option to have superscripts/subscripts converted so that they do not affect the line height of the line containing them."
+    - title: "DOCX input: Add option to have superscripts/subscripts converted so that they do not affect the line height of the line containing them."
       tickets: [1528055]
 
-    - title: "New option to hide empty categories in Tag Browser (Preferences->Look & Feel->Tag Browser)"
+    - title: "New option to hide empty categories in Tag browser (Preferences->Look & Feel->Tag browser)"
 
   bug fixes:
     - title: "Image compression: Fix spurious zero byte .bak files being created when compressing png images inside epub files"
@@ -1637,7 +1637,7 @@
       description: "Right click the calibre icon in the main calibre toolbar and choose \"Export/import all calibre data\" to run this tool. It is useful if you want to move to a new computer or duplicate your calibre setup on a second computer, with minimal effort. This tool is very new, so if you run into problems, please report bugs. You can always use the old manual method of copying library folders as a fallback."
       type: major
 
-    - title: "Get Books: Add plugins for Amazon Australia and Amazon India. Also restore the Amazon EU plugins."
+    - title: "Get books: Add plugins for Amazon Australia and Amazon India. Also restore the Amazon EU plugins."
       tickets: [1526089]
 
   bug fixes:
@@ -1648,7 +1648,7 @@
 
     - title: "Image compression: If the compression tools return a zero byte image ignore it and use the original image"
 
-    - title: "Fix a regression that caused book titles in the Book Details panel to become clickable"
+    - title: "Fix a regression that caused book titles in the Book details panel to become clickable"
 
   improved recipes:
     - Fox News
@@ -1664,7 +1664,7 @@
 
     - title: "Book polishing: Add tool to losslessly compress images in the book in order to reduce its filesize, without affecting image quality"
 
-    - title: "Edit Book: Add a new tool to compress images in the book losslessly, accessed from the Tools menu"
+    - title: "Edit book: Add a new tool to compress images in the book losslessly, accessed from the Tools menu"
 
     - title: "Kobo driver: add support for new Kobo firmware"
       tickets: [1524742]
@@ -1674,7 +1674,7 @@
 
     - title: "Speed up moving libraries by using hardlinks instead of file copies when moving to a location on the same filesystem"
 
-    - title: "Get Books: Disable the Amazon EU stores, at Amazon's request"
+    - title: "Get books: Disable the Amazon EU stores, at Amazon's request"
 
   bug fixes:
     - title: "Fix moving libraries via calibre leaving behind a copy of the metadata_db_prefs_backup.json file in the original library folder"
@@ -1705,10 +1705,10 @@
     - title: "Preferenes->Add your own columns: Show more information about existing columns"
 
   bug fixes:
-    - title: "PDF Output: Handle input documents with fonts that do not have either postscript or full name information."
+    - title: "PDF output: Handle input documents with fonts that do not have either postscript or full name information."
       tickets: [1518678]
 
-    - title: "DOCX Input: Handle numbering styles that use non-decimal number formats and custom templates."
+    - title: "DOCX input: Handle numbering styles that use non-decimal number formats and custom templates."
       tickets: [1519962]
 
     - title: "Allow restoring of corrupted library to work even if the metadata.db file is missing from the library folder"
@@ -1725,7 +1725,7 @@
 
     - title: "Update Amazon metadata download plugin to handle amazon.com website change that was preventing any metadata from being downloaded"
 
-    - title: "Edit Book: Fix error when trying to add words to user dictionary for a book with a language that has no dictionary available."
+    - title: "Edit book: Fix error when trying to add words to user dictionary for a book with a language that has no dictionary available."
       tickets: [1517928]
 
     - title: "Tag browser: Fix various bugs in how grouped search terms are displayed. Also fix counts and average rating for items in user categories"
@@ -1754,9 +1754,9 @@
     - title: "Allow drag and drop of all file types onto the book details panel and the format list in the edit metadata dialog."
       tickets: [1515407]
 
-    - title: "Edit Book: When inserting an image into the current document, add a button to paste the image from the clipboard"
+    - title: "Edit book: When inserting an image into the current document, add a button to paste the image from the clipboard"
 
-    - title: "Edit Book: Change the suggested prefix for bulk renaming of files depending on the type of files being renamed."
+    - title: "Edit book: Change the suggested prefix for bulk renaming of files depending on the type of files being renamed."
       tickets: [1514468]
 
     - title: "On Linux, use the system tray icon from the system theme, if available"
@@ -1768,7 +1768,7 @@
 
     - title: "Fix the device view state not being saved when a connected device is ejected/disconnected"
 
-    - title: "Edit Book: Fix saving fails if the original file is deleted during editing session"
+    - title: "Edit book: Fix saving fails if the original file is deleted during editing session"
       tickets: [1513849]
 
     - title: "E-book viewer: When doing a search do not match text in comments, attributes and inappropriate tags, such as <script> and <style>"
@@ -1780,7 +1780,7 @@
   date: 2015-11-06
 
   new features:
-    - title: "Edit Book: Add a 'Smart Comment' tool to easily comment/uncomment text"
+    - title: "Edit book: Add a 'Smart Comment' tool to easily comment/uncomment text"
       description: "Press Ctrl+` to trigger the tool, or add the tool to your toolbar via Preferences->Toolbar->Tools for all editors. It will either insert comments around the selected text or uncomment an existing comment if the cursor is inside one."
 
     - title: "Tag mapper: Add new rule types to upper-case, lower-case or capitalize tags"
@@ -1814,7 +1814,7 @@
     - title: "Metadata download review dialog: Add an option to mark rejected books in the main book list after the review is completed."
       tickets: [1507198]
 
-    - title: "Edit Book: Spell check dialog: Add a button to undo the last spelling change"
+    - title: "Edit book: Spell check dialog: Add a button to undo the last spelling change"
 
   bug fixes:
     - title: "Edit metadata dialog: When downloading metadata with download of authors turned off, do not regenerate the author sort field after the download."
@@ -1823,7 +1823,7 @@
     - title: "Fix a regression that broke the heuristic used to detect cover images in some EPUB files that do not specify their cover metadata."
       tickets: [1509642]
 
-    - title: "Edit Book File List: Fix pre-selection of filename when renaming a file in the root"
+    - title: "Edit book File List: Fix pre-selection of filename when renaming a file in the root"
 
     - title: "Tag mapper: Fix bug when replacement tag has comma in it and the replacement rule is not the last rule"
 
@@ -1837,21 +1837,21 @@
   date: 2015-10-16
 
   new features:
-    - title: "Edit Book: Allow editing an unzipped EPUB (a folder) as a book"
+    - title: "Edit book: Allow editing an unzipped EPUB (a folder) as a book"
       description: "Useful if you wish to store your ebook in a version control system and edit it directly with the calibre ebook editor (File->Open folder as book)"
 
-    - title: "Edit Book: Allow easily removing items from the popup menu for the 'Insert tag' button"
+    - title: "Edit book: Allow easily removing items from the popup menu for the 'Insert tag' button"
 
-    - title: "Make Tag Browser more useable with keyboard shortcuts. Configure the keyboard shortcuts in Preferences->Keyboard->Tag Browser"
+    - title: "Make Tag browser more useable with keyboard shortcuts. Configure the keyboard shortcuts in Preferences->Keyboard->Tag browser"
 
     - title: "ToC editor: Add context menu item to change selected entries to upper case"
 
   bug fixes:
-    - title: "Edit Book: Preview panel: Render in XHTML mode. Fixes svg elements using a global svg namespace not rendering."
+    - title: "Edit book: Preview panel: Render in XHTML mode. Fixes svg elements using a global svg namespace not rendering."
 
-    - title: "Tag Browser: Fix clicking on first-letter groups for series not working"
+    - title: "Tag browser: Fix clicking on first-letter groups for series not working"
 
-    - title: "DOCX Output: Ignore corrupted images in the input instead of erroring out on them."
+    - title: "DOCX output: Ignore corrupted images in the input instead of erroring out on them."
 
     - title: "E-book viewer: Fix keyboard shortcut to toggle table of contents not working when ToC window is made floating."
       tickets: [1503910]
@@ -1887,7 +1887,7 @@
 
     - title: "E-book polishing: Show a confirmation if the user selects both the add and remove jacket actions."
 
-    - title: "Edit Book: Fix order of checkboxes in filter style information tool is random"
+    - title: "Edit book: Fix order of checkboxes in filter style information tool is random"
 
     - title: "PDB Input: Ingore malformed metadata records."
       tickets: [1499878]
@@ -1919,13 +1919,13 @@
     - title: "Kobo driver: Support for newly firmware version 3.18"
       tickets: [1499340]
 
-    - title: "Edit Book: Add a setting to control icon size for the toolbars (Preferences->Toolbars)"
+    - title: "Edit book: Add a setting to control icon size for the toolbars (Preferences->Toolbars)"
 
   bug fixes:
-    - title: "Edit Book: Check Book: Fix automatic correction of missing unique id sometimes not working"
+    - title: "Edit book: Check Book: Fix automatic correction of missing unique id sometimes not working"
       tickets: [1498207]
 
-    - title: "Edit Book: Fix (hopefully) View->Browse images in books sometimes not showing changed images"
+    - title: "Edit book: Fix (hopefully) View->Browse images in books sometimes not showing changed images"
 
     - title: "CBZ metadata: Do not fail to read metadata if the volume is not a valid number."
       tickets: [1495651]
@@ -1935,7 +1935,7 @@
 
     - title: "Linux: Workaround for systems with broken xdg-open implementations that do not unquote urls before passing them to applications"
 
-    - title: "Get Books: Update cdp.pl store for website changes"
+    - title: "Get books: Update cdp.pl store for website changes"
 
     - title: "HTMLZ Output: Fix HTML files being created with system encoding instead of UTF-8."
       tickets: [1499514]
@@ -1959,9 +1959,9 @@
   new features:
     - title: "Add support for Kobo Touch 2"
 
-    - title: "Edit Book: Add a tool to check external links (links pointing to websites). Can be accessed via Tools->Check external links"
+    - title: "Edit book: Add a tool to check external links (links pointing to websites). Can be accessed via Tools->Check external links"
 
-    - title: "Edit Book: Add an option to turn off drag and drop editing of text (Preferences->Editor)"
+    - title: "Edit book: Add an option to turn off drag and drop editing of text (Preferences->Editor)"
 
     - title: "Two new icon themes: Primo+ and Black Edition (Preferences->Look & Feel->Change icon theme)"
 
@@ -2000,7 +2000,7 @@
     - title: "Add a check box to control copying ebook files when duplicating book records via the Add Empty Book dialog"
 
   bug fixes:
-    - title: "Edit Book: Check Book: Fix automatic fixing of unsafe ids not working if the file containing the unsafe also needs to be fixed for an unsafe filename."
+    - title: "Edit book: Check Book: Fix automatic fixing of unsafe ids not working if the file containing the unsafe also needs to be fixed for an unsafe filename."
       tickets: [1491728]
 
     - title: "E-book viewer: Informative error message for themes button when no themes have been created"
@@ -2008,7 +2008,7 @@
     - title: "Fix a regression that caused the library switch entries at the bottom of the library menu to not work when there are many libraries."
       tickets: [1490096]
 
-    - title: "Get Books: Update Amazon EU store plugins for website changes"
+    - title: "Get books: Update Amazon EU store plugins for website changes"
 
 
 - version: 2.36.0
@@ -2030,7 +2030,7 @@
     - title: "E-book viewer: Add a command line option to open the previously read book when starting up."
       tickets: [1483313]
 
-    - title: "Edit Book: Live CSS: Allow copying of CSS rules by right clicking on the Live CSS panel."
+    - title: "Edit book: Live CSS: Allow copying of CSS rules by right clicking on the Live CSS panel."
       tickets: [1485237]
 
     - title: "Linux installer: Install application and mimetype icons in multiple sizes"
@@ -2050,10 +2050,10 @@
     - title: "Fix a regression in the previous release that could cause the marked books icon to be incorrectly rendered next to the row number"
       tickets: [1486398]
 
-    - title: "Edit Book: Check Book: Fix incorrect links that consist only of an anchor and no filename not being detected."
+    - title: "Edit book: Check Book: Fix incorrect links that consist only of an anchor and no filename not being detected."
       tickets: [1485670]
 
-    - title: "AZW3 Output: Fix large tables (with many columns) not rendering correctly on Kindles."
+    - title: "AZW3 output: Fix large tables (with many columns) not rendering correctly on Kindles."
       tickets: [1489495]
 
   improved recipes:
@@ -2073,7 +2073,7 @@
       tickets: [1483313]
 
   bug fixes:
-    - title: "DOCX Input: Fix a regression in the previous release that broke conversion of some documents that specify vertical alignment in absolute units"
+    - title: "DOCX input: Fix a regression in the previous release that broke conversion of some documents that specify vertical alignment in absolute units"
 
     - title: "Book list: Fix the current row number being partially cutoff on some windows 10 machines."
       tickets: [1482993]
@@ -2103,12 +2103,12 @@
     - title: "E-book viewer: Improve performance of hyphenation (by updating the version of the hyphenation library it uses)"
 
   bug fixes:
-    - title: "DOCX Input: Add support for text whose vertical position is adjusted by offsets from the baseline"
+    - title: "DOCX input: Add support for text whose vertical position is adjusted by offsets from the baseline"
 
-    - title: "DOCX Output: Handle length and percentage values for vertical-align in the input document."
+    - title: "DOCX output: Handle length and percentage values for vertical-align in the input document."
       tickets: [1480300]
 
-    - title: "Edit Book: Check Book: Fix automatic correction of invalid ids not updating the idrefs in the spine for ids in the manifest of the OPF file."
+    - title: "Edit book: Check Book: Fix automatic correction of invalid ids not updating the idrefs in the spine for ids in the manifest of the OPF file."
       tickets: [1479462]
 
     - title: "E-book viewer: Fix printing to PDF could result in filenames with characters not supported by windows"
@@ -2134,9 +2134,9 @@
     - title: "Driver for SONY DPT-S1."
       tickets: [1476093]
 
-    - title: "Edit Book: When showing suggestions for mis-spelled words, also show suggestions from user created word lists"
+    - title: "Edit book: When showing suggestions for mis-spelled words, also show suggestions from user created word lists"
 
-    - title: 'Edit Book: Check Book: Add a check for "invalid" ids'
+    - title: 'Edit book: Check Book: Add a check for "invalid" ids'
 
   bug fixes:
     - title: "Conversion: Ignore stylesheets linked via media queries that use device specific features."
@@ -2159,7 +2159,7 @@
     - title: "E-book viewer: Automatically save the current reading position every ten seconds. Prevents loss of reading position on crash/forced shutdown."
       tickets: [1473737]
 
-    - title: "Edit Book: Check Book: Add checks for missing OPF version and toc references and for text placed directly inside the <body> tag"
+    - title: "Edit book: Check Book: Add checks for missing OPF version and toc references and for text placed directly inside the <body> tag"
       tickets: [1468649]
 
     - title: "calibredb: Add a new search sub-command that can be used to generate a list of book ids from a search expression"
@@ -2173,7 +2173,7 @@
     - title: "Linux: Various fixes to make calibre work when compiled against the latest versions of Qt and PyQt"
       tickets: [1471083]
 
-    - title: "Edit Book: Allow drag and drop of files onto dock icon on OS X"
+    - title: "Edit book: Allow drag and drop of files onto dock icon on OS X"
 
   bug fixes:
     - title: "There was a regression in 2.32.0 that caused conversion to PDF to fail, the fix for this was released in 2.32.1"
@@ -2184,7 +2184,7 @@
     - title: "Fix error in template dialog when using {id} in send to device preferences."
       tickets: [1474513]
 
-    - title: "Edit Book/Book polishing: Fix EPUB books with opf files that use a non-default namespace for the OPF namespace being corrupted."
+    - title: "Edit book/Book polishing: Fix EPUB books with opf files that use a non-default namespace for the OPF namespace being corrupted."
       tickets: [1471419]
 
     - title: "OS X: Workaround for Qt 5 regression that causes any errors during startup to be hidden behind the splash screen."
@@ -2208,10 +2208,10 @@
     - title: "Fix corrupted text in the jobs list on some non-English windows installs"
       tickets: [1469549]
 
-    - title: "Edit Book: Workaround for a Qt regression that caused 'See what changed' after a search and replace on OS X causing the application to become unresponsive."
+    - title: "Edit book: Workaround for a Qt regression that caused 'See what changed' after a search and replace on OS X causing the application to become unresponsive."
       tickets: [1466732]
 
-    - title: "Edit Book: Fix smarten punctuation not working for books with non-ascii characters in internal file names on OS X"
+    - title: "Edit book: Fix smarten punctuation not working for books with non-ascii characters in internal file names on OS X"
 
   improved recipes:
     - Harvard Business Review
@@ -2250,15 +2250,15 @@
     - title: "AZW3 Input: Ignore incorrect text encoding (incorrectly encoded bytes are now replaced by placeholders) instead of erroring out."
       tickets: [1465769]
 
-    - title: "Get Books: Update Legimi and CDP store plugins for website changes"
+    - title: "Get books: Update Legimi and CDP store plugins for website changes"
 
     - title: "Fix Cybook Nolimbook not being detected in linux and OS X."
       tickets: [1464382]
 
-    - title: "DOCX Output: Fix internal hyperlinks being ignored when they point to a HTML file whose <body> element has an id."
+    - title: "DOCX output: Fix internal hyperlinks being ignored when they point to a HTML file whose <body> element has an id."
       tickets: [1464086]
 
-    - title: "Edit Book: Fix groups in replace template being interpreted backwards when search direction is up"
+    - title: "Edit book: Fix groups in replace template being interpreted backwards when search direction is up"
 
     - title: "Searching: When search as you type is active, do not change automatically change focus to the book list when searching, unless the user presses Enter."
       tickets: [1463042]
@@ -2292,10 +2292,10 @@
       tickets: [1461964]
 
   bug fixes:
-    - title: "DOCX Output: Fix aspect ratio of images being distorted when the input document specifies image width but not height or vice-versa."
+    - title: "DOCX output: Fix aspect ratio of images being distorted when the input document specifies image width but not height or vice-versa."
       tickets: [1455502]
 
-    - title: "DOCX Output: Fix extra page breaks being inserted in some situations."
+    - title: "DOCX output: Fix extra page breaks being inserted in some situations."
       tickets: [1455502]
 
     - title: "LIT Input: Fix smarten punctuation not working for text (as opposed to HTML) based LIT files."
@@ -2306,7 +2306,7 @@
 
     - title: "Book details panel: On windows use only \\ as a path separator when copying file paths"
 
-    - title: "Edit Book: Fix Saved searches panel not working well with very long search/replace expressions"
+    - title: "Edit book: Fix Saved searches panel not working well with very long search/replace expressions"
 
     - title: "OS X: Fix changing preferences causing 'Email to selected recipients...' appearing multiple times in the Connect/Share menu."
       tickets: [1460089]
@@ -2318,7 +2318,7 @@
   new features:
     - title: "Allow opening the full Tag Editor dialog directly from the book list by holding down the Shift key while starting an edit of a tag-like field. For example, click on the tags field for a book and press Shift-F2"
 
-    - title: "Tag Browser: Allow undoing the deletion of items in the Manage categories window"
+    - title: "Tag browser: Allow undoing the deletion of items in the Manage categories window"
 
     - title: "calibredb add: Allow setting arbitrary identifiers, not just ISBN."
       tickets: [1458620]
@@ -2327,14 +2327,14 @@
       tickets: [1458076]
 
   bug fixes:
-    - title: "DOCX Output: Detect the common idiom of placing centered images as inline images inside a containing centered block and render the resulting image as a floating centered image in the DOCX file."
+    - title: "DOCX output: Detect the common idiom of placing centered images as inline images inside a containing centered block and render the resulting image as a floating centered image in the DOCX file."
       tickets: [1455502]
 
-    - title: "DOCX Output: Fix incorrect handling of bold/italic in paragraphs where the majority of text is either bold or italic instead of normal"
+    - title: "DOCX output: Fix incorrect handling of bold/italic in paragraphs where the majority of text is either bold or italic instead of normal"
 
     - title: "Table of Contents editor: Fix save/load of settings in the XPath wizard not working across restarts"
 
-    - title: "Get Books: Update the Kobo Store plugin for website changes"
+    - title: "Get books: Update the Kobo Store plugin for website changes"
 
   improved recipes:
     - Popular Science
@@ -2359,7 +2359,7 @@
   bug fixes:
     - title: "Open With: Fix application icons in XDG_DATA_HOME on linux not being found and fix unhandled error when choosing non-executable files as applications."
 
-    - title: "AZW3 Output: Remove duplicate anchors to workaround some Kindle renderers using the last occurrence of an anchor as the target instead of the first."
+    - title: "AZW3 output: Remove duplicate anchors to workaround some Kindle renderers using the last occurrence of an anchor as the target instead of the first."
       tickets: [1454199]
 
     - title: "Fix language definition on body tag being ignored during conversion"
@@ -2368,7 +2368,7 @@
 
     - title: "E-book viewer: Fix print to pdf not working on some windows systems with non-ascii usernames and non-utf-8 system locales. Also make the print to pdf dialog a little easier to use."
 
-    - title: "Edit Book: Fix TOC editor window not remembering its last used size"
+    - title: "Edit book: Fix TOC editor window not remembering its last used size"
 
   improved recipes:
     - Field and Stream
@@ -2386,7 +2386,7 @@
     - title: "Edit metadata dialog: Add a clear button for the publisher."
       tickets: [1449105]
 
-    - title: "DOCX Input: Add option to not insert page breaks between endnotes."
+    - title: "DOCX input: Add option to not insert page breaks between endnotes."
       tickets: [1448433]
 
     - title: "calibredb list: Allow outputting the book languages as well."
@@ -2435,7 +2435,7 @@
 
     - title: "E-book viewer: Fix a regression that caused the viewer to occasionally skip the last page in a chapter when displaying more than one pages per screen and scrolling by screen"
 
-    - title: "Edit Book: Fix open OPF file not being refreshed when deleting items from the file browser."
+    - title: "Edit book: Fix open OPF file not being refreshed when deleting items from the file browser."
       tickets: [1445634]
 
   improved recipes:
@@ -2451,9 +2451,9 @@
   date: 2015-04-17
 
   new features:
-    - title: "Edit Book: Make embedding fonts using the manage fonts dialog easier. You can now double click on a font family to see what faces for that family area available on your computer and install new fonts directly from the dialog."
+    - title: "Edit book: Make embedding fonts using the manage fonts dialog easier. You can now double click on a font family to see what faces for that family area available on your computer and install new fonts directly from the dialog."
 
-    - title: "Book Details panel: Allow deleting tags/series/publisher/etc. by right clicking on the link in the book details panel."
+    - title: "Book details panel: Allow deleting tags/series/publisher/etc. by right clicking on the link in the book details panel."
       tickets: [1442925]
 
     - title: "E-book viewer: Allow expanding/collapsing all items in the Table of Contents view by right clicking"
@@ -2462,14 +2462,14 @@
 
     - title: "Fetch News: Add API to allow recipe writers to easily resolve internal links to point to the downloaded versions of articles"
 
-    - title: "DOCX Input: Add support for DOCX files created by Word 2013 in 'Strict' mode"
+    - title: "DOCX input: Add support for DOCX files created by Word 2013 in 'Strict' mode"
 
     - title: "When getting cover from comic files, use smart filename sorting to find the first filename, recognizing numbers inside the filenames."
 
   bug fixes:
     - title: "E-book viewer: When displaying multiple pages per screen fix whole screen scrolling so that it works as expected even at the end of the file, when their might be fewer pages left than would fill the screen."
 
-    - title: "DOCX Input: Automatically resize large images used as bullets in lists, to compensate for the fact that HTML renderers do not do this."
+    - title: "DOCX input: Automatically resize large images used as bullets in lists, to compensate for the fact that HTML renderers do not do this."
 
     - title: "Book list: Prevent yes/no columns from making the minimum row height too large."
 
@@ -2477,10 +2477,10 @@
 
     - title: "Edit book: Fix book locale changing when OPF edited if OPF contains a country code in addition to a language code"
 
-    - title: "Edit Book: Fix escaped HTML tags in the comments metadata being reported as mis-spelled words."
+    - title: "Edit book: Fix escaped HTML tags in the comments metadata being reported as mis-spelled words."
       tickets: [1441925]
 
-    - title: "Edit Book: Fix regression that caused copying of non-breaking spaces to not work when using the keyboard shortcuts"
+    - title: "Edit book: Fix regression that caused copying of non-breaking spaces to not work when using the keyboard shortcuts"
 
     - title: "Open With: Fix open with not working for programs from the Microsoft Office suite"
 
@@ -2508,22 +2508,22 @@
       tickets: [1437756]
 
   bug fixes:
-    - title: "Edit Book: Fix GIF format images being corrupted when using the builtin image editor to make changes to them."
+    - title: "Edit book: Fix GIF format images being corrupted when using the builtin image editor to make changes to them."
       tickets: [1440398]
 
-    - title: "Edit Book: When dragging and dropping files to re-order them in the file browser, fix the final order being dependent on the order the files were selected in."
+    - title: "Edit book: When dragging and dropping files to re-order them in the file browser, fix the final order being dependent on the order the files were selected in."
       tickets: [1440598]
 
     - title: "Conversion: Fix error when converting a document that contains an invalid function based CSS selector without parentheses."
       tickets: [1440278]
 
-    - title: "Edit Book: Fix regression that caused pressing Alt+X to type unicode characters to not work"
+    - title: "Edit book: Fix regression that caused pressing Alt+X to type unicode characters to not work"
 
     - title: "Device view: Preserve position in list of books when deleting books from the device view"
 
     - title: "Make the context menu for the book details popup window work the same way as for the book details panel"
 
-    - title: "Get Books: Update amazon store plugin for website changes"
+    - title: "Get books: Update amazon store plugin for website changes"
 
     - title: "PDF Metadata: When choosing between reading metadata from the Info dict and the XMP block, consider both the MetadataData and the ModifyDate in the XMP block, since there exist PDF metadata writing tools that update one and not the other."
       tickets: [1440304]
@@ -2568,7 +2568,7 @@
     - title: "Column Icons: Fix apostrophes in icon filenames causing errors."
       tickets: [1436690]
 
-    - title: "Edit Book: Fix a regression that caused Remove unused CSS to fail on invalid CSS selectors, instead of ignoring them"
+    - title: "Edit book: Fix a regression that caused Remove unused CSS to fail on invalid CSS selectors, instead of ignoring them"
 
     - title: "Open With: Fix open with failing to get list of default programs on windows if the registry contains missing ProgIDs."
       tickets: [1434990]
@@ -2585,7 +2585,7 @@
   new features:
     - title: "Book List: When editing data in the book list directly, expand the editor widget to use all available width if the data does not fit inside the current column width"
 
-    - title: "Edit Book: When re-opening a previously edited book, restore all open files and the cursor position. Can be disabled in Preferences->Main Window"
+    - title: "Edit book: When re-opening a previously edited book, restore all open files and the cursor position. Can be disabled in Preferences->Main Window"
 
     - title: "Advanced search builder: Allow using days/weeks/months/years when building a date based search with number of days ago."
       tickets: [1431695]
@@ -2598,7 +2598,7 @@
     - title: "ODT Input: Add support for intra-document cross-references."
       tickets: [1429271]
 
-    - title: "PDF Output: Fix incorrect encoding of ASCII control characters and some Chines characters in metadata and Table of Contents strings."
+    - title: "PDF output: Fix incorrect encoding of ASCII control characters and some Chines characters in metadata and Table of Contents strings."
       tickets: [1433848]
 
     - title: "Amazon metadata download: Work around amazon server problems where it does not return Kindle Editions in search results when not logged in."
@@ -2616,7 +2616,7 @@
 
     - title: "Open With: Fix error when scanning for default programs on windows for some file types"
 
-    - title: "Edit Book: Fix Preview panel sometimes not working when opening multiple html files one after the other very quickly"
+    - title: "Edit book: Fix Preview panel sometimes not working when opening multiple html files one after the other very quickly"
 
   improved recipes:
     - Wired Daily
@@ -2625,15 +2625,15 @@
   date: 2015-03-13
 
   new features:
-    - title: "Allow opening ebook files and covers in external applications by simply right clicking on them in the Book Details panel."
+    - title: "Allow opening ebook files and covers in external applications by simply right clicking on them in the Book details panel."
       type: major
-      description: "Now, you can right click on an ebook format or the cover in the Book Details panel, and open it with any application installed on your computer. calibre will automatically present you with a list of application capable of opening the file. Simply choose one, or if your particular application is not auto-detected, you can browse for it manually."
+      description: "Now, you can right click on an ebook format or the cover in the Book details panel, and open it with any application installed on your computer. calibre will automatically present you with a list of application capable of opening the file. Simply choose one, or if your particular application is not auto-detected, you can browse for it manually."
 
-    - title: "Tag Browser: Make rename and delete for items in the Tag Browser restrict themselves to the current Virtual Library (if any). There is also an additional menu entry you can use to rename and delete across all books while in a Virtual Library."
+    - title: "Tag browser: Make rename and delete for items in the Tag browser restrict themselves to the current Virtual Library (if any). There is also an additional menu entry you can use to rename and delete across all books while in a Virtual Library."
 
     - title: "Conversion: Use a new (written from scratch) implementation of CSS Level 3 selectors that fixes various bugs in handling of the more advanced/uncommon CSS selectors such as nth-last-child()"
 
-    - title: "Edit Book: Allow restoring of disabled confirmation prompts in preferences and add a confirmation when removing saved searches"
+    - title: "Edit book: Allow restoring of disabled confirmation prompts in preferences and add a confirmation when removing saved searches"
 
     - title: "Edit ToC button: Remember the last used ebook formats"
 
@@ -2644,21 +2644,21 @@
     - title: "Table of Contents Editor: Fix selecting a location inside a file and then clicking on another file causes the previous location to be used in the new file."
       tickets: [1428212]
 
-    - title: "DOCX Input: Fix incorrect bold font weight being used for heading styles even if the style definition does not specify bold."
+    - title: "DOCX input: Fix incorrect bold font weight being used for heading styles even if the style definition does not specify bold."
       tickets: [1430831]
 
     - title: "AZW3 Input: Fix a bug that prevented conversion of AZW3 files that contained an empty CSS media block."
       tickets: [1426220]
 
-    - title: "PDF Output: Fix incorrect rendering of text in elements that use font-variant:small-caps and also have children."
+    - title: "PDF output: Fix incorrect rendering of text in elements that use font-variant:small-caps and also have children."
       tickets: [1425094]
 
-    - title: "Get Books: Update Amazon Europe, Empik and CDP store plugins"
+    - title: "Get books: Update Amazon Europe, Empik and CDP store plugins"
 
-    - title: "PDF Output: Fix incorrect conversion of source document that specify dir='rtl' on the root element."
+    - title: "PDF output: Fix incorrect conversion of source document that specify dir='rtl' on the root element."
       tickets: [1429292]
 
-    - title: "PDF Output: Ignore unparseable links instead of aborting the conversion on them."
+    - title: "PDF output: Ignore unparseable links instead of aborting the conversion on them."
       tickets: [1429282]
 
     - title: "Fix reading metadata from filenames tester not working for dates before 1900."
@@ -2674,7 +2674,7 @@
 
     - title: "Fix error when running calibredb backup_metadata on a library that contains book records with no path information"
 
-    - title: "Edit Book: Fix extra search being hidden when removing a saved search"
+    - title: "Edit book: Fix extra search being hidden when removing a saved search"
 
     - title: "Fix a regression in 2.20 that prevented some changes to per-library preferences from being saved"
 
@@ -2702,14 +2702,14 @@
     - title: "Make publishers in the book details panel clickable."
       tickets: [1419313]
 
-    - title: "Edit Book spell check: For mis-spelled words of the form one:two offer one: two as a suggested correction."
+    - title: "Edit book spell check: For mis-spelled words of the form one:two offer one: two as a suggested correction."
       tickets: [1422133]
 
   bug fixes:
     - title: "Fix a regression that caused incorrect results when searching on numeric or date fields with relational operators."
       tickets: [1423390]
 
-    - title: "DOCX Input: Fix regression in 2.19 that broke handling of text with leading or trailing non-breaking spaces/en-spaces/quad-spaces."
+    - title: "DOCX input: Fix regression in 2.19 that broke handling of text with leading or trailing non-breaking spaces/en-spaces/quad-spaces."
       tickets: [1422844]
 
     - title: "Amazon metadata download: Update plugin for website changes to Amazon Brazil."
@@ -2717,9 +2717,9 @@
 
     - title: "E-book viewer: Fix footnote popup window not displaying entire footnote if footnote contains element with page-break-after set"
 
-    - title: "Edit Book: Reports tool: Fix double clicking on an unused image causing an error"
+    - title: "Edit book: Reports tool: Fix double clicking on an unused image causing an error"
 
-    - title: "Tag Browser: Fix incorrect grouping of words starting with graphemes, such as ash."
+    - title: "Tag browser: Fix incorrect grouping of words starting with graphemes, such as ash."
       tickets: [1422116]
 
     - title: "Conversion: Ignore incorrectly URL encoded links instead of erroring out on them."
@@ -2743,26 +2743,26 @@
     - title: "Windows driver for Grammata Papyre 602."
       tickets: [1418207]
 
-    - title: "Edit Book: Add an option to turn off auto-completion of closing tags"
+    - title: "Edit book: Add an option to turn off auto-completion of closing tags"
 
     - title: "Allow adding a description for custom columns."
       tickets: [1417219]
 
-    - title: "Book Details panel: Allow any identifier of the form url+number to become a clickable link. For example: url1:http://example.com"
+    - title: "Book details panel: Allow any identifier of the form url+number to become a clickable link. For example: url1:http://example.com"
 
   bug fixes:
     - title: "Conversion: Convert entities that reference non-BMP unicode codepoints on Windows and OS X correctly. Linux was not affected by this bug."
       tickets: [1417327]
 
-    - title: "Edit Book: Do not autocomplete the closing tag wen typing the / key inside an existing tag."
+    - title: "Edit book: Do not autocomplete the closing tag wen typing the / key inside an existing tag."
       tickets: [1417700]
 
     - title: "Fix Booken Lev e-book reader not being detected in OS X and Linux."
       tickets: [1417325]
 
-    - title: "DOCX Input: Change handling of sequences of space characters to more closely follow Microsoft Word."
+    - title: "DOCX input: Change handling of sequences of space characters to more closely follow Microsoft Word."
 
-    - title: "Edit Book: Fix Table of Contents editor not remembering its saved state across calibre sessions"
+    - title: "Edit book: Fix Table of Contents editor not remembering its saved state across calibre sessions"
 
     - title: "Edit book: Disallow drag and drop of documents onto the preview panel to workaround crashing bug in Qt."
       tickets: [1416752]
@@ -2770,7 +2770,7 @@
     - title: "E-book viewer: Fix current page not being preserved when opening and then immediately closing the footnote window."
       tickets: [1416526]
 
-    - title: "PDF Output: Fix incorrect encoding for some chinese characters in the PDF Outline (Table of Contents)"
+    - title: "PDF output: Fix incorrect encoding for some chinese characters in the PDF Outline (Table of Contents)"
       tickets: [1416222]
 
   improved recipes:
@@ -2782,7 +2782,7 @@
   date: 2015-01-30
 
   new features:
-    - title: "Edit Book: Add 'Style Classes' and 'Links' report pages to the Reports tool"
+    - title: "Edit book: Add 'Style Classes' and 'Links' report pages to the Reports tool"
 
     - title: "Tag browser: Allow expanding all children of a node by right clicking and choosing 'Expand All'"
       tickets: [1414315]
@@ -2802,11 +2802,11 @@
   date: 2015-01-23
 
   new features:
-    - title: "Edit Book: A new reports tool that shows a summary of files, images, words, characters and styles used in the book."
+    - title: "Edit book: A new reports tool that shows a summary of files, images, words, characters and styles used in the book."
       description: "The reports tool is a great way to get an overview of the different parts of your book. Every line in the report is hot-linked, double clicking it jumps to the places in the book where that item is used."
       type: major
 
-    - title: "Edit Book: Allow adding the 'Manage Snippets' action to the toolbar, for easy access"
+    - title: "Edit book: Allow adding the 'Manage Snippets' action to the toolbar, for easy access"
 
   bug fixes:
     - title: "Update Ozon.ru metadata download plugin for website changes."
@@ -2841,18 +2841,18 @@
   date: 2015-01-10
 
   new features:
-    - title: "Edit Book: Add support for snippets -- small pieces of text that are often re-used."
+    - title: "Edit book: Add support for snippets -- small pieces of text that are often re-used."
       description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See https://manual.calibre-ebook.com/snippets.html for details."
       type: major
 
   bug fixes:
-    - title: "Edit Book: When importing files and the book has an orphaned entry in the manifest for that file, but the file itself is not present, rename the file instead of erroring out."
+    - title: "Edit book: When importing files and the book has an orphaned entry in the manifest for that file, but the file itself is not present, rename the file instead of erroring out."
       tickets: [1407860]
 
-    - title: "Book Details panel: Fix author links with URL schemes other than http or file preventing context menu from working."
+    - title: "Book details panel: Fix author links with URL schemes other than http or file preventing context menu from working."
       tickets: [1408174]
 
-    - title: "PDF Output: Make the minimum height for headers and footers scale with the base font size"
+    - title: "PDF output: Make the minimum height for headers and footers scale with the base font size"
 
     - title: "Fix a typo that prevented the Cybook Muse from being detected on some computers."
       tickets: [1407435]
@@ -2873,13 +2873,13 @@
   date: 2015-01-02
 
   new features:
-    - title: "Edit Book: Add auto-completion for links."
+    - title: "Edit book: Add auto-completion for links."
       description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See https://manual.calibre-ebook.com/edit.html#auto-complete for details."
       type: major
 
-    - title: "Edit Book Function mode: Add builtin functions to change case of text, ignoring HTML tags in the matched text"
+    - title: "Edit book Function mode: Add builtin functions to change case of text, ignoring HTML tags in the matched text"
 
-    - title: "Edit Book - Check Book: Allow auto-fixing of file not in spine errors"
+    - title: "Edit book - Check Book: Allow auto-fixing of file not in spine errors"
 
     - title: "Driver for Papyre 624 ml"
       tickets: [1405901]
@@ -2893,12 +2893,12 @@
 
     - title: "Fix regression that broke the markdown-calibre command"
 
-    - title: "Edit Book - Show what changed: Fix scrollbar sometimes not visible if the differences contain a few, very long lines. Also fix the line numbers being partially obscured on some systems (depending on the font used)."
+    - title: "Edit book - Show what changed: Fix scrollbar sometimes not visible if the differences contain a few, very long lines. Also fix the line numbers being partially obscured on some systems (depending on the font used)."
       tickets: [1406056]
 
-    - title: "Edit Book: Fix a regression that caused the Home key to not move to the start of the line on lines containing un-indented tags"
+    - title: "Edit book: Fix a regression that caused the Home key to not move to the start of the line on lines containing un-indented tags"
 
-    - title: "Get Books: Update the Amazon (US) plugin for website changes."
+    - title: "Get books: Update the Amazon (US) plugin for website changes."
       tickets: [1406040]
 
     - title: "MOBI Input: Fix incorrect conversion of MOBI files that wrap their content inside <a> anchor tags."
@@ -2995,7 +2995,7 @@
 
     - title: "Edit book: Fix regression that broke typing of XML entities for ampersand, less-than and greater-than"
 
-    - title: "Edit Book: Do not change the current selected text when right clicking on a mis-spelled word"
+    - title: "Edit book: Do not change the current selected text when right clicking on a mis-spelled word"
 
   improved recipes:
     - The Australian
@@ -3008,9 +3008,9 @@
   date: 2014-11-28
 
   new features:
-    - title: "Edit Book: Automatically complete the closing tag in HTML/XML files when typing </"
+    - title: "Edit book: Automatically complete the closing tag in HTML/XML files when typing </"
 
-    - title: "Edit Book: Implement auto-indent, now when pressing the Enter key to start a new line, the new line's indentation is automatically created"
+    - title: "Edit book: Implement auto-indent, now when pressing the Enter key to start a new line, the new line's indentation is automatically created"
 
     - title: "Driver for the Verso E71b ebook reader"
       tickets: [1395289]
@@ -3019,10 +3019,10 @@
 
     - title: "Make translations of the User Manual available in many different languages (fully or partially translated). Click the 'Change Language' link in the sidebar of the manual to change the language"
 
-    - title: "Edit Book: Search & Replace function mode: Add a new function annotation (replace.file_order) to control what order multiple files are processed in, when doing Replace All. See the User Manual for details."
+    - title: "Edit book: Search & Replace function mode: Add a new function annotation (replace.file_order) to control what order multiple files are processed in, when doing Replace All. See the User Manual for details."
 
   bug fixes:
-    - title: "Get Books: Update Woblink store plugin for website changes"
+    - title: "Get books: Update Woblink store plugin for website changes"
 
     - title: "Book polishing: Ignore zero byte font files in the ebook instead of erroring out on them when subsetting fonts."
       tickets: [1395694]
@@ -3031,7 +3031,7 @@
 
     - title: "Update the version of libimobiledevice shipped in the Linux and OS X builds to 1.1.7, should help with some connection issues to Apple devices"
 
-    - title: "PDF Output: Add support for font-family aliasing in @font-face rules."
+    - title: "PDF output: Add support for font-family aliasing in @font-face rules."
       tickets: [1395176]
 
   improved recipes:
@@ -3051,12 +3051,12 @@
   date: 2014-11-21
 
   new features:
-    - title: "Edit Book: Add a new 'function mode' for the Search and Replace tool"
+    - title: "Edit book: Add a new 'function mode' for the Search and Replace tool"
       description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: https://manual.calibre-ebook.com/function_mode.html"
       type: major
 
   bug fixes:
-    - title: "DOCX Input: Add support for multilingual documents."
+    - title: "DOCX input: Add support for multilingual documents."
       tickets: [1394428]
 
     - title: "Edit metadata dialog: Fix date fields being displayed in the UTC timezone instead of the local timezone, causing the day to be off by one in some timezones."
@@ -3096,7 +3096,7 @@
 
     - title: "Metadata download: Prioritize results that have the same language as the current calibre user interface language"
 
-    - title: "Edit Book: Make the CSS used for styling the generated HTML Table of Contents user customizable via https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
+    - title: "Edit book: Make the CSS used for styling the generated HTML Table of Contents user customizable via https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
 
   bug fixes:
     - title: "E-book viewer: Fix popup footnotes not working on windows"
@@ -3109,9 +3109,9 @@
 
     - title: "Fix ebook editor global menu not working on Unity when started from inside calibre"
 
-    - title: "Get Books: Update the Amazon European store plugins for website changes"
+    - title: "Get books: Update the Amazon European store plugins for website changes"
 
-    - title: "Edit Book: Fix handling of XML unsafe characters (like <, > and &) inside <style> tags"
+    - title: "Edit book: Fix handling of XML unsafe characters (like <, > and &) inside <style> tags"
 
     - title: "Linux: Fix regression on Unity that prevented some keyboard shortcuts from working because of the global menu bar."
       tickets: [1390901]
@@ -3143,10 +3143,10 @@
       type: major
       description: "Now when you click on a link to a footnote/endnote, the corresponding note is shown in a separate popup window, for convenient reference. Footnote links are recognized using the EPUB 3 footnote markup as well as some heuristics. Any superscript or subscript links are assumed to be footnote links. Any link that links to another file which in turn links back to the original link, is assumed to be an endnote."
 
-    - title: "Cover Grid: Improve scroll wheel based scrolling."
+    - title: "Cover grid: Improve scroll wheel based scrolling."
       description: 'On windows and linux a single "tick" of the wheel now scrolls by about half a row instead of a full screen. On OS X, scrolling is pixel based, so as you scroll faster, more content is scrolled.'
 
-    - title: "Get Books: Add the Bubok Portugal store"
+    - title: "Get books: Add the Bubok Portugal store"
 
     - title: "Performance improvement for large libraries that using custom columns built with templates"
 
@@ -3182,7 +3182,7 @@
   new features:
     - title: "Linux: Add support for the global menubar in Ubuntu Unity (The menu that is displayed in the top most on screen bar). It now works both with the main calibre program and the e-book editor. You can customize what appears in the menubar via Preferences->Toolbars"
 
-    - title: "Get Books: Add a new store, Bubok (bubok.es)"
+    - title: "Get books: Add a new store, Bubok (bubok.es)"
 
     - title: "Driver for Tolino Vision 2."
       tickets: [1385904]
@@ -3209,7 +3209,7 @@
     - title: "Fix text entry widgets' popup completion window not working well with windows on-screen keyboard."
       tickets: [1385586]
 
-    - title: "Edit Book: Fix links that are absolute paths causing crashes in windows"
+    - title: "Edit book: Fix links that are absolute paths causing crashes in windows"
 
     - title: "Fix the read metadata from format button in the edit metadata dialog not working for FB2 files."
       tickets: [1385237]
@@ -3240,7 +3240,7 @@
     - title: "Allow clearing of date and number type fields by right clicking and choosing clear when editing the fields in the book list or edit metadata dialog"
 
   bug fixes:
-    - title: "MOBI/AZW3 Output: When converting an EPUB document that specifies an SVG image as its cover image, convert the cover to JPEG as the Kindle cannot handle SVG cover images."
+    - title: "MOBI/AZW3 output: When converting an EPUB document that specifies an SVG image as its cover image, convert the cover to JPEG as the Kindle cannot handle SVG cover images."
       tickets: [1384375]
 
     - title: "AZW3 Input: Fix crash when processing AZW3 files that contain certain SVG images dies to a bug in ImageMagick."
@@ -3272,7 +3272,7 @@
     - title: "Allow configuring a keyboard shortcut to toggle highlighting of search results via Preferences->Keyboard (under Miscellaneous)."
       tickets: [1380528]
 
-    - title: "Edit Book: Saved searches window: Remember the last used values for where to search and search direction"
+    - title: "Edit book: Saved searches window: Remember the last used values for where to search and search direction"
 
     - title: "E-book viewer: Allow right clicking on the toolbar buttons to popup the optional menus, useful when using the viewer on a touch screen."
       tickets: [1380359]
@@ -3287,12 +3287,12 @@
     - title: "Amazon metadata download: Update the amazon metadata download plugin to handle changes to the amazon.com website."
       tickets: [1379305]
 
-    - title: "AZW3 Output: Ignore invalid attribute names in the input document rather than aborting the conversion on them."
+    - title: "AZW3 output: Ignore invalid attribute names in the input document rather than aborting the conversion on them."
 
     - title: "Book details panel: Fix custom columns built from other columns with tag like values not clickable in the book details panel."
       tickets: [1381323]
 
-    - title: "Edit Book: Fix changing the editor undo/redo keyboard shortcuts not preventing the old shortcuts from working."
+    - title: "Edit book: Fix changing the editor undo/redo keyboard shortcuts not preventing the old shortcuts from working."
 
     - title: "CSV Catalogs: Output all custom datetime columns in the local timezone to match the format for builtin columns"
 
@@ -3328,22 +3328,22 @@
   bug fixes:
     - title: "Fix a typo preventing calibre from recognizing the new Kobo Aura H2O"
 
-    - title: 'Edit Book: Spell Check: Fix replaced words coming back into the list when toggling the "Show only misspelled words" setting'
+    - title: 'Edit book: Spell Check: Fix replaced words coming back into the list when toggling the "Show only misspelled words" setting'
 
-    - title: 'Edit Book: Spell Check: Fix replacing a word with multiple words causing the replacements to show up erroneously in the list of misspelled words'
+    - title: 'Edit book: Spell Check: Fix replacing a word with multiple words causing the replacements to show up erroneously in the list of misspelled words'
       tickets: [1370294]
 
-    - title: 'Edit Book: Fix leading or trailing hyphens on words being ignored when spell checking.'
+    - title: 'Edit book: Fix leading or trailing hyphens on words being ignored when spell checking.'
       tickets: [1370288]
 
     - title: 'E-book viewer: Fix a regression, caused by a Qt 5 behavior change, that caused incorrect colors to be shown when viewing MOBI files that use CSS 3 color specifications internally.'
 
     - title: 'MOBI Output: Handle input documents that use CSS 3 syntax for colors by converting the color to the #RRGGBB format required for MOBI'
 
-    - title: 'Tag Browser: Fix drag and drop of books onto a language not setting the language.'
+    - title: 'Tag browser: Fix drag and drop of books onto a language not setting the language.'
       tickets: [1373504]
 
-    - title: 'Tag Browser: When renaming an item that is currently being searched for, remove the search indicator, as the search will no longer match the renamed item.'
+    - title: 'Tag browser: When renaming an item that is currently being searched for, remove the search indicator, as the search will no longer match the renamed item.'
       tickets: [1374624]
 
     - title: 'Bulk metadata edit: Fix getting cover from EPUB files that have no cover image by rendering the first page as the cover not working.'
@@ -3367,7 +3367,7 @@
       description: "Now when you click the Generate cover button in the Edit Metadata dialog a cover based on the book metadata is generated using random colors and styles. You can customize the random cover generation by long clicking the Generate Cover button, which will popup a dialog where you can create new color schemes and customize other aspects of the generated cover as well."
       type: major
 
-    - title: "Edit Book: Redesign the saved searches pop-up as a dockable window. Editing saved searches now happens inline and the global search/replace keyboard shortcuts work in the saved searches window"
+    - title: "Edit book: Redesign the saved searches pop-up as a dockable window. Editing saved searches now happens inline and the global search/replace keyboard shortcuts work in the saved searches window"
 
     - title: "Edit book: Change the text of the 'Mark selected text' menu entry depending on whether it will mark or unmark the text"
 
@@ -3385,7 +3385,7 @@
     - title: 'Fix keyboard focus not going to cover grid after doing a search.'
       tickets: [1369160]
 
-    - title: 'DOCX Input: Support for the keepNext paragraph property to keep successive paragraphs on the same page.'
+    - title: 'DOCX input: Support for the keepNext paragraph property to keep successive paragraphs on the same page.'
 
     - title: 'Template language: New template functions: raw_list() to return the items in a list such as tags without any sorting/formatting applied to them; author_sorts() to return the author sort strings from the authors table for the authors in the book.'
 
@@ -3404,7 +3404,7 @@
 
     - title: 'Workaround for Qt 5 regression that broke selecting multiple icons in Preferences->Column icon rules'
 
-    - title: 'Fix tags with angle brackets not being displayed in the Book Details panel'
+    - title: 'Fix tags with angle brackets not being displayed in the Book details panel'
 
   improved recipes:
     - Today's Zaman
@@ -3425,12 +3425,12 @@
   date: 2014-09-11
 
   new features:
-    - title: "Cover Grid: Dynamically adjust the size of the in memory cover thumbnail cache based on the window size to ensure flicker free rendering even on very large screens."
+    - title: "Cover grid: Dynamically adjust the size of the in memory cover thumbnail cache based on the window size to ensure flicker free rendering even on very large screens."
       tickets: [1367211]
 
     - title: "Template tester: Remember last used template"
 
-    - title: "Get Books: When downloading books show a popup message telling the user that the books will be added to the calibre library automatically, to help new users understand what is happening. The popup message can be disabled."
+    - title: "Get books: When downloading books show a popup message telling the user that the books will be added to the calibre library automatically, to help new users understand what is happening. The popup message can be disabled."
     - title: "E-book viewer: Try to detect when a chapter has a page break before the start of the chapter's text resulting in a leading blank page and override the page break."
       tickets: [1366074]
 
@@ -3442,10 +3442,10 @@
 
     - title: "Fix regression that caused calibre running in debug mode on OS X to not have a menubar or dock icon"
 
-    - title: "Get Books: Fix downloading ebooks from Project Gutenberg via the builtin browser not working because of changes to the Project Gutenberg website."
+    - title: "Get books: Fix downloading ebooks from Project Gutenberg via the builtin browser not working because of changes to the Project Gutenberg website."
       tickets: [1366240]
 
-    - title: "Get Books: Update Gutenberg plugin for changes to the Project Gutenberg website."
+    - title: "Get books: Update Gutenberg plugin for changes to the Project Gutenberg website."
       tickets: [1366245]
 
   improved recipes:
@@ -3479,7 +3479,7 @@
 
     - title: "Workaround for Qt 5 behavior change on OS X which prevented error handling during startup on OS X to not work"
 
-    - title: "DOCX Input: Fix non-breaking hyphens being ignored"
+    - title: "DOCX input: Fix non-breaking hyphens being ignored"
 
     - title: "Workaround for Qt 5 bug that causes text copied to the clipboard to be lost when quitting the viewer on windows."
 
@@ -3499,9 +3499,9 @@
     - title: "Fix regression in 2.1 that prevented the saved column layout from being applied."
       tickets: [1363470]
 
-    - title: "Edit Book: Fix the Check Book tool leaking threads"
+    - title: "Edit book: Fix the Check Book tool leaking threads"
 
-    - title: "Edit Book: Fix editor hanging when quitting during a background save operation and the save operation completes before the warning dialog is dismissed."
+    - title: "Edit book: Fix editor hanging when quitting during a background save operation and the save operation completes before the warning dialog is dismissed."
       tickets: [1363122]
 
     - title: "Fix a regression in calibre 2.0 that caused setting the value of a custom number column to zero via the book list to clear the field instead."
@@ -3546,7 +3546,7 @@
 
     - title: "Book list: Fix Ctrl+Home/End not selecting the first/last book"
 
-    - title: "PDF Output: Fix header and footer templates not working in calibre 2.0"
+    - title: "PDF output: Fix header and footer templates not working in calibre 2.0"
       tickets: [1361483]
 
     - title: "OS X: Workaround for Qt 5 bug that caused many keyboard shortcuts to not work in OS X"
@@ -3587,7 +3587,7 @@
     - title: "Book polishing: Fix EPUB files with corrupted ZIP central directories not working and leaving behind detritus in the current working directory."
       tickets: [1360385]
 
-    - title: "Edit Book: Workaround for Qt 5 regression that caused the 'See what changed' tool to freeze the editor when closing the window showing the changes."
+    - title: "Edit book: Workaround for Qt 5 regression that caused the 'See what changed' tool to freeze the editor when closing the window showing the changes."
 
     - title: "Fix regression in 2.0 that broke viewing of LRF format ebooks."
       tickets: [1360332]
@@ -3607,10 +3607,10 @@
 
     - title: "Update the version of Qt used by calibre to Qt 5. This fixes various longstanding bugs in calibre that were caused by bugs in Qt 4."
 
-    - title: "Edit Book: Make the edit saved search/add saved search popup window non-modal."
+    - title: "Edit book: Make the edit saved search/add saved search popup window non-modal."
       tickets: [1354785]
 
-    - title: "Tag Browser: Show format specific icons for the format entries in the Tag Browser"
+    - title: "Tag browser: Show format specific icons for the format entries in the Tag browser"
 
     - title: "Library check: Add buttons to conveniently mark all fixable/deletable items."
       tickets: [1353954]
@@ -3620,18 +3620,18 @@
 
     - title: "E-book viewer: Remove extra spacing between document and scrollbars.  This is particularly noticeable when using a dark theme for the viewer."
 
-    - title: "PDF Output: Fix balanced parentheses in the text of items in the Table of Contents not being rendered properly by some PDF viewers."
+    - title: "PDF output: Fix balanced parentheses in the text of items in the Table of Contents not being rendered properly by some PDF viewers."
       tickets: [1358443]
 
     - title: "Edit book: Abort terminal save on save error instead of quitting editor"
 
-    - title: "Get Books: Update the Project Gutenberg plugin for website changes"
+    - title: "Get books: Update the Project Gutenberg plugin for website changes"
 
     - title: "Plugin loading: When multiple plugin classes are present in the __init__.py namespace, use the one with the qualified name that has the least components"
 
-    - title: "Edit Book: Prevent long saved searches from making the saved search dialog too wide"
+    - title: "Edit book: Prevent long saved searches from making the saved search dialog too wide"
 
-    - title: "Comic Input: Sort pages placed in sub-folders correctly (as long as all pages have the same number of parent folders)."
+    - title: "Comic input: Sort pages placed in sub-folders correctly (as long as all pages have the same number of parent folders)."
 
     - title: "Conversion: Fix the word @page in a comment inside a stylesheet with no following {} causing the rest of the stylesheet to be ignored."
 
