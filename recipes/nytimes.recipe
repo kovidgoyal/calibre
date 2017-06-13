@@ -231,7 +231,8 @@ class NYTimes(BasicNewsRecipe):
             re.compile('commentCount'),
             'lede-container',
             'credit',
-            'caption-video'
+            'caption-video',
+            'upshot-social'
         ]}),
         dict(
             attrs={'class': lambda x: x and 'related-coverage-marginalia' in x.split()}),
