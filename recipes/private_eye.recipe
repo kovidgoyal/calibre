@@ -246,4 +246,4 @@ It offers a unique blend of humour, social and political observations and invest
         m.clear('series')
         m.add('series', self.title)
         m.clear('series_index')
-        m.add_series_index('series_index', self.issue_no)
+        m.add('series_index', self.issue_no)
