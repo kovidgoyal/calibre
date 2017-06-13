@@ -402,9 +402,7 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setCursor(Qt.PointingHandCursor)
-        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.search_button.setIcon(QIcon(I('search.png')))
-        self.search_button.setText(_('Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         ac = QAction(parent)
         parent.addAction(ac)
@@ -415,7 +413,7 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
-        le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.toggle_search_button.click)
+        le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.close_find_box)
         b.setCursor(Qt.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
@@ -424,6 +422,11 @@ class TagBrowserBar(QWidget):  # {{{
         b.setAutoRaise(True)
         b.toggled.connect(self.update_searchbar_state)
         self.update_searchbar_state()
+
+    def close_find_box(self):
+        self.item_search.setCurrentIndex(0)
+        self.item_search.setCurrentText('')
+        self.toggle_search_button.click()
 
     def set_focus_to_find_box(self):
         self.toggle_search_button.setChecked(True)
