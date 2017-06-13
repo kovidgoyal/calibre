@@ -492,10 +492,13 @@ class SearchBoxMixin(object):  # {{{
         self.focus_to_library()
 
     def set_highlight_only_button_icon(self):
+        b = self.highlight_only_button
         if config['highlight_search_matches']:
-            self.highlight_only_button.setIcon(QIcon(I('highlight_only_on.png')))
+            b.setIcon(QIcon(I('highlight_only_on.png')))
+            b.setText(_('Filter'))
         else:
-            self.highlight_only_button.setIcon(QIcon(I('highlight_only_off.png')))
+            b.setIcon(QIcon(I('highlight_only_off.png')))
+            b.setText(_('Highlight'))
         self.highlight_only_button.setVisible(gprefs['show_highlight_toggle_button'])
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 

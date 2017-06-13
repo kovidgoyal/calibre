@@ -249,6 +249,7 @@ class SearchBar(QFrame):  # {{{
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)
         x.setText(_('Highlight'))
+        x.setCursor(Qt.PointingHandCursor)
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
