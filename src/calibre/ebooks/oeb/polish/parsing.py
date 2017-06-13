@@ -622,7 +622,7 @@ def html5_parse(raw, decoder=None, log=None, discard_namespaces=False, line_numb
         raw = raw.replace('\r\n', '\n').replace('\r', '\n')
     raw = replace_chars.sub('', raw)
     from html5_parser import parse
-    root = parse(raw, maybe_xhtml=not discard_namespaces, line_number_attr=linenumber_attribute, keep_doctype=False)
+    root = parse(raw, maybe_xhtml=not discard_namespaces, line_number_attr=linenumber_attribute, keep_doctype=False, sanitize_names=True)
     if (discard_namespaces and root.tag != 'html') or (
         not discard_namespaces and (root.tag != '{%s}%s' % (namespaces['html'], 'html') or root.prefix)):
         raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
