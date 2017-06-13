@@ -380,7 +380,7 @@ class TagBrowserBar(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
-                _('Find item'), default_keys=(),
+                _('Find next match'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.set_focus_to_find_box)
 
@@ -393,7 +393,7 @@ class TagBrowserBar(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find button',
-                _('Find button'), default_keys=(),
+                _('Find in Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
@@ -489,7 +489,7 @@ class TagBrowserWidget(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
-                _('Alter Tag browser'), default_keys=(),
+                _('Change Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 
