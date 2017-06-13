@@ -341,6 +341,22 @@ class TagBrowserMixin(object):  # {{{
 # }}}
 
 
+class FindBox(HistoryLineEdit):  # {{{
+
+    def keyPressEvent(self, event):
+        k = event.key()
+        if k not in (Qt.Key_Up, Qt.Key_Down):
+            return HistoryLineEdit.keyPressEvent(self, event)
+        self.blockSignals(True)
+        if k == Qt.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+            self.setCurrentIndex(1), self.setCurrentIndex(0)
+            event.accept()
+        else:
+            HistoryLineEdit.keyPressEvent(self, event)
+        self.blockSignals(False)
+# }}}
+
+
 class TagBrowserBar(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -365,7 +381,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.label = la = QLabel(self)
         la.setText(_('Tag browser'))
 
-        self.item_search = HistoryLineEdit(parent)
+        self.item_search = FindBox(parent)
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
