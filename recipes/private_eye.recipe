@@ -88,7 +88,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             date = self.publication_date
         if url and url not in self.urls:
             self.urls.append(url)
-            self.info(
+            self.log.info(
                 "Page added: %s: %s: %s (%s)" % (date, title, description, url)
             )
             self.current_articles.append({
