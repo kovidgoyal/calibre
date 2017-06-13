@@ -14,8 +14,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     title = 'Private Eye Online'
+    title_with_date = 'Private Eye Online'
     title_author = 'Private Eye'
     __author__ = 'Sophist at sodalis.co.uk'
+    issue_no = ''
     description = '''Private Eye is a fortnightly British satirical news and current affairs magazine,\
  edited by Ian Hislop, offering a unique blend of humour, social and political observations and\
  investigative journalism. This e-book is a download of the online-edition. The full edition is\
@@ -125,7 +127,6 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 self.cover_url = self.DOMAIN + img['src']
                 filename = img['src'].split('/')[-1]
                 self.issue_no = filename.replace('_big.jpg', '')
-                self.conversion_options['series_index'] = self.issue_no
                 self.log.debug('Cover image found. Issue: %s' % self.issue_no)
                 break
         else:
@@ -148,7 +149,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                         "%d %B %Y"
                         ).lstrip("0")
                     self.log.debug("Publication date: %s" % self.publication_date)
-                    self.title += " " + datetime.strftime(date, "%Y-%m-%d")
+                    self.title_with_date = self.title + datetime.strftime(date, " %Y-%m-%d")
                     break
                 except:
                     self.log.warning(
@@ -233,3 +234,16 @@ It offers a unique blend of humour, social and political observations and invest
         self.log.info('Private Eye: Parse Index complete')
 
         return self.page_index
+
+    def postprocess_book(self, oeb, opts, log):
+        m = oeb.metadata
+        m.clear('title')
+        m.add('title', self.title_with_date)
+        m.clear('authors')
+        m.add('authors', self.title_author)
+        m.clear('author_sort')
+        m.add('author_sort', self.title_author)
+        m.clear('series')
+        m.add('series', self.title)
+        m.clear('series_index')
+        m.add_series_index('series_index', self.issue_no)
