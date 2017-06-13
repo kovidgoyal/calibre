@@ -12,8 +12,7 @@ import re, string, traceback
 
 from calibre import prints
 from calibre.constants import DEBUG
-from calibre.utils.formatter_functions import formatter_functions, compile_user_function
-from calibre.utils.config import tweaks
+from calibre.utils.formatter_functions import formatter_functions
 
 
 class _Parser(object):
@@ -173,6 +172,7 @@ class _Parser(object):
             return self.token()
         else:
             self.error(_('expression is not function or constant'))
+
 
 class TemplateFormatter(string.Formatter):
     '''

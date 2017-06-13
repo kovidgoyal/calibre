@@ -1635,6 +1635,7 @@ class UserFunction(FormatterUserFunction):
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
+
 def compile_user_template_functions(funcs):
     compiled_funcs = {}
     for func in funcs:
@@ -1653,6 +1654,7 @@ def compile_user_template_functions(funcs):
             traceback.print_exc()
     return compiled_funcs
 
+
 def load_user_template_functions(library_uuid, funcs, precompiled_user_functions=None):
     unload_user_template_functions(library_uuid)
     if precompiled_user_functions:
@@ -1660,6 +1662,7 @@ def load_user_template_functions(library_uuid, funcs, precompiled_user_functions
     else:
         compiled_funcs = compile_user_template_functions(funcs)
     formatter_functions().register_functions(library_uuid, compiled_funcs.values())
+
 
 def unload_user_template_functions(library_uuid):
     formatter_functions().unregister_functions(library_uuid)

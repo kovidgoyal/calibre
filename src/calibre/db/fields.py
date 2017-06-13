@@ -25,6 +25,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
+
 IDENTITY = lambda x: x
 
 
@@ -756,4 +757,3 @@ def create_field(name, table, bools_are_tristate, get_template_functions):
     elif table.metadata['datatype'] == 'series':
         cls = SeriesField
     return cls(name, table, bools_are_tristate, get_template_functions)
-

@@ -1451,15 +1451,15 @@ class KOBOTOUCH(KOBO):
 
     def open_linux(self):
         super(KOBOTOUCH, self).open_linux()
-        
+
         self.swap_drives_if_needed()
 
     def open_osx(self):
         # Just dump some info to the logs.
         super(KOBOTOUCH, self).open_osx()
 
-        # Wrap some debugging output in a try/except so that it unlikely to break things completely. 
-        try:        
+        # Wrap some debugging output in a try/except so that it unlikely to break things completely.
+        try:
             if DEBUG:
                 from calibre.constants import plugins
                 usbobserver, usbobserver_err = plugins['usbobserver']

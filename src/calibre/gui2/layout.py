@@ -201,6 +201,23 @@ class SearchBar(QFrame):  # {{{
         self.vl_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
         l.addWidget(self.vl_sep)
 
+        parent.sort_sep = QFrame(self)
+        parent.sort_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        parent.sort_sep.setVisible(False)
+        parent.sort_button = self.sort_button = sb = QToolButton(self)
+        sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        sb.setToolTip(_('Change how the displayed books are sorted'))
+        sb.setCursor(Qt.PointingHandCursor)
+        sb.setPopupMode(QToolButton.InstantPopup)
+        sb.setAutoRaise(True)
+        sb.setText(_('Sort'))
+        sb.setIcon(QIcon(I('sort.png')))
+        sb.setMenu(QMenu())
+        sb.menu().aboutToShow.connect(self.populate_sort_menu)
+        sb.setVisible(False)
+        l.addWidget(sb)
+        l.addWidget(parent.sort_sep)
+
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
@@ -230,6 +247,10 @@ class SearchBar(QFrame):  # {{{
             _('Do Quick Search (you can also press the Enter key)'))
 
         x = parent.highlight_only_button = QToolButton(self)
+        x.setAutoRaise(True)
+        x.setText(_('Highlight'))
+        x.setCursor(Qt.PointingHandCursor)
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
 
@@ -269,23 +290,6 @@ class SearchBar(QFrame):  # {{{
         x.setIcon(QIcon(I("bookmarks.png")))
         l.addWidget(x)
         x.setVisible(not tweaks['show_saved_search_box'])
-
-        parent.sort_sep = QFrame(self)
-        parent.sort_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
-        parent.sort_sep.setVisible(False)
-        l.addWidget(parent.sort_sep)
-        parent.sort_button = self.sort_button = sb = QToolButton(self)
-        sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        sb.setToolTip(_('Change how the displayed books are sorted'))
-        sb.setCursor(Qt.PointingHandCursor)
-        sb.setPopupMode(QToolButton.InstantPopup)
-        sb.setAutoRaise(True)
-        sb.setText(_('Sort'))
-        sb.setIcon(QIcon(I('sort.png')))
-        sb.setMenu(QMenu())
-        sb.menu().aboutToShow.connect(self.populate_sort_menu)
-        sb.setVisible(False)
-        l.addWidget(sb)
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui

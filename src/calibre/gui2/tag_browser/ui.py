@@ -341,6 +341,22 @@ class TagBrowserMixin(object):  # {{{
 # }}}
 
 
+class FindBox(HistoryLineEdit):  # {{{
+
+    def keyPressEvent(self, event):
+        k = event.key()
+        if k not in (Qt.Key_Up, Qt.Key_Down):
+            return HistoryLineEdit.keyPressEvent(self, event)
+        self.blockSignals(True)
+        if k == Qt.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+            self.setCurrentIndex(1), self.setCurrentIndex(0)
+            event.accept()
+        else:
+            HistoryLineEdit.keyPressEvent(self, event)
+        self.blockSignals(False)
+# }}}
+
+
 class TagBrowserBar(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -365,7 +381,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.label = la = QLabel(self)
         la.setText(_('Tag browser'))
 
-        self.item_search = HistoryLineEdit(parent)
+        self.item_search = FindBox(parent)
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
@@ -380,26 +396,24 @@ class TagBrowserBar(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
-                _('Find item'), default_keys=(),
+                _('Find next match'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
         self.search_button.setCursor(Qt.PointingHandCursor)
-        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.search_button.setIcon(QIcon(I('search.png')))
-        self.search_button.setText(_('Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find button',
-                _('Find button'), default_keys=(),
+                _('Find in Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
-        le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.toggle_search_button.click)
+        le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.close_find_box)
         b.setCursor(Qt.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
@@ -408,6 +422,11 @@ class TagBrowserBar(QWidget):  # {{{
         b.setAutoRaise(True)
         b.toggled.connect(self.update_searchbar_state)
         self.update_searchbar_state()
+
+    def close_find_box(self):
+        self.item_search.setCurrentIndex(0)
+        self.item_search.setCurrentText('')
+        self.toggle_search_button.click()
 
     def set_focus_to_find_box(self):
         self.toggle_search_button.setChecked(True)
@@ -489,7 +508,7 @@ class TagBrowserWidget(QWidget):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
-                _('Alter Tag browser'), default_keys=(),
+                _('Change Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 

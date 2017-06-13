@@ -30,7 +30,7 @@
 
     - title: "Book details panel: Clicking an author name now searches Goodreads by default instead of Wikipedia. Can be changed in Preferences->Interface->Look & feel->Book details"
 
-    - title: "Kobo driver: Add support for the Kobo Auro H2O Edition 2"
+    - title: "Kobo driver: Add support for the Kobo Aura H2O Edition 2"
 
   bug fixes:
     - title: "PDF output: Fix a regression in the previous release that broke conversion to PDF for some files"
@@ -75,7 +75,7 @@
 
     - title: "Add API to pre-process image data in recipes easily"
 
-    - title: "Fetch e-book metadata: add option to use only a single metadata plugin"
+    - title: "fetch-ebook-metadata.exe: add option to use only a single metadata plugin"
 
   bug fixes:
     - title: "E-book viewer: Fix a regression in the previous release that broke printing from inside the viewer"
@@ -152,7 +152,7 @@
     - title: "PDF output: Fix a regression that broke PDF output for documents containing mathematics"
       tickets: [1673983]
 
-    - title: "E-book viewer: Fix a regression that broke the Clear recently read books' action in the viewer"
+    - title: 'E-book viewer: Fix a regression that broke the "Clear recently read books" action in the viewer'
 
   improved recipes:
     - Go Comics
@@ -463,7 +463,7 @@
 
     - title: "Add support for new Kobo firmware version 4.2"
 
-    - title: "Allow using Amazon_in, Amazon_au, Amazon_com identifiers in the Book details panel"
+    - title: "Allow using amazon_in, amazon_au, amazon_com identifiers in the Book details panel"
       tickets: [1649371]
 
   bug fixes:
@@ -477,7 +477,7 @@
     - title: "Edit book: Fix the 'Search ignoring markup tool' not ignoring comments/processing instructions, etc"
       tickets: [1651160]
 
-    - title: "CSS Transforms: Fix 'is'/'is not' rules not matching current color"
+    - title: "CSS Transforms: Fix 'is'/'is not' rules not matching 'currentColor'"
       tickets: [1650930]
 
     - title: "E-book viewer: Make the swipe up gesture move to next section instead of previous section"
