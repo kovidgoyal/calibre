@@ -531,7 +531,7 @@
     - title: "Catalog generation: Ensure all citation keys in BiBTeX catalogs have only ASCII characters"
       tickets: [1646239]
 
-    - title: "Get books: Update e-bookpoint and legimi plugins for website changes"
+    - title: "Get books: Update ebookpoint and legimi plugins for website changes"
 
     - title: "EPUB3 metadata: Ensure updating metadata never produces empty dc:contributor elements"
       tickets: [1644702]
@@ -1856,7 +1856,7 @@
     - title: "E-book viewer: Fix keyboard shortcut to toggle table of contents not working when ToC window is made floating"
       tickets: [1503910]
 
-    - title: "Allow e-book-metadata to work with read-only files when no options are specified to change metadata"
+    - title: "Allow ebook-metadata.exe to work with read-only files when no options are specified to change metadata"
       tickets: [1504345]
 
     - title: "Tag mapper: When the replacement tag contains commas, create multiple tags instead of replacing the comma with a semi-colon"
@@ -1987,7 +1987,7 @@
   date: 2015-09-04
 
   new features:
-    - title: "Driver for the Lark Free-book reader device"
+    - title: "Driver for the Lark Freebook reader device"
       ticket: [1491543]
 
     - title: "A redesigned busy spinner -- why should icons get all the love?"
@@ -2403,7 +2403,7 @@
     - title: "E-book viewer: When printing, print to a PDF file instead of directly to the printer. This fixes printing not working on some systems"
       tickets: [1448330]
 
-    - title: "AZW3 input: Handle kindle-gen produced AZW3 files that do not use normal HTML anchors for linking"
+    - title: "AZW3 input: Handle KindleGen produced AZW3 files that do not use normal HTML anchors for linking"
 
     - title: "Fix too many open files errors that could occur in a few places on macOS"
 
@@ -2964,7 +2964,7 @@
     - title: "Allow generating a cover from metadata by right clicking the cover are in the book details panel also"
       tickets: [1401972]
 
-    - title: "Content server: Server KEPUB files with the extension kEPUB.epu when connecting to the browser on Kobo devices"
+    - title: "Content server: Serve KEPUB files with the extension .kepub.epub when connecting to the browser on Kobo devices"
 
     - title: "Kobo driver: Add support for new firmware version 3.12"
 
