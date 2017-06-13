@@ -230,6 +230,9 @@ class SearchBar(QFrame):  # {{{
             _('Do Quick Search (you can also press the Enter key)'))
 
         x = parent.highlight_only_button = QToolButton(self)
+        x.setAutoRaise(True)
+        x.setText(_('Highlight'))
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
 
