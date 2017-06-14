@@ -35,7 +35,7 @@ class SplashScreen(QSplashScreen):
         f.setPixelSize(self.LOGO_SIZE)
         f.setItalic(True), f.setBold(True)
         f = QFontMetrics(f)
-        self.num_ch = str(numeric_version[0])
+        self.num_ch = str(max(3, numeric_version[0]))
         self.footer_font = f = QFont()
         f.setPointSize(self.FOOTER_SIZE)
         f.setItalic(True)
