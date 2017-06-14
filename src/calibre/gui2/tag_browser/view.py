@@ -209,7 +209,13 @@ class TagsView(QTreeView):  # {{{
     def get_state(self):
         state_map = {}
         expanded_categories = []
-        for row, category in enumerate(self._model.category_nodes):
+        row = -1
+        hide_empty_categories = self.model().prefs['tag_browser_hide_empty_categories']
+        for category in self._model.category_nodes:
+            if (category.category_key in self.hidden_categories or
+                    (hide_empty_categories and len(category.child_tags()) == 0)):
+                continue
+            row += 1
             if self.isExpanded(self._model.index(row, 0, QModelIndex())):
                 expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
