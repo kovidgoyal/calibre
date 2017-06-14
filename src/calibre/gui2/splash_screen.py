@@ -18,8 +18,8 @@ class SplashScreen(QSplashScreen):
     TITLE_SIZE = 20  # pt
     BODY_SIZE = 12  # pt
     FOOTER_SIZE = 9  # pt
-    LOGO_SIZE = 128  # px
-    WIDTH = 600  # px
+    LOGO_SIZE = 96  # px
+    WIDTH = 550  # px
 
     def __init__(self, develop=False):
         self.drawn_once = False
