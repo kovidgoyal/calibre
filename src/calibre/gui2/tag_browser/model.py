@@ -83,6 +83,14 @@ class TagTreeItem(object):  # {{{
 
         self.tooltip = tooltip or ''
 
+    @property
+    def name_id(self):
+        if self.type == self.CATEGORY:
+            return self.category_key + ':' + self.name
+        elif self.type == self.TAG:
+            return self.tag.original_name
+        return ''
+
     def break_cycles(self):
         del self.parent
         del self.children
@@ -104,10 +112,9 @@ class TagTreeItem(object):  # {{{
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY:'+str(
-                self.name)+':%d'%len(getattr(self,
-                    'children', []))
-        return 'TAG: %s'%self.tag.name
+            return 'CATEGORY(category_key={!r}, name={!r}, num_children={!r})'.format(
+                self.category_key, self.name, len(self.children))
+        return 'TAG(name=%r)'%self.tag.name
 
     def row(self):
         if self.parent is not None:
@@ -1039,7 +1046,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         return idx
 
     def index_for_category(self, name):
-        for row, category in enumerate(self.category_nodes):
+        for row, category in enumerate(self.root_item.children):
             if category.category_key == name:
                 return self.index(row, 0, QModelIndex())
 
@@ -1202,6 +1209,31 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def supportedDropActions(self):
         return Qt.CopyAction|Qt.MoveAction
+
+    def named_path_for_index(self, index):
+        ans = []
+        while index.isValid():
+            node = self.get_node(index)
+            if node is self.root_item:
+                break
+            ans.append(node.name_id)
+            index = self.parent(index)
+        return ans
+
+    def index_for_named_path(self, named_path):
+        parent = self.root_item
+        ipath = []
+        path = named_path[:]
+        while path:
+            q = path.pop()
+            for i, c in enumerate(parent.children):
+                if c.name_id == q:
+                    ipath.append(i)
+                    parent = c
+                    break
+            else:
+                break
+        return self.index_for_path(ipath)
 
     def path_for_index(self, index):
         ans = []

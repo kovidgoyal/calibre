@@ -770,7 +770,7 @@ class TagsView(QTreeView):  # {{{
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
-        path = self.model().path_for_index(ci) if self.is_visible(ci) else None
+        path = self.model().named_path_for_index(ci) if self.is_visible(ci) else None
         expanded_categories, state_map = self.get_state()
         self._model.rebuild_node_tree(state_map=state_map)
         self.blockSignals(True)
@@ -778,7 +778,10 @@ class TagsView(QTreeView):  # {{{
             idx = self._model.index_for_category(category)
             if idx is not None and idx.isValid():
                 self.expand(idx)
-        self.show_item_at_path(path)
+        if path is not None:
+            index = self._model.index_for_named_path(path)
+            if index.isValid():
+                self.show_item_at_index(index)
         self.blockSignals(False)
 
     def show_item_at_path(self, path, box=False,
