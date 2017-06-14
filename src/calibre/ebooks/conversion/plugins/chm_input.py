@@ -54,7 +54,12 @@ class CHMInput(InputFormatPlugin):
                     debug_dump=debug_dump)
             mainpath = os.path.join(tdir, mainname)
 
-            metadata = get_metadata_from_reader(self._chm_reader)
+            try:
+                metadata = get_metadata_from_reader(self._chm_reader)
+            except Exception:
+                log.exception('Failed to read metadata, using filename')
+                from calibre.ebooks.metadata.book.base import Metadata
+                metadata = Metadata(os.path.basename(chm_name))
             encoding = self._chm_reader.get_encoding() or options.input_encoding or 'cp1252'
             self._chm_reader.CloseCHM()
             # print tdir, mainpath
@@ -194,5 +199,3 @@ class CHMInput(InputFormatPlugin):
         for node in root.xpath('//object'):
             self.add_node(node, toc, ancestor_map)
         return toc
-
-
