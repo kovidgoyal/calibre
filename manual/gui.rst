@@ -490,11 +490,11 @@ Book details
    :class: float-left-img
 
 The Book details display shows the cover and all the metadata for the currently
-selected book. It can be hidden via the button in the lower right corner of the
-main calibre window. The author names shown in the Book details panel are
-clickable, they will by default take you to the Wikipedia page for the author.
-This can be customized by right clicking on the author name and selecting
-Manage this author.
+selected book. It can be hidden via the :guilabel:`Layout` button in the lower
+right corner of the main calibre window. The author names shown in the Book
+details panel are click-able, they will by default take you to the Wikipedia
+page for the author.  This can be customized by right clicking on the author
+name and selecting Manage this author.
 
 Similarly, if you download metadata for the book, the Book details panel will
 automatically show you links pointing to the web pages for the book on amazon,
@@ -534,7 +534,7 @@ The first click on an item will restrict the list of books to those that contain
 
 Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-The outer-level items in the :guilabel:`Tag browser`, such as Authors and Series, are called categories. You can create your own categories, called :guilabel:`User categories`, which are useful for organizing items. For example, you can use the :guilabel:`User categories editor` (click the configure button at the top-left of the :guilabel:`Tag browser` and choose :guilabel:`Manage authors, series, etc->User categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing :guilabel:`Add sub-category to...`, and entering the sub-category name; or by using the :guilabel:`User categories editor` by entering names like the Favorites example above.
+The outer-level items in the :guilabel:`Tag browser`, such as Authors and Series, are called categories. You can create your own categories, called :guilabel:`User categories`, which are useful for organizing items. For example, you can use the :guilabel:`User categories editor` (click the configure button at the lower-left of the :guilabel:`Tag browser` and choose :guilabel:`Manage authors, series, etc->User categories`) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing :guilabel:`Add sub-category to...`, and entering the sub-category name; or by using the :guilabel:`User categories editor` by entering names like the Favorites example above.
 
 You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking:
     1. "everything matching an item in the category" indicated by a single green plus sign.
@@ -548,9 +548,9 @@ Hierarchical items (items with children) use the same four 'click-on' searches a
 
 You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
 
-There is a search bar at the top of the Tag browser that allows you to easily find any item in the Tag browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
+You can easily find any item in the Tag browser by clicking the search button at the lower-right corner. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
 
-You can control how items are sorted in the Tag browser via the configure button at the top-left of the Tag browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
+You can control how items are sorted in the Tag browser via the configure button at the lower-left of the Tag browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
 .. raw:: html epub
     
@@ -563,10 +563,10 @@ Cover grid
     :align: center
 
 You can have calibre display a grid of book covers instead of a list of books,
-if you prefer to browse your collection by covers instead. The 
-:guilabel:`Cover grid` is activated by clicking the grid button in the bottom right corner of
-the main calibre window. You can customize the cover sizes and the background
-of the :guilabel:`Cover grid` via 
+if you prefer to browse your collection by covers instead. The :guilabel:`Cover
+grid` is activated by clicking the :guilabel:`Layout` button in the bottom
+right corner of the main calibre window. You can customize the cover sizes and
+the background of the :guilabel:`Cover grid` via
 :guilabel:`Preferences->Interface->Look & feel->Cover grid`. You can even have
 calibre display any specified field under the covers, such as title or authors
 or rating or a custom column of your own devising.
@@ -578,7 +578,7 @@ Cover browser
     :align: center
 
 In addition to the :guilabel:`Cover grid` described above, you can also have calibre display
-covers in the single row. This is activated via a button in the lower right
+covers in the single row. This is activated via the :guilabel:`Layout` button in the lower right
 corner of the main window. In :guilabel:`Preferences->Interface->Look & feel->Cover
 browser` you can change the number of covers displayed, and even have the
 :guilabel:`Cover browser` display itself in a separate popup window.

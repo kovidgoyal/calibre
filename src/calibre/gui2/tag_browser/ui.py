@@ -456,10 +456,11 @@ class TagBrowserBar(QWidget):  # {{{
 # }}}
 
 
-class TagBrowserWidget(QWidget):  # {{{
+class TagBrowserWidget(QFrame):  # {{{
 
     def __init__(self, parent):
-        QWidget.__init__(self, parent)
+        QFrame.__init__(self, parent)
+        self.setFrameStyle(QFrame.NoFrame if gprefs['tag_browser_old_look'] else QFrame.StyledPanel)
         self._parent = parent
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
@@ -479,7 +480,7 @@ class TagBrowserWidget(QWidget):  # {{{
         # The tags view
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
-        self._layout.addWidget(parent.tags_view)
+        self._layout.insertWidget(0, parent.tags_view)
 
         # Now the floating 'not found' box
         l = QLabel(self.tags_view)
