@@ -378,7 +378,7 @@ class SearchBarButton(LayoutButton):  # {{{
         gprefs['search bar visible'] = bool(self.isChecked())
 
     def restore_state(self):
-        self.setChecked(gprefs.get('search bar visible', True))
+        self.setChecked(bool(gprefs.get('search bar visible', True)))
 
 
 # }}}
