@@ -367,6 +367,7 @@ class TagBrowserBar(QWidget):  # {{{
         l.setContentsMargins(0, 0, 0, 0)
         self.alter_tb = parent.alter_tb = b = QToolButton(self)
         b.setAutoRaise(True)
+        b.setText(_('Configure')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         b.setCursor(Qt.PointingHandCursor)
         b.setPopupMode(b.InstantPopup)
         b.setToolTip(textwrap.fill(_(
@@ -377,9 +378,6 @@ class TagBrowserBar(QWidget):  # {{{
         b.setIcon(QIcon(I('config.png')))
         b.m = QMenu()
         b.setMenu(b.m)
-
-        self.label = la = QLabel(self)
-        la.setText(_('Tag browser'))
 
         self.item_search = FindBox(parent)
         self.item_search.setMinimumContentsLength(5)
@@ -414,6 +412,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
         le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.close_find_box)
+        b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         b.setCursor(Qt.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
@@ -436,7 +435,6 @@ class TagBrowserBar(QWidget):  # {{{
     def update_searchbar_state(self):
         find_shown = self.toggle_search_button.isChecked()
         self.toggle_search_button.setVisible(not find_shown)
-        self.label.setVisible(not find_shown)
         self.search_button.setVisible(find_shown)
         self.item_search.setVisible(find_shown)
         l = self.layout()
@@ -444,13 +442,14 @@ class TagBrowserBar(QWidget):  # {{{
         tuple(map(l.removeItem, items))
         if find_shown:
             l.addWidget(self.alter_tb)
+            self.alter_tb.setToolButtonStyle(Qt.ToolButtonIconOnly)
             l.addWidget(self.item_search, 10)
             l.addWidget(self.search_button)
             self.item_search.setFocus(Qt.OtherFocusReason)
         else:
             l.addWidget(self.alter_tb)
+            self.alter_tb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             l.addStretch(10)
-            l.addWidget(self.label)
             l.addStretch(10)
             l.addWidget(self.toggle_search_button)
 # }}}
@@ -509,7 +508,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
-                _('Change Tag browser'), default_keys=(),
+                _('Configure Tag browser'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 
