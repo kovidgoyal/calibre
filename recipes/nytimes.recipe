@@ -238,6 +238,8 @@ class NYTimes(BasicNewsRecipe):
             attrs={'class': lambda x: x and 'related-coverage-marginalia' in x.split()}),
         dict(attrs={'class': lambda x: x and 'hidden' in x.split()}),
         dict(attrs={'class': lambda x: x and 'interactive' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'SectionBarShare' in x.split('-')}),
+        dict(attrs={'class': lambda x: x and 'ResponsiveAd' in x.split('-')}),
         dict(attrs={'class': lambda x: x and 'skip-to-text-link' in x.split()}),
         dict(attrs={'class': lambda x: x and 'sharetools' in x.split()}),
         dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
