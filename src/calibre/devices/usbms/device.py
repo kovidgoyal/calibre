@@ -407,9 +407,9 @@ class Device(DeviceConfig, DevicePlugin):
             print
             from pprint import pprint
             pprint({'bsd_drives': bsd_drives, 'mount_map': mount_map, 'drives': drives})
-        if drives.get('carda') is None and drives.get('cardb'):
+        if drives.get('carda') is None and drives.get('cardb') is not None:
             drives['carda'] = drives.pop('cardb')
-        if drives.get('main') is None and drives.get('carda'):
+        if drives.get('main') is None and drives.get('carda') is not None:
             drives['main'] = drives.pop('carda')
         if drives.get('main') is None:
             raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
