@@ -99,12 +99,6 @@ class Device(DeviceConfig, DevicePlugin):
     #: This can be None, string, list of strings or compiled regex
     WINDOWS_CARD_B_MEM = None
 
-    # The following are used by the check_ioreg_line method and can be either:
-    # None, a string, a list of strings or a compiled regular expression
-    OSX_MAIN_MEM = None
-    OSX_CARD_A_MEM = None
-    OSX_CARD_B_MEM = None
-
     #: Used by the new driver detection to disambiguate main memory from
     #: storage cards. Should be a regular expression that matches the
     #: main memory mount point assigned by OS X
@@ -309,49 +303,6 @@ class Device(DeviceConfig, DevicePlugin):
     def osx_sort_names(self, names):
         return names
 
-    def check_ioreg_line(self, line, pat):
-        if pat is None:
-            return False
-        if not line.strip().endswith('<class IOMedia>'):
-            return False
-        if hasattr(pat, 'search'):
-            return pat.search(line) is not None
-        if isinstance(pat, basestring):
-            pat = [pat]
-        for x in pat:
-            if x in line:
-                return True
-        return False
-
-    def get_osx_mountpoints(self, raw=None):
-        raw = self.run_ioreg(raw)
-        lines = raw.splitlines()
-        names = {}
-
-        def get_dev_node(lines, loc):
-            for line in lines:
-                line = line.strip()
-                if line.endswith('}'):
-                    break
-                match = re.search(r'"BSD Name"\s+=\s+"(.*?)"', line)
-                if match is not None:
-                    names[loc] = match.group(1)
-                    break
-
-        for i, line in enumerate(lines):
-            if 'main' not in names and self.check_ioreg_line(line, self.OSX_MAIN_MEM):
-                get_dev_node(lines[i+1:], 'main')
-                continue
-            if 'carda' not in names and self.check_ioreg_line(line, self.OSX_CARD_A_MEM):
-                get_dev_node(lines[i+1:], 'carda')
-                continue
-            if 'cardb' not in names and self.check_ioreg_line(line, self.OSX_CARD_B_MEM):
-                get_dev_node(lines[i+1:], 'cardb')
-                continue
-            if len(names.keys()) == 3:
-                break
-        return self.osx_sort_names(names)
-
     @classmethod
     def osx_run_mount(cls):
         for i in range(3):
@@ -435,27 +386,32 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def osx_bsd_names(self):
-        drives = []
+        drives = {}
         for i in range(3):
             try:
                 drives = self._osx_bsd_names()
-                if len(drives) > 1:
+                if len(drives) > 1:  # wait for device to settle and SD card (if any) to become available
                     return drives
-            except:
+            except Exception:
                 if i == 2:
                     raise
             time.sleep(3)
         return drives
 
     def open_osx(self):
-        drives = self.osx_bsd_names()
-        bsd_drives = dict(**drives)
-        drives = self.osx_sort_names(drives)
+        bsd_drives = self.osx_bsd_names()
+        drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = usbobserver.get_mounted_filesystems()
-        for k, v in drives.items():
-            drives[k] = mount_map.get(v, None)
-        if drives['main'] is None:
-            print bsd_drives, mount_map, drives
+        drives = {k: mount_map.get(v) for k, v in drives.iteritems()}
+        if DEBUG:
+            print
+            from pprint import pprint
+            pprint({'bsd_drives': bsd_drives, 'mount_map': mount_map, 'drives': drives})
+        if drives.get('main') is None and drives.get('carda'):
+            drives['main'] = drives.pop('carda')
+        if drives.get('carda') is None and drives.get('cardb'):
+            drives['carda'] = drives.pop('cardb')
+        if drives.get('main') is None:
             raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
         pat = self.OSX_MAIN_MEM_VOL_PAT
         if pat is not None and len(drives) > 1 and 'main' in drives:
