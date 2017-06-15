@@ -19,7 +19,7 @@
  * >>> usbobserver.get_devices()
  */
 
-
+#define _DARWIN_USE_64_BIT_INODE
 #include <Python.h>
 
 #include <stdio.h>
@@ -274,40 +274,41 @@ usbobserver_get_usb_drives(PyObject *self, PyObject *args) {
     return ans;
 }
 
+typedef struct statfs fsstat;
+
 static PyObject*
 usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
-    struct statfs *buf, t;
+    fsstat *buf = NULL;
     int num, i;
-    PyObject *ans, *key, *val;
+    PyObject *ans = NULL, *val;
 
     num = getfsstat(NULL, 0, MNT_NOWAIT);
     if (num == -1) {
-        PyErr_SetString(PyExc_RuntimeError, "Initial call to getfsstat failed");
+        PyErr_SetFromErrno(PyExc_OSError);
         return NULL;
     }
-    ans = PyDict_New();
-    if (ans == NULL) return PyErr_NoMemory();
+	num += 10;  // In case the number of volumes has increased
+    buf = PyMem_New(fsstat, num);
+    if (buf == NULL) return PyErr_NoMemory(); 
 
-    buf = (struct statfs*)calloc(num, sizeof(struct statfs));
-    if (buf == NULL) return PyErr_NoMemory();
-
-    num = getfsstat(buf, num*sizeof(struct statfs), MNT_NOWAIT);
+    num = getfsstat(buf, num*sizeof(fsstat), MNT_NOWAIT);
     if (num == -1) {
-        PyErr_SetString(PyExc_RuntimeError, "Call to getfsstat failed");
-        return NULL;
+        PyErr_SetFromErrno(PyExc_OSError);
+		goto end;
     }
+
+    ans = PyDict_New();
+	if (ans == NULL) { goto end; }
 
     for (i = 0 ; i < num; i++) {
-        t = buf[i];
-        key = PyBytes_FromString(t.f_mntfromname);
-        val = PyBytes_FromString(t.f_mntonname);
-        if (key != NULL && val != NULL) {
-            PyDict_SetItem(ans, key, val);
-        }
-        NUKE(key); NUKE(val);
+        val = PyBytes_FromString(buf[i].f_mntonname);
+		if (!val) { NUKE(ans); goto end; }
+		if (PyDict_SetItemString(ans, buf[i].f_mntfromname, val) != 0) { NUKE(ans); NUKE(val); goto end; }
+        NUKE(val);
     }
 
-    free(buf);
+end:
+    PyMem_Del(buf);
 
     return ans;
 
