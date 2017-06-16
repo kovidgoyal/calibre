@@ -303,7 +303,7 @@ class StatusBar(QStatusBar):  # {{{
         if self.library_total != self.total:
             base = _('{0}, {1} total').format(base, self.library_total)
 
-        self.defmsg.setText(u'%s\xa0\xa0\xa0\xa0[%s]' % (msg, base))
+        self.defmsg.setText(u'\xa0%s\xa0\xa0\xa0\xa0[%s]' % (msg, base))
         self.clearMessage()
 
     def device_disconnected(self):
