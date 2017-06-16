@@ -24,7 +24,13 @@ import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
-class BBCNewsSportBlog(BasicNewsRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class BBCNews(BasicNewsRecipe):
 
     #
     #    **** IMPORTANT USERS READ ME ****
@@ -42,7 +48,7 @@ class BBCNewsSportBlog(BasicNewsRecipe):
     #
     # There are 68 feeds below which constitute the bulk of the available rss
     # feeds on the BBC web site. These include 5 blogs by editors and
-    # correspondants, 16 sports feeds, 15 'sub' regional feeds (Eg. North West
+    # correspondents, 16 sports feeds, 15 'sub' regional feeds (Eg. North West
     # Wales, Scotland Business), and 7 Welsh language feeds.
     #
     # Some of the feeds are low volume (Eg. blogs), or very low volume (Eg. Click)
@@ -89,13 +95,9 @@ class BBCNewsSportBlog(BasicNewsRecipe):
         ("Also in the News", "http://feeds.bbci.co.uk/news/also_in_the_news/rss.xml"),
         # ("Newsbeat", "http://www.bbc.co.uk/newsbeat/rss.xml"),
         # ("Click", "http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/programmes/click_online/rss.xml"),
-        ("Blog: Nick Robinson (Political Editor)",
-         "http://feeds.bbci.co.uk/news/correspondents/nickrobinson/rss.sxml"),
         # ("Blog: Mark D'Arcy (Parliamentary Correspondent)", "http://feeds.bbci.co.uk/news/correspondents/markdarcy/rss.sxml"),
         # ("Blog: Robert Peston (Business Editor)", "http://feeds.bbci.co.uk/news/correspondents/robertpeston/rss.sxml"),
         # ("Blog: Stephanie Flanders (Economics Editor)", "http://feeds.bbci.co.uk/news/correspondents/stephanieflanders/rss.sxml"),
-        ("Blog: Rory Cellan-Jones (Technology correspondent)",
-         "http://feeds.bbci.co.uk/news/correspondents/rorycellanjones/rss.sxml"),
         ("Sport Front Page",
          "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml"),
         # ("Football", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"),
@@ -233,6 +235,8 @@ class BBCNewsSportBlog(BasicNewsRecipe):
 
     # Removes empty feeds - why keep them!?
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    resolve_internal_links = True
 
     # Create a custom title which fits nicely in the Kindle title list.
     # Requires "import time" above class declaration, and replacing
@@ -241,22 +245,17 @@ class BBCNewsSportBlog(BasicNewsRecipe):
     #
     # custom_title = "BBC News - " + time.strftime('%d %b %Y')
 
-    '''
-    # Conversion options for advanced users, but don't forget to comment out the
-    # current conversion_options below. Avoid setting 'linearize_tables' as that
-    # plays havoc with the 'old style' table based pages.
-    #
-    conversion_options = { 'title'       : title,
-                           'comments'    : description,
-                           'tags'        : tags,
-                           'language'    : language,
-                           'publisher'   : publisher,
-                           'authors'     : publisher,
-                           'smarten_punctuation' : True
-                         }
-    '''
-
-    conversion_options = {'smarten_punctuation': True}
+    # Conversion options for advanced users. Avoid setting 'linearize_tables'
+    # as that plays havoc with the 'old style' table based pages.
+    conversion_options = {
+        # 'title'       : title,
+        # 'comments'    : description,
+        # 'tags'        : tags,
+        # 'language'    : language,
+        # 'publisher'   : publisher,
+        # 'authors'     : publisher,
+        'smarten_punctuation' : True
+    }
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
@@ -513,88 +512,90 @@ class BBCNewsSportBlog(BasicNewsRecipe):
     # Remove 'storyextra' - links to relevant articles and external sites.
     storyextra_reg_exp = '^.*story[_ -]*extra.*$'
 
-    remove_tags = [dict(name='div',  attrs={'class': re.compile(story_feature_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        share_help_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        embedded_hyper_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        hypertabs_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        video_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        audio_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        picture_gallery_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        slideshow_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        quote_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        hidden_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        comment_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        story_actions_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        bookmark_list_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'id': re.compile(
-                        secondary_content_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'id': re.compile(
-                        featured_content_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'id': re.compile(
-                        navigation_reg_exp, re.IGNORECASE)}),
-                   dict(name='form', attrs={'id': re.compile(
-                        form_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        quote_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        hidden_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        social_links_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        comment_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        skip_reg_exp, re.IGNORECASE)}),
-                   dict(name='map', attrs={'id': re.compile(
-                        map_reg_exp, re.IGNORECASE)}),
-                   dict(name='map', attrs={'name': re.compile(
-                        map_reg_exp, re.IGNORECASE)}),
-                   dict(name='div', attrs={'id': re.compile(
-                        social_bookmarks_reg_exp, re.IGNORECASE)}),
-                   dict(name='div', attrs={'id': re.compile(
-                        blq_mast_reg_exp, re.IGNORECASE)}),
-                   dict(name='div', attrs={'class': re.compile(
-                        sharesb_reg_exp, re.IGNORECASE)}),
-                   dict(name='div', attrs={
-                       'class': re.compile(o_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        promo_top_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        promo_bottom_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={
-                       'class': re.compile(nlp_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        mva_or_mvb_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        mvtb_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        blq_toplink_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        prods_services_01_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        prods_services_02_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        blq_misc_01_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        blq_misc_02_reg_exp, re.IGNORECASE)}),
-                   dict(name='div',  attrs={'class': re.compile(
-                        puffbox_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        sibtbg_reg_exp, re.IGNORECASE)}),
-                   dict(attrs={'class': re.compile(
-                        storyextra_reg_exp, re.IGNORECASE)})
-                   ]
+    remove_tags = [
+        classes('sharetools share-tools--no-event-tag'),
+        dict(name='div',  attrs={'class': re.compile(story_feature_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            share_help_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            embedded_hyper_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            hypertabs_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            video_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            audio_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            picture_gallery_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            slideshow_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            quote_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            hidden_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            comment_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            story_actions_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            bookmark_list_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'id': re.compile(
+            secondary_content_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'id': re.compile(
+            featured_content_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'id': re.compile(
+            navigation_reg_exp, re.IGNORECASE)}),
+        dict(name='form', attrs={'id': re.compile(
+            form_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            quote_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            hidden_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            social_links_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            comment_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            skip_reg_exp, re.IGNORECASE)}),
+        dict(name='map', attrs={'id': re.compile(
+            map_reg_exp, re.IGNORECASE)}),
+        dict(name='map', attrs={'name': re.compile(
+            map_reg_exp, re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            social_bookmarks_reg_exp, re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            blq_mast_reg_exp, re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(
+            sharesb_reg_exp, re.IGNORECASE)}),
+        dict(name='div', attrs={
+            'class': re.compile(o_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            promo_top_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            promo_bottom_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={
+            'class': re.compile(nlp_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            mva_or_mvb_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            mvtb_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            blq_toplink_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            prods_services_01_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            prods_services_02_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            blq_misc_01_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            blq_misc_02_reg_exp, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(
+            puffbox_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            sibtbg_reg_exp, re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(
+            storyextra_reg_exp, re.IGNORECASE)})
+    ]
 
     # Uses url to create and return the 'printer friendly' version of the url.
     # In other words the 'print this page' address of the page.
@@ -624,6 +625,11 @@ class BBCNewsSportBlog(BasicNewsRecipe):
         print_url = temp_url + "?print=true"
 
         return print_url
+
+    def canonicalize_internal_url(self, url, is_link=True):
+        if url.endswith('?print=true'):
+            url = url.rpartition('?')[0]
+        return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
 
     # Remove articles in feeds based on a string in the article title or url.
     #
