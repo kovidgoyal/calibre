@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ajax import ajax
+from ajax import ajax, absolute_path
 from complete import create_search_bar
 from dom import clear, set_css, build_rule, svgicon, add_extra_css, ensure_id
 from elementmaker import E
@@ -58,7 +58,7 @@ def component(container, name):
 def icon_for_node(node):
     interface_data = get_interface_data()
     ans = interface_data.icon_map[node.data.category] or 'column.png'
-    return interface_data.icon_path + '/' + ans
+    return absolute_path(interface_data.icon_path + '/' + ans)
 
 
 def node_for_path(path):
@@ -223,7 +223,7 @@ def menu_clicked(i):
         for text, search_type in items:
             li = E.li(
                 style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
-                E.img(src='{}/{}.png'.format(interface_data.icon_path, search_type), style='max-height: 2.5ex'),
+                E.img(src=absolute_path('{}/{}.png'.format(interface_data.icon_path, search_type)), style='max-height: 2.5ex'),
                 E.span('\xa0' + text)
             )
             li.addEventListener('click', add_to_search.bind(None, node, search_type))
