@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 __license__ = 'GPL v3'
 
+import json
+from urllib import unquote
+
 from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import browser
@@ -11,6 +14,45 @@ def absurl(x):
     if x.startswith('/') and not x.startswith('//'):
         x = 'https://www.newyorker.com' + x
     return x
+
+
+class Tag(list):
+
+    def __init__(self, name, **attrs):
+        self.name = name
+        self.attrs = attrs
+
+    def __str__(self):
+        ans = ['<' + self.name]
+        for k, v in self.attrs.iteritems():
+            ans.append(' {}="{}"'.format(k, v))
+        ans.append('>')
+        for child in self:
+            ans.append(unicode(child))
+        ans.append('</{}>'.format(self.name))
+        return ''.join(ans)
+
+
+def deserialize(node):
+    name = node.pop(0)
+    if name == 'inline-embed':
+        meta = node.pop(0)
+        t = meta['type']
+        if t in ('image', 'cartoon'):
+            meta = json.loads(unquote(meta['meta']))
+            ans = Tag('img', src=absurl(meta['url']))
+        elif t == 'section':
+            ans = Tag('div')
+        else:
+            ans = Tag('span')
+    else:
+        ans = Tag(name)
+    for child in node:
+        if isinstance(child, list):
+            ans.append(deserialize(child))
+        elif isinstance(child, basestring):
+            ans.append(child)
+    return ans
 
 
 class NewYorker(BasicNewsRecipe):
@@ -35,6 +77,11 @@ class NewYorker(BasicNewsRecipe):
         dict(attrs={'class':lambda x: x and 'ArticleHeader__dek___' in x}),
         dict(attrs={'class':lambda x: x and 'Byline__articleHeader___' in x}),
         dict(attrs={'class':lambda x: x and 'ArticleLedeImage__container___' in x}),
+        dict(itemprop=['headline', 'alternativeHeadline']),
+        dict(name='h1'),
+        dict(attrs={'class':lambda x: x and 'byline-and-date' in x}),
+        dict(attrs={'class':lambda x: x and 'inset-mobile-crop-image' in x}),
+        dict(attrs={'class':lambda x: x and 'hero-image-caption' in x}),
         dict(id='articleBody'),
         dict(attrs={'class':lambda x: x and 'ArticleDisclaimer__articleDisclaimer___' in x}),
         dict(attrs={'class':lambda x: x and 'ArticleContributors__bio___' in x}),
@@ -43,9 +90,18 @@ class NewYorker(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
             {'content-ad-wrapper', 'social-hover', 'background-image'})}),
         dict(id=['newsletter-signup']),
-        dict(name='meta link'.split()),
+        dict(name='meta links source'.split()),
     ]
 
+    # def preprocess_raw_html(self, raw, url):
+    #     import re
+    #     try:
+    #         raw = re.search(r'window.__TNY__.INITIAL_STATE = ({.+?)</script', raw).group(1)
+    #     except AttributeError:
+    #         return raw
+    #     data = json.loads(raw.strip().rstrip(';'))
+    #     return '<html><body><div id="articleBody">' + unicode(deserialize(data['primary']['body']))
+    #
     def parse_index(self):
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
@@ -80,14 +136,15 @@ class NewYorker(BasicNewsRecipe):
         return [(k, stories[k]) for k in sorted(stories)]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img'):
-            try:
-                ds = img['srcset'].split()[0]
-                del img['srcset']
-            except KeyError:
-                continue
-            if ds:
-                img['src'] = ds
+        for attr in 'srcset data-src-mobile'.split():
+            for img in soup.findAll('img'):
+                try:
+                    ds = img[attr].split()[0]
+                    del img[attr]
+                except KeyError:
+                    continue
+                if ds:
+                    img['src'] = ds
         return soup
 
     # The New Yorker changes the content it delivers based on cookies, so the
