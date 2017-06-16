@@ -15,7 +15,7 @@ from calibre.utils.monotonic import monotonic
 
 class SplashScreen(QSplashScreen):
 
-    TITLE_SIZE = 20  # pt
+    TITLE_SIZE = 18  # pt
     BODY_SIZE = 12  # pt
     FOOTER_SIZE = 9  # pt
     LOGO_SIZE = 96  # px
@@ -84,14 +84,16 @@ class SplashScreen(QSplashScreen):
         y += self.title_height + 5
         painter.setPen(QPen(self.dark_brush.color()))
         painter.setFont(self.body_font)
-        painter.drawText(x, y, width, self.line_height, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, _(
+        br = painter.drawText(x, y, width, self.line_height, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, _(
             'Starting up, please wait...'))
+        starting_up_bottom = br.bottom()
 
         # Draw footer
         m = self.message()
         if m and m.strip():
             painter.setFont(self.footer_font)
-            painter.drawText(x, bottom - self.line_height, width, self.line_height, Qt.AlignLeft | Qt.AlignTop | Qt.TextSingleLine, m)
+            b = max(starting_up_bottom + 5, bottom - self.line_height)
+            painter.drawText(x, b, width, self.line_height, Qt.AlignLeft | Qt.AlignTop | Qt.TextSingleLine, m)
 
         painter.restore()
 
