@@ -12,7 +12,7 @@ from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
         QVBoxLayout, QWidget, QSplitter, QToolButton, QIcon, QPainter, QStyleOption)
 
 from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key, primary_sort_key
+from calibre.utils.icu import sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs, error_dialog, open_url
@@ -22,6 +22,7 @@ from calibre.gui2.widgets import Splitter, LayoutButton
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
+from calibre.gui2.layout_menu import LayoutMenu
 
 _keep_refs = []
 
@@ -591,20 +592,13 @@ class LayoutMixin(object):  # {{{
         b.setPopupMode(b.InstantPopup)
         b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
-        b.setMenu(QMenu()), b.menu().aboutToShow.connect(self.populate_layout_menu)
+        b.setMenu(LayoutMenu(self))
         b.setToolTip(_(
             'Show and hide various parts of the calibre main window'))
         self.status_bar.addPermanentWidget(b)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
-
-    def populate_layout_menu(self):
-        m = self.layout_button.menu()
-        m.clear()
-        buttons = sorted(self.layout_buttons, key=lambda b:primary_sort_key(b.label))
-        for b in buttons:
-            m.addAction(b.icon(), b.text(), b.click)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)
