@@ -101,9 +101,42 @@ class LongText(Base):
 class Bool(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                QComboBox(parent)]
-        w = self.widgets[1]
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent)]
+        w = QWidget(parent)
+        self.widgets.append(w)
+
+        l = QHBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(l)
+        self.combobox = QComboBox(parent)
+        l.addWidget(self.combobox)
+
+        t = _('Yes')
+        c = QPushButton(t, parent)
+        width = c.fontMetrics().boundingRect(t).width() + 7
+        c.setMaximumWidth(width)
+        l.addWidget(c)
+        c.clicked.connect(self.set_to_yes)
+
+        t = _('No')
+        c = QPushButton(t, parent)
+        width = c.fontMetrics().boundingRect(t).width() + 7
+        c.setMaximumWidth(width)
+        l.addWidget(c)
+        c.clicked.connect(self.set_to_no)
+
+        t = _('Clear')
+        c = QPushButton(t, parent)
+        width = c.fontMetrics().boundingRect(t).width() + 7
+        c.setMaximumWidth(width)
+        l.addWidget(c)
+        c.clicked.connect(self.set_to_cleared)
+
+        c = QLabel('', parent)
+        c.setMaximumWidth(1)
+        l.addWidget(c, 1)
+
+        w = self.combobox
         items = [_('Yes'), _('No'), _('Undefined')]
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if not self.db.prefs.get('bools_are_tristate'):
@@ -116,12 +149,20 @@ class Bool(Base):
         val = {None: 2, False: 1, True: 0}[val]
         if not self.db.prefs.get('bools_are_tristate') and val == 2:
             val = 1
-        self.widgets[1].setCurrentIndex(val)
+        self.combobox.setCurrentIndex(val)
 
     def getter(self):
-        val = self.widgets[1].currentIndex()
+        val = self.combobox.currentIndex()
         return {2: None, 1: False, 0: True}[val]
 
+    def set_to_yes(self):
+        self.combobox.setCurrentIndex(0)
+
+    def set_to_no(self):
+        self.combobox.setCurrentIndex(1)
+
+    def set_to_cleared(self):
+        self.combobox.setCurrentIndex(2)
 
 class Int(Base):
 
