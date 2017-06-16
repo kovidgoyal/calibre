@@ -2,16 +2,21 @@
 # -*- coding: utf-8 -*-
 __license__ = 'GPL v3'
 
+from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import browser
+
+
+def absurl(x):
+    if x.startswith('/') and not x.startswith('//'):
+        x = 'https://www.newyorker.com' + x
+    return x
 
 
 class NewYorker(BasicNewsRecipe):
 
     title = u'New Yorker Magazine'
     description = u'Content from the New Yorker website'
-
-    masthead_url = 'https://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
 
     url_list = []
     language = 'en'
@@ -26,8 +31,13 @@ class NewYorker(BasicNewsRecipe):
                 '''
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(itemprop=['headline', 'alternativeHeadline', 'author', 'articleBody']),
-        dict(id=['featured-item', 'article-content']),
+        dict(attrs={'class':lambda x: x and 'ArticleHeader__hed___' in x}),
+        dict(attrs={'class':lambda x: x and 'ArticleHeader__dek___' in x}),
+        dict(attrs={'class':lambda x: x and 'Byline__articleHeader___' in x}),
+        dict(attrs={'class':lambda x: x and 'ArticleLedeImage__container___' in x}),
+        dict(id='articleBody'),
+        dict(attrs={'class':lambda x: x and 'ArticleDisclaimer__articleDisclaimer___' in x}),
+        dict(attrs={'class':lambda x: x and 'ArticleContributors__bio___' in x}),
     ]
     remove_tags = [
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
@@ -39,67 +49,45 @@ class NewYorker(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
-        ph = soup.find(
-            'div', attrs={'class': lambda x: x and 'cover-info' in x.split()})
-        if ph is not None:
-            img = ph.find('img')
-            if img is not None:
-                try:
-                    self.cover_url = img['data-src']
-                except KeyError:
-                    self.cover_url = img['src']
-        articles = []
-        current_section = 'Current Issue'
-        feeds = []
-        for story in soup.findAll(['h5', 'article']):
-            if story.name == 'h5':
-                if articles:
-                    feeds.append((current_section, articles))
-                current_section, articles = self.tag_to_string(story), []
-                self.log('\nFound section: ' + current_section)
-                continue
-            if story['itemtype'] != 'http://schema.org/Article':
-                continue
-            h2 = story.find('h2')
-            url = h2.find('a', href=True)['href']
-            a = h2.find('a')
-            title = self.tag_to_string(a)
-            h3 = h2.findNextSibling('h3')
+        # soup = self.index_to_soup('file:///t/raw.html')
+        cover_img =  soup.find(attrs={'class': lambda x: x and 'MagazineCover__cover___' in x})
+        if cover_img is not None:
+            cover_img = cover_img.find('img')
+            if cover_img is not None:
+                self.cover_url = cover_img.get('src', cover_img.get('data-src', cover_img.get('srcset').split()[0]))
+                self.log('Found cover:', self.cover_url)
+        stories = defaultdict(list)
+        last_section = 'Unknown'
+        for story in soup.findAll(attrs={'class': lambda x: x and 'River__riverItemContent___' in x}):
+            try:
+                section = self.tag_to_string(story.find('a')['title']) or last_section
+            except KeyError:
+                section = last_section
+            last_section = section
+            a = story.find('h4').find('a')
+            title = a.contents[1]
+            url = absurl(a['href'])
             desc = ''
-            if h3 is not None:
-                desc += self.tag_to_string(h3)
-            p = h2.findNextSibling('p')
-            if p is not None:
-                desc += '. \n' + self.tag_to_string(p)
+            body = story.find(attrs={'class': 'River__dek___CayIg'})
+            if body is not None:
+                desc = body.contents[0]
+            self.log('Found article:', title)
+            self.log('\t' + url)
+            self.log('\t' + desc)
+            self.log('')
+            stories[section].append({'title':title, 'url':url, 'description':desc})
 
-            self.log('  ', title)
-            self.log('    ', url)
-            if desc:
-                self.log('    ', desc)
-            articles.append({'title': title, 'url': url, 'date': '',
-                             'description': desc})
-        if articles:
-            feeds.append((current_section, articles))
-
-        return feeds
+        return [(k, stories[k]) for k in sorted(stories)]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
             try:
-                ds = img['data-src']
+                ds = img['srcset'].split()[0]
+                del img['srcset']
             except KeyError:
                 continue
             if ds:
                 img['src'] = ds
-        return soup
-
-    def postprocess_html(self, soup, *a):
-        ab = soup.find(id='articleBody')
-        if ab is not None:
-            fi = soup.find(id='featured-item')
-            if fi is not None:
-                p = fi.parent
-                p.insert(len(p) - 2, fi)
         return soup
 
     # The New Yorker changes the content it delivers based on cookies, so the
