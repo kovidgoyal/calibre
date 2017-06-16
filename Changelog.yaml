@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title:
 
+- version: 3.0.0
+  date: 2017-06-16
+
+  new features:
+    - title: "For details on the major changes in calibre between 2.0 and 3.0, see https://calibre-ebook.com/new-in/twelve"
+      type: major
+
+    - title: "A completely re-written Content server with support for reading books in-browser on your phone/tablet. Also works in offline mode."
+      type: major
+
+    - title: "Support for high resolution (Retina screens)"
+      type: major
+
+    - title: "A new splash screen to celebrate the release of calibre 3"
+
+    - title: "Minor tweaking of the main user interface to emphasize the core features"
+
+  bug fixes:
+    - title: "Kobo driver: Fix for detection of some devices, with SD card not working on macOS"
+
+    - title: "Tag browser: Fix preservation of state when recounting and the visible categories have changed."
+      tickets: [1696596]
+
+    - title: "CHM Input: Handle CHM files that have missing or empty root files."
+      tickets: [1697764]
+
+    - title: "Fix Page flips options box in viewer preferences bot being laid out properly"
+
+    - title: "Fix initial down arrow in search box jumping two places"
+
+    - title: "Fix editing the authors via the book list not respecting the tweak to control author name splitting"
+
+    - title: "E-book viewer: Fix external links not working in the footnote popup panel"
+
+    - title: "Fix a regression that broke command line completion in bash"
+
+  improved recipes:
+    - Economist
+    - New York Times
+    - Private Eye
+    - The Hindu
+    - Harper's Magazine
+    - Lifehacker
+    - The Daily Mail
+
+  new recipes:
+    - title: RussiaFeed
+      author: Darko Miletic
+
 - version: 2.85.1
   date: 2017-05-12
 
@@ -1406,7 +1455,7 @@
 
   new features:
     - title: "Edit book: A new tool to transform book styling using easy to create rules"
-      description: "For example, you can create rules to change colors in the book or to double the font size of all text in the book, etc. For details, see https://manual.calibre-e-book.com/edit.html#transforming-css-properties"
+      description: "For example, you can create rules to change colors in the book or to double the font size of all text in the book, etc. For details, see https://manual.calibre-ebook.com/edit.html#transforming-css-properties"
       type: major
 
     - title: "Conversion: Allow creating rules to transform styles during conversion, as above. Available in the conversion dialog at 'Preferences->Common options->Look & feel->Transform styles'"
@@ -2842,7 +2891,7 @@
 
   new features:
     - title: "Edit book: Add support for snippets -- small pieces of text that are often re-used"
-      description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See https://manual.calibre-e-book.com/snippets.html for details"
+      description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See https://manual.calibre-ebook.com/snippets.html for details"
       type: major
 
   bug fixes:
@@ -2874,7 +2923,7 @@
 
   new features:
     - title: "Edit book: Add auto-completion for links"
-      description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See https://manual.calibre-e-book.com/edit.html#auto-complete for details"
+      description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See https://manual.calibre-ebook.com/edit.html#auto-complete for details"
       type: major
 
     - title: "Edit book Function mode: Add builtin functions to change case of text, ignoring HTML tags in the matched text"
@@ -3052,7 +3101,7 @@
 
   new features:
     - title: "Edit book: Add a new 'function mode' for the Search and replace tool"
-      description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: https://manual.calibre-e-book.com/function_mode.html"
+      description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: https://manual.calibre-ebook.com/function_mode.html"
       type: major
 
   bug fixes:
@@ -3096,7 +3145,7 @@
 
     - title: "Metadata download: Prioritize results that have the same language as the current calibre user interface language"
 
-    - title: "Edit book: Make the CSS used for styling the generated HTML Table of Contents user customizable via https://manual.calibre-e-book.com/customize.html#overriding-icons-templates-et-cetera"
+    - title: "Edit book: Make the CSS used for styling the generated HTML Table of Contents user customizable via https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
 
   bug fixes:
     - title: "E-book viewer: Fix popup footnotes not working on Windows"
@@ -3600,7 +3649,7 @@
   date: 2014-08-21
 
   new features:
-    - title: "For a summary of the major changes in calibre between 1.0 and 2.0, see http://calibre-e-book.com/new-in/eleven"
+    - title: "For a summary of the major changes in calibre between 1.0 and 2.0, see https://calibre-ebook.com/new-in/eleven"
       type: major
 
     - title: "Add support for MTP devices (Android phones/tablets) on macOS"
