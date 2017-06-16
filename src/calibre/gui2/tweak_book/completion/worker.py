@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import cPickle, os, sys
-from threading import Thread, Event, Lock
+from threading import Thread, Event, RLock
 from Queue import Queue
 from contextlib import closing
 from collections import namedtuple
@@ -37,7 +37,7 @@ class CompletionWorker(Thread):
         self.current_completion_request = None
         self.latest_completion_request_id = None
         self.request_count = 0
-        self.lock = Lock()
+        self.lock = RLock()
 
     def launch_worker_process(self):
         from calibre.utils.ipc.server import create_listener
@@ -159,6 +159,7 @@ class CompletionWorker(Thread):
             self.worker_process.kill()
         return self.worker_process.returncode
 
+
 _completion_worker = None
 
 
@@ -174,6 +175,7 @@ def run_main(func):
     address, key = cPickle.loads(eintr_retry_call(sys.stdin.read))
     with closing(Client(address, authkey=key)) as control_conn, closing(Client(address, authkey=key)) as data_conn:
         func(control_conn, data_conn)
+
 
 Result = namedtuple('Result', 'request_id ans traceback query')
 
