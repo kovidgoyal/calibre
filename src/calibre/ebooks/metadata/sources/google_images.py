@@ -9,9 +9,8 @@ __docformat__ = 'restructuredtext en'
 
 from collections import OrderedDict
 
+from calibre import random_user_agent
 from calibre.ebooks.metadata.sources.base import Source, Option
-
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
 
 class GoogleImages(Source):
@@ -51,7 +50,7 @@ class GoogleImages(Source):
 
     @property
     def user_agent(self):
-        return USER_AGENT
+        return random_user_agent(allow_ie=False)
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
@@ -75,7 +74,7 @@ class GoogleImages(Source):
         log('Search URL: ' + url)
         raw = br.open(url).read().decode('utf-8')
         root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml', namespaceHTMLElements=False)
-        for div in root.xpath('//div[@class="rg_meta"]'):
+        for div in root.xpath('//div[@class="rg_meta notranslate"]'):
             try:
                 data = json.loads(div.text)
             except Exception:
