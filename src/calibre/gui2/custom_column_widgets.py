@@ -164,6 +164,7 @@ class Bool(Base):
     def set_to_cleared(self):
         self.combobox.setCurrentIndex(2)
 
+
 class Int(Base):
 
     def setup_ui(self, parent):
@@ -599,6 +600,7 @@ def comments_factory(db, key, parent):
     if ctype in ('long-text', 'markdown'):
         return LongText(db, key, parent)
     return Comments(db, key, parent)
+
 
 widgets = {
         'bool' : Bool,
@@ -1206,5 +1208,3 @@ bulk_widgets = {
         'series': BulkSeries,
         'enumeration': BulkEnumeration,
 }
-
-
