@@ -30,6 +30,14 @@ def encode_query(query, qchar):
             qchar = '&'
     return ans
 
+
+def absolute_path(path):
+    if path[0] is not '/':
+        slash = '' if window.location.pathname[-1] is '/' else '/'
+        path = window.location.pathname + slash + path
+    return path
+
+
 def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
@@ -43,7 +51,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr = XMLHttpRequest()
     eq = encode_query(query)
     has_query = eq.length > 0
-    path += eq
+    path = absolute_path(path) + eq
     if bypass_cache:
         path += ('&' if has_query else '?') + Date().getTime()
 

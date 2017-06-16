@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from ajax import ajax
+from ajax import ajax, absolute_path
 from lru_cache import LRUCache
 from session import get_interface_data
 from utils import parse_url_params
@@ -110,17 +110,21 @@ def fetch_init_data():
 
 
 def thumbnail_url(book_id, width, height):
-    return 'get/thumb/{}/{}?sz={}x{}'.format(book_id, loaded_books_query().library_id, Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio))
+    return absolute_path(
+        'get/thumb/{}/{}?sz={}x{}'.format(
+            book_id, loaded_books_query().library_id,
+            Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio)
+        ))
 
 
 def cover_url(book_id):
     lid = current_library_id()
-    return f'get/cover/{book_id}/{lid}'
+    return absolute_path(f'get/cover/{book_id}/{lid}')
 
 
 def download_url(book_id, fmt):
     lid = current_library_id()
-    return f'get/{fmt}/{book_id}/{lid}'
+    return absolute_path(f'get/{fmt}/{book_id}/{lid}')
 
 
 def book_metadata(book_id):
