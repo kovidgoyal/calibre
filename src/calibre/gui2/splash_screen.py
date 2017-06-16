@@ -52,7 +52,6 @@ class SplashScreen(QSplashScreen):
         self.setWindowTitle(__appname__)
 
     def drawContents(self, painter):
-        QSplashScreen.drawContents(self, painter)
         self.drawn_once = True
         painter.save()
         painter.setRenderHint(painter.TextAntialiasing, True)
