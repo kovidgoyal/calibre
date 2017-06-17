@@ -158,7 +158,6 @@ class Plugins(collections.Mapping):
                 'zlib2',
                 'html',
                 'freetype',
-                'unrar',
                 'imageops',
                 'qt_hack',
                 'hunspell',

@@ -199,16 +199,5 @@
         "sources": "calibre/devices/mtp/unix/devices.c calibre/devices/mtp/unix/libmtp.c",
         "headers": "calibre/devices/mtp/unix/devices.h calibre/devices/mtp/unix/upstream/music-players.h calibre/devices/mtp/unix/upstream/device-flags.h",
         "libraries": "mtp"
-    },
-    {
-        "name": "unrar",
-        "sources": "unrar/rar.cpp unrar/strlist.cpp unrar/strfn.cpp unrar/pathfn.cpp unrar/savepos.cpp unrar/smallfn.cpp unrar/global.cpp unrar/file.cpp unrar/filefn.cpp unrar/filcreat.cpp unrar/archive.cpp unrar/arcread.cpp unrar/unicode.cpp unrar/system.cpp unrar/isnt.cpp unrar/crypt.cpp unrar/crc.cpp unrar/rawread.cpp unrar/encname.cpp unrar/resource.cpp unrar/match.cpp unrar/timefn.cpp unrar/rdwrfn.cpp unrar/consio.cpp unrar/options.cpp unrar/ulinks.cpp unrar/errhnd.cpp unrar/rarvm.cpp unrar/secpassword.cpp unrar/rijndael.cpp unrar/getbits.cpp unrar/sha1.cpp unrar/extinfo.cpp unrar/extract.cpp unrar/volume.cpp unrar/list.cpp unrar/find.cpp unrar/unpack.cpp unrar/cmddata.cpp unrar/filestr.cpp unrar/scantree.cpp calibre/utils/unrar.cpp",
-        "inc_dirs": "unrar",
-        "defines": "SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE",
-        "windows_defines": "SILENT RARDLL UNRAR",
-        "haiku_defines": "LITTLE_ENDIAN SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE _BSD_SOURCE",
-        "haiku_libraries": "bsd",
-        "optimize_level": 2,
-        "windows_libraries": "User32 Advapi32 kernel32 Shell32"
     }
 ]

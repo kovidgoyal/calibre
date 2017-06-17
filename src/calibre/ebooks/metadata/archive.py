@@ -57,8 +57,7 @@ class ArchiveExtract(FileTypePlugin):
             zf = ZipFile(archive, 'r')
 
         if is_rar:
-            with open(archive, 'rb') as rf:
-                fnames = list(names(rf))
+            fnames = list(names(archive))
         else:
             fnames = zf.namelist()
 
@@ -94,8 +93,7 @@ class ArchiveExtract(FileTypePlugin):
         of = self.temporary_file('_archive_extract.'+ext)
         with closing(of):
             if is_rar:
-                with open(archive, 'rb') as f:
-                    data = extract_member(f, match=None, name=fname)[1]
+                data = extract_member(archive, match=None, name=fname)[1]
                 of.write(data)
             else:
                 of.write(zf.read(fname))
@@ -162,9 +160,8 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
         zf = ZipFile(stream)
         comment = zf.comment
     elif stream_type == 'cbr':
-        from calibre.utils.unrar import RARFile
-        f = RARFile(stream, get_comment=True)
-        comment = f.comment
+        from calibre.utils.unrar import comment as get_comment
+        comment = get_comment(stream)
 
     if comment:
         import json
