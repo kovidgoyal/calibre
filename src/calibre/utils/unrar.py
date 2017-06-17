@@ -11,7 +11,7 @@ import shutil
 import re
 from io import BytesIO
 
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 
 
@@ -71,9 +71,13 @@ def comment(path_or_stream):
 def extract_member(
     path_or_stream, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), name=None):
     from unrardll import extract_member
+    if iswindows and name is not None:
+        name = name.replace(os.sep, '/')
 
     def is_match(header):
         fname = header['filename']
+        if iswindows:
+            fname = fname.replace(os.sep, '/')
         return (name is not None and fname == name) or \
                (match is not None and match.search(fname) is not None)
 
