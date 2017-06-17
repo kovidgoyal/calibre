@@ -124,13 +124,6 @@ def test_basic():
         c = comment(stream)
         if c != b'some comment\n':
             raise ValueError('Comment not read: %r != %r' % (c, b'some comment\n'))
-        for name in tdata:
-            if name not in '1 2 symlink'.split():
-                d = extract_member(stream, name=name)[1]
-                if d != tdata[name]:
-                    raise ValueError(
-                        'Failed to extract %s %r != %r' % (name, d, tdata[name]))
-
         if set(names(stream)) != {
             '1/sub-one', 'one.txt', '2/sub-two.txt', '诶比屁.txt', 'Füße.txt',
             'uncompressed', 'max-compressed'}:
@@ -142,6 +135,12 @@ def test_basic():
                     with open(os.path.join(tdir, name), 'rb') as s:
                         if s.read() != tdata[name]:
                             raise ValueError('Did not extract %s properly' % name)
+        for name in tdata:
+            if name not in '1 2 symlink'.split():
+                d = extract_member(stream, name=name)
+                if d is None or d[1] != tdata[name]:
+                    raise ValueError(
+                        'Failed to extract %s %r != %r' % (name, d, tdata[name]))
 
     do_test(stream)
     with PersistentTemporaryFile('test-unrar') as f:
