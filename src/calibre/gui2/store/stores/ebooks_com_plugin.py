@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2  # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -70,12 +70,18 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                 if not title or not author:
                     continue
 
+                price = ''.join(data.xpath(
+                    './/span[starts-with(text(), "US$") or'
+                    ' starts-with(text(), "€") or starts-with(text(), "CA$") or'
+                    ' starts-with(text(), "AU$") or starts-with(text(), "£")]/text()')).strip()
+
                 counter -= 1
 
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
+                s.price = price.strip()
                 s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
 
                 yield s
@@ -89,15 +95,9 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         if not id:
             return
 
-        price = _('Not Available')
         br = browser()
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
-
-            price_l = pdoc.xpath('//div[@class="book-info"]/div[@class="price"]/text()')
-            if price_l:
-                price = price_l[0]
-            search_result.price = price.strip()
 
             search_result.drm = SearchResult.DRM_UNLOCKED
             permissions = ' '.join(pdoc.xpath('//div[@class="permissions-items"]//text()'))
