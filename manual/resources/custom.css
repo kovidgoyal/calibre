@@ -12,6 +12,12 @@
     }
 }
 
+@media screen and (min-width: 876px) {
+    div.related { height: 25px; display: flex; align-items: center; }
+    div.related > ul { flex-grow: 10; }
+    div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
+}
+
 .float-left-img { float: left; margin-right: 1em; margin-bottom: 1em }
 
 .float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
