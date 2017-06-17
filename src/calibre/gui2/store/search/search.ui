@@ -131,21 +131,21 @@
          <item>
           <widget class="QPushButton" name="select_all_stores">
            <property name="text">
-            <string>Select all</string>
+            <string>Select &amp;all</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="select_invert_stores">
            <property name="text">
-            <string>Invert selection</string>
+            <string>&amp;Invert selection</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="select_none_stores">
            <property name="text">
-            <string>Select none</string>
+            <string>Select &amp;none</string>
            </property>
           </widget>
          </item>

@@ -279,9 +279,9 @@ The ``data`` argument
 ^^^^^^^^^^^^^^^^^^^^^
 
 This a simple Python ``dict``. When you run
-:guilabel:`Replace All`, every successive match will cause ``replace()`` to be
+:guilabel:`Replace all`, every successive match will cause ``replace()`` to be
 called with the same ``dict`` as data. You can thus use it to store arbitrary
-data between invocations of ``replace()`` during a :guilabel:`Replace All`
+data between invocations of ``replace()`` during a :guilabel:`Replace all`
 operation.
 
 The ``functions`` argument

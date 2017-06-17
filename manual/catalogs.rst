@@ -116,7 +116,7 @@ Other options
 
 :guilabel:`Thumb width` specifies a width preference for cover thumbnails included with Descriptions pages. Thumbnails are cached to improve performance. To experiment with different widths, try generating a catalog with just a few books until you've determined your preferred width, then generate your full catalog. The first time a catalog is generated with a new thumbnail width, performance will be slower, but subsequent builds of the catalog will take advantage of the thumbnail cache.
 
-:guilabel:`Merge with Comments` specifies a custom column whose content will be non-destructively merged with the Comments metadata during catalog generation. For example, you might have a custom column :guilabel:`Author Bio` that you'd like to append to the Comments metadata. You can choose to insert the custom column contents *before or after* the Comments section, and optionally separate the appended content with a horizontal rule separator. Eligible custom column types include ``text, comments, and composite``.
+:guilabel:`Merge with Comments` specifies a custom column whose content will be non-destructively merged with the Comments metadata during catalog generation. For example, you might have a custom column :guilabel:`Author bio` that you'd like to append to the Comments metadata. You can choose to insert the custom column contents *before or after* the Comments section, and optionally separate the appended content with a horizontal rule separator. Eligible custom column types include ``text, comments, and composite``.
 
 .. _Custom catalog covers:
 

@@ -15,7 +15,7 @@ headings in an unstructured HTML document.
   :depth: 1
   :local: 
 
-Selecting by tagname
+Selecting by tag name
 ----------------------------------------
 
 The simplest form of selection is to select tags by name. For example, 
