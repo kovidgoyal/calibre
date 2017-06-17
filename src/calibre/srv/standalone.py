@@ -47,15 +47,7 @@ def daemonize():  # {{{
         raise SystemExit('fork #2 failed: %s' % as_unicode(e))
 
     # Redirect standard file descriptors.
-    try:
-        plugins['speedup'][0].detach(os.devnull)
-    except AttributeError:  # people running from source without updated binaries
-        si = os.open(os.devnull, os.O_RDONLY)
-        so = os.open(os.devnull, os.O_WRONLY)
-        se = os.open(os.devnull, os.O_WRONLY)
-        os.dup2(si, sys.stdin.fileno())
-        os.dup2(so, sys.stdout.fileno())
-        os.dup2(se, sys.stderr.fileno())
+    plugins['speedup'][0].detach(os.devnull)
 # }}}
 
 
