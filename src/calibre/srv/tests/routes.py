@@ -6,10 +6,21 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 from calibre.srv.tests.base import BaseTest
 
 
 class TestRouter(BaseTest):
+
+    def test_library_id_construction(self):
+        from calibre.srv.library_broker import library_id_from_path
+        self.ae(library_id_from_path('as'), 'as')
+        self.ae(library_id_from_path('as/'), 'as')
+        self.ae(library_id_from_path('as////'), 'as')
+        self.ae(library_id_from_path('/as/'), 'as')
+        if os.sep == '\\':
+            self.ae(library_id_from_path('as/' + os.sep), 'as')
+            self.ae(library_id_from_path('X:' + os.sep), 'X')
 
     def test_route_construction(self):
         ' Test route construction '

@@ -32,7 +32,12 @@ def samefile(a, b):
 def basename(path):
     while path and path[-1] in ('/' + os.sep):
         path = path[:-1]
-    return os.path.basename(path)
+    ans = os.path.basename(path)
+    if not ans:
+        # Can happen for a path like D:\ on windows
+        if len(path) == 2 and path[1] == ':':
+            ans = path[0]
+    return ans or 'Library'
 
 
 def init_library(library_path, is_default_library):
@@ -52,7 +57,7 @@ def make_library_id_unique(library_id, existing):
     return library_id
 
 
-def library_id_from_path(path, existing):
+def library_id_from_path(path, existing=frozenset()):
     library_id = basename(path).replace(' ', '_')
     return make_library_id_unique(library_id, existing)
 
