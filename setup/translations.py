@@ -558,6 +558,7 @@ class GetTranslations(Translations):  # {{{
         tpath = self.j(self.TRANSLATIONS, __appname__)
         pofilter = ('pofilter', '-i', tpath, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
+                '-t', 'pythonbraceformat',
                 # '-t', 'xmltags',
                 # '-t', 'brackets',
                 # '-t', 'emails',
