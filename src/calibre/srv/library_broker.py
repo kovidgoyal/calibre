@@ -29,6 +29,12 @@ def samefile(a, b):
     return _samefile(a, b)
 
 
+def basename(path):
+    while path and path[-1] in ('/' + os.sep):
+        path = path[:-1]
+    return os.path.basename(path)
+
+
 def init_library(library_path, is_default_library):
     db = Cache(
         create_backend(
@@ -47,7 +53,7 @@ def make_library_id_unique(library_id, existing):
 
 
 def library_id_from_path(path, existing):
-    library_id = os.path.basename(path).replace(' ', '_')
+    library_id = basename(path).replace(' ', '_')
     return make_library_id_unique(library_id, existing)
 
 
@@ -73,7 +79,7 @@ class LibraryBroker(object):
                 continue
             library_id = library_id_from_path(original_path, self.lmap)
             self.lmap[library_id] = path
-            self.library_name_map[library_id] = os.path.basename(original_path)
+            self.library_name_map[library_id] = basename(original_path)
             self.original_path_map[path] = original_path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
@@ -114,15 +120,15 @@ class LibraryBroker(object):
     @property
     def library_map(self):
         with self:
-            return {k: v for k, v in self.library_name_map.iteritems()}
+            return self.library_name_map.copy()
 
     def allowed_libraries(self, filter_func):
         with self:
             allowed_names = filter_func(
-                os.path.basename(l) for l in self.lmap.itervalues())
+                basename(l) for l in self.lmap.itervalues())
             return OrderedDict(((lid, self.library_map[lid])
                                 for lid, path in self.lmap.iteritems()
-                                if os.path.basename(path) in allowed_names))
+                                if basename(path) in allowed_names))
 
     def __enter__(self):
         self.lock.acquire()
@@ -183,7 +189,7 @@ class GuiLibraryBroker(LibraryBroker):
             library_id = library_id_from_path(library_path, self.lmap)
             db.new_api.server_library_id = library_id
             self.lmap[library_id] = library_path
-            self.library_name_map[library_id] = os.path.basename(
+            self.library_name_map[library_id] = basename(
                 original_library_path)
             self.loaded_dbs[library_id] = db
             return db
@@ -214,7 +220,7 @@ class GuiLibraryBroker(LibraryBroker):
             library_id = self.gui_library_id = library_id_from_path(
                 newloc, self.lmap)
             self.lmap[library_id] = newloc
-            self.library_name_map[library_id] = os.path.basename(original_path)
+            self.library_name_map[library_id] = basename(original_path)
             self.original_path_map[newloc] = original_path
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
