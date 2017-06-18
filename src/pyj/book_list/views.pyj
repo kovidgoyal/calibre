@@ -122,9 +122,7 @@ def render_ids(book_ids):
                 book_list_data.append_item(div, child)
 
 
-def apply_view_mode(mode=DEFAULT_MODE):
-    if book_list_data.mode is mode:
-        return
+def setup_view_mode(mode, book_list_data):
     if mode not in ALLOWED_MODES:
         mode = DEFAULT_MODE
     book_list_data.mode = mode
@@ -136,6 +134,13 @@ def apply_view_mode(mode=DEFAULT_MODE):
         book_list_data.render_book = create_details_list_item
         book_list_data.init_grid = init_details_list
         book_list_data.append_item = details_list_append_item
+    return mode
+
+
+def apply_view_mode(mode=DEFAULT_MODE):
+    if book_list_data.mode is mode:
+        return
+    setup_view_mode(mode, book_list_data)
     clear_grid()
     render_ids()
 
