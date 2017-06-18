@@ -166,6 +166,12 @@ def get_warnings():
     return list(warnings)
 
 
+def edit_file(path):
+    return subprocess.Popen([
+        'vim', '-c', 'SyntasticCheck', '-c', 'll', '-S', os.path.join(SRC, '../session.vim'), '-f', path
+    ]).wait() == 0
+
+
 class Command(object):
 
     SRC = SRC

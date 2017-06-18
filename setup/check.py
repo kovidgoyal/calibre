@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, json, subprocess, errno, hashlib
-from setup import Command, build_cache_dir
+from setup import Command, build_cache_dir, edit_file
 import __builtin__
 
 
@@ -119,8 +119,7 @@ class Check(Command):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    subprocess.call(['vim', '-c', 'SyntasticCheck', '-c', 'll', '-S',
-                                    self.j(self.SRC, '../session.vim'), '-f', f])
+                    edit_file(f)
                     if self.file_has_errors(f):
                         raise SystemExit(1)
                 cache[f] = self.file_hash(f)
