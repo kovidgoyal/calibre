@@ -587,15 +587,22 @@ class LayoutMixin(object):  # {{{
                         QToolButton:checked { background: rgba(0, 0, 0, 25%); }
                 ''')
             self.status_bar.addPermanentWidget(button)
-        self.layout_button = b = QToolButton(self)
-        b.setAutoRaise(True), b.setCursor(Qt.PointingHandCursor)
-        b.setPopupMode(b.InstantPopup)
-        b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
-        b.setMenu(LayoutMenu(self))
-        b.setToolTip(_(
-            'Show and hide various parts of the calibre main window'))
-        self.status_bar.addPermanentWidget(b)
+        if gprefs['show_layout_buttons']:
+            from calibre.utils.icu import primary_sort_key
+            for b in sorted(self.layout_buttons, key=lambda b: primary_sort_key(b.label)):
+                print(b.label)
+                b.setVisible(True)
+                self.status_bar.addPermanentWidget(b)
+        else:
+            self.layout_button = b = QToolButton(self)
+            b.setAutoRaise(True), b.setCursor(Qt.PointingHandCursor)
+            b.setPopupMode(b.InstantPopup)
+            b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
+            b.setMenu(LayoutMenu(self))
+            b.setToolTip(_(
+                'Show and hide various parts of the calibre main window'))
+            self.status_bar.addPermanentWidget(b)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
