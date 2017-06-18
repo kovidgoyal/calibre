@@ -186,7 +186,7 @@ near the top of the file. Now run the command :command:`calibredb`. The very fir
 You can also setup a calibre development environment inside the free Microsoft
 Visual Studio, if you like, following the instructions `here <https://www.mobileread.com/forums/showthread.php?t=251201>`_.
 
-OS X development environment
+macOS development environment
 ------------------------------
 
 .. note:: You must also get the calibre source code separately as described above.
@@ -225,7 +225,7 @@ Linux development environment
 
 calibre is primarily developed on Linux. You have two choices in setting up the development environment. You can install the
 calibre binary as normal and use that as a runtime environment to do your development. This approach is similar to that
-used in Windows and OS X. Alternatively, you can install calibre from source. Instructions for setting up a development
+used in Windows and macOS. Alternatively, you can install calibre from source. Instructions for setting up a development
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary as a runtime, which is the
 recommended method.
 

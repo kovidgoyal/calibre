@@ -309,7 +309,7 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
 .. note:: 
-    On OS X, the command line tools are inside the calibre bundle, for example,
+    On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
     are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
 

@@ -213,7 +213,7 @@ Follow these steps to find the problem:
       You can tell what version of calibre you are currently running by looking
       at the bottom line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
-      should show up in Windows Explorer (in Windows) or Finder (in OS X).
+      should show up in Windows Explorer (in Windows) or Finder (in macOS).
     * In calibre, go to :guilabel:`Preferences->Ignored Devices` and check that your device
       is not being ignored
     * If all the above steps fail, go to :guilabel:`Preferences->Miscellaneous` and click
@@ -380,8 +380,8 @@ With the USB cable + iTunes
 
 Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <https://www.mobileread.com/forums/showthread.php?t=118559>`_.
 
-This method only works on Windows Vista and higher, and OS X up to 10.8. Linux
-is not supported (iTunes is not available in linux) and OS X newer than 10.8 is
+This method only works on Windows Vista and higher, and macOS up to 10.8. Linux
+is not supported (iTunes is not available in linux) and macOS newer than 10.8 is
 not supported, as Apple removed the facility to use iTunes to manage books,
 replacing it with iBooks.
 
@@ -817,11 +817,11 @@ Take your pick:
 
 calibre is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, calibre is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me.
 
-Why does calibre show only some of my fonts on OS X?
+Why does calibre show only some of my fonts on macOS?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 calibre embeds fonts in e-book files it creates. E-book files support embedding
-only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on OS X systems
+only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on macOS systems
 are in .dfont format, thus they cannot be embedded. calibre shows only TrueType
 and OpenType fonts found on your system. You can obtain many such fonts on the
 web. Simply download the .ttf/.otf files and add them to the Library/Fonts
@@ -939,10 +939,10 @@ some functionality, such as drag and drop to not work.
 Finally, some users have reported that disabling UAC fixes the problem.
 
 
-calibre is not starting/crashing on OS X?
+calibre is not starting/crashing on macOS?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One common cause of failures on OS X is the use of accessibility technologies
+One common cause of failures on macOS is the use of accessibility technologies
 that are incompatible with the graphics toolkit calibre uses.  Try turning off
 VoiceOver if you have it on. Also go to System Preferences->System->Universal
 Access and turn off the setting for enabling access for assistive devices in
@@ -957,7 +957,7 @@ be printed to it. If the debug output contains a line that looks like::
 then the problem is probably a corrupted font cache. You can clear the cache by following these
 `instructions <http://www.macworld.com/article/1139383/fontcacheclear.html>`_. If that doesn't
 solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like. An easy way to
-check for corrupted fonts in OS X is to start the "Font Book" application, select all fonts and then in the File
+check for corrupted fonts in macOS is to start the "Font Book" application, select all fonts and then in the File
 menu, choose "Validate fonts".
 
 

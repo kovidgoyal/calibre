@@ -35,7 +35,7 @@ the directory in which you created :file:`__init__.py`::
     calibre-customize -b .
 
 .. note::
-    On OS X, the command line tools are inside the calibre bundle, for example,
+    On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
     are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
 

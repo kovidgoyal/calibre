@@ -27,7 +27,7 @@ class TXTOutput(OutputFormatPlugin):
             short_switch='n', choices=NEWLINE_TYPES,
             help=_('Type of newline to use. Options are %s. Default is \'system\'. '
                 'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
-                'For Mac OS X use \'unix\'. \'system\' will default to the newline '
+                'For macOS use \'unix\'. \'system\' will default to the newline '
                 'type used by this OS.') % sorted(NEWLINE_TYPES)),
         OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,

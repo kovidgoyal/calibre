@@ -271,7 +271,7 @@ Remove books
     6. **Remove matching books from device**: Allows you to remove e-book files from a connected device that match the books that are selected in the book list.
 
 .. note::
-    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
+    Note that when you use :guilabel:`Remove books` to delete books from your calibre library, the book record is permanently deleted, but on Windows and macOS the files are placed into the recycle bin. This allows you to recover them if you change your mind.
 
 .. _configuration:
 
@@ -640,7 +640,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
 
     * - Keyboard shortcut
       - Action
-    * - :kbd:`F2 (Enter in OS X)`
+    * - :kbd:`F2 (Enter in macOS)`
       - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A`
       - Add Books
@@ -674,7 +674,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Edit book
     * - :kbd:`V`
       - View
-    * - :kbd:`Alt+V/Cmd+V in OS X`
+    * - :kbd:`Alt+V/Cmd+V in macOS`
       - View specific format
     * - :kbd:`Alt+Shift+J`
       - Toggle jobs list

@@ -15,7 +15,7 @@ Starting the E-book viewer
 
 You can view any of the books in your calibre library by selecting the book and pressing the :guilabel:`View` button. This
 will open up the book in the E-book viewer. You can also launch the E-book viewer by itself from the Start menu in Windows
-or using the command :command:`ebook-viewer` in Linux and OS X (you have to install the command line tools on OS X
+or using the command :command:`ebook-viewer` in Linux and macOS (you have to install the command line tools on macOS
 first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
 
 Navigating around an e-book

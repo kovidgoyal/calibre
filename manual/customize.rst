@@ -44,7 +44,7 @@ Environment variables
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
 See `How to set environment variables in Windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
-`How to set environment variables in OS X <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
+`How to set environment variables in macOS <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
 
 Tweaks
 ------------
@@ -67,7 +67,7 @@ calibre allows you to override the static resources, like icons, javascript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
 you like.  All static resources are stored in the resources sub-folder of the
 calibre install location. On Windows, this is usually :file:`C:\\Program Files\\Calibre2\\resources`. 
-On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if
+On macOS, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if
 you are using the binary installer from the calibre website it will be
 :file:`/opt/calibre/resources`. These paths can change depending on where you
 choose to install calibre. 
