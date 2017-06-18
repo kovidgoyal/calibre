@@ -19,8 +19,7 @@ To get started with more advanced usage, you should read about :doc:`gui`. For e
     
     **An e-book version of this user manual is available in** `EPUB format <calibre.epub>`_,  `AZW3 (Kindle Fire) format <calibre.azw3>`_ and `PDF format <calibre.pdf>`_.
     
-Sections
-------------
+.. rubric:: Sections
 
 .. toctree::
    :maxdepth: 1

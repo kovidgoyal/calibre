@@ -57,7 +57,8 @@ def visit_checkbox(self, node):
 
 
 def modify_li(li):
-    if li.first_child_matching_class(nodes.bullet_list) is None:
+    sublist = li.first_child_matching_class(nodes.bullet_list)
+    if sublist is None or li[sublist].first_child_matching_class(nodes.list_item) is None:
         if not li.get('classes'):
             li['classes'] = []
         li['classes'].append('leaf-node')
