@@ -348,6 +348,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_hidpi.setVisible(False), self.label_hidpi.setVisible(False)
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
         r('book_list_tooltips', gprefs)
+        r('show_layout_buttons', gprefs, restart_required=True)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
         r('tag_browser_hide_empty_categories', gprefs)
