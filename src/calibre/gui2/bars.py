@@ -313,7 +313,9 @@ if isosx:
             self.setChecked(self.clone.isChecked())
             self.setIcon(self.clone.icon())
             if self.clone_shortcuts:
-                self.setShortcuts(self.clone.shortcuts())
+                sc = self.clone.shortcut()
+                if sc and not sc.isEmpty():
+                    self.setText(self.text() + '\t' + sc.toString(sc.NativeText))
             if self.clone.menu() is None:
                 if not self.is_top_level:
                     self.setMenu(None)
