@@ -588,9 +588,7 @@ class LayoutMixin(object):  # {{{
                 ''')
             self.status_bar.addPermanentWidget(button)
         if gprefs['show_layout_buttons']:
-            from calibre.utils.icu import primary_sort_key
-            for b in sorted(self.layout_buttons, key=lambda b: primary_sort_key(b.label)):
-                print(b.label)
+            for b in self.layout_buttons:
                 b.setVisible(True)
                 self.status_bar.addPermanentWidget(b)
         else:
