@@ -49,6 +49,9 @@
      <property name="text">
       <string>&amp;Genre</string>
      </property>
+     <property name="buddy">
+      <cstring>opt_fb2_genre</cstring>
+     </property>
     </widget>
    </item>
    <item row="1" column="1">
