@@ -70,11 +70,11 @@ class FinancialTimes(BasicNewsRecipe):
             br.open(cover)
         except:
             index = 'http://en.kiosko.net/uk/np/ft_uk.html'
-        	soup = self.index_to_soup(index)
-        	for image in soup.findAll('img', src=True):
-          		if image['src'].endswith('750.jpg'):
-                	return image['src']
-        	self.log("\nCover unavailable")
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+          	    if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
             cover = None
         return cover
     
