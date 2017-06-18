@@ -86,7 +86,7 @@ class ESPN(BasicNewsRecipe):
                     f.write(raw)
                 br.open_local_file(fname)
 
-            br.form = br.forms().next()
+            br.form = list(br.forms())[0]
             br.form.find_control(
                 name='username', type='text').value = self.username
             br.form['password'] = self.password

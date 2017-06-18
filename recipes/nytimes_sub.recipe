@@ -417,7 +417,7 @@ class NYTimes(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.nytimes.com/auth/login')
-            br.form = br.forms().next()
+            br.form = list(br.forms())[0]
             br['userid'] = self.username
             br['password'] = self.password
             br.submit().read()

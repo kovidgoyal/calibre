@@ -89,7 +89,7 @@ img { background: none !important; float: none; margin: 0px; }
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://acesso.uol.com.br/login.html')
-            br.form = br.forms().next()
+            br.form = list(br.forms())[0]
             br['user'] = self.username
             br['pass'] = self.password
             br.submit().read()

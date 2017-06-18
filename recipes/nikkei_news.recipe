@@ -51,8 +51,8 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             br.open('http://www.nikkei.com/')
             print "-------------------------open first login form-----------------------------"
             try:
-                url = br.links(
-                    url_regex="www.nikkei.com/etc/accounts/login").next().url
+                url = list(br.links(
+                    url_regex="www.nikkei.com/etc/accounts/login"))[0].url
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             br.open(url)  # br.follow_link(link)
