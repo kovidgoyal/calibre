@@ -61,7 +61,23 @@ class FinancialTimes(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         return br
-
+    
+    def get_cover_url(self):
+        from datetime import timedelta, date
+        cover = 'http://img.kiosko.net/' + str(date.today().year) + '/' + date.today().strftime('%m') + '/' + date.today().strftime('%d') + '/uk/ft_uk.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'http://en.kiosko.net/uk/np/ft_uk.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+          	    if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+    
     def parse_index(self):
         feeds = OrderedDict()
         soup = self.index_to_soup(self.INDEX)
