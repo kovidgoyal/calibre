@@ -8,7 +8,6 @@ from PyQt5.Qt import (
     QFontMetrics, QHBoxLayout, QIcon, QMenu, QPainter, QPushButton, QSize,
     QSizePolicy, Qt, QWidget, QStyleOption, QStyle)
 
-from calibre.utils.icu import primary_sort_key
 
 ICON_SZ = 64
 
@@ -99,8 +98,7 @@ class LayoutMenu(QMenu):
                 b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
                 b.label = b.text().capitalize()
         else:
-            buttons = sorted(
-                parent.layout_buttons, key=lambda b: primary_sort_key(b.label))
+            buttons = parent.layout_buttons
         for b in buttons:
             self.items.append(LayoutItem(b, self))
             l.addWidget(self.items[-1])
