@@ -965,9 +965,15 @@ class LayoutButton(QToolButton):
         if splitter is not None:
             splitter.state_changed.connect(self.update_state)
         self.setCursor(Qt.PointingHandCursor)
-        self.shortcut = ''
-        if shortcut:
-            self.shortcut = shortcut
+        self.shortcut = shortcut or ''
+
+    def update_shortcut(self, action_toggle=None):
+        action_toggle = action_toggle or getattr(self, 'action_toggle', None)
+        if action_toggle:
+            sc = action_toggle.shortcut()
+            if sc:
+                sc = sc.toString(sc.NativeText)
+            self.shortcut = sc or ''
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
@@ -1036,6 +1042,7 @@ class Splitter(QSplitter):
         if shortcut is not None:
             self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
                     self)
+            self.action_toggle.changed.connect(self.update_shortcut)
             self.action_toggle.triggered.connect(self.toggle_triggered)
             if parent is not None:
                 parent.addAction(self.action_toggle)
@@ -1047,6 +1054,9 @@ class Splitter(QSplitter):
                     self.action_toggle.setShortcut(shortcut)
             else:
                 self.action_toggle.setShortcut(shortcut)
+
+    def update_shortcut(self):
+        self.button.update_shortcut(self.action_toggle)
 
     def toggle_triggered(self, *args):
         self.toggle_side_pane()

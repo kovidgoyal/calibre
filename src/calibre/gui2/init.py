@@ -338,6 +338,7 @@ class GridViewButton(LayoutButton):  # {{{
         gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
                                     default_keys=(sc,), action=self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
+        self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
 
     def update_state(self, checked):
@@ -367,6 +368,7 @@ class SearchBarButton(LayoutButton):  # {{{
         gui.keyboard.register_shortcut('search bar toggle' + self.label, unicode(self.action_toggle.text()),
                                     default_keys=(sc,), action=self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
+        self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
 
     def update_state(self, checked):
