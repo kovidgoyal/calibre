@@ -974,6 +974,7 @@ class LayoutButton(QToolButton):
             if sc:
                 sc = sc.toString(sc.NativeText)
             self.shortcut = sc or ''
+            self.update_text()
 
     def update_text(self):
         t = _('Hide {}') if self.isChecked() else _('Show {}')
