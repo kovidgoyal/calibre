@@ -995,7 +995,7 @@ class LayoutButton(QToolButton):
             sc_text = ', '.join(sc.toString(QKeySequence.NativeText) for sc in shortcuts)
             if sc_text != self.shortcut:
                 self.shortcut = sc_text
-                self.update_state(None)
+                self.update_state(self.isChecked())
         return QToolButton.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
