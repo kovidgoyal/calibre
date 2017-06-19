@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -112,6 +112,13 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
             search_result.author = ', '.join(idata.xpath('.//h2[contains(@class, "author")]//a/text()'))
+            if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):
+                if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "DRM-Free")])'):
+                    search_result.drm = SearchResult.DRM_UNLOCKED
+                if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Adobe DRM")])'):
+                    search_result.drm = SearchResult.DRM_LOCKED
+            else:
+                search_result.drm = SearchResult.DRM_UNKNOWN
         return True
 
 
