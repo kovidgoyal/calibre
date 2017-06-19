@@ -10,7 +10,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
-        QCompleter, QTimer, QRect, QGraphicsView)
+        QCompleter, QTimer, QRect, QGraphicsView, QKeySequence, QEvent)
 
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
@@ -954,7 +954,8 @@ class SplitterHandle(QSplitterHandle):
 
 class LayoutButton(QToolButton):
 
-    def __init__(self, icon, text, splitter=None, parent=None, shortcut=None):
+    def __init__(self, icon, text, splitter=None, parent=None, shortcut=None,
+                 action_toggle=None):
         QToolButton.__init__(self, parent)
         self.label = text
         self.setIcon(QIcon(icon))
@@ -968,6 +969,7 @@ class LayoutButton(QToolButton):
         self.shortcut = ''
         if shortcut:
             self.shortcut = shortcut
+        self.action_toggle = action_toggle
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
@@ -986,6 +988,15 @@ class LayoutButton(QToolButton):
             self.set_state_to_show()
         else:
             self.set_state_to_hide()
+
+    def event(self, ev):
+        if ev.type() in (QEvent.Show, QEvent.WindowActivate) and self.action_toggle:
+            shortcuts = self.action_toggle.shortcuts()
+            sc_text = ', '.join(sc.toString(QKeySequence.NativeText) for sc in shortcuts)
+            if sc_text != self.shortcut:
+                self.shortcut = sc_text
+                self.update_state(self.isChecked())
+        return QToolButton.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.RightButton:
@@ -1029,9 +1040,6 @@ class Splitter(QSplitter):
         self.initial_side_size = initial_side_size
         self.initial_show = initial_show
         self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
-        self.button = LayoutButton(icon, label, self, shortcut=shortcut)
-        if connect_button:
-            self.button.clicked.connect(self.double_clicked)
 
         if shortcut is not None:
             self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
@@ -1047,6 +1055,10 @@ class Splitter(QSplitter):
                     self.action_toggle.setShortcut(shortcut)
             else:
                 self.action_toggle.setShortcut(shortcut)
+        self.button = LayoutButton(icon, label, self, shortcut=shortcut,
+                                   action_toggle=self.action_toggle)
+        if connect_button:
+            self.button.clicked.connect(self.double_clicked)
 
     def toggle_triggered(self, *args):
         self.toggle_side_pane()
