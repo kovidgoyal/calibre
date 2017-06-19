@@ -28,13 +28,13 @@ class SortAction(QAction):
 class SortByAction(InterfaceAction):
 
     name = 'Sort By'
-    action_spec = (_('Sort by'), 'arrow-up.png', _('Sort the list of books'), None)
+    action_spec = (_('Sort by'), 'sort.png', _('Sort the list of books'), None)
     action_type = 'current'
     popup_type = QToolButton.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset([
-        'toolbar', 'toolbar-device', 'context-menu-device', 'toolbar-child',
-        'menubar', 'menubar-device', 'context-menu-cover-browser'])
+        'toolbar-device', 'context-menu-device', 'menubar', 'menubar-device',
+        'context-menu-cover-browser'])
 
     def genesis(self):
         self.sorted_icon = QIcon(I('ok.png'))
