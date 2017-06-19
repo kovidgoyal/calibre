@@ -19,6 +19,7 @@ from calibre.srv.http_response import create_http_handler
 from calibre.srv.handler import Handler
 from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
+from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre.db.legacy import LibraryDatabase
 
@@ -286,6 +287,13 @@ libraries that the main calibre program knows about will be used.
         '--manage-users', default=False, action='store_true',
         help=_('Manage the database of users allowed to connect to this server.'
                ' See also the %s option.') % '--userdb')
+    parser.get_option('--userdb').help = _(
+        'Path to the user database to use for authentication. The database'
+        ' is a SQLite file. To create it use {0}. You can read more'
+        ' about managing users at: {1}').format(
+            '--manage-users', localize_user_manual_link(
+                'https://manual.calibre-ebook.com/server.html#managing-user-accounts-from-the-command-line-only'
+    ))
 
     return parser
 
