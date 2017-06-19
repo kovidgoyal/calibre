@@ -571,7 +571,8 @@ class ConfigWidget(ConfigWidgetBase):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     # Tweaks()
     # test_widget
     test_widget('Advanced', 'Tweaks')

@@ -20,6 +20,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.conf_widget = ShortcutConfig(self)
         self.conf_widget.changed_signal.connect(self.changed_signal)
         self._layout = l = QVBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         l.addWidget(self.conf_widget)
 
@@ -41,8 +42,8 @@ class ConfigWidget(ConfigWidgetBase):
     def highlight_group(self, group_name):
         self.conf_widget.highlight_group(group_name)
 
-if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
-    test_widget('Advanced', 'Keyboard')
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    test_widget('Advanced', 'Keyboard')
