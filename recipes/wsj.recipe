@@ -67,8 +67,10 @@ class WSJ(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes(
-            'insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
+        dict(id='right-rail'),
+        dict(id='narrator-nav'),
+        dict(name='div', id='ad_and_popular'),
+        classes('right-rail comments-count-container insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
         dict(name='span', attrs={
              'data-country-code': True, 'data-ticker-code': True}),
         dict(name='meta link'.split()),
@@ -94,6 +96,21 @@ class WSJ(BasicNewsRecipe):
         if found:
             self.log.debug('Found %d dynamic images in:' % found)
         return soup
+
+    def get_cover_url(self):
+        cover = 'https://vir.wsj.net/fp/cdn/fp/assets/images/WSJ_A1.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'http://en.kiosko.net/us/np/wsj.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     def get_browser(self):
         # To understand the signin logic read signin.js from
