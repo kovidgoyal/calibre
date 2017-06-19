@@ -330,7 +330,7 @@ class StatusBar(QStatusBar):  # {{{
 class GridViewButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
-        sc = 'Shift+Alt+G'
+        sc = 'Alt+Shift+G'
         LayoutButton.__init__(self, I('grid.png'), _('Cover grid'), parent=gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
@@ -360,7 +360,7 @@ class GridViewButton(LayoutButton):  # {{{
 class SearchBarButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
-        sc = 'Shift+Alt+F'
+        sc = 'Alt+Shift+F'
         LayoutButton.__init__(self, I('search.png'), _('Search bar'), parent=gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)

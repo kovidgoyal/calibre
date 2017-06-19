@@ -470,7 +470,7 @@ class JobsButton(QWidget):  # {{{
         self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PM_ToolBarIconSize))
         self._jobs = QLabel('<b>'+_('Jobs:')+' 0 ')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
-        self.shortcut = 'Shift+Alt+J'
+        self.shortcut = 'Alt+Shift+J'
 
         self.l = l = QHBoxLayout(self)
         l.setSpacing(3)
@@ -481,7 +481,7 @@ class JobsButton(QWidget):  # {{{
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
         b = _('Click to see list of jobs')
-        self.setToolTip(b + u' (%s)'%self.shortcut)
+        self.setToolTip(b + u' [%s]'%self.shortcut)
         self.action_toggle = QAction(b, parent)
         parent.addAction(self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
