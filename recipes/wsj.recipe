@@ -69,9 +69,16 @@ class WSJ(BasicNewsRecipe):
         dict(id='right-rail'),
         dict(id='narrator-nav'),
         dict(name='div', id='ad_and_popular'),
-        dict(classes('comments-count-container')),
-        classes(
-            'insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
+        dict(attrs={'class': [
+            'comments-count-container',
+            'insetButton',
+            'insettipBox',
+            'author-info',
+            'media-object-video',
+            'article_tools',
+            'nc-exp-artmeta',
+            'category'
+        ]}),
         dict(name='span', attrs={
              'data-country-code': True, 'data-ticker-code': True}),
         dict(name='meta link'.split()),
