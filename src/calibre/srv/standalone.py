@@ -10,7 +10,7 @@ import sys, os, signal
 from functools import partial
 
 from calibre import as_unicode, prints
-from calibre.constants import plugins, iswindows, preferred_encoding, is_running_from_develop
+from calibre.constants import plugins, iswindows, preferred_encoding, is_running_from_develop, isosx
 from calibre.srv.loop import ServerLoop
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.bonjour import BonJour
@@ -274,8 +274,10 @@ libraries that the main calibre program knows about will be used.
         help=_('Path to the access log file. This log contains information'
                ' about clients connecting to the server and making requests. By'
                ' default no access logging is done.'))
-    parser.add_option('--daemonize', default=False, action='store_true',
-        help=_('Run process in background as a daemon. No effect on Windows.'))
+    if not iswindows and not isosx:
+        # Does not work on OS X because we dont have a headless Qt backend
+        parser.add_option('--daemonize', default=False, action='store_true',
+            help=_('Run process in background as a daemon.'))
     parser.add_option('--pidfile', default=None,
         help=_('Write process PID to the specified file'))
     parser.add_option(
