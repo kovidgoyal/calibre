@@ -975,17 +975,20 @@ class LayoutButton(QToolButton):
                 sc = sc.toString(sc.NativeText)
             self.shortcut = sc or ''
 
+    def update_text(self):
+        t = _('Hide {}') if self.isChecked() else _('Show {}')
+        t = t.format(self.label)
+        if self.shortcut:
+            t += ' [{}]'.format(self.shortcut)
+        self.setText(t), self.setToolTip(t), self.setStatusTip(t)
+
     def set_state_to_show(self, *args):
         self.setChecked(False)
-        self.setText(_('Show {}'.format(self.label) + '\t' + self.shortcut))
-        self.setToolTip(self.text())
-        self.setStatusTip(self.text())
+        self.update_text()
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
-        self.setText(_('Hide {}'.format(self.label) + '\t' + self.shortcut))
-        self.setToolTip(self.text())
-        self.setStatusTip(self.text())
+        self.update_text()
 
     def update_state(self, *args):
         if self.splitter.is_side_index_hidden:
