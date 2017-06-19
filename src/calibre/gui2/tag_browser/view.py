@@ -30,7 +30,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
-        self.old_look = gprefs['tag_browser_old_look']
+        self.old_look = False
         self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
         self.rating_font = QFont(rating_font())
 
@@ -162,6 +162,12 @@ class TagsView(QTreeView):  # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
+        self.set_look_and_feel()
+        # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
+        # anyway since the enter/spacebar keys do nothing
+        self.setFocusPolicy(Qt.NoFocus)
+
+    def set_look_and_feel(self):
         stylish_tb = '''
                 QTreeView {
                     background-color: palette(window);
@@ -172,8 +178,8 @@ class TagsView(QTreeView):  # {{{
         self.setStyleSheet('''
                 QTreeView::item {
                     border: 1px solid transparent;
-                    padding-top:0.8ex;
-                    padding-bottom:0.8ex;
+                    padding-top:PADex;
+                    padding-bottom:PADex;
                 }
 
                 QTreeView::item:hover {
@@ -181,12 +187,10 @@ class TagsView(QTreeView):  # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-        ''' + ('' if gprefs['tag_browser_old_look'] else stylish_tb))
-        if gprefs['tag_browser_old_look']:
-            self.setAlternatingRowColors(True)
-        # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
-        # anyway since the enter/spacebar keys do nothing
-        self.setFocusPolicy(Qt.NoFocus)
+        '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
+            '' if gprefs['tag_browser_old_look'] else stylish_tb))
+        self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
+        self.itemDelegate().old_look = gprefs['tag_browser_old_look']
 
     @property
     def hidden_categories(self):

@@ -150,6 +150,7 @@ def create_defs():
     defs['tag_browser_show_counts'] = True
     defs['row_numbers_in_book_list'] = True
     defs['hidpi'] = 'auto'
+    defs['tag_browser_item_padding'] = 0.5
 
 
 create_defs()

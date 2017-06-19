@@ -839,7 +839,7 @@ A value of zero means calculate automatically.</string>
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>Co&amp;llapse when more items than:</string>
@@ -849,7 +849,7 @@ A value of zero means calculate automatically.</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
          <property name="toolTip">
           <string>If a Tag browser category has more than this number of items, it is divided
@@ -860,7 +860,7 @@ up into subcategories. If the partition method is set to disable, this value is 
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_8111">
          <property name="text">
           <string>Categories &amp;not to partition:</string>
@@ -870,7 +870,7 @@ up into subcategories. If the partition method is set to disable, this value is 
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="5" column="1">
         <widget class="EditWithComplete" name="opt_tag_browser_dont_collapse">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -887,7 +887,7 @@ a few top-level elements.</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label_81">
          <property name="text">
           <string>Categories with &amp;hierarchical items:</string>
@@ -897,7 +897,7 @@ a few top-level elements.</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="7" column="1">
         <widget class="EditWithComplete" name="opt_categories_using_hierarchy">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -915,14 +915,14 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
+       <item row="10" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_old_look">
          <property name="text">
           <string>Use &amp;alternating row colors in the Tag browser</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="2">
+       <item row="11" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
          <property name="toolTip">
           <string>When checked, calibre will automatically hide any category
@@ -956,7 +956,7 @@ if you never want subcategories</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="8" column="0">
         <widget class="QCheckBox" name="opt_show_avg_rating">
          <property name="text">
           <string>Show &amp;average ratings in the Tag browser</string>
@@ -966,7 +966,7 @@ if you never want subcategories</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_show_counts">
          <property name="toolTip">
           <string>Show counts for items in the Tag browser. Such as the number of books
@@ -975,6 +975,38 @@ see the counts by hovering your mouse over any item.</string>
          </property>
          <property name="text">
           <string>Show &amp;counts in the Tag browser</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>&amp;Padding between items:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tag_browser_item_padding</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QDoubleSpinBox" name="opt_tag_browser_item_padding">
+         <property name="toolTip">
+          <string>The spacing between consecutive items in the Tag browser. In units of (ex) which is the approximate height of the letter 'x' in the currently used font. </string>
+         </property>
+         <property name="suffix">
+          <string> ex</string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>-1.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>2.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
