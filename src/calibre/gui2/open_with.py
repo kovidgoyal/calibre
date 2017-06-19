@@ -139,7 +139,7 @@ if iswindows:
     # }}}
 
 elif isosx:
-    # OS X {{{
+    # macOS {{{
     oprefs = JSONConfig('osx_open_with')
     from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline, get_bundle_data
 
@@ -171,7 +171,7 @@ elif isosx:
                 app = get_bundle_data(ans)
                 if app is None:
                     return error_dialog(parent, _('Invalid Application'), _(
-                        '%s is not a valid OS X application bundle.') % ans, show=True)
+                        '%s is not a valid macOS application bundle.') % ans, show=True)
                 return app
             if not os.access(ans, os.X_OK):
                 error_dialog(parent, _('Cannot execute'), _(

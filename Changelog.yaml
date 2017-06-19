@@ -1175,7 +1175,7 @@
 
     - title: "Amazon metadata download: Recognize common patterns of embedding the series name after the title and remove it automatically"
 
-    - title: "Edit book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX table of contents for backwards compatibility"
+    - title: "Edit book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX Table of Contents for backwards compatibility"
 
     - title: "EPUB input: Implement reading of Table of Contents from EPUB 3 files that do not specify a fallback NCX ToC"
 

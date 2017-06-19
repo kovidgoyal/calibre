@@ -458,9 +458,9 @@ maximum_cover_size = (1650, 2200)
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
 
-#: Unified toolbar on OS X
+#: Unified toolbar on macOS
 # If you enable this option and restart calibre, the toolbar will be 'unified'
-# with the titlebar as is normal for OS X applications. However, doing this has
+# with the titlebar as is normal for macOS applications. However, doing this has
 # various bugs, for instance the minimum width of the toolbar becomes twice
 # what it should be and it causes other random bugs on some systems, so turn it
 # on at your own risk!

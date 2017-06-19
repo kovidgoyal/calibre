@@ -379,7 +379,7 @@ def from_xpaths(container, xpaths):
     Generate a Table of Contents from a list of XPath expressions. Each
     expression in the list corresponds to a level of the generate ToC. For
     example: :code:`['//h:h1', '//h:h2', '//h:h3']` will generate a three level
-    table of contents from the ``<h1>``, ``<h2>`` and ``<h3>`` tags.
+    Table of Contents from the ``<h1>``, ``<h2>`` and ``<h3>`` tags.
     '''
     tocroot = TOC()
     xpaths = [XPath(xp) for xp in xpaths]
@@ -771,7 +771,7 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
 
 def create_inline_toc(container, title=None):
     '''
-    Create an inline (HTML) Table of Contents from an existing NCX table of contents.
+    Create an inline (HTML) Table of Contents from an existing NCX Table of Contents.
 
     :param title: The title for this table of contents.
     '''

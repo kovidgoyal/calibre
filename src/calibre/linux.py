@@ -1139,7 +1139,7 @@ def main():
 
 def cli_index_strings():
     return _('Command Line Interface'), _(
-        'On OS X, the command line tools are inside the calibre bundle, for example,'
+        'On macOS, the command line tools are inside the calibre bundle, for example,'
     ' if you installed calibre in :file:`/Applications` the command line tools'
     ' are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.'), _(
         'Documented commands'), _('Undocumented commands'), _(

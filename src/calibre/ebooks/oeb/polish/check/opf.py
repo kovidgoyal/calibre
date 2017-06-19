@@ -65,7 +65,7 @@ class IncorrectToc(BaseError):
             self.HELP = _('There is no item with id="%s" in the manifest.') % bad_idref
         else:
             msg = _('The item identified as the Table of Contents has an incorrect media-type (%s)') % bad_mimetype
-            self.HELP = _('The media type for the table of contents must be %s') % guess_type('a.ncx')
+            self.HELP = _('The media type for the Table of Contents must be %s') % guess_type('a.ncx')
         BaseError.__init__(self, msg, name, lnum)
 
 

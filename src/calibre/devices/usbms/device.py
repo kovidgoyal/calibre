@@ -62,7 +62,7 @@ class USBDevice:
             return False
         if man == self.manufacturer and prod == self.product:
             return True
-        # As of OS X 10.11.4 Apple started mangling the names returned via the
+        # As of macOS 10.11.4 Apple started mangling the names returned via the
         # IOKit registry. See
         # https://www.mobileread.com/forums/showthread.php?t=273213
         m = osx_sanitize_name_pat.sub('_', (self.manufacturer or ''))
@@ -101,7 +101,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     #: Used by the new driver detection to disambiguate main memory from
     #: storage cards. Should be a regular expression that matches the
-    #: main memory mount point assigned by OS X
+    #: main memory mount point assigned by macOS
     OSX_MAIN_MEM_VOL_PAT = None
     OSX_EJECT_COMMAND = ['diskutil', 'eject']
 

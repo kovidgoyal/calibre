@@ -831,7 +831,7 @@ class InsertSemantics(Dialog):
         d = info_dialog(self, _('About semantics'), _(
             'Semantics refer to additional information about specific locations in the book.'
             ' For example, you can specify that a particular location is the dedication or the preface'
-            ' or the table of contents and so on.\n\nFirst choose the type of semantic information, then'
+            ' or the Table of Contents and so on.\n\nFirst choose the type of semantic information, then'
             ' choose a file and optionally a location within the file to point to.\n\nThe'
             ' semantic information will be written in the <guide> section of the opf file.'))
         d.resize(d.sizeHint())
