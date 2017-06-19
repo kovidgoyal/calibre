@@ -218,12 +218,19 @@ def set_translators():
     if t is None:
         t = NullTranslations()
 
+    try:
+        set_translators.lang = t.info().get('language')
+    except Exception:
+        pass
     t.install(unicode=True, names=('ngettext',))
     # Now that we have installed a translator, we have to retranslate the help
     # for the global prefs object as it was instantiated in get_lang(), before
     # the translator was installed.
     from calibre.utils.config_base import prefs
     prefs.retranslate_help()
+
+
+set_translators.lang = None
 
 
 _iso639 = None

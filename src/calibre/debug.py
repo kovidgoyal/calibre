@@ -181,9 +181,11 @@ def print_basic_debug_info(out=None):
     import platform
     from calibre.constants import (__appname__, get_version, isportable, isosx,
                                    isfrozen, is64bit)
+    from calibre.utils.localization import set_translators
     out(__appname__, get_version(), 'Portable' if isportable else '',
         'embedded-python:', isfrozen, 'is64bit:', is64bit)
     out(platform.platform(), platform.system(), platform.architecture())
+    out('Interface language:', type(u'')(set_translators.lang))
     if iswindows and not is64bit:
         try:
             import win32process
