@@ -970,9 +970,8 @@ class LayoutButton(QToolButton):
     def update_shortcut(self, action_toggle=None):
         action_toggle = action_toggle or getattr(self, 'action_toggle', None)
         if action_toggle:
-            sc = action_toggle.shortcut()
-            if sc:
-                sc = sc.toString(sc.NativeText)
+            sc = ', '.join(sc.toString(sc.NativeText)
+                                for sc in action_toggle.shortcuts())
             self.shortcut = sc or ''
             self.update_text()
 
