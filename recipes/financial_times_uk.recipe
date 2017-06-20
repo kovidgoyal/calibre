@@ -40,7 +40,9 @@ class FinancialTimes(BasicNewsRecipe):
     PREFIX = 'http://www.ft.com'
 
     keep_only_tags = [
-        classes('article__header--wrapper article__time-byline article__body n-content-image barrier-grid__heading article__time-byline topper__headline topper__standfirst')
+        classes(
+            'article__header--wrapper article__time-byline article__body'
+            'n-content-image barrier-grid__heading article__time-byline topper__headline topper__standfirst')
     ]
 
     remove_tags = [

@@ -47,7 +47,8 @@ class TimesOnline(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import date
-        cover = 'http://img.kiosko.net/' + str(date.today().year) + '/' + date.today().strftime('%m') + '/' + date.today().strftime('%d') + '/uk/the_times.750.jpg'
+        cover = 'http://img.kiosko.net/' + str(
+            date.today().year) + '/' + date.today().strftime('%m') + '/' + date.today().strftime('%d') + '/uk/the_times.750.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
@@ -60,7 +61,7 @@ class TimesOnline(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
-        
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.thetimes.co.uk/')
