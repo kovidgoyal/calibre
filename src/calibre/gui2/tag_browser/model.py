@@ -297,6 +297,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
+        self.use_position_based_index_on_next_recount = False
         self.prefs = prefs
         self.node_map = {}
         self.category_nodes = []
@@ -1090,6 +1091,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             nkey_lower = icu_lower(nkey)
 
             if ckey == nkey:
+                self.use_position_based_index_on_next_recount = True
                 return True
 
             for c in sorted(user_cats.keys(), key=sort_key):
@@ -1112,6 +1114,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         user_cats[nkey + rest] = user_cats[ckey + rest]
                         del user_cats[ckey + rest]
             self.user_categories_edited.emit(user_cats, nkey)  # Does a refresh
+            self.use_position_based_index_on_next_recount = True
             return True
 
         key = item.tag.category
@@ -1129,10 +1132,12 @@ class TagsModel(QAbstractItemModel):  # {{{
                 error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
+            self.use_position_based_index_on_next_recount = True
             self.db.saved_search_rename(unicode(item.data(role) or ''), val)
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
+            self.use_position_based_index_on_next_recount = True
             restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
             self.db.new_api.rename_items(key, {item.tag.id: val},
                                          restrict_to_book_ids=restrict_to_book_ids)
