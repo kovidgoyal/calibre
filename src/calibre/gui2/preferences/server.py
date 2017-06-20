@@ -389,7 +389,7 @@ class Library(QWidget):
             self.border = b = QFrame(self)
             b.setFrameStyle(b.HLine)
             l.addWidget(b)
-        self.cw = cw = QCheckBox(name)
+        self.cw = cw = QCheckBox(name.replace('&', '&&'))
         cw.setStyleSheet('QCheckBox { font-weight: bold }')
         cw.setChecked(is_checked)
         cw.stateChanged.connect(self.state_changed)
