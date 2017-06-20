@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -28,6 +28,10 @@ def search(query, max_results=10, timeout=60):
     url = 'https://www.smashwords.com/books/search?query=' + urllib2.quote(query)
 
     br = browser()
+    try:
+        br.set_simple_cookie('adultOff', 'erotica', '.smashwords.com', path='/')
+    except AttributeError:
+        pass  # old version of mechanize
 
     counter = max_results
     with closing(br.open(url, timeout=timeout)) as f:
@@ -112,5 +116,5 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
-    for r in search(sys.argv[-1]):
+    for r in search(' '.join(sys.argv[1:])):
         print(r)
