@@ -399,6 +399,7 @@ class TagBrowserBar(QWidget):  # {{{
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
+        self.search_button.setAutoRaise(True)
         self.search_button.setCursor(Qt.PointingHandCursor)
         self.search_button.setIcon(QIcon(I('search.png')))
         self.search_button.setToolTip(_('Find the first/next matching item'))
