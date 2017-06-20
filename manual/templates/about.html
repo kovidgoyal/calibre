@@ -38,10 +38,9 @@ function toggle_languages_menu() {
     <input type="submit" name="submit" alt="{{ support_tooltip }}" value="{{ support_text }}" />
     <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
 </form>
-<br/>
 </div>
 {%- if not embedded %}
-<div><a href="#" onclick="toggle_languages_menu(); return false;"><img src="{{ pathto('_static/languages.svg', 1) }}" style="width: 1.2em"/> {{ change_language_text }}</a></div>
+<div style="margin-top: 1.5ex"><a href="#" onclick="toggle_languages_menu(); return false;"><img src="{{ pathto('_static/languages.svg', 1) }}" style="width: 1.2em"/> {{ change_language_text }}</a></div>
 <ul id="languages-menu" style="display:none">
 {%- for lang in other_languages %}
 <li><a href="{{ localized_path(lang[0], pagename) }}">{{ lang[1] }}</a></li>
