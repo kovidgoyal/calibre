@@ -80,7 +80,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.button_layout.setAlignment(Qt.AlignCenter)
         self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignCenter)
 
-        self.adv_search_button.setIcon(QIcon(I('search.png')))
+        self.adv_search_button.setIcon(QIcon(I('gear.png')))
+        self.adv_search_button.setToolTip(_('Advanced search'))
         self.configure.setIcon(QIcon(I('config.png')))
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
