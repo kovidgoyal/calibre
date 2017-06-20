@@ -80,8 +80,8 @@ class TimesOnline(BasicNewsRecipe):
     ]
     remove_attributes = ['lang']
     keep_only_tags = [
-        dict(attrs={'class': 'Article Article--default'}
-             ), dict(attrs={'class': 'f-author'}), dict(attrs={'id': 'bodycopy'})
+        {'attrs': {'id': ['article-main','bodycopy']}},
+        {'attrs': {'class': ['Article Article--default','f-author']}}
     ]
     remove_tags_after = dict(attrs={'class': 'Article-content'})
 
