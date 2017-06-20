@@ -115,7 +115,6 @@ html_theme = 'alabaster'
 html_sidebars = {
     '**': [
         'about.html',
-        'donate.html',
         'searchbox.html',
         'localtoc.html',
         'relations.html',
@@ -161,6 +160,8 @@ def sort_languages(x):
 
 
 html_context['other_languages'].sort(key=sort_languages)
+html_context['support_text'] = _('Support calibre')
+html_context['support_tooltip'] = _('Contribute to support calibre development')
 del sort_languages, get_language
 
 epub_author      = u'Kovid Goyal'

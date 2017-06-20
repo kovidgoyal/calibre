@@ -9,12 +9,36 @@ function toggle_languages_menu() {
 <div style="text-align: center">
     <a href="https://calibre-ebook.com" title="calibre homepage" id="calibre-homepage-logo"><img src="_static/logo.png" /></a>
     <br/>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" title="Contribute to support calibre development">
+<form id="donate_form" action="https://www.paypal.com/cgi-bin/webscr" method="post" title="Contribute to support calibre development">
+<style>
+#donate_form input[type=submit] {
+    border-radius: 6px;
+    box-shadow: rgb(255, 246, 175) 0px 1px 0px 0px;
+    background: linear-gradient(rgb(255, 236, 100) 5%, rgb(255, 171, 35) 100%) rgb(255, 236, 100);
+    border: 1px solid rgb(255, 170, 34);
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(51, 51, 51);
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
+    text-shadow: rgb(255, 238, 102) 0px 1px 0px;
+}
+#donate_form input[type=submit]:hover {
+    background: linear-gradient(rgb(255, 171, 35) 5%, rgb(255, 236, 100) 100%) rgb(255, 171, 35);
+}
+#donate_form input[type=submit]:focus {
+    outline: 0;
+}
+</style>
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="hosted_button_id" value="AF4H3B8QVDG6N" />
-    <input type="image" src="{{ pathto('_static/donate.png', 1) }}" border="0" name="submit" alt="Contribute to support calibre development" style="border:0pt" />
+    <input type="submit" name="submit" alt="{{ support_tooltip }}" value="{{ support_text }}" />
     <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
 </form>
+<br/>
 </div>
 {%- if not embedded %}
 <div><a href="#" onclick="toggle_languages_menu(); return false;"><img src="{{ pathto('_static/languages.svg', 1) }}" style="width: 1.2em"/> {{ change_language_text }}</a></div>

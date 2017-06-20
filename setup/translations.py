@@ -51,7 +51,7 @@ class POT(Command):  # {{{
         self.tx(['push', '-r', 'calibre.'+resource, '-s'], cwd=self.TRANSLATIONS)
 
     def source_files(self):
-        ans = [self.a(self.j(self.d(self.SRC), 'manual', 'custom.py'))]
+        ans = [self.a(self.j(self.MANUAL, x)) for x in ('custom.py', 'conf.py')]
         for root, _, files in os.walk(self.j(self.SRC, __appname__)):
             for name in files:
                 if name.endswith('.py'):
