@@ -855,6 +855,9 @@ class ConfigWidget(ConfigWidgetBase):
             )
         except EnvironmentError:
             al.setPlainText('No access log found')
+        loc = QLabel(_('The server log files are in: {}').format(os.path.dirname(log_error_file)))
+        loc.setWordWrap(True)
+        layout.addWidget(loc)
         bx = QDialogButtonBox(QDialogButtonBox.Ok)
         layout.addWidget(bx)
         bx.accepted.connect(d.accept)
