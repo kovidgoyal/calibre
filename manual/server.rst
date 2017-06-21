@@ -207,6 +207,12 @@ If you are using a particular old or limited browser or you don't like to run
 JavaScript, you can use the *mobile* view, by simply adding ``/mobile`` to the
 the server address.
 
+.. note:: 
+    On iOS, Apple allows only a single browser engine, so Firefox, Chrome and
+    Safari are all actually the same browser under the hood. The new server
+    interface requires iOS 10.3.2 or newer. On Android, the server has been 
+    tested with Chrome version 58 and newer.
+
 Managing user accounts from the command-line only
 -----------------------------------------------------
 
