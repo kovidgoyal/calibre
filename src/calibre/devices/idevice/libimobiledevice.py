@@ -455,7 +455,7 @@ class libiMobileDevice():
             env = "OS X"
 
             # Load libiMobileDevice
-            path = 'libimobiledevice.5.dylib'
+            path = 'libimobiledevice.6.dylib'
             if hasattr(sys, 'frameworks_dir'):
                 self.lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
             else:
@@ -470,7 +470,7 @@ class libiMobileDevice():
         else:
             env = "linux"
             try:
-                self.lib = cdll.LoadLibrary('libimobiledevice.so.5')
+                self.lib = cdll.LoadLibrary('libimobiledevice.so.6')
             except EnvironmentError:
                 self.lib = cdll.LoadLibrary('libimobiledevice.so')
             self.plist_lib = cdll.LoadLibrary('libplist.so.3')
