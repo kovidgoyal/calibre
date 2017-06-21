@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
+    <width>788</width>
     <height>663</height>
    </rect>
   </property>
@@ -214,6 +214,12 @@
         </item>
         <item>
          <widget class="QComboBox" name="gst_names">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Contains the names of the currently-defined group search terms.
 Create a new name by entering it into the empty box, then
@@ -284,6 +290,12 @@ of a search term by changing the value box then pressing Save.</string>
         </item>
         <item>
          <widget class="EditWithComplete" name="opt_grouped_search_make_user_categories">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Enter the names of any grouped search terms you wish
 to be shown as user categories</string>

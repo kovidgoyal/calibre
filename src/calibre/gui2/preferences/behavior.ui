@@ -13,52 +13,24 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_new_version_notification">
-     <property name="text">
-      <string>Show notification when &amp;new version is available</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QCheckBox" name="opt_bools_are_tristate">
-     <property name="toolTip">
-      <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
-If not checked, the values can be Yes or No.</string>
-     </property>
-     <property name="text">
-      <string>&amp;Yes/No columns have three values (needs restart)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_upload_news_to_device">
-     <property name="text">
-      <string>Automatically send downloaded &amp;news to e-book reader</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
-     <property name="text">
-      <string>&amp;Delete news from library when it is automatically sent to reader</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="label_23">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_new_version_notification">
        <property name="text">
-        <string>Preferred &amp;output format:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_output_format</cstring>
+        <string>Show notification when &amp;new version is available</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_upload_news_to_device">
+       <property name="text">
+        <string>Automatically send downloaded &amp;news to e-book reader</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
       <widget class="QComboBox" name="opt_output_format">
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
@@ -68,44 +40,7 @@ If not checked, the values can be Yes or No.</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="5" column="1">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Default network &amp;timeout:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_network_timeout</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="opt_network_timeout">
-       <property name="toolTip">
-        <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
-       </property>
-       <property name="suffix">
-        <string> seconds</string>
-       </property>
-       <property name="minimum">
-        <number>2</number>
-       </property>
-       <property name="maximum">
-        <number>120</number>
-       </property>
-       <property name="value">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="7" column="0">
-    <layout class="QHBoxLayout">
-     <item>
+     <item row="9" column="0">
       <widget class="QLabel" name="priority_label">
        <property name="text">
         <string>Job &amp;priority:</string>
@@ -115,7 +50,7 @@ If not checked, the values can be Yes or No.</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="9" column="1">
       <widget class="QComboBox" name="opt_worker_process_priority">
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
@@ -140,21 +75,166 @@ If not checked, the values can be Yes or No.</string>
        </item>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="7" column="1">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="label_170">
-       <property name="text">
-        <string>Virtual library to apply when the current &amp;library is opened:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_virtual_lib_on_startup</cstring>
+     <item row="14" column="1">
+      <widget class="QComboBox" name="opt_edit_metadata_single_layout">
+       <property name="toolTip">
+        <string>Choose a different layout for the Edit Metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="15" column="0" colspan="2">
+      <widget class="QGroupBox" name="groupBox_5">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>2</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Preferred &amp;input format order:</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QListWidget" name="opt_input_order">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QToolButton" name="input_up_button">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../../../resources/images.qrc">
+                <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="input_down_button">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../../../resources/images.qrc">
+                <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_23">
+       <property name="text">
+        <string>Preferred &amp;output format:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_output_format</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="0">
+      <widget class="QLabel" name="edit_metadata_single_label">
+       <property name="text">
+        <string>Edit metadata (single) &amp;layout:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_edit_metadata_single_layout</cstring>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="0" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_bools_are_tristate">
+       <property name="toolTip">
+        <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
+If not checked, the values can be Yes or No.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Yes/No columns have three values (needs restart)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
+       <property name="text">
+        <string>&amp;Delete news from library when it is automatically sent to reader</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Default network &amp;timeout:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_network_timeout</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="opt_network_timeout">
+       <property name="toolTip">
+        <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
+       </property>
+       <property name="suffix">
+        <string> seconds</string>
+       </property>
+       <property name="minimum">
+        <number>2</number>
+       </property>
+       <property name="maximum">
+        <number>120</number>
+       </property>
+       <property name="value">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
       <widget class="QComboBox" name="opt_virtual_lib_on_startup">
        <property name="maximumSize">
         <size>
@@ -173,122 +253,55 @@ If not checked, the values can be Yes or No.</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="8" column="0">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="edit_metadata_single_label">
+     <item row="6" column="0" colspan="2">
+      <widget class="QPushButton" name="reset_confirmation_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>Edit metadata (single) &amp;layout:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_edit_metadata_single_layout</cstring>
+        <string>Reset all disabled &amp;confirmation dialogs</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QComboBox" name="opt_edit_metadata_single_layout">
-       <property name="toolTip">
-        <string>Choose a different layout for the Edit Metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
+     <item row="7" column="0" colspan="2">
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>3</verstretch>
+        </sizepolicy>
        </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="19" column="0">
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="title">
-      <string>Preferred &amp;input format order:</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_11">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
-        <item>
-         <widget class="QListWidget" name="opt_input_order">
+       <property name="title">
+        <string>Use internal &amp;viewer for:</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QListWidget" name="opt_internally_viewed_formats">
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::NoSelection</enum>
           </property>
          </widget>
         </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_10">
-          <item>
-           <widget class="QToolButton" name="input_up_button">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="input_down_button">
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="19" column="1">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>Use internal &amp;viewer for:</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="opt_internally_viewed_formats">
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::NoSelection</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QPushButton" name="reset_confirmation_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Reset all disabled &amp;confirmation dialogs</string>
-     </property>
-    </widget>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QLabel" name="label_170">
+       <property name="text">
+        <string>Virtual library to apply when the current &amp;library is opened:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_virtual_lib_on_startup</cstring>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
