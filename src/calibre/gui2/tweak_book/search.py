@@ -446,7 +446,7 @@ class SearchWidget(QWidget):
 
     def pre_fill(self, text):
         if self.mode in ('regex', 'function'):
-            text = regex.escape(text, special_only=True)
+            text = regex.escape(text, special_only=True, literal_spaces=True)
         self.find = text
         self.find_text.lineEdit().setSelection(0, len(text)+10)
 
