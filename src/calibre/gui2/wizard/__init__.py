@@ -760,7 +760,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.default_library_name = None
         if not lp:
             fname = _('Calibre Library')
-            base = os.path.expanduser(u'~')
+            try:
+                base = os.path.expanduser(u'~')
+            except ValueError:
+                base = QDir.homePath().replace('/', os.sep)
             if iswindows:
                 try:
                     x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
@@ -776,7 +779,10 @@ class LibraryPage(QWizardPage, LibraryUI):
                     os.makedirs(lp)
                 except:
                     traceback.print_exc()
-                    lp = os.path.expanduser(u'~')
+                    try:
+                        lp = os.path.expanduser(u'~')
+                    except ValueError:
+                        lp = QDir.homePath().replace('/', os.sep)
         self.location.setText(lp)
         # Hide the library location settings if we are a portable install
         for x in ('location', 'button_change', 'libloc_label1',
