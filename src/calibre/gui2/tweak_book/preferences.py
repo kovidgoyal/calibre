@@ -21,6 +21,7 @@ from PyQt5.Qt import (
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 
 from calibre import prepare_string_for_xml
+from calibre.utils.localization import get_lang
 from calibre.gui2 import info_dialog
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
@@ -676,7 +677,8 @@ class Preferences(QDialog):
         cl.setMovement(cl.Static)
         cl.setWrapping(False)
         cl.setSpacing(15)
-        cl.setWordWrap(True)
+        if get_lang()[:2] not in ('zh', 'ja'):
+            cl.setWordWrap(True)
         l.addWidget(cl, 0, 0, 1, 1)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
