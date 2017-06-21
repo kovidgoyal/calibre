@@ -845,7 +845,7 @@ class ConfigWidget(ConfigWidgetBase):
                 lopen(log_error_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
-            el.setPlainText('No error log found')
+            el.setPlainText(_('No error log found'))
         layout.addWidget(QLabel(_('Access log:')))
         al = QPlainTextEdit(d)
         layout.addWidget(al)
@@ -854,7 +854,7 @@ class ConfigWidget(ConfigWidgetBase):
                 lopen(log_access_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
-            al.setPlainText('No access log found')
+            al.setPlainText(_('No access log found'))
         loc = QLabel(_('The server log files are in: {}').format(os.path.dirname(log_error_file)))
         loc.setWordWrap(True)
         layout.addWidget(loc)
