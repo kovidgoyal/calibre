@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
+from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -284,7 +285,6 @@ class TestHTTP(BaseTest):
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
             conn.request('GET', '/close', headers={'Connection':'close'})
             r = conn.getresponse()
-            self.ae(server.loop.num_active_connections, 1)
             self.ae(r.status, 200), self.ae(r.read(), 'close')
             server.loop.wakeup()
             num = 10
@@ -293,6 +293,14 @@ class TestHTTP(BaseTest):
                 num -= 1
             self.ae(server.loop.num_active_connections, 0)
             self.assertIsNone(conn.sock)
+
+            # Test timeout
+            server.loop.opts.timeout = 0.1
+            conn = server.connect()
+            conn.request('GET', '/something')
+            r = conn.getresponse()
+            self.ae(r.status, 200), self.ae(r.read(), 'something')
+            self.assertIn('Request Timeout', eintr_retry_call(conn.sock.recv, 500))
     # }}}
 
     def test_http_response(self):  # {{{
@@ -432,4 +440,3 @@ class TestHTTP(BaseTest):
                 r = conn.getresponse()
                 self.assertEqual(data, r.read())
     # }}}
-

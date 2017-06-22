@@ -606,8 +606,9 @@ class HTTPConnection(HTTPRequest):
                 self.set_state(WRITE, self.write_iter, output)
 
     def reset_state(self):
+        ready = not self.close_after_response
         self.connection_ready()
-        self.ready = not self.close_after_response
+        self.ready = ready
         self.end_send_optimization()
 
     def report_unhandled_exception(self, e, formatted_traceback):
