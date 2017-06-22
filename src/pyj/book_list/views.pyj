@@ -149,6 +149,8 @@ def apply_view_mode(mode=DEFAULT_MODE):
 
 def update_fetching_status():
     more = component('more_button')
+    if not more:
+        return
     if book_list_data.fetching_more_books:
         more.firstChild.style.display = 'none'
         more.lastChild.style.display = 'block'
