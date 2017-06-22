@@ -28,16 +28,20 @@ from calibre.devices.usbms.driver import debug_print
 def load_library():
     if iswindows:
         env = "Windows"
-        lib = cdll.LoadLibrary('libimobiledevice.dll')
-        plist_lib = cdll.LoadLibrary('libplist.dll')
+        lib = cdll.LoadLibrary(str('libimobiledevice.dll'))
+        plist_lib = cdll.LoadLibrary(str('libplist.dll'))
     elif isosx:
         env = "OS X"
         # Load libiMobileDevice
         path = 'libimobiledevice.6.dylib'
-        lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
+        if hasattr(sys, 'frameworks_dir'):
+            path = os.path.join(sys.frameworks_dir, path)
+        lib = cdll.LoadLibrary(str(path))
         # Load libplist
         path = 'libplist.3.dylib'
-        plist_lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
+        if hasattr(sys, 'frameworks_dir'):
+            path = os.path.join(sys.frameworks_dir, path)
+        plist_lib = cdll.LoadLibrary(str(path))
     else:
         env = "linux"
         try:
