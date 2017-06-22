@@ -16,7 +16,13 @@ class Watcher:
         self.reconnect()
 
     def reconnect(self):
-        self.ws = WebSocket(self.url)
+        try:
+            self.ws = WebSocket(self.url)
+        except DOMException as e:
+            if e.name == 'SecurityError':
+                console.log('Not allowed to connect to auto-reload watcher, probably because using a self-signed, or otherwise invalid SSL certificate')
+                return
+            raise
 
         self.ws.onopen = def(event):
             self.retries = 0
