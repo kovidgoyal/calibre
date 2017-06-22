@@ -518,14 +518,20 @@ class GetTranslations(Translations):  # {{{
     def run(self, opts):
         require_git_master()
         if opts.check_for_errors:
-            return self.check_for_errors()
+            self.check_all()
+            return
         self.tx('pull -a')
+        if not self.is_modified:
+            self.info('No translations were updated')
+            return
+        self.upload_to_vcs()
+        self.check_all()
+
+    def check_all(self):
+        self.check_for_errors()
+        self.check_for_user_manual_errors()
         if self.is_modified:
-            self.check_for_errors()
-            self.check_for_user_manual_errors()
-            self.upload_to_vcs()
-        else:
-            print ('No translations were updated')
+            self.upload_to_vcs('Fixed translations')
 
     def check_for_user_manual_errors(self):
         self.info('Checking user manual translations...')
@@ -619,11 +625,11 @@ class GetTranslations(Translations):  # {{{
 
             subprocess.check_call(['pomerge', '-t', tpath, '-i', errors, '-o', tpath])
 
-    def upload_to_vcs(self):
-        print ('Uploading updated translations to version control')
+    def upload_to_vcs(self, msg=None):
+        self.info('Uploading updated translations to version control')
         cc = partial(subprocess.check_call, cwd=self.TRANSLATIONS)
         cc('git add */*.po'.split())
-        cc('git commit -am'.split() + ['Updated translations'])
+        cc('git commit -am'.split() + [msg or 'Updated translations'])
         cc('git push'.split())
 
 # }}}
