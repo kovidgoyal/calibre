@@ -23,6 +23,7 @@ New features for the server generally
 - Add a way to search the set of locally available books stored in offline
   storage.
 
+- Add more book list visualizations and/or a customizable visualization
 
 Bug fixes
 --------------
