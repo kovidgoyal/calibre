@@ -84,7 +84,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle Touch/1-4'
+    name = 'Kindle Basic (all models)'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -125,7 +125,7 @@ class KindleFire(KindleDX):
 class KindlePW(Kindle):
     name = 'Kindle PaperWhite'
     id = 'kindle_pw'
-    output_profile = 'kindle_pw'
+    output_profile = 'kindle_pw3'
 
 
 class KindleVoyage(Kindle):
