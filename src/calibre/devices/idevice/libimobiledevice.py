@@ -33,15 +33,11 @@ def load_library():
     elif isosx:
         env = "OS X"
         # Load libiMobileDevice
-        path = 'libimobiledevice.6.dylib'
-        if hasattr(sys, 'frameworks_dir'):
-            path = os.path.join(sys.frameworks_dir, path)
-        lib = cdll.LoadLibrary(str(path))
+        path = os.path.join(getattr(sys, 'frameworks_dir', '/sw/sw/lib'), 'libimobiledevice.6.dylib')
+        lib = cdll.LoadLibrary(path)
         # Load libplist
-        path = 'libplist.3.dylib'
-        if hasattr(sys, 'frameworks_dir'):
-            path = os.path.join(sys.frameworks_dir, path)
-        plist_lib = cdll.LoadLibrary(str(path))
+        path = os.path.join(getattr(sys, 'frameworks_dir', '/sw/sw/lib'), 'libplist.3.dylib')
+        plist_lib = cdll.LoadLibrary(path)
     else:
         env = "linux"
         try:
