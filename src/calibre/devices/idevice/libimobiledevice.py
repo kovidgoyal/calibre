@@ -25,6 +25,29 @@ from calibre.devices.idevice.parse_xml import XmlPropertyListParser
 from calibre.devices.usbms.driver import debug_print
 
 
+def load_library():
+    if iswindows:
+        env = "Windows"
+        lib = cdll.LoadLibrary('libimobiledevice.dll')
+        plist_lib = cdll.LoadLibrary('libplist.dll')
+    elif isosx:
+        env = "OS X"
+        # Load libiMobileDevice
+        path = 'libimobiledevice.6.dylib'
+        lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
+        # Load libplist
+        path = 'libplist.3.dylib'
+        plist_lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
+    else:
+        env = "linux"
+        try:
+            lib = cdll.LoadLibrary('libimobiledevice.so.6')
+        except EnvironmentError:
+            lib = cdll.LoadLibrary('libimobiledevice.so')
+        plist_lib = cdll.LoadLibrary('libplist.so.3')
+    return env, lib, plist_lib
+
+
 class libiMobileDeviceException(Exception):
 
     def __init__(self, value):
@@ -447,33 +470,7 @@ class libiMobileDevice():
         return self._afc_read_directory(path, get_stats=get_stats)
 
     def load_library(self):
-        if iswindows:
-            env = "Windows"
-            self.lib = cdll.LoadLibrary('libimobiledevice.dll')
-            self.plist_lib = cdll.LoadLibrary('libplist.dll')
-        elif isosx:
-            env = "OS X"
-
-            # Load libiMobileDevice
-            path = 'libimobiledevice.6.dylib'
-            if hasattr(sys, 'frameworks_dir'):
-                self.lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
-            else:
-                self.lib = cdll.LoadLibrary(path)
-
-            # Load libplist
-            path = 'libplist.3.dylib'
-            if hasattr(sys, 'frameworks_dir'):
-                self.plist_lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
-            else:
-                self.plist_lib = cdll.LoadLibrary(path)
-        else:
-            env = "linux"
-            try:
-                self.lib = cdll.LoadLibrary('libimobiledevice.so.6')
-            except EnvironmentError:
-                self.lib = cdll.LoadLibrary('libimobiledevice.so')
-            self.plist_lib = cdll.LoadLibrary('libplist.so.3')
+        env, self.lib, self.plist_lib = load_library()
         self._log_location(env)
         self._log(" libimobiledevice loaded from '{0}'".format(self.lib._name))
         self._log(" libplist loaded from '{0}'".format(self.plist_lib._name))
