@@ -296,7 +296,7 @@ class TestHTTP(BaseTest):
 
             # Test timeout
             server.loop.opts.timeout = 0.1
-            conn = server.connect()
+            conn = server.connect(timeout=1)
             conn.request('GET', '/something')
             r = conn.getresponse()
             self.ae(r.status, 200), self.ae(r.read(), 'something')
