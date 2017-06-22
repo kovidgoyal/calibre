@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, errno
 from datetime import datetime
+from functools import partial
 
 from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, QCoreApplication,
-        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
+        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, QInputDialog,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
 
 from calibre.constants import isosx
@@ -242,12 +243,16 @@ class MetadataSingleDialogBase(QDialog):
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
         self.clear_identifiers_button.setToolTip(_('Clear Ids'))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
-        self.paste_isbn_button = QToolButton(self)
-        self.paste_isbn_button.setToolTip('<p>' +
+        self.paste_isbn_button = b = RightClickButton(self)
+        b.setToolTip('<p>' +
                     _('Paste the contents of the clipboard into the '
-                      'identifiers box prefixed with isbn:') + '</p>')
-        self.paste_isbn_button.setIcon(QIcon(I('edit-paste.png')))
-        self.paste_isbn_button.clicked.connect(self.identifiers.paste_isbn)
+                      'identifiers prefixed with isbn:. Or right click, '
+                      'to choose a different prefix.') + '</p>')
+        b.setIcon(QIcon(I('edit-paste.png')))
+        b.clicked.connect(self.identifiers.paste_identifier)
+        b.setPopupMode(b.DelayedPopup)
+        b.setMenu(QMenu())
+        self.update_paste_identifiers_menu()
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
@@ -289,6 +294,22 @@ class MetadataSingleDialogBase(QDialog):
             _('Change how calibre downloads metadata'))
 
     # }}}
+
+    def update_paste_identifiers_menu(self):
+        m = self.paste_isbn_button.menu()
+        m.clear()
+        m.addAction(_('Edit list of prefixes'), self.edit_prefix_list)
+        m.addSeparator()
+        for prefix in gprefs['paste_isbn_prefixes'][1:]:
+            m.addAction(prefix, partial(self.identifiers.paste_prefix, prefix))
+
+    def edit_prefix_list(self):
+        prefixes, ok = QInputDialog.getMultiLineText(
+            self, _('Edit prefixes'), _('Enter prefixes, one on a line. The first prefix becomes the default.'),
+            '\n'.join(list(map(type(u''), gprefs['paste_isbn_prefixes']))))
+        if ok:
+            gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
+            self.update_paste_identifiers_menu()
 
     def create_custom_metadata_widgets(self):  # {{{
         self.custom_metadata_widgets_parent = w = QWidget(self)

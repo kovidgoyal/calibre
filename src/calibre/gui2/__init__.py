@@ -151,6 +151,7 @@ def create_defs():
     defs['row_numbers_in_book_list'] = True
     defs['hidpi'] = 'auto'
     defs['tag_browser_item_padding'] = 0.5
+    defs['paste_isbn_prefixes'] = ['isbn', 'url', 'amazon', 'google']
 
 
 create_defs()

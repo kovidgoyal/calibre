@@ -25,7 +25,7 @@ from calibre.ebooks.metadata import (
     title_sort, string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
-        choose_files, error_dialog, choose_images)
+        choose_files, error_dialog, choose_images, gprefs)
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
     local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined,
@@ -1535,6 +1535,23 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
             extra = '\n\n' + _('This ISBN number is invalid')
         self.setToolTip(tt+extra)
         self.setStyleSheet(INDICATOR_SHEET % col)
+
+    def paste_identifier(self):
+        try:
+            prefix = gprefs['paste_isbn_prefixes'][0]
+        except IndexError:
+            prefix = 'isbn'
+        self.paste_prefix(prefix)
+
+    def paste_prefix(self, prefix):
+        if prefix == 'isbn':
+            self.paste_isbn()
+        else:
+            text = unicode(QApplication.clipboard().text()).strip()
+            if text:
+                vals = self.current_val
+                vals[prefix] = text
+                self.current_val = vals
 
     def paste_isbn(self):
         text = unicode(QApplication.clipboard().text()).strip()
