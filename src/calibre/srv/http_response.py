@@ -546,7 +546,9 @@ class HTTPConnection(HTTPRequest):
             self.reset_state()
             return
         if isinstance(output, ReadableOutput):
-            self.use_sendfile = output.use_sendfile and self.opts.use_sendfile and sendfile_to_socket_async is not None
+            self.use_sendfile = output.use_sendfile and self.opts.use_sendfile and sendfile_to_socket_async is not None and self.ssl_context is None
+            # sendfile() does nto work with SSL sockets since encryption has to
+            # be done in userspace
             if output.ranges is not None:
                 if isinstance(output.ranges, Range):
                     r = output.ranges
