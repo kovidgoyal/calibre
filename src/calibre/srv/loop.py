@@ -136,6 +136,7 @@ class Connection(object):  # {{{
         self.response_started = False
         self.read_buffer = ReadBuffer()
         self.handle_event = None
+        self.ssl_handshake_done = False
         if self.ssl_context is not None:
             self.ready = False
             self.socket = self.ssl_context.wrap_socket(socket, server_side=True, do_handshake_on_connect=False)
@@ -178,6 +179,7 @@ class Connection(object):  # {{{
         except ssl.SSLWantWriteError:
             self.set_state(WRITE, self.do_ssl_handshake)
         else:
+            self.ssl_handshake_done = True
             self.connection_ready()
 
     def send(self, data):
@@ -337,6 +339,7 @@ class ServerLoop(object):
         if self.opts.ssl_certfile is not None and self.opts.ssl_keyfile is not None:
             self.ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             self.ssl_context.load_cert_chain(certfile=self.opts.ssl_certfile, keyfile=self.opts.ssl_keyfile)
+            self.ssl_context.set_servername_callback(self.on_ssl_servername)
 
         self.pre_activated_socket = None
         if self.opts.allow_socket_preallocation:
@@ -349,6 +352,12 @@ class ServerLoop(object):
         self.create_control_connection()
         self.pool = ThreadPool(self.log, self.job_completed, count=self.opts.worker_count)
         self.plugin_pool = PluginPool(self, plugins)
+
+    def on_ssl_servername(self, socket, server_name, ssl_context):
+        c = self.connection_map.get(socket.fileno())
+        if c.ssl_handshake_done:
+            # We do not allow client initiated SSL renegotiation
+            return ssl.ALERT_DESCRIPTION_NO_RENEGOTIATION
 
     def create_control_connection(self):
         self.control_in, self.control_out = create_sock_pair()
