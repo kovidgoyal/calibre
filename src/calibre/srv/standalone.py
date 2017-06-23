@@ -335,7 +335,7 @@ def main(args=sys.argv):
         libraries=[prefs['library_path']]
 
     if opts.auto_reload:
-        if opts.daemonize:
+        if getattr(opts, 'daemonize', False):
             raise SystemExit('Cannot specify --auto-reload and --daemonize at the same time')
         from calibre.srv.auto_reload import auto_reload, NoAutoReload
         try:
@@ -346,7 +346,7 @@ def main(args=sys.argv):
     opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     server=Server(libraries, opts)
-    if opts.daemonize:
+    if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
             raise SystemExit('In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon')
         daemonize()
@@ -354,7 +354,7 @@ def main(args=sys.argv):
         with lopen(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()))
     signal.signal(signal.SIGTERM, lambda s,f: server.stop())
-    if not opts.daemonize and not iswindows:
+    if not getattr(opts, 'daemonize', False) and not iswindows:
         signal.signal(signal.SIGHUP, lambda s,f: server.stop())
     # Needed for dynamic cover generation, which uses Qt for drawing
     from calibre.gui2 import ensure_app, load_builtin_fonts
