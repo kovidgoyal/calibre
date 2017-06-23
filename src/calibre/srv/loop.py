@@ -212,6 +212,8 @@ class Connection(object):  # {{{
                 self.ready = False
                 return b''
             return data
+        except ssl.SSLWantReadError:
+            return b''
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return b''
