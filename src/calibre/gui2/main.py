@@ -355,6 +355,7 @@ def run_in_debug_mode():
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
+    os.environ[b'CALIBRE_RESTARTING_FROM_GUI'] = b'1'
     run_calibre_debug(
         '--gui-debug', logpath, stdout=lopen(logpath, 'w'),
         stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'r'))
