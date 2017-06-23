@@ -135,7 +135,7 @@ class TagBrowserMixin(object):  # {{{
 
     def do_edit_user_categories(self, on_category=None):
         '''
-        Open the user categories editor.
+        Open the User categories editor.
         '''
         db = self.library_view.model().db
         d = TagCategories(self, db, on_category,
@@ -151,7 +151,7 @@ class TagBrowserMixin(object):  # {{{
 
     def do_delete_user_category(self, category_name):
         '''
-        Delete the user category named category_name. Any leading '@' is removed
+        Delete the User category named category_name. Any leading '@' is removed
         '''
         if category_name.startswith('@'):
             category_name = category_name[1:]
@@ -167,10 +167,10 @@ class TagBrowserMixin(object):  # {{{
             elif k.startswith(category_name + '.'):
                 has_children = True
         if not found:
-            return error_dialog(self.tags_view, _('Delete user category'),
-                         _('%s is not a user category')%category_name, show=True)
+            return error_dialog(self.tags_view, _('Delete User category'),
+                         _('%s is not a User category')%category_name, show=True)
         if has_children:
-            if not question_dialog(self.tags_view, _('Delete user category'),
+            if not question_dialog(self.tags_view, _('Delete User category'),
                                    _('%s contains items. Do you really '
                                      'want to delete it?')%category_name):
                 return
@@ -185,7 +185,7 @@ class TagBrowserMixin(object):  # {{{
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
         '''
-        Delete the item (item_name, item_category) from the user category with
+        Delete the item (item_name, item_category) from the User category with
         key user_cat. Any leading '@' characters are removed
         '''
         if user_cat.startswith('@'):
@@ -204,7 +204,7 @@ class TagBrowserMixin(object):  # {{{
 
     def do_add_item_to_user_cat(self, dest_category, src_name, src_category):
         '''
-        Add the item src_name in src_category to the user category
+        Add the item src_name in src_category to the User category
         dest_category. Any leading '@' is removed
         '''
         db = self.library_view.model().db
@@ -214,10 +214,10 @@ class TagBrowserMixin(object):  # {{{
             dest_category = dest_category[1:]
 
         if dest_category not in user_cats:
-            return error_dialog(self.tags_view, _('Add to user category'),
-                    _('A user category %s does not exist')%dest_category, show=True)
+            return error_dialog(self.tags_view, _('Add to User category'),
+                    _('A User category %s does not exist')%dest_category, show=True)
 
-        # Now add the item to the destination user category
+        # Now add the item to the destination User category
         add_it = True
         if src_category == 'news':
             src_category = 'tags'

@@ -981,7 +981,7 @@ see the counts by hovering your mouse over any item.</string>
        <item row="4" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&amp;Padding between items:</string>
+          <string>&amp;Spacing between items:</string>
          </property>
          <property name="buddy">
           <cstring>opt_tag_browser_item_padding</cstring>

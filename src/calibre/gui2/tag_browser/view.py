@@ -541,9 +541,9 @@ class TagsView(QTreeView):  # {{{
                                             action='edit_author_link', index=tag.id))
 
                         # is_editable is also overloaded to mean 'can be added
-                        # to a user category'
+                        # to a User category'
                         m = self.context_menu.addMenu(self.user_category_icon,
-                                        _('Add %s to user category')%display_name(tag))
+                                        _('Add %s to User category')%display_name(tag))
                         nt = self.model().user_category_node_tree
 
                         def add_node_tree(tree_dict, m, path):
@@ -601,7 +601,7 @@ class TagsView(QTreeView):  # {{{
                             partial(self.context_menu_handler,
                                     action='add_subcategory', key=key))
                     self.context_menu.addAction(self.delete_icon,
-                            _('Delete user category %s')%item.py_name,
+                            _('Delete User category %s')%item.py_name,
                             partial(self.context_menu_handler,
                                     action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
@@ -654,7 +654,7 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addAction(_('Restore default icon'),
                         partial(self.context_menu_handler, action='clear_icon', key=key))
 
-                # Always show the user categories editor
+                # Always show the User categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
                         key[1:] in self.db.prefs.get('user_categories', {}).keys():
