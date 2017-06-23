@@ -356,6 +356,8 @@ class ServerLoop(object):
     def on_ssl_servername(self, socket, server_name, ssl_context):
         c = self.connection_map.get(socket.fileno())
         if getattr(c, 'ssl_handshake_done', False):
+            c.ready = False
+            c.ssl_terminated = True
             # We do not allow client initiated SSL renegotiation
             return ssl.ALERT_DESCRIPTION_NO_RENEGOTIATION
 
@@ -543,18 +545,23 @@ class ServerLoop(object):
                             self.close(s, conn)
             except Exception as e:
                 ignore.add(s)
-                self.log.exception('Unhandled exception in state: %s' % conn.state_description)
-                if conn.ready:
-                    if conn.response_started:
-                        self.close(s, conn)
-                    else:
-                        try:
-                            conn.report_unhandled_exception(e, traceback.format_exc())
-                        except Exception:
-                            self.close(s, conn)
-                else:
-                    self.log.error('Error in SSL handshake, terminating connection: %s' % as_unicode(e))
+                ssl_terminated = getattr(conn, 'ssl_terminated', False)
+                if ssl_terminated:
+                    self.log.warn('Client tried to initiate SSL renegotiation, closing connection')
                     self.close(s, conn)
+                else:
+                    self.log.exception('Unhandled exception in state: %s' % conn.state_description)
+                    if conn.ready:
+                        if conn.response_started:
+                            self.close(s, conn)
+                        else:
+                            try:
+                                conn.report_unhandled_exception(e, traceback.format_exc())
+                            except Exception:
+                                self.close(s, conn)
+                    else:
+                        self.log.error('Error in SSL handshake, terminating connection: %s' % as_unicode(e))
+                        self.close(s, conn)
 
     def wakeup(self):
         self.control_in.sendall(WAKEUP)
