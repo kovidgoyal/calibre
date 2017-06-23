@@ -131,12 +131,13 @@ class Connection(object):  # {{{
         self.is_local_connection = self.remote_addr in ('127.0.0.1', '::1')
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
-        self.ssl_context = ssl_context
         self.wait_for = READ
         self.response_started = False
         self.read_buffer = ReadBuffer()
         self.handle_event = None
+        self.ssl_context = ssl_context
         self.ssl_handshake_done = False
+        self.ssl_terminated = False
         if self.ssl_context is not None:
             self.ready = False
             self.socket = self.ssl_context.wrap_socket(socket, server_side=True, do_handshake_on_connect=False)
