@@ -239,6 +239,8 @@ class Connection(object):  # {{{
                 self.ready = False
                 return 0
             raise
+        except ssl.SSLWantReadError:
+            return 0
 
     def fill_read_buffer(self):
         try:
@@ -255,6 +257,8 @@ class Connection(object):  # {{{
                 self.ready = False
                 return
             raise
+        except ssl.SSLWantReadError:
+            return
 
     def close(self):
         self.ready = False
