@@ -79,7 +79,7 @@ def properties_for_id(item_id, refines):
 
 
 def properties_for_id_with_scheme(item_id, prefixes, refines):
-    ans = {}
+    ans = defaultdict(list)
     if item_id:
         for elem in refines[item_id]:
             key = elem.get('property')
@@ -95,7 +95,7 @@ def properties_for_id_with_scheme(item_id, prefixes, refines):
                             if ns:
                                 scheme_ns = ns
                                 scheme = r
-                    ans[key] = (scheme_ns, scheme, val)
+                    ans[key].append((scheme_ns, scheme, val))
     return ans
 
 
@@ -420,10 +420,10 @@ Author = namedtuple('Author', 'name sort')
 
 
 def is_relators_role(props, q):
-    role = props.get('role')
-    if role:
-        scheme_ns, scheme, role = role
-        return role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators'))
+    for role in props.get('role'):
+        if role:
+            scheme_ns, scheme, role = role
+            return role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators'))
     return False
 
 
@@ -434,7 +434,7 @@ def read_authors(root, prefixes, refines):
         aus = None
         file_as = props.get('file-as')
         if file_as:
-            aus = file_as[-1]
+            aus = file_as[-1][-1]
         else:
             aus = item.get(OPF('file-as')) or None
         return Author(normalize_whitespace(val), normalize_whitespace(aus))

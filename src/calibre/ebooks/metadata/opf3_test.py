@@ -149,6 +149,10 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
         self.ae([Author('c d', None)], rl(root))
         self.ae(authors, st(root, authors))
+        root = self.get_opf('''<dc:creator id="1">a  b</dc:creator>'''
+                            '''<meta refines="#1" property="role">aut</meta>'''
+                            '''<meta refines="#1" property="role">cow</meta>''')
+        self.ae([Author('a b', None)], rl(root))
     # }}}
 
     def test_book_producer(self):  # {{{
@@ -561,6 +565,7 @@ class TestRunner(unittest.main):
 
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)
+
 
 if __name__ == '__main__':
     run(verbosity=4)
