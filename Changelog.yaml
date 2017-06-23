@@ -34,6 +34,8 @@
     - title: "Edit metadata dialog: Add buttons to easily set/clear Yes/no columns"
       tickets: [1698331]
 
+    - title: "Support for RAR 5.0 format RAR and CBR files"
+
   bug fixes:
     - title: "Version 3.1.1 fixes a regression in 3.1.0 that prevented the standalone calibre-server.exe from working on Windows and macOS"
 
