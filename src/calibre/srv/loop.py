@@ -355,7 +355,7 @@ class ServerLoop(object):
 
     def on_ssl_servername(self, socket, server_name, ssl_context):
         c = self.connection_map.get(socket.fileno())
-        if c.ssl_handshake_done:
+        if getattr(c, 'ssl_handshake_done', False):
             # We do not allow client initiated SSL renegotiation
             return ssl.ALERT_DESCRIPTION_NO_RENEGOTIATION
 
