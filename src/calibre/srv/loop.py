@@ -232,6 +232,8 @@ class Connection(object):  # {{{
                 self.ready = False
                 return 0
             return bytes_read
+        except ssl.SSLWantReadError:
+            return 0
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return 0
@@ -239,8 +241,6 @@ class Connection(object):  # {{{
                 self.ready = False
                 return 0
             raise
-        except ssl.SSLWantReadError:
-            return 0
 
     def fill_read_buffer(self):
         try:
@@ -250,6 +250,8 @@ class Connection(object):  # {{{
                 # a closed connection is indicated by signaling
                 # a read condition, and having recv() return 0.
                 self.ready = False
+        except ssl.SSLWantReadError:
+            return
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return
@@ -257,8 +259,6 @@ class Connection(object):  # {{{
                 self.ready = False
                 return
             raise
-        except ssl.SSLWantReadError:
-            return
 
     def close(self):
         self.ready = False
