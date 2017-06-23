@@ -7,6 +7,12 @@ www.wired.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class WiredDailyNews(BasicNewsRecipe):
     title = 'Wired Daily Edition'
     __author__ = 'Darko Miletic'
@@ -34,12 +40,12 @@ class WiredDailyNews(BasicNewsRecipe):
                             """
 
     remove_tags = [
+        classes('related-cne-video-component tags-component podcast_storyboard inset-left-component'),
         dict(name=['meta', 'link']),
-        dict(name='div', attrs={'class': 'podcast_storyboard'}),
         dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
     ]
     keep_only_tags = [
-        dict(attrs={'data-js': ['post', 'postHeader']}),
+        dict(name='main', attrs={'class': lambda x: x and 'article-main-component__content' in x}),
     ]
     remove_attributes = ['srcset']
     handle_gzip = True
@@ -59,4 +65,4 @@ class WiredDailyNews(BasicNewsRecipe):
     ]
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        return article.get('link',  None)
