@@ -20,6 +20,60 @@
 #   new recipes:
 #     - title:
 
+- version: 3.1.0
+  date: 2017-06-23
+
+  new features:
+    - title: "Edit metadata dialog: Allow right clicking the Paste ISBN button to instead paste an identifier with a different prefix."
+      tickets: [1698543]
+
+    - title: "Tag browser: Add an option to control the spacing between items"
+
+    - title: "Add an option in Preferences->Look & feel to show individual layout buttons in the status bar, as was the case in calibre 2.x"
+
+    - title: "Edit metadata dialog: Add buttons to easily set/clear Yes/no columns"
+      tickets: [1698331]
+
+  bug fixes:
+    - title: "Content server: Fix various bugs in the SSL implementation causing aborted transfers when enabling SSL in the server"
+
+    - title: "Content server: Fix connections not being closed after errors/timeouts on the server side"
+
+    - title: "Fix an error during startup on Windows systems where the home directory is in a character encoding different from the system encoding"
+      tickets: [1699435]
+
+    - title: "Edit book: Fix escaping of text for regular expression searches unnecessarily escaping spaces"
+
+    - title: "Get Books: Search the entire catalog, including restricted books"
+      tickets: [1698943]
+
+    - title: "Fix regression in previous release that caused the Tag browser view to jump around when renaming items"
+
+    - title: "Splash screen: Fix text vertical overlap for some systems/font sizes"
+
+    - title: "Server: --daemonize option should not be present on Windows and macOS as it does not work on those platforms"
+
+    - title: "macOS: Fix some keyboard shortcuts not working in calibre 3.0"
+      tickets: [1698545]
+
+    - title: "Server interface: Fix error in the Browse all downloaded page when the book list mode is set to detailed list"
+
+    - title: "Get books: Update amazon.fr and ebooks.com plugins for website changes"
+
+    - title: "Content server: Fix for home screen being empty if the path to the calibre library has a trailing slash."
+      tickets: [1698489]
+
+    - title: "Content server: Fix the new server interface not working with the --url-prefix option when the trailing slash is omitted on the URL used in the browser."
+      tickets: [1698406]
+
+    - title: "Google images metadata download plugin: Fix for change in website causing no covers to be downloaded"
+
+  improved recipes:
+    - The Times
+    - Wall Street Journal
+    - New Yorker
+    - BBC News
+
 - version: 3.0.0
   date: 2017-06-16
 
