@@ -402,6 +402,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
                 prints('Restarting with:', app)
                 subprocess.Popen('sleep 3s; open ' + shellquote(app), shell=True)
             else:
+                os.environ[b'CALIBRE_RESTARTING_FROM_GUI'] = b'1'
                 if iswindows and hasattr(winutil, 'prepare_for_restart'):
                     winutil.prepare_for_restart()
                 args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
@@ -505,6 +506,8 @@ def create_listener():
 
 
 def main(args=sys.argv):
+    if os.environ.pop(b'CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
+        time.sleep(2)  # give the parent process time to cleanup and close
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
         return 0
