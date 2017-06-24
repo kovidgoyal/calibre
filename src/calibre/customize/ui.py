@@ -24,6 +24,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.constants import DEBUG, numeric_version
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
+BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
 
 
 class NameConflict(ValueError):
@@ -680,7 +681,9 @@ def initialize_plugins(perf=False):
             builtin_names]
     for p in conflicts:
         remove_plugin(p)
-    external_plugins = config['plugins']
+    external_plugins = config['plugins'].copy()
+    for name in BLACKLISTED_PLUGINS:
+        external_plugins.pop(name, None)
     ostdout, ostderr = sys.stdout, sys.stderr
     if perf:
         from collections import defaultdict
