@@ -1,23 +1,24 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from calibre.web.feeds.news import AutomaticNewsRecipe
 
 
-class BasicUserRecipe1458545330(AutomaticNewsRecipe):
-    title = 'Kitekintő'
-    __author__ = 'pofa'
+class BasicUserRecipe1498286429(AutomaticNewsRecipe):
+    title = 'Kitekint\u0151'
     language = 'hu'
+    __author__ = 'pofa'
     oldest_article = 1
-    max_articles_per_feed = 50
+    max_articles_per_feed = 100
     auto_cleanup = True
 
     feeds = [
-        ('Kárpát-medence', 'http://kitekinto.hu/karpat-medence/rss/'),
-        ('Europa környéke', 'http://kitekinto.hu/europa/rss/'),
-        ('Közel-Kelet', 'http://kitekinto.hu/iszlam/rss/'),
-        ('Észak-Amerika', 'http://kitekinto.hu/amerika/rss/'),
-        ('Latin-Amerika', 'http://kitekinto.hu/latin-amerika/rss/'),
-        ('Kelet-Ázsia', 'http://kitekinto.hu/kelet-azsia/rss/'),
-        ('Afrika', 'http://kitekinto.hu/afrika/rss/'),
-    ]
+        ('Gazdas\xe1gpolitika', 'http://kitekinto.hu/gazdasagpolitika/feed/'),
+        ('Eur\xf3pai \xfcgyek', 'http://kitekinto.hu/europai-ugyek/feed/'),
+        ('Eur\xf3p\xe1n k\xedv\xfcl', 'http://kitekinto.hu/europan-kivul/feed/'),
+        ('Vesz\xe9lyz\xf3n\xe1k', 'http://kitekinto.hu/veszelyzonak/feed/'),
+        ('V\xe1llalati h\xedrek', 'http://kitekinto.hu/vallalati-hirek/feed/'),
+        ('T\u0151zsde', 'http://kitekinto.hu/tozsde/feed/'),
+        ('Aut\xf3', 'http://kitekinto.hu/auto/feed/'),
+        ('Kult\xfara', 'http://kitekinto.hu/kultura/feed/'), ]
