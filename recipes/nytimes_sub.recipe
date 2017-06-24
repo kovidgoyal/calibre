@@ -415,7 +415,24 @@ class NYTimes(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
+        if False and self.username is not None and self.password is not None:
+            # disabled because the idiotic nyt has moved to using an all JS
+            # login process with the further involvement of recaptcha, they
+            # apparently dont want their subscribing users to access their
+            # content conveniently
+            # Sample POST request
+            # URL: https://myaccount.nytimes.com/svc/account/auth/v1/login
+            # Origin: https://myaccount.nytimes.com
+            # Referer: https://myaccount.nytimes.com/auth/login
+            # Payload:
+            # auth_token: "H4sIAAAAAAAAAw3LQQqDMBBG4btk7cLJxKbjZST5ZwQpGEkUWmzv3my/x7tdtXaUvdlyfg5zs0Mpr83c0INu1XAuV926d7H30aW5mYI82XvhaXB7uXb0UZjD76uTInFSRCKf05gMPvIqijHALECyRE2RRs9A9jIRkyE+xEx1xR+mstBMkAAAAA=="
+            # captcha_result: "03AEHxwuxyNRK8s99A7rMvZOvWGfXUuy9HqbRfC0uSREKhf6lpR5eL0I6hp-PHBN8wshkxSU4piWvyD7n7xESxnwidq19esqPvWiTV7oTUGDkqFltTbq9Dk4xjAaZ7nczevNJR_xeG8tZhF72_EmwL_AGCR83a8aylDXzX7e_PDzh9JC9wA03rEVn66Q7uY29NGUOQd0Ux8frNelwCYKfUJaIdYCjzBnaCCQwp6mufm7rWVdQxX2Togq2-g6MKdpjpyXqjCQxFzYaX1Jcm5XS4bcVlB7F_tt5W-6FqfxsEqGUPhH1QTc8LEb8aRJ39QCMUNWGQ3Uz96ZK1LYOODwM9hv0wNecjUkl7fzdzikHC-o5m1Dg3pzaNlb1vQeejkNzt03QLk7CxhgisnbR-LmClpl-6BULP4un0HVvt0YkgY08osSYDEBVfT2I"
+            # password : "asdasd"
+            # remember_me : "Y"
+            # username : "sdasd"
+            # where auth_token is taken from data-auth-options attribute of
+            # and the captcha result comes from recaptcha
+            # <div id="myAccountAuth">
             br.open('https://www.nytimes.com/auth/login')
             br.form = list(br.forms())[0]
             br['userid'] = self.username
