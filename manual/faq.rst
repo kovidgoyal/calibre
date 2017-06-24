@@ -629,6 +629,7 @@ Now coming to author name sorting:
 Note that you can set an individual author's sort value to whatever you want using :guilabel:`Manage authors`. This is useful when dealing with names that calibre will not get right, such as complex multi-part names like Miguel de Cervantes Saavedra or when dealing with Asian names like Sun Tzu.
 
 With all this flexibility, it is possible to have calibre manage your author names however you like. For example, one common request is to have calibre display author names LN, FN. To do this, and if the note below does not apply to you, then:
+
     * Set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
     * Restart calibre. Do not change any book metadata before doing the remaining steps.
     * Change all author names to LN, FN using the Manage authors dialog.
