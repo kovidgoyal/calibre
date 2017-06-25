@@ -33,51 +33,28 @@ class DailyTelegraph(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = dict(id='story')
+    keep_only_tags = dict(id=['story', 'story-headline'])
     remove_tags = [
         dict(id='comments'),
         classes('story-info story-header-tools module-controls story-sidebar'
-        ' story-footer story-extras story-related vms-nav'
+        ' story-footer story-footer-tools story-extras story-related vms-nav'
         ' vms-endcard vms-discover share-tools story-comments-link'
         ' vms-controls ooyala-player vms-countdown vms-header comments')
     ]
 
     feeds = [
-        (u'News', u'http://feeds.news.com.au/public/rss/2.0/aus_news_807.xml'),
-        (u'Opinion', u'http://feeds.news.com.au/public/rss/2.0/aus_opinion_58.xml'),
-        (u'The Nation', u'http://feeds.news.com.au/public/rss/2.0/aus_the_nation_62.xml'),
-        (u'World News', u'http://feeds.news.com.au/public/rss/2.0/aus_world_808.xml'),
-        (u'US Election', u'http://feeds.news.com.au/public/rss/2.0/aus_uselection_687.xml'),
-        (u'Climate', u'http://feeds.news.com.au/public/rss/2.0/aus_climate_809.xml'),
-        (u'Media', u'http://feeds.news.com.au/public/rss/2.0/aus_media_57.xml'),
-        (u'IT', u'http://feeds.news.com.au/public/rss/2.0/ausit_itnews_topstories_367.xml'),
-        (u'Exec Tech', u'http://feeds.news.com.au/public/rss/2.0/ausit_exec_topstories_385.xml'),
-        (u'Higher Education',
-         u'http://feeds.news.com.au/public/rss/2.0/aus_higher_education_56.xml'),
-        (u'Arts', u'http://feeds.news.com.au/public/rss/2.0/aus_arts_51.xml'),
-        (u'Travel', u'http://feeds.news.com.au/public/rss/2.0/aus_travel_and_indulgence_63.xml'),
-        (u'Property', u'http://feeds.news.com.au/public/rss/2.0/aus_property_59.xml'),
-        (u'Sport', u'http://feeds.news.com.au/public/rss/2.0/aus_sport_61.xml'),
-        (u'Business', u'http://feeds.news.com.au/public/rss/2.0/aus_business_811.xml'),
-        (u'Aviation', u'http://feeds.news.com.au/public/rss/2.0/aus_business_aviation_706.xml'),
-        (u'Commercial Property',
-         u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
-        (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml')
+        (u'National News', u'http://www.news.com.au/national/rss'),
+        (u'World News', u'http://www.news.com.au/world/rss'),
+        (u'Entertainmnet', u'http://www.news.com.au/entertainment/rss'),
+        (u'Technology', u'http://www.news.com.au/technology/rss'),
+        (u'Lifestyle', u'http://www.news.com.au/lifestyle/rss'),
+        (u'Sport', u'http://www.news.com.au/sport/rss'),
+        (u'Finance', u'http://www.news.com.au/finance/rss'),
+        (u'Travel', u'http://www.news.com.au/travel/rss'),
     ]
 
-    def do_login(self, browser, username, password):
-        # TODO: Port this to BasicNewsRecipe login
-        if username and password:
-            browser.visit('http://www.theaustralian.com.au/login')
-            form = browser.select_form(
-                'form[action="https://idp.news.com.au/idp/Authn/rest"]')
-            form['username'] = username
-            form['password'] = password
-            browser.submit(
-                submit_control_selector='button[type="submit"]', timeout=60)
-            if '>Log Out' not in browser.html:
-                raise ValueError(
-                    'Failed to log in, check your username and password')
-
     def get_article_url(self, article):
-        return article.id
+        ans = article.link
+        if '/video/' in ans:
+            return
+        return ans
