@@ -702,7 +702,8 @@ class Editor(QWidget):  # {{{
 
         self.toolbar2.addAction(self.editor.action_block_style)
         w = self.toolbar2.widgetForAction(self.editor.action_block_style)
-        w.setPopupMode(w.InstantPopup)
+        if hasattr(w, 'setPopupMode'):
+            w.setPopupMode(w.InstantPopup)
         self.toolbar2.addAction(self.editor.action_insert_link)
         # }}}
 
