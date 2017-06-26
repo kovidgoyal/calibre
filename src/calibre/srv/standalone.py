@@ -275,7 +275,9 @@ libraries that the main calibre program knows about will be used.
                ' about clients connecting to the server and making requests. By'
                ' default no access logging is done.'))
     if not iswindows and not isosx:
-        # Does not work on OS X because we dont have a headless Qt backend
+        # Does not work on macOS because if we fork() we cannot connect to Core
+        # Serives which is needed by the QApplication() constructor, which in
+        # turn is needed by ensure_app()
         parser.add_option('--daemonize', default=False, action='store_true',
             help=_('Run process in background as a daemon.'))
     parser.add_option('--pidfile', default=None,
