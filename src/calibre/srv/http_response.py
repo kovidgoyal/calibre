@@ -608,9 +608,9 @@ class HTTPConnection(HTTPRequest):
 
     def reset_state(self):
         ready = not self.close_after_response
+        self.end_send_optimization()
         self.connection_ready()
         self.ready = ready
-        self.end_send_optimization()
 
     def report_unhandled_exception(self, e, formatted_traceback):
         self.simple_response(httplib.INTERNAL_SERVER_ERROR)
