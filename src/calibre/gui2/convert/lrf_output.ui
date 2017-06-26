@@ -17,7 +17,7 @@
    <item>
     <widget class="QCheckBox" name="opt_autorotation">
      <property name="text">
-      <string>Enable &amp;autorotation of wide images</string>
+      <string>Enable &amp;auto-rotation of wide images</string>
      </property>
     </widget>
    </item>

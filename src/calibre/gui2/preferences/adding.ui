@@ -135,7 +135,7 @@
           <string>This will force an automatic conversion even if the file being added is the same format as the output format. For example, if you set your output format to EPUB and add an EPUB file, an EPUB to EPUB conversion will be run.</string>
          </property>
          <property name="text">
-          <string>When autoconverting, convert even if the format being added is the &amp;same as the output format</string>
+          <string>When auto-converting, convert even if the format being added is the &amp;same as the output format</string>
          </property>
         </widget>
        </item>

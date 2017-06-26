@@ -24,7 +24,7 @@
    <item row="4" column="0" colspan="4">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>The header and footer removal options have been replaced by the Search &amp; Replace options. Click the Search &amp; Replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
+      <string>The header and footer removal options have been replaced by the Search &amp; replace options. Click the Search &amp; replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

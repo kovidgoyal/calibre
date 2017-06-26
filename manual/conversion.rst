@@ -349,7 +349,7 @@ remove all non-breaking-space entities, or may include false positive matches re
 
 .. _search-replace:
 
-Search & Replace
+Search & replace
 ---------------------
 
 These options are useful primarily for conversion of PDF documents or OCR conversions, though they can 

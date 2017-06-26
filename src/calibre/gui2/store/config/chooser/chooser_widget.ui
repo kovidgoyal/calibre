@@ -92,21 +92,21 @@
      <item>
       <widget class="QPushButton" name="enable_all">
        <property name="text">
-        <string>All</string>
+        <string>&amp;All</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="enable_none">
        <property name="text">
-        <string>None</string>
+        <string>&amp;None</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="enable_invert">
        <property name="text">
-        <string>Invert</string>
+        <string>&amp;Invert</string>
        </property>
       </widget>
      </item>

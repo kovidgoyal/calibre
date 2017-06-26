@@ -93,7 +93,7 @@ class LRFOutput(OutputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='enable_autorotation', recommended_value=False,
-            help=_('Enable autorotation of images that are wider than the screen width.')
+            help=_('Enable auto-rotation of images that are wider than the screen width.')
         ),
         OptionRecommendation(name='wordspace',
             recommended_value=2.5, level=OptionRecommendation.LOW,
@@ -194,4 +194,3 @@ class LRFOutput(OutputFormatPlugin):
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             from calibre.ebooks.lrf.html.convert_from import process_file
             process_file(os.path.join(tdir, opf), lrf_opts, self.log)
-

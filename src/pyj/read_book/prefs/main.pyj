@@ -59,7 +59,7 @@ class Prefs:
         container.appendChild(c)
         build_list(c, [
             create_item(_('Colors'), def():self.show_panel('colors');, _('Change the colors of the page and text')),
-            create_item(_('Page Layout'), def():self.show_panel('layout');, _('Change the page margins and number of pages per screen')),
+            create_item(_('Page layout'), def():self.show_panel('layout');, _('Change the page margins and number of pages per screen')),
         ])
 
     def display_colors(self, container):
@@ -70,7 +70,7 @@ class Prefs:
         commit_colors(self.onchange, self.container)
 
     def display_layout(self, container):
-        document.getElementById(self.title_id).textContent = _('Page Layout')
+        document.getElementById(self.title_id).textContent = _('Page layout')
         create_layout_panel(container)
 
     def close_layout(self):

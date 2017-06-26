@@ -9,4 +9,3 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from html5lib.constants import entities
 
 html5_entities = {k.replace(';', ''):v for k, v in entities.iteritems()}
-

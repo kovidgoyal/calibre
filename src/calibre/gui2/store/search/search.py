@@ -326,8 +326,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         chooser_config_widget = StoreChooserWidget()
         search_config_widget = StoreConfigWidget(self.config)
 
-        tab_widget.addTab(chooser_config_widget, _('Choose stores'))
-        tab_widget.addTab(search_config_widget, _('Configure search'))
+        tab_widget.addTab(chooser_config_widget, _('Choose s&tores'))
+        tab_widget.addTab(search_config_widget, _('Configure s&earch'))
 
         # Restore dialog state.
         geometry = self.config.get('config_dialog_geometry', None)
