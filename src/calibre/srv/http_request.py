@@ -210,6 +210,7 @@ class HTTPRequest(Connection):
         Connection.__init__(self, *args, **kwargs)
         self.max_header_line_size = int(1024 * self.opts.max_header_line_size)
         self.max_request_body_size = int(1024 * 1024 * self.opts.max_request_body_size)
+        self.forwarded_for = None
 
     def read(self, buf, endpos):
         size = endpos - buf.tell()
@@ -243,6 +244,7 @@ class HTTPRequest(Connection):
         'Become ready to read an HTTP request'
         self.method = self.request_line = None
         self.response_protocol = self.request_protocol = HTTP1
+        self.forwarded_for = None
         self.path = self.query = None
         self.close_after_response = False
         self.header_line_too_long_error_code = httplib.REQUEST_URI_TOO_LONG
@@ -337,6 +339,7 @@ class HTTPRequest(Connection):
         if inheaders.get("Expect", '').lower() == "100-continue":
             buf = BytesIO((HTTP11 + " 100 Continue\r\n\r\n").encode('ascii'))
             return self.set_state(WRITE, self.write_continue, buf, inheaders, request_content_length, chunked_read)
+        self.forwarded_for = inheaders.get('X-Forwarded-For')
 
         self.read_request_body(inheaders, request_content_length, chunked_read)
 

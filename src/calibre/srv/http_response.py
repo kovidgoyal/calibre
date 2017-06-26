@@ -525,8 +525,11 @@ class HTTPConnection(HTTPRequest):
             return
         if not self.opts.log_not_found and status_code == httplib.NOT_FOUND:
             return
-        line = '%s port-%s %s %s "%s" %s %s' % (
-            self.remote_addr, self.remote_port, username or '-',
+        ff = self.forwarded_for
+        if ff:
+            ff = '[%s] ' % ff
+        line = '%s port-%s %s%s %s "%s" %s %s' % (
+            self.remote_addr, self.remote_port, ff or '', username or '-',
             fast_now_strftime('%d/%b/%Y:%H:%M:%S %z'),
             force_unicode(self.request_line or '', 'utf-8'),
             status_code, ('-' if response_size is None else response_size))
