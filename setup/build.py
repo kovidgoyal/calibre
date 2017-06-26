@@ -414,6 +414,8 @@ class Build(Command):
             self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
+        if isosx:
+            os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
 
     def build_sip_files(self, ext, src_dir):
         from setup.build_environment import pyqt
