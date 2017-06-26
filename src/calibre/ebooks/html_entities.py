@@ -93,7 +93,7 @@ html5_entities = {
     'DifferentialD': 'ⅆ',
     'Dopf': '𝔻',
     'Dot': '¨',
-    'DotDot': '⃜',
+    'DotDot': '⃜\u20dc',
     'DotEqual': '≐',
     'DoubleContourIntegral': '∯',
     'DoubleDot': '¨',
