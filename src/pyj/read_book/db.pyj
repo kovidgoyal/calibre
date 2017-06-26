@@ -294,13 +294,15 @@ class DB:
         key = file_store_name(book, name)
         err = _(
             'Failed to read the file {0} for the book {1} from the browser offline cache.'
-            ' This usually means the cache is close to full. Clear the browser'
-            ' cache from the browser settings.').format(name, book.metadata.title)
+        ).format(name, book.metadata.title)
         self.do_op(['files'], key, err, def (result):
             if not result:
                 # File was not found in the cache, this happens in Chrome if
                 # the Application Cache is full. IndexedDB put succeeds,
                 # but get fails. Browsers are a horrible travesty.
+                err += _(
+                    ' This usually means the cache is close to full. Clear the browser'
+                    ' cache from the browser settings.')
                 self.show_error(_('Cannot read file from book'), err)
                 return
             fdata = book.stored_files[key]
@@ -313,9 +315,7 @@ class DB:
     def get_mathjax_files(self, proceed):
         c = self.idb.transaction('mathjax').objectStore('mathjax').openCursor()
         c.onerror = def(event):
-            err = _('Failed to read the MathJax files from local storage.'
-            ' This usually means the cache is close to full. Clear the browser'
-            ' cache from the browser settings.')
+            err = _('Failed to read the MathJax files from the browser offline cache.')
             self.display_error(err, event)
         data = {}
         c.onsuccess = def(event):
