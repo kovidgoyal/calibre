@@ -185,13 +185,16 @@ class Connection(object):  # {{{
 
     def send(self, data):
         try:
-            ret = self.socket.send(data)
+            ret = self.socket.send(data) if self.ssl_context is None else self.socket.write(data)
             self.last_activity = monotonic()
             return ret
+        except ssl.SSLWantWriteError:
+            return 0
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return 0
             elif e.errno in socket_errors_socket_closed:
+                self.log.error('Failed to send all data in state:', self.state_description, 'with error:', e)
                 self.ready = False
                 return 0
             raise
