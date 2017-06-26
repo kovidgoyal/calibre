@@ -271,10 +271,15 @@ class Connection(object):  # {{{
     def drain_ssl_buffer(self):
         try:
             self.read_buffer.recv_from(self.socket)
-        except Exception:
-            # Ignore errors since we dont know if the SSL buffer had
-            # any data or not
-            pass
+        except ssl.SSLWantReadError:
+            return
+        except socket.error as e:
+            if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
+                return
+            if e.errno in socket_errors_socket_closed:
+                self.ready = False
+                return
+            raise
 
     def close(self):
         self.ready = False
@@ -493,7 +498,7 @@ class ServerLoop(object):
 
     def tick(self):
         now = monotonic()
-        read_needed, write_needed, readable, remove = [], [], [], []
+        read_needed, write_needed, readable, remove, close_needed = [], [], [], [], []
         has_ssl = self.ssl_context is not None
         for s, conn in self.connection_map.iteritems():
             if now - conn.last_activity > self.opts.timeout:
@@ -511,7 +516,10 @@ class ServerLoop(object):
                 else:
                     if has_ssl:
                         conn.drain_ssl_buffer()
-                        (readable if conn.read_buffer.has_data else read_needed).append(s)
+                        if conn.ready:
+                            (readable if conn.read_buffer.has_data else read_needed).append(s)
+                        else:
+                            close_needed.append((s, conn))
                     else:
                         read_needed.append(s)
             elif wf is WRITE:
@@ -519,6 +527,9 @@ class ServerLoop(object):
 
         for s, conn in remove:
             self.log('Closing connection because of extended inactivity: %s' % conn.state_description)
+            self.close(s, conn)
+
+        for x, conn in close_needed:
             self.close(s, conn)
 
         if readable:
