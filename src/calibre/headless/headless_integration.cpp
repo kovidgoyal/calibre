@@ -1,6 +1,11 @@
 #include <QtGlobal>
 #include "headless_integration.h"
 #include "headless_backingstore.h"
+#ifdef __APPLE__
+#include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
+#include <qpa/qplatformservices.h>
+#include <QtCore/private/qeventdispatcher_unix_p.h>
+#else
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 1))
 #include "fontconfig_database.h"
 #else
@@ -19,6 +24,7 @@
 #else
 #include <QtCore/private/qeventdispatcher_win_p.h>
 #endif
+#endif
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/private/qguiapplication_p.h>
@@ -27,6 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 
+#ifndef __APPLE__
 class GenericUnixServices : public QGenericUnixServices {
     /* We must return desktop environment as UNKNOWN otherwise other parts of
      * Qt will try to query the nativeInterface() without checking if it exists
@@ -40,6 +47,7 @@ class GenericUnixServices : public QGenericUnixServices {
      */
     QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
 };
+#endif
 
 HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 {
@@ -51,9 +59,17 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
     screenAdded(mPrimaryScreen);
+#ifdef __APPLE__
+    m_fontDatabase.reset(new QCoreTextFontDatabase());
+#else
     m_fontDatabase.reset(new QFontconfigDatabase());
+#endif
 
+#ifdef __APPLE__
+    platform_services.reset(new QPlatformServices());
+#else
     platform_services.reset(new GenericUnixServices());
+#endif
 }
 
 HeadlessIntegration::~HeadlessIntegration()
@@ -98,7 +114,11 @@ QPlatformBackingStore *HeadlessIntegration::createPlatformBackingStore(QWindow *
 
 QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 {
+#ifdef __APPLE__
+    return new QEventDispatcherUNIX();
+#else
     return createUnixEventDispatcher();
+#endif
 }
 
 HeadlessIntegration *HeadlessIntegration::instance()

@@ -345,10 +345,9 @@ class Build(Command):
 
     def build_headless(self):
         from setup.parallel_build import cpu_count
-        if iswindows or isosx or ishaiku:
+        if iswindows or ishaiku:
             return  # Dont have headless operation on these platforms
         from setup.build_environment import glib_flags, fontconfig_flags, ft_inc_dirs, QMAKE
-        from PyQt5.QtCore import QT_VERSION
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = absolutize
         headers = a([
@@ -360,7 +359,9 @@ class Build(Command):
             'calibre/headless/headless_backingstore.cpp',
             'calibre/headless/headless_integration.cpp',
         ])
-        if QT_VERSION >= 0x50401:
+        if isosx:
+            sources.extend(a(['calibre/headless/coretext_fontdatabase.mm']))
+        else:
             headers.extend(a(['calibre/headless/fontconfig_database.h']))
             sources.extend(a(['calibre/headless/fontconfig_database.cpp']))
         others = a(['calibre/headless/headless.json'])

@@ -163,9 +163,10 @@ class BuildTest(unittest.TestCase):
 
         from calibre.gui2 import Application
         os.environ.pop('DISPLAY', None)
-        app = Application([], headless=islinux)
+        has_headless = islinux
+        app = Application([], headless=has_headless)
         self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-        if islinux:
+        if has_headless:
             from calibre.ebooks.covers import create_cover
             create_cover('xxx', ['yyy'])
         na = QNetworkAccessManager()
