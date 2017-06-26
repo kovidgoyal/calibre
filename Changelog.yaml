@@ -688,7 +688,7 @@
     - title: "Fix a regression that broke the icon theme creation tool in the previous release"
       tickets: [1643228]
 
-    - title: "Fix insert character dialog not reflowing characters on resize. Also only allow the search bar in the dialog to get input focus"
+    - title: "Fix insert character dialog not reflowing characters on resize. Also only allow the Search bar in the dialog to get input focus"
 
   improved recipes:
     - Dilbert
@@ -1583,7 +1583,7 @@
   date: 2016-02-12
 
   new features:
-    - title: "Add an action to the context menu for the search bar to paste and instantly execute the search"
+    - title: "Add an action to the context menu for the Search bar to paste and instantly execute the search"
       tickets: [1541286]
 
     - title: "When adding multiple books from a single directory, added the books in order of the last modified time of the book files"

@@ -313,7 +313,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
     * You can sort them by title, author, date, rating, etc. by clicking on the column titles. You can also sub-sort, i.e. sort on multiple columns. For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
 
-    * You can search for a particular book or set of books using the search bar. More on that below.
+    * You can search for a particular book or set of books using the Search bar. More on that below.
 
     * You can quickly and conveniently edit metadata by selecting the entry you want changed in the list and pressing the :kbd:`E` key.
 
@@ -329,7 +329,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
 The search interface
 ---------------------
-You can search all the metadata by entering search terms in the search bar. Searches are case insensitive. For example::
+You can search all the metadata by entering search terms in the Search bar. Searches are case insensitive. For example::
 
     Asimov Foundation format:lrf
 
@@ -397,7 +397,7 @@ custom series column named ``#my_series``, you would use the search name ``#my_s
 Series indices are numbers, so you can use the relational operators described above.
 
 The special field ``search`` is used for saved searches. So if you save a search with the name
-"My spouse's books" you can enter ``search:"My spouse's books"`` in the search bar to reuse the saved
+"My spouse's books" you can enter ``search:"My spouse's books"`` in the Search bar to reuse the saved
 search. More about saving searches below.
 
 You can search for the absence or presence of a field using the special "true" and "false" values. For example::
@@ -440,7 +440,7 @@ Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note
 Saving searches
 -----------------
 
-calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the search bar or using the Tag browser. Then type the name you would like to give to the search in the Saved Searches box next to the search bar. Click the plus icon next to the saved searches box to save the search.
+calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the Search bar or using the Tag browser. Then type the name you would like to give to the search in the Saved Searches box next to the Search bar. Click the plus icon next to the saved searches box to save the search.
 
 Now you can access your saved search in the Tag browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 

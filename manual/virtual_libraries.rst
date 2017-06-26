@@ -27,7 +27,7 @@ Creating Virtual libraries
     :class: float-left-img
 
 |vlb| To use a virtual library click the :guilabel:`Virtual library` button located
-to the left of the search bar and select the :guilabel:`Create Virtual library`
+to the left of the Search bar and select the :guilabel:`Create Virtual library`
 option. As a first example, let's create a virtual library that shows us only
 the books by a particular author. Click the :guilabel:`Authors` link as shown
 in the image below and choose the author you want to use and click OK.
@@ -47,7 +47,7 @@ You can switch back to the full library at any time by once again clicking the
 Virtual libraries are based on *searches*. You can use any search as the 
 basis of a virtual library. The virtual library will contain only the 
 books matched by that search. First, type in the search you want to use 
-in the search bar or build a search using the :guilabel:`Tag browser`. 
+in the Search bar or build a search using the :guilabel:`Tag browser`. 
 When you are happy with the returned results, click the Virtual library 
 button, choose :guilabel:`Create library` and enter a name for the new virtual 
 library. The virtual library will then be created based on the search 

@@ -49,7 +49,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "<p>Note: Search terms are forced to lower case; <code>MySearch</code> "
     "and <code>mysearch</code> are the same term."
     "<p>You can have your grouped search term show up as User categories in "
-    " the Tag browser. Just add the grouped search term names to the Make user "
+    " the Tag browser. Just add the grouped search term names to the Make User "
     "categories from box. You can add multiple terms separated by commas. "
     "The new User category will be automatically "
     "populated with all the items in the categories included in the grouped "

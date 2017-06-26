@@ -323,10 +323,10 @@ to be shown as user categories</string>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_show_highlight_toggle_button">
      <property name="toolTip">
-      <string>&lt;p&gt;This option will cause a small button to appear next to the search bar. Clicking the button will toggle between showing only the search results and showing all books with the search results highlighted.</string>
+      <string>&lt;p&gt;This option will cause a small button to appear next to the Search bar. Clicking the button will toggle between showing only the search results and showing all books with the search results highlighted.</string>
      </property>
      <property name="text">
-      <string>Show a &amp;quick toggle button to switch between highlighting and restricting results next to the searchbar</string>
+      <string>Show a &amp;quick toggle button to switch between highlighting and restricting results next to the Search bar</string>
      </property>
     </widget>
    </item>

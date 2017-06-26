@@ -32,7 +32,7 @@ class SearchOverlay:
         prev_button.addEventListener('click', def(ev): self.find_previous();)
         # We cannot use simple link for the close button as it causes the
         # button to remain red when the search panel is re-opened
-        close_button = E.div(style='cursor:pointer', svgicon('close'), title=_('Close search bar'))
+        close_button = E.div(style='cursor:pointer', svgicon('close'), title=_('Close Search bar'))
         close_button.addEventListener('click', def(ev): window.setTimeout(self.hide, 0);)
         c.appendChild(E.div(
             svgicon('search'), '\xa0',

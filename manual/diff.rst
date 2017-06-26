@@ -46,7 +46,7 @@ effects, as it can cause invalid markup to be altered to make it valid. You can
 also change the number of lines of context shown around differences via the
 :guilabel:`Options` button.
 
-You can search for any text in the differences via the search bar at the
+You can search for any text in the differences via the Search bar at the
 bottom. You will need to specify which panel to search, the :guilabel:`Left` or
 the :guilabel:`Right`.
 
