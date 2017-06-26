@@ -363,7 +363,7 @@ class HTTPConnection(HTTPRequest):
             end = buf.tell()
             buf.seek(pos)
         limit = end - pos
-        if limit == 0:
+        if limit <= 0:
             return True
         if self.use_sendfile and not isinstance(buf, (BytesIO, ReadOnlyFileBuffer)):
             try:
@@ -386,9 +386,10 @@ class HTTPConnection(HTTPRequest):
                 self.use_sendfile = self.ready = False
                 raise IOError('sendfile() failed to write any bytes to the socket')
         else:
-            sent = self.send(buf.read(min(limit, self.send_bufsize)))
+            data = buf.read(min(limit, self.send_bufsize))
+            sent = self.send(data)
         buf.seek(pos + sent)
-        return buf.tell() == end
+        return buf.tell() >= end
 
     def simple_response(self, status_code, msg='', close_after_response=True, extra_headers=None):
         if self.response_protocol is HTTP1:
