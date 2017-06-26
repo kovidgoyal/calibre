@@ -138,7 +138,7 @@ is as follows.
     You can either do so directly in the server by providing the path to
     the HTTPS certificate to use in the advanced configuration options for
     the server, or you can setup a reverse proxy as described below, to use
-    an existing https setup.
+    an existing HTTPS setup.
 
 
 The server interface
