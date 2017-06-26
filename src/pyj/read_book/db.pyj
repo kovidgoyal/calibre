@@ -152,7 +152,8 @@ class DB:
                         ' browser such as Google Chrome or Mozilla Firefox'))
                     return
                 raise
-            req.onsuccess = def(event): proceed(req.result)
+            req.onsuccess = def(event):
+                proceed(req.result)
         elif op is 'put':
             transaction = self.idb.transaction(stores, 'readwrite')
             req = transaction.objectStore(store).put(data)
@@ -250,7 +251,8 @@ class DB:
         if needs_encoding:
             data = base64encode(Uint8Array(data))
         req = self.idb.transaction(['files'], 'readwrite').objectStore('files').put(data, fname)
-        req.onsuccess = def(event): proceed()
+        req.onsuccess = def(event):
+            proceed()
         req.onerror = def(event):
             proceed(_('Failed to store book data ({0}) with error: {1}').format(name, get_error_details(event)))
 
@@ -291,9 +293,14 @@ class DB:
     def get_file(self, book, name, proceed):
         key = file_store_name(book, name)
         err = _(
-            'Failed to read the file {0} for the book {1} from the database').format(name, book.metadata.title)
+            'Failed to read the file {0} for the book {1} from the browser offline cache.'
+            ' This usually means the cache is close to full. Clear the browser'
+            ' cache from the browser settings.').format(name, book.metadata.title)
         self.do_op(['files'], key, err, def (result):
             if not result:
+                # File was not found in the cache, this happens in Chrome if
+                # the Application Cache is full. IndexedDB put succeeds,
+                # but get fails. Browsers are a horrible travesty.
                 self.show_error(_('Cannot read file from book'), err)
                 return
             fdata = book.stored_files[key]
@@ -306,7 +313,9 @@ class DB:
     def get_mathjax_files(self, proceed):
         c = self.idb.transaction('mathjax').objectStore('mathjax').openCursor()
         c.onerror = def(event):
-            err = _('Failed to read the MathJax files from local storage')
+            err = _('Failed to read the MathJax files from local storage.'
+            ' This usually means the cache is close to full. Clear the browser'
+            ' cache from the browser settings.')
             self.display_error(err, event)
         data = {}
         c.onsuccess = def(event):
