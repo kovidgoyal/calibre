@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -49,6 +48,8 @@ def daemonize():  # {{{
 
     # Redirect standard file descriptors.
     plugins['speedup'][0].detach(os.devnull)
+
+
 # }}}
 
 
@@ -65,7 +66,12 @@ class Server(object):
         plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour())
-        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, access_log=access_log, plugins=plugins)
+        self.loop = ServerLoop(
+            create_http_handler(self.handler.dispatch),
+            opts=opts,
+            log=log,
+            access_log=access_log,
+            plugins=plugins)
         self.handler.set_log(self.loop.log)
         self.handler.set_jobs_manager(self.loop.jobs_manager)
         self.serve_forever = self.loop.serve_forever
@@ -73,6 +79,7 @@ class Server(object):
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_srv
             compile_srv()
+
 
 # Manage users CLI {{{
 
@@ -86,15 +93,17 @@ def manage_users(path=None):
         prints(prompt, end=' ')
         return raw_input().decode(enc)
 
-    def choice(question=_('What do you want to do?'), choices=(), default=None, banner=''):
+    def choice(
+        question=_('What do you want to do?'), choices=(), default=None, banner=''):
         prints(banner)
         for i, choice in enumerate(choices):
-            prints('%d)' % (i+1), choice)
+            prints('%d)' % (i + 1), choice)
         print()
         while True:
             prompt = question + ' [1-%d]:' % len(choices)
             if default is not None:
-                prompt = question + ' [1-%d %s: %d]' % (len(choices), _('default'), default+1)
+                prompt = question + ' [1-%d %s: %d]' % (
+                    len(choices), _('default'), default + 1)
             reply = get_input(prompt)
             if not reply and default is not None:
                 reply = str(default + 1)
@@ -128,16 +137,20 @@ def manage_users(path=None):
         def validate(username):
             if not m.has_user(username):
                 return _('The username %s does not exist') % username
+
         return get_valid(_('Enter the username'), validate)
 
     def get_pass(username):
         while True:
             from getpass import getpass
-            one = getpass(_('Enter the new password for %s: ') % username).decode(enc)
+            one = getpass(
+                _('Enter the new password for %s: ') % username).decode(enc)
             if not one:
                 prints(_('Empty passwords are not allowed'))
                 continue
-            two = getpass(_('Re-enter the new password for %s, to verify: ') % username).decode(enc)
+            two = getpass(
+                _('Re-enter the new password for %s, to verify: ') % username
+            ).decode(enc)
             if one != two:
                 prints(_('Passwords do not match'))
                 continue
@@ -154,7 +167,8 @@ def manage_users(path=None):
 
     def remove_user():
         un = get_valid_user()
-        if get_input((_('Are you sure you want to remove the user %s?') % un) + ' [y/n]:') != 'y':
+        if get_input((_('Are you sure you want to remove the user %s?') % un) +
+                     ' [y/n]:') != 'y':
             raise SystemExit(0)
         m.remove_user(un)
         prints(_('User %s successfully removed!') % un)
@@ -182,21 +196,28 @@ def manage_users(path=None):
         if r is None:
             raise SystemExit('The user {} does not exist'.format(username))
         if r['allowed_library_names']:
-            prints(_('{} is currently only allowed to access the libraries named: {}').format(
-                username, ', '.join(r['allowed_library_names'])))
+            prints(
+                _('{} is currently only allowed to access the libraries named: {}')
+                .format(username, ', '.join(r['allowed_library_names'])))
         if r['blocked_library_names']:
-            prints(_('{} is currently not allowed to access the libraries named: {}').format(
-                username, ', '.join(r['blocked_library_names'])))
+            prints(
+                _('{} is currently not allowed to access the libraries named: {}')
+                .format(username, ', '.join(r['blocked_library_names'])))
         if r['library_restrictions']:
-            prints(_('{} has the following additional per-library restrictions:').format(username))
+            prints(
+                _('{} has the following additional per-library restrictions:')
+                .format(username))
             for k, v in r['library_restrictions'].iteritems():
                 prints(k + ':', v)
         else:
             prints(_('{} has the no additional per-library restrictions'))
-        c = choice(choices=[
-            _('Allow access to all libraries'), _('Allow access to only specified libraries'),
-            _('Allow access to all, except specified libraries'), _('Change per-library restrictions'),
-            _('Cancel')])
+        c = choice(
+            choices=[
+                _('Allow access to all libraries'),
+                _('Allow access to only specified libraries'),
+                _('Allow access to all, except specified libraries'),
+                _('Change per-library restrictions'),
+                _('Cancel')])
         if c == 0:
             m.update_user_restrictions(username, {})
         elif c == 3:
@@ -204,8 +225,10 @@ def manage_users(path=None):
                 library = get_input(_('Enter the name of the library:'))
                 if not library:
                     break
-                prints(_('Enter a search expression, access will be granted only to books matching this expression.'
-                            ' An empty expression will grant access to all books.'))
+                prints(
+                    _(
+                        'Enter a search expression, access will be granted only to books matching this expression.'
+                        ' An empty expression will grant access to all books.'))
                 plr = get_input(_('Search expression:'))
                 if plr:
                     r['library_restrictions'][library] = plr
@@ -223,30 +246,42 @@ def manage_users(path=None):
             t = _('Allowing access only to libraries: {}') if c == 1 else _(
                 'Allowing access to all libraries, except: {}')
             prints(t.format(', '.join(names)))
-            m.update_user_restrictions(username, {w:names})
+            m.update_user_restrictions(username, {w: names})
 
     def edit_user(username=None):
         username = username or get_valid_user()
-        c = choice(choices=[
-            _('Show password for {}').format(username),
-            _('Change password for {}').format(username),
-            _('Change read/write permission for {}').format(username),
-            _('Change the libraries {} is allowed to access').format(username),
-            _('Cancel'),
-        ], banner='\n' + _('{} has {} access').format(
-            username, _('readonly') if m.is_readonly(username) else _('read-write'))
-        )
+        c = choice(
+            choices=[
+                _('Show password for {}').format(username),
+                _('Change password for {}').format(username),
+                _('Change read/write permission for {}').format(username),
+                _('Change the libraries {} is allowed to access').format(username),
+                _('Cancel'), ],
+            banner='\n' + _('{} has {} access').format(
+                username,
+                _('readonly') if m.is_readonly(username) else _('read-write')))
         print()
         if c > 3:
             actions.append(toplevel)
             return
-        {0: show_password, 1: change_password, 2: change_readonly, 3: change_restriction}[c](username)
+        {
+            0: show_password,
+            1: change_password,
+            2: change_readonly,
+            3: change_restriction}[c](username)
         actions.append(partial(edit_user, username=username))
 
     def toplevel():
-        {0:add_user, 1:edit_user, 2:remove_user, 3:lambda: None}[choice(choices=[
-            _('Add a new user'), _('Edit an existing user'), _('Remove a user'),
-            _('Cancel')])]()
+        {
+            0: add_user,
+            1: edit_user,
+            2: remove_user,
+            3: lambda: None}[choice(
+                choices=[
+                    _('Add a new user'),
+                    _('Edit an existing user'),
+                    _('Remove a user'),
+                    _('Cancel')])]()
 
     actions = [toplevel]
     while actions:
@@ -256,48 +291,65 @@ def manage_users(path=None):
 
 # }}}
 
+
 def create_option_parser():
-    parser=opts_to_parser('%prog '+ _(
-'''[options] [path to library folder...]
+    parser = opts_to_parser(
+        '%prog ' + _(
+            '''[options] [path to library folder...]
 
 Start the calibre Content server. The calibre Content server exposes your
 calibre libraries over the internet. You can specify the path to the library
 folders as arguments to %prog. If you do not specify any paths, all the
 libraries that the main calibre program knows about will be used.
-'''
-    ))
+'''))
     parser.add_option(
-        '--log', default=None,
-        help=_('Path to log file for server log. This log contains server information and errors, not access logs. By default it is written to stdout.'))
+        '--log',
+        default=None,
+        help=_(
+            'Path to log file for server log. This log contains server information and errors, not access logs. By default it is written to stdout.'
+        ))
     parser.add_option(
-        '--access-log', default=None,
-        help=_('Path to the access log file. This log contains information'
-               ' about clients connecting to the server and making requests. By'
-               ' default no access logging is done.'))
+        '--access-log',
+        default=None,
+        help=_(
+            'Path to the access log file. This log contains information'
+            ' about clients connecting to the server and making requests. By'
+            ' default no access logging is done.'))
     if not iswindows and not isosx:
         # Does not work on macOS because if we fork() we cannot connect to Core
         # Serives which is needed by the QApplication() constructor, which in
         # turn is needed by ensure_app()
-        parser.add_option('--daemonize', default=False, action='store_true',
+        parser.add_option(
+            '--daemonize',
+            default=False,
+            action='store_true',
             help=_('Run process in background as a daemon.'))
-    parser.add_option('--pidfile', default=None,
-        help=_('Write process PID to the specified file'))
     parser.add_option(
-        '--auto-reload', default=False, action='store_true',
-        help=_('Automatically reload server when source code changes. Useful'
-               ' for development. You should also specify a small value for the'
-               ' shutdown timeout.'))
+        '--pidfile', default=None, help=_('Write process PID to the specified file'))
     parser.add_option(
-        '--manage-users', default=False, action='store_true',
-        help=_('Manage the database of users allowed to connect to this server.'
-               ' See also the %s option.') % '--userdb')
+        '--auto-reload',
+        default=False,
+        action='store_true',
+        help=_(
+            'Automatically reload server when source code changes. Useful'
+            ' for development. You should also specify a small value for the'
+            ' shutdown timeout.'))
+    parser.add_option(
+        '--manage-users',
+        default=False,
+        action='store_true',
+        help=_(
+            'Manage the database of users allowed to connect to this server.'
+            ' See also the %s option.') % '--userdb')
     parser.get_option('--userdb').help = _(
         'Path to the user database to use for authentication. The database'
         ' is a SQLite file. To create it use {0}. You can read more'
-        ' about managing users at: {1}').format(
-            '--manage-users', localize_user_manual_link(
-                'https://manual.calibre-ebook.com/server.html#managing-user-accounts-from-the-command-line-only'
-    ))
+        ' about managing users at: {1}'
+    ).format(
+        '--manage-users',
+        localize_user_manual_link(
+            'https://manual.calibre-ebook.com/server.html#managing-user-accounts-from-the-command-line-only'
+        ))
 
     return parser
 
@@ -308,16 +360,16 @@ option_parser = create_option_parser
 def ensure_single_instance():
     if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
-        raise SystemExit(_(
-            'Another calibre program such as another instance of {} or the main'
-            ' calibre program is running. Having multiple programs that can make'
-            ' changes to a calibre library running at the same time is not supported.'
-        ).format('calibre-server' + ext)
-        )
+        raise SystemExit(
+            _(
+                'Another calibre program such as another instance of {} or the main'
+                ' calibre program is running. Having multiple programs that can make'
+                ' changes to a calibre library running at the same time is not supported.'
+            ).format('calibre-server' + ext))
 
 
 def main(args=sys.argv):
-    opts, args=create_option_parser().parse_args(args)
+    opts, args = create_option_parser().parse_args(args)
     ensure_single_instance()
     if opts.manage_users:
         try:
@@ -326,7 +378,7 @@ def main(args=sys.argv):
             raise SystemExit(_('Interrupted by user'))
         raise SystemExit(0)
 
-    libraries=args[1:]
+    libraries = args[1:]
     for lib in libraries:
         if not lib or not LibraryDatabase.exists_at(lib):
             raise SystemExit(_('There is no calibre library at: %s') % lib)
@@ -334,30 +386,33 @@ def main(args=sys.argv):
     if not libraries:
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
-        libraries=[prefs['library_path']]
+        libraries = [prefs['library_path']]
 
     if opts.auto_reload:
         if getattr(opts, 'daemonize', False):
-            raise SystemExit('Cannot specify --auto-reload and --daemonize at the same time')
+            raise SystemExit(
+                'Cannot specify --auto-reload and --daemonize at the same time')
         from calibre.srv.auto_reload import auto_reload, NoAutoReload
         try:
             from calibre.utils.logging import default_log
             return auto_reload(default_log, listen_on=opts.listen_on)
         except NoAutoReload as e:
             raise SystemExit(e.message)
-    opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
+    opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
-    server=Server(libraries, opts)
+    server = Server(libraries, opts)
     if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
-            raise SystemExit('In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon')
+            raise SystemExit(
+                'In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon'
+            )
         daemonize()
     if opts.pidfile:
         with lopen(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()))
-    signal.signal(signal.SIGTERM, lambda s,f: server.stop())
+    signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:
-        signal.signal(signal.SIGHUP, lambda s,f: server.stop())
+        signal.signal(signal.SIGHUP, lambda s, f: server.stop())
     # Needed for dynamic cover generation, which uses Qt for drawing
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
