@@ -302,7 +302,7 @@ With nginx, the required configuration is::
     }
     location /calibre {
         # we need a trailing slash for the Application Cache to work
-        return 301 $scheme://$host$uri/;
+        rewrite /calibre /calibre/ permanent;
     }
 
 
