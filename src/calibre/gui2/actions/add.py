@@ -475,7 +475,7 @@ class AddAction(InterfaceAction):
             info_dialog(self.gui, _('Merged some books'), pm + ' ' +
                 _('Incoming book formats were processed and merged into your '
                     'calibre database according to your auto-merge '
-                    'settings:'),
+                    'settings. Click "Show details" to see the list of merged books.'),
                     det_msg='\n'.join(lines), show=True)
 
         if adder.number_of_books_added > 0 or adder.merged_books:
