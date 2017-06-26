@@ -1282,7 +1282,7 @@ def ensure_app(headless=True):
     with _ea_lock:
         if _store_app is None and QApplication.instance() is None:
             args = sys.argv[:1]
-            has_headless = islinux or isbsd
+            has_headless = isosx or islinux or isbsd
             if headless and has_headless:
                 args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
             _store_app = QApplication(args)
