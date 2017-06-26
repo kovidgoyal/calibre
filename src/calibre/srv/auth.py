@@ -162,7 +162,7 @@ class DigestAuth(object):  # {{{
                 log.warn('Authorization URI mismatch: %s != %s from client: %s' % (
                     data.path, path, data.remote_addr))
             raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
-        return self.response is not None and path == data.path and self.request_digest(pw, data) == self.response
+        return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
 # }}}
 
 
