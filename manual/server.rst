@@ -266,7 +266,7 @@ Now setup the virtual host in your main server, for example, for nginx::
         server_name myserver.example.com;
 
         location / {
-            proxy_pass http://localhost:8080;
+            proxy_pass http://127.0.0.1:8080;
         }
     }
 
@@ -293,7 +293,24 @@ use a URL prefix. Start the calibre server as::
 
 The key parameter here is ``--url-prefix /calibre``. This causes the Content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal Content server website, but now it will run under /calibre.
 
-Now suppose you are using Apache as your main server. First enable the proxy modules in Apache, by adding the following to :file:`httpd.conf`::
+With nginx, the required configuration is::
+
+    proxy_set_header X-Forwarded-For $remote_addr;
+    location /calibre/ {
+        proxy_buffering off;
+        # Really, this should be passed on to /calibre but because of an nginx
+        # bug: https://trac.nginx.org/nginx/ticket/727 we cannot do so. Things
+        # should still work, since /calibre is not used by the calibre server
+        # itself.
+        proxy_pass http://127.0.0.1:8080;
+    }
+    location /calibre {
+        # we need a trailing slash for the Application Cache to work
+        return 301 $scheme://$host$uri/;
+    }
+
+
+For Apache, first enable the proxy modules in Apache, by adding the following to :file:`httpd.conf`::
 
     LoadModule proxy_module modules/mod_proxy.so
     LoadModule proxy_http_module modules/mod_proxy_http.so
@@ -301,10 +318,17 @@ Now suppose you are using Apache as your main server. First enable the proxy mod
 The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to httpd.conf (or if you are using virtual hosts to the conf file for the virtual host in question)::
 
     RewriteEngine on
-    RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
-    RewriteRule ^/calibre http://localhost:8080 [proxy]
+    RewriteRule ^/calibre/(.*) http://127.0.0.1:8080/calibre/$1 [proxy]
+    RedirectMatch permanent ^/calibre$ /calibre/
 
-That's all, you will now be able to access the calibre Content server under the /calibre URL in your Apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
+That's all, you will now be able to access the calibre Content server under the /calibre URL in your main server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
 
+
+.. note:: 
+
+    If you have setup SSL for your main server, you should tell the calibre
+    server to use basic authentication instead of digest authentication, as it
+    is faster. To do so, pass the ``--auth-mode=basic`` option to
+    ``calibre-server``.
 
 .. _calibre user forums: https://www.mobileread.com/forums/forumdisplay.php?f=166
