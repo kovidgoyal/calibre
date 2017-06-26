@@ -298,7 +298,7 @@ With nginx, the required configuration is::
     proxy_set_header X-Forwarded-For $remote_addr;
     location /calibre/ {
         proxy_buffering off;
-        proxy_pass http://127.0.0.1:8080/$request_uri;
+        proxy_pass http://127.0.0.1:8080$request_uri;
     }
     location /calibre {
         # we need a trailing slash for the Application Cache to work
