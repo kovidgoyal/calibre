@@ -170,7 +170,7 @@ def layout(is_single_page):
 
     set_css(document.body, column_gap=gap + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='100vh', column_fill='auto',
-        margin='0', border_width='0', padding='0',
+        margin='0', border_width='0', padding='0', box_sizing='content-box',
         width=screen_width + 'px', height=screen_height + 'px'
     )
     # Without this, webkit bleeds the margin of the first block(s) of body

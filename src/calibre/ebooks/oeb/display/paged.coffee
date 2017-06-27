@@ -192,6 +192,7 @@ class PagedDisplay
 
         fgcolor = body_style.getPropertyValue('color')
 
+        bs.setProperty('box-sizing', 'content-box')
         bs.setProperty('-webkit-column-gap', 2*sm + 'px')
         bs.setProperty('-webkit-column-width', col_width + 'px')
         bs.setProperty('-webkit-column-rule', '0px inset blue')
