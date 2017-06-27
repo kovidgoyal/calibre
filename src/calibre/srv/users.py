@@ -54,6 +54,8 @@ def validate_username(username):
 
 
 def validate_password(pw):
+    if not pw:
+        return _('Empty passwords are not allowed')
     try:
         pw = pw.encode('ascii', 'strict')
     except ValueError:
