@@ -72,7 +72,7 @@ def create_match_kind(self):
 
 def create_button_box(self):
     self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-    self.clear_button = bb.addButton(_('Clear'), QDialogButtonBox.ResetRole)
+    self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ResetRole)
     self.clear_button.clicked.connect(self.clear_button_pushed)
     bb.accepted.connect(self.accept)
     bb.rejected.connect(self.reject)
