@@ -1020,13 +1020,13 @@ class GridView(QListView):
         return super(GridView, self).selectionCommand(index, event)
 
     def wheelEvent(self, ev):
-        if ev.phase() not in (Qt.ScrollUpdate, 0):
-            # 0 is Qt.NoScrollPhase which is not yet available in PyQt
+        if ev.phase() not in (Qt.ScrollUpdate, Qt.NoScrollPhase):
             return
         number_of_pixels = ev.pixelDelta()
-        number_of_degrees = ev.angleDelta() / 8
+        number_of_degrees = ev.angleDelta() / 8.0
         b = self.verticalScrollBar()
-        if number_of_pixels.isNull():
+        if number_of_pixels.isNull() or islinux:
+            # pixelDelta() is broken on linux with wheel mice
             dy = number_of_degrees.y() / 15.0
             # Scroll by approximately half a row
             dy = int(math.ceil((dy) * b.singleStep() / 2.0))
