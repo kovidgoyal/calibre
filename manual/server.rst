@@ -240,16 +240,15 @@ Integrating the calibre Content server into other servers
 ------------------------------------------------------------
 
 Here, we will show you how to integrate the calibre Content server into another
-server. The most common reason for this is to make use of SSL. The basic
-technique is to run the calibre server and setup a reverse proxy to it from the
-main server.
+server. The most common reason for this is to make use of SSL or to serve the
+calibre library as part of a larger site. The basic technique is to run the
+calibre server and setup a reverse proxy to it from the main server.
 
 A reverse proxy is when your normal server accepts incoming requests and passes
 them onto the calibre server. It then reads the response from the calibre
 server and forwards it to the client. This means that you can simply run the
 calibre server as normal without trying to integrate it closely with your main
-server, and you can take advantage of whatever authentication systems your main
-server has in place. 
+server. 
 
 Using a full virtual host
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -311,14 +310,21 @@ For Apache, first enable the proxy modules in Apache, by adding the following to
     LoadModule proxy_module modules/mod_proxy.so
     LoadModule proxy_http_module modules/mod_proxy_http.so
 
-The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to httpd.conf (or if you are using virtual hosts to the conf file for the virtual host in question)::
+The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to :file:`httpd.conf` (or if you are using virtual hosts to the conf file for the virtual host in question)::
 
     RewriteEngine on
     RewriteRule ^/calibre/(.*) http://127.0.0.1:8080/calibre/$1 [proxy]
     RedirectMatch permanent ^/calibre$ /calibre/
 
-That's all, you will now be able to access the calibre Content server under the /calibre URL in your main server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
+That's all, you will now be able to access the calibre Content server under the ``/calibre`` URL in your main server. The above rules pass all requests under ``/calibre`` to the calibre server running on port 8080 and thanks to the ``--url-prefix`` option above, the calibre server handles them transparently.
 
+
+.. note::
+
+    When using a reverse proxy, you should tell the calibre Content server to
+    only listen on localhost, by using ``--listen-on 127.0.0.1``. That way,
+    the server will only listen for connections coming from the same computer,
+    i.e. from the reverse proxy.
 
 .. note:: 
 
