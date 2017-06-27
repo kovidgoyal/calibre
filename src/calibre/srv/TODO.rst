@@ -25,5 +25,7 @@ New features for the server generally
 
 - Add more book list visualizations and/or a customizable visualization
 
+- Automatic Let's Encrypt integration so that using HTTPS is easier
+
 Bug fixes
 --------------
