@@ -5,16 +5,17 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from ajax import ajax_send
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
 from book_list.library_data import last_virtual_library_for, sync_library_books
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
-from dom import add_extra_css, build_rule, ensure_id
+from dom import add_extra_css, build_rule, clear, ensure_id, unique_id, set_css
 from modals import create_custom_dialog
 from session import get_device_uuid, get_interface_data
-from utils import conditional_timeout, username_key, safe_set_inner_html
+from utils import conditional_timeout, safe_set_inner_html, username_key
 from widgets import create_button
 
 CLASS_NAME = 'home-page'
@@ -138,6 +139,64 @@ def show_recent():
     else:
         print(db.initialize_error_msg)
 
+# User account {{{
+
+def change_password():
+    interface_data = get_interface_data()
+    create_custom_dialog(_('Change password for: {}').format(interface_data.username), def(parent, close_modal):
+        ids = unique_id(), unique_id(), unique_id()
+        parent.appendChild(E.table(
+            E.tr(
+                E.td(E.label(_('Current password:') + '\xa0', for_=ids[0])), set_css(E.td(E.input(type='password'), id=ids[0]), padding_bottom='1.5ex')
+            ),
+            E.tr(
+                E.td(E.label(_('New password:') + '\xa0', for_=ids[1])), set_css(E.td(E.input(type='password'), id=ids[1]), padding_bottom='1.5ex')
+            ),
+            E.tr(
+                E.td(E.label(_('New password again:') + '\xa0', for_=ids[2])), set_css(E.td(E.input(type='password'), id=ids[2]), padding_bottom='1.5ex')
+            )
+        ))
+        parent.appendChild(E.div())
+
+        def show_msg(html, is_info):
+            msg = parent.firstChild.nextSibling
+            safe_set_inner_html(msg, html)
+            msg.style.color = 'red' if not is_info else 'currentColor'
+
+        def on_complete(end_type, xhr, ev):
+            if end_type is 'load':
+                clear(parent)
+                parent.appendChild(E.div(_(
+                    'Password successfully changed, you will be asked for the new password'
+                    ' the next time the browser has to contact the calibre server.')))
+                parent.appendChild(
+                    E.div(class_='button-box',
+                        create_button(_('OK'), None, close_modal),
+                ))
+                return
+            show_msg(_('Failed to change password, with error: {}').format(xhr.error_html))
+
+
+        def ok():
+            pws = parent.firstChild.getElementsByTagName('input')
+            oldpw, pw1, pw2 = pws[0].value, pws[1].value, pws[2].value
+            if pw1 is not pw2:
+                show_msg(_('The two new passwords do not match'))
+                return
+            if not pw1 or not oldpw:
+                show_msg(_('Empty passwords are not allowed'))
+                return
+            ajax_send('users/change-pw', {'oldpw': oldpw, 'newpw': pw1}, on_complete)
+            show_msg(_('Contacting server, please wait...'), True)
+            parent.lastChild.display = 'none'
+
+        parent.appendChild(
+            E.div(class_='button-box',
+                create_button(_('OK'), None, ok), '\xa0',
+                create_button(_('Cancel'), None, close_modal),
+            )
+        )
+    )
 
 def show_user_details():
     interface_data = get_interface_data()
@@ -149,11 +208,15 @@ def show_user_details():
             parent.appendChild(msg)
             parent.appendChild(
                 E.div(class_='button-box',
+                    create_button(_('Change password'), None, def():
+                        setTimeout(change_password, 0)
+                        close_modal()
+                    ), '\xa0',
                     create_button(_('Close'), None, close_modal),
                 )
             )
     )
-
+# }}}
 
 
 

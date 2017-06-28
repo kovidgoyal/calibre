@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
+
 from calibre import as_unicode
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden
 from calibre.srv.routes import endpoint
@@ -16,14 +18,17 @@ def change_pw(ctx, rd):
     if user is None:
         raise HTTPForbidden('Anonymous users are not allowed to change passwords')
     try:
-        pw = rd.request_body_file.read().decode('utf-8')
+        pw = json.loads(rd.request_body_file.read())
+        oldpw, newpw = pw['oldpw'], pw['newpw']
     except Exception:
         raise HTTPBadRequest('No decodable password found')
-    err = validate_password(pw)
+    if oldpw != ctx.user_manager.get(user):
+        raise HTTPBadRequest(_('Existing password is incorrect'))
+    err = validate_password(newpw)
     if err:
         raise HTTPBadRequest(err)
     try:
-        ctx.user_manager.change_password(user, pw)
+        ctx.user_manager.change_password(user, newpw)
     except Exception as err:
         raise HTTPBadRequest(as_unicode(err))
     ctx.log.warn('Changed password for user', user)
