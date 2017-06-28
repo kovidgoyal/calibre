@@ -181,6 +181,7 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.virtual_library = QToolButton(self)
         x.setCursor(Qt.PointingHandCursor)
+        x.setPopupMode(x.InstantPopup)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
         x.setIcon(QIcon(I('lt.png')))

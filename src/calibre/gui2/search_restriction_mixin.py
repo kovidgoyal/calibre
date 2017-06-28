@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt5.Qt import (
-    Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
+    Qt, QMenu, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
     QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction, QTextBrowser)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
@@ -331,8 +331,9 @@ class SearchRestrictionMixin(object):
         self.search_based_vl = None
 
         self.virtual_library_menu = QMenu()
+        self.virtual_library.setMenu(self.virtual_library_menu)
+        self.virtual_library_menu.aboutToShow.connect(self.virtual_library_menu_about_to_show)
 
-        self.virtual_library.clicked.connect(self.virtual_library_clicked)
         self.clear_vl.clicked.connect(lambda x: (self.apply_virtual_library(), self.clear_additional_restriction()))
 
         self.virtual_library_tooltip = \
@@ -364,7 +365,7 @@ class SearchRestrictionMixin(object):
                 self.apply_virtual_library(cd.library_name)
             self.rebuild_vl_tabs()
 
-    def virtual_library_clicked(self):
+    def virtual_library_menu_about_to_show(self):
         m = self.virtual_library_menu
         m.clear()
 
@@ -419,9 +420,6 @@ class SearchRestrictionMixin(object):
         for vl in sorted(virt_libs.keys(), key=sort_key):
             a = m.addAction(self.checked if vl == current_lib else self.empty, vl.replace('&', '&&'))
             a.triggered.connect(partial(self.apply_virtual_library, library=vl))
-
-        p = QPoint(0, self.virtual_library.height())
-        self.virtual_library_menu.popup(self.virtual_library.mapToGlobal(p))
 
     def rebuild_vl_tabs(self):
         self.vl_tabs.rebuild()
