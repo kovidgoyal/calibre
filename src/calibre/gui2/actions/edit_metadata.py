@@ -346,7 +346,7 @@ class EditMetadataAction(InterfaceAction):
         current = self.gui.library_view.currentIndex()
         self.gui.refresh_cover_browser()
         m.current_changed(current, previous or current)
-        self.gui.tags_view.recount()
+        self.gui.tags_view.recount_with_position_based_index()
 
     def do_edit_metadata(self, row_list, current_row, editing_multiple):
         from calibre.gui2.metadata.single import edit_metadata

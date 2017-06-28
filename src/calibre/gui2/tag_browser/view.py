@@ -769,6 +769,10 @@ class TagsView(QTreeView):  # {{{
             idx = idx.parent()
         return self.isExpanded(idx)
 
+    def recount_with_position_based_index(self):
+        self._model.use_position_based_index_on_next_recount = True
+        self.recount()
+
     def recount(self, *args):
         '''
         Rebuild the category tree, expand any categories that were expanded,
