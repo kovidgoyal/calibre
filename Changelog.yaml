@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.2.0
+- version: 3.2.1
   date: 2017-06-29
 
   new features:
@@ -30,6 +30,8 @@
     - title: "macOS: Add headless support: calibre command-line utilities can now run on macOS machines without a screen"
 
   bug fixes:
+    - title: "3.2.1 has a fix for an issue that broke mouse wheel scrolling in the cover grid view"
+
     - title: "Viewer: Fix incorrect display of pages in paged mode for books that override the box-sizing CSS property on the <body> element."
       tickets: [1700109]
 
