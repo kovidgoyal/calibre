@@ -425,8 +425,8 @@ class NYTimes(BasicNewsRecipe):
             # Origin: https://myaccount.nytimes.com
             # Referer: https://myaccount.nytimes.com/auth/login
             # Payload:
-            # auth_token: "H4sIAAAAAAAAAw3LQQqDMBBG4btk7cLJxKbjZST5ZwQpGEkUWmzv3my/x7tdtXaUvdlyfg5zs0Mpr83c0INu1XAuV926d7H30aW5mYI82XvhaXB7uXb0UZjD76uTInFSRCKf05gMPvIqijHALECyRE2RRs9A9jIRkyE+xEx1xR+mstBMkAAAAA=="
-            # captcha_result: "03AEHxwuxyNRK8s99A7rMvZOvWGfXUuy9HqbRfC0uSREKhf6lpR5eL0I6hp-PHBN8wshkxSU4piWvyD7n7xESxnwidq19esqPvWiTV7oTUGDkqFltTbq9Dk4xjAaZ7nczevNJR_xeG8tZhF72_EmwL_AGCR83a8aylDXzX7e_PDzh9JC9wA03rEVn66Q7uY29NGUOQd0Ux8frNelwCYKfUJaIdYCjzBnaCCQwp6mufm7rWVdQxX2Togq2-g6MKdpjpyXqjCQxFzYaX1Jcm5XS4bcVlB7F_tt5W-6FqfxsEqGUPhH1QTc8LEb8aRJ39QCMUNWGQ3Uz96ZK1LYOODwM9hv0wNecjUkl7fzdzikHC-o5m1Dg3pzaNlb1vQeejkNzt03QLk7CxhgisnbR-LmClpl-6BULP4un0HVvt0YkgY08osSYDEBVfT2I"
+            # auth_token: "H4sIAAAAAAAAAw3LQQqDMBBG4btk7cLJxKbjZST5ZwQpGEkUWmzv3my/x7tdtXaUvdlyfg5zs0Mpr83c0INu1XAuV926d7H30aW5mYI82XvhaXB7uXb0UZjD76uTInFSRCKf05gMPvIqijHALECyRE2RRs9A9jIRkyE+xEx1xR+mstBMkAAAAA=="  # noqa
+            # captcha_result: "03AEHxwuxyNRK8s99A7rMvZOvWGfXUuy9HqbRfC0uSREKhf6lpR5eL0I6hp-PHBN8wshkxSU4piWvyD7n7xESxnwidq19esqPvWiTV7oTUGDkqFltTbq9Dk4xjAaZ7nczevNJR_xeG8tZhF72_EmwL_AGCR83a8aylDXzX7e_PDzh9JC9wA03rEVn66Q7uY29NGUOQd0Ux8frNelwCYKfUJaIdYCjzBnaCCQwp6mufm7rWVdQxX2Togq2-g6MKdpjpyXqjCQxFzYaX1Jcm5XS4bcVlB7F_tt5W-6FqfxsEqGUPhH1QTc8LEb8aRJ39QCMUNWGQ3Uz96ZK1LYOODwM9hv0wNecjUkl7fzdzikHC-o5m1Dg3pzaNlb1vQeejkNzt03QLk7CxhgisnbR-LmClpl-6BULP4un0HVvt0YkgY08osSYDEBVfT2I"  # noqa
             # password : "asdasd"
             # remember_me : "Y"
             # username : "sdasd"
