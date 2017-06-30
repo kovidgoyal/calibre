@@ -218,7 +218,10 @@ else:
                 pmap = ic.pixmap(48, 48)
                 if not pmap.isNull():
                     entry['icon_data'] = pixmap_to_data(pmap)
-        entry['MimeType'] = tuple(entry['MimeType'])
+        try:
+            entry['MimeType'] = tuple(entry['MimeType'])
+        except KeyError:
+            entry['MimeType'] = ()
         return entry
 # }}}
 
