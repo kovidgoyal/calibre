@@ -113,7 +113,7 @@ libraries that the main calibre program knows about will be used.
             '--daemonize',
             default=False,
             action='store_true',
-            help=_('Run process in background as a daemon.'))
+            help=_('Run process in background as a daemon (Linux only).'))
     parser.add_option(
         '--pidfile', default=None, help=_('Write process PID to the specified file'))
     parser.add_option(
