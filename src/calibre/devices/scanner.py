@@ -19,22 +19,18 @@ if iswindows:
     drive_ok_lock = Lock()
 
     def drive_is_ok(letter, max_tries=10, debug=False):
-        import win32api, win32file
+        import win32file
         with drive_ok_lock:
-            oldError = win32api.SetErrorMode(1)  # SEM_FAILCRITICALERRORS = 1
-            try:
-                for i in xrange(max_tries):
-                    try:
-                        win32file.GetDiskFreeSpaceEx(letter+':\\')
-                        return True
-                    except Exception as e:
-                        if i >= max_tries - 1 and debug:
-                            prints('Unable to get free space for drive:', letter)
-                            prints(as_unicode(e))
-                        time.sleep(0.2)
-                return False
-            finally:
-                win32api.SetErrorMode(oldError)
+            for i in xrange(max_tries):
+                try:
+                    win32file.GetDiskFreeSpaceEx(letter+':\\')
+                    return True
+                except Exception as e:
+                    if i >= max_tries - 1 and debug:
+                        prints('Unable to get free space for drive:', letter)
+                        prints(as_unicode(e))
+                    time.sleep(0.2)
+            return False
 
 _USBDevice = namedtuple('USBDevice',
     'vendor_id product_id bcd manufacturer product serial')
@@ -299,6 +295,7 @@ def test_for_mem_leak():
 def main(args=sys.argv):
     test_for_mem_leak()
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
