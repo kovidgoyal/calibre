@@ -1,4 +1,3 @@
-
 __license__ = 'GPL v3'
 __copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -25,44 +24,75 @@ class TimesOnline(BasicNewsRecipe):
     publication_type = 'newspaper'
     INDEX = 'http://www.thetimes.co.uk/'
     PREFIX = u'http://www.thetimes.co.uk/'
-    extra_css             = """
-                                .author-name,.authorName{font-style: italic}
-                                .published-date,.multi-position-photo-text{font-family: Arial,Helvetica,sans-serif;
-                                                                           font-size: small; color: gray;
-                                                                           display:block; margin-bottom: 0.5em}
-                                body{font-family: Georgia,"Times New Roman",Times,serif}
-                            """
+    extra_css = """
+        .author-name,.authorName{font-style: italic}
+        .published-date,.multi-position-photo-text{
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: small; color: gray;
+            display:block; margin-bottom: 0.5em}
+        body{font-family: Georgia,"Times New Roman",Times,serif}
+    """
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.thetimes.co.uk/')
         if self.username is not None and self.password is not None:
             data = urllib.urlencode({
-                'gotoUrl': self.INDEX, 'username': self.username, 'password': self.password
-            })
+                'gotoUrl': self.INDEX,
+                'username': self.username,
+                'password': self.password})
             br.open('https://login.thetimes.co.uk/', data)
         return br
 
-    remove_tags = [
-        {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']},
-        {'attrs': {'class': ['tools comments-parent','u-hide','Tooltip','Toolbar Toolbar--bottom',
-                             'Comments Article-container','ArticlePager','Media-caption','RelatedLinks']}},
-        {'attrs': {'class': lambda x: x and 'Toolbar' in x}}
-    ]
+    def get_cover_url(self):
+        from datetime import date
+        from datetime import timedelta
+        today = date.today()
+        today_index = today.weekday()
+        if (today_index == 5):  # new edition drops on Saturday AM
+            today += timedelta(1)
+        elif (today_index < 5):  # Mon-Thurs
+            today_index = (
+                today_index + 1
+            ) % 7  # Recalibrate to days back MON = 0, SUN = 6 -> SUN = 0 .. SAT = 6
+            today = today - timedelta(today_index)  # Rewind to most recent Sunday
+        cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1174' + today.strftime(
+            '%Y') + today.strftime('%m') + today.strftime(
+                '%d') + '00000000001001&page=1&scale=100'
+        self.log(cover)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    remove_tags = [{
+        'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
+            'attrs': {
+                'class': [
+                    'tools comments-parent', 'u-hide', 'Tooltip',
+                    'Toolbar Toolbar--bottom', 'Comments Article-container',
+                    'ArticlePager', 'Media-caption', 'RelatedLinks']}}, {
+                        'attrs': {
+                            'class': lambda x: x and 'Toolbar' in x}}]
     remove_attributes = ['lang']
     keep_only_tags = [
-        dict(attrs={'id': 'article-main'}
-             ), dict(attrs={'class': 'f-author'}), dict(attrs={'id': 'bodycopy'})
-    ]
+        dict(attrs={'id': 'article-main'}),
+        dict(attrs={'class': 'f-author'}),
+        dict(attrs={'id': 'bodycopy'})]
 
-    feeds = [
-    (u'The Sunday Times Magazine', u'http://www.thetimes.co.uk/magazine/the-sunday-times-magazine/'),
-    (u'Sunday Times Style', u'http://www.thetimes.co.uk/magazine/style/')
-    ]
+    feeds = [(
+        u'The Sunday Times Magazine',
+        u'http://www.thetimes.co.uk/magazine/the-sunday-times-magazine/'),
+             (u'Sunday Times Style', u'http://www.thetimes.co.uk/magazine/style/')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -74,17 +104,23 @@ class TimesOnline(BasicNewsRecipe):
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed') + ' %s...' %
-                                 (feedtitle if feedtitle else feedurl))
+            self.report_progress(
+                0,
+                _('Fetching feed') + ' %s...' %
+                (feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
             for atag in soup.findAll('a', href=True):
                 parentName = atag.parent.name
                 title = self.tag_to_string(atag).strip()
-                if (parentName == 'h2' or parentName == 'h3') and title is not None and title != '':
+                if (
+                    parentName == 'h2' or
+                    parentName == 'h3') and title is not None and title != '':
                     url = self.INDEX + atag['href']
                     articles.append({
-                        'title': title, 'date': '', 'url': url, 'description': ''
-                    })
+                        'title': title,
+                        'date': '',
+                        'url': url,
+                        'description': ''})
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
