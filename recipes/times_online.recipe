@@ -1,4 +1,3 @@
-
 __license__ = 'GPL v3'
 __copyright__ = '2010-2017, Bobby Steel <bob at xdca.com>, Darko Miletic'
 '''
@@ -12,7 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class TimesOnline(BasicNewsRecipe):
@@ -33,33 +33,46 @@ class TimesOnline(BasicNewsRecipe):
     publication_type = 'newspaper'
     INDEX = 'http://www.thetimes.co.uk/'
     PREFIX = u'http://www.thetimes.co.uk'
-    extra_css             = """
-                                .author-name,.authorName{font-style: italic}
-                                .published-date,.multi-position-photo-text{font-family: Arial,Helvetica,sans-serif;
-                                                                           font-size: small; color: gray;
-                                                                           display:block; margin-bottom: 0.5em}
-                                body{font-family: Georgia,"Times New Roman",Times,serif}
-                            """
+    extra_css = """
+        .author-name,.authorName{font-style: italic}
+        .published-date,.multi-position-photo-text{font-family: Arial,Helvetica,sans-serif;
+                                                    font-size: small; color: gray;
+                                                    display:block; margin-bottom: 0.5em}
+        body{font-family: Georgia,"Times New Roman",Times,serif}
+    """
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language}
 
     def get_cover_url(self):
         from datetime import date
-        cover = 'http://img.kiosko.net/' + str(
-            date.today().year) + '/' + date.today().strftime('%m') + '/' + date.today().strftime('%d') + '/uk/the_times.750.jpg'
+        today = date.today()
+        today_index = today.weekday()
+        if (today_index == 6):  # Special cover on Sundays
+            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime(
+                '%Y') + today.strftime('%m') + today.strftime(
+                    '%d') + '00000000001001&page=1&scale=99'
+            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime(
+                '%Y') + today.strftime('%m') + today.strftime(
+                    '%d') + '00000051001001&page=1&scale=99'
+            # on some days cover is iterated using format here for altcover
+        else:  # Mon-Thurs
+            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime(
+                '%Y') + today.strftime('%m') + today.strftime(
+                    '%d') + '00000000001001&page=1&scale=99'
+            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime(
+                '%Y') + today.strftime('%m') + today.strftime(
+                    '%d') + '00000051001001&page=1&scale=99'
+        self.log(cover)
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            index = 'http://en.kiosko.net/uk/np/the_times.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
+            cover = altcover
+            br.open(cover)
         return cover
 
     def get_browser(self):
@@ -67,30 +80,36 @@ class TimesOnline(BasicNewsRecipe):
         br.open('http://www.thetimes.co.uk/')
         if self.username is not None and self.password is not None:
             data = urllib.urlencode({
-                'gotoUrl': self.INDEX, 'username': self.username, 'password': self.password
-            })
+                'gotoUrl': self.INDEX,
+                'username': self.username,
+                'password': self.password})
             br.open('https://login.thetimes.co.uk/', data)
         return br
 
-    remove_tags = [
-        {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']},
-        {'attrs': {'class': ['tools comments-parent','u-hide','RelatedLinks','Tooltip','Toolbar Toolbar--bottom',
-            'Comments Article-container','ArticlePager','Media-caption']}},
-        {'attrs': {'class': lambda x: x and 'Toolbar' in x}}
-    ]
+    remove_tags = [{
+        'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
+            'attrs': {
+                'class': [
+                    'tools comments-parent', 'u-hide', 'RelatedLinks', 'Tooltip',
+                    'Toolbar Toolbar--bottom', 'Comments Article-container',
+                    'ArticlePager', 'Media-caption']}}, {
+                        'attrs': {
+                            'class': lambda x: x and 'Toolbar' in x}}]
     remove_attributes = ['lang']
-    keep_only_tags = [
-        {'attrs': {'id': ['article-main','bodycopy']}},
-        {'attrs': {'class': ['Article Article--default','f-author']}}
-    ]
+    keep_only_tags = [{
+        'attrs': {
+            'id': ['article-main', 'bodycopy']}}, {
+                'attrs': {
+                    'class': ['Article Article--default', 'f-author']}}]
     remove_tags_after = dict(attrs={'class': 'Article-content'})
 
-    feeds = [
-    (u'All News', u'http://www.thetimes.co.uk/')
-    ]
+    feeds = [(u'All News', u'http://www.thetimes.co.uk/')]
 
     def preprocess_raw_html(self, raw, url):
-        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding=unicode)
+        return html.tostring(
+            html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False),
+            method='html',
+            encoding=unicode)
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -117,8 +136,13 @@ class TimesOnline(BasicNewsRecipe):
                             if url.startswith('/'):
                                 url = 'http://www.thetimes.co.uk' + url
                             desc = title
-                            self.log('section: ', current_section, 'title: ', title, 'url: ', url, 'desc: ', desc, '\n')
-                            current_articles.append({'title': title, 'url': url, 'description': desc})
+                            self.log(
+                                'section: ', current_section, 'title: ', title,
+                                'url: ', url, 'desc: ', desc, '\n')
+                            current_articles.append({
+                                'title': title,
+                                'url': url,
+                                'description': desc})
                 if current_articles:
                     totalfeeds.append((current_section, current_articles))
         return totalfeeds
