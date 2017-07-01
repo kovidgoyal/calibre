@@ -47,19 +47,23 @@ class TimesOnline(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import date
-        cover = 'http://img.kiosko.net/' + str(
-            date.today().year) + '/' + date.today().strftime('%m') + '/' + date.today().strftime('%d') + '/uk/the_times.750.jpg'
+        from datetime import timedelta
+        today = date.today()
+        today_index = today.weekday()
+        if (today_index == 6): # Special cover on Sundays
+            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime('%Y') + today.strftime('%m') + today.strftime('%d') + '00000000001001&page=1&scale=99'
+            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime('%Y') + today.strftime('%m') + today.strftime('%d') + '00000051001001&page=1&scale=99'
+            # on some days cover is iterated using format here for altcover
+        else: # Mon-Thurs
+            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime('%Y') + today.strftime('%m') + today.strftime('%d') + '00000000001001&page=1&scale=99'
+            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime('%Y') + today.strftime('%m') + today.strftime('%d') + '00000051001001&page=1&scale=99'
+        self.log(cover)
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            index = 'http://en.kiosko.net/uk/np/the_times.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
+            cover = altcover
+            br.open(cover)
         return cover
 
     def get_browser(self):
