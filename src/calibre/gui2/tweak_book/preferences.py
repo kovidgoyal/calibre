@@ -725,7 +725,7 @@ class Preferences(QDialog):
         cl.item(0).setSelected(True)
         w, h = cl.sizeHintForColumn(0), 0
         for i in xrange(cl.count()):
-            h = max(h, cl.sizeHintForRow(i))
+            h = cl.sizeHintForRow(i)
             cl.item(i).setSizeHint(QSize(w, h))
 
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
