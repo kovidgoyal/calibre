@@ -52,7 +52,7 @@ def html(ctx, rd, endpoint, output):
     return ans
 
 
-def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
+def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):  # {{{
     div = E.div(id='search_box')
     form = E.form(_('Show '), method='get', action=ctx.url_for('/mobile'))
     form.set('accept-charset', 'UTF-8')
@@ -88,6 +88,9 @@ def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
             kwargs['SELECTED'] = 'SELECTED'
         order_select.append(E.option(option, **kwargs))
     form.append(order_select)
+
+    if library_id:
+        form.append(E.input(name='library_id', type='hidden', value=library_id))
 
     form.append(E.input(id='go', type='submit', value=_('Search')))
 
@@ -132,7 +135,7 @@ def build_choose_library(ctx, library_map):
 
 def build_index(rd, books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
     logo = E.div(E.img(src=ctx.url_for('/static', what='calibre.png'), alt=__appname__), id='logo')
-    search_box = build_search_box(num, search, sort, order, ctx, field_metadata)
+    search_box = build_search_box(num, search, sort, order, ctx, field_metadata, library_id)
     navigation = build_navigation(start, num, total, url_base)
     navigation2 = build_navigation(start, num, total, url_base)
     if library_map:
