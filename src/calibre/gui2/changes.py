@@ -37,10 +37,12 @@ def handle_changes(changes, gui=None):
     refresh_ids -= added | removed
     orig = gui.tags_view.disable_recounting, gui.disable_cover_browser_refresh
     gui.tags_view.disable_recounting = gui.disable_cover_browser_refresh = True
+    position_based_recount = True
     try:
         if added:
             gui.current_db.data.books_added(added)
             gui.iactions['Add Books'].refresh_gui(len(added), recount=False)
+            position_based_recount = False
         if removed:
             next_id = gui.current_view().next_id
             m = gui.library_view.model()
@@ -51,6 +53,7 @@ def handle_changes(changes, gui=None):
         if ss_changed:
             gui.saved_searches_changed(recount=False)
         gui.tags_view.disable_recounting = gui.disable_cover_browser_refresh = False
-        gui.tags_view.recount(), gui.refresh_cover_browser()
+        (gui.tags_view.recount_with_position_based_index if position_based_recount else gui.tags_view.recount)()
+        gui.refresh_cover_browser()
     finally:
         gui.tags_view.disable_recounting, gui.disable_cover_browser_refresh = orig
