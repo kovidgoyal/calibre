@@ -276,6 +276,7 @@ Or, for Apache::
 
     <VirtualHost *:80>
         ServerName myserver.example.com
+        AllowEncodedSlashes On
         ProxyPreserveHost On
         ProxyPass "/"  "http://localhost:8080"
     </VirtualHost>
@@ -312,6 +313,7 @@ For Apache, first enable the proxy modules in Apache, by adding the following to
 
 The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to :file:`httpd.conf` (or if you are using virtual hosts to the conf file for the virtual host in question)::
 
+    AllowEncodedSlashes On
     RewriteEngine on
     RewriteRule ^/calibre/(.*) http://127.0.0.1:8080/calibre/$1 [proxy]
     RedirectMatch permanent ^/calibre$ /calibre/
