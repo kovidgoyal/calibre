@@ -70,7 +70,7 @@ def download_and_decompress(url, dest, compression=None):
     for i in range(5):
         print('Downloading', url, '...')
         with NamedTemporaryFile() as f:
-            ret = subprocess.Popen(['curl', '-fSsL', url], stdout=f).wait()
+            ret = subprocess.Popen(['curl', '-fSL', url], stdout=f).wait()
             if ret == 0:
                 decompress(f.name, dest, compression)
                 return
