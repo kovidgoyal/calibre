@@ -76,9 +76,9 @@ class KINDLE(USBMS):
     VIRTUAL_BOOK_EXTENSIONS = frozenset({'kfx'})
     VIRTUAL_BOOK_EXTENSION_MESSAGE = _(
         'The following books are in KFX format. KFX is a virtual book format, and cannot'
-        ' be transferred from the device. Instead, you must go to your "Manage my'
-        ' content and devices" page on amazon.com and download the book to your computer from there.'
-        ' That will give you a regular azw3 file that you can add to calibre normally.'
+        ' be transferred from the device. Instead, you should go to your "Manage my'
+        ' content and devices" page on the Amazon homepage and download the book to your computer from there.'
+        ' That will give you a regular AZW3 file that you can add to calibre normally.'
         ' Click "Show details" to see the list of books.'
     )
 

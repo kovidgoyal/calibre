@@ -2025,7 +2025,7 @@
     - title: "A new tool to apply Tag mapper rules to existing books in the library. To use it, go to Preferences->Toolbars and add the tool to the toolbar"
 
     - title: "Kindle driver: Detect books in Amazon's new KFX format present on e-ink Kindle devices"
-      description: "Note that this only detects KFX books and allows you to delete them. You cannot copy them to your calibre library. Doing so would be pointless anyway, as KFX books are specialised for individual devices. Instead go to your 'Manage my content' page an Amazon.com and download them from there -- this will give you a regular AZW3 file you can add to calibre"
+      description: "Note that this only detects KFX books and allows you to delete them. You cannot copy them to your calibre library. Doing so would be pointless anyway, as KFX books are specialised for individual devices. Instead go to your 'Manage my content' page on Amazon.com and download them from there -- this will give you a regular AZW3 file you can add to calibre"
       tickets: [1496206]
 
   bug fixes:

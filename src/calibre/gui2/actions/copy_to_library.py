@@ -531,7 +531,7 @@ class CopyToLibraryAction(InterfaceAction):
                     _('Some books were automatically merged into existing '
                         'records in the target library. Click "Show '
                         'details" to see which ones. This behavior is '
-                        'controlled by the Automerge option in '
+                        'controlled by the Auto-merge option in '
                         'Preferences->Import/export->Adding books.'), det_msg=books,
                     show=True)
         if delete_after and self.worker.processed:

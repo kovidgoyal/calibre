@@ -149,21 +149,21 @@
        <item row="8" column="0">
         <widget class="QCheckBox" name="opt_add_formats_to_existing">
          <property name="toolTip">
-          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats automatically into
 existing book records. The box to the right controls what happens when an existing record already has
 the incoming format. Note that this option also affects the Copy to library action.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
          </property>
          <property name="text">
-          <string>&amp;Automerge added books if they already exist:</string>
+          <string>&amp;Auto-merge added books if they already exist:</string>
          </property>
         </widget>
        </item>
        <item row="8" column="1">
         <widget class="QComboBox" name="opt_automerge">
          <property name="toolTip">
-          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats automatically into
 existing book records. This box controls what happens when an existing record already has
 the incoming format: 
 
