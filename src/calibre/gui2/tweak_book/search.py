@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import copy
 import json
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from functools import partial
 
 from PyQt5.Qt import (
@@ -1315,6 +1315,10 @@ def get_search_function(state):
     return ans
 
 
+def get_search_name(state):
+    return state.get('name', state['find'])
+
+
 def initialize_search_request(state, action, current_editor, current_editor_name, searchable_names):
     editor = None
     where = state['where']
@@ -1384,6 +1388,8 @@ def run_search(
     if len(searches) > 1:
         errfind = _('the selected searches')
 
+    search_names = [get_search_name(search) for search in searches]
+
     try:
         searches = [(get_search_regex(search), get_search_function(search)) for search in searches]
     except InvalidRegex as e:
@@ -1451,24 +1457,29 @@ def run_search(
         return no_replace(_(
                 'Currently selected text does not match the search query.'))
 
-    def count_message(replaced, count, show_diff=False, show_dialog=True):
+    def count_message(replaced, count, show_diff=False, show_dialog=True, count_map=None):
         if show_dialog:
             if replaced:
                 msg = _('Performed the replacement at {num} occurrences of {query}')
             else:
                 msg = _('Found {num} occurrences of {query}')
             msg = msg.format(num=count, query=errfind)
+            det_msg = ''
+            if count_map is not None and count > 0 and len(count_map) > 1:
+                for k in sorted(count_map):
+                    det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
-                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
+                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False, det_msg=det_msg)
                 d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
                 b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
                 b.clicked.connect(partial(show_current_diff, allow_revert=True), type=Qt.QueuedConnection)
                 d.exec_()
             else:
-                info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True)
+                info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True, det_msg=det_msg)
 
     def do_all(replace=True):
         count = 0
+        count_map = Counter()
         if not files and editor is None:
             return 0
         lfiles = files or {current_editor_name:editor.syntax}
@@ -1481,7 +1492,7 @@ def run_search(
                 raw = current_container().raw_data(n)
             raw_data[n] = raw
 
-        for p, repl in searches:
+        for search_name, (p, repl) in zip(search_names, searches):
             repl_is_func = isinstance(repl, Function)
             file_iterator = lfiles
             if repl_is_func:
@@ -1500,6 +1511,7 @@ def run_search(
                 else:
                     num = len(p.findall(raw))
                 count += num
+                count_map[search_name] += num
             if repl_is_func:
                 repl.end()
                 show_function_debug_output(repl)
@@ -1512,7 +1524,7 @@ def run_search(
                 with current_container().open(n, 'wb') as f:
                     f.write(raw.encode('utf-8'))
         QApplication.restoreOverrideCursor()
-        count_message(replace, count, show_diff=replace)
+        count_message(replace, count, show_diff=replace, count_map=count_map)
         return count
 
     with BusyCursor():
