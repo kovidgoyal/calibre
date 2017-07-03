@@ -45,6 +45,7 @@ class TableItem(QTableWidgetItem):
             return self.sort_idx < other.sort_idx
         return 0
 
+
 IN_WIDGET_ITEMS = 0
 IN_WIDGET_BOOKS = 1
 IN_WIDGET_LOCK = 2
@@ -134,9 +135,9 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = self.view.model().db
         self.gui = gui
         self.is_closed = False
-        self.current_book_id = None # the db id of the book used to fill the lh pane
-        self.current_column = None  # current logical column in books list
-        self.current_key = None     # current lookup key in books list
+        self.current_book_id = None  # the db id of the book used to fill the lh pane
+        self.current_column = None   # current logical column in books list
+        self.current_key = None      # current lookup key in books list
         self.last_search = None
         self.no_valid_items = False
 
@@ -321,7 +322,6 @@ class Quickview(QDialog, Ui_Quickview):
             return
         if self.last_search is not None:
             self.gui.search.set_search_string(self.last_search)
-
 
     def book_was_changed(self, mi):
         '''
@@ -580,6 +580,7 @@ class Quickview(QDialog, Ui_Quickview):
         self._close()
         QDialog.reject(self)
 
+
 def get_qv_field_list(fm, use_defaults=False):
     from calibre.gui2.ui import get_gui
     db = get_gui().current_db
@@ -590,9 +591,7 @@ def get_qv_field_list(fm, use_defaults=False):
     fieldlist = list(src['qv_display_fields'])
     names = frozenset([x[0] for x in fieldlist])
     for field in fm.displayable_field_keys():
-        if (field != 'comments'
-                and fm[field]['datatype'] != 'comments'
-                and field not in names):
+        if (field != 'comments' and fm[field]['datatype'] != 'comments' and field not in names):
             fieldlist.append((field, False))
     available = frozenset(fm.displayable_field_keys())
     return [(f, d) for f, d in fieldlist if f in available]

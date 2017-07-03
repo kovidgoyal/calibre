@@ -211,6 +211,7 @@ class IdLinksEditor(Dialog):
             self.table.removeRow(r)
 # }}}
 
+
 class DisplayedFields(QAbstractListModel):  # {{{
 
     def __init__(self, db, parent=None):
@@ -387,7 +388,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('qv_dclick_changes_column', gprefs)
         r('qv_retkey_changes_column', gprefs)
         r('qv_show_on_startup', gprefs)
-
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
@@ -644,7 +644,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.update_font_display()
         self.display_model.restore_defaults()
-        self.qv_display_model.restore_defaults();
+        self.qv_display_model.restore_defaults()
         self.edit_rules.clear()
         self.icon_rules.clear()
         self.grid_rules.clear()
