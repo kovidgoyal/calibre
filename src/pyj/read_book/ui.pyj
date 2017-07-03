@@ -317,7 +317,7 @@ class ReadUI:
 
         for fname in files_left:
             if fname is not raster_cover_name:
-                start_download(fname, base_path + encodeURIComponent(fname))
+                start_download(fname, base_path + encodeURIComponent(fname).replace(/%2[fF]/, '/'))
 
     def ensure_maths(self, proceed):
         self.db.get_mathjax_info(def(mathjax_info):
