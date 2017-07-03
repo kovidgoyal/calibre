@@ -26,7 +26,7 @@ from calibre.constants import (
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.pool import Pool
 from calibre.db.legacy import LibraryDatabase
-from calibre.customize.ui import interface_actions, available_store_plugins
+from calibre.customize.ui import interface_actions, available_store_plugins, find_plugin
 from calibre.gui2 import (error_dialog, GetMetadata, open_url,
         gprefs, max_available_height, config, info_dialog, Dispatcher,
         question_dialog, warning_dialog)
@@ -427,6 +427,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
         self.save_layout_state()
+
+        if gprefs['qv_show_on_startup']:
+            qv = find_plugin('Show Quickview')
+            if qv is not None:
+                qv.actual_plugin_.show_quickview()
 
         # Collect cycles now
         gc.collect()

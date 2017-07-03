@@ -921,6 +921,15 @@ class BooksView(QTableView):  # {{{
                     sm = self.selectionModel()
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
 
+    def select_cell(self, row_number=0, logical_column=0):
+        if row_number > -1 and row_number < self.model().rowCount(QModelIndex()):
+            index = self.model().index(row_number, logical_column)
+            self.setCurrentIndex(index)
+            sm = self.selectionModel()
+            sm.select(index, sm.ClearAndSelect|sm.Rows)
+            sm.select(index, sm.Current)
+            self.clicked.emit(index)
+
     def row_at_top(self):
         pos = 0
         while pos < 100:

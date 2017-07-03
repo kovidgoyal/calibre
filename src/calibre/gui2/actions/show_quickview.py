@@ -56,11 +56,10 @@ class ShowQuickviewAction(InterfaceAction):
                   'on the device.')).exec_()
             return
         index = self.gui.library_view.currentIndex()
-        if index.isValid():
-            self.current_instance = Quickview(self.gui, index)
-            self.current_instance.reopen_quickview.connect(self.reopen_quickview)
-            self.set_search_shortcut()
-            self.current_instance.show()
+        self.current_instance = Quickview(self.gui, index)
+        self.current_instance.reopen_quickview.connect(self.reopen_quickview)
+        self.set_search_shortcut()
+        self.current_instance.show()
 
     def set_search_shortcut(self):
         if self.current_instance and not self.current_instance.is_closed:
@@ -72,6 +71,10 @@ class ShowQuickviewAction(InterfaceAction):
             self.current_instance.reject()
         self.current_instance = None
         self.show_quickview()
+
+    def refill_quickview(self):
+        if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.refill()
 
     def change_quickview_column(self, idx):
         self.show_quickview()

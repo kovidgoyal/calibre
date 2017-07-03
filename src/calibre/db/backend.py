@@ -471,6 +471,7 @@ class DB(object):
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False), ('languages', False),
         ]
+        defs['qv_display_fields'] = [('title', True), ('authors', True), ('series', True)]
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()

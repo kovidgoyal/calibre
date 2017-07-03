@@ -152,6 +152,10 @@ def create_defs():
     defs['hidpi'] = 'auto'
     defs['tag_browser_item_padding'] = 0.5
     defs['paste_isbn_prefixes'] = ['isbn', 'url', 'amazon', 'google']
+    defs['qv_respects_vls'] = True
+    defs['qv_dclick_changes_column'] = True
+    defs['qv_retkey_changes_column'] = True
+    defs['qv_show_on_startup'] = False
 
 
 create_defs()

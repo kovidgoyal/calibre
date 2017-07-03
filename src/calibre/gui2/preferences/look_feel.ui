@@ -1131,6 +1131,112 @@ them to all have the same width and height</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="quickview_tab">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>&amp;Quickview</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_122">
+       <item row="1" column="0" colspan="2">
+        <layout class="QGridLayout" name="gridLayout_122">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="opt_qv_respects_vls">
+           <property name="text">
+            <string>&amp;Apply virtual libraries in Quickview pane</string>
+           </property>
+           <property name="toolTip">
+            <string>Check this box to make Quickview show books only in the
+current virtual library. If unchecked, Quickview ignores virtual libraries.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="opt_qv_show_on_startup">
+           <property name="text">
+            <string>&amp;Show Quickview on startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
+           <property name="toolTip">
+            <string>Pressing return in a cell changes both the book and the
+column being examined (the left-hand pane)</string>
+           </property>
+           <property name="text">
+            <string>&amp;Pressing 'return' changes examined column</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="opt_qv_dclick_changes_column">
+           <property name="toolTip">
+            <string>Double-clicking in a cell changes both the book and the
+column being examined (the left-hand pane)</string>
+           </property>
+           <property name="text">
+            <string>&amp;Doubleclick changes examined column</string>
+           </property>
+          </widget>
+         </item>
+       </layout>
+       </item>
+       <item row="3" column="0" rowspan="2">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Select displayed columns</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_32">
+          <item row="0" column="1">
+           <widget class="QToolButton" name="qv_up_button">
+            <property name="toolTip">
+             <string>Move up</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QToolButton" name="qv_down_button">
+            <property name="toolTip">
+             <string>Move down</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" rowspan="3">
+           <widget class="QListView" name="qv_display_order">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>Quickview</string>
   </property>
-  <layout class="QGridLayout">
+  <layout class="QGridLayout" name="main_grid_layout">
    <item row="0" column="0">
     <widget class="QLabel" name="items_label">
      <property name="buddy">
@@ -63,6 +63,19 @@
    <item row="3" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QCheckBox" name="lock_qv">
        <property name="text">
         <string>&amp;Lock Quickview contents</string>
@@ -80,7 +93,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>0</width>
+         <width>20</width>
          <height>0</height>
         </size>
        </property>
@@ -144,6 +157,19 @@
         <bool>false</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
