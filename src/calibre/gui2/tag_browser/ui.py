@@ -436,8 +436,6 @@ class TagBrowserBar(QWidget):  # {{{
     def update_searchbar_state(self):
         find_shown = self.toggle_search_button.isChecked()
         self.toggle_search_button.setVisible(not find_shown)
-        self.search_button.setVisible(find_shown)
-        self.item_search.setVisible(find_shown)
         l = self.layout()
         items = [l.itemAt(i) for i in range(l.count())]
         tuple(map(l.removeItem, items))
