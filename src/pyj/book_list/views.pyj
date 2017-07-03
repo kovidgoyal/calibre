@@ -21,7 +21,7 @@ from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
     all_virtual_libraries, book_metadata, current_sorted_field,
     ensure_current_library_data, library_data, load_status, loaded_books_query,
-    thumbnail_cache, url_books_query
+    thumbnail_cache, url_books_query, add_more_books, current_book_ids
 )
 from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
@@ -113,7 +113,7 @@ def render_id(book_id):
 
 
 def render_ids(book_ids):
-    book_ids = book_ids or library_data.search_result.book_ids
+    book_ids = book_ids or current_book_ids()
     div = component('book_list')
     if div:
         for book_id in book_ids:
@@ -178,11 +178,9 @@ def got_more_books(end_type, xhr, event):
     if end_type is 'load':
         try:
             data = JSON.parse(xhr.responseText)
-            for key in data.metadata:
-                library_data.metadata[key] = data.metadata[key]
             if not data.search_result.book_ids:
                 raise Exception('No books ids object in search result from server')
-            library_data.search_result = data.search_result
+            add_more_books(data)
             render_ids(data.search_result.book_ids)
         except Exception:
             error_dialog(_('Could not get more books'), _('Server returned an invalid response'), traceback.format_exc())

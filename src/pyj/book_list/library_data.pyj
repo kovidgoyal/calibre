@@ -10,7 +10,7 @@ from utils import parse_url_params
 from book_list.globals import get_session_data
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
-library_data = {'metadata':{}}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]'}
 
 
 def current_library_id():
@@ -71,6 +71,7 @@ def update_library_data(data):
     load_status.loading = False
     load_status.ok = True
     load_status.error_html = None
+    library_data.previous_book_ids = v'[]'
     for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
@@ -80,6 +81,19 @@ def update_library_data(data):
     else:
         last_virtual_library_for.library_id = None
         last_virtual_library_for.vl = None
+
+
+def add_more_books(data):
+    for key in data.metadata:
+        library_data.metadata[key] = data.metadata[key]
+    sr = library_data.search_result
+    if sr and sr.book_ids and sr.book_ids.length > 0:
+        library_data.previous_book_ids = library_data.previous_book_ids.concat(sr.book_ids)
+    library_data.search_result = data.search_result
+
+
+def current_book_ids():
+    return library_data.previous_book_ids.concat(library_data.search_result.book_ids)
 
 
 def on_data_loaded(end_type, xhr, ev):
