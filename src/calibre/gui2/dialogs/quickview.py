@@ -108,6 +108,10 @@ class Quickview(QDialog, Ui_Quickview):
         Ui_Quickview.__init__(self)
         self.setupUi(self)
         self.isClosed = False
+        self.current_book = None
+
+        if self.is_pane:
+            self.main_grid_layout.setContentsMargins(0, 0, 0, 0)
 
         self.books_table_column_widths = None
         try:
@@ -130,19 +134,13 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = self.view.model().db
         self.gui = gui
         self.is_closed = False
-        self.current_book_id = None
-        self.current_key = None
+        self.current_book_id = None # the db id of the book used to fill the lh pane
+        self.current_column = None  # current logical column in books list
+        self.current_key = None     # current lookup key in books list
         self.last_search = None
-        self.current_column = None
-        self.current_item = None
         self.no_valid_items = False
 
-        column_positions = self.view.get_state()['column_positions']
-        column_order = ['title', 'authors',  'series']
-        column_order.sort(key=lambda col: column_positions[col])
-        self.title_column = column_order.index('title')
-        self.author_column = column_order.index('authors')
-        self.series_column = column_order.index('series')
+        self.fm = self.db.field_metadata
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
@@ -153,7 +151,6 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.installEventFilter(focus_filter)
 
         self.tab_pressed_signal.connect(self.tab_pressed)
-        # Set up the books table columns
         return_filter = BooksTableFilter(self.books_table)
         return_filter.return_pressed_signal.connect(self.return_pressed)
         self.books_table.installEventFilter(return_filter)
@@ -172,19 +169,16 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.books_table.setProperty('highlight_current_item', 150)
-        self.books_table.setColumnCount(3)
-        t = QTableWidgetItem(_('Title'))
-        self.books_table.setHorizontalHeaderItem(self.title_column, t)
-        t = QTableWidgetItem(_('Authors'))
-        self.books_table.setHorizontalHeaderItem(self.author_column, t)
-        t = QTableWidgetItem(ngettext("Series", 'Series', 1))
-        self.books_table.setHorizontalHeaderItem(self.series_column, t)
+
+        # Set up the books table columns
+        self.add_columns_to_widget()
+
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
         self.books_table.currentCellChanged.connect(self.books_table_cell_changed)
         self.books_table.cellClicked.connect(self.books_table_set_search_string)
         self.books_table.cellActivated.connect(self.books_table_set_search_string)
-        self.books_table.sortByColumn(self.title_column, Qt.AscendingOrder)
+        self.books_table.sortByColumn(0, Qt.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
         # resizeRowsToContents can word wrap long cell contents, creating
@@ -225,6 +219,25 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
 
+    def add_columns_to_widget(self):
+        '''
+        Get the list of columns from the preferences. Clear the current table
+        and add the current column set
+        '''
+        self.column_order = [x[0] for x in get_qv_field_list(self.fm) if x[1]]
+        self.books_table.clear()
+        self.books_table.setColumnCount(len(self.column_order))
+        for idx,col in enumerate(self.column_order):
+            t = QTableWidgetItem(self.fm[col]['name'])
+            self.books_table.setHorizontalHeaderItem(idx, t)
+
+    def refill(self):
+        '''
+            Refill the table in case the book data changes
+        '''
+        self.add_columns_to_widget()
+        self._refresh(self.current_book_id, self.current_key)
+
     def set_search_text(self, txt):
         if txt:
             self.search_button.setEnabled(True)
@@ -248,22 +261,39 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table_set_search_string(cur_row, cur_col)
 
     def books_table_set_search_string(self, current_row, current_col):
-        current = self.books_table.currentItem()
+        '''
+        Given the contents of a cell, compute a search string that will find
+        that book and any others with identical contents in the cell.
+        '''
+        current = self.books_table.item(current_row, current_col)
         if current is None:
             return
-        if current.column() == 0:
+        book_id = current.data(Qt.UserRole)
+
+        if current is None:
+            return
+        col = self.column_order[current.column()]
+        if col == 'title':
             self.set_search_text('title:="' + current.text().replace('"', '\\"') + '"')
-        elif current.column() == 1:
+        elif col == 'authors':
             authors = []
             for aut in [t.strip() for t in current.text().split('&')]:
                 authors.append('authors:="' + aut.replace('"', '\\"') + '"')
             self.set_search_text(' and '.join(authors))
-        else:
-            t = current.text().rpartition('[')[0].strip()
+        elif self.fm[col]['datatype'] == 'series':
+            mi = self.db.get_metadata(book_id, index_is_id=True, get_user_categories=False)
+            t = mi.get(col)
             if t:
-                self.set_search_text('series:="' + t.replace('"', '\\"') + '"')
+                self.set_search_text(col+ ':="' + t + '"')
             else:
                 self.set_search_text(None)
+        else:
+            if self.fm[col]['is_multiple']:
+                items = [(col + ':"=' + v.strip() + '"') for v in
+                         current.text().split(self.fm[col]['is_multiple']['ui_to_list'])]
+                self.set_search_text(' and '.join(items))
+            else:
+                self.set_search_text(col + ':"=' + current.text() + '"')
 
     def tab_pressed(self, in_widget, isForward):
         if isForward:
@@ -292,10 +322,13 @@ class Quickview(QDialog, Ui_Quickview):
         if self.last_search is not None:
             self.gui.search.set_search_string(self.last_search)
 
-    # Called when book information is changed in the library view. Make that
-    # book current. This means that prev and next in edit metadata will move
-    # the current book.
+
     def book_was_changed(self, mi):
+        '''
+        Called when book information is changed in the library view. Make that
+        book info current. This means that prev and next in edit metadata will move
+        the current book and change quickview
+        '''
         if self.is_closed or self.current_column is None:
             return
         # There is an ordering problem when libraries are changed. The library
@@ -305,7 +338,7 @@ class Quickview(QDialog, Ui_Quickview):
         # operation if we get an exception. The "close" will come
         # eventually.
         try:
-            self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
+            self._refresh(mi.get('id'), self.current_key)
         except:
             pass
 
@@ -316,21 +349,29 @@ class Quickview(QDialog, Ui_Quickview):
         self.fill_in_books_box(unicode(txt))
         self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
 
-    # Given a cell in the library view, display the information
     def refresh(self, idx):
+        '''
+        Given a cell in the library view, display the information. This method
+        converts the index into the lookup ken
+        '''
         if self.lock_qv.isChecked():
             return
 
         bv_row = idx.row()
         self.current_column = idx.column()
-        key = self.view.model().column_map[self.current_column]
+        key = self.view.column_map[self.current_column]
         book_id = self.view.model().id(bv_row)
-
         if self.current_book_id == book_id and self.current_key == key:
             return
+        self._refresh(book_id, key)
 
+    def _refresh(self, book_id, key):
+        '''
+        Actually fill in the left-hand pane from the information in the
+        selected column of the selected book
+        '''
         # Only show items for categories
-        if not self.db.field_metadata[key]['is_category']:
+        if key is None or not self.fm[key]['is_category']:
             if self.current_key is None:
                 self.indicate_no_items()
                 return
@@ -338,7 +379,7 @@ class Quickview(QDialog, Ui_Quickview):
         label_text = _('&Item: {0} ({1})')
         if self.is_pane:
             label_text = label_text.replace('&', '')
-        self.items_label.setText(label_text.format(self.db.field_metadata[key]['name'], key))
+        self.items_label.setText(label_text.format(self.fm[key]['name'], key))
 
         self.items.blockSignals(True)
         self.items.clear()
@@ -349,8 +390,11 @@ class Quickview(QDialog, Ui_Quickview):
 
         if vals:
             self.no_valid_items = False
-            if self.db.field_metadata[key]['datatype'] == 'rating':
-                vals = unicode(vals/2)
+            if self.fm[key]['datatype'] == 'rating':
+                if self.fm[key]['display'].get('allow_half_stars', False):
+                    vals = unicode(vals/2.0)
+                else:
+                    vals = unicode(vals/2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)
@@ -377,15 +421,20 @@ class Quickview(QDialog, Ui_Quickview):
                                    'to see the information for that book'))
 
     def fill_in_books_box(self, selected_item):
-        self.current_item = selected_item
+        '''
+        Given the selected row in the left-hand box, fill in the grid with
+        the books that contain that data.
+        '''
         # Do a bit of fix-up on the items so that the search works.
         if selected_item.startswith('.'):
             sv = '.' + selected_item
         else:
             sv = selected_item
         sv = self.current_key + ':"=' + sv.replace('"', r'\"') + '"'
-        books = self.db.search(sv, return_matches=True,
-                               sort_results=False)
+        if gprefs['qv_respects_vls']:
+            books = self.db.search(sv, return_matches=True, sort_results=False)
+        else:
+            books = self.db.new_api.search(sv)
 
         self.books_table.setRowCount(len(books))
         label_text = _('&Books with selected item "{0}": {1}')
@@ -395,28 +444,39 @@ class Quickview(QDialog, Ui_Quickview):
 
         select_item = None
         self.books_table.setSortingEnabled(False)
+        self.books_table.blockSignals(True)
         tt = ('<p>' +
-            _('Double-click on a book to change the selection in the library view. '
-               'Shift- or control-double-click to edit the metadata of a book') + '</p>')
+            _('Double-click on a book to change the selection in the library view or '
+              'change the column shown in the left-hand pane. '
+              'Shift- or control-double-click to edit the metadata of a book, '
+              'which also changes the selected book.'
+              ) + '</p>')
         for row, b in enumerate(books):
             mi = self.db.get_metadata(b, index_is_id=True, get_user_categories=False)
-            a = TableItem(mi.title, mi.title_sort)
-            a.setData(Qt.UserRole, b)
-            a.setToolTip(tt)
-            self.books_table.setItem(row, self.title_column, a)
-            if b == self.current_book_id:
-                select_item = a
-            a = TableItem(' & '.join(mi.authors), mi.author_sort)
-            a.setToolTip(tt)
-            self.books_table.setItem(row, self.author_column, a)
-            series = mi.format_field('series')[1]
-            if series is None:
-                series = ''
-            a = TableItem(series, mi.series, mi.series_index)
-            a.setToolTip(tt)
-            self.books_table.setItem(row, self.series_column, a)
-            self.books_table.setRowHeight(row, self.books_table_row_height)
+            for col in self.column_order:
+                if col == 'title':
+                    a = TableItem(mi.title, mi.title_sort)
+                    if b == self.current_book_id:
+                        select_item = a
+                elif col == 'authors':
+                    a = TableItem(' & '.join(mi.authors), mi.author_sort)
+                elif col == 'series':
+                    series = mi.format_field('series')[1]
+                    if series is None:
+                        series = ''
+                    a = TableItem(series, mi.series, mi.series_index)
+                elif self.fm[col]['datatype'] == 'series':
+                    v = mi.format_field(col)[1]
+                    a = TableItem(v, mi.get(col), mi.get(col+'_index'))
+                else:
+                    v = mi.format_field(col)[1]
+                    a = TableItem(v, v)
+                a.setData(Qt.UserRole, b)
+                a.setToolTip(tt)
+                self.books_table.setItem(row, self.key_to_table_widget_column(col), a)
+                self.books_table.setRowHeight(row, self.books_table_row_height)
 
+        self.books_table.blockSignals(False)
         self.books_table.setSortingEnabled(True)
         if select_item is not None:
             self.books_table.setCurrentItem(select_item)
@@ -445,22 +505,43 @@ class Quickview(QDialog, Ui_Quickview):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
 
+    def key_to_table_widget_column(self, key):
+        return self.column_order.index(key)
+
     def return_pressed(self):
-        self.select_book(self.books_table.currentRow())
+        row = self.books_table.currentRow()
+        if gprefs['qv_retkey_changes_column']:
+            self.select_book(row, self.books_table.currentColumn())
+        else:
+            self.select_book(row, self.key_to_table_widget_column(self.current_key))
 
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
-        self.select_book(row)
+        if gprefs['qv_dclick_changes_column']:
+            self.select_book(row, column)
+        else:
+            self.select_book(row, self.key_to_table_widget_column(self.current_key))
 
-    def select_book(self, row):
-        book_id = int(self.books_table.item(row, self.title_column).data(Qt.UserRole))
-        self.view.select_rows([book_id])
+    def select_book(self, row, column):
+        '''
+        row and column both refer the qv table. In particular, column is not
+        the logical column in the book list.
+        '''
+        item = self.books_table.item(row, column)
+        if item is None:
+            return
+        book_id = int(self.books_table.item(row, column).data(Qt.UserRole))
+        key = self.column_order[column]
         modifiers = int(QApplication.keyboardModifiers())
         if modifiers in (Qt.CTRL, Qt.SHIFT):
+            self.view.select_rows([book_id])
             em = find_plugin('Edit Metadata')
             if em is not None:
                 em.actual_plugin_.edit_metadata(None)
+        else:
+            self.view.select_cell(self.db.data.id_to_index(book_id),
+                                  self.view.column_map.index(key))
 
     def set_focus(self):
         self.items.setFocus(Qt.ActiveWindowFocusReason)
@@ -498,3 +579,20 @@ class Quickview(QDialog, Ui_Quickview):
         self.gui.library_view.setFocus(Qt.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)
+
+def get_qv_field_list(fm, use_defaults=False):
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db
+    if use_defaults:
+        src = db.prefs.defaults
+    else:
+        src = db.prefs
+    fieldlist = list(src['qv_display_fields'])
+    names = frozenset([x[0] for x in fieldlist])
+    for field in fm.displayable_field_keys():
+        if (field != 'comments'
+                and fm[field]['datatype'] != 'comments'
+                and field not in names):
+            fieldlist.append((field, False))
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]

@@ -164,7 +164,9 @@ class LibraryWidget(Splitter):  # {{{
         av.add_view('grid', parent.grid_view)
         parent.quickview_splitter.addWidget(stack)
 
-        quickview_widget.setLayout(QVBoxLayout())
+        l = QVBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        quickview_widget.setLayout(l)
         parent.quickview_splitter.addWidget(quickview_widget)
         parent.quickview_splitter.hide_quickview_widget()
 

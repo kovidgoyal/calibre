@@ -32,9 +32,11 @@ from calibre.utils.localization import (available_translations,
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
+from calibre.customize.ui import find_plugin
 
 
 class BusyCursor(object):
@@ -209,7 +211,6 @@ class IdLinksEditor(Dialog):
             self.table.removeRow(r)
 # }}}
 
-
 class DisplayedFields(QAbstractListModel):  # {{{
 
     def __init__(self, db, parent=None):
@@ -281,6 +282,25 @@ class DisplayedFields(QAbstractListModel):  # {{{
             self.dataChanged.emit(idx, idx)
             self.changed = True
             return idx
+
+# }}}
+
+
+class QVDisplayedFields(DisplayedFields):  # {{{
+
+    def __init__(self, db, parent=None):
+        DisplayedFields.__init__(self, db, parent)
+
+    def initialize(self, use_defaults=False):
+        self.beginResetModel()
+        self.fields = [[x[0], x[1]] for x in
+                get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
+        self.endResetModel()
+        self.changed = True
+
+    def commit(self):
+        if self.changed:
+            self.db.new_api.set_pref('qv_display_fields', self.fields)
 
 # }}}
 
@@ -363,6 +383,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_show_counts', gprefs)
         r('tag_browser_item_padding', gprefs)
 
+        r('qv_respects_vls', gprefs)
+        r('qv_dclick_changes_column', gprefs)
+        r('qv_retkey_changes_column', gprefs)
+        r('qv_show_on_startup', gprefs)
+
+
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
         r('cover_browser_title_template', db.prefs)
@@ -443,8 +469,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.field_display_order)
         self.display_model.dataChanged.connect(self.changed_signal)
         self.field_display_order.setModel(self.display_model)
-        self.df_up_button.clicked.connect(self.move_df_up)
-        self.df_down_button.clicked.connect(self.move_df_down)
+        self.df_up_button.clicked.connect(partial(self.move_field_up,
+                                  self.field_display_order, self.display_model))
+        self.df_down_button.clicked.connect(partial(self.move_field_down,
+                                  self.field_display_order, self.display_model))
+
+        self.qv_display_model = QVDisplayedFields(self.gui.current_db,
+                self.qv_display_order)
+        self.qv_display_model.dataChanged.connect(self.changed_signal)
+        self.qv_display_order.setModel(self.qv_display_model)
+        self.qv_up_button.clicked.connect(partial(self.move_field_up,
+                                  self.qv_display_order, self.qv_display_model))
+        self.qv_down_button.clicked.connect(partial(self.move_field_down,
+                                  self.qv_display_order, self.qv_display_model))
 
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
@@ -553,6 +590,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = font
         self.update_font_display()
         self.display_model.initialize()
+        self.qv_display_model.initialize()
         db = self.gui.current_db
         try:
             idx = self.gui.library_view.currentIndex().row()
@@ -606,6 +644,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.update_font_display()
         self.display_model.restore_defaults()
+        self.qv_display_model.restore_defaults();
         self.edit_rules.clear()
         self.icon_rules.clear()
         self.grid_rules.clear()
@@ -654,23 +693,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.font_display.setText(name +
                 ' [%dpt]'%fi.pointSize())
 
-    def move_df_up(self):
-        idx = self.field_display_order.currentIndex()
+    def move_field_up(self, widget, model):
+        idx = widget.currentIndex()
         if idx.isValid():
-            idx = self.display_model.move(idx, -1)
+            idx = model.move(idx, -1)
             if idx is not None:
-                sm = self.field_display_order.selectionModel()
+                sm = widget.selectionModel()
                 sm.select(idx, sm.ClearAndSelect)
-                self.field_display_order.setCurrentIndex(idx)
+                widget.setCurrentIndex(idx)
 
-    def move_df_down(self):
-        idx = self.field_display_order.currentIndex()
+    def move_field_down(self, widget, model):
+        idx = widget.currentIndex()
         if idx.isValid():
-            idx = self.display_model.move(idx, 1)
+            idx = model.move(idx, 1)
             if idx is not None:
-                sm = self.field_display_order.selectionModel()
+                sm = widget.selectionModel()
                 sm.select(idx, sm.ClearAndSelect)
-                self.field_display_order.setCurrentIndex(idx)
+                widget.setCurrentIndex(idx)
 
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)
@@ -693,6 +732,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 QApplication.setFont(self.font_display.font())
                 rr = True
             self.display_model.commit()
+            self.qv_display_model.commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
             self.grid_rules.commit(self.gui.current_db.prefs)
@@ -720,6 +760,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             getattr(gui, view + '_view').set_row_header_visibility()
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
+        qv = find_plugin('Show Quickview')
+        if qv is not None:
+            qv.actual_plugin_.refill_quickview()
 
 
 if __name__ == '__main__':
