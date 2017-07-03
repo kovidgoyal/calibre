@@ -101,6 +101,7 @@ class View:
         self.search_overlay = SearchOverlay(self)
         self.overlay = Overlay(self)
         self.src_doc = None
+        self.processing_spine_item_display = False
         self.iframe_ready = False
         self.pending_load = None
         self.encrypted_communications = False
@@ -363,6 +364,7 @@ class View:
     def show_name(self, name, initial_position=None):
         if self.currently_showing.loading:
             return
+        self.processing_spine_item_display = False
         sd = get_session_data()
         settings={
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
@@ -393,7 +395,9 @@ class View:
     def goto_bookpos(self, bookpos):
         cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
         if cfiname and internal_cfi:
-            pos = {}
+            # replace_history has to be true here otherwise forward does not
+            # work after back, as back uses goto_bookpos
+            pos = {'replace_history': True}
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
             self.show_name(name, initial_position=pos)
@@ -430,7 +434,8 @@ class View:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
     def on_update_cfi(self, data):
-        if self.overlay.is_visible or self.search_overlay.is_visible:
+        overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible
+        if overlay_shown or self.search_overlay.is_visible:
             # Chrome on Android stupidly resizes the viewport when the on
             # screen keyboard is displayed. This means that the push_state()
             # below causes the overlay to be closed, making it impossible to
@@ -483,6 +488,7 @@ class View:
         # We cannot encrypt this message because the resource data contains
         # Blob objects which do not survive encryption
         self.encrypted_communications = False
+        self.processing_spine_item_display = True
         self.send_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,
@@ -491,6 +497,7 @@ class View:
         self.encrypted_communications = True
 
     def on_content_loaded(self, data):
+        self.processing_spine_item_display = False
         self.hide_loading()
         frac = data.progress_frac or 0
         self.update_read_percent(frac)

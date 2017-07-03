@@ -250,7 +250,7 @@ class IframeBoss:
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
-            self.replace_history_on_next_cfi_update = ipos.replace_history
+            self.replace_history_on_next_cfi_update = ipos.replace_history or False
             if ipos.type is 'frac':
                 self.to_scroll_fraction(ipos.frac)
             elif ipos.type is 'anchor':
