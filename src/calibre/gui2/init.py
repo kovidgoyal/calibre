@@ -568,7 +568,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('sb', 'tb', 'cb', 'gv', 'bd', 'qv')
+            button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
         # }}}
 
         self.qv = find_plugin('Show Quickview')
