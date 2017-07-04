@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
-    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal,
-    QDialogButtonBox, QByteArray)
+    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -95,21 +94,22 @@ class WidgetTabFilter(QObject):
 
 class Quickview(QDialog, Ui_Quickview):
 
-    change_quickview_column = pyqtSignal(object)
-    reopen_quickview        = pyqtSignal()
-    tab_pressed_signal      = pyqtSignal(object, object)
+    reopen_after_dock_change = pyqtSignal()
+    tab_pressed_signal       = pyqtSignal(object, object)
+    quickview_closed         = pyqtSignal()
 
     def __init__(self, gui, row):
         self.is_pane = gprefs.get('quickview_is_pane', False)
 
         if not self.is_pane:
-            QDialog.__init__(self, gui, flags=Qt.Window)
+            QDialog.__init__(self, gui, flags=Qt.Widget)
         else:
             QDialog.__init__(self, gui)
         Ui_Quickview.__init__(self)
         self.setupUi(self)
         self.isClosed = False
         self.current_book = None
+        self.closed_by_button = False
 
         if self.is_pane:
             self.main_grid_layout.setContentsMargins(0, 0, 0, 0)
@@ -160,7 +160,7 @@ class Quickview(QDialog, Ui_Quickview):
         focus_filter.focus_entered_signal.connect(self.focus_entered)
         self.books_table.installEventFilter(focus_filter)
 
-        self.close_button = self.buttonBox.button(QDialogButtonBox.Close)
+        self.close_button.clicked.connect(self.close_button_clicked)
 
         self.tab_order_widgets = [self.items, self.books_table, self.lock_qv,
                           self.dock_button, self.search_button, self.close_button]
@@ -194,7 +194,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.refresh(row)
 
         self.view.clicked.connect(self.slave)
-        self.change_quickview_column.connect(self.slave)
+        self.view.selectionModel().currentColumnChanged.connect(self.column_slave)
         QCoreApplication.instance().aboutToQuit.connect(self.save_state)
         self.search_button.clicked.connect(self.do_search)
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
@@ -210,9 +210,8 @@ class Quickview(QDialog, Ui_Quickview):
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.search_button.setText(_('Search'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
+            self.close_button.setVisible(False)
         else:
-            self.close_button.setText(_('&Close'))
-            self.dock_button.setText(_('&Dock'))
             self.dock_button.setToolTip(_('Embed the quickview panel into the main calibre window'))
             self.dock_button.setIcon(QIcon(I('arrow-down.png')))
         self.set_focus()
@@ -314,7 +313,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def show_as_pane_changed(self):
         gprefs['quickview_is_pane'] = not gprefs.get('quickview_is_pane', False)
-        self.reopen_quickview.emit()
+        self.reopen_after_dock_change.emit()
 
     # search button
     def do_search(self):
@@ -544,10 +543,20 @@ class Quickview(QDialog, Ui_Quickview):
                                   self.view.column_map.index(key))
 
     def set_focus(self):
-        self.items.setFocus(Qt.ActiveWindowFocusReason)
+        self.activateWindow()
+        self.books_table.setFocus()
 
-    # called when a book is clicked on the library view
+    def column_slave(self, current):
+        '''
+        called when the column is changed on the booklist
+        '''
+        if gprefs['qv_follows_column']:
+            self.slave(current)
+
     def slave(self, current):
+        '''
+        called when a book is clicked on the library view
+        '''
         if self.is_closed:
             return
         self.refresh(current)
@@ -572,8 +581,17 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = self.view = self.gui = None
         self.is_closed = True
 
-    # called by the close button
+    def close_button_clicked(self):
+        self.closed_by_button = True
+        self.quickview_closed.emit()
+
     def reject(self):
+        if not self.closed_by_button:
+            self.close_button_clicked()
+        else:
+            self._reject()
+
+    def _reject(self):
         if self.is_pane:
             self.gui.quickview_splitter.hide_quickview_widget()
         self.gui.library_view.setFocus(Qt.ActiveWindowFocusReason)

@@ -155,7 +155,7 @@ def create_defs():
     defs['qv_respects_vls'] = True
     defs['qv_dclick_changes_column'] = True
     defs['qv_retkey_changes_column'] = True
-    defs['qv_show_on_startup'] = False
+    defs['qv_follows_column'] = False
 
 
 create_defs()

@@ -586,27 +586,37 @@ browser` you can change the number of covers displayed, and even have the
 Quickview
 ----------
 
-Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens a second window showing the list of books matching the value of interest.
-
-For example, assume you want to see a list of all the books with the same author of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key. A window will open with all the authors for that book on the left, and all the books by the selected author on the right. 
+Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc.) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens either a second window or a panel in the book list showing the list of books matching the value of interest. For example, assume you want to see a list of all the books with the one or more of the authors of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key or click the Quickview icon in the Layout section of the calibre window. A window or panel will open with all the authors for that book on the left, and all the books by the selected author on the right. 
 
 Some example Quickview usages: quickly seeing what other books:
-	- have some tag that is applied to the currently selected book,
+	- have some tag(s) applied to the currently selected book,
 	- are in the same series as the current book
 	- have the same values in a custom column as the current book
 	- are written by one of the same authors of the current book
+	- share values in a custom column
 
-without changing the contents of the library view.
+There are two choices for where the Quickview information appears:
 
-The Quickview window opens on top of the calibre window and will stay open until you explicitly close it. You can use Quickview and the calibre library view at the same time. For example, if in the calibre library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
+	1. It can open "undocked": on top of the calibre window and will stay open until you explicitly close it. 
+	2. It can open "docked": as a panel in the book list section of the calibre main window.
+	
+You can move the window from docked to undocked as desired using the "Dock/Undock" button.
 
-Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window (the left-hand pane) to show the items in the newly-selected book.
+The Quickview panel can be left open permanently, in which case it follows movements on the book list. For example, if you click in the calibre library view on a category column (tags, series, publisher, authors, etc.) for a book, the Quickview window contents will change to show you in the left-hand side panel the values in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side panel all the books in your library that use that value. Click on an different value in the left-hand panel to see the books with that different value. 
 
-Shift- (or Ctrl-) double-click on a book in the Quickview window to open the edit metadata dialog on that book in the calibre window.
+Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window (the left-hand panel) to show the items in the newly-selected book.
+
+``Shift-`` or ``Ctrl-`` double-click on a book in the Quickview window to open the edit metadata dialog on that book in the calibre window. The edited book will be Quickview'ed when you close the edit metadata dialog.
 
 You can see if a column can be Quickview'ed by hovering your mouse over the column heading and looking at the tooltip for that heading. You can also know by right-clicking on the column heading to see of the "Quickview" option is shown in the menu, in which case choosing that Quickview option is equivalent to pressing 'Q' in the current cell.
 
-Quickview respects the virtual library setting, showing only books in the current virtual library.
+Options (in :guilabel:`Preferences->Look & feel->Quickview`):
+
+	* Respect (or not) the current virtual library. If checked then Quickview shows only books in the current virtual library. Default: respect virtual libraries 
+	* Change the Quickview window contents when the column is changed on the book list using the cursor keys. Default: don't follow changes made with cursor keys 
+	* Change the column being "quickview'ed" when a cell in the Quickview window is double-clicked. Otherwise the book is changed but the column being examined is not. Default: change the column 
+	* Change the column being "quickview'ed" to the current column when the return key is pressed in the Quickview panel. Otherwise the book is changed but the column being examined is not. Default: change the column 
+	* Choose which columns are shown in the Quickview window/panel.
 
 .. raw:: html epub
     

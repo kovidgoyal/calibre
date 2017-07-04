@@ -149,11 +149,11 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Close</set>
+      <widget class="QPushButton" name="close_button">
+       <property name="text">
+        <string>&amp;Close</string>
        </property>
-       <property name="centerButtons">
+       <property name="autoDefault">
         <bool>false</bool>
        </property>
       </widget>
@@ -176,22 +176,4 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Quickview</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>297</x>
-     <y>217</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>234</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>
