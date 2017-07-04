@@ -289,7 +289,6 @@ class ManPages(Command):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         os.makedirs(dest)
-        self.info('\tCreating man pages in {}...'.format(dest))
         base = self.j(self.d(self.SRC), 'manual')
         languages = list(available_translations())
         languages = ['en'] + list(set(languages) - {'en', 'en_GB'})
@@ -304,6 +303,7 @@ class ManPages(Command):
                 ['calibre-debug', self.j(base, 'build.py'), '--', '--man-pages', l, dest],
                 '\n\n**************** Building translations for: %s' % l)
             )
+        self.info('\tCreating man pages in {} for {} languages...'.format(dest, len(jobs)))
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
