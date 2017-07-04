@@ -54,14 +54,14 @@ def get_image_properties(parent, XPath, get):
         ans['height'] = '%.3gpt' % height
 
     alt = None
+    title = None
     for docPr in XPath('./wp:docPr')(parent):
-        x = docPr.get('descr', None)
-        if x:
-            alt = x
+        alt = docPr.get('descr') or alt
+        title = docPr.get('title') or title
         if docPr.get('hidden', None) in {'true', 'on', '1'}:
             ans['display'] = 'none'
 
-    return ans, alt
+    return ans, alt, title
 
 
 def get_image_margins(elem):
@@ -197,7 +197,7 @@ class Images(object):
         self.all_images.add('images/' + name)
         return name
 
-    def pic_to_img(self, pic, alt, parent):
+    def pic_to_img(self, pic, alt, parent, title):
         XPath, get = self.namespace.XPath, self.namespace.get
         name = None
         link = None
@@ -214,7 +214,7 @@ class Images(object):
             name = pr.get('name', None)
             if name:
                 name = image_filename(name)
-            alt = pr.get('descr', None)
+            alt = pr.get('descr') or alt
             for a in XPath('descendant::a:blip[@r:embed or @r:link]')(pic):
                 rid = get(a, 'r:embed')
                 if not rid:
@@ -227,6 +227,8 @@ class Images(object):
                         continue
                     img = IMG(src='images/%s' % src)
                     img.set('alt', alt or 'Image')
+                    if title:
+                        img.set('title', title)
                     if link is not None:
                         self.links.append((img, link, self.rid_map))
                     return img
@@ -235,9 +237,9 @@ class Images(object):
         XPath, get = self.namespace.XPath, self.namespace.get
         # First process the inline pictures
         for inline in XPath('./wp:inline')(drawing):
-            style, alt = get_image_properties(inline, XPath, get)
+            style, alt, title = get_image_properties(inline, XPath, get)
             for pic in XPath('descendant::pic:pic')(inline):
-                ans = self.pic_to_img(pic, alt, inline)
+                ans = self.pic_to_img(pic, alt, inline, title)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
@@ -245,10 +247,10 @@ class Images(object):
 
         # Now process the floats
         for anchor in XPath('./wp:anchor')(drawing):
-            style, alt = get_image_properties(anchor, XPath, get)
+            style, alt, title = get_image_properties(anchor, XPath, get)
             self.get_float_properties(anchor, style, page)
             for pic in XPath('descendant::pic:pic')(anchor):
-                ans = self.pic_to_img(pic, alt, anchor)
+                ans = self.pic_to_img(pic, alt, anchor, title)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
