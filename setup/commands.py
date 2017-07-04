@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
-        'build', 'mathjax',
+        'build', 'mathjax', 'man_pages',
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
@@ -64,7 +64,7 @@ recent_uas = RecentUAs()
 rapydscript = RapydScript()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
-        Stage3, Stage4, Stage5, Publish, PublishBetas
+        Stage3, Stage4, Stage5, Publish, PublishBetas, ManPages
 manual = Manual()
 tag_release = TagRelease()
 stage1 = Stage1()
@@ -74,6 +74,7 @@ stage4 = Stage4()
 stage5 = Stage5()
 publish = Publish()
 publish_betas = PublishBetas()
+man_pages = ManPages()
 
 from setup.upload import (UploadUserManual, UploadDemo, UploadInstallers,
         UploadToServer, ReUpload)

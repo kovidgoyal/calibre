@@ -17,6 +17,8 @@ import sys, os, subprocess, shutil
 SPHINX_BUILD = 'sphinx-build2'
 
 j, d, a = os.path.join, os.path.dirname, os.path.abspath
+BASE = d(a(__file__))
+
 
 def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True):
     destdir = j(base, bdir)
@@ -29,10 +31,11 @@ def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True
         ans += ['-w', j(destdir, 'sphinx-build-warnings.txt')]
     if t:
         ans += ['-t', t]
-    ans += ['-d', j(base, 'doctrees'), '.', destdir]
+    ans += ['-d', j(base, 'doctrees'), BASE, destdir]
     print(' '.join(ans))
     subprocess.check_call(ans)
     return destdir
+
 
 def build_manual(language, base):
     sb = partial(sphinx_build, language, base)
@@ -41,6 +44,7 @@ def build_manual(language, base):
     latexdir = sb('mylatex', 'latex')
     pwd = os.getcwdu()
     os.chdir(latexdir)
+
     def run_cmd(cmd):
         p = subprocess.Popen(cmd, stdout=open(os.devnull, 'wb'), stdin=subprocess.PIPE)
         p.stdin.close()
@@ -63,6 +67,7 @@ def build_manual(language, base):
     from calibre.ebooks.oeb.polish.container import epub_to_azw3
     epub_to_azw3(epub_dest)
 
+
 def build_pot(base):
     cmd = [SPHINX_BUILD, '-b', 'gettext', '-t', 'online', '-t', 'gettext', '.', base]
     print (' '.join(cmd))
@@ -70,7 +75,13 @@ def build_pot(base):
     os.remove(j(base, 'generated.pot'))
     return base
 
+
+def build_man_pages(language, base):
+    sphinx_build(language, base, builder='man', bdir=language)
+
+
 if __name__ == '__main__':
+    import argparse
     os.chdir(d(a(__file__)))
     os.environ['__appname__'] = __appname__
     os.environ['__version__'] = __version__
@@ -81,12 +92,20 @@ if __name__ == '__main__':
             import json
             os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(open('locale/completed.json', 'rb')))
         sphinx_build(language, base, t='online', quiet=False)
+        print ('Manual built in', j(base, 'html'))
     else:
-        language, base  = sys.argv[1:]
+        p = argparse.ArgumentParser()
+        p.add_argument('language', help='The language to build for')
+        p.add_argument('base', help='The destination directory')
+        p.add_argument('--man-pages', default=False, action='store_true', help='Build man pages')
+        args = p.parse_args()
+        language, base = args.language, args.base
         if language == 'gettext':
             build_pot(base)
+        elif args.man_pages:
+            os.environ['CALIBRE_OVERRIDE_LANG'] = language
+            build_man_pages(language, base)
         else:
             os.environ['CALIBRE_OVERRIDE_LANG'] = language
             build_manual(language, base)
-    if language != 'gettext':
-        print ('Manual for', language, 'built in', j(base, 'html'))
+            print ('Manual for', language, 'built in', j(base, 'html'))
