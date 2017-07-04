@@ -110,5 +110,5 @@ if __name__ == '__main__':
             build_man_pages(language, base)
         else:
             os.environ['CALIBRE_OVERRIDE_LANG'] = language
-            build_manual(language, base, very_quiet=args.quiet)
+            build_manual(language, base)
             print ('Manual for', language, 'built in', j(base, 'html'))
