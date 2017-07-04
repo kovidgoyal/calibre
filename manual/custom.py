@@ -3,14 +3,13 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os, re, textwrap
+import os, re, textwrap
 from functools import partial
 import init_calibre
 del init_calibre
 
 from sphinx.util.console import bold
 
-sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder

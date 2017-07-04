@@ -1,4 +1,4 @@
-#!/usr/bin/env calibre-debug
+#!/usr/bin/env python2
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
@@ -6,18 +6,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import sys, os, subprocess, shutil
 import tempfile
 from functools import partial
 
-from calibre import __appname__, __version__
-from calibre.utils.icu import upper  # ensure encoding is set to utf-8
-del upper
-import sys, os, subprocess, shutil
-
-SPHINX_BUILD = 'sphinx-build2'
-
 j, d, a = os.path.join, os.path.dirname, os.path.abspath
 BASE = d(a(__file__))
+SPHINX_BUILD = 'sphinx-build2'
+
+sys.path.insert(0, d(BASE))
+from setup import __appname__, __version__
+del sys.path[0]
 
 
 def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True, very_quiet=False):

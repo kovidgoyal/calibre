@@ -15,11 +15,11 @@ import sys, os
 from datetime import date
 
 # If your extensions are in another directory, add it here.
-sys.path.append(os.path.abspath('.'))
-import init_calibre
-init_calibre
-from calibre.constants import __appname__, __version__
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(sys.path[-1]))
+from setup import __appname__, __version__
 import calibre.utils.localization as l  # Ensure calibre translations are installed
+del sys.path[0]
 del l
 import custom
 custom

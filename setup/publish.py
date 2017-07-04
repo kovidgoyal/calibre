@@ -208,8 +208,8 @@ class Manual(Command):
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         for language in languages:
             jobs.append(([
-                'calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'),
-                '--', language, self.j(tdir, language)
+                sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'),
+                language, self.j(tdir, language)
             ], '\n\n**************** Building translations for: %s' % language))
         self.info('Building manual for %d languages' % len(jobs))
         subprocess.check_call(jobs[0][0])
@@ -300,7 +300,7 @@ class ManPages(Command):
         jobs = []
         for l in languages:
             jobs.append((
-                ['calibre-debug', self.j(base, 'build.py'), '--', '--man-pages', l, dest],
+                [sys.executable, self.j(base, 'build.py'), '--man-pages', l, dest],
                 '\n\n**************** Building translations for: %s' % l)
             )
         self.info('\tCreating man pages in {} for {} languages...'.format(dest, len(jobs)))
