@@ -26,6 +26,8 @@ New features for the server generally
 - Add more book list visualizations and/or a customizable visualization
 
 - Automatic Let's Encrypt integration so that using HTTPS is easier
+  Should wait fo rthe acme v2 protocol endpoint:
+  https://letsencrypt.org/2017/06/14/acme-v2-api.html
 
 Bug fixes
 --------------
