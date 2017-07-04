@@ -239,7 +239,8 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
 
 
 def mark_options(raw):
-    raw = re.sub(r'(\s+)--(\s+)', ur'\1-\u200b-\2', raw)
+    if 'CALIBRE_BUILD_MAN_PAGES' not in os.environ:
+        raw = re.sub(r'(\s+)--(\s+)', ur'\1-\u200b-\2', raw)
 
     def sub(m):
         opt = m.group()

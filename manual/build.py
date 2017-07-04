@@ -77,6 +77,7 @@ def build_pot(base):
 
 
 def build_man_pages(language, base):
+    os.environ[b'CALIBRE_BUILD_MAN_PAGES'] = b'1'
     sphinx_build(language, base, builder='man', bdir=language)
 
 
