@@ -16,7 +16,8 @@ SPHINX_BUILD = 'sphinx-build2'
 
 sys.path.insert(0, d(BASE))
 from setup import __appname__, __version__
-del sys.path[0]
+from calibre.ebooks.oeb.polish.container import epub_to_azw3
+sys.path.remove(d(BASE))
 
 
 def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True, very_quiet=False):
@@ -65,7 +66,6 @@ def build_manual(language, base):
     pdf_dest = j(onlinedir, 'calibre.pdf')
     shutil.copyfile(j(epubdir, 'calibre.epub'), epub_dest)
     shutil.copyfile(j(latexdir, 'calibre.pdf'), pdf_dest)
-    from calibre.ebooks.oeb.polish.container import epub_to_azw3
     epub_to_azw3(epub_dest)
 
 
