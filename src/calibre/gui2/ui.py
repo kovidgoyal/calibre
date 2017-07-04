@@ -426,12 +426,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
-        self.save_layout_state()
 
-        if gprefs['qv_show_on_startup']:
-            qv = find_plugin('Show Quickview')
-            if qv is not None:
-                qv.actual_plugin_.show_quickview()
+        # Now that the gui is initialized we can restore the quickview state
+        # The same thing will be true for any action-based operation with a
+        # layout button
+        qv = find_plugin('Show Quickview')
+        if qv is not None:
+            qv.actual_plugin_.qv_button.restore_state()
+        self.save_layout_state()
 
         # Collect cycles now
         gc.collect()

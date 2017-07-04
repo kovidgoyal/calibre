@@ -387,7 +387,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('qv_respects_vls', gprefs)
         r('qv_dclick_changes_column', gprefs)
         r('qv_retkey_changes_column', gprefs)
-        r('qv_show_on_startup', gprefs)
+        r('qv_follows_column', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)

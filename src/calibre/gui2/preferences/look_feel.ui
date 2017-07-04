@@ -1142,25 +1142,30 @@ them to all have the same width and height</string>
       <layout class="QGridLayout" name="gridLayout_122">
        <item row="1" column="0" colspan="2">
         <layout class="QGridLayout" name="gridLayout_122">
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QCheckBox" name="opt_qv_respects_vls">
            <property name="text">
             <string>&amp;Apply virtual libraries in Quickview pane</string>
            </property>
            <property name="toolTip">
             <string>Check this box to make Quickview show books only in the
-current virtual library. If unchecked, Quickview ignores virtual libraries.</string>
+current virtual library. If unchecked, Quickview ignores virtual libraries. If
+unchecked then only row changes are taken into account.</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="opt_qv_show_on_startup">
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="opt_qv_follows_column">
            <property name="text">
-            <string>&amp;Show Quickview on startup</string>
+            <string>&amp;Change QV item when book list column changes</string>
+           </property>
+           <property name="toolTip">
+            <string>Check this box to make Quickview change the column being examined
+when the column in the book list is changed using the cursor arrow keys</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="1" column="0">
           <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
            <property name="toolTip">
             <string>Pressing return in a cell changes both the book and the
@@ -1171,7 +1176,7 @@ column being examined (the left-hand pane)</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="1" column="1">
           <widget class="QCheckBox" name="opt_qv_dclick_changes_column">
            <property name="toolTip">
             <string>Double-clicking in a cell changes both the book and the
