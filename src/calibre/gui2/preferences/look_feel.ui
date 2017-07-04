@@ -1134,7 +1134,7 @@ them to all have the same width and height</string>
      <widget class="QWidget" name="quickview_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
-        <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+        <normaloff>:/images/eye-quickview.png</normaloff>:/images/eye-quickview.png</iconset>
       </attribute>
       <attribute name="title">
        <string>&amp;Quickview</string>

@@ -16,7 +16,7 @@ from calibre.gui2 import error_dialog
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Show Quickview'
-    action_spec = (_('Show Quickview'), 'search.png', None, _('Q'))
+    action_spec = (_('Show Quickview'), 'eye-quickview.png', None, _('Q'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
