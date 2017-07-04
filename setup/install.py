@@ -44,6 +44,7 @@ sys.path = sys.path[1:]
 sys.exit(complete.main())
 '''
 
+
 class Develop(Command):
 
     description = textwrap.dedent('''\
@@ -265,6 +266,7 @@ class Install(Develop):
         self.info('\n\ncalibre successfully installed. You can start'
                 ' it by running the command calibre')
 
+
 class Sdist(Command):
 
     description = 'Create a source distribution'
@@ -310,6 +312,7 @@ class Sdist(Command):
                 if not os.path.exists(dest):
                     shutil.copy2(y, dest)
         shutil.copytree(self.j(tbase, 'manual'), self.j(tdir, 'translations', 'manual'))
+        self.add_man_pages(self.j(tdir, 'man-pages'))
 
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
@@ -319,9 +322,14 @@ class Sdist(Command):
             os.remove(self.a(self.DEST))
         subprocess.check_call(['xz', '-9', self.a(dest)])
 
+    def add_man_pages(self, dest):
+        from setup.commands import man_pages
+        man_pages.build_man_pages(dest)
+
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
+
 
 class Bootstrap(Command):
 
