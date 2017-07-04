@@ -283,16 +283,15 @@ class ManPages(Command):
         self.build_man_pages(opts.man_dir or 'man-pages', opts.compress_man_pages)
 
     def build_man_pages(self, dest, compress=False):
+        from calibre.utils.localization import available_translations
         dest = os.path.abspath(dest)
         if os.path.exists(dest):
             shutil.rmtree(dest)
         os.makedirs(dest)
         self.info('\tCreating man pages in {}...'.format(dest))
         base = self.j(self.d(self.SRC), 'manual')
-        languages = list(
-            json.load(open(self.j(base, 'locale', 'completed.json'), 'rb'))
-        )
-        languages = ['en'] + list(set(languages) - {'en'})
+        languages = list(available_translations())
+        languages = ['en'] + list(set(languages) - {'en', 'en_GB'})
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         try:
             os.makedirs(dest)
@@ -306,18 +305,20 @@ class ManPages(Command):
             )
         if not parallel_build(jobs, self.info, verbose=False):
             raise SystemExit(1)
-        shutil.rmtree(self.j(dest, 'doctrees'))
         cwd = os.getcwdu()
         os.chdir(dest)
         try:
-            for x in os.listdir('.'):
-                if x == 'en':
-                    os.rename(x, 'man1')
+            for x in tuple(os.listdir('.')):
+                if x in languages:
+                    if x == 'en':
+                        os.rename(x, 'man1')
+                    else:
+                        os.mkdir(self.j(x, 'man1'))
+                        for y in os.listdir(x):
+                            if y != 'man1':
+                                os.rename(self.j(x, y), self.j(x, 'man1', y))
                 else:
-                    os.mkdir(self.j(x, 'man1'))
-                    for y in os.listdir(x):
-                        if y != 'man1':
-                            os.rename(self.j(x, y), self.j(x, 'man1', y))
+                    shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
             if compress:
                 jobs = []
                 for dirpath, dirnames, filenames in os.walk('.'):
