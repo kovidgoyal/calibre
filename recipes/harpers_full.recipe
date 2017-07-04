@@ -56,7 +56,8 @@ class Harpers_full(BasicNewsRecipe):
     remove_attributes = ['xmlns']
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
+        # harpers ssl certificate is broken as of Jul 2017
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         br.open('https://harpers.org/')
         if self.username is not None and self.password is not None:
             tt = time.localtime() * 1000
