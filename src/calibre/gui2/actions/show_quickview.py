@@ -19,7 +19,7 @@ class QuickviewButton(LayoutButton):  # {{{
     def __init__(self, gui, quickview_manager):
         self.qv = quickview_manager
         qaction = quickview_manager.qaction
-        LayoutButton.__init__(self, I('eye-quickview.png'), _('Quickview'),
+        LayoutButton.__init__(self, I('quickview.png'), _('Quickview'),
                               parent=gui, shortcut=qaction.shortcut().toString())
         self.toggled.connect(self.update_state)
         self.action_toggle = qaction
@@ -47,7 +47,7 @@ class QuickviewButton(LayoutButton):  # {{{
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Show Quickview'
-    action_spec = (_('Show Quickview'), 'eye-quickview.png', None, _('Q'))
+    action_spec = (_('Show Quickview'), 'quickview.png', None, _('Q'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
