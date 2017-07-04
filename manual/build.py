@@ -20,13 +20,15 @@ j, d, a = os.path.join, os.path.dirname, os.path.abspath
 BASE = d(a(__file__))
 
 
-def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True):
+def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True, very_quiet=False):
     destdir = j(base, bdir)
     if not os.path.exists(destdir):
         os.makedirs(destdir)
     ans = [SPHINX_BUILD, '-D', ('language=' + language), '-b', builder]
     if quiet:
         ans.append('-q')
+    if very_quiet:
+        ans.append('-Q')
     if builder == 'html':
         ans += ['-w', j(destdir, 'sphinx-build-warnings.txt')]
     if t:
@@ -78,7 +80,7 @@ def build_pot(base):
 
 def build_man_pages(language, base):
     os.environ[b'CALIBRE_BUILD_MAN_PAGES'] = b'1'
-    sphinx_build(language, base, builder='man', bdir=language)
+    sphinx_build(language, base, builder='man', bdir=language, very_quiet=True)
 
 
 if __name__ == '__main__':
@@ -99,6 +101,7 @@ if __name__ == '__main__':
         p.add_argument('language', help='The language to build for')
         p.add_argument('base', help='The destination directory')
         p.add_argument('--man-pages', default=False, action='store_true', help='Build man pages')
+        p.add_argument('--quiet', default=False, action='store_true', help='Suppress warnings')
         args = p.parse_args()
         language, base = args.language, args.base
         if language == 'gettext':
@@ -108,5 +111,5 @@ if __name__ == '__main__':
             build_man_pages(language, base)
         else:
             os.environ['CALIBRE_OVERRIDE_LANG'] = language
-            build_manual(language, base)
+            build_manual(language, base, very_quiet=args.quiet)
             print ('Manual for', language, 'built in', j(base, 'html'))

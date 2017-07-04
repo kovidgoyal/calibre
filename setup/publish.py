@@ -212,7 +212,8 @@ class Manual(Command):
                 '--', language, self.j(tdir, language)
             ], '\n\n**************** Building translations for: %s' % language))
         self.info('Building manual for %d languages' % len(jobs))
-        if not parallel_build(jobs, self.info):
+        subprocess.check_call(jobs[0][0])
+        if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
         cwd = os.getcwdu()
         try:
@@ -303,7 +304,8 @@ class ManPages(Command):
                 ['calibre-debug', self.j(base, 'build.py'), '--', '--man-pages', l, dest],
                 '\n\n**************** Building translations for: %s' % l)
             )
-        if not parallel_build(jobs, self.info, verbose=False):
+        subprocess.check_call(jobs[0][0])
+        if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
         cwd = os.getcwdu()
         os.chdir(dest)
