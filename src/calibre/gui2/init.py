@@ -589,7 +589,9 @@ class LayoutMixin(object):  # {{{
             else:
                 if x == 'gv':
                     button = self.grid_view_button
-                elif x == 'qv' and self.qv:
+                elif x == 'qv':
+                    if self.qv is None:
+                        continue
                     button = self.qv.qv_button
                 else:
                     button = self.search_bar_button
