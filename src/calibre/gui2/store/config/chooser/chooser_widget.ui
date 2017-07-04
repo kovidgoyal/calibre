@@ -24,13 +24,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="adv_search_builder">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="HistoryLineEdit" name="query">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
