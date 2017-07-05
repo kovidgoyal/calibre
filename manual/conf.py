@@ -11,12 +11,13 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import sys, os, errno
 from datetime import date
 
 # If your extensions are in another directory, add it here.
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.dirname(sys.path[-1]))
+base = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(base)
+sys.path.insert(0, os.path.dirname(base))
 from setup import __appname__, __version__
 import calibre.utils.localization as l  # Ensure calibre translations are installed
 import custom
@@ -51,8 +52,19 @@ if tags.has('gettext'):  # noqa
 
 # The language
 language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
+
+
+def generated_langs():
+    try:
+        return os.listdir(os.path.join(base, 'generated'))
+    except EnvironmentError as e:
+        if e.errno != errno.ENOENT:
+            raise
+    return ()
+
+
 # ignore generated files in languages other than the language we are building for
-ge = {'generated/' + x for x in os.listdir('generated')} | {
+ge = {'generated/' + x for x in generated_langs()} | {
     'generated/' + x for x in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split()}
 ge.discard('generated/' + language)
 exclude_patterns += list(ge)
