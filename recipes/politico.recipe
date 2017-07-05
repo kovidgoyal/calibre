@@ -51,8 +51,6 @@ class Politico(BasicNewsRecipe):
             attrs={'class': lambda x: x and 'story-share' in x.split()}),
         dict(
             attrs={'class': lambda x: x and 'suggested' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'summary' in x.split()}),
     ]
 
     extra_css = '''
