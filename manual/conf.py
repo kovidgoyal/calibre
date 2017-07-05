@@ -19,9 +19,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(sys.path[-1]))
 from setup import __appname__, __version__
 import calibre.utils.localization as l  # Ensure calibre translations are installed
+import custom
 del sys.path[0]
 del l
-import custom
 custom
 # General configuration
 # ---------------------
