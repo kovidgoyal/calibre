@@ -644,7 +644,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
 
     Note: The calibre keyboard shortcuts do not require a modifier key (Command, Option, Control, etc.), unless specifically noted. You only need to press the letter key, e.g. E to edit.
 
-.. list-table:: Keyboard Shortcuts
+.. list-table:: Keyboard shortcuts for the main calibre program
     :widths: 10 100
     :header-rows: 1
 
