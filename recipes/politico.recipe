@@ -40,7 +40,19 @@ class Politico(BasicNewsRecipe):
     ]
     
     remove_tags = [
-        dict(name=['notags', 'embed', 'object', 'link', 'img']),
+        dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure']),
+        dict(
+            attrs={'class': lambda x: x and 'story-tools' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-continued' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-supplement' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-share' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'suggested' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'summary' in x.split()}),
     ]
 
     extra_css = '''
