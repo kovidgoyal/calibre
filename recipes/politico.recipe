@@ -35,6 +35,10 @@ class Politico(BasicNewsRecipe):
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
         description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
+    keep_only_tags = [
+        dict(name=['article']),
+    ]
+    
     remove_tags = [
         dict(name=['notags', 'embed', 'object', 'link', 'img']),
     ]
