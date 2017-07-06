@@ -18,6 +18,10 @@
     div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
 }
 
+div.body p, div.body dd, div.body li, div.body blockquote {
+    text-align: justify;
+}
+
 .float-left-img { float: left; margin-right: 1em; margin-bottom: 1em }
 
 .float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
