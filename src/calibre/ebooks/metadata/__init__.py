@@ -11,7 +11,7 @@ import os, sys, re
 
 from urlparse import urlparse
 
-from calibre import relpath, guess_type, remove_bracketed_text, prints
+from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 
 from calibre.utils.config_base import tweaks
 
@@ -57,8 +57,8 @@ def author_to_author_sort(author, method=None):
     if method == u'copy':
         return author
 
-    prefixes = set([y.lower() for y in tweaks['author_name_prefixes']])
-    prefixes |= set([y+u'.' for y in prefixes])
+    prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
+    prefixes |= {y+u'.' for y in prefixes}
     while True:
         if not tokens:
             return author
@@ -68,8 +68,8 @@ def author_to_author_sort(author, method=None):
         else:
             break
 
-    suffixes = set([y.lower() for y in tweaks['author_name_suffixes']])
-    suffixes |= set([y+u'.' for y in suffixes])
+    suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
+    suffixes |= {y+u'.' for y in suffixes}
 
     suffix = u''
     while True:
@@ -99,6 +99,7 @@ def author_to_author_sort(author, method=None):
 
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
+
 
 _title_pats = {}
 
@@ -132,6 +133,7 @@ def get_title_sort_pat(lang=None):
     _title_pats[lang] = ans
     return ans
 
+
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in
         range(0x2018, 0x201e)+[0x2032, 0x2033])
 
@@ -155,6 +157,7 @@ def title_sort(title, order=None, lang=None):
             if title[0] in _ignore_starts:
                 title = title[1:]
     return title.strip()
+
 
 coding = zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
