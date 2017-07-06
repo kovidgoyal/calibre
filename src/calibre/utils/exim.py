@@ -357,7 +357,11 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
                         raise
                     time.sleep(1)
                     shutil.rmtree(config_location)
-    os.rename(base_dir, config_location)
+    try:
+        os.rename(base_dir, config_location)
+    except EnvironmentError:
+        time.sleep(2)
+        os.rename(base_dir, config_location)
     from calibre.gui2 import gprefs
     gprefs.refresh()
 
@@ -419,6 +423,7 @@ def run_importer():
         k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries']}, progress1=cli_report, progress2=cli_report)
 
 # }}}
+
 
 if __name__ == '__main__':
     export(sys.argv[-1], progress1=print, progress2=print)
