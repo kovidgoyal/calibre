@@ -35,8 +35,22 @@ class Politico(BasicNewsRecipe):
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
         description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
+    keep_only_tags = [
+        dict(name=['article']),
+    ]
+    
     remove_tags = [
-        dict(name=['notags', 'embed', 'object', 'link', 'img']),
+        dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure']),
+        dict(
+            attrs={'class': lambda x: x and 'story-tools' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-continued' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-supplement' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'story-share' in x.split()}),
+        dict(
+            attrs={'class': lambda x: x and 'suggested' in x.split()}),
     ]
 
     extra_css = '''
@@ -70,19 +84,8 @@ class Politico(BasicNewsRecipe):
             del item['style']
         return soup
 
-    url_pat = re.compile(r'<a href="([^"]+print.*\.cfm[^"]+)"')
-
     def postprocess_html(self, soup, first):
 
         for tag in soup.findAll(name=['table', 'tr', 'td']):
             tag.name = 'div'
         return soup
-
-    def print_version(self, url):
-        raw = self.index_to_soup(url, raw=True)
-        try:
-            url = self.url_pat.search(raw).group(1)
-        except:
-            traceback.print_exc()
-            url = None
-        return url
