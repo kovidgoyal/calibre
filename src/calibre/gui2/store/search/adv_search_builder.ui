@@ -14,7 +14,7 @@
    <string>Advanced search</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -47,7 +47,7 @@
      </item>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="1" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -120,7 +120,7 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>But don&apos;t show entries that have...</string>
+          <string>But don't show entries that have...</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
@@ -160,19 +160,6 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
         <widget class="QDialogButtonBox" name="buttonBox">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -188,45 +175,156 @@
       <attribute name="title">
        <string>Titl&amp;e/author/price...</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>&amp;Title:</string>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
          </property>
-         <property name="buddy">
-          <cstring>title_box</cstring>
-         </property>
-        </widget>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Search only in specific fields:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>&amp;Title:</string>
+           </property>
+           <property name="buddy">
+            <cstring>title_box</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="EnLineEdit" name="title_box">
+           <property name="toolTip">
+            <string>Enter the title.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>&amp;Author:</string>
+           </property>
+           <property name="buddy">
+            <cstring>author_box</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="EnLineEdit" name="author_box"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="price_label">
+           <property name="text">
+            <string>&amp;Price:</string>
+           </property>
+           <property name="buddy">
+            <cstring>price_box</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="EnLineEdit" name="price_box"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>&amp;Format:</string>
+           </property>
+           <property name="buddy">
+            <cstring>format_box</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="format_box"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>DRM:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QComboBox" name="drm_combo">
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>true</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>false</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Download:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QComboBox" name="download_combo">
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>true</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>false</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Affiliate:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QComboBox" name="affiliate_combo">
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>true</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>false</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="1" column="2">
-        <widget class="EnLineEdit" name="title_box">
-         <property name="toolTip">
-          <string>Enter the title.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>&amp;Author:</string>
-         </property>
-         <property name="buddy">
-          <cstring>author_box</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="price_label">
-         <property name="text">
-          <string>&amp;Price:</string>
-         </property>
-         <property name="buddy">
-          <cstring>price_box</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0" colspan="3">
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QPushButton" name="clear_button">
@@ -244,139 +342,9 @@
          </item>
         </layout>
        </item>
-       <item row="8" column="2">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Search only in specific fields:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="EnLineEdit" name="author_box"/>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLineEdit" name="format_box"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>&amp;Format:</string>
-         </property>
-         <property name="buddy">
-          <cstring>format_box</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="EnLineEdit" name="price_box"/>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Affiliate:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="2">
-        <widget class="QComboBox" name="affiliate_combo">
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>true</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>false</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Download:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QComboBox" name="download_combo">
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>true</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>false</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>DRM:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="2">
-        <widget class="QComboBox" name="drm_combo">
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>true</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>false</string>
-          </property>
-         </item>
-        </widget>
-       </item>
       </layout>
      </widget>
     </widget>
-   </item>
-   <item row="1" column="1">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
@@ -403,7 +371,7 @@
   <tabstop>matchkind</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>
