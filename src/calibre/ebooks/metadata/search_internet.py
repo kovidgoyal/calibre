@@ -13,6 +13,8 @@ AUTHOR_SEARCHES = {
     'https://en.wikipedia.org/w/index.php?search={author}',
     'google':
     'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22',
+    'amzn':
+    'https://www.amazon.com/gp/search/ref=sr_adv_b/?search-alias=stripbooks&unfiltered=1&field-author={author}&field-dateop=During&sort=relevanceexprank'
 }
 
 BOOK_SEARCHES = {
