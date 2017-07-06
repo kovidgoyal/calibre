@@ -13,6 +13,7 @@ from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
 from calibre.gui2 import gprefs, warning_dialog, error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
+from calibre.utils.icu import primary_sort_key
 
 
 class FakeAction(object):
@@ -104,7 +105,13 @@ class AllModel(BaseModel):
         all = [x for x in all if x not in current] + [None]
         all = [self.name_to_action(x, self.gui) for x in all]
         all = [x for x in all if self.key not in x.dont_add_to]
-        all.sort()
+
+        def sk(ac):
+            try:
+                return primary_sort_key(ac.action_spec[0])
+            except Exception:
+                pass
+        all.sort(key=sk)
         return all
 
     def add(self, names):
@@ -360,6 +367,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Interface', 'Toolbar')
