@@ -638,21 +638,21 @@ def prepare_string_for_xml(raw, attribute=False):
 
 
 def isbytestring(obj):
-    return isinstance(obj, (str, bytes))
+    return isinstance(obj, bytes)
 
 
 def force_unicode(obj, enc=preferred_encoding):
     if isbytestring(obj):
         try:
             obj = obj.decode(enc)
-        except:
+        except Exception:
             try:
                 obj = obj.decode(filesystem_encoding if enc ==
                         preferred_encoding else preferred_encoding)
-            except:
+            except Exception:
                 try:
                     obj = obj.decode('utf-8')
-                except:
+                except Exception:
                     obj = repr(obj)
                     if isbytestring(obj):
                         obj = obj.decode('utf-8')
