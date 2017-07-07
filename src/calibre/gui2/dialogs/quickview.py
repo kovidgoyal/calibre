@@ -218,6 +218,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
+        self.gui.search.cleared.connect(self.indicate_no_items)
 
     def add_columns_to_widget(self):
         '''
@@ -418,6 +419,8 @@ class Quickview(QDialog, Ui_Quickview):
     def indicate_no_items(self):
         self.no_valid_items = True
         self.items.clear()
+        self.books_table.clear()
+        self.books_table.setRowCount(0)
         self.items.addItem(QListWidgetItem(_('**No items found**')))
         self.books_label.setText(_('Click in a column  in the library view '
                                    'to see the information for that book'))
