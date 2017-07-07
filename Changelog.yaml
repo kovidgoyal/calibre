@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title:
 
+- version: 3.3.0
+  date: 2017-07-07
+
+  new features:
+    - title: "Quickview panel: Allow opening and closing the panel via the Layout button in the bottom right corner."
+      details: "Also make various improvements to the panel's operation, see https://manual.calibre-ebook.com/gui.html#quickview"
+      tickets: [1701833]
+
+    - title: "Book details panel: Allow right clicking on author names to search for books by the author on Amazon."
+      tickets: [1702446]
+
+    - title: "Edit book: When doing a Replace/Count all with multiple searches add a 'Show details' button on the result dialog that shows the individual counts for each search."
+
+    - title: "Comments editor: Add a button to easily insert separators (i.e. <hr> tags) when editing comments"
+
+  bug fixes:
+    - title: "Browser viewer: Fix back/forward buttons not working correctly when clicking on links that lead to different internal files in the book."
+      tickets: [1700004]
+
+    - title: "Server: Fix using 'Show more books' button and then changing list mode setting causing resulting book list to be incomplete"
+
+    - title: "Server: Fix changing sort/search in the /mobile view only working with the default library."
+      tickets: [1701704]
+
+    - title: "DOCX Input: Fix alt and title attributes for some images not being preserved"
+
+    - title: "Amazon metadata download: Change the default source from Bing to Google as the Bing cache seems to be having trouble at the moment"
+
+    - title: "ISBNDB metadata download: Ignore SSL errors when contacting isbndb.com as they seem to have no intention of fixing their broken SSL certificate"
+
+    - title: "Conversion: Fix heuristics processing incorrectly removing some <br> tags."
+      tickets: [1205637]
+
+    - title: "Handle non-ASCII binary strings in the author_name_prefix/suffix tweaks."
+      tickets: [1701138]
+
+  improved recipes:
+    - Politico
+    - The Times
+    - The Sunday Times Magazine
+
 - version: 3.2.1
   date: 2017-06-29
 
