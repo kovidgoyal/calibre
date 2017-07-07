@@ -60,8 +60,9 @@ def parse_details_page(url, log, timeout, browser, domain):
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
                          resolve_entities=True)[0]
     if '<title>404 - ' in raw:
-        log.error('URL malformed: %r' % url)
-        return
+        raise ValueError('URL malformed: %r' % url)
+    if '>Could not find the requested document in the cache.<' in raw:
+        raise ValueError('No cached entry for %s found' % url)
 
     try:
         root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml',
@@ -1262,9 +1263,9 @@ class Amazon(Source):
         matches = []
         se = search_engines_module()
         server = self.server
-        if server in ('auto', 'bing'):
+        if server in ('bing',):
             urlproc, sfunc = se.bing_url_processor, se.bing_search
-        elif server == 'google':
+        elif server in ('auto', 'google'):
             urlproc, sfunc = se.google_url_processor, se.google_search
         elif server == 'wayback':
             urlproc, sfunc = se.wayback_url_processor, se.ddg_search
@@ -1486,12 +1487,6 @@ if __name__ == '__main__':  # tests {{{
              ]
         ),
 
-        (  # Sophisticated comment formatting
-            {'identifiers': {'isbn': '9781416580829'}},
-            [title_test('Angels & Demons - Movie Tie-In: A Novel',
-                        exact=True), authors_test(['Dan Brown'])]
-        ),
-
         (  # No specific problems
             {'identifiers': {'isbn': '0743273567'}},
             [title_test('The great gatsby', exact=True),
@@ -1636,5 +1631,4 @@ if __name__ == '__main__':  # tests {{{
 
     do_test('com')
     # do_test('de')
-
 # }}}
