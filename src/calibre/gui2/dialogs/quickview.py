@@ -356,13 +356,16 @@ class Quickview(QDialog, Ui_Quickview):
         if self.lock_qv.isChecked():
             return
 
-        bv_row = idx.row()
-        self.current_column = idx.column()
-        key = self.view.column_map[self.current_column]
-        book_id = self.view.model().id(bv_row)
-        if self.current_book_id == book_id and self.current_key == key:
-            return
-        self._refresh(book_id, key)
+        try:
+            bv_row = idx.row()
+            self.current_column = idx.column()
+            key = self.view.column_map[self.current_column]
+            book_id = self.view.model().id(bv_row)
+            if self.current_book_id == book_id and self.current_key == key:
+                return
+            self._refresh(book_id, key)
+        except:
+            self.indicate_no_items()
 
     def _refresh(self, book_id, key):
         '''
