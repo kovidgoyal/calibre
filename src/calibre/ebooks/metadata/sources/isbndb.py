@@ -29,6 +29,7 @@ class ISBNDB(Source):
     supports_gzip_transfer_encoding = True
     # Shortcut, since we have no cached cover URLS
     cached_cover_url_is_reliable = False
+    ignore_ssl_errors = True
 
     options = (
             Option('isbndb_key', 'string', None, _('IsbnDB key:'),

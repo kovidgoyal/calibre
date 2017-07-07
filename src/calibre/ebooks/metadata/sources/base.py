@@ -23,6 +23,7 @@ def create_log(ostream=None):
     log.outputs = [FileStream(ostream)]
     return log
 
+
 # Comparing Metadata objects for relevance {{{
 words = ("the", "a", "an", "of", "and")
 prefix_pat = re.compile(r'^(%s)\s+'%("|".join(words)))
@@ -216,6 +217,10 @@ class Source(Plugin):
     #: correctly first
     supports_gzip_transfer_encoding = False
 
+    #: Set this to True to ignore HTTPS certificate errors when connecting
+    #: to this source.
+    ignore_ssl_errors = False
+
     #: Cached cover URLs can sometimes be unreliable (i.e. the download could
     #: fail or the returned image could be bogus. If that is often the case
     #: with this source set to False
@@ -293,7 +298,7 @@ class Source(Plugin):
     @property
     def browser(self):
         if self._browser is None:
-            self._browser = browser(user_agent=self.user_agent)
+            self._browser = browser(user_agent=self.user_agent, verify_ssl_certificates=not self.ignore_ssl_errors)
             if self.supports_gzip_transfer_encoding:
                 self._browser.set_handle_gzip(True)
         return self._browser.clone_browser()
@@ -596,4 +601,3 @@ class Source(Plugin):
         pass
 
     # }}}
-
