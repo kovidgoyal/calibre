@@ -7,9 +7,6 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 politico.com
 '''
 
-import re
-import traceback
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -38,7 +35,7 @@ class Politico(BasicNewsRecipe):
     keep_only_tags = [
         dict(name=['article']),
     ]
-    
+
     remove_tags = [
         dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure']),
         dict(
