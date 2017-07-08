@@ -100,7 +100,7 @@ def html5_parse(data, max_nesting_depth=100):
         if isinstance(x.tag, basestring) and len(x) is 0:  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
-                raise ValueError('html5lib resulted in a tree with nesting'
+                raise ValueError('HTML 5 parsing resulted in a tree with nesting'
                         ' depth > %d'%max_nesting_depth)
     return data
 

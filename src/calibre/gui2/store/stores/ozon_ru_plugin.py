@@ -11,7 +11,6 @@ import urllib
 from contextlib import closing
 
 from PyQt5.Qt import QUrl
-import html5lib
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode
@@ -23,6 +22,17 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 shop_url = 'http://www.ozon.ru'
 
 
+def parse_html(raw):
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
+
+
 def search(query, max_results=15, timeout=60):
     url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % urllib.quote_plus(query)
 
@@ -31,7 +41,7 @@ def search(query, max_results=15, timeout=60):
 
     with closing(br.open(url, timeout=timeout)) as f:
         raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-        root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+        root = parse_html(raw)
         for tile in root.xpath('//*[@class="bShelfTile inline"]'):
             if counter <= 0:
                 break
@@ -73,6 +83,7 @@ def format_price_in_RUR(price):
     '''
     price = price.replace('\xa0', '').replace(',', '.').strip() + ' py6'
     return price
+
 
 if __name__ == '__main__':
     import sys

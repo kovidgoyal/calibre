@@ -23,9 +23,7 @@ from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_lo
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
 
-from html5lib.constants import cdataElements, rcdataElements
-
-cdata_tags = cdataElements | rcdataElements
+cdata_tags = frozenset(['title', 'textarea', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'noscript'])
 normal_pat = re.compile(r'[^<>&]+')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:-]+')

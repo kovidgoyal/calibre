@@ -13,7 +13,6 @@ from contextlib import closing
 from lxml import html
 from PyQt5.Qt import QUrl
 
-import html5lib
 from calibre import browser, url_slash_cleaner
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
@@ -23,7 +22,14 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def parse_html(raw):
-    return html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml')
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
 
 
 def search_google(query, max_results=10, timeout=60, write_html_to=None):
