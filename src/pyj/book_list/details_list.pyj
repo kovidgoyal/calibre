@@ -63,7 +63,7 @@ def on_img_load(img, load_type):
 
 
 def create_item(book_id, metadata, create_image, show_book_details):
-    authors = metadata.authors.join(' & ')
+    authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
     img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
     img.dataset.title, img.dataset.authors = metadata.title, authors
@@ -90,7 +90,7 @@ def create_item(book_id, metadata, create_image, show_book_details):
         class_='details-list-right',
             E.div(style='display:flex; justify-content: space-between; overflow: hidden',
             E.div(
-                E.b(metadata.title or _('Unknown')), E.br(), metadata.authors.join(' & '),
+                E.b(metadata.title or _('Unknown')), E.br(), authors,
             ),
             extra_data
         ),

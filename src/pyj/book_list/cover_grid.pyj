@@ -60,7 +60,7 @@ def on_img_load(img, load_type):
         set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
 def create_item(book_id, metadata, create_image, show_book_details):
-    authors = metadata.authors.join(' & ')
+    authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
     img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
     img.dataset.title, img.dataset.authors = metadata.title, authors

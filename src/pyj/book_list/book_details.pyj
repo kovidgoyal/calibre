@@ -403,10 +403,11 @@ def render_book(container_id, book_id):
         return
     metadata = book_metadata(book_id)
     set_title(c, metadata.title)
-    alt = _('{} by {}').format(metadata.title, metadata.authors.join(' & '))
+    authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
+    alt = _('{} by {}').format(metadata.title, authors)
     imgdiv = E.div(
         E.img(
-            alt=alt, title=alt, data_title=metadata.title, data_authors=metadata.authors.join(' & '),
+            alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
             style='border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
         ))
     )
@@ -592,7 +593,7 @@ def search_internet(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
     mi = book_metadata(render_book.book_id)
-    data = {'title':mi.title, 'author':mi.authors[0]}
+    data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
 
     def link_for(name, template):
         return E.a(name, class_='simple-link', href=url_for(template, data), target="_blank")

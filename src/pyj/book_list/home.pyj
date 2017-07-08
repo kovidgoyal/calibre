@@ -107,8 +107,9 @@ def show_recent_stage2(books):
         if username and to_sync.length < 10:
             lr = book.last_read[username_key(username)] or new Date(0)  # noqa: unused-local
             to_sync.push(v'[book.key, lr]')
+        authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
         img = E.img(
-            alt=_('{} by {}').format(book.metadata.title, book.metadata.authors.join(' & '))
+            alt=_('{} by {}').format(book.metadata.title, authors)
         )
         img_id = ensure_id(img)
         images.appendChild(E.div(style='margin: 0 1em',

@@ -55,8 +55,9 @@ def create_image(book_idx, max_width, max_height, on_load):
         on_load(this, 'load')
     book = book_list_data.book_data[book_idx]
     if book?.metadata:
+        authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
         img.setAttribute('alt', _('{} by {}').format(
-            book.metadata.title, book.metadata.authors.join(' & ')))
+            book.metadata.title, authors))
     if book?.cover_name:
         img_id = ensure_id(img, 'local-cover-')
         get_db().get_file(book, book.cover_name, show_cover.bind(img_id))
