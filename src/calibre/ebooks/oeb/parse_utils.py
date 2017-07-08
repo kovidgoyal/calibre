@@ -46,6 +46,7 @@ def xpath(elem, expr):
 def XPath(expr):
     return etree.XPath(expr, namespaces={'h':XHTML_NS})
 
+
 META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
 
 
@@ -90,24 +91,9 @@ def node_depth(node):
     return ans
 
 
-def fix_self_closing_cdata_tags(data):
-    from html5lib.constants import cdataElements, rcdataElements
-    return re.sub(r'<\s*(%s)\s*[^>]*/\s*>' % ('|'.join(cdataElements|rcdataElements)), r'<\1></\1>', data, flags=re.I)
-
-
 def html5_parse(data, max_nesting_depth=100):
-    import html5lib, warnings
-    # HTML5 parsing algorithm idiocy: http://code.google.com/p/html5lib/issues/detail?id=195
-    data = fix_self_closing_cdata_tags(data)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        try:
-            data = html5lib.parse(data, treebuilder='lxml').getroot()
-        except ValueError:
-            from calibre.utils.cleantext import clean_xml_chars
-            data = html5lib.parse(clean_xml_chars(data), treebuilder='lxml').getroot()
-
+    from html5_parser import parse
+    data = parse(data, maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
@@ -116,78 +102,7 @@ def html5_parse(data, max_nesting_depth=100):
             if depth > max_nesting_depth:
                 raise ValueError('html5lib resulted in a tree with nesting'
                         ' depth > %d'%max_nesting_depth)
-
-    # html5lib has the most inelegant handling of namespaces I have ever seen
-    # Try to reconstitute destroyed namespace info
-    xmlns_declaration = '{%s}'%XMLNS_NS
-    non_html5_namespaces = {}
-    seen_namespaces = set()
-    for elem in tuple(data.iter(tag=etree.Element)):
-        elem.attrib.pop('xmlns', None)
-        # Set lang correctly
-        xl = elem.attrib.pop('xmlU0003Alang', None)
-        if xl is not None and 'lang' not in elem.attrib:
-            elem.attrib['lang'] = xl
-        namespaces = {}
-        for x in tuple(elem.attrib):
-            if x.startswith('xmlnsU') or x.startswith(xmlns_declaration):
-                # A namespace declaration
-                val = elem.attrib.pop(x)
-                if x.startswith('xmlnsU0003A'):
-                    prefix = x[11:]
-                    namespaces[prefix] = val
-
-        remapped_namespaces = {}
-        if namespaces:
-            # Some destroyed namespace declarations were found
-            p = elem.getparent()
-            if p is None:
-                # We handle the root node later
-                non_html5_namespaces = namespaces
-            else:
-                idx = p.index(elem)
-                p.remove(elem)
-                elem = clone_element(elem, nsmap=namespaces)
-                p.insert(idx, elem)
-                remapped_namespaces = {ns:namespaces[ns] for ns in set(namespaces) - set(elem.nsmap)}
-
-        b = barename(elem.tag)
-        idx = b.find('U0003A')
-        if idx > -1:
-            prefix, tag = b[:idx], b[idx+6:]
-            ns = elem.nsmap.get(prefix, None)
-            if ns is None:
-                ns = non_html5_namespaces.get(prefix, None)
-            if ns is None:
-                ns = remapped_namespaces.get(prefix, None)
-            if ns is not None:
-                elem.tag = '{%s}%s'%(ns, tag)
-
-        for b in tuple(elem.attrib):
-            idx = b.find('U0003A')
-            if idx > -1:
-                prefix, tag = b[:idx], b[idx+6:]
-                ns = elem.nsmap.get(prefix, None)
-                if ns is None:
-                    ns = non_html5_namespaces.get(prefix, None)
-                if ns is None:
-                    ns = remapped_namespaces.get(prefix, None)
-                if ns is not None:
-                    elem.attrib['{%s}%s'%(ns, tag)] = elem.attrib.pop(b)
-
-        seen_namespaces |= set(elem.nsmap.itervalues())
-
-    nsmap = dict(html5lib.constants.namespaces)
-    nsmap[None] = nsmap.pop('html')
-    non_html5_namespaces.update(nsmap)
-    nsmap = non_html5_namespaces
-
-    data = clone_element(data, nsmap=nsmap, in_context=False)
-
-    # Remove unused namespace declarations
-    fnsmap = {k:v for k,v in nsmap.iteritems() if v in seen_namespaces and v !=
-            XMLNS_NS}
-    return clone_element(data, nsmap=fnsmap, in_context=False)
+    return data
 
 
 def _html4_parse(data, prefer_soup=False):
@@ -308,7 +223,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             data = raw
             try:
                 data = html5_parse(data)
-            except:
+            except Exception:
                 log.exception(
                     'HTML 5 parsing failed, falling back to older parsers')
                 data = _html4_parse(data)
@@ -477,5 +392,3 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         child.tail = '\n  '
 
     return data
-
-
