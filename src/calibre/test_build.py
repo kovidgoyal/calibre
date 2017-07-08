@@ -66,9 +66,6 @@ class BuildTest(unittest.TestCase):
     def test_html5lib(self):
         import html5lib.html5parser  # noqa
         from html5lib import parse  # noqa
-        # Test that we are using the calibre version of html5lib
-        from calibre.ebooks.oeb.polish.parsing import parse_html5
-        parse_html5('<p>xxx')
 
     def test_html5_parser(self):
         from html5_parser import parse
