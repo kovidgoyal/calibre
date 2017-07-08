@@ -65,7 +65,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, string
 
-from calibre.constants import preferred_encoding
 from calibre.utils.mreplace import MReplace
 
 utf8enc2latex_mapping = {
@@ -2855,7 +2854,7 @@ class BibTeX:
         # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
         self.invalid_cit = re.compile(u'[ "@\',\\#}{~%&$^]')
         self.upper = re.compile(u'[' +
-            string.uppercase.decode(preferred_encoding) + u']')
+            string.ascii_uppercase + u']')
         self.escape = re.compile(u'[~#&%_]')
 
     def ValidateCitationKey(self, text):
@@ -2929,4 +2928,3 @@ class BibTeX:
                 text.pop(i)
             text = ''.join(text)
         return text
-
