@@ -14,7 +14,6 @@ from urlparse import parse_qs
 
 from lxml import etree
 
-import html5lib
 from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
@@ -48,7 +47,14 @@ def encode_query(**query):
 
 
 def parse_html(raw):
-    return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
 
 
 def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60):

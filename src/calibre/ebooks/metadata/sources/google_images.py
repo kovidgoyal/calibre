@@ -13,6 +13,17 @@ from calibre import random_user_agent
 from calibre.ebooks.metadata.sources.base import Source, Option
 
 
+def parse_html(raw):
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
+
+
 class GoogleImages(Source):
 
     name = 'Google Images'
@@ -55,7 +66,6 @@ class GoogleImages(Source):
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
         from urllib import urlencode
-        import html5lib
         import json
         from collections import OrderedDict
         ans = OrderedDict()
@@ -72,8 +82,8 @@ class GoogleImages(Source):
         # URL scheme
         url = 'https://www.google.com/search?as_st=y&tbm=isch&{}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
         log('Search URL: ' + url)
-        raw = br.open(url).read().decode('utf-8')
-        root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml', namespaceHTMLElements=False)
+        raw = clean_ascii_chars(br.open(url).read().decode('utf-8'))
+        root = parse_html(raw)
         for div in root.xpath('//div[@class="rg_meta notranslate"]'):
             try:
                 data = json.loads(div.text)

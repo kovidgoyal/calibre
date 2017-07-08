@@ -16,14 +16,23 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 
 
-def parse_html(raw):
-    import html5lib
+def clean_html(raw):
     from calibre.ebooks.chardet import xml_to_unicode
     from calibre.utils.cleantext import clean_ascii_chars
-    raw = clean_ascii_chars(xml_to_unicode(raw, strip_encoding_pats=True,
+    return clean_ascii_chars(xml_to_unicode(raw, strip_encoding_pats=True,
                                 resolve_entities=True, assume_utf8=True)[0])
-    return html5lib.parse(raw, treebuilder='lxml',
-                              namespaceHTMLElements=False).getroot()
+
+
+def parse_html(raw):
+    raw = clean_html(raw)
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
 
 
 def astext(node):

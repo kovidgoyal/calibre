@@ -30,10 +30,20 @@ class SearchFailed(ValueError):
 ua_index = -1
 
 
+def parse_html(raw):
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
+
+
 def parse_details_page(url, log, timeout, browser, domain):
     from calibre.utils.cleantext import clean_ascii_chars
     from calibre.ebooks.chardet import xml_to_unicode
-    import html5lib
     from lxml.html import tostring
     log('Getting details from:', url)
     try:
@@ -65,9 +75,8 @@ def parse_details_page(url, log, timeout, browser, domain):
         raise ValueError('No cached entry for %s found' % url)
 
     try:
-        root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml',
-                              namespaceHTMLElements=False)
-    except:
+        root = parse_html(clean_ascii_chars(raw))
+    except Exception:
         msg = 'Failed to parse amazon details page: %r' % url
         log.exception(msg)
         return
@@ -589,8 +598,7 @@ class Worker(Thread):  # Get details {{{
             if m is not None:
                 try:
                     text = unquote(m.group(1)).decode('utf-8')
-                    nr = html5lib.parse(
-                        text, treebuilder='lxml', namespaceHTMLElements=False)
+                    nr = parse_html(text)
                     desc = nr.xpath(
                         '//div[@id="productDescription"]/*[@class="content"]')
                     if desc:
@@ -1201,7 +1209,6 @@ class Amazon(Source):
     # }}}
 
     def search_amazon(self, br, testing, log, abort, title, authors, identifiers, timeout):  # {{{
-        import html5lib
         from calibre.utils.cleantext import clean_ascii_chars
         from calibre.ebooks.chardet import xml_to_unicode
         matches = []
@@ -1242,8 +1249,7 @@ class Amazon(Source):
 
         if found:
             try:
-                root = html5lib.parse(raw, treebuilder='lxml',
-                                      namespaceHTMLElements=False)
+                root = parse_html(raw)
             except Exception:
                 msg = 'Failed to parse amazon page for query: %r' % query
                 log.exception(msg)
