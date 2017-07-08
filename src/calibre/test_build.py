@@ -244,8 +244,8 @@ class BuildTest(unittest.TestCase):
     def test_markdown(self):
         from calibre.ebooks.markdown import Markdown
         Markdown(extensions=['extra'])
-        from calibre.library.comments import sanitize_html
-        sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
+        from calibre.library.comments import sanitize_comments_html
+        sanitize_comments_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
 
     def test_openssl(self):
         import ssl

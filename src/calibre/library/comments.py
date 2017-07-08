@@ -145,29 +145,12 @@ def merge_comments(one, two):
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
 
 
-def sanitize_html(html):
-    if not html:
-        return u''
-    if isinstance(html, bytes):
-        html = html.decode('utf-8', 'replace')
-    import html5lib
-    from html5lib.sanitizer import HTMLSanitizer
-    from html5lib.serializer.htmlserializer import HTMLSerializer
-    from html5lib.treebuilders.etree_lxml import TreeBuilder
-    from html5lib.treewalkers.lxmletree import TreeWalker
-    parser = html5lib.HTMLParser(tokenizer=HTMLSanitizer, tree=TreeBuilder)
-    tree = parser.parseFragment(html)
-    serializer = HTMLSerializer(quote_attr_values=True, alphabetical_attributes=False, omit_optional_tags=False)
-    stream = TreeWalker(tree)
-    return serializer.render(stream)
-
-
 def sanitize_comments_html(html):
     from calibre.ebooks.markdown import Markdown
     text = html2text(html)
     md = Markdown()
     html = md.convert(text)
-    return sanitize_html(html)
+    return html
 
 
 def test():
@@ -185,6 +168,6 @@ def test():
             print 'FAILED'
             break
 
+
 if __name__ == '__main__':
     test()
-
