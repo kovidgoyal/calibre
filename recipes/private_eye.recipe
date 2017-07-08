@@ -17,6 +17,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     title_with_date = 'Private Eye Online'
     title_author = 'Private Eye'
     __author__ = 'Sophist at sodalis.co.uk'
+    version = 2.10
     issue_no = ''
     description = '''Private Eye is a fortnightly British satirical news and current affairs magazine,\
  edited by Ian Hislop, offering a unique blend of humour, social and political observations and\
@@ -32,7 +33,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'url'}
 
-    conversion_options = {
+    conn_options = {
         'authors': title_author,
         'author_sort': title_author,
         'smarten_punctuation': True,
@@ -94,7 +95,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # Process the Index page to get the content for the ebook
     def parse_index(self):
-        self.log.info('Private Eye: Parse Index: %s' % self.INDEX)
+        self.log.info('Private Eye: v%s,Parse Index: %s' % (self.version,self.INDEX))
         self.page_index = []
 
         soup = self.index_to_soup(self.INDEX)
@@ -224,10 +225,12 @@ It offers a unique blend of humour, social and political observations and invest
         for figure in soup.findAll(
             'a',
             attrs={'href':
-                   lambda x: x and ('jpg' in x or 'png' in x or 'gif' in x)}):
+                   lambda x: x and 
+                    (x.endswith('.jpg') or 
+                     x.endswith('.png') or x.endswith('.gif'))
+                  }):
             # makes sure that the link points to the absolute web address
-            if figure['href'].startswith('/'):
-                figure['href'] = self.fix_url(figure['href'])
+            figure['href'] = self.fix_url(figure['href'])
         return soup
 
     def postprocess_book(self, oeb, opts, log):
