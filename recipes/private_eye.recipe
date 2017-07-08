@@ -37,39 +37,30 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         'author_sort': title_author,
         'smarten_punctuation': True,
         'series': title,
-        'publisher': title_author,
-    }
+        'publisher': title_author, }
     remove_tags_before = [
         {
             'id': 'story',
-            'class': 'article',
-        },
+            'class': 'article', },
         {
-            'id': 'page'
-        },
-    ]
+            'id': 'page'}, ]
     remove_tags_after = [
         {
-            'class': 'section',
-        },
-    ]
+            'class': 'section', }, ]
     remove_tags = [
         dict(name='div', attrs={'class': 'sub-nav-bar'}),
         dict(name='img', attrs={'class': 'about-covers'}),
         dict(name='div', attrs={'id': 'follow-us',
                                 'class': 'text'}),
-        dict(name='span', attrs={'class': 'section'}),
-    ]
+        dict(name='span', attrs={'class': 'section'}), ]
     preprocess_regexps = [
         (
             re.compile(r'\.\./grfx', re.DOTALL | re.IGNORECASE),
-            lambda match: 'http://www.private-eye.co.uk/grfx'
-        ),
-    ]
+            lambda match: 'http://www.private-eye.co.uk/grfx'), ]
 
     def fix_url(self, url):
-        if (url.startswith('//') or
-            url.startswith('http://') or
+        if (
+            url.startswith('//') or url.startswith('http://') or
             url.startswith('https://')):
             return url
         if url.startswith('/'):
@@ -89,14 +80,12 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         if url and url not in self.urls:
             self.urls.append(url)
             self.log.info(
-                "Page added: %s: %s: %s (%s)" % (date, title, description, url)
-            )
+                "Page added: %s: %s: %s (%s)" % (date, title, description, url))
             self.current_articles.append({
                 'title': title,
                 'url': url,
                 'description': description,
-                'date': date,
-            })
+                'date': date, })
 
     def page_index_append(self, section):
         if self.current_articles:
@@ -140,21 +129,17 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                     day, month, year = tag_contents[2].split()
                     day = ''.join(c for c in day if c.isdigit())
                     date = datetime.strptime(
-                        " ".join((day, month, year)),
-                        "%d %B %Y"
-                    )
+                        " ".join((day, month, year)), "%d %B %Y")
                     date = date - timedelta(12)
                     self.publication_date = datetime.strftime(
-                        date,
-                        "%d %B %Y"
-                        ).lstrip("0")
+                        date, "%d %B %Y").lstrip("0")
                     self.log.debug("Publication date: %s" % self.publication_date)
-                    self.title_with_date = self.title + datetime.strftime(date, " %Y-%m-%d")
+                    self.title_with_date = self.title + datetime.strftime(
+                        date, " %Y-%m-%d")
                     break
                 except:
                     self.log.warning(
-                        "Invalid publication date: %s" % tag.contents[2]
-                    )
+                        "Invalid publication date: %s" % tag.contents[2])
         else:
             self.log.warning("Publication date not found")
 
@@ -234,6 +219,16 @@ It offers a unique blend of humour, social and political observations and invest
         self.log.info('Private Eye: Parse Index complete')
 
         return self.page_index
+
+    def preprocess_html(self, soup):
+        for figure in soup.findAll(
+            'a',
+            attrs={'href':
+                   lambda x: x and ('jpg' in x or 'png' in x or 'gif' in x)}):
+            # makes sure that the link points to the absolute web address
+            if figure['href'].startswith('/'):
+                figure['href'] = self.fix_url(figure['href'])
+        return soup
 
     def postprocess_book(self, oeb, opts, log):
         m = oeb.metadata
