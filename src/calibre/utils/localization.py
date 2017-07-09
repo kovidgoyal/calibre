@@ -317,6 +317,7 @@ if False:
     _('Fonts')
     _('&Step up')
     _('Step &down')
+    _('Close without Saving')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
