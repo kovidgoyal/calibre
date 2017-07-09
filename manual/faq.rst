@@ -1090,8 +1090,8 @@ A portable version of calibre is available `here <https://calibre-ebook.com/down
 How do I run parts of calibre like news download and the Content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, you must install calibre onto your linux server. If your server is using
-a modern linux distro, you should have no problems installing calibre onto it.
+First, you must install calibre onto your Linux server. If your server is using
+a modern Linux distribution, you should have no problems installing calibre onto it.
 
 .. note::
     calibre needs GLIBC >= 2.17 and libstdc++ >= 6.0.17. If you have an older
