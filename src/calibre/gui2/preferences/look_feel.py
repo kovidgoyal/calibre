@@ -74,6 +74,7 @@ class DefaultAuthorLink(QWidget):  # {{{
             c.addItem(text, data)
         l.addRow(_('Clicking on &author names should:'), c)
         self.custom_url = u = QLineEdit(self)
+        u.textChanged.connect(self.changed_signal)
         u.setPlaceholderText(_('Enter the URL'))
         c.currentIndexChanged.connect(self.current_changed)
         l.addRow(u)
