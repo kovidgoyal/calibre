@@ -685,21 +685,20 @@ class BasicNewsRecipe(Recipe):
                 _raw = self.encoding(_raw)
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
+        from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
+        from calibre.utils.cleantext import clean_xml_chars
+        if isinstance(_raw, unicode):
+            _raw = strip_encoding_declarations(_raw)
+        else:
+            _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
+        _raw = clean_xml_chars(_raw)
         if as_tree:
             from html5parser import parse
-            from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
-            from calibre.utils.cleantext import clean_xml_chars
-            if isinstance(_raw, unicode):
-                _raw = strip_encoding_declarations(_raw)
-            else:
-                _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
-            return parse(clean_xml_chars(_raw))
-
-        massage = list(BeautifulSoup.MARKUP_MASSAGE)
-        enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
-        massage.append((re.compile(r'&(\S+?);'), lambda match:
-            entity_to_unicode(match, encoding=enc)))
-        return BeautifulSoup(_raw, markupMassage=massage)
+            return parse(_raw)
+        else:
+            from html5_parser.soup import set_soup_module, parse
+            set_soup_module(sys.modules[BeautifulSoup.__module__])
+            return parse(_raw, return_root=False)
 
     def extract_readable_article(self, html, url):
         '''

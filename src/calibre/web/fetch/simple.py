@@ -7,10 +7,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
+import sys, socket, os, urlparse, re, time, urllib2, threading, traceback
 from urllib import url2pathname, quote
 from httplib import responses
 from base64 import b64decode
+
+from html5_parser.soup import set_soup_module, parse
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -167,20 +169,24 @@ class RecursiveFetcher(object):
         self.job_info = job_info
 
     def get_soup(self, src, url=None):
-        nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage = []
         nmassage.extend(self.preprocess_regexps)
-        # Some websites have buggy doctype declarations that mess up beautifulsoup
-        nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL|re.IGNORECASE), lambda m: '')]
         # Remove comments as they can leave detritus when extracting tags leaves
         # multiple nested comments
         nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
         usrc = xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0]
         usrc = self.preprocess_raw_html(usrc, url)
-        soup = BeautifulSoup(usrc, markupMassage=nmassage)
+        for pat, repl in nmassage:
+            usrc = pat.sub(repl, usrc)
+        set_soup_module(sys.modules[BeautifulSoup.__module__])
+        soup = parse(usrc, return_root=False)
 
         replace = self.prepreprocess_html_ext(soup)
         if replace is not None:
-            soup = BeautifulSoup(xml_to_unicode(replace, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
+            replace = xml_to_unicode(replace, self.verbose, strip_encoding_pats=True)[0]
+            for pat, repl in nmassage:
+                replace = pat.sub(repl, replace)
+            soup = parse(replace, return_root=False)
 
         if self.keep_only_tags:
             body = Tag(soup, 'body')
