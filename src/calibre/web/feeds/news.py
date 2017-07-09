@@ -686,14 +686,14 @@ class BasicNewsRecipe(Recipe):
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
         if as_tree:
-            import html5lib
+            from html5parser import parse
             from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
             from calibre.utils.cleantext import clean_xml_chars
             if isinstance(_raw, unicode):
                 _raw = strip_encoding_declarations(_raw)
             else:
                 _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
-            return html5lib.parse(clean_xml_chars(_raw), treebuilder='lxml', namespaceHTMLElements=False)
+            return parse(clean_xml_chars(_raw))
 
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
         enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
