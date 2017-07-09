@@ -166,7 +166,7 @@ class LibraryWidget(Splitter):  # {{{
         parent.quickview_splitter.addWidget(stack)
 
         l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
+        l.setContentsMargins(4, 0, 0, 0)
         quickview_widget.setLayout(l)
         parent.quickview_splitter.addWidget(quickview_widget)
         parent.quickview_splitter.hide_quickview_widget()
@@ -571,8 +571,10 @@ class LayoutMixin(object):  # {{{
             button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
         # }}}
 
-        self.qv = find_plugin('Show Quickview')
-        if self.qv:
+        # This must use the base method to find the plugin because it hasn't
+        # been fully initialized yet
+        self.qv = find_plugin('Quickview')
+        if self.qv and self.qv.actual_plugin_:
             self.qv = self.qv.actual_plugin_
 
         self.status_bar = StatusBar(self)

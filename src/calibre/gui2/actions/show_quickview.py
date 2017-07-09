@@ -54,14 +54,18 @@ def get_quickview_action_plugin():
 
 class ShowQuickviewAction(InterfaceAction):
 
-    name = 'Show Quickview'
-    action_spec = (_('Show Quickview'), 'quickview.png', None, _('Q'))
+    name = 'Quickview'
+    action_spec = (_('Quickview'), 'quickview.png', None, None)
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
     current_instance = None
 
     def genesis(self):
+        self.gui.keyboard.register_shortcut('Toggle Quickview', _('Toggle Quickview'),
+                     description=_('Open/close the Quickview panel/window'),
+                     default_keys=('Q',), action=self.qaction,
+                     group=self.action_spec[0])
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
         self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
