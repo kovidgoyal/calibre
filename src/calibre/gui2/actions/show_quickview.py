@@ -77,9 +77,9 @@ class ShowQuickviewAction(InterfaceAction):
         self.focus_bl_action = QAction(self.gui)
         self.gui.addAction(self.focus_bl_action)
         self.gui.keyboard.register_shortcut('Focus from Quickview',
-                     _('Focus from docked Quickview to the book list'),
-                     description=_('Move the focus from docked Quickview to the book list'),
-                     default_keys=('Alt+Q',), action=self.focus_bl_action,
+                     _('Focus from Quickview to the book list'),
+                     description=_('Move the focus from Quickview to the book list'),
+                     default_keys=('Shift+Alt+Q',), action=self.focus_bl_action,
                      group=self.action_spec[0])
         self.focus_bl_action.triggered.connect(self.focus_booklist)
 
@@ -129,6 +129,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     def set_search_shortcut(self):
         if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.addAction(self.focus_bl_action)
             self.current_instance.set_shortcuts(self.search_action.shortcut().toString(),
                                                 self.menuless_qaction.shortcut().toString())
 
@@ -174,6 +175,7 @@ class ShowQuickviewAction(InterfaceAction):
             self.current_instance.set_focus()
 
     def focus_booklist(self):
+        self.gui.activateWindow()
         self.gui.library_view.setFocus()
 
     def search_quickview(self):
