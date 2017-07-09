@@ -36,7 +36,7 @@ from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
-from calibre.customize.ui import find_plugin
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 
 
 class BusyCursor(object):
@@ -760,9 +760,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             getattr(gui, view + '_view').set_row_header_visibility()
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
-        qv = find_plugin('Show Quickview')
-        if qv is not None:
-            qv.actual_plugin_.refill_quickview()
+        qv = get_quickview_action_plugin()
+        if qv:
+            qv.refill_quickview()
 
 
 if __name__ == '__main__':

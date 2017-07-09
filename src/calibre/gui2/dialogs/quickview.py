@@ -227,6 +227,7 @@ class Quickview(QDialog, Ui_Quickview):
         '''
         self.column_order = [x[0] for x in get_qv_field_list(self.fm) if x[1]]
         self.books_table.clear()
+        self.books_table.setRowCount(0)
         self.books_table.setColumnCount(len(self.column_order))
         for idx,col in enumerate(self.column_order):
             t = QTableWidgetItem(self.fm[col]['name'])
@@ -419,8 +420,7 @@ class Quickview(QDialog, Ui_Quickview):
     def indicate_no_items(self):
         self.no_valid_items = True
         self.items.clear()
-        self.books_table.clear()
-        self.books_table.setRowCount(0)
+        self.add_columns_to_widget()
         self.items.addItem(QListWidgetItem(_('**No items found**')))
         self.books_label.setText(_('Click in a column  in the library view '
                                    'to see the information for that book'))
@@ -542,7 +542,7 @@ class Quickview(QDialog, Ui_Quickview):
         if modifiers in (Qt.CTRL, Qt.SHIFT):
             self.view.select_rows([book_id])
             em = find_plugin('Edit Metadata')
-            if em is not None:
+            if em and em.actual_plugin_:
                 em.actual_plugin_.edit_metadata(None)
         else:
             self.view.select_cell(self.db.data.id_to_index(book_id),
