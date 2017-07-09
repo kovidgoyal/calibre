@@ -898,7 +898,7 @@ class ActionFetchNews(InterfaceActionBase):
 
 
 class ActionQuickview(InterfaceActionBase):
-    name = 'Show Quickview'
+    name = 'Quickview'
     actual_plugin = 'calibre.gui2.actions.show_quickview:ShowQuickviewAction'
     description = _('Show a list of related books quickly')
 

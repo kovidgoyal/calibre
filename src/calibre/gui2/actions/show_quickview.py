@@ -54,14 +54,18 @@ def get_quickview_action_plugin():
 
 class ShowQuickviewAction(InterfaceAction):
 
-    name = 'Show Quickview'
-    action_spec = (_('Show Quickview'), 'quickview.png', None, _('Q'))
+    name = 'Quickview'
+    action_spec = (_('Quickview'), 'quickview.png', None, None)
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
     current_instance = None
 
     def genesis(self):
+        self.gui.keyboard.register_shortcut('Toggle Quickview', _('Toggle Quickview'),
+                     description=_('Open/close the Quickview panel/window'),
+                     default_keys=('Q',), action=self.qaction,
+                     group=self.action_spec[0])
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
         self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
@@ -69,6 +73,15 @@ class ShowQuickviewAction(InterfaceAction):
                      default_keys=('Shift+Q',), action=self.focus_action,
                      group=self.action_spec[0])
         self.focus_action.triggered.connect(self.focus_quickview)
+
+        self.focus_bl_action = QAction(self.gui)
+        self.gui.addAction(self.focus_bl_action)
+        self.gui.keyboard.register_shortcut('Focus from Quickview',
+                     _('Focus from Quickview to the book list'),
+                     description=_('Move the focus from Quickview to the book list'),
+                     default_keys=('Shift+Alt+Q',), action=self.focus_bl_action,
+                     group=self.action_spec[0])
+        self.focus_bl_action.triggered.connect(self.focus_booklist)
 
         self.search_action = QAction(self.gui)
         self.gui.addAction(self.search_action)
@@ -116,6 +129,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     def set_search_shortcut(self):
         if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.addAction(self.focus_bl_action)
             self.current_instance.set_shortcuts(self.search_action.shortcut().toString(),
                                                 self.menuless_qaction.shortcut().toString())
 
@@ -159,6 +173,10 @@ class ShowQuickviewAction(InterfaceAction):
             self.open_quickview()
         else:
             self.current_instance.set_focus()
+
+    def focus_booklist(self):
+        self.gui.activateWindow()
+        self.gui.library_view.setFocus()
 
     def search_quickview(self):
         if not self.current_instance or self.current_instance.is_closed:
