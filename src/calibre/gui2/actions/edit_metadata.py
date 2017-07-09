@@ -24,7 +24,7 @@ from calibre.utils.icu import sort_key
 from calibre.db.errors import NoSuchFormat
 from calibre.library.comments import merge_comments
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.customize.ui import find_plugin
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 
 
 class EditMetadataAction(InterfaceAction):
@@ -348,9 +348,9 @@ class EditMetadataAction(InterfaceAction):
         self.gui.refresh_cover_browser()
         m.current_changed(current, previous or current)
         self.gui.tags_view.recount_with_position_based_index()
-        qv = find_plugin('Show Quickview')
-        if qv is not None:
-            qv.actual_plugin_.refill_quickview()
+        qv = get_quickview_action_plugin()
+        if qv:
+            qv.refill_quickview()
 
     def do_edit_metadata(self, row_list, current_row, editing_multiple):
         from calibre.gui2.metadata.single import edit_metadata
