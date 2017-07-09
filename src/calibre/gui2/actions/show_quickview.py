@@ -43,14 +43,18 @@ class QuickviewButton(LayoutButton):  # {{{
 
 # }}}
 
+
 current_qv_action_pi = None
+
 
 def set_quickview_action_plugin(pi):
     global current_qv_action_pi
     current_qv_action_pi = pi
 
+
 def get_quickview_action_plugin():
     return current_qv_action_pi
+
 
 class ShowQuickviewAction(InterfaceAction):
 
