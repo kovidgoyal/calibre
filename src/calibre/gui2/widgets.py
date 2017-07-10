@@ -1012,7 +1012,8 @@ class LayoutButton(QToolButton):
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
                 ev.accept()
                 return
-            tab_name = {'book':'book_details', 'grid':'cover_grid', 'cover_flow':'cover_browser', 'tags':'tag_browser'}.get(self.icname)
+            tab_name = {'book':'book_details', 'grid':'cover_grid', 'cover_flow':'cover_browser',
+                        'tags':'tag_browser', 'quickview':'quickview'}.get(self.icname)
             if tab_name:
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
