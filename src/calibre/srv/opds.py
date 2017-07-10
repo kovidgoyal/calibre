@@ -453,7 +453,7 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
         category_groups = OrderedDict()
         for x in sorted(starts, key=sort_key):
             category_groups[x] = len([y for y in items if
-                getattr(y, 'sort', y.name).startswith(x)])
+                getattr(y, 'sort', y.name).upper().startswith(x)])
         items = [Group(x, y) for x, y in category_groups.items()]
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
