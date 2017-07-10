@@ -26,8 +26,17 @@ New features for the server generally
 - Add more book list visualizations and/or a customizable visualization
 
 - Automatic Let's Encrypt integration so that using HTTPS is easier
-  Should wait fo rthe acme v2 protocol endpoint:
+  Should wait for the acme v2 protocol endpoint:
   https://letsencrypt.org/2017/06/14/acme-v2-api.html
+
+- Some way to manage remote calibre server instances via the calibre GUI. Two
+  possibilities are: 
+    1) Have the remote server appear as a "device" in the GUI. You can then
+    send books to the remote server, update metadata, etc. just as you would
+    when connecting calibre to a real device.
+    2) Have the remote server appear as a library in the GUI
+  (2) is preferable in terms of features/functionality, but is
+  **much** harder to implement in a performant and semantically correct manner.
 
 Bug fixes
 --------------
