@@ -284,12 +284,12 @@ Author matching is exact.</string>
        <item row="5" column="0">
         <widget class="QCheckBox" name="opt_auto_add_everything">
          <property name="toolTip">
-          <string>By default, calibre will auto-add only known e-book files. 
+          <string>By default, calibre will automatically add only known e-book files. 
 This option tells calibre to add all file types, except those
 that have been explicitly ignored below.</string>
          </property>
          <property name="text">
-          <string>Auto add files of &amp;all types (not just e-books)</string>
+          <string>Automatically add files of &amp;all types (not just e-books)</string>
          </property>
         </widget>
        </item>
@@ -298,7 +298,7 @@ that have been explicitly ignored below.</string>
          <item>
           <widget class="QLineEdit" name="opt_auto_add_path">
            <property name="placeholderText">
-            <string>Folder to auto-add files from</string>
+            <string>Folder to automatically add files from</string>
            </property>
           </widget>
          </item>
@@ -391,12 +391,12 @@ that have been explicitly ignored below.</string>
         <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
          <property name="toolTip">
           <string>If set, this option will cause calibre to check if a file
- being auto-added is already in the calibre library.
+ being automatically added is already in the calibre library.
  If it is, a message will pop up asking you whether
  you want to add it anyway.</string>
          </property>
          <property name="text">
-          <string>Check for &amp;duplicates when auto-adding files</string>
+          <string>Check for &amp;duplicates when automatically adding files</string>
          </property>
         </widget>
        </item>

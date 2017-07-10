@@ -1145,7 +1145,7 @@ them to all have the same width and height</string>
          <item row="2" column="0">
           <widget class="QCheckBox" name="opt_qv_respects_vls">
            <property name="text">
-            <string>&amp;Apply virtual libraries in Quickview pane</string>
+            <string>&amp;Apply virtual libraries in Quickview panel</string>
            </property>
            <property name="toolTip">
             <string>Check this box to make Quickview show books only in the
@@ -1192,7 +1192,7 @@ column being examined (the left-hand pane)</string>
        <item row="3" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Select displayed columns</string>
+          <string>Select columns to display</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_32">
           <item row="0" column="1">

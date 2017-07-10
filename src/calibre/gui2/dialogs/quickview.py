@@ -200,7 +200,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
         self.close_button.setDefault(False)
-        self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview pane')
+        self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
         self.search_button_tooltip = _('Search in the library view for the currently highlighted selection')
         self.search_button.setToolTip(self.search_button_tooltip)
         if self.is_pane:
