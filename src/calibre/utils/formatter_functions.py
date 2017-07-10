@@ -525,21 +525,32 @@ class BuiltinStrcatMax(BuiltinFormatterFunction):
 
 class BuiltinInList(BuiltinFormatterFunction):
     name = 'in_list'
-    arg_count = 5
+    arg_count = -1
     category = 'List lookup'
-    __doc__ = doc = _('in_list(val, separator, pattern, found_val, not_found_val) -- '
+    __doc__ = doc = _('in_list(val, separator, pattern, found_val, ..., not_found_val) -- '
             'treat val as a list of items separated by separator, '
-            'comparing the pattern against each value in the list. If the '
+            'evaluating the pattern against each value in the list. If the '
             'pattern matches a value, return found_val, otherwise return '
-            'not_found_val.')
+            'not_found_val. The pattern and found_value can be repeated as '
+            'many times as desired, permitting returning different values '
+            'depending on the search. The patterns are checked in order. The '
+            'first match is returned.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
+        if (len(args) % 2) != 1:
+            raise ValueError(_('in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
-        if l:
-            for v in l:
-                if re.search(pat, v, flags=re.I):
-                    return fv
-        return nfv
+        i = 0
+        while i < len(args):
+            if i + 1 >= len(args):
+                return args[i]
+            sf = args[i]
+            fv = args[i+1]
+            if l:
+                for v in l:
+                    if re.search(sf, v, flags=re.I):
+                        return fv
+            i += 2
 
 
 class BuiltinStrInList(BuiltinFormatterFunction):
@@ -558,7 +569,7 @@ class BuiltinStrInList(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
         if (len(args) % 2) != 1:
-            raise ValueError(_('wstr_in_list requires an odd number of arguments'))
+            raise ValueError(_('str_in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
         i = 0
         while i < len(args):
