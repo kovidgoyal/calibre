@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import tempfile, shutil, sys, os
+import tempfile, shutil, sys, os, errno
 from functools import partial, wraps
 from urlparse import urlparse
 
@@ -1283,7 +1283,20 @@ class Boss(QObject):
             self.set_modified()
 
     @in_thread_job
-    def export_requested(self, name, path):
+    def export_requested(self, name_or_names, path):
+        if isinstance(name_or_names, basestring):
+            return self.export_file(name_or_names, path)
+        for name in name_or_names:
+            dest = os.path.abspath(os.path.join(path, name))
+            if '/' in name or os.sep in name:
+                try:
+                    os.makedirs(os.path.dirname(dest))
+                except EnvironmentError as err:
+                    if err.errno != errno.EEXIST:
+                        raise
+            self.export_file(name, dest)
+
+    def export_file(self, name, path):
         if name in editors and not editors[name].is_synced_to_container:
             self.commit_editor_to_container(name)
         with current_container().open(name, 'rb') as src, open(path, 'wb') as dest:

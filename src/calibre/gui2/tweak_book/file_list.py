@@ -25,7 +25,8 @@ from calibre.ebooks.oeb.polish.cover import (
 )
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.gui2 import (
-    choose_files, choose_save_file, elided_text, error_dialog, question_dialog
+    choose_dir, choose_files, choose_save_file, elided_text, error_dialog,
+    question_dialog
 )
 from calibre.gui2.tweak_book import (
     CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
@@ -33,7 +34,6 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
-
 
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
@@ -482,6 +482,9 @@ class FileList(QTreeWidget):
             m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
             if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
                 m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
+            if num > 1:
+                m.addAction(QIcon(I('save.png')), _('Export all %d selected files') % num, self.export_selected)
+
             m.addSeparator()
 
             m.addAction(QIcon(I('modified.png')), _('&Rename %s') % n, self.edit_current_item)
@@ -731,6 +734,14 @@ class FileList(QTreeWidget):
             (_('Files'), [name.rpartition('.')[-1].lower()])], all_files=False, initial_filename=name.split('/')[-1])
         if path:
             self.export_requested.emit(name, path)
+
+    def export_selected(self):
+        names = self.selected_names
+        if not names:
+            return
+        path = choose_dir(self, 'tweak_book_export_selected', _('Choose location'))
+        if path:
+            self.export_requested.emit(names, path)
 
     def replace(self, name):
         c = current_container()
