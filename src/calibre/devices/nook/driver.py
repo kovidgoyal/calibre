@@ -80,7 +80,7 @@ class NOOK(USBMS):
             fsync(coverfile)
 
     def sanitize_path_components(self, components):
-        return [x.replace('#', '_') for x in components]
+        return [x.replace('#', '_').replace('%', '_') for x in components]
 
 
 class NOOK_COLOR(NOOK):
