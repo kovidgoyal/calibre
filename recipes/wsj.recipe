@@ -147,7 +147,11 @@ class WSJ(BasicNewsRecipe):
             raise ValueError(
                 'Failed to login (XHR failed), check username and password')
         br.set_cookie('m', data['username'], '.wsj.com')
-        r = br.open(data['url'])
+        try:
+            r = br.open(data['url'])
+        except Exception:
+            self.log.error('Failed to open login url: {}'.format(data['url']))
+            raise
         self.wsj_itp_page = raw = r.read()
         if b'>Sign Out<' not in raw:
             raise ValueError(
