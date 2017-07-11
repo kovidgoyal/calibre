@@ -17,7 +17,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag
 from calibre.library.comments import comments_to_html
-from calibre.utils.date import is_date_undefined
+from calibre.utils.date import is_date_undefined, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
@@ -220,7 +220,8 @@ def render_jacket(mi, output_profile,
         if is_date_undefined(mi.pubdate):
             pubdate = ''
         else:
-            pubdate = strftime(u'%Y', mi.pubdate.timetuple())
+            dt = as_local_time(mi.pubdate)
+            pubdate = strftime(u'%Y', dt.timetuple())
     except:
         pubdate = ''
 

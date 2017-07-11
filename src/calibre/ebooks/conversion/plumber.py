@@ -610,7 +610,7 @@ OptionRecommendation(name='language',
 
 OptionRecommendation(name='pubdate',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the publication date.')),
+    help=_('Set the publication date (assumed to be in the local timezone, unless the timezone is explicitly specified)')),
 
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -895,7 +895,7 @@ OptionRecommendation(name='search_replace',
                         continue
                 elif x in ('timestamp', 'pubdate'):
                     try:
-                        val = parse_date(val, assume_utc=x=='pubdate')
+                        val = parse_date(val, assume_utc=x=='timestamp')
                     except:
                         self.log.exception(_('Failed to parse date/time') + ' ' +
                                 unicode(val))
