@@ -190,6 +190,10 @@ def main(args=sys.argv):
             raise SystemExit(e.message)
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
+    if opts.log and os.path.isdir(opts.log):
+        raise SystemExit('The --log option must point to a file, not a directory')
+    if opts.access_log and os.path.isdir(opts.access_log):
+        raise SystemExit('The --access-log option must point to a file, not a directory')
     server = Server(libraries, opts)
     if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
