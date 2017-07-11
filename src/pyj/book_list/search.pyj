@@ -50,6 +50,7 @@ add_extra_css(def():
 )
 
 state = {}
+last_accepted_search = None
 
 def component(container, name):
     return container.querySelector(f'[data-component="{name}"]')
@@ -70,10 +71,13 @@ def node_for_path(path):
 
 
 def execute_search(text):
+    nonlocal last_accepted_search
     if not text:
         container = document.getElementById(state.container_id)
         search_control = container.querySelector('input[name="search-books"]')
         text = search_control.value or ''
+    if state.tag_path and state.tag_path.length:
+        last_accepted_search = {'library_id': current_library_id(), 'vl': current_virtual_library(), 'tag_path': list(state.tag_path)}
     apply_search(text)
 
 
@@ -307,7 +311,13 @@ def render_tag_browser():
     container = document.getElementById(state.container_id).lastChild.lastChild
     clear(container)
     set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
-    render_children(container, node_for_path().children)
+    try:
+        node = node_for_path()
+    except:
+        # If a saved tag_path is no longer valid
+        state.tag_path = []
+        node = node_for_path()
+    render_children(container, node.children)
     render_breadcrumbs()
 
 
@@ -347,6 +357,9 @@ def on_data_fetched(end_type, xhr, ev):
         state.node_id_map = {}
         state.active_nodes = {}
         process_node(state.tag_browser_data, tag_browser_data.item_map)
+        if last_accepted_search and last_accepted_search.library_id is current_library_id() and last_accepted_search.vl is current_virtual_library():
+            if last_accepted_search.tag_path.length:
+                state.tag_path = list(last_accepted_search.tag_path)
         render_tag_browser()
     else:
         show_error(xhr.error_html)
