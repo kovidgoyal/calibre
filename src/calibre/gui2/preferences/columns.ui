@@ -79,7 +79,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+         <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -194,6 +194,10 @@
     <widget class="QPushButton" name="add_col_button">
      <property name="text">
       <string>Add &amp;custom column</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
      </property>
     </widget>
    </item>
