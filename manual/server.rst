@@ -336,3 +336,55 @@ That's all, you will now be able to access the calibre Content server under the 
     ``calibre-server``.
 
 .. _calibre user forums: https://www.mobileread.com/forums/forumdisplay.php?f=166
+
+
+Creating a service for the calibre server on a modern Linux system
+--------------------------------------------------------------------
+
+You can easily create a service to run calibre at boot on a modern 
+(`systemd <https://www.freedesktop.org/wiki/Software/systemd/>`_)
+based Linux system. Just create the file
+``/etc/systemd/system/calibre-server.service`` with the contents shown below::
+
+    [Unit]
+    Description=calibre content server
+    After=network.target 
+
+    [Service]
+    Type=simple
+    User=mylinuxuser
+    Group=mylinuxgroup
+    ExecStart=/opt/calibre/calibre-server "/path/to/calibre library directory"
+
+    [Install]
+    WantedBy=multi-user.target
+
+
+Change ``mylinuxuser`` and ``mylinuxgroup`` to whatever user and group you want
+the server to run as. This should be the same user and group that own the files
+in the calibre library directory. Note that it is generally not a good idea to
+run the server as root. Also change the path to the calibre library
+directory to suit your system. You can add multiple libraries if needed. See
+the help for the ``calibre-server`` command.
+
+Now run::
+
+    sudo systemctl start calibre-server
+
+to start the server. Check its status with::
+
+    sudo systemctl status calibre-server
+
+To make it start at boot, run::
+
+    sudo systemctl enable calibre-server
+
+.. note::
+
+    The calibre server *does not* need a running X server, but it does need
+    the X libraries installed as some components it uses link against them.
+
+.. note:: 
+    
+    The calibre server also supports systemd socket activation, so you can use
+    that, if needed, as well.
