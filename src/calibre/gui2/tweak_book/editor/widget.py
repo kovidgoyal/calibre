@@ -373,7 +373,10 @@ class Editor(QMainWindow):
             bar.addAction(ac)
             if name == 'insert-tag':
                 w = bar.widgetForAction(ac)
-                w.setPopupMode(QToolButton.MenuButtonPopup)
+                if hasattr(w, 'setPopupMode'):
+                    # For some unknown reason this button is occassionally a
+                    # QPushButton instead of a QToolButton
+                    w.setPopupMode(QToolButton.MenuButtonPopup)
                 w.setMenu(self.insert_tag_menu)
                 w.setContextMenuPolicy(Qt.CustomContextMenu)
                 w.customContextMenuRequested.connect(w.showMenu)
@@ -382,7 +385,10 @@ class Editor(QMainWindow):
                 m = ac.m = QMenu()
                 ac.setMenu(m)
                 ch = bar.widgetForAction(ac)
-                ch.setPopupMode(QToolButton.InstantPopup)
+                if hasattr(ch, 'setPopupMode'):
+                    # For some unknown reason this button is occassionally a
+                    # QPushButton instead of a QToolButton
+                    ch.setPopupMode(QToolButton.InstantPopup)
                 for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
 
