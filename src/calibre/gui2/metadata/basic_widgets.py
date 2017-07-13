@@ -1529,10 +1529,10 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
             col = 'none'
         elif check_isbn(isbn) is not None:
             col = OK_COLOR
-            extra = '\n\n'+_('This ISBN number is valid')
+            extra = '\n\n'+_('This ISBN is valid')
         else:
             col = ERR_COLOR
-            extra = '\n\n' + _('This ISBN number is invalid')
+            extra = '\n\n' + _('This ISBN is invalid')
         self.setToolTip(tt+extra)
         self.setStyleSheet(INDICATOR_SHEET % col)
 
@@ -1611,10 +1611,10 @@ class ISBNDialog(QDialog):  # {{{
             extra = ''
         elif check_isbn(isbn) is not None:
             col = OK_COLOR
-            extra = _('This ISBN number is valid')
+            extra = _('This ISBN is valid')
         else:
             col = ERR_COLOR
-            extra = _('This ISBN number is invalid')
+            extra = _('This ISBN is invalid')
         self.line_edit.setToolTip(extra)
         self.line_edit.setStyleSheet(INDICATOR_SHEET % col)
 

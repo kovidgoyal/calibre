@@ -27,7 +27,7 @@ You can use all the various metadata fields available in calibre in a template, 
 In addition to the column based fields, you also can use::
 
     {formats} - A list of formats available in the calibre library for a book
-    {identifiers:select(isbn)} - The ISBN number of the book
+    {identifiers:select(isbn)} - The ISBN of the book
 
 If a particular book does not have a particular piece of metadata, the field in the template is automatically removed for that book. Consider, for example::
 
