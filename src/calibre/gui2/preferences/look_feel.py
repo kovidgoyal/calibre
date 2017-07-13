@@ -64,10 +64,12 @@ class DefaultAuthorLink(QWidget):  # {{{
         c.setMinimumContentsLength(30)
         for text, data in [
                 (_('Search for the author on Goodreads'), 'search-goodreads'),
+                (_('Search for the author on Amazon'), 'search-amzn'),
                 (_('Search for the author in your calibre library'), 'search-calibre'),
                 (_('Search for the author on Wikipedia'), 'search-wikipedia'),
                 (_('Search for the author on Google Books'), 'search-google'),
                 (_('Search for the book on Goodreads'), 'search-goodreads-book'),
+                (_('Search for the book on Amazon'), 'search-amzn-book'),
                 (_('Search for the book on Google Books'), 'search-google-book'),
                 (_('Use a custom search URL'), 'url'),
         ]:
