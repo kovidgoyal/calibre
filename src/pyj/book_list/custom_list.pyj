@@ -1,0 +1,20 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+
+
+def default_template():
+    return {
+        'cover': True,
+        'comments': False,
+        'comments_fields': ['comments'],
+        'height': '12.5ex',
+        'lines': [
+            _('<b>{title}</b> by {authors}'),
+            _('{series_index} of {series}') + '|||{rating}',
+            '{tags}',
+            _('Date: {timestamp} Published: {pubdate}'),
+        ]
+    }
