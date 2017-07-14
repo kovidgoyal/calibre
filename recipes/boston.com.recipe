@@ -1,17 +1,17 @@
-import string
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 from datetime import date, timedelta
-from calibre.utils.magick.draw import save_cover_data_to
-from calibre.ptempfile import PersistentTemporaryFile
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class BostonGlobeSubscription(BasicNewsRecipe):
 
-    # logger = logging.getLogger("mechanize")
-    # logger.addHandler(logging.StreamHandler(sys.stdout))
-    # logger.setLevel(logging.DEBUG)
     title = "Boston Globe Subscription"
     __author__ = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
@@ -21,23 +21,17 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(attrs={'class': ['section-head', 'comic', 'article']})
+        classes('main-hed lead-figure byline article-text comic'),
     ]
     remove_tags = [
-        dict(attrs={"class": [
-            "skip-nav article-more", "aside promo", "article-bar bar-yellow", "tools", "sticky-tools", "article-footer", "bg-footer"
-        ]}),
-        dict(attrs={"id": ["masthead", "video", "section-nav",
-                           'newsletter-form', "meter-limit-met-popup"]})
+        classes('inline-newsletter ad skip-nav'),
+        dict(name=['meta', 'link'])
     ]
+    remove_attributes = ['style']
     no_stylesheets = True
     # simultaneous_downloads = 1
-    valid_filename_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
     cover_url = "http://ecx.images-amazon.com/images/I/419qC6zeKSL._SL500_AA300_.jpg"
-    preprocess_regexps = [
-        (re.compile(r'\<img src\=\"\/\/'), lambda match: '<img src="http://'),
-    ]
-    comics_to_fetch = [
+    comics_to_fetch = {
         "ADAM@HOME",
         "ARLO & JANIS",
         # "ASK SHAGG",
@@ -62,81 +56,35 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         # "ROSE IS ROSE",
         "STONE SOUP",
         # "ZIPPY THE PINHEAD",
-        "ZITS"]
+        "ZITS"
+    }
 
     def image_url_processor(self, baseurl, url):
-        self.log("===================\nbaseurl: ", baseurl, "\nurl: ", url)
-        # This is a hack because some of the URLs just have a leading
-        # // instead of http://
-        if url.startswith("//"):
-            url = "http:" + url
-
-        url = self.get_image(url)
-
-        self.log("url out: ", url, "\n===================")
-
-        return url
-
-    def get_image(self, url):
-        # pdb.set_trace()
-        # Another hack - sometimes the URLs just have a leading /,
-        # in which case I stick on "http://" and the correct domain
-        if url.startswith("/"):
-            url = self.make_url(url)
-
-        # Get the image bytes
-        br = BasicNewsRecipe.get_browser(self)
-        response = br.open(url)
-        data = response.get_data()
-        pt = PersistentTemporaryFile('.jpg')
-        pt.close()
-        try:
-            save_cover_data_to(data, pt.name)
-            return 'file:///' + pt.name
-        except:
-            self.log('Failed to load image: %s' % url)
-        return ''
-
-    def is_login_form(self, form):
-        return form.action == "https://www.bostonglobe.com/Login"
+        return self.absolutize_url(url)
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
+            def is_login_form(form):
+                return form.action == "https://www.bostonglobe.com/Login"
+
             # br.set_debug_http(True)
             # br.set_debug_responses(True)
             # br.set_debug_redirects(True)
-            #
-            # This next line is here because the connection was failing
-            # with a "closed by remote host".  But running Fiddler seems to solve it,
-            # so I'm running Fiddler on port 8888 all the time now.  It's a hack, but
-            # until I can figure out a better solution, it'll do
-            #
-            # br.set_proxies({"http":"127.0.0.1:8888", "https":"127.0.0.1:8888"})
-            #
-            # end of hack
-            #
             br.open(
                 "https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/final-login.jsp")
-            br.select_form(predicate=self.is_login_form)
+            br.select_form(predicate=is_login_form)
             br["username"] = self.username
             br["password"] = self.password
-            # pdb.set_trace()
             br.submit()
         return br
 
-    def make_url(self, url):
+    def absolutize_url(self, url):
         if url.startswith("//"):
             return "http:" + url
         if url.startswith('/'):
             url = "http://www.bostonglobe.com" + url
         return url
-
-    def make_bostoncom_url(self, url):
-        if url.startswith("//"):
-            return "http:" + url
-
-        return "http://articles.boston.com" + url
 
     def parse_index(self):
         # self.logger.setLevel(logging.WARNING)
@@ -151,10 +99,6 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             self.log("Getting today's paper from ", index)
             soup = self.index_to_soup(index)
 
-        def title_from_h2(h2):
-            [img.extract() for img in h2.findAll('img')]
-            return self.tag_to_string(h2)
-
         def get_top_stories():
             self.log("Getting Top Stories")
             articles = []
@@ -164,13 +108,13 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                 h2 = story.find("h2", {"class": 'story-title'})
                 link = story.find("a")
                 if h2 is not None and link is not None:
-                    title = title_from_h2(h2)
-                    url = self.make_url(link["href"])
+                    title = self.tag_to_string(h2)
+                    url = self.absolutize_url(link["href"])
                     excerpt_div = story.find("div", {"class": "excerpt"})
                     excerpt = self.tag_to_string(excerpt_div)
                     self.log('\t', title, '[%s]' % url)
                     self.log('\t\t', excerpt)
-                    articles.append({"title": title, "url": self.make_url(
+                    articles.append({"title": title, "url": self.absolutize_url(
                         url), "date": self.todaysDate, "description": excerpt})
 
             if articles:
@@ -188,11 +132,11 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                 if (storyTitle.parent.name == "a"):
                     a = storyTitle.parent
                     url = a["href"]
-                    title = title_from_h2(storyTitle)
+                    title = self.tag_to_string(storyTitle)
                 else:
                     a = storyTitle.find("a")
                     url = a["href"]
-                    title = title_from_h2(a)
+                    title = self.tag_to_string(a)
 
                 hedCat = excerpt.find("p", "hed-cat")
                 if (hedCat):
@@ -211,10 +155,10 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                     if (para != hedCat):
                         description += self.tag_to_string(para)
 
-                self.log('\t', title, '[%s]' % self.make_url(url))
+                self.log('\t', title, '[%s]' % self.absolutize_url(url))
                 if description:
                     self.log('\t\t', description)
-                articles.append({"title": title, "url": self.make_url(
+                articles.append({"title": title, "url": self.absolutize_url(
                     url), "author": author, "date": self.todaysDate, "description": description})
 
             if articles:
@@ -230,12 +174,13 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                     if (title in self.comics_to_fetch):
                         url = li.a["href"]
                         author = self.tag_to_string(li.h2)
-                        # comicPageSoup = self.index_to_soup(self.make_url(url))
+                        # comicPageSoup =
+                        # self.index_to_soup(self.absolutize_url(url))
                         # imageURL = comicPageSoup.findAll("a", "comic")
                         # if len(imageURL) > 0:
                         #    url = imageURL[0]["href"]
                         # print "COMIC %s: %s" % (title, url)
-                        articles.append({"title": title, "url": self.make_url(
+                        articles.append({"title": title, "url": self.absolutize_url(
                             url), "author": author, "date": self.todaysDate, "description": ""})
 
             feeds.append(("Comics", articles))
@@ -268,37 +213,18 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         images = soup.findAll("img")
-        for image in images:
-            if (image["src"] == ""):
-                if (image["data-fullsrc"]):
-                    image["src"] = image["data-fullsrc"]
-                elif (image["src"].startswith("//")):
-                    image["src"] = "http://" + image["src"]
-
+        for img in images:
+            fs = img.get('data-fullsrc')
+            if fs:
+                img['src'] = fs
+            src = img.get('src')
+            if src:
+                img['src'] = self.absolutize_url(src)
         return soup
 
     def postprocess_html(self, soup, first):
         comicsBody = soup.find(
             "body", {"class": re.compile(".*section-comics.*")})
-        if (comicsBody):
+        if comicsBody:
             return self.postprocess_comics(soup, first)
-
-        article = soup.find("div", "article")
-        if (article):
-            # Yay!  We're getting the subscriber view.  Easy to handle
-            articleHeader = article.find("div", "header")
-            articleByline = article.find("div", "byline")
-            articleBody = article.find("div", "article-body")
-            figureLead = article.find("div", "figure lead-figure full")
-
-            body = Tag(soup, "body")
-            body.insert(0, articleHeader)
-            body.insert(1, articleByline)
-            body.insert(2, articleBody)
-
-            if (figureLead):
-                body.insert(2, figureLead)
-
-            soup.body.replaceWith(body)
-
         return soup
