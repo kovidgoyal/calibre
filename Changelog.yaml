@@ -20,6 +20,37 @@
 #   new recipes:
 #     - title:
 
+- version: 3.4.0
+  date: 2017-07-14
+
+  new features:
+    - title: "Edit book: Allow exporting all selected files to the computer from the 'File browser' by right clicking and choosing 'Export selected files'"
+
+    - title: "Server: When returning to the search page, remember the last used state of the Tag browser"
+
+    - title: "Template language: Allow the in_list() functions to return different values depending on what is found"
+
+    - title: "Add a configurable shortcut to move the focus from Quickview to the book list"
+
+  bug fixes:
+    - title: "Conversion: When inserting the publication year in the metadata jacket, do so in the local time zone, so it matches what is displayed in the main calibre program."
+      tickets: [1703439]
+
+    - title: "Server OPDS feeds: Fix incorrect counts in letter categories when there are lowercase names."
+      tickets: [1703251]
+
+    - title: "Edit book: Fix 'Show details' button not visible when doing 'Replace all' rather than 'Count all'"
+
+    - title: "Nook driver: Remove the % character from filenames sent to the Nook."
+      tickets: [1703284]
+
+    - title: "Fix calibre startup crash caused by Quickview when the applied virtual library is empty (has no books)."
+
+  improved recipes:
+    - FOX News
+    - Private Eye
+
+
 - version: 3.3.0
   date: 2017-07-07
 
