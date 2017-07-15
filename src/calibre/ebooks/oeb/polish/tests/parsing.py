@@ -63,14 +63,14 @@ def namespaces(test, parse_function):
     root = parse_function(markup)
     err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root)
     match_and_prefix(root, '//h:body[@id="test"]', None, err)
-    match_and_prefix(root, '//svg:svg', None if parse_function is parse else 'svg', err)
-    match_and_prefix(root, '//svg:image[@xl:href]', None if parse_function is parse else 'svg', err)
+    match_and_prefix(root, '//svg:svg', None, err)
+    match_and_prefix(root, '//svg:image[@xl:href]', None, err)
 
     markup = '<html><body><svg><image xlink:href="xxx"></svg>'
     root = parse_function(markup)
     err = 'Namespaces not created, parsed markup:\n' + etree.tostring(root)
-    match_and_prefix(root, '//svg:svg', None if parse_function is parse else 'svg', err)
-    match_and_prefix(root, '//svg:image[@xl:href]', None if parse_function is parse else 'svg', err)
+    match_and_prefix(root, '//svg:svg', None, err)
+    match_and_prefix(root, '//svg:image[@xl:href]', None, err)
     if parse_function is parse:
         image = XPath('//svg:image')(root)[0]
         ae(image.nsmap, {'xlink':XLINK_NS, None:SVG_NS})

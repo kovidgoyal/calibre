@@ -93,7 +93,8 @@ def node_depth(node):
 
 def html5_parse(data, max_nesting_depth=100):
     from html5_parser import parse
-    data = parse(data, maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
+    from calibre.utils.cleantext import clean_xml_chars
+    data = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
