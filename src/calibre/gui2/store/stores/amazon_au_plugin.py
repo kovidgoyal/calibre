@@ -66,7 +66,7 @@ def search_amazon(query, max_results=10, timeout=60,
             cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
             title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
             author_xpath = './/span[starts-with(text(), "by ")]/following-sibling::span//text()'
-            price_xpath = 'descendant::span[contains(@class, "sx-price")]/../@aria-label'
+            price_xpath = 'descendant::span[contains(@class, "s-price")]//text()'
         else:
             return
 
