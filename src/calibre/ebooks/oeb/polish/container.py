@@ -22,7 +22,7 @@ from urlparse import urlparse
 from cssutils import getUrls, replaceUrls
 from lxml import etree
 
-from calibre import CurrentDir
+from calibre import CurrentDir, walk
 from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks import escape_xpath_attr
@@ -122,7 +122,7 @@ def href_to_name(href, root, base=None):
         # assume all such paths are invalid/absolute paths.
         return None
     fullpath = os.path.join(base, *href.split('/'))
-    return abspath_to_name(fullpath, root)
+    return unicodedata.normalize('NFC', abspath_to_name(fullpath, root))
 
 
 class ContainerBase(object):  # {{{
@@ -1132,6 +1132,15 @@ class EpubContainer(Container):
             os.remove(join(tdir, 'mimetype'))
         except EnvironmentError:
             pass
+        # Ensure all filenames are in NFC normalized form
+        # has no effect on HFS+ filesystems as they always store filenames
+        # in NFD form
+        for filename in walk(self.root):
+            n = unicodedata.normalize('NFC', filename)
+            if n != filename:
+                s = filename + 'suff1x'
+                os.rename(filename, s)
+                os.rename(s, n)
 
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
