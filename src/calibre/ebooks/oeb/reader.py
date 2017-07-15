@@ -400,6 +400,8 @@ class OEBReader(object):
                 continue
             href = item.abshref(urlnormalize(href[0])) if href and href[0] else ''
             path, _ = urldefrag(href)
+            if path and path not in self.oeb.manifest.hrefs:
+                path = urlnormalize(path)
             if href and path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
                 gc = xpath(child, 'ncx:navPoint')
