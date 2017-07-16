@@ -445,7 +445,7 @@ class Document:
                         # self.debug(sib.text_content())
                         sib_content_length = text_length(sib)
                         if sib_content_length:
-                            i =+ 1
+                            i += 1
                             siblings.append(sib_content_length)
                             if i == x:
                                 break
