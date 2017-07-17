@@ -684,7 +684,7 @@ QImage normalize(const QImage &image) { // {{{
             break;
     }
     memset(&intensity, 0, sizeof(IntegerPixel));
-    for(high.green=high.red; high.green != low.red; --high.green){
+    for(high.green=high.red; high.green > low.red; --high.green){
         intensity.green += histogram[high.green].green;
         if(intensity.green > threshold_intensity)
             break;
@@ -696,7 +696,7 @@ QImage normalize(const QImage &image) { // {{{
             break;
     }
     memset(&intensity, 0, sizeof(IntegerPixel));
-    for(high.blue=high.green; high.blue != low.green; --high.blue){
+    for(high.blue=high.green; high.blue > low.green; --high.blue){
         intensity.blue += histogram[high.blue].blue;
         if(intensity.blue > threshold_intensity)
             break;
