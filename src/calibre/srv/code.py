@@ -118,6 +118,26 @@ def get_translations():
 DEFAULT_NUMBER_OF_BOOKS = 50
 
 
+def custom_list_template():
+    ans = getattr(custom_list_template, 'ans', None)
+    if ans is None:
+        ans = {
+            'thumbnail': True,
+            'thumbnail_height': 140,
+            'height': 'auto',
+            'comments_fields': ['comments'],
+            'lines': [
+                _('<b>{title}</b> by {authors}'),
+                _('{series_index} of <i>{series}</i>') + '|||{rating}',
+                '{tags}',
+                _('Date: {timestamp}') + '|||' + _('Published: {pubdate}') + '|||' + _('Publisher: {publisher}'),
+                '',
+            ]
+        }
+        custom_list_template.ans = ans
+    return ans
+
+
 def basic_interface_data(ctx, rd):
     ans = {
         'username': rd.username,
@@ -126,12 +146,12 @@ def basic_interface_data(ctx, rd):
                           for x in available_input_formats()},
         'gui_pubdate_display_format': tweaks['gui_pubdate_display_format'],
         'gui_timestamp_display_format': tweaks['gui_timestamp_display_format'],
-        'gui_last_modified_display_format':
-        tweaks['gui_last_modified_display_format'],
+        'gui_last_modified_display_format': tweaks['gui_last_modified_display_format'],
         'use_roman_numerals_for_series_number': get_use_roman(),
         'translations': get_translations(),
         'icon_map': icon_map(),
         'icon_path': ctx.url_for('/icon', which=''),
+        'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     return ans

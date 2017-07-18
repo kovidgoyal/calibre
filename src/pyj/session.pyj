@@ -165,6 +165,7 @@ default_interface_data = {
     'library_map': None,
     'icon_map': {},
     'icon_path': '',
+    'custom_list_template': None,
 }
 
 def get_interface_data():

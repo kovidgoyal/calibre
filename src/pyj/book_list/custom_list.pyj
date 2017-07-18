@@ -6,7 +6,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.details_list import THUMBNAIL_MAX_HEIGHT, sandbox_css, BORDER_RADIUS
+from book_list.details_list import sandbox_css, BORDER_RADIUS
 from book_list.library_data import library_data
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
@@ -15,7 +15,7 @@ from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 
 CUSTOM_LIST_CLASS = 'book-list-custom-list'
 ITEM_CLASS = CUSTOM_LIST_CLASS + '-item'
-DESCRIPTION = _('A customizable list')
+DESCRIPTION = _('A customizable list (see Preferences->Sharing over the net->Book list template)')
 
 def custom_list_css():
     ans = ''
@@ -37,10 +37,11 @@ def custom_list_css():
 
 
 def default_template():
+    # Should never actually be needed
     if not default_template.ans:
         default_template.ans =  {
             'thumbnail': True,
-            'thumbnail_height': THUMBNAIL_MAX_HEIGHT,
+            'thumbnail_height': 140,
             'height': 'auto',
             'comments_fields': v"['comments']",
             'lines': [
@@ -263,7 +264,7 @@ def on_img_load(img, load_type):
 
 
 def create_item(book_id, metadata, create_image, show_book_details):
-    template = default_template()
+    template = get_interface_data().custom_list_template or default_template()
     text_data = render_template_text(template, book_id, metadata)
     text_data.style.flexGrow = '10'
     text_data.style.overflow = 'hidden'
