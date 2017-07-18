@@ -340,7 +340,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
                 raise
 
         cdata = None
-        if opts.save_cover or formats:
+        if opts.save_cover:
             cdata = db.cover(book_id)
             if cdata:
                 cpath = base_path + '.jpg'
