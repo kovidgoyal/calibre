@@ -43,7 +43,7 @@ def default_template():
                 _('<b>{title}</b> by {authors}'),
                 _('{series_index} of <i>{series}</i>') + '|||{rating}',
                 '{tags}',
-                _('Date: {timestamp} Published: {pubdate}'),
+                _('Date: {timestamp}') + '|||' + _('Published: {pubdate}') + '|||' + _('Publisher: {publisher}'),
             ]
         }
     return default_template.ans
