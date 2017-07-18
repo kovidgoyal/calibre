@@ -2,19 +2,256 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
 from gettext import gettext as _
+
+from book_list.details_list import THUMBNAIL_MAX_HEIGHT
+from book_list.library_data import library_data
+from date import format_date
+from dom import build_rule, clear, set_css, svgicon
+from session import get_interface_data
+from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
+
+CUSTOM_LIST_CLASS = 'book-list-custom-list'
+ITEM_CLASS = CUSTOM_LIST_CLASS + '-item'
+DESCRIPTION = _('A customizable list')
+
+def custom_list_css():
+    ans = ''
+    sel = '.' + CUSTOM_LIST_CLASS
+    ans += build_rule(sel, cursor='pointer', user_select='none')
+    sel += ' .' + ITEM_CLASS
+    ans += build_rule(sel, margin='1ex 1em', padding_bottom='1ex', overflow='hidden', border_bottom='solid 1px currentColor')
+
+    sel += ' iframe'
+    # To enable clicking anywhere on the item to load book details to work, we
+    # have to set pointer-events: none
+    # That has the side effect of disabling text selection
+    ans += build_rule(sel, flex_grow='10', cursor='pointer', pointer_events='none')
+    return ans
 
 
 def default_template():
-    return {
-        'cover': True,
-        'comments': False,
-        'comments_fields': ['comments'],
-        'height': '12.5ex',
-        'lines': [
-            _('<b>{title}</b> by {authors}'),
-            _('{series_index} of {series}') + '|||{rating}',
-            '{tags}',
-            _('Date: {timestamp} Published: {pubdate}'),
-        ]
-    }
+    if not default_template.ans:
+        default_template.ans =  {
+            'thumbnail': True,
+            'thumbnail_height': THUMBNAIL_MAX_HEIGHT,
+            'height': 'auto',
+            'comments_fields': v"['comments']",
+            'lines': [
+                _('<b>{title}</b> by {authors}'),
+                _('{series_index} of {series}') + '|||{rating}',
+                '{tags}',
+                _('Date: {timestamp} Published: {pubdate}'),
+            ]
+        }
+    return default_template.ans
+
+
+def render_field(field, mi, book_id):  # {{{
+    field_metadata = library_data.field_metadata
+    fm = field_metadata[field]
+    if not fm:
+        return
+    val = mi[field]
+    if val is undefined or val is None:
+        return
+    interface_data = get_interface_data()
+
+    def add_val(val, is_html=False, join=None):
+        if is_html and /[<>]/.test(val + ''):
+            return safe_set_inner_html(E.span(), val)
+        if join:
+            val = val.join(join)
+        else:
+            val += ''
+        return val
+
+    def process_composite(field, fm, name, val):
+        if fm.display and fm.display.contains_html:
+            return add_val(val, is_html=True)
+        if fm.is_multiple and fm.is_multiple.list_to_ui:
+            all_vals = filter(None, map(str.strip, val.split(fm.is_multiple.list_to_ui)))
+            return add_val(all_vals, join=fm.is_multiple.list_to_ui)
+        return add_val(val)
+
+    def process_authors(field, fm, name, val):
+        return add_val(val, join=' & ')
+
+    def process_publisher(field, fm, name, val):
+        return add_val(val)
+
+    def process_formats(field, fm, name, val):
+        return add_val(val, join=', ')
+
+    def process_rating(field, fm, name, val):
+        stars = E.span()
+        val = int(val or 0)
+        if val > 0:
+            for i in range(val // 2):
+                stars.appendChild(svgicon('star'))
+            if fm.display.allow_half_stars and (val % 2):
+                stars.appendChild(svgicon('star-half'))
+            return stars
+
+    def process_identifiers(field, fm, name, val):
+        if val:
+            keys = Object.keys(val)
+            if keys.length:
+                ans = v'[]'
+                for key in keys:
+                    ans.push(key + ':' + val[key])
+                return add_val(ans, join=', ')
+
+    def process_languages(field, fm, name, val):
+        if val and val.length:
+            langs = [mi.lang_names[k] for k in val]
+            return add_val(langs, join=', ')
+
+    def process_datetime(field, fm, name, val):
+        if val:
+            fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
+            return add_val(format_date(val, fmt))
+
+    def process_series(field, fm, name, val):
+        if val:
+            return add_val(val)
+
+    def process_series_index(field, fm, name, val):
+        sval = mi[field[:-6]]
+        if sval:
+            return fmt_sidx(val or 1, use_roman=interface_data.use_roman_numerals_for_series_number)
+
+    name = fm.name or field
+    datatype = fm.datatype
+    if field is 'comments' or datatype is 'comments':
+        return
+    func = None
+    if datatype is 'composite':
+        func = process_composite
+    elif field is 'formats':
+        func = process_formats
+    elif datatype is 'rating':
+        func = process_rating
+    elif field is 'identifiers':
+        func = process_identifiers
+    elif field is 'authors':
+        func = process_authors
+    elif field is 'publisher':
+        func = process_publisher
+    elif field is 'languages':
+        func = process_languages
+    elif datatype is 'datetime':
+        func = process_datetime
+    elif datatype is 'series':
+        func = process_series
+    elif field.endswith('_index'):
+        func = process_series_index
+    ans = None
+    if func:
+        ans = func(field, fm, name, val)
+    else:
+        if datatype is 'text' or datatype is 'enumeration':
+            if val is not undefined and val is not None:
+                join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+                ans = add_val(val, join=join)
+        elif datatype is 'bool':
+            ans = add_val(_('Yes') if val else _('No'))
+        elif datatype is 'int' or datatype is 'float':
+            if val is not undefined and val is not None:
+                fmt = (fm.display or {}).number_format
+                if fmt:
+                    val = fmt.format(val)
+                else:
+                    val += ''
+                ans = add_val(val)
+    return ans
+# }}}
+
+
+def render_part(part, template, book_id, metadata):
+    count = rendered_count = 0
+    ans = E.div()
+    for field in part.split(/({[_a-z0-9]+})/):
+        if field[0] is '{' and field[-1] is '}':
+            count += 1
+            val = render_field(field[1:-1], metadata, book_id)
+            if val:
+                rendered_count += 1
+                if jstype(val) is 'string':
+                    val = document.createTextNode(val)
+                ans.appendChild(val)
+        else:
+            ans.appendChild(document.createTextNode(field))
+
+    if count and not rendered_count:
+        return
+    return ans
+
+
+def render_line(line, template, book_id, metadata):
+    parts = v'[]'
+    for p in line.split(/\|\|\|/):
+        part = render_part(p, template, book_id, metadata)
+        if part:
+            parts.push(part)
+    if not parts.length:
+        return
+    ans = E.div(class_='custom-line')
+    for p in parts:
+        ans.appendChild(p)
+    if parts.length > 1:
+        set_css(ans, display='flex', justify_content='space-between')
+    return ans
+
+
+def render_template_text(template, book_id, metadata):
+    ans = E.div()
+    for line in template.lines:
+        ldiv = render_line(line, template, book_id, metadata)
+        if ldiv:
+            ans.appendChild(ldiv)
+    if template.comments_fields.length:
+        html = ''
+        for f in template.comments_fields:
+            val = metadata[f]
+            if val:
+                html += f'<div style="margin-bottom:1.5ex">{val}</div>'
+
+        if html:
+            comments = sandboxed_html(html, 'html { overflow: hidden }')
+            ans.appendChild(comments)
+    return ans
+
+
+def init(container):
+    clear(container)
+    container.appendChild(E.div(class_=CUSTOM_LIST_CLASS))
+
+
+def create_item(book_id, metadata, create_image, show_book_details):
+    template = default_template()
+    text_data = render_template_text(template, book_id, metadata)
+    text_data.style.flexGrow = '10'
+    if template.thumbnail:
+        height = f'{template.thumbnail_height}px'
+    else:
+        if template.height is 'auto':
+            height = (template.lines.length * 2.5 + 1) + 'ex'
+        else:
+            height = template.height
+            if jstype(height) is 'number':
+                height += 'px'
+    ans = E.div(
+        style=f'height:{height}; display: flex',
+        class_=ITEM_CLASS,
+    )
+    if template.thumbnail:
+        pass
+    ans.appendChild(text_data)
+    ans.addEventListener('click', show_book_details, True)
+    return ans
+
+
+def append_item(container, item):
+    container.lastChild.appendChild(item)
