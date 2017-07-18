@@ -44,6 +44,7 @@ def default_template():
                 _('{series_index} of <i>{series}</i>') + '|||{rating}',
                 '{tags}',
                 _('Date: {timestamp}') + '|||' + _('Published: {pubdate}') + '|||' + _('Publisher: {publisher}'),
+                '',
             ]
         }
     return default_template.ans
@@ -204,6 +205,7 @@ def render_part(part, template, book_id, metadata):
 
 def render_line(line, template, book_id, metadata):
     parts = v'[]'
+    line = line or '\xa0'
     for p in line.split(/\|\|\|/):
         part = render_part(p, template, book_id, metadata)
         if part:
