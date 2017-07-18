@@ -451,7 +451,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSortingEnabled(False)
         self.books_table.blockSignals(True)
         tt = ('<p>' +
-            _('Double-click on a book to change the selection in the library view or '
+            _('Double click on a book to change the selection in the library view or '
               'change the column shown in the left-hand pane. '
               'Shift- or control-double-click to edit the metadata of a book, '
               'which also changes the selected book.'

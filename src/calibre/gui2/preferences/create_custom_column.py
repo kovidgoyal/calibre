@@ -120,8 +120,8 @@ class CreateCustomColumn(QDialog):
             self.exec_()
             return
 
-        self.setWindowTitle(_('Edit a custom column'))
-        self.heading_label.setText('<b>' + _('Edit a custom column'))
+        self.setWindowTitle(_('Edit custom column'))
+        self.heading_label.setText('<b>' + _('Edit custom column'))
         self.shortcuts.setVisible(False)
         idx = current_row
         if idx < 0:

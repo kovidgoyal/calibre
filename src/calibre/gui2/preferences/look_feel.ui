@@ -1183,7 +1183,7 @@ column being examined (the left-hand pane)</string>
 column being examined (the left-hand pane)</string>
            </property>
            <property name="text">
-            <string>&amp;Doubleclick changes examined column</string>
+            <string>&amp;Double click changes examined column</string>
            </property>
           </widget>
          </item>

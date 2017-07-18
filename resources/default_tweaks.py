@@ -393,7 +393,7 @@ sort_dates_using_visible_fields = False
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
-# You can control the behavior of doubleclicks on the books list.
+# You can control the behavior of double clicks on the books list.
 # Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting anything other than open_viewer has the
 # side effect of disabling editing a field using a single click.
