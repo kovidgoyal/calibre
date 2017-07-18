@@ -5,9 +5,10 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.theme import get_color
 from dom import build_rule, clear, set_css, svgicon
 from session import get_interface_data
-from utils import fmt_sidx, sandboxed_html, safe_set_inner_html
+from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 
 DETAILS_LIST_CLASS = 'book-list-details-list'
 ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
@@ -62,6 +63,12 @@ def on_img_load(img, load_type):
         set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
 
+def sandbox_css():
+    if not sandbox_css.ans:
+        sandbox_css.ans = 'html {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
+    return sandbox_css.ans
+
+
 def create_item(book_id, metadata, create_image, show_book_details):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
@@ -69,7 +76,7 @@ def create_item(book_id, metadata, create_image, show_book_details):
     img.dataset.title, img.dataset.authors = metadata.title, authors
     img_div = E.div(img, class_='details-list-left')
     extra_data = E.div()
-    comments = sandboxed_html(metadata.comments, 'html { overflow: hidden }')
+    comments = sandboxed_html(metadata.comments, sandbox_css())
     if not metadata.comments:
         comments.style.display = 'none'
     comments.style.marginTop = '1ex'

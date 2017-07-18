@@ -6,7 +6,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.details_list import THUMBNAIL_MAX_HEIGHT
+from book_list.details_list import THUMBNAIL_MAX_HEIGHT, sandbox_css
 from book_list.library_data import library_data
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
@@ -234,7 +234,7 @@ def render_template_text(template, book_id, metadata):
                 html += f'<div style="margin-bottom:1.5ex">{val}</div>'
 
         if html:
-            comments = sandboxed_html(html, 'html { overflow: hidden }')
+            comments = sandboxed_html(html, sandbox_css())
             ans.appendChild(comments)
     return ans
 
