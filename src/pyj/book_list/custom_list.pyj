@@ -6,7 +6,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.details_list import THUMBNAIL_MAX_HEIGHT, sandbox_css
+from book_list.details_list import THUMBNAIL_MAX_HEIGHT, sandbox_css, BORDER_RADIUS
 from book_list.library_data import library_data
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
@@ -22,8 +22,12 @@ def custom_list_css():
     sel = '.' + CUSTOM_LIST_CLASS
     ans += build_rule(sel, cursor='pointer', user_select='none')
     sel += ' .' + ITEM_CLASS
-    ans += build_rule(sel, margin='1ex 1em', padding_bottom='1ex', overflow='hidden', border_bottom='solid 1px currentColor')
-
+    ans += build_rule(sel, margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
+    ans += build_rule(f'{sel}:hover .custom-list-left', transform='scale(1.2)')
+    ans += build_rule(f'{sel}:active .custom-list-left', transform='scale(2)')
+    s = sel + ' .custom-list-left'
+    ans += build_rule(s, margin_right='1em')
+    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px')
     sel += ' iframe'
     # To enable clicking anywhere on the item to load book details to work, we
     # have to set pointer-events: none
@@ -244,10 +248,25 @@ def init(container):
     container.appendChild(E.div(class_=CUSTOM_LIST_CLASS))
 
 
+def on_img_load(img, load_type):
+    div = img.parentNode
+    if not div:
+        return
+    if load_type is not 'load':
+        clear(div)
+        div.appendChild(E.div(
+            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
+            E.div(_('by'), style='text-align: center'),
+            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
+        ))
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+
+
 def create_item(book_id, metadata, create_image, show_book_details):
     template = default_template()
     text_data = render_template_text(template, book_id, metadata)
     text_data.style.flexGrow = '10'
+    text_data.style.overflow = 'hidden'
     if template.thumbnail:
         height = f'{template.thumbnail_height}px'
     else:
@@ -262,7 +281,16 @@ def create_item(book_id, metadata, create_image, show_book_details):
         class_=ITEM_CLASS,
     )
     if template.thumbnail:
-        pass
+        h = template.thumbnail_height
+        w = int(0.75 * h)
+        img = create_image(book_id, w, h, on_img_load)
+        authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
+        img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
+        img.dataset.title, img.dataset.authors = metadata.title, authors
+        img.style.maxWidth = w + 'px'
+        img.style.maxHeight = h + 'px'
+        img_div = E.div(img, class_='custom-list-left', style=f'min-width: {w}px')
+        ans.appendChild(img_div)
     ans.appendChild(text_data)
     ans.addEventListener('click', show_book_details, True)
     return ans
