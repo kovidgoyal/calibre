@@ -98,6 +98,7 @@ class DB:
                 req = store.put(blob, ':-test-blob-:')
             except:
                 self.initialize_stage2(idb, False)
+                return
             req.onsuccess = def(event):
                 self.initialize_stage2(idb, True)
             req.onerror = def(event):
