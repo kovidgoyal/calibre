@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: NodeFilter
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
@@ -40,7 +41,7 @@ def default_template():
             'comments_fields': v"['comments']",
             'lines': [
                 _('<b>{title}</b> by {authors}'),
-                _('{series_index} of {series}') + '|||{rating}',
+                _('{series_index} of <i>{series}</i>') + '|||{rating}',
                 '{tags}',
                 _('Date: {timestamp} Published: {pubdate}'),
             ]
@@ -172,17 +173,29 @@ def render_field(field, mi, book_id):  # {{{
 def render_part(part, template, book_id, metadata):
     count = rendered_count = 0
     ans = E.div()
-    for field in part.split(/({[_a-z0-9]+})/):
-        if field[0] is '{' and field[-1] is '}':
-            count += 1
-            val = render_field(field[1:-1], metadata, book_id)
-            if val:
-                rendered_count += 1
-                if jstype(val) is 'string':
-                    val = document.createTextNode(val)
-                ans.appendChild(val)
-        else:
-            ans.appendChild(document.createTextNode(field))
+    ans.innerHTML = part
+    walk = document.createTreeWalker(ans, NodeFilter.SHOW_TEXT, None, False)
+    replacements = v'[]'
+    while True:
+        n = walk.nextNode()
+        if not n:
+            break
+        rendered = E.span()
+        for field in n.nodeValue.split(/({[_a-z0-9]+})/):
+            if field[0] is '{' and field[-1] is '}':
+                count += 1
+                val = render_field(field[1:-1], metadata, book_id)
+                if val:
+                    rendered_count += 1
+                    if jstype(val) is 'string':
+                        val = document.createTextNode(val)
+                    rendered.appendChild(val)
+            else:
+                rendered.appendChild(document.createTextNode(field))
+        replacements.push(v'[rendered, n]')
+
+    for new_child, old_child in replacements:
+        old_child.parentNode.replaceChild(new_child, old_child)
 
     if count and not rendered_count:
         return
