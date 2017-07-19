@@ -644,7 +644,7 @@ class SearchesModel(QAbstractListModel):
     def add_searches(self, count=1):
         self.beginResetModel()
         self.searches = tprefs['saved_searches']
-        self.filtered_searches.extend(xrange(len(self.searches) - 1, len(self.searches) - 1 - count, -1))
+        self.filtered_searches.extend(xrange(len(self.searches) - count, len(self.searches), 1))
         self.endResetModel()
 
     def remove_searches(self, rows):
