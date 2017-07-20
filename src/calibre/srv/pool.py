@@ -104,7 +104,7 @@ class PluginPool(object):
         try:
             plugin.start(self.loop)
         except Exception:
-            self.loop.log.exception('Failed to start plugin: %s', self.plugin_name(plugin))
+            self.loop.log.exception('Failed to start plugin:', self.plugin_name(plugin))
 
     def start(self):
         for w in self.workers:
@@ -116,7 +116,7 @@ class PluginPool(object):
                 try:
                     w.plugin.stop()
                 except Exception:
-                    self.loop.log.exception('Failed to stop plugin: %s', self.plugin_name(w.plugin))
+                    self.loop.log.exception('Failed to stop plugin:', self.plugin_name(w.plugin))
         for w in self.workers:
             left = wait_till - monotonic()
             if left > 0:

@@ -42,6 +42,7 @@ class AllIpAddressesGetter(Thread):
 #        print 'slept'
         _all_ip_addresses = self.get_all_ips()
 
+
 _ip_address_getter_thread = None
 
 
@@ -89,6 +90,7 @@ def verify_ipV4_address(ip_address):
             pass
     return result
 
+
 _ext_ip = None
 
 
@@ -97,7 +99,7 @@ def get_external_ip():
     if _ext_ip is None:
         from calibre.utils.ip_routing import get_default_route_src_address
         try:
-            _ext_ip = get_default_route_src_address()
+            _ext_ip = get_default_route_src_address() or _get_external_ip()
         except Exception:
             _ext_ip = _get_external_ip()
     return _ext_ip
@@ -138,6 +140,8 @@ def create_service(desc, type, port, properties, add_hostname, use_ip_address=No
         local_ip = use_ip_address
     else:
         local_ip = get_external_ip()
+    if not local_ip:
+        raise ValueError('Failed to determine local IP address to advertise via BonJour')
     type = type+'.local.'
     from calibre.utils.Zeroconf import ServiceInfo
     return ServiceInfo(type, desc+'.'+type,
