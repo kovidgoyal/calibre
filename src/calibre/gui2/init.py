@@ -655,7 +655,7 @@ class LayoutMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
-        self.book_details.manage_author.connect(lambda author:self.do_author_sort_edit(self, author, select_sort=False, select_link=False))
+        self.book_details.manage_category.connect(self.manage_category_triggerred)
         self.book_details.compare_specific_format.connect(self.compare_format)
 
         m = self.library_view.model()
@@ -664,6 +664,13 @@ class LayoutMixin(object):  # {{{
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
+
+    def manage_category_triggerred(self, field, value):
+        if field and value:
+            if field == 'authors':
+                self.do_author_sort_edit(self, value, select_sort=False, select_link=False)
+            elif field:
+                self.do_tags_list_edit(value, field)
 
     def toggle_grid_view(self, show):
         self.library_view.alternate_views.show_view('grid' if show else None)

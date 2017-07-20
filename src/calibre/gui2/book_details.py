@@ -69,6 +69,23 @@ def create_search_internet_menu(callback, author=None):
     return m
 
 
+def is_category(field):
+    from calibre.db.categories import find_categories
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    fm = gui.current_db.field_metadata
+    return field in {x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])}
+
+
+def init_manage_action(ac, field, value):
+    from calibre.library.field_metadata import category_icon_map
+    ic = category_icon_map.get(field) or 'blank.png'
+    ac.setIcon(QIcon(I(ic)))
+    ac.setText(_('Manage %s') % value)
+    ac.current_fmt = field, value
+    return ac
+
+
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
     table, comment_fields = (render_data_func or render_data)(mi, all_fields=all_fields,
             use_roman_numbers=config['use_roman_numerals_for_series_number'])
@@ -230,10 +247,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                     ac.setText(t)
                     menu.addAction(ac)
             if author is not None:
-                ac = book_info.manage_author_action
-                ac.current_fmt = author
-                ac.setText(_('Manage %s') % author)
-                menu.addAction(ac)
+                menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
                 if hasattr(book_info, 'search_internet'):
                     menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
                     menu.addMenu(sia)
@@ -247,6 +261,9 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 except Exception:
                     field = value = book_id = None
                 if field:
+                    if author is None and (
+                            field in ('tags', 'series', 'publisher') or is_category(field)):
+                        menu.addAction(init_manage_action(book_info.manage_action, field, value))
                     ac = book_info.remove_item_action
                     ac.data = (field, value, book_id)
                     ac.setText(_('Remove %s from this book') % value)
@@ -481,7 +498,7 @@ class BookInfo(QWebView):
     compare_format = pyqtSignal(int, object)
     set_cover_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
-    manage_author = pyqtSignal(object)
+    manage_category = pyqtSignal(object, object)
     open_fmt_with = pyqtSignal(int, object, object)
 
     def __init__(self, vertical, parent=None):
@@ -500,7 +517,7 @@ class BookInfo(QWebView):
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
-            ('manage_author', 'user_profile.png'), ('compare_format', 'diff.png'),
+            ('compare_format', 'diff.png'),
             ('set_cover_format', 'default_cover.png'),
         ]:
             ac = QAction(QIcon(I(icon)), '', self)
@@ -508,6 +525,9 @@ class BookInfo(QWebView):
             ac.current_url = None
             ac.triggered.connect(getattr(self, '%s_triggerred'%x))
             setattr(self, '%s_action'%x, ac)
+        self.manage_action = QAction(self)
+        self.manage_action.current_fmt = self.manage_action.current_url = None
+        self.manage_action.triggered.connect(self.manage_action_triggered)
         self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
@@ -545,8 +565,9 @@ class BookInfo(QWebView):
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
 
-    def manage_author_triggerred(self):
-        self.manage_author.emit(self.manage_author_action.current_fmt)
+    def manage_action_triggered(self):
+        if self.manage_action.current_fmt:
+            self.manage_category.emit(*self.manage_action.current_fmt)
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -696,7 +717,7 @@ class BookDetails(QWidget):  # {{{
     open_cover_with = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
     view_device_book = pyqtSignal(object)
-    manage_author = pyqtSignal(object)
+    manage_category = pyqtSignal(object, object)
     open_fmt_with = pyqtSignal(int, object, object)
 
     # Drag 'n drop {{{
@@ -772,7 +793,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.set_cover_format.connect(self.set_cover_from_format)
         self.book_info.compare_format.connect(self.compare_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
-        self.book_info.manage_author.connect(self.manage_author)
+        self.book_info.manage_category.connect(self.manage_category)
         self.setCursor(Qt.PointingHandCursor)
 
     def search_internet(self, data):
