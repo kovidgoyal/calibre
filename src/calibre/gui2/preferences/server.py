@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
+import errno
+import json
 import os
 import textwrap
 import time
@@ -19,13 +21,14 @@ from calibre.gui2 import (
     config, error_dialog, gprefs, info_dialog, open_url, warning_dialog
 )
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
+from calibre.srv.code import custom_list_template as default_custom_list_template
+from calibre.srv.embedded import custom_list_template
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
 from calibre.utils.icu import primary_sort_key
-
 
 # Advanced {{{
 
@@ -729,6 +732,104 @@ class Users(QWidget):
 # }}}
 
 
+class CustomList(QWidget):  # {{{
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.default_template = default_custom_list_template()
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        self.la = la = QLabel('<p>' + _(
+            'Here you can create a template to control what data is shown when'
+            ' using the <i>Custom list</i> mode for the book list'))
+        la.setWordWrap(True)
+        l.addRow(la)
+        self.thumbnail = t = QCheckBox(_('Show a cover &thumbnail'))
+        self.thumbnail_height = th = QSpinBox(self)
+        th.setSuffix(' px'), th.setRange(60, 600)
+        self.entry_height = eh = QLineEdit(self)
+        l.addRow(t), l.addRow(_('Thumbnail &height:'), th)
+        l.addRow(_('Entry &height:'), eh)
+        t.stateChanged.connect(self.changed_signal)
+        th.valueChanged.connect(self.changed_signal)
+        eh.textChanged.connect(self.changed_signal)
+        eh.setToolTip(textwrap.fill(_(
+            'The height for each entry. The special value "auto" causes a height to be calculated'
+            ' based on the number of lines in the template. Otherwise, use a CSS length, such as'
+            ' 100px or 15ex')))
+        t.stateChanged.connect(self.thumbnail_state_changed)
+        th.setVisible(False)
+
+        self.comments_fields = cf = QLineEdit(self)
+        l.addRow(_('&Long text fields:'), cf)
+        cf.setToolTip(textwrap.fill(_(
+            'A comma separated list of fields that will be added at the bottom of every entry.'
+            ' These fields are interpreted as containing HTML, not plain text.')))
+        cf.textChanged.connect(self.changed_signal)
+
+        self.la1 = la = QLabel('<p>' + _(
+            'The template below will be interpreted as HTML and all {{fields}} will be replaced'
+            ' by the actual metadata, if available. You can use {0} as a separator'
+            ' to split a line into multiple columns.').format('|||'))
+        la.setWordWrap(True)
+        l.addRow(la)
+        self.template = t = QPlainTextEdit(self)
+        l.addRow(t)
+        t.textChanged.connect(self.changed_signal)
+
+    def thumbnail_state_changed(self):
+        is_enabled = bool(self.thumbnail.isChecked())
+        for w, x in [(self.thumbnail_height, True), (self.entry_height, False)]:
+            w.setVisible(is_enabled is x)
+            self.layout().labelForField(w).setVisible(is_enabled is x)
+
+    def genesis(self):
+        self.current_template = custom_list_template() or self.default_template
+
+    @property
+    def current_template(self):
+        return {
+            'thumbnail': self.thumbnail.isChecked(),
+            'thumbnail_height': self.thumbnail_height.value(),
+            'height': self.entry_height.text().strip() or 'auto',
+            'comments_fields': [x.strip() for x in self.comments_fields.text().split(',') if x.strip()],
+            'lines': [x.strip() for x in self.template.toPlainText().splitlines()]
+        }
+
+    @current_template.setter
+    def current_template(self, template):
+        self.thumbnail.setChecked(bool(template.get('thumbnail')))
+        try:
+            th = int(template['thumbnail_height'])
+        except Exception:
+            th = self.default_template['thumbnail_height']
+        self.thumbnail_height.setValue(th)
+        self.entry_height.setText(template.get('height') or 'auto')
+        self.comments_fields.setText(', '.join(template.get('comments_fields') or ()))
+        self.template.setPlainText('\n'.join(template.get('lines') or ()))
+
+    def restore_defaults(self):
+        self.current_template = self.default_template
+
+    def commit(self):
+        template = self.current_template
+        if template == self.default_template:
+            try:
+                os.remove(custom_list_template.path)
+            except EnvironmentError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+        else:
+            raw = json.dumps(template, sort_keys=True, indent=4, separators=(',', ': '))
+            with lopen(custom_list_template.path, 'wb') as f:
+                f.write(raw)
+        return True
+
+# }}}
+
+
 class ConfigWidget(ConfigWidgetBase):
 
     def __init__(self, *args, **kw):
@@ -750,6 +851,10 @@ class ConfigWidget(ConfigWidgetBase):
         sa = QScrollArea(self)
         sa.setWidget(a), sa.setWidgetResizable(True)
         t.addTab(sa, _('&Advanced'))
+        self.custom_list_tab = clt = CustomList(self)
+        sa = QScrollArea(self)
+        sa.setWidget(clt), sa.setWidgetResizable(True)
+        t.addTab(sa, _('Book &list template'))
         for tab in self.tabs:
             if hasattr(tab, 'changed_signal'):
                 tab.changed_signal.connect(self.changed_signal.emit)
@@ -882,6 +987,8 @@ class ConfigWidget(ConfigWidgetBase):
                 )
                 self.tabs_widget.setCurrentWidget(self.users_tab)
                 return False
+        if not self.custom_list_tab.commit():
+            return False
         ConfigWidgetBase.commit(self)
         change_settings(**settings)
         UserManager().user_data = users
@@ -902,6 +1009,7 @@ class ConfigWidget(ConfigWidgetBase):
     def refresh_gui(self, gui):
         if self.server:
             self.server.user_manager.refresh()
+            self.server.ctx.custom_list_template = custom_list_template()
 
 
 if __name__ == '__main__':

@@ -4,11 +4,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import errno
+import json
 import os
 from threading import Thread
 
 from calibre import as_unicode
-from calibre.constants import cache_dir, is_running_from_develop
+from calibre.constants import cache_dir, config_dir, is_running_from_develop
 from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
@@ -21,6 +22,20 @@ def log_paths():
     return os.path.join(cache_dir(), 'server-log.txt'), os.path.join(
         cache_dir(), 'server-access-log.txt'
     )
+
+
+def custom_list_template():
+    try:
+        with lopen(custom_list_template.path, 'rb') as f:
+            raw = f.read()
+    except EnvironmentError as err:
+        if err.errno != errno.ENOENT:
+            raise
+        return
+    return json.loads(raw)
+
+
+custom_list_template.path = os.path.join(config_dir, 'server-custom-list-template.json')
 
 
 class Server(object):
@@ -46,6 +61,11 @@ class Server(object):
         self.opts = opts
         self.log, self.access_log = log, access_log
         self.handler.set_log(self.log)
+        self.handler.router.ctx.custom_list_template = custom_list_template()
+
+    @property
+    def ctx(self):
+        return self.handler.router.ctx
 
     @property
     def user_manager(self):

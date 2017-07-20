@@ -187,7 +187,7 @@ def render_part(part, template, book_id, metadata):
         if not n:
             break
         rendered = E.span()
-        for field in n.nodeValue.split(/({[_a-z0-9]+})/):
+        for field in n.nodeValue.split(/({#?[_a-z0-9]+})/):
             if field[0] is '{' and field[-1] is '}':
                 count += 1
                 val = render_field(field[1:-1], metadata, book_id)
@@ -272,7 +272,8 @@ def create_item(book_id, metadata, create_image, show_book_details):
         height = f'{template.thumbnail_height}px'
     else:
         if template.height is 'auto':
-            height = (template.lines.length * 2.5 + 1) + 'ex'
+            extra = 5 if template.comments_fields.length else 1
+            height = (template.lines.length * 2.5 + extra) + 'ex'
         else:
             height = template.height
             if jstype(height) is 'number':
