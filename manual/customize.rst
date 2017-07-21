@@ -43,7 +43,7 @@ Environment variables
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
-See `How to set environment variables in Windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
+See `How to set environment variables in Windows <https://www.computerhope.com/issues/ch000549.htm>`_ or
 `How to set environment variables in macOS <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
 
 Tweaks
