@@ -23,8 +23,6 @@ New features for the server generally
 - Add a way to search the set of locally available books stored in offline
   storage.
 
-- Add more book list visualizations and/or a customizable visualization
-
 - Automatic Let's Encrypt integration so that using HTTPS is easier
   Should wait for the acme v2 protocol endpoint:
   https://letsencrypt.org/2017/06/14/acme-v2-api.html
