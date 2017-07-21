@@ -82,12 +82,17 @@ Everything after the -- is passed to the script.
             help=_('Inspect the MOBI file(s) at the specified path(s)'))
     parser.add_option('-t', '--edit-book', action='store_true',
             help=_('Launch the calibre "Edit book" tool in debug mode.'))
-    parser.add_option('-x', '--explode-book', default=None,
-            help=_('Explode the book (exports the book as a collection of HTML '
+    parser.add_option('-x', '--explode-book', default=False, action='store_true',
+            help=_('Explode the book into the specified directory.\nUsage: '
+            '-x file.epub output_dir\n'
+            'Exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
-            'editing tools, and then rebuilds the file from the edited HTML. '
-            'Makes no additional changes to the HTML, unlike a full calibre '
-            'conversion).'))
+            'editing tools. Works with EPUB, AZW3, HTMLZ and DOCX files.'))
+    parser.add_option('-i', '--implode-book', default=False, action='store_true', help=_(
+        'Implode a previously exploded book.\nUsage: -i output_dir file.epub\n'
+        'Imports the book from the files in output_dir which must have'
+        ' been created by a previous call to --explode-book. Be sure to'
+        ' specify the same file type as was used when exploding.'))
     parser.add_option('--export-all-calibre-data', default=False, action='store_true',
         help=_('Export all calibre data (books/settings/plugins)'))
     parser.add_option('--import-calibre-data', default=False, action='store_true',
@@ -277,9 +282,14 @@ def main(args=sys.argv):
     elif opts.edit_book:
         from calibre.gui_launch import ebook_edit
         ebook_edit(['ebook-edit'] + args[1:])
-    elif opts.explode_book:
-        from calibre.ebooks.tweak import tweak
-        tweak(opts.explode_book)
+    elif opts.explode_book or opts.implode_book:
+        from calibre.ebooks.tweak import explode, implode
+        try:
+            a1, a2 = args[1:]
+        except Exception:
+            raise SystemExit('Must provide exactly two arguments')
+        f = explode if opts.explode_book else implode
+        f(a1, a2)
     elif opts.test_build:
         from calibre.test_build import test
         test()
