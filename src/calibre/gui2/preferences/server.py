@@ -18,7 +18,8 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.gui2 import (
-    config, error_dialog, gprefs, info_dialog, open_url, warning_dialog
+    choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog,
+    open_url, warning_dialog
 )
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.code import custom_list_template as default_custom_list_template
@@ -778,6 +779,29 @@ class CustomList(QWidget):  # {{{
         self.template = t = QPlainTextEdit(self)
         l.addRow(t)
         t.textChanged.connect(self.changed_signal)
+        self.imex = bb = QDialogButtonBox(self)
+        b = bb.addButton(_('&Import template'), bb.ActionRole)
+        b.clicked.connect(self.import_template)
+        b = bb.addButton(_('E&xport template'), bb.ActionRole)
+        b.clicked.connect(self.export_template)
+        l.addRow(bb)
+
+    def import_template(self):
+        paths = choose_files(self, 'custom-list-template', _('Choose template file'),
+            filters=[(_('Template files'), ['json'])], all_files=False, select_only_single_file=True)
+        if paths:
+            with lopen(paths[0], 'rb') as f:
+                raw = f.read()
+            self.current_template = self.deserialize(raw)
+
+    def export_template(self):
+        path = choose_save_file(
+            self, 'custom-list-template', _('Choose template file'),
+            filters=[(_('Template files'), ['json'])], initial_filename='custom-list-template.json')
+        if path:
+            raw = self.serialize(self.current_template)
+            with lopen(path, 'wb') as f:
+                f.write(raw)
 
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
@@ -810,6 +834,12 @@ class CustomList(QWidget):  # {{{
         self.comments_fields.setText(', '.join(template.get('comments_fields') or ()))
         self.template.setPlainText('\n'.join(template.get('lines') or ()))
 
+    def serialize(self, template):
+        return json.dumps(template, sort_keys=True, indent=4, separators=(',', ': '), ensure_ascii=True)
+
+    def deserialize(self, raw):
+        return json.loads(raw)
+
     def restore_defaults(self):
         self.current_template = self.default_template
 
@@ -822,7 +852,7 @@ class CustomList(QWidget):  # {{{
                 if err.errno != errno.ENOENT:
                     raise
         else:
-            raw = json.dumps(template, sort_keys=True, indent=4, separators=(',', ': '))
+            raw = self.serialize(template)
             with lopen(custom_list_template.path, 'wb') as f:
                 f.write(raw)
         return True
