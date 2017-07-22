@@ -1,58 +1,26 @@
 #!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-__license__ = 'GPL v3'
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
-from urllib import unquote
-
+import re
 from collections import defaultdict
-from calibre.web.feeds.news import BasicNewsRecipe
+
 from calibre import browser
+from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(x):
     if x.startswith('/') and not x.startswith('//'):
         x = 'https://www.newyorker.com' + x
     return x
-
-
-class Tag(list):
-
-    def __init__(self, name, **attrs):
-        self.name = name
-        self.attrs = attrs
-
-    def __str__(self):
-        ans = ['<' + self.name]
-        for k, v in self.attrs.iteritems():
-            ans.append(' {}="{}"'.format(k, v))
-        ans.append('>')
-        for child in self:
-            ans.append(unicode(child))
-        ans.append('</{}>'.format(self.name))
-        return ''.join(ans)
-
-
-def deserialize(node):
-    name = node.pop(0)
-    if name == 'inline-embed':
-        meta = node.pop(0)
-        t = meta['type']
-        if t in ('image', 'cartoon'):
-            meta = json.loads(unquote(meta['meta']))
-            ans = Tag('img', src=absurl(meta['url']))
-        elif t == 'section':
-            ans = Tag('div')
-        else:
-            ans = Tag('span')
-    else:
-        ans = Tag(name)
-    for child in node:
-        if isinstance(child, list):
-            ans.append(deserialize(child))
-        elif isinstance(child, basestring):
-            ans.append(child)
-    return ans
 
 
 class NewYorker(BasicNewsRecipe):
@@ -73,50 +41,42 @@ class NewYorker(BasicNewsRecipe):
                 '''
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(attrs={'class':lambda x: x and 'ArticleHeader__hed___' in x}),
-        dict(attrs={'class':lambda x: x and 'ArticleHeader__dek___' in x}),
-        dict(attrs={'class':lambda x: x and 'Byline__articleHeader___' in x}),
-        dict(attrs={'class':lambda x: x and 'ArticleLedeImage__container___' in x}),
+        dict(attrs={'class': lambda x: x and 'ArticleHeader__hed___' in x}),
+        dict(attrs={'class': lambda x: x and 'ArticleHeader__dek___' in x}),
+        dict(attrs={'class': lambda x: x and 'Byline__articleHeader___' in x}),
+        dict(attrs={'class': lambda x: x and 'ArticleLedeImage__container___' in x}),
         dict(itemprop=['headline', 'alternativeHeadline']),
         dict(name='h1'),
-        dict(attrs={'class':lambda x: x and 'byline-and-date' in x}),
-        dict(attrs={'class':lambda x: x and 'inset-mobile-crop-image' in x}),
-        dict(attrs={'class':lambda x: x and 'hero-image-caption' in x}),
-        dict(id='articleBody'),
-        dict(attrs={'class':lambda x: x and 'ArticleDisclaimer__articleDisclaimer___' in x}),
-        dict(attrs={'class':lambda x: x and 'ArticleContributors__bio___' in x}),
-    ]
+        classes(
+            'featured-image byline-and-date inset-mobile-crop-image hero-image-caption'
+        ),
+        dict(id=['articleBody', 'article-content']),
+        dict(attrs={'class': lambda x: x and 'ArticleDisclaimer__articleDisclaimer___' in x}),
+        dict(attrs={'class': lambda x: x and 'ArticleContributors__bio___' in x}), ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'content-ad-wrapper', 'social-hover', 'background-image'})}),
+        classes('content-ad-wrapper social-hover background-image'),
         dict(id=['newsletter-signup']),
-        dict(name='meta links source'.split()),
-    ]
+        dict(name='links source'.split()), ]
+    remove_attributes = ['style']
 
-    # def preprocess_raw_html(self, raw, url):
-    #     import re
-    #     try:
-    #         raw = re.search(r'window.__TNY__.INITIAL_STATE = ({.+?)</script', raw).group(1)
-    #     except AttributeError:
-    #         return raw
-    #     data = json.loads(raw.strip().rstrip(';'))
-    #     return '<html><body><div id="articleBody">' + unicode(deserialize(data['primary']['body']))
-    #
     def parse_index(self):
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
         # soup = self.index_to_soup('file:///t/raw.html')
-        cover_img =  soup.find(attrs={'class': lambda x: x and 'MagazineCover__cover___' in x})
+        cover_img = soup.find(
+            attrs={'class': lambda x: x and 'MagazineCover__cover___' in x})
         if cover_img is not None:
             cover_img = cover_img.find('img')
             if cover_img is not None:
-                self.cover_url = cover_img.get('src', cover_img.get('data-src', cover_img.get('srcset').split()[0]))
+                self.cover_url = cover_img.get('src')
                 self.log('Found cover:', self.cover_url)
         stories = defaultdict(list)
         last_section = 'Unknown'
-        for story in soup.findAll(attrs={'class': lambda x: x and 'River__riverItemContent___' in x}):
+        for story in soup.findAll(
+            attrs={'class': lambda x: x and 'River__riverItemContent___' in x}):
             try:
-                section = self.tag_to_string(story.find('a')['title']) or last_section
+                section = self.tag_to_string(
+                    story.find('a')['title']) or last_section
             except KeyError:
                 section = last_section
             last_section = section
@@ -131,11 +91,35 @@ class NewYorker(BasicNewsRecipe):
             self.log('\t' + url)
             self.log('\t' + desc)
             self.log('')
-            stories[section].append({'title':title, 'url':url, 'description':desc})
+            stories[section].append({
+                'title': title,
+                'url': url,
+                'description': desc})
 
         return [(k, stories[k]) for k in sorted(stories)]
 
+    def preprocess_raw_html(self, html, url):
+        self.featured_image = None
+        m = m = re.search(r'"featured_image".+?,"url":("https[^"]+")', html)
+        if m is not None:
+            self.featured_image = json.loads(m.group(1))
+            self.log('Found featured image in JSON at', url, ':', self.featured_image)
+        return html
+
     def preprocess_html(self, soup):
+        body = soup.find('body')
+        if not body.find('h1'):
+            title = soup.find('meta', itemprop='name')
+            if title:
+                if self.featured_image:
+                    img = Tag(soup, 'img')
+                    img['src'] = self.featured_image
+                    div = Tag(soup, 'div')
+                    div.append(img)
+                    body.insert(0, div)
+                h1 = Tag(soup, 'h1')
+                h1.append(title.get('content'))
+                body.insert(0, h1)
         for attr in 'srcset data-src-mobile'.split():
             for img in soup.findAll('img'):
                 try:
@@ -158,4 +142,5 @@ class NewYorker(BasicNewsRecipe):
     def open_novisit(self, *args, **kwargs):
         br = browser()
         return br.open_novisit(*args, **kwargs)
+
     open = open_novisit
