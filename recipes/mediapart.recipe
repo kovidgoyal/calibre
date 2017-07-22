@@ -9,7 +9,6 @@ Mediapart
 '''
 
 import re
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.feeds import feeds_from_index
 from datetime import date, timedelta
@@ -54,7 +53,7 @@ class Mediapart(BasicNewsRecipe):
 
         soup = self.index_to_soup(
             'https://www.mediapart.fr/journal/fil-dactualites')
-        page = soup.find('section', {'class': 'global-wrapper'})
+        page = soup.find('main', {'class': 'global-wrapper'})
         fils = page.find('ul', {'class': 'post-list universe-journal'})
 
         for article in fils.findAll('li'):
@@ -129,8 +128,7 @@ class Mediapart(BasicNewsRecipe):
                            'août', 'septembre', 'octobre', 'novembre', 'décembre'].index(date_arr[1]))
 
     def print_version(self, url):
-        raw = self.browser.open(url).read()
-        soup = BeautifulSoup(raw.decode('utf8', 'replace'))
+        soup = self.index_to_soup(url)
         # Filter old articles
         # article_date = self.parse_french_date(self.tag_to_string(soup.find('span', 'article-date')))
 
@@ -139,7 +137,6 @@ class Mediapart(BasicNewsRecipe):
 
         tools = soup.find('li', {'class': 'print'})
         link = tools.find('a', {'href': re.compile(r'\/print\/.*')})
-        print(link['href'])
         # if link is None:
         #    print 'Error: print link not found'
         #    return None
