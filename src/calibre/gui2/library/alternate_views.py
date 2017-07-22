@@ -15,16 +15,17 @@ from textwrap import wrap
 
 from PyQt5.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QTimer, QPalette, QColor, QItemSelection, QPixmap, QApplication,
+    QTimer, QPalette, QColor, QItemSelection, QPixmap, QApplication, QScroller,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
-    qBlue, QItemSelectionModel, QIcon, QFont)
+    qBlue, QItemSelectionModel, QIcon, QFont, QMouseEvent)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
+from calibre.utils.monotonic import monotonic
 from calibre.gui2 import gprefs, config, rating_font, empty_index
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
@@ -624,6 +625,53 @@ class CoverDelegate(QStyledItemDelegate):
 
 # }}}
 
+
+def send_click(view, pos, button=Qt.LeftButton, double_click=False):
+    if double_click:
+        ev = QMouseEvent(QEvent.MouseButtonDblClick, pos, button, button, QApplication.keyboardModifiers())
+        QApplication.postEvent(view.viewport(), ev)
+        return
+    ev = QMouseEvent(QEvent.MouseButtonPress, pos, button, button, QApplication.keyboardModifiers())
+    QApplication.postEvent(view.viewport(), ev)
+    ev = QMouseEvent(QEvent.MouseButtonRelease, pos, button, button, QApplication.keyboardModifiers())
+    QApplication.postEvent(view.viewport(), ev)
+
+
+def handle_gesture(ev, view):
+    tap = ev.gesture(Qt.TapGesture)
+    if tap and tap.state() == Qt.GestureFinished:
+        p, view.last_tap_at = view.last_tap_at, monotonic()
+        interval = QApplication.instance().doubleClickInterval() / 1000
+        double_click = monotonic() - p < interval
+        send_click(view, tap.position(), double_click=double_click)
+        ev.accept(Qt.TapGesture)
+        return True
+    th = ev.gesture(Qt.TapAndHoldGesture)
+    if th and th.state() in (Qt.GestureStarted, Qt.GestureUpdated, Qt.GestureFinished):
+        send_click(view, th.position(), button=Qt.RightButton)
+        ev.accept(Qt.TapAndHoldGesture)
+        return True
+    return True
+
+
+def setup_gestures(view):
+    v = view.viewport()
+    view.scroller = QScroller.grabGesture(v, QScroller.TouchGesture)
+    v.grabGesture(Qt.TapGesture)
+    v.grabGesture(Qt.TapAndHoldGesture)
+    view.last_tap_at = 0
+
+
+def gesture_viewport_event(view, ev):
+    et = ev.type()
+    if et in (QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
+        if ev.source() in (Qt.MouseEventSynthesizedBySystem, Qt.MouseEventSynthesizedByQt):
+            ev.ignore()
+            return False
+    elif et == QEvent.Gesture:
+        return handle_gesture(ev, view)
+
+
 # The View {{{
 
 
@@ -635,6 +683,7 @@ class GridView(QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        setup_gestures(self)
         setup_dnd_interface(self)
         self.setUniformItemSizes(True)
         self.setWrapping(True)
@@ -669,6 +718,12 @@ class GridView(QListView):
         self.resize_timer = t = QTimer(self)
         t.setInterval(200), t.setSingleShot(True)
         t.timeout.connect(self.update_memory_cover_cache_size)
+
+    def viewportEvent(self, ev):
+        ret = gesture_viewport_event(self, ev)
+        if ret is not None:
+            return ret
+        return QListView.viewportEvent(self, ev)
 
     @property
     def device_pixel_ratio(self):
