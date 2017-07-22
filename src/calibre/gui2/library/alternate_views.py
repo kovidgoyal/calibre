@@ -648,7 +648,8 @@ def handle_gesture(ev, view):
         return True
     th = ev.gesture(Qt.TapAndHoldGesture)
     if th and th.state() in (Qt.GestureStarted, Qt.GestureUpdated, Qt.GestureFinished):
-        send_click(view, th.position(), button=Qt.RightButton)
+        if th.state() == Qt.GestureFinished:
+            send_click(view, th.position(), button=Qt.RightButton)
         ev.accept(Qt.TapAndHoldGesture)
         return True
     return True
