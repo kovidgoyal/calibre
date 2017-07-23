@@ -365,7 +365,7 @@ class SearchBarButton(LayoutButton):  # {{{
     def __init__(self, gui):
         sc = 'Alt+Shift+F'
         LayoutButton.__init__(self, I('search.png'), _('Search bar'), parent=gui, shortcut=sc)
-        self.set_state_to_show()
+        self.set_state_to_hide()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         gui.addAction(self.action_toggle)
         gui.keyboard.register_shortcut('search bar toggle' + self.label, unicode(self.action_toggle.text()),
