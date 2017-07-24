@@ -161,6 +161,20 @@ class AmazonKindleStore(StorePlugin):
         for result in search_amazon(query, max_results=max_results, timeout=timeout):
             yield result
 
+    def get_language(self, idata):
+        self.language_xpath = '''
+            descendant::*[
+                starts-with(text(), "Language:") \
+                or text() = "Language" \
+                ]
+            '''
+        for x in reversed(idata.xpath(self.language_xpath)):
+            if x.tail:
+                raw = x.tail.strip().partition(',')[0].strip()
+                ans = canonicalize_lang(raw)
+                if ans:
+                    return ans
+
     def get_details(self, search_result, timeout):
         url = DETAILS_URL
 
@@ -177,6 +191,7 @@ class AmazonKindleStore(StorePlugin):
                     search_result.drm = SearchResult.DRM_UNKNOWN
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
+            search_result.language = self.get_language(idata) or ''
         return True
 
 
