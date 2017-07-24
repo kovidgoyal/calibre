@@ -145,7 +145,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             self.log.warning("Publication date not found")
 
         # Online articles
-        online = soup.find('div', {'id': 'block-left', 'class': 'article'})
+        online = soup.find('div', {'id': 'block-left'})
 
         headline = online.find('span', {'class': 'headline'})
         if headline:
