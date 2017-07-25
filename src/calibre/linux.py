@@ -841,7 +841,7 @@ class PostInstall:
                 f.close()
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
-                appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'appdata')
+                appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
                 if not os.path.exists(appdata):
                     try:
                         os.mkdir(appdata)
@@ -1092,7 +1092,7 @@ def write_appdata(key, entry, base, translators):
     fpath = os.path.join(base, '%s.appdata.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
-        s = E.screenshot(url, width=str(w), height=str(h))
+        s = E.screenshot(E.image(url, width=str(w), height=str(h)))
         screenshots.append(s)
     screenshots[0].set('type', 'default')
     description = E.description()
@@ -1104,8 +1104,8 @@ def write_appdata(key, entry, base, translators):
                 description.append(E.p(tp))
                 description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
 
-    root = E.application(
-        E.id(key + '.desktop', type='desktop'),
+    root = E.component(
+        E.id(key + '.desktop'),
         E.name(entry['name']),
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
@@ -1113,6 +1113,7 @@ def write_appdata(key, entry, base, translators):
         description,
         E.url('https://calibre-ebook.com', type='homepage'),
         screenshots,
+        type='desktop'
     )
     for lang, t in translators.iteritems():
         tp = t.ugettext(entry['summary'])
