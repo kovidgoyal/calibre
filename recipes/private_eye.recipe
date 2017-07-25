@@ -131,7 +131,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                     day = ''.join(c for c in day if c.isdigit())
                     date = datetime.strptime(
                         " ".join((day, month, year)), "%d %B %Y")
-                    date = date - timedelta(12)
+                    date = date - timedelta(11)
                     self.publication_date = datetime.strftime(
                         date, "%d %B %Y").lstrip("0")
                     self.log.debug("Publication date: %s" % self.publication_date)
