@@ -4,6 +4,8 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
+import traceback
+
 from PyQt5.Qt import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
     QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray)
@@ -27,8 +29,12 @@ class TableItem(QTableWidgetItem):
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def __ge__(self, other):
-        l = sort_key(self.sort)
-        r = sort_key(other.sort)
+        if isinstance(self.sort, (str, unicode)):
+            l = sort_key(self.sort)
+            r = sort_key(other.sort)
+        else:
+            l = self.sort
+            r = other.sort
         if l > r:
             return 1
         if l == r:
@@ -36,8 +42,12 @@ class TableItem(QTableWidgetItem):
         return 0
 
     def __lt__(self, other):
-        l = sort_key(self.sort)
-        r = sort_key(other.sort)
+        if isinstance(self.sort, (str, unicode)):
+            l = sort_key(self.sort)
+            r = sort_key(other.sort)
+        else:
+            l = self.sort
+            r = other.sort
         if l < r:
             return 1
         if l == r:
@@ -459,28 +469,41 @@ class Quickview(QDialog, Ui_Quickview):
         for row, b in enumerate(books):
             mi = self.db.get_metadata(b, index_is_id=True, get_user_categories=False)
             for col in self.column_order:
-                if col == 'title':
-                    a = TableItem(mi.title, mi.title_sort)
-                    if b == self.current_book_id:
-                        select_item = a
-                elif col == 'authors':
-                    a = TableItem(' & '.join(mi.authors), mi.author_sort)
-                elif col == 'series':
-                    series = mi.format_field('series')[1]
-                    if series is None:
-                        series = ''
-                    a = TableItem(series, mi.series, mi.series_index)
-                elif self.fm[col]['datatype'] == 'series':
-                    v = mi.format_field(col)[1]
-                    a = TableItem(v, mi.get(col), mi.get(col+'_index'))
-                else:
-                    v = mi.format_field(col)[1]
-                    a = TableItem(v, v)
+                try:
+                    if col == 'title':
+                        a = TableItem(mi.title, mi.title_sort)
+                        if b == self.current_book_id:
+                            select_item = a
+                    elif col == 'authors':
+                        a = TableItem(' & '.join(mi.authors), mi.author_sort)
+                    elif col == 'series':
+                        series = mi.format_field('series')[1]
+                        if series is None:
+                            a = TableItem('', '', 0)
+                        else:
+                            a = TableItem(series, mi.series, mi.series_index)
+                    elif self.fm[col]['datatype'] == 'series':
+                        v = mi.format_field(col)[1]
+                        a = TableItem(v, mi.get(col), mi.get(col+'_index'))
+                    elif self.fm[col]['datatype'] == 'datetime':
+                        v = mi.format_field(col)[1]
+                        from calibre.utils.date import timestampfromdt
+                        sv = timestampfromdt(mi.get(col))
+                        a = TableItem(v, sv)
+                    elif self.fm[col]['datatype'] in ('float', 'int'):
+                        v = mi.format_field(col)[1]
+                        sv = mi.get(col)
+                        a = TableItem(v, sv)
+                    else:
+                        v = mi.format_field(col)[1]
+                        a = TableItem(v, v)
+                except:
+                    traceback.print_exc()
+                    a = TableItem(_('Something went wrong while filling in the table'), '')
                 a.setData(Qt.UserRole, b)
                 a.setToolTip(tt)
                 self.books_table.setItem(row, self.key_to_table_widget_column(col), a)
                 self.books_table.setRowHeight(row, self.books_table_row_height)
-
         self.books_table.blockSignals(False)
         self.books_table.setSortingEnabled(True)
         if select_item is not None:
