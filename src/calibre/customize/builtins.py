@@ -1843,17 +1843,6 @@ class StoreVirtualoStore(StoreBase):
     affiliate = True
 
 
-class StoreWaterstonesUKStore(StoreBase):
-    name = 'Waterstones UK'
-    author = 'Charles Haley'
-    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'  # noqa
-    actual_plugin = 'calibre.gui2.store.stores.waterstones_uk_plugin:WaterstonesUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-    affiliate = False
-
-
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
     description = u'An independent DRM-free e-book site devoted to e-books of all sorts.'
@@ -1950,7 +1939,6 @@ plugins += [
     StoreSmashwordsStore,
     StoreSonyStore, StoreSonyAUStore,
     StoreVirtualoStore,
-    StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
     StoreWolneLekturyStore,
