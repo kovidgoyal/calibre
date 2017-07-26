@@ -189,7 +189,7 @@ class PDFWriter(QObject):
                              xdpi=xdpi, ydpi=ydpi, errors=self.log.error,
                              debug=self.log.debug, compress=not
                              opts.uncompressed_pdf, opts=opts,
-                             mark_links=opts.pdf_mark_links)
+                             mark_links=opts.pdf_mark_links, page_margins=(ml, mr, mt, mb))
         self.footer = opts.pdf_footer_template
         if self.footer:
             self.footer = self.footer.strip()

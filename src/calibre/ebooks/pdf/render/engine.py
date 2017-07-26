@@ -63,7 +63,7 @@ class PdfEngine(QPaintEngine):
     def __init__(self, file_object, page_width, page_height, left_margin,
                  top_margin, right_margin, bottom_margin, width, height,
                  errors=print, debug=print, compress=True,
-                 mark_links=False, opts=None):
+                 mark_links=False, opts=None, page_margins=(0, 0, 0, 0)):
         QPaintEngine.__init__(self, self.FEATURES)
         self.file_object = file_object
         self.compress, self.mark_links = compress, mark_links
@@ -95,8 +95,9 @@ class PdfEngine(QPaintEngine):
         self.qt_hack, err = plugins['qt_hack']
         self.has_footers = opts is not None and (opts.pdf_page_numbers or opts.pdf_footer_template is not None)
         self.has_headers = opts is not None and opts.pdf_header_template is not None
-        self.header_height = (opts.margin_top or 0) if opts else 0
-        self.footer_height = (opts.margin_bottom) or 0 if opts else 0
+        ml, mr, mt, mb = page_margins
+        self.header_height = mt
+        self.footer_height = mb
         if err:
             raise RuntimeError('Failed to load qt_hack with err: %s'%err)
 
@@ -347,7 +348,7 @@ class PdfDevice(QPaintDevice):  # {{{
     def __init__(self, file_object, page_size=A4, left_margin=inch,
                  top_margin=inch, right_margin=inch, bottom_margin=inch,
                  xdpi=1200, ydpi=1200, errors=print, debug=print,
-                 compress=True, mark_links=False, opts=None):
+                 compress=True, mark_links=False, opts=None, page_margins=(0, 0, 0, 0)):
         QPaintDevice.__init__(self)
         self.xdpi, self.ydpi = xdpi, ydpi
         self.page_width, self.page_height = page_size
@@ -359,7 +360,7 @@ class PdfDevice(QPaintDevice):  # {{{
                                 left_margin, top_margin, right_margin,
                                 bottom_margin, self.width(), self.height(),
                                 errors=errors, debug=debug, compress=compress,
-                                mark_links=mark_links, opts=opts)
+                                mark_links=mark_links, opts=opts, page_margins=page_margins)
         self.add_outline = self.engine.add_outline
         self.add_links = self.engine.add_links
 
