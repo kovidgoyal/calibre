@@ -27,6 +27,7 @@ class Dialog(QDialog):
         self.icon_widget.set_icon(QIcon(I(icon)))
 
         self.msg = m = QLabel(self)
+        m.setOpenExternalLinks(True)
         m.setMinimumWidth(350), m.setWordWrap(True), m.setObjectName("msg")
         m.setText(msg)
 
