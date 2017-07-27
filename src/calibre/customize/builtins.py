@@ -1366,24 +1366,6 @@ class StoreAmazonKindleStore(StoreBase):
     affiliate = False
 
 
-class StoreSonyStore(StoreBase):
-    name = 'SONY Reader Store'
-    description = u'SONY Reader books.'
-    author = 'Kovid Goyal'
-    actual_plugin = 'calibre.gui2.store.stores.sony_plugin:SonyStore'
-
-    headquarters = 'US'
-    formats = ['SONY']
-    affiliate = False
-
-
-class StoreSonyAUStore(StoreSonyStore):
-    name = 'SONY Reader (Australia) Store'
-    description = u'SONY Reader books (Australia).'
-    actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
-    headquarters = 'AU'
-
-
 class StoreAmazonAUKindleStore(StoreBase):
     name = 'Amazon AU Kindle'
     author = u'Kovid Goyal'
@@ -1758,16 +1740,6 @@ class StoreNextoStore(StoreBase):
     affiliate = True
 
 
-class StoreNookUKStore(StoreBase):
-    name = 'Nook UK'
-    author = 'Charles Haley'
-    description = u'Barnes & Noble S.A.R.L, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOK reading experience and a leading digital bookstore to the UK.'  # noqa
-    actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
-
-    headquarters = 'UK'
-    formats = ['NOOK']
-
-
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
     description = u'Comprehensive listing of DRM free e-books from a variety of sources provided by users of calibre.'
@@ -1930,14 +1902,12 @@ plugins += [
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
-    StoreNookUKStore,
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
-    StoreSonyStore, StoreSonyAUStore,
     StoreVirtualoStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
