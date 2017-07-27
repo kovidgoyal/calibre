@@ -238,8 +238,7 @@ class AuthController(object):
                         if not nonce_is_stale:
                             data.username = da.username
                             return
-                else:
-                    log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                log_msg = 'Failed login attempt from: %s' % data.remote_addr
             elif self.prefer_basic_auth and scheme == 'basic':
                 try:
                     un, pw = base64_decode(rest.strip()).partition(':')[::2]
@@ -250,8 +249,7 @@ class AuthController(object):
                 if self.check(un, pw):
                     data.username = un
                     return
-                else:
-                    log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                log_msg = 'Failed login attempt from: %s' % data.remote_addr
             else:
                 raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported authentication method')
 
