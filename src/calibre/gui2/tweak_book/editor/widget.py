@@ -356,6 +356,8 @@ class Editor(QMainWindow):
         state = tprefs.get('%s-editor-state' % self.syntax, None)
         if state is not None:
             self.restoreState(state)
+        for bar in self.bars:
+            bar.setVisible(len(bar.actions()) > 0)
 
     def populate_toolbars(self):
         self.action_bar.clear(), self.tools_bar.clear()
