@@ -190,6 +190,8 @@ class TestAuth(BaseTest):
             # Check that server ignores repeated nc values
             ok_test(conn, digest(**args))
 
+            warnings = []
+            server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
             # Check stale nonces
             orig, r.auth_controller.max_age_seconds = r.auth_controller.max_age_seconds, -1
             auth = parse_http_dict(test(conn, '/closed', headers={
