@@ -163,7 +163,8 @@ class Handler(object):
         if opts.auth:
             has_ssl = opts.ssl_certfile is not None and opts.ssl_keyfile is not None
             prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, False)
-            self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
+            self.auth_controller = AuthController(
+                user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth, ban_time_in_minutes=opts.ban_for, ban_after=opts.ban_after)
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)

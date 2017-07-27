@@ -7,17 +7,57 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import binascii, os, random, struct, base64, httplib
+from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
 from threading import Lock
 
-from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse
+from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, HTTPForbidden
 from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
 
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
+
+
+class BanList(object):
+
+    def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
+        self.interval = max(0, ban_time_in_minutes) * 60
+        self.max_failures_before_ban = max(0, max_failures_before_ban)
+        if not self.interval or not self.max_failures_before_ban:
+            self.is_banned = lambda *a: False
+            self.failed = lambda *a: None
+        else:
+            self.items = OrderedDict()
+            self.lock = Lock()
+
+    def is_banned(self, key):
+        with self.lock:
+            x = self.items.get(key)
+        if x is None:
+            return False
+        previous_fail, fail_count = x
+        if fail_count < self.max_failures_before_ban:
+            return False
+        return monotonic() - previous_fail < self.interval
+
+    def failed(self, key):
+        with self.lock:
+            x = self.items.pop(key, None)
+            fail_count = 0 if x is None else x[1]
+            now = monotonic()
+            self.items[key] = now, fail_count + 1
+            remove = []
+            for old in reversed(self.items):
+                previous_fail = self.items[old][0]
+                if now - previous_fail > self.interval:
+                    remove.append(old)
+                else:
+                    break
+            for r in remove:
+                self.items.pop(r, None)
 
 
 def as_bytestring(x):
@@ -195,8 +235,11 @@ class AuthController(object):
     '''
     ANDROID_COOKIE = 'android_workaround'
 
-    def __init__(self, user_credentials=None, prefer_basic_auth=False, realm='calibre', max_age_seconds=MAX_AGE_SECONDS, log=None):
+    def __init__(self,
+                 user_credentials=None, prefer_basic_auth=False, realm='calibre',
+                 max_age_seconds=MAX_AGE_SECONDS, log=None, ban_time_in_minutes=0, ban_after=5):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
+        self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
         self.secret = binascii.hexlify(os.urandom(random.randint(20, 30))).decode('ascii')
         self.max_age_seconds = max_age_seconds
@@ -221,6 +264,9 @@ class AuthController(object):
         return cookie and validate_nonce(self.key_order, cookie, path, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
 
     def do_http_auth(self, data, endpoint):
+        ban_key = data.remote_addr, data.forwarded_for
+        if self.ban_list.is_banned(ban_key):
+            raise HTTPForbidden('Too many login attempts', log='Too many login attempts from: %s' % (ban_key if data.forwarded_for else data.remote_addr))
         auth = data.inheaders.get('Authorization')
         nonce_is_stale = False
         log_msg = None
@@ -239,6 +285,7 @@ class AuthController(object):
                             data.username = da.username
                             return
                 log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                self.ban_list.failed(ban_key)
             elif self.prefer_basic_auth and scheme == 'basic':
                 try:
                     un, pw = base64_decode(rest.strip()).partition(':')[::2]
@@ -250,6 +297,7 @@ class AuthController(object):
                     data.username = un
                     return
                 log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                self.ban_list.failed(ban_key)
             else:
                 raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported authentication method')
 

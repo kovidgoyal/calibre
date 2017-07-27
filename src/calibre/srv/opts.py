@@ -154,6 +154,14 @@ raw_options = (
     ' putting this server behind an SSL proxy. Otherwise, leave it as "auto", which'
     ' will use "basic" if SSL is configured otherwise it will use "digest".'),
 
+    _('Ban IP addresses that have repeated login failures'), 'ban_for', 0,
+    _('Temporarily bans access for IP addresses that have repeated login failures for the'
+      ' specified number of minutes. Useful to prevent attempts at guessing passwords. If'
+      ' set to zero, no banning is done.'),
+
+    _('Number of login failures for ban'), 'ban_after', 5,
+    _('The number of login failures after which an IP address is banned'),
+
     _('Ignored user-defined metadata fields'),
     'ignored_fields', None,
     _('Comma separated list of user-defined metadata fields that will not be displayed'

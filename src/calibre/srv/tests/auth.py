@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, base64, urllib2, subprocess, os, cookielib
+import httplib, base64, urllib2, subprocess, os, cookielib, time
 from collections import namedtuple
 try:
     from distutils.spawn import find_executable
@@ -41,10 +41,11 @@ def android2(ctx, data):
     return 'android2'
 
 
-def router(prefer_basic_auth=False):
+def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
     return Router(globals().itervalues(), auth_controller=AuthController(
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
+        ban_time_in_minutes=ban_for, ban_after=ban_after,
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
 
 
@@ -238,6 +239,29 @@ class TestAuth(BaseTest):
                 docurl(b'', '--digest', '--user', 'xxxx:testpw')
                 docurl(b'', '--digest', '--user', 'testuser:xtestpw')
                 docurl(b'closed', '--digest', '--user', 'testuser:testpw')
+    # }}}
+
+    def test_fail_ban(self):  # {{{
+        ban_for = 0.5/60.0
+        r = router(prefer_basic_auth=True, ban_for=ban_for, ban_after=2)
+        with TestServer(r.dispatch) as server:
+            r.auth_controller.log = server.log
+            conn = server.connect()
+
+            def request(un='testuser', pw='testpw'):
+                conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + base64.standard_b64encode(bytes('%s:%s' % (un, pw)))})
+                r = conn.getresponse()
+                return r.status, r.read()
+
+            warnings = []
+            server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
+            self.ae((httplib.OK, b'closed'), request())
+            self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae(httplib.FORBIDDEN, request('x', 'y')[0])
+            self.ae(httplib.FORBIDDEN, request()[0])
+            time.sleep(ban_for * 60 + 0.01)
+            self.ae((httplib.OK, b'closed'), request())
     # }}}
 
     def test_android_auth_workaround(self):  # {{{
