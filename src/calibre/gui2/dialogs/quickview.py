@@ -546,10 +546,20 @@ class Quickview(QDialog, Ui_Quickview):
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
-        if gprefs['qv_dclick_changes_column']:
-            self.select_book(row, column)
-        else:
-            self.select_book(row, self.key_to_table_widget_column(self.current_key))
+        try:
+            if gprefs['qv_dclick_changes_column']:
+                self.select_book(row, column)
+            else:
+                self.select_book(row, self.key_to_table_widget_column(self.current_key))
+        except:
+            from calibre.gui2 import error_dialog
+            error_dialog(self, _('Quickview: Book not in library view'),
+                         _('The book you selected is not currently displayed in '
+                           'the library view, perhaps because of a search, so '
+                           'Quickview cannot select it.'),
+                         show=True,
+                         show_copy_button=False)
+
 
     def select_book(self, row, column):
         '''
