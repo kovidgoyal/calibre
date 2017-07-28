@@ -20,6 +20,61 @@
 #   new recipes:
 #     - title:
 
+- version: 3.5.0
+  date: 2017-07-28
+
+  new features:
+    - title: "Server: Add a new 'custom' mode for the book list, where you can specify exactly what metadata fields are displayed, via a template (see Preferences->Sharing over the net->Book list template)"
+
+    - title: "Speed up HTML parsing by an order of magnitude, by switching from html5lib to html5-parser"
+
+    - title: "Add support for touch screens to the main calibre book list. You can now flick to scroll, tap to select and double-tap to view books."
+
+    - title: "Server: Add an option to ban IP addresses if there are too many failed login attempts"
+
+    - title: "calibre-debug: Change the --explode-book action to only create the exploded directory and not rebuild the file. Add a new --implode-book action to rebuild the file, separately."
+
+    - title: "Book details panel: Add Manage authors/series/tags/etc. to the menu when right clicking on the item"
+
+    - title: "Kobo driver: Update for new firmware"
+
+  bug fixes:
+    - title: "PDF Output: Fix a regression in 2.82 that caused conversion of comics to PDF files to have successive images become smaller and smaller in some circumstances."
+      tickets: [1706814]
+
+    - title: "PDF Output: Fix a regression in 2.83 that caused occasional blank pages at the end of chapters when using headers/footers."
+      tickets: [1706484]
+
+    - title: "Get books: Update store plugins for ebook.nl and the various amazon websites"
+
+    - title: "Edit book: Hide editor toolbars if they are empty."
+      tickets: [1706343]
+
+    - title: "Server: Fix failed login attempts using digest auth not being logged to the main log"
+
+    - title: "Quickview: for non-text fields, sort on native values instead of text."
+
+    - title: "Fix hidden search bar state not being restored on calibre restart."
+      tickets: [1705916]
+
+    - title: "Fix option to not save cover separately when using Save to disk not working."
+      tickets: [1704925]
+
+    - title: "Server: Fix an error on browsers that do not support blob storage in IndexedDB."
+      tickets: [1704912]
+
+    - title: "Comic input: Fix a bug in the normalize image filter that caused a crash when converting comics that contain a page with only a single color."
+      tickets: [1704778]
+
+    - title: "Edit Book: Handle non-normalized unicode characters in file names better"
+      tickets: [1704225]
+
+  improved recipes:
+    - Mediapart
+    - New Yorker
+    - Boston Globe
+    - Private Eye
+
 - version: 3.4.0
   date: 2017-07-14
 
