@@ -13,7 +13,9 @@ from PyQt5.Qt import (
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
+from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key
+from calibre.utils.iso8601 import UNDEFINED_DATE
 
 
 class TableItem(QTableWidgetItem):
@@ -29,6 +31,16 @@ class TableItem(QTableWidgetItem):
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def __ge__(self, other):
+        if self.sort is None:
+            if other.sort is None:
+                # None == None therefore >=
+                return True
+            # self is None, other is not None therefore self < other
+            return False
+        if other.sort is None:
+            # self is not None and other is None therefore self >= other
+            return True
+
         if isinstance(self.sort, (str, unicode)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
@@ -42,6 +54,16 @@ class TableItem(QTableWidgetItem):
         return 0
 
     def __lt__(self, other):
+        if self.sort is None:
+            if other.sort is None:
+                # None == None therefore not <
+                return False
+            # self is None, other is not None therefore self < other
+            return True
+        if other.sort is None:
+            # self is not None therefore self > other
+            return False
+
         if isinstance(self.sort, (str, unicode)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
@@ -487,9 +509,9 @@ class Quickview(QDialog, Ui_Quickview):
                         a = TableItem(v, mi.get(col), mi.get(col+'_index'))
                     elif self.fm[col]['datatype'] == 'datetime':
                         v = mi.format_field(col)[1]
-                        from calibre.utils.date import timestampfromdt
-                        sv = timestampfromdt(mi.get(col))
-                        a = TableItem(v, sv)
+                        d = mi.get(col)
+                        if d is None: d = UNDEFINED_DATE
+                        a = TableItem(v, timestampfromdt(d))
                     elif self.fm[col]['datatype'] in ('float', 'int'):
                         v = mi.format_field(col)[1]
                         sv = mi.get(col)
