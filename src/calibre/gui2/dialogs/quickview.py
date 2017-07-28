@@ -560,7 +560,6 @@ class Quickview(QDialog, Ui_Quickview):
                          show=True,
                          show_copy_button=False)
 
-
     def select_book(self, row, column):
         '''
         row and column both refer the qv table. In particular, column is not

@@ -87,7 +87,9 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
                 formats.append('PDF')
             search_result.formats = ', '.join(formats)
 
-            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]//span[@class="ePubAdobeDRM" or @class="ePubwatermerk" or @class="Pdfwatermark" or @class="PdfAdobeDRM"]'):
+            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]'
+                           '//span[@class="ePubAdobeDRM" or @class="ePubwatermerk" or'
+                           ' @class="Pdfwatermark" or @class="PdfAdobeDRM"]'):
                 search_result.drm = SearchResult.DRM_LOCKED
             if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]//span[@class="ePubzonderDRM"]'):
                 search_result.drm = SearchResult.DRM_UNLOCKED

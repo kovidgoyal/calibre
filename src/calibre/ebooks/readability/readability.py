@@ -507,5 +507,6 @@ def main():
             keep_elements=options.keep_elements).summary().encode(enc,
                 'replace'))
 
+
 if __name__ == '__main__':
     main()
