@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QFont, QDialog, Qt, QColor, QColorDialog, QMenu, QInputDialog,
     QListWidgetItem, QFormLayout, QLabel, QLineEdit, QDialogButtonBox)
 
-from calibre.constants import iswindows, isxp
+from calibre.constants import isxp
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import get_language, calibre_langcode_to_name
@@ -95,11 +95,11 @@ def config(defaults=None):
     c.add_opt('show_controls', default=True)
 
     fonts = c.add_group('FONTS', _('Font options'))
-    fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
+    fonts('serif_family', default='Liberation Serif',
           help=_('The serif font family'))
-    fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans',
+    fonts('sans_family', default='Liberation Sans',
           help=_('The sans-serif font family'))
-    fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono',
+    fonts('mono_family', default='Liberation Mono',
           help=_('The monospace font family'))
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
     fonts('mono_font_size', default=16, help=_('The monospace font size in px'))
