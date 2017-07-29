@@ -978,6 +978,7 @@ class Application(QApplication):
         QApplication.setApplicationName(APP_UID)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        self.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
         try:
             base_dir()
         except EnvironmentError as err:
