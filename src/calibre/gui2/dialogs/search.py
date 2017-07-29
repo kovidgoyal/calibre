@@ -100,6 +100,7 @@ def create_adv_tab(self):
         l.addRow(text, le)
 
     w.g2.l = l = QFormLayout(w.g2)
+    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
     self.none = le = QLineEdit(w)
     l.addRow(_("Any of these &unwanted words:"), le)
 
