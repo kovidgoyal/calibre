@@ -22,7 +22,7 @@ from PyQt5.Qt import (
     qBlue, QItemSelectionModel, QIcon, QFont, QMouseEvent)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
-from calibre.constants import DEBUG, config_dir, islinux
+from calibre.constants import DEBUG, config_dir, islinux, iswindows, isosx
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
 from calibre.utils.monotonic import monotonic
@@ -626,6 +626,12 @@ class CoverDelegate(QStyledItemDelegate):
 # }}}
 
 
+has_gestures = iswindows or isosx
+# Enabling gesture support on X11 causes Qt to send fake touch events when
+# right clicking/dragging with the mouse, which breaks things, for example:
+# https://bugs.launchpad.net/bugs/1707282
+
+
 def send_click(view, pos, button=Qt.LeftButton, double_click=False):
     if double_click:
         ev = QMouseEvent(QEvent.MouseButtonDblClick, pos, button, button, QApplication.keyboardModifiers())
@@ -656,14 +662,17 @@ def handle_gesture(ev, view):
 
 
 def setup_gestures(view):
-    v = view.viewport()
-    view.scroller = QScroller.grabGesture(v, QScroller.TouchGesture)
-    v.grabGesture(Qt.TapGesture)
-    v.grabGesture(Qt.TapAndHoldGesture)
-    view.last_tap_at = 0
+    if has_gestures:
+        v = view.viewport()
+        view.scroller = QScroller.grabGesture(v, QScroller.TouchGesture)
+        v.grabGesture(Qt.TapGesture)
+        v.grabGesture(Qt.TapAndHoldGesture)
+        view.last_tap_at = 0
 
 
 def gesture_viewport_event(view, ev):
+    if not has_gestures:
+        return
     et = ev.type()
     if et in (QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
         if ev.source() in (Qt.MouseEventSynthesizedBySystem, Qt.MouseEventSynthesizedByQt):
