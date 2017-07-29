@@ -187,7 +187,7 @@
      <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
    </property>
    <property name="text">
-    <string>Open ebook</string>
+    <string>Open e-book</string>
    </property>
   </action>
   <action name="action_configure">

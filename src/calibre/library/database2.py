@@ -3653,7 +3653,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def migrate_old(self, db, progress):
         from PyQt5.QtCore import QCoreApplication
-        header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path
+        header = u'<p>Migrating old database to ebook library in %s<br><center>'%self.library_path
         progress.setValue(0)
         progress.setLabelText(header)
         QCoreApplication.processEvents()

@@ -22,7 +22,7 @@ class N516(USBMS):
 
     name           = 'N516 driver'
     gui_name       = 'N516'
-    description    = _('Communicate with the Hanvon N520 eBook reader.')
+    description    = _('Communicate with the Hanvon N520 e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -49,7 +49,7 @@ class KIBANO(N516):
 
     name = 'Kibano driver'
     gui_name = 'Kibano'
-    description    = _('Communicate with the Kibano eBook reader.')
+    description    = _('Communicate with the Kibano e-book reader.')
     FORMATS     = ['epub', 'pdf', 'txt']
     BCD         = [0x323]
 
@@ -90,7 +90,7 @@ class ALEX(N516):
 
     name = 'Alex driver'
     gui_name = 'SpringDesign Alex'
-    description    = _('Communicate with the SpringDesign Alex eBook reader.')
+    description    = _('Communicate with the SpringDesign Alex e-book reader.')
     author         = 'Kovid Goyal'
 
     FORMATS     = ['epub', 'fb2', 'pdf']
@@ -172,7 +172,7 @@ class AZBOOKA(ALEX):
 class EB511(USBMS):
     name           = 'Elonex EB 511 driver'
     gui_name       = 'EB 511'
-    description    = _('Communicate with the Elonex EB 511 eBook reader.')
+    description    = _('Communicate with the Elonex EB 511 e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -193,7 +193,7 @@ class EB511(USBMS):
 class ODYSSEY(N516):
     name  = 'Cybook Odyssey driver'
     gui_name       = 'Odyssey'
-    description    = _('Communicate with the Cybook Odyssey eBook reader.')
+    description    = _('Communicate with the Cybook Odyssey e-book reader.')
 
     BCD = [0x316]
     VENDOR_NAME      = ['LINUX', 'BOOKEEN']
@@ -207,4 +207,3 @@ class ODYSSEY(N516):
         if for_upload:
             return self.EBOOK_DIR_MAIN
         return ''
-

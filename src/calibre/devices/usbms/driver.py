@@ -81,7 +81,7 @@ class USBMS(CLI, Device):
     sending/getting/updating metadata/caching metadata/etc.
     '''
 
-    description    = _('Communicate with an eBook reader.')
+    description    = _('Communicate with an e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 

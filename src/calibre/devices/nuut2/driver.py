@@ -15,7 +15,7 @@ class NUUT2(USBMS):
 
     name           = 'Nuut2 Device Interface'
     gui_name       = 'NeoLux Nuut2'
-    description    = _('Communicate with the Nuut2 eBook reader.')
+    description    = _('Communicate with the Nuut2 e-book reader.')
     author         = _('Kovid Goyal')
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -37,5 +37,3 @@ class NUUT2(USBMS):
 
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
-
-

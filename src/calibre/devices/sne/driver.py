@@ -15,7 +15,7 @@ class SNE(USBMS):
 
     name           = 'Samsung SNE Device Interface'
     gui_name       = 'Samsung SNE'
-    description    = _('Communicate with the Samsung SNE eBook reader.')
+    description    = _('Communicate with the Samsung SNE e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -35,5 +35,3 @@ class SNE(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Books'
     SUPPORTS_SUB_DIRS = True
-
-

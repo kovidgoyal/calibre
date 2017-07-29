@@ -20,7 +20,7 @@ class NOOK(USBMS):
 
     name           = 'Nook Device Interface'
     gui_name       = _('The Nook')
-    description    = _('Communicate with the Nook eBook reader.')
+    description    = _('Communicate with the Nook e-book reader.')
     author         = 'John Schember'
     icon           = I('devices/nook.png')
     supported_platforms = ['windows', 'linux', 'osx']
@@ -85,7 +85,7 @@ class NOOK(USBMS):
 
 class NOOK_COLOR(NOOK):
     name           = 'Nook Color Device Interface'
-    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet eBook readers.')
+    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet e-book readers.')
 
     PRODUCT_ID  = [
         0x002, 0x003, 0x004,

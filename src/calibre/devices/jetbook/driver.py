@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import string_to_authors
 
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
-    description    = _('Communicate with the JetBook eBook reader.')
+    description    = _('Communicate with the JetBook e-book reader.')
     author         = 'James Ralston'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -152,5 +152,3 @@ set([(u'0x951',
     EBOOK_DIR_MAIN = 'My Books'
 
     SUPPORTS_SUB_DIRS = True
-
-
