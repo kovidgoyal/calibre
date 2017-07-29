@@ -22,7 +22,7 @@ from PyQt5.Qt import (
     qBlue, QItemSelectionModel, QIcon, QFont, QMouseEvent)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
-from calibre.constants import DEBUG, config_dir, islinux, iswindows, isosx
+from calibre.constants import DEBUG, config_dir, islinux, iswindows
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
 from calibre.utils.monotonic import monotonic
@@ -626,10 +626,11 @@ class CoverDelegate(QStyledItemDelegate):
 # }}}
 
 
-has_gestures = iswindows or isosx
-# Enabling gesture support on X11 causes Qt to send fake touch events when
+has_gestures = iswindows
+# Enabling gesture support on X11/OS X causes Qt to send fake touch events when
 # right clicking/dragging with the mouse, which breaks things, for example:
-# https://bugs.launchpad.net/bugs/1707282
+# https://bugs.launchpad.net/bugs/1707282 and
+# https://www.mobileread.com/forums/showthread.php?t=289057
 
 
 def send_click(view, pos, button=Qt.LeftButton, double_click=False):
