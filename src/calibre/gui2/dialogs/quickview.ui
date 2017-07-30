@@ -149,6 +149,32 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="refresh_button">
+       <property name="text">
+        <string>&amp;Refresh</string>
+       </property>
+       <property name="toolTip">
+        <string>When Quickview is locked, refresh the window using the last selected book and that book's value in the last selected column.</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="close_button">
        <property name="text">
         <string>&amp;Close</string>

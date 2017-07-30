@@ -87,6 +87,15 @@ class ShowQuickviewAction(InterfaceAction):
                      group=self.action_spec[0])
         self.focus_bl_action.triggered.connect(self.focus_booklist)
 
+        self.focus_refresh_action = QAction(self.gui)
+        self.gui.addAction(self.focus_refresh_action)
+        self.gui.keyboard.register_shortcut('Refresh from Quickview',
+                     _('Refresh Quickview'),
+                     description=_('Refresh the information shown in the Quickview pane'),
+                     action=self.focus_refresh_action,
+                     group=self.action_spec[0])
+        self.focus_refresh_action.triggered.connect(self.refill_quickview)
+
         self.search_action = QAction(self.gui)
         self.gui.addAction(self.search_action)
         self.gui.keyboard.register_shortcut('Search from Quickview', _('Search from Quickview'),
@@ -96,6 +105,7 @@ class ShowQuickviewAction(InterfaceAction):
         self.search_action.triggered.connect(self.search_quickview)
         self.search_action.changed.connect(self.set_search_shortcut)
         self.menuless_qaction.changed.connect(self.set_search_shortcut)
+
         self.qv_button = QuickviewButton(self.gui, self)
 
     def initialization_complete(self):
