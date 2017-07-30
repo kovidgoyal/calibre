@@ -193,9 +193,11 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.installEventFilter(focus_filter)
 
         self.close_button.clicked.connect(self.close_button_clicked)
+        self.refresh_button.clicked.connect(self.refill)
 
         self.tab_order_widgets = [self.items, self.books_table, self.lock_qv,
-                          self.dock_button, self.search_button, self.close_button]
+                          self.dock_button, self.search_button, self.refresh_button,
+                          self.close_button]
         for idx,widget in enumerate(self.tab_order_widgets):
             widget.installEventFilter(WidgetTabFilter(widget, idx, self.tab_pressed_signal))
 
@@ -239,8 +241,10 @@ class Quickview(QDialog, Ui_Quickview):
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Pop up the quickview panel into its own floating window'))
             self.dock_button.setIcon(QIcon(I('arrow-up.png')))
+            # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.search_button.setText(_('Search'))
+            self.refresh_button.setText(_('Refresh'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
             self.close_button.setVisible(False)
         else:
@@ -251,6 +255,13 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
         self.gui.search.cleared.connect(self.indicate_no_items)
+
+        # Enable the refresh button only when QV is locked
+        self.refresh_button.setEnabled(False)
+        self.lock_qv.stateChanged.connect(self.lock_qv_changed)
+
+    def lock_qv_changed(self, state):
+        self.refresh_button.setEnabled(state)
 
     def add_columns_to_widget(self):
         '''
@@ -267,7 +278,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def refill(self):
         '''
-            Refill the table in case the book data changes
+            Refill the table in case the columns displayed changes
         '''
         self.add_columns_to_widget()
         self._refresh(self.current_book_id, self.current_key)
@@ -371,7 +382,7 @@ class Quickview(QDialog, Ui_Quickview):
         # operation if we get an exception. The "close" will come
         # eventually.
         try:
-            self._refresh(mi.get('id'), self.current_key)
+            self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
         except:
             pass
 
