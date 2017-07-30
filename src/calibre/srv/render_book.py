@@ -16,7 +16,7 @@ from urllib import quote
 from cssutils import replaceUrls
 from cssutils.css import CSSRule
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML, EPUB_NS)
@@ -324,7 +324,7 @@ class Container(ContainerBase):
                 else:
                     if isinstance(name, unicode):
                         name = name.encode('utf-8')
-                    url = 'missing:' + quote(name)
+                    url = 'missing:' + force_unicode(quote(name), 'utf-8')
                 changed.add(base)
             return url
 
