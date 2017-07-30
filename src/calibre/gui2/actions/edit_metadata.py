@@ -350,7 +350,7 @@ class EditMetadataAction(InterfaceAction):
         self.gui.tags_view.recount_with_position_based_index()
         qv = get_quickview_action_plugin()
         if qv:
-            qv.refill_quickview()
+            qv.refresh_quickview(current)
 
     def do_edit_metadata(self, row_list, current_row, editing_multiple):
         from calibre.gui2.metadata.single import edit_metadata

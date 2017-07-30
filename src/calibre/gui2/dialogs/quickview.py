@@ -267,7 +267,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def refill(self):
         '''
-            Refill the table in case the book data changes
+            Refill the table in case the columns displayed changes
         '''
         self.add_columns_to_widget()
         self._refresh(self.current_book_id, self.current_key)
@@ -371,7 +371,7 @@ class Quickview(QDialog, Ui_Quickview):
         # operation if we get an exception. The "close" will come
         # eventually.
         try:
-            self._refresh(mi.get('id'), self.current_key)
+            self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
         except:
             pass
 

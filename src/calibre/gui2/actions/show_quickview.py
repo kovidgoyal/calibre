@@ -149,10 +149,17 @@ class ShowQuickviewAction(InterfaceAction):
 
     def refill_quickview(self):
         '''
-        Called when the data or the columns shown in the QV pane might have changed.
+        Called when the columns shown in the QV pane might have changed.
         '''
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refill()
+
+    def refresh_quickview(self, idx):
+        '''
+        Called when the data shown in the QV pane might have changed.
+        '''
+        if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.refresh(idx)
 
     def change_quickview_column(self, idx):
         '''
