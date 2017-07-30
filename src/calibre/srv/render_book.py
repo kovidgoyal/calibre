@@ -322,6 +322,8 @@ class Container(ContainerBase):
                     frag = urlunquote(frag)
                     url = resource_template.format(encode_url(name, frag))
                 else:
+                    if isinstance(name, unicode):
+                        name = name.encode('utf-8')
                     url = 'missing:' + quote(name)
                 changed.add(base)
             return url
