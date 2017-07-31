@@ -11,8 +11,6 @@ class NavyTimes(BasicNewsRecipe):
     publisher = 'NavyTimes.com'
     category = 'news, U.S. Navy'
     tags = 'news, U.S. Navy'
-    cover_url = 'http://www.navytimes.com/images/logo_navytimes_alert.jpg'
-    masthead_url = 'http://www.navytimes.com/images/logo_navytimes_alert.jpg'
     oldest_article = 7  # days
     max_articles_per_feed = 25
     publication_type = 'newspaper'
@@ -26,14 +24,13 @@ class NavyTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-
-        ('News',   'http://www.navytimes.com/rss_news.php'),
-        ('Benefits',   'http://www.navytimes.com/rss_benefits.php'),
-        ('Money',   'http://www.navytimes.com/rss_money.php'),
-        ('Careers & Education',  'http://www.navytimes.com/rss_careers.php'),
-        ('Community',  'http://www.navytimes.com/rss_community.php'),
-        ('Off Duty',   'http://www.navytimes.com/rss_off_duty.php'),
-        ('Entertainment',  'http://www.navytimes.com/rss_entertainment.php'),
-        ('Guard & Reserve',  'http://www.navytimes.com/rss_guard.php'),
-
+        ('Pentagon and Congress',   'http://feeds.feedburner.com/navy-times/news/pentagon-congress'),
+        ('Your Air Force',   'http://feeds.feedburner.com/air-force-times/news/your-air-force'),
+        ('Your Army',   'http://feeds.feedburner.com/army-times/news/your-army'),
+        ('Your Marine Core',   'http://feeds.feedburner.com/marine-corps-times/news/your-marine-corps'),
+        ('Your Navy',   'http://feeds.feedburner.com/navy-times/news/your-navy'),
+        ('Pay and Benefits',   'http://feeds.feedburner.com/navy-times/pay-benefits'),
+        ('Veterans',   'http://feeds.feedburner.com/navy-times/veterans'),
+        ('Education and Trnasition',   'http://feeds.feedburner.com/navy-times/education-transition'),
+        ('Flashpoints',   'http://feeds.feedburner.com/navy-times/flashpoints'),
     ]
