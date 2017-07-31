@@ -33,6 +33,7 @@ class TouchPoint(object):
         self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.screenPos())
         self.time_since_last_update = -1
         self.total_movement = 0
+        self.start_position = tp.pos()
 
     def update(self, tp):
         now = monotonic()
@@ -107,7 +108,8 @@ class State(QObject):
             self.check_for_holds()
             if {Flick} & self.possible_gestures:
                 tp = next(self.touch_points.itervalues())
-                self.flicking.emit(*tp.flick_live)
+                if tp.flick_type is not None:
+                    self.flicking.emit(*tp.flick_live)
 
     def check_for_holds(self):
         if not {TapAndHold} & self.possible_gestures:
@@ -167,6 +169,7 @@ class GestureManager(QObject):
 
     def __init__(self, view):
         QObject.__init__(self, view)
+        view.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
         self.state = State()
         self.state.flicked.connect(self.handle_flick)
         self.state.tapped.connect(self.handle_tap)
@@ -175,6 +178,7 @@ class GestureManager(QObject):
         self.state.tap_hold_updated.connect(partial(self.handle_tap_hold, 'update'))
         self.state.tap_hold_finished.connect(partial(self.handle_tap_hold, 'end'))
         self.evmap = {QEvent.TouchBegin: 'start', QEvent.TouchUpdate: 'update', QEvent.TouchEnd: 'end'}
+        self.last_tap_at = 0
 
     def handle_event(self, ev):
         if not touch_supported:
@@ -202,16 +206,18 @@ class GestureManager(QObject):
     def handle_flick(self, direction):
         if self.close_open_menu():
             return
-        raise NotImplementedError('TODO: Implement')
 
     def handle_flicking(self, x, y):
         raise NotImplementedError('TODO: Implement')
 
     def handle_tap(self, tp):
+        last_tap_at, self.last_tap_at = self.last_tap_at, monotonic()
         if self.close_open_menu():
             return
-        raise NotImplementedError('TODO: Implement')
+        interval = QApplication.instance().doubleClickInterval() / 1000
+        double_tap = self.last_tap_at - last_tap_at < interval
+        send_click(self.parent(), tp.start_position, double_click=double_tap)
 
     def handle_tap_hold(self, action, tp):
         if action == 'end':
-            raise NotImplementedError('TODO: Implement')
+            send_click(self.parent(), tp.start_position, button=Qt.RightButton)
