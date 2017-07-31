@@ -35,6 +35,8 @@ class AssociatedPress(BasicNewsRecipe):
 
         articles = []
         for x in soup.findAll('p', attrs={'class': ['ap-newsbriefitem-p', 'ap-topheadlineitem-p']}):
+            if not x.contents:
+                x = x.parent
             a = x.find('a', href=True)
             title = self.tag_to_string(a)
             url = "http://hosted.ap.org" + a['href']
