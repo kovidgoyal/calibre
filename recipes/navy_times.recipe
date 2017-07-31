@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NavyTimes(BasicNewsRecipe):
-    title = 'Navy Times'
+    title = 'Army and Navy Times'
     __author__ = 'jde'
     __date__ = '16 May 2012'
     __version__ = '1.0'
