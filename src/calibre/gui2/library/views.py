@@ -21,7 +21,8 @@ from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface, setup_gestures, gesture_viewport_event
+from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
+from calibre.gui2.gestures import GestureManager
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
 from calibre.gui2.library import DEFAULT_SORT
@@ -193,14 +194,14 @@ class BooksView(QTableView):  # {{{
     def viewportEvent(self, event):
         if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
             return False
-        ret = gesture_viewport_event(self, event)
+        ret = self.gesture_manager.handle_event(event)
         if ret is not None:
             return ret
         return QTableView.viewportEvent(self, event)
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
-        setup_gestures(self)
+        self.gesture_manager = GestureManager(self)
         self.default_row_height = self.verticalHeader().defaultSectionSize()
         self.gui = parent
         self.setProperty('highlight_current_item', 150)
