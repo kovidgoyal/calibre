@@ -673,7 +673,10 @@ class GridView(QListView):
         t.timeout.connect(self.update_memory_cover_cache_size)
 
     def viewportEvent(self, ev):
-        ret = self.gesture_manager.handle_event(ev)
+        try:
+            ret = self.gesture_manager.handle_event(ev)
+        except AttributeError:
+            ret = None
         if ret is not None:
             return ret
         return QListView.viewportEvent(self, ev)

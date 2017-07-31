@@ -7,7 +7,7 @@ import sys
 from functools import partial
 
 from PyQt5.Qt import (
-    QApplication, QEvent, QMouseEvent, QObject, QPointF, Qt, QTouchDevice,
+    QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
     pyqtSignal
 )
 
@@ -20,7 +20,6 @@ if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
 
 HOLD_THRESHOLD = 1.0  # seconds
 TAP_THRESHOLD  = 50   # manhattan pixels
-FLICK_DISTANCE = 100  # manhattan pixels
 
 Tap, TapAndHold, Flick = 'Tap', 'TapAndHold', 'Flick'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
@@ -33,9 +32,11 @@ class TouchPoint(object):
         self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.screenPos())
         self.time_since_last_update = -1
         self.total_movement = 0
-        self.start_position = tp.pos()
+        self.start_position = self.current_position = tp.pos()
+        self.extra_data = None
 
     def update(self, tp):
+        self.current_position = tp.pos()
         now = monotonic()
         self.time_since_last_update = now - self.last_update_time
         self.last_update_time = now
@@ -45,28 +46,10 @@ class TouchPoint(object):
         if movement > 5:
             self.time_of_last_move = now
 
-    @property
-    def flick_type(self):
-        x_movement = self.current_screen_position.x() - self.start_screen_position.x()
-        y_movement = self.current_screen_position.y() - self.start_screen_position.y()
-        xabs, yabs = map(abs, (x_movement, y_movement))
-        if max(xabs, yabs) < FLICK_DISTANCE or min(xabs/max(yabs, 0.01), yabs/max(xabs, 0.01)) > 0.3:
-            return
-        d = x_movement if xabs > yabs else y_movement
-        axis = (Left, Right) if xabs > yabs else (Up, Down)
-        return axis[0 if d < 0 else 1]
-
-    @property
-    def flick_live(self):
-        x_movement = self.current_screen_position.x() - self.previous_screen_position.x()
-        y_movement = self.current_screen_position.y() - self.previous_screen_position.y()
-        return x_movement, y_movement
-
 
 class State(QObject):
 
     tapped = pyqtSignal(object)
-    flicked = pyqtSignal(object)
     flicking = pyqtSignal(object, object)
     tap_hold_started = pyqtSignal(object)
     tap_hold_updated = pyqtSignal(object)
@@ -106,10 +89,9 @@ class State(QObject):
             self.clear()
         else:
             self.check_for_holds()
-            if {Flick} & self.possible_gestures:
+            if Flick in self.possible_gestures:
                 tp = next(self.touch_points.itervalues())
-                if tp.flick_type is not None:
-                    self.flicking.emit(*tp.flick_live)
+                self.flicking.emit(tp, False)
 
     def check_for_holds(self):
         if not {TapAndHold} & self.possible_gestures:
@@ -140,10 +122,7 @@ class State(QObject):
 
         if Flick in self.possible_gestures:
             tp = next(self.touch_points.itervalues())
-            st = tp.flick_type
-            if st is not None:
-                self.flicked.emit(st)
-                return
+            self.flicking.emit(tp, True)
 
         if not self.hold_started:
             return
@@ -169,9 +148,9 @@ class GestureManager(QObject):
 
     def __init__(self, view):
         QObject.__init__(self, view)
-        view.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
+        if touch_supported:
+            view.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
         self.state = State()
-        self.state.flicked.connect(self.handle_flick)
         self.state.tapped.connect(self.handle_tap)
         self.state.flicking.connect(self.handle_flicking)
         self.state.tap_hold_started.connect(partial(self.handle_tap_hold, 'start'))
@@ -179,6 +158,8 @@ class GestureManager(QObject):
         self.state.tap_hold_finished.connect(partial(self.handle_tap_hold, 'end'))
         self.evmap = {QEvent.TouchBegin: 'start', QEvent.TouchUpdate: 'update', QEvent.TouchEnd: 'end'}
         self.last_tap_at = 0
+        if touch_supported:
+            self.scroller = QScroller.scroller(view.viewport())
 
     def handle_event(self, ev):
         if not touch_supported:
@@ -189,7 +170,11 @@ class GestureManager(QObject):
                 # swallow fake mouse events generated from touch events
                 ev.ignore()
                 return False
+            self.scroller.stop()
             return
+        if etype == QEvent.Wheel and self.scroller.state() != QScroller.Inactive:
+            ev.ignore()
+            return False
         boundary = self.evmap.get(etype, None)
         if boundary is None or ev.device().type() != QTouchDevice.TouchScreen:
             return
@@ -203,14 +188,16 @@ class GestureManager(QObject):
             m.close()
             return True
 
-    def handle_flick(self, direction):
-        if self.close_open_menu():
-            return
-
-    def handle_flicking(self, x, y):
-        raise NotImplementedError('TODO: Implement')
+    def handle_flicking(self, touch_point, is_end):
+        if is_end:
+            it = QScroller.InputRelease
+        else:
+            it = QScroller.InputPress if touch_point.extra_data is None else QScroller.InputMove
+        touch_point.extra_data = True
+        self.scroller.handleInput(it, touch_point.current_position, int(touch_point.last_update_time * 1000))
 
     def handle_tap(self, tp):
+        self.scroller.stop()
         last_tap_at, self.last_tap_at = self.last_tap_at, monotonic()
         if self.close_open_menu():
             return
@@ -219,5 +206,6 @@ class GestureManager(QObject):
         send_click(self.parent(), tp.start_position, double_click=double_tap)
 
     def handle_tap_hold(self, action, tp):
+        self.scroller.stop()
         if action == 'end':
             send_click(self.parent(), tp.start_position, button=Qt.RightButton)

@@ -194,7 +194,10 @@ class BooksView(QTableView):  # {{{
     def viewportEvent(self, event):
         if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
             return False
-        ret = self.gesture_manager.handle_event(event)
+        try:
+            ret = self.gesture_manager.handle_event(event)
+        except AttributeError:
+            ret = None
         if ret is not None:
             return ret
         return QTableView.viewportEvent(self, event)
