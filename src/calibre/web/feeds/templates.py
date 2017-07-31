@@ -164,7 +164,7 @@ class FeedTemplate(Template):
                 ),
                 CLASS('calibre_feed_image')))
         if getattr(feed, 'description', None):
-            d = DIV(feed.description, CLASS('calibre_feed_description',
+            d = DIV(clean_xml_chars(feed.description), CLASS('calibre_feed_description',
                 'calibre_rescale_80'))
             d.append(BR())
             div.append(d)
@@ -284,6 +284,7 @@ class TouchscreenIndexTemplate(Template):
 class TouchscreenFeedTemplate(Template):
 
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+        from calibre.utils.cleantext import clean_xml_chars
 
         def trim_title(title,clip=18):
             if len(title)>clip:
@@ -353,7 +354,7 @@ class TouchscreenFeedTemplate(Template):
                 ),
                 CLASS('calibre_feed_image')))
         if getattr(feed, 'description', None):
-            d = DIV(feed.description, CLASS('calibre_feed_description',
+            d = DIV(clean_xml_chars(feed.description), CLASS('calibre_feed_description',
                 'calibre_rescale_80'))
             d.append(BR())
             div.append(d)
