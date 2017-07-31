@@ -16,7 +16,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
-from calibre.gui2 import error_dialog, elided_text, Application, question_dialog
+from calibre.gui2 import error_dialog, Application, question_dialog
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
@@ -224,7 +224,7 @@ class RuleItem(QListWidgetItem):
 
     @staticmethod
     def text_from_rule(rule, parent):
-        query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
+        query = rule['query']
         text = _(
             '<b>{action}</b> the tag, if it <i>{match_type}</i>: <b>{query}</b>').format(
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
@@ -232,7 +232,7 @@ class RuleItem(QListWidgetItem):
             text += '<br>' + _('with the tag:') + ' <b>%s</b>' % rule['replace']
         if rule['action'] == 'split':
             text += '<br>' + _('on the character:') + ' <b>%s</b>' % rule['replace']
-        return text
+        return '<div style="white-space: nowrap">' + text + '</div>'
 
     def __init__(self, rule, parent):
         QListWidgetItem.__init__(self, '', parent)
@@ -252,7 +252,7 @@ class Delegate(QStyledItemDelegate):
         if width and width != st.textWidth():
             st.setTextWidth(width)
         br = st.size()
-        return QSize(br.width(), br.height() + self.MARGIN)
+        return QSize(br.width() + self.MARGIN, br.height() + self.MARGIN)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
@@ -515,7 +515,7 @@ if __name__ == '__main__':
     d = RulesDialog()
     d.rules = [
         {'action':'remove', 'query':'moose', 'match_type':'one_of', 'replace':''},
-        {'action':'replace', 'query':'moose', 'match_type':'one_of', 'replace':'xxxx'},
+        {'action':'replace', 'query':'moose,sfdg,sfdg,dfsg,dfgsh,sd,er,erg,egrer,ger,s,fgfsgfsga', 'match_type':'one_of', 'replace':'xxxx'},
         {'action':'split', 'query':'/', 'match_type':'has', 'replace':'/'},
     ]
     d.exec_()
