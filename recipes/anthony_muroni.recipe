@@ -1,0 +1,19 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+
+class BasicUserRecipe1501589429(AutomaticNewsRecipe):
+    title = 'AnthonyMuroni.it (sardu)'
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    language = 'sc'
+    __author__ 'tzium'
+
+    feeds = [
+        ('AnthonyMuroni.it (sardu)', 'http://www.anthonymuroni.it/su/feed/'),
+    ]
