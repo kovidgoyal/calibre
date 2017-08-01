@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_db, get_session_data
-from book_list.router import back, open_book
+from book_list.router import home, open_book
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from book_list.views import DEFAULT_MODE, setup_view_mode
@@ -157,7 +157,7 @@ def show_recent():
 
 def init(container_id):
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Downloaded books'), action=back, icon='home')
+    create_top_bar(container, title=_('Downloaded books'), action=home, icon='home')
     # book list
     recent = E.div(class_=CLASS_NAME)
     recent_container_id = ensure_id(recent)
