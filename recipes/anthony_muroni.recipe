@@ -12,7 +12,7 @@ class BasicUserRecipe1501589429(AutomaticNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
     language = 'sc'
-    __author__ 'tzium'
+    __author__ = 'tzium'
 
     feeds = [
         ('AnthonyMuroni.it (sardu)', 'http://www.anthonymuroni.it/su/feed/'),
