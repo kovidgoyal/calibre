@@ -9,10 +9,11 @@ from book_list.globals import get_db, get_session_data
 from book_list.router import back, open_book
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
-from book_list.views import setup_view_mode, DEFAULT_MODE
+from book_list.views import DEFAULT_MODE, setup_view_mode
 from dom import clear, ensure_id
-from modals import error_dialog
+from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout
+from widgets import create_button
 
 CLASS_NAME = 'local-books-list'
 
@@ -32,9 +33,41 @@ def clear_grid():
     book_list_data.init_grid(bl)
 
 
-def read_book(key):
-    library_id, book_id, fmt = key
+def read_book(book, book_idx):
+    library_id, book_id, fmt = book.key
     open_book(book_id, fmt, library_id)
+
+
+def delete_book(book, book_idx):
+    db = get_db()
+    db.delete_book(book, def(book, err_string):
+        if err_string:
+            error_dialog(_('Failed to delete book'), err_string)
+            return
+        books = [book_list_data.book_data[i] for i in book_list_data.books if i is not book_idx]
+        show_recent_stage2.call(book_list_data.container_id, books)
+    )
+
+
+def on_select(book, book_idx):
+    title = this
+
+    create_custom_dialog(title, def(parent, close_modal):
+
+        def action(which):
+            close_modal()
+            which(book, book_idx)
+
+        parent.appendChild(E.div(
+            E.div(_('What would you like to do with this book?')),
+            E.div(class_='button-box',
+                create_button(_('Read'), 'book', action.bind(None, read_book)),
+                '\xa0',
+                create_button(_('Delete'), 'trash', action.bind(None, delete_book)),
+            )
+        ))
+    )
+
 
 
 def show_cover(blob, name, mt, book):
@@ -66,7 +99,7 @@ def create_image(book_idx, max_width, max_height, on_load):
 
 def render_book(book_idx):
     book = book_list_data.book_data[book_idx]
-    return book_list_data.render_book(book_idx, book.metadata, create_image, read_book.bind(None, book.key))
+    return book_list_data.render_book(book_idx, book.metadata, create_image, on_select.bind(book.metadata.title, book, book_idx))
 
 
 def render_books(books):
