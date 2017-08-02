@@ -8,6 +8,7 @@ import functools
 import os
 import subprocess
 import sys
+import time
 from threading import Thread
 
 from PyQt5.Qt import QEventLoop
@@ -270,29 +271,45 @@ def zenity_choose_images(window, name, title, select_only_single_file=True, form
 # }}}
 
 
-def show_dialog(func):
+def linux_native_dialog(name):
+    prefix = check_for_linux_native_dialogs()
+    func = globals()['{}_choose_{}'.format(prefix, name)]
 
     @functools.wraps(func)
     def looped(window, *args, **kwargs):
-        if window is None:
-            return func(window, *args, **kwargs)
-        ret = [None, None]
-        loop = QEventLoop(window)
+        if hasattr(linux_native_dialog, 'native_failed'):
+            import importlib
+            m = importlib.import_module('calibre.gui2.qt_file_dialogs')
+            qfunc = getattr(m, 'choose_' + name)
+            return qfunc(window, *args, **kwargs)
+        try:
+            if window is None:
+                return func(window, *args, **kwargs)
+            ret = [None, None]
+            loop = QEventLoop(window)
 
-        def r():
-            try:
-                ret[0] = func(window, *args, **kwargs)
-            except:
-                ret[1] = sys.exc_info()
-            finally:
+            def r():
+                while not loop.isRunning():
+                    time.sleep(0.001)  # yield so that loop starts
+                try:
+                    ret[0] = func(window, *args, **kwargs)
+                except:
+                    ret[1] = sys.exc_info()
+                    sys.exc_clear()
                 loop.quit()
-        t = Thread(name='FileDialogHelper', target=r)
-        t.daemon = True
-        t.start()
-        loop.exec_(QEventLoop.ExcludeUserInputEvents)
-        if ret[1] is not None:
-            raise ret[1][0], ret[1][1], ret[1][2]
-        return ret[0]
+            t = Thread(name='FileDialogHelper', target=r)
+            t.daemon = True
+            t.start()
+            loop.exec_(QEventLoop.ExcludeUserInputEvents)
+            if ret[1] is not None:
+                raise ret[1][0], ret[1][1], ret[1][2]
+            return ret[0]
+        except Exception:
+            linux_native_dialog.native_failed = True
+            import traceback
+            traceback.print_exc()
+            return looped(window, *args, **kwargs)
+
     return looped
 
 
@@ -313,11 +330,6 @@ def check_for_linux_native_dialogs():
             ans = False
         check_for_linux_native_dialogs.ans = ans
     return ans
-
-
-def linux_native_dialog(name):
-    prefix = check_for_linux_native_dialogs()
-    return show_dialog(globals()['{}_choose_{}'.format(prefix, name)])
 
 
 if __name__ == '__main__':
