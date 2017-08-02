@@ -693,7 +693,7 @@ class BasicNewsRecipe(Recipe):
             _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
         _raw = clean_xml_chars(_raw)
         if as_tree:
-            from html5parser import parse
+            from html5_parser import parse
             return parse(_raw)
         else:
             from html5_parser.soup import set_soup_module, parse
