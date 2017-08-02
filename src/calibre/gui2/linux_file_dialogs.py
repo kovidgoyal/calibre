@@ -89,8 +89,23 @@ def encode_arg(title):
     return title
 
 
+def image_extensions():
+    from calibre.gui2.dnd import image_extensions
+    return image_extensions()
+
+
+def run(cmd):
+    from calibre.gui2 import sanitize_env_vars
+    with sanitize_env_vars():
+        p = subprocess.Popen(list(map(encode_arg, cmd)), stdout=subprocess.PIPE)
+    raw = p.communicate()[0]
+    ret = p.wait()
+    return raw, ret
+
+
+# KDE {{{
 def kde_cmd(window, title, *rest):
-    ans = ['kdialog', '--desktopfile', 'calibre-gui', '--title', encode_arg(title)]
+    ans = ['kdialog', '--desktopfile', 'calibre-gui', '--title', title]
     winid = get_winid(window)
     if winid is not None:
         ans += ['--attach', str(int(winid))]
@@ -98,9 +113,7 @@ def kde_cmd(window, title, *rest):
 
 
 def run_kde(cmd):
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    raw = p.communicate()[0]
-    ret = p.wait()
+    raw, ret = run(cmd)
     if ret == 1:
         return  # canceled
     if ret != 0:
@@ -153,11 +166,6 @@ def kdialog_choose_files(
     return ans
 
 
-def image_extensions():
-    from calibre.gui2.dnd import image_extensions
-    return image_extensions()
-
-
 def kdialog_choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
     if initial_path is not None:
         initial_dir = initial_path
@@ -177,6 +185,88 @@ def kdialog_choose_images(window, name, title, select_only_single_file=True, for
     return kdialog_choose_files(
         window, name, title, select_only_single_file=select_only_single_file, all_files=False,
         filters=[(_('Images'), list(formats or image_extensions()))])
+# }}}
+
+
+# GTK {{{
+
+def zenity_cmd(window, title, *rest):
+    ans = ['zenity', '--modal', '--file-selection', '--title=' + title, '--separator=\n']
+    winid = get_winid(window)
+    if winid is not None:
+        ans += ['--attach=%d' % int(winid)]
+    return ans + list(rest)
+
+
+def run_zenity(cmd):
+    raw, ret = run(cmd)
+    if ret == 1:
+        return  # canceled
+    if ret != 0:
+        raise ValueError('GTK file dialog aborted with return code: {}'.format(ret))
+    try:
+        ans = raw.decode(filesystem_encoding)
+    except UnicodeDecodeError:
+        ans = raw.decode('utf-8')
+    ans = ans.splitlines()
+    return ans
+
+
+def zenity_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
+    initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
+    ans = run_zenity(zenity_cmd(window, title, '--directory', '--filename', initial_dir))
+    ans = None if ans is None else ans[0]
+    save_initial_dir(name, title, ans, no_save_dir)
+    return ans
+
+
+def zenity_filters(filters, all_files=True):
+    ans = []
+    for name, exts in filters:
+        ans.append('--file-filter={} | {}'.format(name, ' '.join('*.' + x for x in exts)))
+    if all_files:
+        ans.append('--file-filter={} | {}'.format(_('All files'), '*'))
+    return ans
+
+
+def zenity_choose_files(
+    window,
+    name,
+    title,
+    filters=[],
+    all_files=True,
+    select_only_single_file=False,
+    default_dir=u'~'):
+    initial_dir = get_initial_dir(name, title, default_dir, False)
+    args = ['--filename=' + os.path.join(initial_dir, '.fgdfg.gdfhjdhf*&^839')]
+    args += zenity_filters(filters, all_files)
+    if not select_only_single_file:
+        args.append('--multiple')
+    ans = run_zenity(zenity_cmd(window, title, *args))
+    save_initial_dir(name, title, ans[0] if ans else None, False, is_file=True)
+    return ans
+
+
+def zenity_choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
+    if initial_path is not None:
+        initial_dir = initial_path
+    else:
+        initial_dir = get_initial_dir(name, title, '~', False)
+        initial_dir = os.path.join(initial_dir, initial_filename or _('File name'))
+    args = ['--filename=' + initial_dir, '--confirm-overwrite', '--save']
+    args += zenity_filters(filters, all_files)
+    ans = run_zenity(zenity_cmd(window, title, *args))
+    ans = None if ans is None else ans[0]
+    if initial_path is None:
+        save_initial_dir(name, title, ans, False, is_file=True)
+    return ans
+
+
+def zenity_choose_images(window, name, title, select_only_single_file=True, formats=None):
+    return zenity_choose_files(
+        window, name, title, select_only_single_file=select_only_single_file, all_files=False,
+        filters=[(_('Images'), list(formats or image_extensions()))])
+# }}}
 
 
 def show_dialog(func):
@@ -209,9 +299,11 @@ def check_for_linux_native_dialogs():
     ans = getattr(check_for_linux_native_dialogs, 'ans', None)
     if ans is None:
         de = detect_desktop_environment()
-        order = ('kdialog', 'zenity')
+        order = ('zenity', 'kdialog')
         if de in {'GNOME', 'UNITY', 'MATE', 'XFCE'}:
-            order = ('zenity', 'kdialog')
+            order = ('zenity',)
+        elif de in {'KDE', 'LXDE'}:
+            order = ('kdialog',)
         for exe in order:
             if is_executable_present(exe):
                 ans = exe
@@ -232,4 +324,10 @@ if __name__ == '__main__':
     # print(repr(kdialog_choose_files(None, 'testkddcf', 'Testing choose files...', select_only_single_file=True, filters=[
     #     ('moo', 'epub png'.split()), ('boo', 'docx'.split())], all_files=False)))
     # print(repr(kdialog_choose_images(None, 'testkddci', 'Testing choose images...')))
-    print(repr(kdialog_choose_save_file(None, 'testkddcs', 'Testing choose save file...', initial_filename='moo.x')))
+    # print(repr(kdialog_choose_save_file(None, 'testkddcs', 'Testing choose save file...', initial_filename='moo.x')))
+    # print(repr(zenity_choose_dir(None, 'testzcd', 'Testing choose dir...')))
+    # print(repr(zenity_choose_files(
+    #     None, 'testzcf', 'Testing choose files...', select_only_single_file=False,
+    #     filters=[('moo', 'epub png'.split()), ('boo', 'docx'.split())], all_files=True)))
+    # print(repr(kdialog_choose_images(None, 'testzi', 'Testing choose images...')))
+    print(repr(zenity_choose_save_file(None, 'testzcs', 'Testing choose save file...', filters=[('x', 'epub'.split())])))
