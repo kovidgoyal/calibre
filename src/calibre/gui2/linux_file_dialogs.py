@@ -28,7 +28,7 @@ def get_winid(widget=None):
 def detect_desktop_environment():
     de = os.environ.get('XDG_CURRENT_DESKTOP')
     if de:
-        return de.decode('utf-8', 'replace').upper()
+        return de.decode('utf-8', 'replace').upper().split(':', 1)[0]
     if os.environ.get('KDE_FULL_SESSION') == 'true':
         return 'KDE'
     if os.environ.get('GNOME_DESKTOP_SESSION_ID'):
