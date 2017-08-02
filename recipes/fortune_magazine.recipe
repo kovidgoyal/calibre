@@ -20,9 +20,8 @@ class Fortune(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open(
-            'http://money.cnn.com/2013/03/21/smallbusiness/legal-marijuana-startups.pr.fortune/index.html')
-        br.select_form(name="paywall-form")
+        br.open('http://money.cnn.com/m/#!login')
+        br.select_form(name="loginForm")
         br['email'] = self.username
         br['password'] = self.password
         br.submit()
