@@ -12,6 +12,7 @@ from threading import Thread
 
 from PyQt5.Qt import QEventLoop
 
+from calibre import force_unicode
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
 
@@ -94,13 +95,21 @@ def image_extensions():
     return image_extensions()
 
 
+def decode_output(raw):
+    raw = raw or b''
+    try:
+        return raw.decode(preferred_encoding)
+    except UnicodeDecodeError:
+        return force_unicode(raw, 'utf-8')
+
+
 def run(cmd):
     from calibre.gui2 import sanitize_env_vars
     with sanitize_env_vars():
-        p = subprocess.Popen(list(map(encode_arg, cmd)), stdout=subprocess.PIPE)
-    raw = p.communicate()[0]
+        p = subprocess.Popen(list(map(encode_arg, cmd)), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
     ret = p.wait()
-    return raw, ret
+    return ret, decode_output(stdout), decode_output(stderr)
 
 
 # KDE {{{
@@ -113,16 +122,12 @@ def kde_cmd(window, title, *rest):
 
 
 def run_kde(cmd):
-    raw, ret = run(cmd)
+    ret, stdout, stderr = run(cmd)
     if ret == 1:
         return  # canceled
     if ret != 0:
-        raise ValueError('KDE file dialog aborted with return code: {}'.format(ret))
-    try:
-        ans = raw.decode(filesystem_encoding)
-    except UnicodeDecodeError:
-        ans = raw.decode('utf-8')
-    ans = ans.splitlines()
+        raise ValueError('KDE file dialog aborted with return code: {} and stderr: {}'.format(ret, stderr))
+    ans = stdout.splitlines()
     return ans
 
 
@@ -199,16 +204,12 @@ def zenity_cmd(window, title, *rest):
 
 
 def run_zenity(cmd):
-    raw, ret = run(cmd)
+    ret, stdout, stderr = run(cmd)
     if ret == 1:
         return  # canceled
     if ret != 0:
-        raise ValueError('GTK file dialog aborted with return code: {}'.format(ret))
-    try:
-        ans = raw.decode(filesystem_encoding)
-    except UnicodeDecodeError:
-        ans = raw.decode('utf-8')
-    ans = ans.splitlines()
+        raise ValueError('GTK file dialog aborted with return code: {} and stderr: {}'.format(ret, stderr))
+    ans = stdout.splitlines()
     return ans
 
 
@@ -320,7 +321,7 @@ def linux_native_dialog(name):
 
 
 if __name__ == '__main__':
-    # print(repr(kdialog_choose_dir(None, 'testkddcd', 'Testing choose dir...')))
+    print(repr(kdialog_choose_dir(None, 'testkddcd', 'Testing choose dir...')))
     # print(repr(kdialog_choose_files(None, 'testkddcf', 'Testing choose files...', select_only_single_file=True, filters=[
     #     ('moo', 'epub png'.split()), ('boo', 'docx'.split())], all_files=False)))
     # print(repr(kdialog_choose_images(None, 'testkddci', 'Testing choose images...')))
@@ -330,4 +331,4 @@ if __name__ == '__main__':
     #     None, 'testzcf', 'Testing choose files...', select_only_single_file=False,
     #     filters=[('moo', 'epub png'.split()), ('boo', 'docx'.split())], all_files=True)))
     # print(repr(kdialog_choose_images(None, 'testzi', 'Testing choose images...')))
-    print(repr(zenity_choose_save_file(None, 'testzcs', 'Testing choose save file...', filters=[('x', 'epub'.split())])))
+    # print(repr(zenity_choose_save_file(None, 'testzcs', 'Testing choose save file...', filters=[('x', 'epub'.split())])))
