@@ -16,6 +16,7 @@ from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx, is_running_from_develop,
         plugins, config_dir, filesystem_encoding, isxp, DEBUG, __version__, __appname__ as APP_UID)
 from calibre.ptempfile import base_dir
+from calibre.gui2.linux_file_dialogs import dialog_name, check_for_linux_native_dialogs, linux_native_dialog, image_extensions
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -650,7 +651,7 @@ class FileDialog(QObject):
         if ftext.endswith(';;'):
             ftext = ftext[:-2]
 
-        self.dialog_name = name if name else 'dialog_' + title
+        self.dialog_name = dialog_name(name, title)
         self.selected_files = None
         self.fd = None
 
@@ -729,8 +730,15 @@ has_windows_file_dialog_helper = False
 if iswindows and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ:
     from calibre.gui2.win_file_dialogs import is_ok as has_windows_file_dialog_helper
     has_windows_file_dialog_helper = has_windows_file_dialog_helper()
+has_linux_file_dialog_helper = False
+if not iswindows and not isosx and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ and getattr(sys, 'frozen', False):
+    has_linux_file_dialog_helper = check_for_linux_native_dialogs()
+
 if has_windows_file_dialog_helper:
     from calibre.gui2.win_file_dialogs import choose_files, choose_images, choose_dir, choose_save_file
+elif has_linux_file_dialog_helper:
+    choose_dir, choose_files, choose_save_file, choose_images = map(
+        linux_native_dialog, 'dir files save_file images'.split())
 else:
 
     def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
@@ -795,7 +803,6 @@ else:
     def choose_images(window, name, title, select_only_single_file=True, formats=None):
         mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
         if formats is None:
-            from calibre.gui2.dnd import image_extensions
             formats = image_extensions()
         fd = FileDialog(title=title, name=name,
                         filters=[(_('Images'), list(formats))],
