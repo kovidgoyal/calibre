@@ -223,7 +223,7 @@ def layout(is_single_page):
             set_css(elem, max_width=dw + 'px', min_width=dw + 'px')
     data = check_column_widths()
     if data:
-        print('WARNING: column layout broken', data)
+        print('WARNING: column layout broken, probably because there is some non-reflowable content in the book that is wider than the column width', data)
 
     _in_paged_mode = True
     fit_images()
