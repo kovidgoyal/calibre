@@ -428,8 +428,9 @@ class CopyToLibraryAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
-        self.menu.addAction(_('Choose library...'), self.choose_library)
-        self.menu.addSeparator()
+        if len(locations) > 5:
+            self.menu.addAction(_('Choose library...'), self.choose_library)
+            self.menu.addSeparator()
         for name, loc in locations:
             name = name.replace('&', '&&')
             self.menu.addAction(name, partial(self.copy_to_library,
@@ -437,6 +438,8 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(name + ' ' + _('(delete after copy)'),
                     partial(self.copy_to_library, loc, delete_after=True))
             self.menu.addSeparator()
+        if len(locations) <= 5:
+            self.menu.addAction(_('Choose library...'), self.choose_library)
 
         self.qaction.setVisible(bool(locations))
         if isosx:
