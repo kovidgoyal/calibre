@@ -350,10 +350,11 @@ class EbookViewer(MainWindow):
 
     def continue_reading(self):
         recent = vprefs.get('viewer_open_history', [])
-        if recent:
-            for path in recent:
-                if os.path.exists(path):
-                    self.load_ebook(path)
+        try:
+            last_read = next(path for path in recent if os.path.exists(path))
+            self.load_ebook(path)
+        except StopIteration:
+            pass
 
     def shutdown(self):
         if self.isFullScreen() and not self.view.document.start_in_fullscreen:
