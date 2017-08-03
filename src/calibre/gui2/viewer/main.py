@@ -354,6 +354,7 @@ class EbookViewer(MainWindow):
             for path in recent:
                 if os.path.exists(path):
                     self.load_ebook(path)
+                    break
 
     def shutdown(self):
         if self.isFullScreen() and not self.view.document.start_in_fullscreen:
