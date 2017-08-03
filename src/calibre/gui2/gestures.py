@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
+import sys, os
 from functools import partial
 
 from PyQt5.Qt import (
@@ -17,6 +17,8 @@ from calibre.utils.monotonic import monotonic
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
     touch_supported = True
+if 'CALIBRE_NO_TOUCH' in os.environ:
+    touch_supported = False
 
 HOLD_THRESHOLD = 1.0  # seconds
 TAP_THRESHOLD  = 50   # manhattan pixels
