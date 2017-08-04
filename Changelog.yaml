@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title:
 
+- version: 3.6.0
+  date: 2017-08-04
+
+  new features:
+    - title: "Linux: Use native file dialogs via zenity or kdialog, if available"
+
+    - title: "Copy to library: Add an action to show a dialog that allows for easy selection of libraries for copy/move. Useful when there are a large number of libraries to choose from."
+      tickets: [1706198]
+
+    - title: 'Server: Allow deleting a downloaded book from the "Browse all downloaded books" screen'
+
+  bug fixes:
+    - title: "Hopefully fix an issue with the book list jumping around when using the mouse on some computers"
+
+    - title: "E-book viewer: Change the default fonts on windows to the Liberation font family. This matches the other platforms and avoids rendering issues with Times New Roman."
+      tickets: [1706491]
+
+    - title: "DOCX Output: Convert images placed by themselves inside block tags as block images rather than inline images."
+      tickets: [1707430]
+
+    - title: "Fix a typo that broke the download of a few news sources"
+
+    - title: "ebook-viewer.exe: Fix --continue-reading not working"
+
+    - title: "Fix non XML safe characters in feed descriptions causing news download to fail."
+      tickets: [1707545]
+
+    - title: "Browser viewer: Fix books that contain broken links with unicode characters in their paths not working."
+      tickets: [1704498]
+
+    - title: "Quickview: Fix regression in previous release that broke the 'Lock quickview' control"
+
+  improved recipes:
+    - Navy Times
+
+  new recipes:
+    - title: Various Sardinian news
+      author: tzium
+
 - version: 3.5.0
   date: 2017-07-28
 
