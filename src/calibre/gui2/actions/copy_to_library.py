@@ -31,7 +31,8 @@ from calibre.utils.icu import sort_key, numeric_sort_key
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
     source_metadata = db.field_metadata.custom_field_metadata(include_composites=True)
-    ndbname = os.path.basename(newdb.library_path)
+    dest_library_path = newdb.library_path
+    ndbname = os.path.basename(dest_library_path)
 
     d = QDialog(gui)
     d.setWindowTitle(_('Different custom columns'))
@@ -83,6 +84,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     d.bb.rejected.connect(d.reject)
     d.resize(d.sizeHint())
     if d.exec_() == d.Accepted:
+        changes_made = False
         for k, cb in missing_widgets:
             if cb.isChecked():
                 col_meta = source_metadata[k]
@@ -90,6 +92,13 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
                             col_meta['label'], col_meta['name'], col_meta['datatype'],
                             len(col_meta['is_multiple']) > 0,
                             col_meta['is_editable'], col_meta['display'])
+                changes_made = True
+        if changes_made:
+            # Unload the db so that the changes are available
+            # when it is next accessed
+            from calibre.gui2.ui import get_gui
+            library_broker = get_gui().library_broker
+            library_broker.unload_library(dest_library_path)
         return True
     return False
 # }}}

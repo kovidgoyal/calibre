@@ -253,6 +253,19 @@ class GuiLibraryBroker(LibraryBroker):
         with self:
             self._prune_loaded_dbs()
 
+    def unload_library(self, library_path):
+        with self:
+            path = canonicalize_path(library_path)
+            for library_id, q in self.lmap.iteritems():
+                if samefile(path, q):
+                    break
+            else:
+                return
+            db = self.loaded_dbs.pop(library_id, None)
+            if db is not None:
+                db.close()
+                db.break_cycles()
+
     def remove_library(self, path):
         with self:
             path = canonicalize_path(path)
