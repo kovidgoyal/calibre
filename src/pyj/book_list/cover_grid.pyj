@@ -8,8 +8,10 @@ from gettext import gettext as _
 
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
-THUMBNAIL_MAX_WIDTH = 300
-THUMBNAIL_MAX_HEIGHT = 400
+THUMBNAIL_MAX_WIDTH = 3 * 100
+THUMBNAIL_MAX_HEIGHT = 4 * 100
+THUMBNAIL_MIN_WIDTH = 3 * 35
+THUMBNAIL_MIN_HEIGHT = 4 * 35
 BORDER_RADIUS = 10
 DESCRIPTION = _('A grid of book covers')
 
@@ -24,7 +26,7 @@ def cover_grid_css():
     ans += build_rule(
         sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
         max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
-        min_width=f'{THUMBNAIL_MAX_WIDTH // 2}px', min_height=f'{THUMBNAIL_MAX_HEIGHT // 2}px')
+        min_width=THUMBNAIL_MIN_WIDTH+'px', min_height=THUMBNAIL_MIN_HEIGHT + 'px')
     mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: 28{dim} }} }}\n'
     for dim in 'vw', 'vh':
         ans += mq.format(sel=sel, dim=dim, orient='portrait' if dim is 'vw' else 'landscape')
