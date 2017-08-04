@@ -119,7 +119,7 @@ For help on an individual command: %%prog command --help
     )
 
 
-def read_credetials(opts):
+def read_credentials(opts):
     username = opts.username
     pw = opts.password
     if pw:
@@ -148,7 +148,7 @@ class DBCtx(object):
             self.url = urlunparse(parts._replace(fragment='')).rstrip('/')
             self.br = browser(handle_refresh=False, user_agent='{} {}'.format(__appname__, __version__))
             self.is_remote = True
-            username, password = read_credetials(opts)
+            username, password = read_credentials(opts)
             self.has_credentials = False
             if username and password:
                 self.br.add_password(self.url, username, password)
@@ -191,9 +191,11 @@ class DBCtx(object):
 
     def interpret_http_error(self, err):
         if err.code == httplib.UNAUTHORIZED:
+            if self.has_credentials:
+                raise SystemExit('The username/password combination is incorrect')
             raise SystemExit('A username and password is required to access this server')
         if err.code == httplib.FORBIDDEN:
-            raise SystemExit('The username/password combination is incorrect')
+            raise SystemExit(err.reason)
         if err.code == httplib.NOT_FOUND:
             raise SystemExit(err.reason)
 
