@@ -149,6 +149,10 @@ class Publish(Command):
     def pre_sub_commands(self, opts):
         require_git_master()
         require_clean_git()
+        if 'PUBLISH_BUILD_DONE' not in os.environ:
+            subprocess.check_call([sys.executable, 'setup.py', 'build'])
+            os.environ['PUBLISH_BUILD_DONE'] = '1'
+            os.execl(os.path.abspath('setup.py'), './setup.py', 'publish')
 
 
 class PublishBetas(Command):
