@@ -70,7 +70,7 @@ def manage_users_cli(path=None):
         return get_valid(_('Enter the username'), validate)
 
     def get_pass(username):
-        from calibre.utils.getpass import getpass
+        from calibre.utils.unicode_getpass import getpass
 
         while True:
             one = getpass(
