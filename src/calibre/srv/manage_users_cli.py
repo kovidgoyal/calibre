@@ -8,7 +8,7 @@ import sys
 from functools import partial
 
 from calibre import prints
-from calibre.constants import preferred_encoding, iswindows
+from calibre.constants import preferred_encoding
 
 # Manage users CLI {{{
 
@@ -70,31 +70,7 @@ def manage_users_cli(path=None):
         return get_valid(_('Enter the username'), validate)
 
     def get_pass(username):
-
-        def getpass(prompt):
-            if iswindows:
-                # getpass is broken on windows with python 2.x and unicode, the
-                # below implementation is from the python 3 source code
-                import msvcrt
-                for c in prompt:
-                    msvcrt.putwch(c)
-                pw = ""
-                while 1:
-                    c = msvcrt.getwch()
-                    if c == '\r' or c == '\n':
-                        break
-                    if c == '\003':
-                        raise KeyboardInterrupt
-                    if c == '\b':
-                        pw = pw[:-1]
-                    else:
-                        pw = pw + c
-                msvcrt.putwch('\r')
-                msvcrt.putwch('\n')
-                return pw
-            else:
-                from getpass import getpass
-                return getpass(prompt).decode(enc)
+        from calibre.utils.getpass import getpass
 
         while True:
             one = getpass(
