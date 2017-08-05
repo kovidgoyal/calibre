@@ -118,8 +118,8 @@ def run(cmd):
 def kdialog_supports_desktopfile():
     ans = getattr(kdialog_supports_desktopfile, 'ans', None)
     if ans is None:
-        raw = subprocess.check_output(['kdialog', '--help']).decode('utf-8')
-        ans = kdialog_supports_desktopfile.ans = '--desktopfile' in raw
+        raw = subprocess.check_output(['kdialog', '--help'])
+        ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans
 
 
