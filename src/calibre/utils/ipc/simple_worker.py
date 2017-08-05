@@ -38,13 +38,11 @@ class ConnectedWorker(Thread):
         self.res = None
 
     def run(self):
-        conn = tb = None
+        conn = None
         try:
             conn = eintr_retry_call(self.listener.accept)
-        except:
-            tb = traceback.format_exc()
-        if conn is None:
-            self.tb = tb
+        except BaseException:
+            self.tb = traceback.format_exc()
             return
         self.accepted = True
         with closing(conn):
@@ -324,4 +322,3 @@ def offload():
                 res['tb'] = traceback.format_exc()
 
             eintr_retry_call(conn.send, res)
-
