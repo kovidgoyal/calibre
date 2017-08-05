@@ -1017,9 +1017,9 @@ ETWEAK = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Edit E-book
-GenericName=Edit E-books
-Comment=Edit e-books in various formats
+Name=E-book Editor
+GenericName=Editor for E-books
+Comment=Edit E-books in various formats
 TryExec=ebook-edit
 Exec=ebook-edit --detach %f
 Icon=calibre-ebook-edit
