@@ -66,7 +66,15 @@ def add_field(field, db, book_id, ans, field_metadata):
 def book_as_json(db, book_id):
     db = db.new_api
     with db.safe_read_lock:
-        ans = {'formats':db._formats(book_id)}
+        fmts = db._formats(book_id, verify_formats=False)
+        ans = []
+        fm = {}
+        for fmt in fmts:
+            m = db.format_metadata(book_id, fmt)
+            if m and m.get('size', 0) > 0:
+                ans.append(fmt)
+                fm[fmt] = m['size']
+        ans = {'formats': ans, 'format_sizes': fm}
         if not ans['formats'] and not db.has_id(book_id):
             return None
         fm = db.field_metadata
