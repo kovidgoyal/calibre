@@ -114,8 +114,19 @@ def run(cmd):
 
 
 # KDE {{{
+
+def kdialog_supports_desktopfile():
+    ans = getattr(kdialog_supports_desktopfile, 'ans', None)
+    if ans is None:
+        raw = subprocess.check_output(['kdialog', '--help']).decode('utf-8')
+        ans = kdialog_supports_desktopfile.ans = '--desktopfile' in raw
+    return ans
+
+
 def kde_cmd(window, title, *rest):
-    ans = ['kdialog', '--desktopfile', 'calibre-gui', '--title', title]
+    ans = ['kdialog', '--title', title]
+    if kdialog_supports_desktopfile():
+        ans += ['--desktopfile', 'calibre-gui']
     winid = get_winid(window)
     if winid is not None:
         ans += ['--attach', str(int(winid))]
