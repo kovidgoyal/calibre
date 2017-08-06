@@ -136,13 +136,14 @@ class State(QObject):
 
 
 def send_click(view, pos, button=Qt.LeftButton, double_click=False):
+    mods = QApplication.keyboardModifiers()
     if double_click:
-        ev = QMouseEvent(QEvent.MouseButtonDblClick, pos, button, button, QApplication.keyboardModifiers())
+        ev = QMouseEvent(QEvent.MouseButtonDblClick, pos, button, button, mods)
         QApplication.postEvent(view.viewport(), ev)
         return
-    ev = QMouseEvent(QEvent.MouseButtonPress, pos, button, button, QApplication.keyboardModifiers())
+    ev = QMouseEvent(QEvent.MouseButtonPress, pos, button, button, mods)
     QApplication.postEvent(view.viewport(), ev)
-    ev = QMouseEvent(QEvent.MouseButtonRelease, pos, button, button, QApplication.keyboardModifiers())
+    ev = QMouseEvent(QEvent.MouseButtonRelease, pos, button, button, mods)
     QApplication.postEvent(view.viewport(), ev)
 
 
@@ -153,7 +154,7 @@ class GestureManager(QObject):
         if touch_supported:
             view.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
         self.state = State()
-        self.state.tapped.connect(self.handle_tap)
+        self.state.tapped.connect(self.handle_tap, type=Qt.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
         self.state.flicking.connect(self.handle_flicking)
         self.state.tap_hold_started.connect(partial(self.handle_tap_hold, 'start'))
         self.state.tap_hold_updated.connect(partial(self.handle_tap_hold, 'update'))
