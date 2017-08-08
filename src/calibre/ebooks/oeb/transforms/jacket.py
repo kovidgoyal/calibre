@@ -71,6 +71,8 @@ class RemoveFirstImage(Base):
                         self.oeb.manifest.remove(item)
                         deleted_item = item
                 break
+        else:
+            self.log.warn('Could not find first image to remove')
         if deleted_item is not None:
             for item in list(self.oeb.toc):
                 href = urldefrag(item.href)[0]
