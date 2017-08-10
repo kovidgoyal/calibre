@@ -724,8 +724,14 @@ class Convert(object):
         for border_style, blocks in self.block_runs:
             paras = tuple(rmap[p] for p in blocks)
             parent = paras[0].getparent()
-            idx = parent.index(paras[0])
-            frame = DIV(*paras)
+            if parent.tag in ('ul', 'ol'):
+                ul = parent
+                parent = ul.getparent()
+                idx = parent.index(ul)
+                frame = DIV(ul)
+            else:
+                idx = parent.index(paras[0])
+                frame = DIV(*paras)
             parent.insert(idx, frame)
             self.framed_map[frame] = css = border_style.css
             self.styles.register(css, 'frame')
