@@ -579,7 +579,7 @@ class GoComics(BasicNewsRecipe):
             page_soup = self.index_to_soup(url)
             if not page_soup:
                 break
-            content = page_soup.find(attrs={'class':'item-comic-container'})
+            content = page_soup.find(attrs={'class':'comic__image'})
             if content is None:
                 break
             current_articles.append(self.parse_comic_page(content))
