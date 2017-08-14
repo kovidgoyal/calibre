@@ -282,39 +282,6 @@ class MainOverlay:
 
 # }}}
 
-# ControlsOverlay {{{
-
-class ControlsOverlay:
-
-    def __init__(self, overlay):
-        self.overlay = overlay
-
-    def show(self, container):
-        self.container_id = container.getAttribute('id')
-        def msg(txt):
-            return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
-        container.appendChild(E.div(
-            style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
-                  'display:flex; flex-direction: column; align-items: stretch',
-            E.div(
-                msg(_('Tap (or right click) for controls')),
-                style='height: 25vh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
-            ),
-            E.div(
-                style="display: flex; align-items: stretch; flex-grow: 10",
-                E.div(
-                    msg(_('Tap to turn back')),
-                    style='width: 25vw; display:flex; align-items: center; border-right: solid 2px currentColor',
-                ),
-                E.div(
-                    msg(_('Tap to turn page')),
-                    style='width: 75vw; display:flex; align-items: center',
-                )
-            )
-        ))
-
-# }}}
-
 class TOCOverlay: # {{{
 
     def __init__(self, overlay, create_func, title):
@@ -411,10 +378,6 @@ class Overlay:
 
     def hide_loading_message(self):
         self.panels = [p for p in self.panels if not isinstance(p, LoadingMessage)]
-        self.show_current_panel()
-
-    def show_controls_help(self):
-        self.panels.push(ControlsOverlay(self))
         self.show_current_panel()
 
     def hide_current_panel(self):

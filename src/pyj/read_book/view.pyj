@@ -52,6 +52,40 @@ add_extra_css(def():
 )
 
 
+# ControlsOverlay {{{
+
+def show_controls_help():
+    container = document.getElementById('controls-help-overlay')
+    container.style.display = 'block'
+    if not show_controls_help.listener_added:
+        show_controls_help.listener_added = True
+        container.addEventListener('click', def():
+                document.getElementById('controls-help-overlay').style.display = 'none'
+        )
+    def msg(txt):
+        return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
+    container.appendChild(E.div(
+        style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
+                'display:flex; flex-direction: column; align-items: stretch',
+        E.div(
+            msg(_('Tap (or right click) for controls')),
+            style='height: 25vh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
+        ),
+        E.div(
+            style="display: flex; align-items: stretch; flex-grow: 10",
+            E.div(
+                msg(_('Tap to turn back')),
+                style='width: 25vw; display:flex; align-items: center; border-right: solid 2px currentColor',
+            ),
+            E.div(
+                msg(_('Tap to turn page')),
+                style='width: 75vw; display:flex; align-items: center',
+            )
+        )
+    ))
+
+# }}}
+
 def margin_elem(sd, which, id, onclick):
     sz = sd.get(which, 20)
     fsz = min(max(0, sz - 6), 12)
@@ -94,6 +128,7 @@ class View:
                         right_margin,
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
                 )
             )
@@ -355,7 +390,7 @@ class View:
         sd = get_session_data()
         c = sd.get('controls_help_shown_count', 0)
         if c < 1:
-            self.overlay.show_controls_help()
+            show_controls_help()
             sd.set('controls_help_shown_count', c + 1)
 
     def redisplay_book(self):
