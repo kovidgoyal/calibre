@@ -1,72 +1,32 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
-import re
 
 
 class FilmOrgPl(BasicNewsRecipe):
     title = u'Film.org.pl'
     __author__ = 'fenuks'
-    description = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."  # noqa
+    description = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."
     category = 'film'
     language = 'pl'
-    extra_css = '.alignright {float:right; margin-left:5px;} .alignleft {float:left; margin-right:5px;} .recenzja-title {font-size: 150%; margin-top: 5px; margin-bottom: 5px;}'  # noqa
-    cover_url = 'http://film.org.pl/wp-content/themes/KMF/images/logo_kmf10.png'
+    cover_url = 'http://film.org.pl/wp-content/uploads/2015/02/film.org.pl_film.org_.pl_kmfviolet4.png'
     ignore_duplicate_articles = {'title', 'url'}
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
-    use_embedded_content = False
-    remove_attributes = ['style']
-    preprocess_regexps = [
-        (re.compile(ur'<h3>Przeczytaj także:</h3>.*', re.IGNORECASE | re.DOTALL), lambda m: '</body>'), (re.compile(ur'</?center>', re.IGNORECASE | re.DOTALL), lambda m: ''),  # noqa
-        (re.compile(ur'<div>Artykuł</div>', re.IGNORECASE), lambda m: ''),
-        (re.compile(ur'<div>Ludzie filmu</div>', re.IGNORECASE), lambda m: ''),
-        (re.compile(ur'(<br ?/?>\s*?){2,}', re.IGNORECASE | re.DOTALL), lambda m: '')]
-    keep_only_tags = [dict(name=['h11', 'h16', 'h17']),
-                      dict(attrs={'class': 'editor'})]
-    remove_tags_after = dict(id='comments')
-    remove_tags = [dict(name=['link', 'meta', 'style']), dict(name='img', attrs={'alt': ['Ludzie filmu', u'Artykuł']}), dict(id='comments'), dict(
-        attrs={'style': 'border: 0pt none ; margin: 0pt; padding: 0pt;'}), dict(name='p', attrs={'class': 'rating'}), dict(attrs={'layout': 'button_count'})]
+    use_embedded_content = True
+
+    remove_attributes = ['style', 'width', 'height']
+    remove_tags = [dict(attrs={'class': 'shortcode-box right'})]
+
     feeds = [
-    (u'Recenzje', u'http://film.org.pl/r/recenzje/feed/'),
-    (u'Artyku\u0142', u'http://film.org.pl/a/artykul/feed/'),
-    (u'Analiza', u'http://film.org.pl/a/analiza/feed/'),
-    (u'Ranking', u'http://film.org.pl/a/ranking/feed/'),
-    (u'Blog', u'http://film.org.pl/kmf/blog/feed/'),
-    (u'Ludzie', u'http://film.org.pl/a/ludzie/feed/'),
-    (u'Seriale', u'http://film.org.pl/a/seriale/feed/'),
-    (u'Oceanarium', u'http://film.org.pl/a/ocenarium/feed/'),
-    (u'VHS', u'http://film.org.pl/a/vhs-a/feed/')]
-
-    def append_page(self, soup, appendtag):
-        tag = soup.find('div', attrs={'class': 'pagelink'})
-        if tag:
-            for nexturl in tag.findAll('a'):
-                url = nexturl['href']
-                soup2 = self.index_to_soup(url)
-                pagetext = soup2.find(attrs={'class': 'editor'})
-                comments = pagetext.findAll(
-                    text=lambda text: isinstance(text, Comment))
-                for comment in comments:
-                    comment.extract()
-                pos = len(appendtag.contents)
-                appendtag.insert(pos, pagetext)
-            for r in appendtag.findAll(attrs={'class': 'pagelink'}):
-                r.extract()
-            for r in appendtag.findAll(attrs={'id': 'comments'}):
-                r.extract()
-            for r in appendtag.findAll(attrs={'style': 'border: 0pt none ; margin: 0pt; padding: 0pt;'}):
-                r.extract()
-            for r in appendtag.findAll(attrs={'layout': 'button_count'}):
-                r.extract()
-
-    def preprocess_html(self, soup):
-        for c in soup.findAll('h11'):
-            c.name = 'h1'
-        self.append_page(soup, soup.body)
-        for r in soup.findAll('br'):
-            r.extract()
-        return soup
+        (u'Recenzje', u'http://film.org.pl/r/recenzje/feed/'),
+        (u'Artyku\u0142', u'http://film.org.pl/a/artykul/feed/'),
+        (u'Analiza', u'http://film.org.pl/a/analiza/feed/'),
+        (u'Ranking', u'http://film.org.pl/a/ranking/feed/'),
+        (u'Blog', u'http://film.org.pl/kmf/blog/feed/'),
+        (u'Ludzie', u'http://film.org.pl/a/ludzie/feed/'),
+        (u'Seriale', u'http://film.org.pl/a/seriale/feed/'),
+        (u'Oceanarium', u'http://film.org.pl/a/ocenarium/feed/'),
+        (u'VHS', u'http://film.org.pl/a/vhs-a/feed/'), ]

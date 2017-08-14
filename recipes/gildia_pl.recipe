@@ -8,18 +8,19 @@ class Gildia(BasicNewsRecipe):
     description = u'Fantastyczny Portal Kulturalny - newsy, recenzje, galerie, wywiady. Literatura, film, gry komputerowe i planszowe, komiks, RPG, sklep. Nie lekceważ potęgi wyobraźni!'  # noqa
     cover_url = 'http://www.film.gildia.pl/_n_/portal/redakcja/logo/logo-gildia.pl-500.jpg'
     category = 'culture'
-    cover_url = 'http://gildia.pl/images/logo-main.png'
+    cover_url = 'http://portal.gildia.pl/images/logo-main.png'
     language = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
     remove_empty_feeds = True
     no_stylesheets = True
+    use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(ur'</?sup>'), lambda match: '')]
     ignore_duplicate_articles = {'title', 'url'}
     remove_tags = [dict(name='div', attrs={'class': [
                         'backlink', 'im_img', 'addthis_toolbox addthis_default_style', 'banner-bottom']})]
-    keep_only_tags = [dict(name='div', attrs={'class': 'widetext'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'widetext'}), dict(name='article', attrs={'id': re.compile(r'post-\d+')})]
     feeds = [(u'Gry', u'http://www.gry.gildia.pl/rss'),
              (u'Literatura', u'http://www.literatura.gildia.pl/rss'),
              (u'Film', u'http://www.film.gildia.pl/rss'),
@@ -40,10 +41,14 @@ class Gildia(BasicNewsRecipe):
 
     def skip_ad_pages(self, soup):
         content = soup.find('div', attrs={'class': 'news'})
+        if content is None:
+            return
+
         words = ('recenzj', 'zapowied', 'fragmen',
                  'relacj', 'wywiad', 'nominacj')
+        document_title = soup.title.renderContents().lower()
         for word in words:
-            if word in soup.title.string.lower():
+            if word in document_title:
                 for link in content.findAll(name='a'):
                     if word in link['href'] or (link.string and word in link.string):
                         return self.index_to_soup(link['href'], raw=True)
@@ -52,13 +57,14 @@ class Gildia(BasicNewsRecipe):
                 return self.index_to_soup(tag['href'], raw=True)
 
     def preprocess_html(self, soup):
+        title = soup.title.renderContents().lower()
         for a in soup('a'):
             if a.has_key('href') and not a['href'].startswith('http'):  # noqa
                 if '/gry/' in a['href']:
                     a['href'] = 'http://www.gry.gildia.pl' + a['href']
-                elif u'książk' in soup.title.string.lower() or u'komiks' in soup.title.string.lower():
+                elif u'książk' in title or u'komiks' in title:
                     a['href'] = 'http://www.literatura.gildia.pl' + a['href']
-                elif u'komiks' in soup.title.string.lower():
+                elif u'komiks' in title:
                     a['href'] = 'http://www.literatura.gildia.pl' + a['href']
                 else:
                     a['href'] = 'http://www.gildia.pl' + a['href']

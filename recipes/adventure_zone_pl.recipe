@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
 
 
 class Adventure_zone(BasicNewsRecipe):
@@ -19,16 +20,24 @@ class Adventure_zone(BasicNewsRecipe):
     remove_tags = [dict(attrs={'class': 'footer'})]
     feeds = [(u'Nowinki', u'http://www.adventure-zone.info/fusion/rss/index.php')]
 
+    _trigger_words = ('zapowied', 'recenzj', 'solucj', 'poradnik')
+
+    @staticmethod
+    def _is_linked_text(title):
+        return 'zapowied' in title or 'recenz' in title or 'solucj' in title or 'poradnik' in title
+
     def skip_ad_pages(self, soup):
-        skip_tag = soup.body.find(attrs={'class': 'content'})
-        skip_tag = skip_tag.findAll(name='a')
-        title = soup.title.string.lower()
-        if (('zapowied' in title) or ('recenzj' in title) or ('solucj' in title) or ('poradnik' in title)):
+        skip_tag = soup.body.find(attrs={'class':'subject'})
+        skip_tag = skip_tag.findAll(name='a', href=True)
+        title = soup.title.renderContents().lower()
+        if self._is_linked_text(title):
             for r in skip_tag:
-                if r.strong and r.strong.string:
-                    word = r.strong.string.lower()
-                    if (('zapowied' in word) or ('recenzj' in word) or ('solucj' in word) or ('poradnik' in word)):
-                        return self.index_to_soup(self.BASEURL + r['href'], raw=True)
+                word = r.renderContents()
+                if not word:
+                    continue
+                word = word.lower()
+                if self._is_linked_text(word):
+                    return self.index_to_soup(self.BASEURL+r['href'], raw=True)
 
     def preprocess_html(self, soup):
         for link in soup.findAll('a', href=True):
