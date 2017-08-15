@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+
+class ParisReview(BasicNewsRecipe):
+    title          = 'The Paris Review Blog'
+    __author__        = 'fenuks'
+    description   = u'The Paris Review is a literary magazine featuring original writing, art, and in-depth interviews with famous writers.'
+    # cover_url      = ''
+    category       = 'culture'
+    language       = 'en'
+    encoding = 'utf-8'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_javascript = True
+    use_embedded_content = True
+    # extra_css      = ''
+    # preprocess_regexps = []
+    # remove_attributes = ['style',]
+    # keep_only_tags = []
+    remove_tags = []
+    # remove_tags_before = dict()
+    remove_tags_after = dict()
+    feeds          = [('Posts', 'http://feeds.feedburner.com/TheParisReviewBlog')]

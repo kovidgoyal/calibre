@@ -1,15 +1,14 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+import re
 
 
 class FilmWebPl(BasicNewsRecipe):
-    title = u'FilmWeb'
-    __author__ = 'fenuks'
-    description = 'Filmweb.pl - Filmy takie jak Ty Filmweb to największy i najczęściej odwiedzany polski serwis filmowy. Największa baza filmów, seriali i aktorów, repertuar kin i tv, ...'  # noqa
-    cover_url = 'http://gfx.filmweb.pl/n/logo-filmweb-bevel.jpg'
-    category = 'movies'
-    language = 'pl'
+    title          = 'FilmWeb'
+    __author__        = 'fenuks'
+    description   = u'Filmweb.pl - Filmy takie jak Ty Filmweb to największy i najczęściej odwiedzany polski serwis filmowy.'
+    cover_url      = 'http://1.fwcdn.pl/an/867323/63321_1.11.jpg'
+    category       = 'movies'
+    language       = 'pl'
     index = 'http://www.filmweb.pl'
     oldest_article = 8
     max_articles_per_feed = 100
@@ -17,57 +16,37 @@ class FilmWebPl(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_javascript = True
-    preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), (re.compile(
-        ur'(<br ?/?>\s*?<br ?/?>\s*?)+', re.IGNORECASE), lambda m: '<br />')]  # (re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
-    extra_css = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
-    remove_attributes = ['style', ]
-    keep_only_tags = [dict(attrs={'class': ['hdr hdr-super', 'newsContent']})]
-    feeds = [(u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
-             (u'News / Festiwale, nagrody i przeglądy',
-              u'http://www.filmweb.pl/feed/news/category/festival'),
-             (u'News / Seriale', u'http://www.filmweb.pl/feed/news/category/serials'),
-             (u'News / Box office', u'http://www.filmweb.pl/feed/news/category/boxoffice'),
-             (u'News / Multimedia',
-              u'http://www.filmweb.pl/feed/news/category/multimedia'),
-             (u'News / Dystrybucja dvd / blu-ray',
-              u'http://www.filmweb.pl/feed/news/category/video'),
-             (u'News / Dystrybucja kinowa',
-              u'http://www.filmweb.pl/feed/news/category/cinema'),
-             (u'News / off', u'http://www.filmweb.pl/feed/news/category/off'),
-             (u'News / Gry wideo', u'http://www.filmweb.pl/feed/news/category/game'),
-             (u'News / Organizacje branżowe',
-              u'http://www.filmweb.pl/feed/news/category/organizations'),
-             (u'News / Internet', u'http://www.filmweb.pl/feed/news/category/internet'),
-             (u'News / Różne', u'http://www.filmweb.pl/feed/news/category/other'),
-             (u'News / Kino polskie',
-              u'http://www.filmweb.pl/feed/news/category/polish.cinema'),
-             (u'News / Telewizja', u'http://www.filmweb.pl/feed/news/category/tv'),
-             (u'Recenzje redakcji', u'http://www.filmweb.pl/feed/reviews/latest'),
-             (u'Recenzje użytkowników',
-              u'http://www.filmweb.pl/feed/user-reviews/latest')
-             ]
-
-    def skip_ad_pages(self, soup):
-        skip_tag = soup.find('a', attrs={'class': 'welcomeScreenButton'})
-        if skip_tag is not None:
-            return self.index_to_soup(skip_tag['href'], raw=True)
-
-    def postprocess_html(self, soup, first_fetch):
-        for r in soup.findAll(attrs={'class': 'singlephoto'}):
-            r['style'] = 'float:left; margin-right: 10px;'
-        return soup
+    use_embedded_content = False
+    extra_css      = ('.hdrBig {font-size:22px;} ul {list-style-type:none;} '
+                      'ul.inline > li {display: inline;} '
+                      'ul.sep-line > li + li::before {content: " | "} '
+                      'ul.inline {padding:0px;} .vertical-align {display: inline-block;}')
+    preprocess_regexps = [(re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''), # fix malformed HTML with 2 body tags...
+    (re.compile(u'(?:<sup>)?\(kliknij\,\ aby powiększyć\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),
+    (re.compile(ur'(<br ?/?>\s*?<br ?/?>\s*?)+', re.IGNORECASE), lambda m: '<br />')
+    ]
+    remove_tags = [dict(attrs={'class':['infoParent', 'likeBar',
+                    'droptions-box pull-right', 'photoDesc', 'imageLicense', 'play big', 'shadow embed__icon--svg']})]
+    remove_attributes = ['style',]
+    keep_only_tags = [dict(attrs={'class': ['newsHdr hdrWithAuthor ', 'reviewHdr', 'newsContent newsPage', 'newsContent']})]
+    # remove_tags_before = dict(attrs={'class': 'hdr hdr-mega'})
+    # remove_tags_after = dict(attrs={'class': 'newsContent'})
+    feeds          = [(u'Filmy', u'http://www.filmweb.pl/feed/news/category/film'),
+                         (u'Seriale', u'http://www.filmweb.pl/feed/news/category/serial'),
+                         (u'Box office', u'http://www.filmweb.pl/feed/news/category/boxoffice'),
+                         (u'Telewizja', u'http://www.filmweb.pl/feed/news/category/tv'),
+                         (u'Festiwale, nagrody i przeglądy', u'http://www.filmweb.pl/feed/news/category/festival'),
+                         (u'Multimedia', u'http://www.filmweb.pl/feed/news/category/multimedia'),
+                         (u'Dystrybucja dvd/blu-ray', u'http://www.filmweb.pl/feed/news/category/dvd'),
+                         (u'Gry wideo', u'http://www.filmweb.pl/feed/news/category/game'),
+                         (u'Różne', u'http://www.filmweb.pl/feed/news/category/other'),
+                         (u'Recenzje redakcji', u'http://www.filmweb.pl/feed/reviews/latest'),
+                         (u'Recenzje użytkowników', u'http://www.filmweb.pl/feed/user-reviews/latest')
+                          ]
 
     def preprocess_html(self, soup):
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
-                a['href'] = self.index + a['href']  # noqa
-        for i in soup.findAll('a', attrs={'class': 'fn'}):
-            i.insert(len(i), BeautifulSoup('<br />'))
-        for i in soup.findAll('sup'):
-            if not i.string or i.string.startswith('(kliknij'):
-                i.extract()
-        for r in soup.findAll(id=re.compile('photo-\d+')):
-            r.extract()
-        for r in soup.findAll(style=re.compile('float: ?left')):
-            r['class'] = 'singlephoto'
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+                a['href'] = self.index + a['href']
+
         return soup
