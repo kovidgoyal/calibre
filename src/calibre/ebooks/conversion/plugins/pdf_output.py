@@ -10,7 +10,7 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import islinux, iswindows
+from calibre.constants import iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
@@ -76,13 +76,13 @@ class PDFOutput(OutputFormatPlugin):
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
         OptionRecommendation(name='pdf_serif_family',
-            recommended_value='Liberation Serif' if islinux else 'Times New Roman', help=_(
+            recommended_value='Liberation Serif', help=_(
                 'The font family used to render serif fonts')),
         OptionRecommendation(name='pdf_sans_family',
-            recommended_value='Liberation Sans' if islinux else 'Helvetica', help=_(
+            recommended_value='Liberation Sans', help=_(
                 'The font family used to render sans-serif fonts')),
         OptionRecommendation(name='pdf_mono_family',
-            recommended_value='Liberation Mono' if islinux else 'Courier New', help=_(
+            recommended_value='Liberation Mono', help=_(
                 'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_standard_font', choices=['serif',
             'sans', 'mono'],
