@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class FilmOrgPl(BasicNewsRecipe):
     title = u'Film.org.pl'
     __author__ = 'fenuks'
-    description = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."
+    description = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."  # noqa
     category = 'film'
     language = 'pl'
     cover_url = 'http://film.org.pl/wp-content/uploads/2015/02/film.org.pl_film.org_.pl_kmfviolet4.png'

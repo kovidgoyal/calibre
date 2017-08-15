@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
 
 
 class Adventure_zone(BasicNewsRecipe):

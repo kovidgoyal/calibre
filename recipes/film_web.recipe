@@ -21,7 +21,7 @@ class FilmWebPl(BasicNewsRecipe):
                       'ul.inline > li {display: inline;} '
                       'ul.sep-line > li + li::before {content: " | "} '
                       'ul.inline {padding:0px;} .vertical-align {display: inline-block;}')
-    preprocess_regexps = [(re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''), # fix malformed HTML with 2 body tags...
+    preprocess_regexps = [(re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''),  # fix malformed HTML with 2 body tags...
     (re.compile(u'(?:<sup>)?\(kliknij\,\ aby powiększyć\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),
     (re.compile(ur'(<br ?/?>\s*?<br ?/?>\s*?)+', re.IGNORECASE), lambda m: '<br />')
     ]
@@ -45,8 +45,8 @@ class FilmWebPl(BasicNewsRecipe):
                           ]
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+        for a in soup('a', href=True):
+            if 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href'] = self.index + a['href']
 
         return soup
