@@ -87,8 +87,9 @@ def on_fmt_click(ev):
             E.div(class_='button-box',
                 create_button(_('Read'), 'book', action.bind(None, read_format)),
                 '\xa0',
-                create_button(_('Download'), 'cloud-download', action.bind(None, download_format),
-                              tooltip=_('File size: {}').format(human_readable(sz))),
+                create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
+                              _('File size: {}').format(human_readable(sz)),
+                              download_filename=f'{title}.{fmt.toLowerCase()}')
             )
         ))
     )
