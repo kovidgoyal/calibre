@@ -237,8 +237,6 @@ class Stylizer(object):
                 if fl == 'first-letter' and getattr(self.oeb,
                         'plumber_output_format', '').lower() in {u'mobi', u'docx'}:
                     # Fake first-letter
-                    from lxml.builder import ElementMaker
-                    E = ElementMaker(namespace=XHTML_NS)
                     for elem in matches:
                         for x in elem.iter('*'):
                             if x.text:
@@ -253,7 +251,8 @@ class Stylizer(object):
 
                                 special_text = u''.join(punctuation_chars) + \
                                         (text[0] if text else u'')
-                                span = E.span(special_text)
+                                span = x.makeelement('{%s}span' % XHTML_NS)
+                                span.text = special_text
                                 span.set('data-fake-first-letter', '1')
                                 span.tail = text[1:]
                                 x.text = None
