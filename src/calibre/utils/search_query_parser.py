@@ -396,7 +396,10 @@ class SearchQueryParser(object):
                     raise ParseException(_('Recursive saved search: {0}').format(query))
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
-                return self._parse(self.lookup_saved_search(query), candidates)
+                ss = self.lookup_saved_search(query)
+                if ss is None:
+                    raise ParseException(_('Unknown saved search: {}').format(query))
+                return self._parse(ss, candidates)
             except ParseException as e:
                 raise e
             except:  # convert all exceptions (e.g., missing key) to a parse error
