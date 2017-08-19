@@ -79,11 +79,11 @@ class Barrons(BasicNewsRecipe):
             raise ValueError(
                 'Failed to login (XHR failed), check username and password')
         br.set_cookie('m', data['username'], '.barrons.com')
-        raw = br.open(data['url']).read()
+        br.open(data['url']).read()
         # open('/t/raw.html', 'wb').write(raw)
-        if b'>Logout<' not in raw:
-            raise ValueError(
-                'Failed to login (auth URL failed), check username and password')
+        # if b'>Logout<' not in raw:
+        #     raise ValueError(
+        #         'Failed to login (auth URL failed), check username and password')
         return br
 
     # Use the print version of a page when available.
