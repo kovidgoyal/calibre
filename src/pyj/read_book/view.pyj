@@ -31,6 +31,7 @@ LOADING_DOC = '''
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <script type="text/javascript" id="bootstrap">
+window.iframe_type = '__IFRAME_TYPE__';  // different in different iframes
 __SCRIPT__
 end_script
 </head>
@@ -135,12 +136,10 @@ class View:
         )
         self.search_overlay = SearchOverlay(self)
         self.overlay = Overlay(self)
-        self.src_doc = None
         self.processing_spine_item_display = False
         self.iframe_ready = False
         self.pending_load = None
         self.encrypted_communications = False
-        self.create_src_doc()
         window.addEventListener('message', self.handle_message, False)
         self.handlers = {
             'ready': self.on_iframe_ready,
@@ -273,14 +272,24 @@ class View:
     def create_src_doc(self):
         iframe_script = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
         main_js(None)
-        self.src_doc = LOADING_DOC.replace(
-            '__BS__', _('Bootstrapping book reader...')).replace(
-            '__SCRIPT__', iframe_script).replace(
-            '__FONT__', get_font_family().replace('"', '&quot;'))
+        r = /__([A-Z][A-Z_0-9]*[A-Z0-9])__/g
+        self.main_srcdoc = def():
+            data = {
+                'BS': _('Bootstrapping book reader...'),
+                'SCRIPT': iframe_script,
+                'FONT': get_font_family(),
+                'IFRAME_TYPE': 'main'
+            }
+            return LOADING_DOC.replace(r, def(match, field): return data[field];)
 
     def init_iframe(self, iframe_script):
+        if self.main_srcdoc is None:
+            return
+        if not self.main_srcdoc:
+            self.create_src_doc()
         self.encrypted_communications = False
-        self.iframe.srcdoc = self.src_doc
+        self.iframe.srcdoc = self.main_srcdoc()
+        self.main_srcdoc = None
 
     def send_message(self, action, **data):
         data.action = action
