@@ -498,6 +498,15 @@ class Parser(SearchQueryParser):  # {{{
         if location not in self.all_search_locations:
             return matches
 
+        if location == 'vl':
+            vl = self.dbcache._pref('virtual_libraries', {}).get(query) if query else None
+            if not vl:
+                raise ParseException(_('No such virtual library: {0}').format(query))
+            try:
+                return candidates & self.dbcache.books_in_virtual_library(query)
+            except (RuntimeError):
+                raise ParseException(_('Virtual library search is recursive: {0}').format(query))
+
         if (len(location) > 2 and location.startswith('@') and
                     location[1:] in self.grouped_search_terms):
             location = location[1:]
