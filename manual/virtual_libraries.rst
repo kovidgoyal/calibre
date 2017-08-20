@@ -95,6 +95,23 @@ virtual libraries as tabs`. You can re-arrange the tabs by drag and drop and
 close ones you do not want to see. Closed tabs can be restored by
 right-clicking on the tab bar.
 
+Using Virtual libraries in searches
+-------------------------------------
+
+You can search for books that are in a virtual library using the ``vl:`` prefix. For
+example, ``vl:Read`` will find all the books in the *Read* virtual library. The search
+``vl:Read and vl:"Science Fiction"`` will find all the books that are in both the *Read* and
+*Science Fiction* virtual libraries.
+
+The value following ``vl:`` must be the name of a virtual library. If the virtual library name 
+contains spaces then surround it with quotes.
+
+One use for a virtual library search is in the content server. In
+:guilabel:`Preferences->Sharing over the net->Require username/password` you
+can limit the calibre libraries visible to a user. For each visible library you
+can specify a search expression to further limit which books are seen. Use
+``vl:"Virtual library name"`` to limit the books to those in a virtual library.
+
 Using additional restrictions
 -------------------------------
 

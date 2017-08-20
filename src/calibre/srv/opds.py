@@ -20,8 +20,9 @@ from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
 from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
+from calibre.utils.search_query_parser import ParseException
 
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
 
@@ -381,8 +382,9 @@ class RequestContext(object):
     def last_modified(self):
         return self.db.last_modified()
 
-    def get_categories(self):
-        return self.ctx.get_categories(self.rd, self.db)
+    def get_categories(self, report_parse_errors=False):
+        return self.ctx.get_categories(self.rd, self.db,
+                                       report_parse_errors=report_parse_errors)
 
     def search(self, query):
         return self.ctx.search(self.rd, self.db, query)
@@ -470,7 +472,11 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
 def opds(ctx, rd):
     rc = RequestContext(ctx, rd)
     db = rc.db
-    categories = rc.get_categories()
+    try:
+        categories = rc.get_categories(report_parse_errors=True)
+    except ParseException as p:
+        raise HTTPInternalServerError(p.msg)
+
     category_meta = db.field_metadata
     cats = [
         (_('Newest'), _('Date'), 'Onewest'),
