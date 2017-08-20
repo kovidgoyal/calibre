@@ -82,7 +82,7 @@ class CaseMangler(object):
                 else:
                     last.tail = text
             else:
-                child = etree.Element(XHTML('span'), attrib=attrib)
+                child = elem.makeelement(XHTML('span'), attrib=attrib)
                 child.text = text.upper()
                 if last is None:
                     elem.insert(0, child)
