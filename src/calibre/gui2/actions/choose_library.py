@@ -79,7 +79,7 @@ class LibraryUsageStats(object):  # {{{
         if lpath in locs:
             locs.remove(lpath)
         limit = tweaks['many_libraries'] if limit is None else limit
-        key = sort_key if len(locs) > limit else lambda x:self.stats[x]
+        key = (lambda x:sort_key(os.path.basename(x))) if len(locs) > limit else self.stats.get
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
             yield self.pretty(loc), loc
