@@ -48,9 +48,9 @@ def serialize_restriction(r):
 
 
 def validate_username(username):
-    if re.sub(r'[a-zA-Z_0-9 ]', '', username):
+    if re.sub(r'[-a-zA-Z_0-9 ]', '', username):
         return _('For maximum compatibility you should use only the letters A-Z,'
-                    ' the numbers 0-9 and spaces or underscores in the username')
+                    ' the numbers 0-9, spaces, underscores and hyphens in the username')
 
 
 def validate_password(pw):
