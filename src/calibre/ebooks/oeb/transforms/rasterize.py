@@ -9,7 +9,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os, re
 from urlparse import urldefrag
 
-from lxml import etree
 from PyQt5.Qt import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
 from calibre.ebooks.oeb.base import XHTML, XLINK
@@ -171,7 +170,7 @@ class SVGRasterizer(object):
         href = os.path.splitext(item.href)[0] + '.png'
         id, href = manifest.generate(item.id, href)
         manifest.add(id, href, PNG_MIME, data=data)
-        img = etree.Element(XHTML('img'), src=item.relhref(href))
+        img = elem.makeelement(XHTML('img'), src=item.relhref(href))
         elem.getparent().replace(elem, img)
         for prop in ('width', 'height'):
             if prop in elem.attrib:
