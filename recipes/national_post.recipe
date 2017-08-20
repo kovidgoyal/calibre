@@ -1,57 +1,32 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
-class NYTimes(BasicNewsRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class NationalPost(BasicNewsRecipe):
 
     title = 'National Post'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'Kovid Goyal'
     description = 'Canadian national newspaper'
     timefmt = ' [%d %b, %Y]'
     language = 'en_CA'
-    needs_subscription = False
-
     no_stylesheets = True
-    auto_cleanup = True
-    auto_cleanup_keep = '//*[@class="npStoryPhoto npTxtPlain"]'
+    oldest_article = 1.5
+    use_embedded_content = False
 
-    # TO GET ARTICLE TOC
-    def nejm_get_index(self):
-        return self.index_to_soup('http://www.nationalpost.com/todays-paper/index.html')
+    keep_only_tags = [
+        dict(itemprop='headline'),
+        classes('featured-image'),
+        dict(itemprop='articleBody'),
+    ]
 
-    # To parse artice toc
-    def parse_index(self):
-        soup = self.nejm_get_index()
-
-        div = soup.find(id='npContentMain')
-
-        current_section = None
-        current_articles = []
-        feeds = []
-        for x in div.findAll(True):
-            if x.name == 'h4':
-                # Section found
-                if current_articles and current_section:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(x)
-                current_articles = []
-                self.log('\tFound section:', current_section)
-            if current_section is not None and x.name == 'h5':
-                # Article found
-                title = self.tag_to_string(x)
-                a = x.find('a', href=True)
-                if a is None:
-                    continue
-                url = a.get('href', False)
-                if not url or not title:
-                    continue
-                # if url.startswith('story'):
-                # url = 'http://www.nationalpost.com/todays-paper/'+url
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url': url,
-                                         'description': '', 'date': ''})
-
-        if current_articles and current_section:
-            feeds.append((current_section, current_articles))
-
-        return feeds
+    feeds = ['http://nationalpost.com/rss']
