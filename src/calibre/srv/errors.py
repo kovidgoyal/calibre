@@ -58,6 +58,12 @@ class HTTPForbidden(HTTPSimpleResponse):
         HTTPSimpleResponse.__init__(self, httplib.FORBIDDEN, http_message, close_connection, log=log)
 
 
+class HTTPInternalServerError(HTTPSimpleResponse):
+
+    def __init__(self, http_message='', close_connection=True, log=None):
+        HTTPSimpleResponse.__init__(self, httplib.INTERNAL_SERVER_ERROR, http_message, close_connection, log=log)
+
+
 class BookNotFound(HTTPNotFound):
 
     def __init__(self, book_id, db):

@@ -118,8 +118,10 @@ class Context(object):
                 raise
             return frozenset()
 
-    def get_categories(self, request_data, db, sort='name', first_letter_sort=True, vl=''):
-        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+    def get_categories(self, request_data, db, sort='name', first_letter_sort=True,
+                       vl='', report_parse_errors=False):
+        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl,
+                                          report_parse_errors=report_parse_errors)
         key = restrict_to_ids, sort, first_letter_sort
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
