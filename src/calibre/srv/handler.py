@@ -14,6 +14,7 @@ from calibre.srv.library_broker import LibraryBroker, path_for_db
 from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
+from calibre.utils.search_query_parser import ParseException
 
 
 class Context(object):
@@ -82,14 +83,24 @@ class Context(object):
     def has_id(self, request_data, db, book_id):
         restriction = self.restriction_for(request_data, db)
         if restriction:
-            return book_id in db.search('', restriction=restriction)
+            try:
+                return book_id in db.search('', restriction=restriction)
+            except ParseException:
+                return False
         return db.has_id(book_id)
 
-    def allowed_book_ids(self, request_data, db):
+    def get_allowed_book_ids_from_restriction(self, request_data, db):
         restriction = self.restriction_for(request_data, db)
-        if restriction:
-            return frozenset(db.search('', restriction=restriction))
-        return db.all_book_ids()
+        return frozenset(db.search('', restriction=restriction)) if restriction else None
+
+    def allowed_book_ids(self, request_data, db):
+        try:
+            ans = self.get_allowed_book_ids_from_restriction(request_data, db)
+        except ParseException:
+            return frozenset()
+        if ans is None:
+            ans = db.all_book_ids()
+        return ans
 
     def check_for_write_access(self, request_data):
         if not request_data.username:
@@ -99,8 +110,13 @@ class Context(object):
         if self.user_manager.is_readonly(request_data.username):
             raise HTTPForbidden('The user {} does not have permission to make changes'.format(request_data.username))
 
-    def get_effective_book_ids(self, db, request_data, vl):
-        return db.books_in_virtual_library(vl, self.restriction_for(request_data, db))
+    def get_effective_book_ids(self, db, request_data, vl, report_parse_errors=False):
+        try:
+            return db.books_in_virtual_library(vl, self.restriction_for(request_data, db))
+        except ParseException:
+            if report_parse_errors:
+                raise
+            return frozenset()
 
     def get_categories(self, request_data, db, sort='name', first_letter_sort=True, vl=''):
         restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
@@ -135,8 +151,15 @@ class Context(object):
                 cache[key] = old
             return old[1]
 
-    def search(self, request_data, db, query, vl=''):
-        restrict_to_ids = self.get_effective_book_ids(db, request_data, vl)
+    def search(self, request_data, db, query, vl='', report_restriction_errors=False):
+        try:
+            restrict_to_ids = self.get_effective_book_ids(db, request_data, vl, report_parse_errors=report_restriction_errors)
+        except ParseException:
+            try:
+                self.get_allowed_book_ids_from_restriction(request_data, db)
+            except ParseException as e:
+                return frozenset(), e
+            return frozenset(), None
         query = query or ''
         key = query, restrict_to_ids
         with self.lock:
@@ -149,6 +172,8 @@ class Context(object):
                     cache.popitem(last=False)
             else:
                 cache[key] = old
+            if report_restriction_errors:
+                return old[1], None
             return old[1]
 
 

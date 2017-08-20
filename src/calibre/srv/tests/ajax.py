@@ -91,6 +91,8 @@ class ContentTest(LibraryBaseTest):
             self.assertTrue(db.has_id(3))
             server.handler.ctx.user_manager.add_user('12', 'test', restriction={
                 'library_restrictions':{os.path.basename(db.backend.library_path): 'id:1 or id:2'}})
+            server.handler.ctx.user_manager.add_user('inv', 'test', restriction={
+                'library_restrictions':{os.path.basename(db.backend.library_path): '"1'}})
             conn = server.connect()
 
             def url_for(path, **kw):
@@ -122,6 +124,8 @@ class ContentTest(LibraryBaseTest):
             ae(set(r(url_for('/ajax/search'))['book_ids']), {1,2})
             ae(set(r(url_for('/ajax/search?query=id:2'))['book_ids']), {2})
             ae(set(r(url_for('/ajax/search?vl=1'))['book_ids']), {1})
+            data = make_request(conn, '/ajax/search', username='inv', password='test', prefix='', method='GET')[1]
+            ae(data['bad_restriction'], 'Invalid syntax. Expected a lookup name or a word')
 
             # books.py
             nf(url_for('/book-manifest', book_id=3, fmt='TXT'))

@@ -1,13 +1,14 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from ajax import ajax, absolute_path
+from gettext import gettext as _
+
+from ajax import absolute_path, ajax
+from book_list.globals import get_session_data
 from lru_cache import LRUCache
 from session import get_interface_data
 from utils import parse_url_params
-
-from book_list.globals import get_session_data
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
 library_data = {'metadata':{}, 'previous_book_ids': v'[]'}
@@ -98,18 +99,24 @@ def current_book_ids():
 
 def on_data_loaded(end_type, xhr, ev):
     load_status.current_fetch = None
+    def bad_load(msg):
+        load_status.ok = False
+        load_status.loading = False
+        load_status.error_html = msg or xhr.error_html
+
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
-        update_library_data(data)
-        sd = get_session_data()
-        q = loaded_books_query()
-        sd.set_library_option(q.library_id, 'sort', q.sort)
+        if data.bad_restriction:
+            bad_load(_('The library restriction for the current user is invalid: {}').format(data.bad_restriction))
+        else:
+            update_library_data(data)
+            sd = get_session_data()
+            q = loaded_books_query()
+            sd.set_library_option(q.library_id, 'sort', q.sort)
     elif end_type is 'abort':
         pass
     else:
-        load_status.ok = False
-        load_status.loading = False
-        load_status.error_html = xhr.error_html
+        bad_load()
 
 
 def fetch_init_data():
