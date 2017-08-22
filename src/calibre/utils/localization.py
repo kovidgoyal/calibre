@@ -318,6 +318,7 @@ if False:
     _('&Step up')
     _('Step &down')
     _('Close without Saving')
+    _('Close Tab')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
