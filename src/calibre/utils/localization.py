@@ -60,6 +60,18 @@ def get_system_locale():
     return lang
 
 
+def sanitize_lang(lang):
+    if lang:
+        match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
+        if match:
+            lang = match.group()
+    if lang == 'zh':
+        lang = 'zh_CN'
+    if not lang:
+        lang = 'en'
+    return lang
+
+
 def get_lang():
     'Try to figure out what language to display the interface in'
     from calibre.utils.config_base import prefs
@@ -73,15 +85,7 @@ def get_lang():
         import traceback
         traceback.print_exc()
         lang = None
-    if lang:
-        match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
-        if match:
-            lang = match.group()
-    if lang == 'zh':
-        lang = 'zh_CN'
-    if not lang:
-        lang = 'en'
-    return lang
+    return sanitize_lang(lang)
 
 
 def is_rtl():
@@ -118,11 +122,17 @@ def get_all_translators():
                 yield lang, GNUTranslations(buf)
 
 
-def get_single_translator(mpath):
+def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+        buf = cStringIO.StringIO(zf.read(mpath + '/%s.mo' % which))
         return GNUTranslations(buf)
+
+
+def get_iso639_translator(lang):
+    lang = sanitize_lang(lang)
+    mpath = get_lc_messages_path(lang) if lang else None
+    return get_single_translator(mpath, 'iso639') if mpath else None
 
 
 def get_translator(bcp_47_code):
@@ -334,13 +344,7 @@ def _load_iso639():
     return _iso639
 
 
-def get_language(lang):
-    translate = _
-    lang = _lcase_map.get(lang, lang)
-    if lang in _extra_lang_codes:
-        # The translator was not active when _extra_lang_codes was defined, so
-        # re-translate
-        return translate(_extra_lang_codes[lang])
+def get_iso_language(lang_trans, lang):
     iso639 = _load_iso639()
     ans = lang
     lang = lang.split('_')[0].lower()
@@ -351,10 +355,17 @@ def get_language(lang):
             ans = iso639['by_3b'][lang]
         else:
             ans = iso639['by_3t'].get(lang, ans)
-    try:
-        return _lang_trans.ugettext(ans)
-    except AttributeError:
-        return translate(ans)
+    return lang_trans(ans)
+
+
+def get_language(lang):
+    translate = _
+    lang = _lcase_map.get(lang, lang)
+    if lang in _extra_lang_codes:
+        # The translator was not active when _extra_lang_codes was defined, so
+        # re-translate
+        return translate(_extra_lang_codes[lang])
+    return get_iso_language(getattr(_lang_trans, 'ugettext', translate), lang)
 
 
 def calibre_langcode_to_name(lc, localize=True):

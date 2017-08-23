@@ -454,6 +454,7 @@ class Translations(POT):  # {{{
     def compile_website_translations(self):
         from calibre.utils.zipfile import ZipFile, ZipInfo, ZIP_STORED
         from calibre.ptempfile import TemporaryDirectory
+        from calibre.utils.localization import get_iso639_translator, get_language, get_iso_language
         self.info('Compiling website translations...')
         srcbase = self.j(self.d(self.SRC), 'translations', 'website')
         fmap = {}
@@ -471,6 +472,9 @@ class Translations(POT):  # {{{
             for f in os.listdir(srcbase):
                 if f.endswith('.po'):
                     l = f.partition('.')[0]
+                    pf = l.split('_')[0]
+                    if pf in {'en'}:
+                        continue
                     d = os.path.join(tdir, l + '.mo')
                     f = os.path.join(srcbase, f)
                     fmap[f] = l
@@ -485,6 +489,19 @@ class Translations(POT):  # {{{
                     zi.compress_type = ZIP_STORED
                     zf.writestr(zi, raw)
                     done.append(locale)
+            dl = done + ['en']
+
+            lang_names = {}
+            for l in dl:
+                if l == 'en':
+                    t = get_language
+                else:
+                    t = get_iso639_translator(l).ugettext
+                    t = partial(get_iso_language, t)
+                lang_names[l] = {x: t(x) for x in dl}
+            zi = ZipInfo('lang-names.json')
+            zi.compress_type = ZIP_STORED
+            zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
         dest = self.j(self.d(self.stats), 'website-languages.txt')
         with open(dest, 'wb') as f:
             f.write(' '.join(sorted(done)))
