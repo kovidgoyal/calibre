@@ -86,7 +86,7 @@ static int sort_concat_cmp(const void *a_, const void *b_) {
 
 static unsigned char* sort_concat_do_finalize(SortConcatList *list, const unsigned char join) {
     unsigned char *ans, *pos;
-    int sz = 0, i;
+    unsigned int sz = 0, i;
 
     for (i = 0; i < list->count; i++) { 
         sz += list->vals[i]->length;
