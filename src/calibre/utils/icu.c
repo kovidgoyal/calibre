@@ -182,7 +182,8 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args) {
     if (b == NULL) goto end;
     res = ucol_strcoll(self->collator, a, asz, b, bsz);
 end:
-    if (a != NULL) free(a); if (b != NULL) free(b);
+    if (a != NULL) free(a); 
+    if (b != NULL) free(b);
 
     return (PyErr_Occurred()) ? NULL : Py_BuildValue("i", res);
 } // }}}
