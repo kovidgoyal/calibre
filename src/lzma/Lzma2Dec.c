@@ -1,5 +1,5 @@
 /* Lzma2Dec.c -- LZMA2 Decoder
-2014-10-29 : Igor Pavlov : Public domain */
+2015-11-09 : Igor Pavlov : Public domain */
 
 /* #define SHOW_DEBUG_INFO */
 
@@ -103,8 +103,8 @@ static ELzma2State Lzma2Dec_UpdateState(CLzma2Dec *p, Byte b)
   {
     case LZMA2_STATE_CONTROL:
       p->control = b;
-      PRF(printf("\n %4X ", p->decoder.dicPos));
-      PRF(printf(" %2X", b));
+      PRF(printf("\n %4X ", (unsigned)p->decoder.dicPos));
+      PRF(printf(" %2X", (unsigned)b));
       if (p->control == 0)
         return LZMA2_STATE_FINISHED;
       if (LZMA2_IS_UNCOMPRESSED_STATE(p))
@@ -124,7 +124,7 @@ static ELzma2State Lzma2Dec_UpdateState(CLzma2Dec *p, Byte b)
     case LZMA2_STATE_UNPACK1:
       p->unpackSize |= (UInt32)b;
       p->unpackSize++;
-      PRF(printf(" %8d", p->unpackSize));
+      PRF(printf(" %8u", (unsigned)p->unpackSize));
       return (LZMA2_IS_UNCOMPRESSED_STATE(p)) ? LZMA2_STATE_DATA : LZMA2_STATE_PACK0;
     
     case LZMA2_STATE_PACK0:
@@ -134,7 +134,7 @@ static ELzma2State Lzma2Dec_UpdateState(CLzma2Dec *p, Byte b)
     case LZMA2_STATE_PACK1:
       p->packSize |= (UInt32)b;
       p->packSize++;
-      PRF(printf(" %8d", p->packSize));
+      PRF(printf(" %8u", (unsigned)p->packSize));
       return LZMA2_IS_THERE_PROP(LZMA2_GET_LZMA_MODE(p)) ? LZMA2_STATE_PROP:
         (p->needInitProp ? LZMA2_STATE_ERROR : LZMA2_STATE_DATA);
 

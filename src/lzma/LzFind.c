@@ -1,5 +1,5 @@
 /* LzFind.c -- Match finder for LZ algorithms
-2015-05-15 : Igor Pavlov : Public domain */
+2015-10-15 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -11,7 +11,7 @@
 #define kEmptyHashValue 0
 #define kMaxValForNormalize ((UInt32)0xFFFFFFFF)
 #define kNormalizeStepMin (1 << 10) /* it must be power of 2 */
-#define kNormalizeMask (~(kNormalizeStepMin - 1))
+#define kNormalizeMask (~(UInt32)(kNormalizeStepMin - 1))
 #define kMaxHistorySize ((UInt32)7 << 29)
 
 #define kStartMaxLen 3
@@ -60,9 +60,11 @@ static void MatchFinder_ReadBlock(CMatchFinder *p)
   if (p->streamEndWasReached || p->result != SZ_OK)
     return;
 
+  /* We use (p->streamPos - p->pos) value. (p->streamPos < p->pos) is allowed. */
+
   if (p->directInput)
   {
-    UInt32 curSize = 0xFFFFFFFF - p->streamPos;
+    UInt32 curSize = 0xFFFFFFFF - (p->streamPos - p->pos);
     if (curSize > p->directInputRem)
       curSize = (UInt32)p->directInputRem;
     p->directInputRem -= curSize;
@@ -97,7 +99,7 @@ void MatchFinder_MoveBlock(CMatchFinder *p)
 {
   memmove(p->bufferBase,
       p->buffer - p->keepSizeBefore,
-      (size_t)(p->streamPos - p->pos + p->keepSizeBefore));
+      (size_t)(p->streamPos - p->pos) + p->keepSizeBefore);
   p->buffer = p->bufferBase + p->keepSizeBefore;
 }
 
@@ -290,7 +292,7 @@ static void MatchFinder_SetLimits(CMatchFinder *p)
   p->posLimit = p->pos + limit;
 }
 
-void MatchFinder_Init(CMatchFinder *p)
+void MatchFinder_Init_2(CMatchFinder *p, int readData)
 {
   UInt32 i;
   UInt32 *hash = p->hash;
@@ -303,10 +305,18 @@ void MatchFinder_Init(CMatchFinder *p)
   p->pos = p->streamPos = p->cyclicBufferSize;
   p->result = SZ_OK;
   p->streamEndWasReached = 0;
-  MatchFinder_ReadBlock(p);
+  
+  if (readData)
+    MatchFinder_ReadBlock(p);
+  
   MatchFinder_SetLimits(p);
 }
 
+void MatchFinder_Init(CMatchFinder *p)
+{
+  MatchFinder_Init_2(p, True);
+}
+  
 static UInt32 MatchFinder_GetSubValue(CMatchFinder *p)
 {
   return (p->pos - p->historySize - 1) & kNormalizeMask;

@@ -1,5 +1,5 @@
 /* LzFind.h -- Match finder for LZ algorithms
-2015-05-01 : Igor Pavlov : Public domain */
+2015-10-15 : Igor Pavlov : Public domain */
 
 #ifndef __LZ_FIND_H
 #define __LZ_FIND_H
@@ -53,6 +53,11 @@ typedef struct _CMatchFinder
 
 #define Inline_MatchFinder_GetNumAvailableBytes(p) ((p)->streamPos - (p)->pos)
 
+#define Inline_MatchFinder_IsFinishedOK(p) \
+    ((p)->streamEndWasReached \
+        && (p)->streamPos == (p)->pos \
+        && (!(p)->directInput || (p)->directInputRem == 0))
+      
 int MatchFinder_NeedMove(CMatchFinder *p);
 Byte *MatchFinder_GetPointerToCurrentPos(CMatchFinder *p);
 void MatchFinder_MoveBlock(CMatchFinder *p);
@@ -98,9 +103,12 @@ typedef struct _IMatchFinder
 
 void MatchFinder_CreateVTable(CMatchFinder *p, IMatchFinder *vTable);
 
+void MatchFinder_Init_2(CMatchFinder *p, int readData);
 void MatchFinder_Init(CMatchFinder *p);
+
 UInt32 Bt3Zip_MatchFinder_GetMatches(CMatchFinder *p, UInt32 *distances);
 UInt32 Hc3Zip_MatchFinder_GetMatches(CMatchFinder *p, UInt32 *distances);
+
 void Bt3Zip_MatchFinder_Skip(CMatchFinder *p, UInt32 num);
 void Hc3Zip_MatchFinder_Skip(CMatchFinder *p, UInt32 num);
 
