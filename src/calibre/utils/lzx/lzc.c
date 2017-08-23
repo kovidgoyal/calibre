@@ -285,8 +285,8 @@ int lz_compress(lz_info *lzi, int nchars)
 {
 
   unsigned char *bbp, *bbe;
-  int *lentab, *lenp;
-  unsigned char **prevtab, **prevp;
+  int *lenp;
+  unsigned char **prevp;
   int len;
   int holdback;
   short trimmed;
@@ -327,8 +327,8 @@ int lz_compress(lz_info *lzi, int nchars)
       lz_analyze_block(lzi);
     }
 #endif
-    prevtab = prevp = lzi->prevtab + lzi->block_loc;
-    lentab = lenp = lzi->lentab + lzi->block_loc;
+    prevp = lzi->prevtab + lzi->block_loc;
+    lenp = lzi->lentab + lzi->block_loc;
     bbp = lzi->block_buf + lzi->block_loc;
     holdback = lzi->max_match;
     if (lzi->eofcount) holdback = 0;
