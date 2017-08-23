@@ -482,7 +482,7 @@ class Translations(POT):  # {{{
             self.compile_group(files, handle_stats=handle_stats)
 
             for locale, translated in stats.iteritems():
-                if translated > 30:
+                if translated >= 20:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
                     zi = ZipInfo(os.path.basename(f.name))
