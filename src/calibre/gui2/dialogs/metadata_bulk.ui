@@ -70,8 +70,8 @@ is completed. This can be slow on large libraries.</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>944</width>
-        <height>600</height>
+        <width>930</width>
+        <height>603</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -311,7 +311,7 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
            <item row="7" column="0">
             <widget class="QLabel" name="label_7">
              <property name="text">
-              <string>&amp;Series:</string>
+              <string>Ser&amp;ies:</string>
              </property>
              <property name="textFormat">
               <enum>Qt::PlainText</enum>
@@ -737,7 +737,7 @@ as that of the first selected book.</string>
            <item row="3" column="0">
             <widget class="QLabel" name="xlabel_22">
              <property name="text">
-              <string>Load searc&amp;h/replace:</string>
+              <string>&amp;Load search/replace:</string>
              </property>
              <property name="buddy">
               <cstring>query_field</cstring>
@@ -858,7 +858,7 @@ as that of the first selected book.</string>
            <item row="5" column="0">
             <widget class="QLabel" name="s_r_src_ident_label">
              <property name="text">
-              <string>Identifier type:</string>
+              <string>&amp;Identifier type:</string>
              </property>
              <property name="buddy">
               <cstring>s_r_src_ident</cstring>
@@ -881,7 +881,7 @@ as that of the first selected book.</string>
            <item row="5" column="0">
             <widget class="QLabel" name="template_label">
              <property name="text">
-              <string>Te&amp;mplate:</string>
+              <string>&amp;Template:</string>
              </property>
              <property name="buddy">
               <cstring>s_r_template</cstring>
@@ -1181,8 +1181,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>922</width>
-                <height>268</height>
+                <width>908</width>
+                <height>253</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1204,6 +1204,9 @@ not multiple and the destination field is multiple</string>
                 <widget class="QLabel" name="label_31">
                  <property name="text">
                   <string>Your &amp;test:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>test_text</cstring>
                  </property>
                 </widget>
                </item>
