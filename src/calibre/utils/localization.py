@@ -448,15 +448,23 @@ def get_udc():
     return _udc
 
 
+def user_manual_stats():
+    stats = getattr(user_manual_stats, 'stats', None)
+    if stats is None:
+        import json
+        try:
+            stats = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
+        except EnvironmentError:
+            stats = {}
+        user_manual_stats.stats = stats
+    return stats
+
+
 def localize_user_manual_link(url):
     lc = lang_as_iso639_1(get_lang())
     if lc == 'en':
         return url
-    import json
-    try:
-        stats = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
-    except EnvironmentError:
-        return url
+    stats = user_manual_stats()
     if stats.get(lc, 0) < 0.3:
         return url
     from urlparse import urlparse, urlunparse
