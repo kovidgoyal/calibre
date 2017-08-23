@@ -178,7 +178,7 @@ class Config(QDialog, Ui_Dialog):
     def sizeHint(self):
         desktop = QCoreApplication.instance().desktop()
         geom = desktop.availableGeometry(self)
-        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        nh, nw = max(300, geom.height()-100), max(400, geom.width()-70)
         return QSize(nw, nh)
 
     def restore_defaults(self):
