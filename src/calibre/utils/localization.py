@@ -485,3 +485,27 @@ def localize_user_manual_link(url):
     parts = list(parts)
     parts[2] = path
     return urlunparse(parts)
+
+
+def website_languages():
+    stats = getattr(website_languages, 'stats', None)
+    if stats is None:
+        try:
+            stats = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).split())
+        except EnvironmentError:
+            stats = frozenset()
+        website_languages.stats = stats
+    return stats
+
+
+def localize_website_link(url):
+    lc = lang_as_iso639_1(get_lang())
+    langs = website_languages()
+    if lc == 'en' or lc not in langs:
+        return url
+    from urlparse import urlparse, urlunparse
+    parts = urlparse(url)
+    path = '/{}{}'.format(lc, parts.path)
+    parts = list(parts)
+    parts[2] = path
+    return urlunparse(parts)

@@ -12,6 +12,7 @@ from calibre.constants import (__appname__, __version__, iswindows, isosx,
         isportable, is64bit, numeric_version)
 from calibre import prints, as_unicode
 from calibre.utils.config import prefs
+from calibre.utils.localization import localize_website_link
 from calibre.utils.https import get_https_resource_securely
 from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
@@ -26,7 +27,7 @@ def get_download_url():
             else 'osx' if isosx else 'linux')
     if which == 'windows' and is64bit:
         which += '64'
-    return 'https://calibre-ebook.com/download_' + which
+    return localize_website_link('https://calibre-ebook.com/download_' + which)
 
 
 def get_newest_version():
@@ -114,11 +115,11 @@ class UpdateNotification(QDialog):
         ver = calibre_version
         if ver.endswith('.0'):
             ver = ver[:-2]
-        self.label = QLabel(('<p>'+
-            _('New version <b>%(ver)s</b> of %(app)s is available for download. '
-            'See the <a href="https://calibre-ebook.com/whats-new'
-            '">new features</a>.'))%dict(
-                app=__appname__, ver=ver))
+        self.label = QLabel(('<p>'+ _(
+            'New version <b>{ver}</b> of {app} is available for download. '
+            'See the <a href="{url}">new features</a>.').format(
+                url=localize_website_link('https://calibre-ebook.com/whats-new'),
+                app=__appname__, ver=ver)))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
