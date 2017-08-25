@@ -20,6 +20,64 @@
 #   new recipes:
 #     - title:
 
+- version: 3.7.0
+  date: 2017-08-25
+
+  new features:
+    - title: "Allow searching for books in a virtual library using a new 'vl:' prefix"
+
+    - title: "Server: Show file sizes in the tooltips for the download buttons."
+      tickets: [1708762]
+
+    - title: "Server: Reduce the grid view minimum cover thumbnail size from 150px to 105px"
+
+    - title: "Narrow layout: Fix wasted space to the left of the comments in the Book details panel"
+
+  bug fixes:
+    - title: "Server: Fix downloading files via the list of formats not working when launching calibre from the home screen on iOS"
+
+    - title: "Browser viewer: Fix controls help overlay not being displayed the first time the viewer is used"
+
+    - title: "MOBI Output: Fix a regression causing a crash for some input documents that specify text-transform or font-variant CSS properties."
+      tickets: [1711776]
+
+    - title: "DOCX Input: Fix framed lists being rendered with the frame inside the bullets instead of outside it."
+      tickets: [1709569]
+
+    - title: "Fix a regression that could cause conversion to crash when using the first-letter CSS pseudo selector and outputting to MOBI or DOCX."
+      tickets: [1711224]
+
+    - title: "Conversion: Fix remove first image option not working for comic input with the disable comic processing option."
+      tickets: [1709150]
+
+    - title: "Server: Fix tooltip not working in the cover grid view."
+      tickets: [1708760]
+
+    - title: "Workaround for Qt bug that prevented using the shift and ctrl keys with the touchscreen"
+
+    - title: "Linux: fix native KDE file dialog not working on older systems"
+
+    - title: "Linux: Fix KDE dialogs not supporting multiple file name filter groups"
+
+    - title: "Fix libraries being sorted alphabetically by full path rather than just library name"
+
+    - title: "Server: Allow hyphens in user names"
+
+    - title: "calibredb.exe: Fix misleading error message when connecting to a server with incorrect username or password"
+
+  improved recipes:
+    - Asian review of Books
+    - Financial Times
+    - National Post
+    - Go Comics
+
+  new recipes:
+    - title: Paris Review and Public Domain Review by fenuks
+      author: fenuks
+
+    - title: IDPixel and The Insider
+      author: bugmen00t
+
 - version: 3.6.0
   date: 2017-08-04
 
