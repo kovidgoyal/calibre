@@ -11,6 +11,7 @@ from PyQt5.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
                      QDateTime, QCompleter, QCoreApplication, QSize
 
+from calibre.constants import DEBUG
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
@@ -1042,6 +1043,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 series_start_value, series_increment, do_title_case, cover_action, clear_series, clear_pub,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
                 restore_original, self.comments, self.generate_cover_settings)
+        if DEBUG:
+            print('Running bulk metadata operation with settings:')
+            print(args)
 
         self.set_field_calls = defaultdict(dict)
         bb = MyBlockingBusy(args, self.ids, self.db, self.refresh_books,
