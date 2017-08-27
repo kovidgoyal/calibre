@@ -365,6 +365,10 @@ class NYTimes(BasicNewsRecipe):
             return True
         if 'nytimes.com' not in url:
             return True
+        if 'cn.nytimes.com' in url:
+            return True
+        if '/es/' in url:
+            return True
         if 'podcast' in url:
             return True
         if '/video/' in url:
