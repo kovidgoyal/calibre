@@ -70,12 +70,20 @@ class FinancialTimes(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
-
-        for article in soup.findAll('a', href=True, attrs={'data-trackable':'main-link'}):
-            url = self.PREFIX + article['href']
-            title = self.tag_to_string(article)
-            articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
-        return [("Articles", articles)]
+        totalfeeds = []
+        current_section = []
+        div = []
+        for div in soup.findAll('div', attrs={'data-trackable': 'list'}):
+            articles = []
+            current_section = self.tag_to_string(div.find('h2'))
+            self.log('in section: ', current_section)
+            for article in div.findAll('a', href=True, attrs={'data-trackable':'main-link'}):
+                url = self.PREFIX + article['href']
+                title = self.tag_to_string(article)
+                articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
+                self.log('title: ', title, ' url: ', url)
+            totalfeeds.append((current_section,articles))
+        return totalfeeds
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
