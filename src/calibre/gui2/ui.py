@@ -269,7 +269,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
         self.system_tray_icon = None
-        if config['systray_icon']:
+        do_systray = config['systray_icon'] or opts.start_in_tray
+        if do_systray:
             self.system_tray_icon = factory(app_id='com.calibre-ebook.gui').create_system_tray_icon(parent=self, title='calibre')
         if self.system_tray_icon is not None:
             self.system_tray_icon.setIcon(QIcon(I('lt.png', allow_user_override=False)))
@@ -278,8 +279,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
-        elif config['systray_icon']:
-            prints('Failed to create system tray icon, your desktop environment probably does not support the StatusNotifier spec')
+        elif do_systray:
+            prints('Failed to create system tray icon, your desktop environment probably'
+                   ' does not support the StatusNotifier spec https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/')
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon(I('page.png')), '')
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
