@@ -452,7 +452,7 @@ class BasicNewsRecipe(Recipe):
         return self.feeds
 
     @classmethod
-    def print_version(self, url):
+    def print_version(cls, url):
         '''
         Take a `url` pointing to the webpage with article content and return the
         :term:`URL` pointing to the print version of the article. By default does

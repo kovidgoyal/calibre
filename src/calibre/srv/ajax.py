@@ -475,7 +475,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
         try:
             dname, ditem = map(decode_name, (encoded_category, encoded_item))
         except:
-            raise HTTPNotFound('Invalid encoded param: %r' % (encoded_category, encoded_item))
+            raise HTTPNotFound('Invalid encoded param: %r (%r)' % (encoded_category, encoded_item))
         num, offset = get_pagination(rd.query)
         sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
         sort_order = ensure_val(sort_order, 'asc', 'desc')

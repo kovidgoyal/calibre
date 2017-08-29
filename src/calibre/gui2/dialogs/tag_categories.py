@@ -12,7 +12,7 @@ from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
 
 
-class Item:
+class Item(object):
 
     def __init__(self, name, label, index, icon, exists):
         self.name = name
@@ -22,7 +22,7 @@ class Item:
         self.exists = exists
 
     def __str__(self):
-        return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
+        return 'name=%s, label=%s, index=%s, exists=%s'%(self.name, self.label, self.index, self.exists)
 
 
 class TagCategories(QDialog, Ui_TagCategories):
