@@ -403,8 +403,13 @@ struct lzxd_stream *lzxd_init(struct mspack_system *system,
   /* LZX supports window sizes of 2^15 (32Kb) through 2^21 (2Mb) */
   if (window_bits < 15 || window_bits > 21) return NULL;
 
+  if (reset_interval < 0 || output_length < 0) {
+      D(("reset interval or output length < 0"))
+      return NULL;
+  }
+
   input_buffer_size = (input_buffer_size + 1) & -2;
-  if (!input_buffer_size) return NULL;
+  if (input_buffer_size < 2) return NULL;
 
   /* initialise static data */
   lzxd_static_init();
@@ -458,7 +463,7 @@ struct lzxd_stream *lzxd_init(struct mspack_system *system,
 }
 
 void lzxd_set_output_length(struct lzxd_stream *lzx, off_t out_bytes) {
-  if (lzx) lzx->length = out_bytes;
+  if (lzx && out_bytes > 0) lzx->length = out_bytes;
 }
 
 int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes) {
