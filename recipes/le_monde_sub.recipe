@@ -11,6 +11,12 @@ from calibre.ptempfile import PersistentTemporaryFile
 from urllib2 import HTTPError
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class LeMonde(BasicNewsRecipe):
 
     title = u'Le Monde: Édition abonnés'
@@ -35,7 +41,11 @@ class LeMonde(BasicNewsRecipe):
                 #photo{text-align:center !important; margin:10px 0 -8px;}
                 #lgd{font-size:1em !important; line-height:1em !important;  font-style:italic; color:#333;} '''
 
-    keep_only_tags = [dict(name=['h1', 'h2', 'h3', 'div', 'txt'])]
+    keep_only_tags = [
+        dict(itemprop=['Headline', 'description']),
+        classes('bloc_signature'),
+        dict(itemprop=['articleBody']),
+    ]
 
     def __init__(self, options, log, progress_reporter):
         BasicNewsRecipe.__init__(self, options, log, progress_reporter)
