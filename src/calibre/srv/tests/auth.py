@@ -71,7 +71,7 @@ def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=R
         def __init__(self):
             self.method = method
 
-        def peek():
+        def peek(self):
             return body
     response = da.request_digest(pw, Data())
     return ('Digest ' + templ.format(
