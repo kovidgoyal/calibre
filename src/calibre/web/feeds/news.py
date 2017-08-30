@@ -988,6 +988,11 @@ class BasicNewsRecipe(Recipe):
         for base in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
             'command', 'datalist', 'video', 'audio'])):
             base.extract()
+        # srcset causes some viewers, like calibre's to load images from the
+        # web, and it also possible causes iBooks on iOS to barf, see
+        # https://bugs.launchpad.net/bugs/1713986
+        for img in soup.findAll('img', srcset=True):
+            del img['srcset']
 
         ans = self.postprocess_html(soup, first_fetch)
 
