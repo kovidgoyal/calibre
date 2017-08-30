@@ -66,6 +66,11 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
             i.extract()
         return soup
 
+    def postprocess_html(self, soup, first):
+        for img in soup.findAll('img', srcset=True):
+            del img['srcset']
+        return soup
+
     def parse_index(self):
         soup = self.index_to_soup('http://www.nybooks.com/current-issue')
 

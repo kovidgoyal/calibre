@@ -246,6 +246,8 @@ class Economist(BasicNewsRecipe):
                 yield x
 
     def postprocess_html(self, soup, first):
+        for img in soup.findAll('img', srcset=True):
+            del img['srcset']
         for table in list(self.eco_find_image_tables(soup)):
             caption = table.find('font')
             img = table.find('img')
