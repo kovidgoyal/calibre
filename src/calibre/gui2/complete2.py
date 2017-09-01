@@ -266,7 +266,7 @@ class Completer(QListView):  # {{{
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
             e.accept()
             return True
-        elif etype == e.MouseButtonPress and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
+        elif etype == e.MouseButtonPress and hasattr(e, 'globalPos') and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
             # A click outside the popup, close it
             if isinstance(widget, QComboBox):
                 # This workaround is needed to ensure clicking on the drop down
@@ -517,6 +517,7 @@ class EditWithComplete(EnComboBox):
             if c.isVisible():
                 return True
         return EnComboBox.eventFilter(self, obj, e)
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QDialog, QVBoxLayout
