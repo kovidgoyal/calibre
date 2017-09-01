@@ -20,20 +20,18 @@ class Fortune(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://money.cnn.com/m/#!login')
-        br.select_form(name="loginForm")
-        br['email'] = self.username
+        br.open('http://fortune.com')
+        br.select_form(id='sign-in-form')
+        br['username'] = self.username
         br['password'] = self.password
         br.submit()
         return br
 
     def parse_index(self):
         articles = []
-        soup0 = self.index_to_soup('http://money.cnn.com/magazines/fortune/')
 
         # Go to the latestissue
-        soup = self.index_to_soup(soup0.find(
-            'div', attrs={'class': 'latestissue'}).find('a', href=True)['href'])
+        soup = self.index_to_soup('http://fortune.com/section/magazine/')
 
         # Find cover & date
         cover_item = soup.find('div', attrs={'id': 'cover-story'})
