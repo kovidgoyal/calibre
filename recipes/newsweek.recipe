@@ -31,7 +31,7 @@ class Newsweek(BasicNewsRecipe):
             'block-openadstream', 'block-ibtmedia-social', 'issue-next',
             'most-popular', 'ibt-media-stories', 'user-btn-group',
             'trial-link', 'trc_related_container',
-            'block-ibtmedia-top-stories'
+            'block-ibtmedia-top-stories', 'videocontent', 'newsletter-signup',
         ),
         dict(id=['taboola-below-main-column', 'piano-root',
                  'block-nw-magazine-magazine-more-from-issue']),
@@ -58,12 +58,12 @@ class Newsweek(BasicNewsRecipe):
             '//div[@id="block-nw-magazine-magazine-issue-story-list"]')[0]
         for a in div.xpath('descendant::h3/a[@href and contains(@class, "article-link")]'):
             title = self.tag_to_string(a)
-            li = a.xpath('ancestor::li')[0]
+            article = a.xpath('ancestor::article')[0]
             desc = ''
-            s = li.xpath('descendant::div[@class="summary"]')
+            s = article.xpath('descendant::div[@class="summary"]')
             if s:
                 desc = self.tag_to_string(s[0])
-            sec = li.xpath('descendant::div[@class="category"]')
+            sec = article.xpath('descendant::div[@class="category"]')
             if sec:
                 sec = self.tag_to_string(sec[0])
             else:
