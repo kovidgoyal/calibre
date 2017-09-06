@@ -723,15 +723,18 @@ then import it on another computer. First let's see how to export the data:
 
     Simply copy the calibre library folder from the old to the new computer. You can
     find out what the library folder is by clicking the calibre icon in the
-    toolbar. The very first item is the path to the library folder. Now on the new
-    computer, start calibre for the first time. It will run the Welcome Wizard asking
-    you for the location of the calibre library. Point it to the previously copied
-    folder. If the computer you are transferring to already has a calibre
-    installation, then the Welcome wizard wont run. In that case, right-click the
-    calibre icon in the toolbar and point it to the newly copied directory. You will
-    now have two calibre libraries on your computer and you can switch between them
-    by clicking the calibre icon on the toolbar. Transferring your library in this
-    manner preserver all your metadata, tags, custom columns, etc.
+    toolbar. Choose the :guilabel:`Switch/create calibre library` action and
+    you will see the path to the current calibre library.
+    
+    Now on the new computer, start calibre for the first time. It will run the
+    Welcome Wizard asking you for the location of the calibre library. Point it
+    to the previously copied folder. If the computer you are transferring to
+    already has a calibre installation, then the Welcome wizard wont run. In
+    that case, right-click the calibre icon in the toolbar and point it to the
+    newly copied directory. You will now have two calibre libraries on your
+    computer and you can switch between them by clicking the calibre icon on
+    the toolbar. Transferring your library in this manner preserver all your
+    metadata, tags, custom columns, etc.
 
 
 The list of books in calibre is blank!
