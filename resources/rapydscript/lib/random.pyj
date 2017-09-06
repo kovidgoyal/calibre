@@ -48,7 +48,7 @@ def random():
     for i in range(8):
         n += ρσ_get_random_byte() * m
         m *= 256
-    return n / 18446744073709551616
+    return v'n / 0x10000000000000000'
 
 # unlike the python version, this DOES build a range object, feel free to reimplement
 def randrange():
