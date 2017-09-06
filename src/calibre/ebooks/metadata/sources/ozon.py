@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 class Ozon(Source):
     name = 'OZON.ru'
     minimum_calibre_version = (2, 80, 0)
-    version = (1, 0, 0)
+    version = (1, 1, 0)
     description = _('Downloads metadata and covers from OZON.ru (updated)')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -152,6 +152,10 @@ class Ozon(Source):
                 json_pat = re.compile(u'dataLayer\s*=\s*(.+)?;')
                 json_info = re.search(json_pat, entry_string)
                 jsondata = json_info.group(1) if json_info else None
+                if jsondata:
+                    idx = jsondata.rfind('}]')
+                    if idx > 0:
+                        jsondata = jsondata[:idx + 2]
 
                 # log.debug(u'jsondata: %s' % jsondata)
                 dataLayer = json.loads(jsondata) if jsondata else None
