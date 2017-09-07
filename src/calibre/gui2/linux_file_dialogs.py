@@ -14,7 +14,7 @@ from threading import Thread
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
-from calibre.constants import filesystem_encoding, preferred_encoding
+from calibre.constants import filesystem_encoding, preferred_encoding, DEBUG
 from calibre.utils.config import dynamic
 
 
@@ -107,7 +107,13 @@ def decode_output(raw):
 def run(cmd):
     from calibre.gui2 import sanitize_env_vars
     with sanitize_env_vars():
-        p = subprocess.Popen(list(map(encode_arg, cmd)), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ecmd = list(map(encode_arg, cmd))
+        if DEBUG:
+            try:
+                print(ecmd)
+            except Exception:
+                pass
+        p = subprocess.Popen(ecmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     ret = p.wait()
     return ret, decode_output(stdout), decode_output(stderr)
