@@ -106,13 +106,13 @@ def decode_output(raw):
 
 def run(cmd):
     from calibre.gui2 import sanitize_env_vars
+    ecmd = list(map(encode_arg, cmd))
+    if DEBUG:
+        try:
+            print(ecmd)
+        except Exception:
+            pass
     with sanitize_env_vars():
-        ecmd = list(map(encode_arg, cmd))
-        if DEBUG:
-            try:
-                print(ecmd)
-            except Exception:
-                pass
         p = subprocess.Popen(ecmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     ret = p.wait()
