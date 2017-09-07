@@ -23,30 +23,43 @@ class Cracked(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(name='article', attrs={'class': 'module article dropShadowBottomCurved'}),
-                      dict(name='article', attrs={'class': 'module blog dropShadowBottomCurved'})]
+    keep_only_tags = [
+                    dict(name='div', attrs={'class': [
+                                                'content-content',
+                                                'content-header',
+                                                        ]}),
+                    dict(name='article', attrs={'class': [
+                                                'module article dropShadowBottomCurved',
+                                                'module blog dropShadowBottomCurved',
+                                                            ]}),
+                      ]
 
     remove_tags = [
-        dict(name='section', attrs={
-             'class': ['socialTools', 'quickFixModule']}),
-        dict(
-            attrs={'class': ['socialShareAfterContent', 'socialShareModule']}),
+        dict(name='section', attrs={'class': ['socialTools', 'quickFixModule', 'continue-reading']}),
+        dict(attrs={'class':['socialShareAfterContent', 'socialShareModule', 'continue-reading', 'social-share-bottom list-inline']}),
+        dict(name='div', attrs={'id': ['relatedArticle']}),
+        dict(name='ul', attrs={'id': [
+                                'breadcrumbs',
+                                'socialShare',
+                                ]}),
+        dict(name='div', attrs={'class': ['bannerAd hidden-sm hidden-md hidden-lg introAd']})
     ]
 
     def is_link_wanted(self, url, a):
-        return a['class'] == 'next' and a.findParent('nav', attrs={'class': 'PaginationContent'}) is not None
+        return a['class'] == 'next' and a.findParent('nav', attrs={'class':'PaginationContent'}) is not None
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-img': True}):
+        for img in soup.findAll('img', attrs={'data-img':True}):
             img['src'] = img['data-img']
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            img['src'] = img['data-original']
         return soup
 
     def postprocess_html(self, soup, first_fetch):
-        for div in soup.findAll(attrs={'class': 'PaginationContent'}):
+        for div in soup.findAll(attrs={'class':'PaginationContent'}):
             div.extract()
         if not first_fetch:
-            for h1 in soup.findAll('h1'):
-                h1.extract()
-            for div in soup.findAll(attrs={'class': 'meta'}):
+            for div in soup.findAll(attrs={'class':'meta'}):
                 div.extract()
+
         return soup
