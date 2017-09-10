@@ -185,7 +185,7 @@ def apply_attributes(src, elem, ns_map):
         else:
             elem.setAttribute(a[0], a[1])
 
-def process_stack(stack, tag_map, ns_map, load_required, onload):
+def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
     while stack.length:
         node, parent = stack.pop()
         src = tag_map[node[0]]
@@ -194,13 +194,14 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
         else:
             elem = document.createElement(src.n)
         loadable = False
-        if src.n in resource_tag_names:
-            attr = resource_tag_names[src.n]
+        attr = resource_tag_names[src.n]
+        if attr:
             if attr.indexOf(':') != -1:
                 attr = attr.replace('xlink:', '')
             for a in (src.a or v'[]'):
                 if a[0] is attr:
                     loadable = a[1].startswith('blob:')
+                    resource_urls[a[1]] = True
                     break
         if loadable:
             load_required.add(node[0])
@@ -227,6 +228,7 @@ def unserialize_html(serialized_data, proceed):
     apply_attributes(html, document.documentElement, ns_map)
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
+    resource_urls = {}
     load_required = set()
     proceeded = False
     hang_timeout = 5
@@ -248,14 +250,14 @@ def unserialize_html(serialized_data, proceed):
     stack = v'[]'
     for v'var i = head.length - 1; i >= 1; i--':
         stack.push(v'[head[i], document.head]')
-    process_stack(stack, tag_map, ns_map, load_required, onload)
+    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
     bnode = tag_map[body[0]]
     apply_attributes(bnode, document.body, ns_map)
     if bnode.x:
         document.body.appendChild(document.createTextNode(bnode.x))
     for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
         stack.push(v'[body[i], document.body]')
-    process_stack(stack, tag_map, ns_map, load_required, onload)
+    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
     ev = document.createEvent('Event')
     ev.initEvent('DOMContentLoaded', True, True)
     document.dispatchEvent(ev)
@@ -264,6 +266,7 @@ def unserialize_html(serialized_data, proceed):
     else:
         proceeded = True
         proceed()
+    return resource_urls
 
 def text_from_serialized_html(data):
     serialized_data = JSON.parse(data)

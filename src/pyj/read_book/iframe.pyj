@@ -69,6 +69,7 @@ class IframeBoss:
         self.replace_history_on_next_cfi_update = True
         self.encrypted_communications = False
         self.blob_url_map = {}
+        self.resource_urls = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
         window.addEventListener('message', self.handle_message, False)
@@ -145,15 +146,19 @@ class IframeBoss:
             # type of error
             console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
             return
-        console.log(error_object)
-        try:
-            fname = script_url.rpartition('/')[-1] or script_url
-            msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-            details = traceback.format_exception(error_object).join('') if error_object else ''
-            self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
-            return True
-        except:
-            console.log('There was an error in the iframe unhandled exception handler')
+        is_internal_error = not self.resource_urls[script_url]
+        if is_internal_error:  # dont report errors from scripts in the book itself
+            console.log(error_object)
+            try:
+                fname = script_url.rpartition('/')[-1] or script_url
+                msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+                details = traceback.format_exception(error_object).join('') if error_object else ''
+                self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
+                return True
+            except:
+                console.log('There was an error in the iframe unhandled exception handler')
+        else:
+            (console.error or console.log)('There was an error in the JavaScript from within the book')
 
     def display(self, data):
         self.length_before = None
@@ -186,7 +191,7 @@ class IframeBoss:
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
-        unserialize_html(root_data, self.content_loaded)
+        self.resource_urls = unserialize_html(root_data, self.content_loaded)
 
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
