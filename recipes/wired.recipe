@@ -9,6 +9,12 @@ from datetime import date
 import urllib2
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class WiredDailyNews(BasicNewsRecipe):
     title = 'Wired Magazine, Monthly Edition'
     __author__ = 'Darko Miletic, update by Zach Lapidus, Michael Marotta'
@@ -28,27 +34,25 @@ class WiredDailyNews(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
     publication_type = 'newsportal'
-    extra_css = """
+    extra_css             = """
                             .entry-header{
                                           text-transform: uppercase;
                                           vertical-align: baseline;
                                           display: inline;
                                          }
+                            ul li{display: inline}
                             """
 
     remove_tags = [
+        classes('related-cne-video-component tags-component podcast_storyboard inset-left-component'),
         dict(name=['meta', 'link']),
-        dict(name='div', attrs={'class': 'podcast_storyboard'}),
-        dict(name='figure', attrs={'data-js': 'slide'}),
-        dict(name='div', attrs={'class': 'no-underline fix-height'}),
-        dict(name='div',
-             attrs={'class': 'no-underline marg-t-med big-marg-b-med fix-height'}),
-        dict(id=['sharing', 'social', 'article-tags', 'sidebar', 'related']),
+        dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
     ]
     keep_only_tags = [
-        dict(attrs={'data-js': ['post', 'postHeader']}),
-        dict(attrs={'class': 'exchange fsb-content relative'}),
+        dict(name='main', attrs={'class': lambda x: x and 'article-main-component__content' in x}),
     ]
+    remove_attributes = ['srcset']
+    handle_gzip = True
 
     def get_magazine_year_month(self, seperator):
         monthurl = str('{:02d}'.format(date.today().month))
@@ -61,7 +65,7 @@ class WiredDailyNews(BasicNewsRecipe):
         :return: url
         '''
         baseurl = 'https://www.wired.com/tag/magazine-'
-        magazine_year_month = self.get_magazine_year_month('-')
+        magazine_year_month = self.get_magazine_year_month('.')
         # monthurl = str('{:02d}'.format(date.today().month))
         # yearurl = str(date.today().year - 1992)
         dateurl = baseurl + magazine_year_month + '/page/'
@@ -69,9 +73,10 @@ class WiredDailyNews(BasicNewsRecipe):
 
     def parse_wired_index_page(self, currenturl, seen):
         soup = self.index_to_soup(currenturl)
-        for a in soup.find('main').findAll('a', href=True):
+        baseurl = 'https://www.wired.com'
+        for a in soup.find("ul", {"class" : 'archive-list-component__items'}).findAll('a', href=True):
             url = a['href']
-            if url.startswith('https://www.wired.com/') and url.endswith('/'):
+            if url.startswith('/story') and url.endswith('/'):
                 title = self.tag_to_string(a.parent.find('h2'))
                 dateloc = a.parent.find('time')
                 date = self.tag_to_string(dateloc)
@@ -81,7 +86,7 @@ class WiredDailyNews(BasicNewsRecipe):
                     yield {
                         'title': title,
                         'date': date,
-                        'url': url,
+                        'url': baseurl+url,
                         'description': ''
                     }
 
@@ -100,7 +105,10 @@ class WiredDailyNews(BasicNewsRecipe):
             try:
                 urllib2.urlopen(baseurl + str(pagenum))
                 currenturl = baseurl + str(pagenum)
-                articles.extend(self.parse_wired_index_page(currenturl, seen))
+                res=self.parse_wired_index_page(currenturl, seen)
+                articles.extend(res)
+                if len(list(res))==0:
+                    morepages = False
                 pagenum += 1
             except urllib2.HTTPError:
                 morepages = False
