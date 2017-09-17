@@ -112,9 +112,10 @@ def init_qt(args):
     app = Application(args, override_program_name=override)
     app.file_event_hook = EventAccumulator()
     try:
-        from PyQt5.Qt import QX11Info
-        is_x11 = QX11Info.isPlatformX11()
+        is_x11 = app.platformName() == 'xcb'
     except Exception:
+        import traceback
+        traceback.print_exc()
         is_x11 = False
     # Ancient broken VNC servers cannot handle icons of size greater than 256
     # https://www.mobileread.com/forums/showthread.php?t=278447
