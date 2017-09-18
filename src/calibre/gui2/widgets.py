@@ -295,7 +295,22 @@ class ImageDropMixin(object):  # {{{
 # }}}
 
 
-class ImageView(QWidget, ImageDropMixin):  # {{{
+# ImageView {{{
+
+def draw_size(p, rect, w, h):
+    rect = rect.adjusted(0, 0, 0, -4)
+    f = p.font()
+    f.setBold(True)
+    p.setFont(f)
+    sz = u'\u00a0%d x %d\u00a0'%(w, h)
+    flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+    szrect = p.boundingRect(rect, flags, sz)
+    p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
+    p.setPen(QPen(QColor(255,255,255)))
+    p.drawText(rect, flags, sz)
+
+
+class ImageView(QWidget, ImageDropMixin):
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
@@ -364,16 +379,7 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
             p.setPen(pen)
             p.drawRect(target)
         if self.show_size:
-            sztgt = target.adjusted(0, 0, 0, -4)
-            f = p.font()
-            f.setBold(True)
-            p.setFont(f)
-            sz = u'\u00a0%d x %d\u00a0'%(ow, oh)
-            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
-            szrect = p.boundingRect(sztgt, flags, sz)
-            p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
-            p.setPen(QPen(QColor(255,255,255)))
-            p.drawText(sztgt, flags, sz)
+            draw_size(p, target, ow, oh)
         p.end()
 # }}}
 
@@ -383,8 +389,12 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
     cover_changed = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
+        self.show_size = kwargs.pop('show_size', False)
         QGraphicsView.__init__(self, *args, **kwargs)
         ImageDropMixin.__init__(self)
+        self.pixmap_size = 0, 0
+        if self.show_size:
+            self.setViewportUpdateMode(self.FullViewportUpdate)
 
     def get_pixmap(self):
         for item in self.scene.items():
@@ -395,6 +405,13 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         self.scene = QGraphicsScene()
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
+
+    def paintEvent(self, ev):
+        QGraphicsView.paintEvent(self, ev)
+        if self.show_size:
+            v = self.viewport()
+            p = QPainter(v)
+            draw_size(p, v.rect(), *self.pixmap_size)
 
 # }}}
 

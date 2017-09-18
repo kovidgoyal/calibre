@@ -46,7 +46,7 @@ class BookInfo(QDialog):
         self.setLayout(l)
         l.addWidget(self.splitter)
 
-        self.cover = CoverView(self)
+        self.cover = CoverView(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
         self.cover_pixmap = None
@@ -188,6 +188,7 @@ class BookInfo(QDialog):
             sz = self.cover_pixmap.size()
             tt += _('Cover size: %(width)d x %(height)d pixels')%dict(width=sz.width(), height=sz.height())
         self.cover.setToolTip(tt)
+        self.cover.pixmap_size = sz.width(), sz.height()
 
     def refresh(self, row, mi=None):
         if isinstance(row, QModelIndex):
