@@ -134,8 +134,13 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
     if vertical:
         ans = templ%(table+right_pane)
     else:
-        ans = templ%(u'<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
-                table, right_pane))
+        if gprefs['book_details_narrow_comments_layout'] == 'columns':
+            ans = templ%(u'<table><tr><td valign="top" '
+                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
+                    % (table, right_pane))
+        else:
+            ans = templ%(u'<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
+                    table, right_pane))
     return ans
 
 

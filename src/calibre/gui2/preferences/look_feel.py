@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, textwrap
 
 from collections import defaultdict
 from threading import Thread
@@ -403,6 +403,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
+        r('book_details_narrow_comments_layout', gprefs, choices=[(_('Float'), 'float'), (_('Columns'), 'columns')])
+        self.opt_book_details_narrow_comments_layout.setToolTip(textwrap.fill(_(
+            'Choose how the text is laid out when using the "Narrow" user interface layout.'
+            ' A value of "Float" means that the comments text will wrap around'
+            ' the other metadata fields, while a value of "Columns" means that'
+            ' the comments will be in a separate fixed width column.')))
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 

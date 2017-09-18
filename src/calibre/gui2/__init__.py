@@ -156,6 +156,7 @@ def create_defs():
     defs['qv_dclick_changes_column'] = True
     defs['qv_retkey_changes_column'] = True
     defs['qv_follows_column'] = False
+    defs['book_details_narrow_comments_layout'] = 'float'
 
 
 create_defs()

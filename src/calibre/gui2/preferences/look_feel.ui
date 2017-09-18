@@ -168,7 +168,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Interface font:</string>
+            <string>&amp;Interface font:</string>
            </property>
            <property name="buddy">
             <cstring>font_display</cstring>
@@ -252,7 +252,7 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_hidpi">
          <property name="text">
-          <string>Adjust for &amp;high resolution screens (needs restart):</string>
+          <string>&amp;Adjust for high resolution screens (needs restart):</string>
          </property>
          <property name="buddy">
           <cstring>opt_hidpi</cstring>
@@ -340,7 +340,7 @@
            <item row="6" column="0">
             <widget class="QLabel" name="label_16">
              <property name="text">
-              <string>&amp;Spacing between covers:</string>
+              <string>Spac&amp;ing between covers:</string>
              </property>
              <property name="buddy">
               <cstring>opt_cover_grid_spacing</cstring>
@@ -703,7 +703,7 @@ A value of zero means calculate automatically.</string>
        <string>&amp;Book details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
-       <item row="3" column="1">
+       <item row="4" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
@@ -713,7 +713,7 @@ A value of zero means calculate automatically.</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" rowspan="2">
+       <item row="4" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
@@ -808,7 +808,7 @@ A value of zero means calculate automatically.</string>
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <widget class="QPushButton" name="id_links_button">
          <property name="text">
           <string>Create rules to convert &amp;identifiers into links</string>
@@ -824,6 +824,19 @@ A value of zero means calculate automatically.</string>
           </sizepolicy>
          </property>
         </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_25">
+         <property name="text">
+          <string>How to display text in the 'Narrow' &amp;layout:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_book_details_narrow_comments_layout</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="opt_book_details_narrow_comments_layout"/>
        </item>
       </layout>
      </widget>
@@ -890,7 +903,7 @@ a few top-level elements.</string>
        <item row="7" column="0">
         <widget class="QLabel" name="label_81">
          <property name="text">
-          <string>Categories with &amp;hierarchical items:</string>
+          <string>C&amp;ategories with hierarchical items:</string>
          </property>
          <property name="buddy">
           <cstring>opt_categories_using_hierarchy</cstring>
@@ -981,7 +994,7 @@ see the counts by hovering your mouse over any item.</string>
        <item row="4" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&amp;Spacing between items:</string>
+          <string>Spacing between &amp;items:</string>
          </property>
          <property name="buddy">
           <cstring>opt_tag_browser_item_padding</cstring>
@@ -1144,24 +1157,24 @@ them to all have the same width and height</string>
         <layout class="QGridLayout" name="gridLayout_122">
          <item row="2" column="0">
           <widget class="QCheckBox" name="opt_qv_respects_vls">
-           <property name="text">
-            <string>&amp;Apply virtual libraries in Quickview panel</string>
-           </property>
            <property name="toolTip">
             <string>Check this box to make Quickview show books only in the
 current virtual library. If unchecked, Quickview ignores virtual libraries. If
 unchecked then only row changes are taken into account.</string>
            </property>
+           <property name="text">
+            <string>&amp;Apply virtual libraries in Quickview panel</string>
+           </property>
           </widget>
          </item>
          <item row="2" column="1">
           <widget class="QCheckBox" name="opt_qv_follows_column">
-           <property name="text">
-            <string>&amp;Change QV item when book list column changes</string>
-           </property>
            <property name="toolTip">
             <string>Check this box to make Quickview change the column being examined
 when the column in the book list is changed using the cursor arrow keys</string>
+           </property>
+           <property name="text">
+            <string>&amp;Change QV item when book list column changes</string>
            </property>
           </widget>
          </item>
@@ -1187,7 +1200,7 @@ column being examined (the left-hand pane)</string>
            </property>
           </widget>
          </item>
-       </layout>
+        </layout>
        </item>
        <item row="3" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
