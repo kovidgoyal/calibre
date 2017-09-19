@@ -20,7 +20,7 @@ from calibre import as_unicode
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
               'atom' : 'http://www.w3.org/2005/Atom',
-              'db': 'http://www.douban.com/xmlns/',
+              'db': 'https://www.douban.com/xmlns/',
               'gd': 'http://schemas.google.com/g/2005'
             }
 
