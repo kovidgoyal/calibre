@@ -2,13 +2,7 @@
 __author__ = 'S. Durand <sylvaindurand@users.noreply.github.com>'
 __license__ = 'GPL v3'
 
-import time
-import re
-
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
-from urllib2 import HTTPError
 
 
 def classes(classes):
@@ -27,11 +21,7 @@ class LeMonde(BasicNewsRecipe):
 
     needs_subscription = True
 
-    date_url = 'http://www.lemonde.fr/journalelectronique/donnees/libre/%Y%m%d/index.html'
     login_url = 'https://www.lemonde.fr/web/journal_electronique/identification/1,56-0,45-0,0.html'
-    journal_url = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/%Y%m%d_ipad.xml'
-    masthead_url = 'http://upload.wikimedia.org/wikipedia/fr/thumb/c/c5/Le_Monde_logo.svg/800px-Le_Monde_logo.svg.png'
-    couverture_url = 'http://medias.lemonde.fr/abonnes/editionelectronique/%Y%m%d/html/data/img/%y%m%d01.jpg'
 
     extra_css = '''
                 img{max-width:100%}
@@ -47,19 +37,19 @@ class LeMonde(BasicNewsRecipe):
         dict(itemprop=['articleBody']),
     ]
 
-    def __init__(self, options, log, progress_reporter):
-        BasicNewsRecipe.__init__(self, options, log, progress_reporter)
-        br = BasicNewsRecipe.get_browser(self)
-        second = time.time() + 24 * 60 * 60
-        for i in range(7):
-            self.date = time.gmtime(second)
-            try:
-                br.open(time.strftime(self.date_url, self.date))
-                break
-            except HTTPError:
-                second -= 24 * 60 * 60
-        self.timefmt = strftime(
-            u" %A %d %B %Y", self.date).replace(u' 0', u' ')
+    lm_sections = [
+        'international:International',
+        'politique:Politique',
+        'societe:Société',
+        'economie:Éco',
+        'culture:Culture',
+        'idees:Idées',
+        'planete:Planète',
+        'sport:Sport',
+        'sciences:Sciences',
+        'pixels:Pixels',
+        'campus:Campus'
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -71,55 +61,55 @@ class LeMonde(BasicNewsRecipe):
         return br
 
     def get_cover_url(self):
-        url = time.strftime(self.couverture_url, self.date)
-        return url
+        cover_url = None
+        soup = self.index_to_soup(
+            'http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
+        link_item = soup.find('div', attrs={'class': 'pg-gch'})
 
-    def parse_index(self):
-        url = time.strftime(self.journal_url, self.date)
-        soup = self.index_to_soup(url).sommaire
-        sections = []
-        try:
-            for sec in soup.findAll("section"):
-                articles = []
-                if sec['cahier'] != "Le Monde":
-                    for col in sec.findAll("fnts"):
-                        col.extract()
-                if sec['cahier'] == "Le Monde Magazine":
-                    continue
-                for art in sec.findAll("art"):
-                    if art.txt.string and art.ttr.string:
-                        if art.find(['url']):
-                            art.insert(6, '<div id="photo"><img src="' +
-                                       art.find(['url']).string + '" /></div>')
-                        if art.find(['lgd']) and art.find(['lgd']).string:
-                            art.insert(7, '<div id="lgd">' +
-                                       art.find(['lgd']).string + '</div>')
+        if link_item and link_item.img:
+            cover_url = link_item.img['src']
 
-                        def guillemets(match):
-                            if match.group(1) == u"=":
-                                return match.group(0)
-                            return u'%s«&nbsp;%s&nbsp;»' % (match.group(1), match.group(2))
-
-                        article = "<html><head></head><body>" + \
-                            unicode(art) + "</body></html>"
-                        article = article.replace(
-                            '<![CDATA[', '').replace(']]>', '').replace(' oC ', '°C ')
-                        article = article.replace('srttr>', 'h3>').replace(
-                            'ssttr>', 'h2>').replace('ttr>', 'h1>')
-                        article = article.replace("'", u'\u2019')
-                        article = re.sub('(.|^)"([^"]+)"', guillemets, article)
-
-                        f = PersistentTemporaryFile()
-                        f.write(article)
-                        articles.append(
-                            {'title': art.ttr.string, 'url': "file:///" + f.name})
-                sections.append((sec['nom'], articles))
-        except AttributeError:
-            self.log(
-                "Vos identifiants sont incorrects, ou votre abonnement LeMonde.fr ne vous permet pas de télécharger le journal.")
-        return sections
+        return cover_url
 
     def preprocess_html(self, soup):
         for lgd in soup.findAll(id="lgd"):
             lgd.contents[-1].extract()
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
+
+    def parse_index(self):
+        ans = []
+        for x in self.lm_sections:
+            s, section_title = x.partition(':')[::2]
+            self.log('Processing section', section_title, '...')
+            articles = list(self.parse_section('http://www.lemonde.fr/%s/' % s))
+            if articles:
+                ans.append((section_title, articles))
+        return ans
+
+    def parse_section(self, url):
+        soup = self.index_to_soup(url)
+        container = soup.find(attrs={'class':lambda x: x and 'grid_12 alpha' in x})
+        for article in container.findAll('article'):
+            h2 = article.find('h2')
+            if h2 is None:
+                h2 = article.find('h3')
+                if h2 is None:
+                    continue
+            a = h2.find('a', href=True)
+            if a is None:
+                a = h2.findParents('a', href=True)
+                if not a:
+                    continue
+                a = a[0]
+            url = a['href']
+            if url.startswith('/'):
+                url = 'http://www.lemonde.fr' + url
+            title = self.tag_to_string(a)
+            desc = ''
+            p = article.find('p')
+            if p is not None:
+                desc = self.tag_to_string(p)
+            self.log('\tFound article', title, 'at', url)
+            yield {'title': title, 'url': url, 'description': desc}

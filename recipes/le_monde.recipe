@@ -42,6 +42,8 @@ class LeMonde(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for lgd in soup.findAll(id="lgd"):
             lgd.contents[-1].extract()
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
 
     def get_article_url(self, article):
