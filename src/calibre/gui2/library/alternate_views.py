@@ -636,6 +636,7 @@ class GridView(QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        self._ncols = None
         self.gesture_manager = GestureManager(self)
         setup_dnd_interface(self)
         self.setUniformItemSizes(True)
@@ -652,7 +653,6 @@ class GridView(QListView):
         self.delegate.animation.finished.connect(self.animation_done)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
-        self.padding_left = 0
         self.set_color()
         self.ignore_render_requests = Event()
         dpr = self.device_pixel_ratio
@@ -780,6 +780,7 @@ class GridView(QListView):
         self.update_memory_cover_cache_size()
 
     def resizeEvent(self, ev):
+        self._ncols = None
         self.resize_timer.start()
         return QListView.resizeEvent(self, ev)
 
@@ -982,6 +983,47 @@ class GridView(QListView):
             sm.select(QItemSelection(top, bottom), sm.Select)
         else:
             return QListView.mousePressEvent(self, ev)
+
+    def number_of_columns(self):
+        # Number of columns currently visible in the grid
+        if self._ncols is None:
+            step = self.spacing()
+            for y in range(step, 300, step):
+                for x in range(step, 300, step):
+                    i = self.indexAt(QPoint(x, y))
+                    if i.isValid():
+                        for x in range(self.viewport().width() - step, self.viewport().width() - 300, -step):
+                            j = self.indexAt(QPoint(x, y))
+                            if j.isValid():
+                                self._ncols = j.row() - i.row() + 1
+                                return self._ncols
+                        break
+        return self._ncols
+
+    def keyPressEvent(self, ev):
+        k = ev.key()
+        if ev.modifiers() & Qt.ShiftModifier and k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
+            ci = self.currentIndex()
+            if not ci.isValid():
+                return
+            c = ci.row()
+            delta = {Qt.Key_Left: -1, Qt.Key_Right: 1, Qt.Key_Up: -self.number_of_columns(), Qt.Key_Down: self.number_of_columns()}[k]
+            n = max(0, min(c + delta, self.model().rowCount(None) - 1))
+            if n == c:
+                return
+            sm = self.selectionModel()
+            rows = {i.row() for i in sm.selectedIndexes()}
+            if rows:
+                mi, ma = min(rows), max(rows)
+                end = mi if c == ma else ma if c == mi else c
+            else:
+                end = c
+            top = self.model().index(min(n, end), 0)
+            bottom = self.model().index(max(n, end), 0)
+            sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
+            sm.setCurrentIndex(self.model().index(n, 0), sm.NoUpdate)
+        else:
+            return QListView.keyPressEvent(self, ev)
 
     @property
     def current_book(self):
