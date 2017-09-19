@@ -987,9 +987,9 @@ class GridView(QListView):
     def number_of_columns(self):
         # Number of columns currently visible in the grid
         if self._ncols is None:
-            step = self.spacing()
-            for y in range(step, 300, step):
-                for x in range(step, 300, step):
+            step = max(10, self.spacing())
+            for y in range(step, 500, step):
+                for x in range(step, 500, step):
                     i = self.indexAt(QPoint(x, y))
                     if i.isValid():
                         for x in range(self.viewport().width() - step, self.viewport().width() - 300, -step):
@@ -997,7 +997,6 @@ class GridView(QListView):
                             if j.isValid():
                                 self._ncols = j.row() - i.row() + 1
                                 return self._ncols
-                        break
         return self._ncols
 
     def keyPressEvent(self, ev):
