@@ -25,6 +25,7 @@ class ShareConnMenu(QMenu):  # {{{
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
+    server_state_changed_signal = pyqtSignal(object, object)
     dont_add_to = frozenset(['context-menu-device'])
 
     DEVICE_MSGS = [_('Start wireless device connection'),
@@ -32,6 +33,7 @@ class ShareConnMenu(QMenu):  # {{{
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
+        self.ip_text = ''
         mitem = self.addAction(QIcon(I('devices/folder.png')), _('Connect to folder'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
@@ -84,7 +86,11 @@ class ShareConnMenu(QMenu):  # {{{
                     ip=listen_on, port=opts.port)
             except Exception:
                 ip_text = ' [%s]'%listen_on
+            self.ip_text = ip_text
+            self.server_state_changed_signal.emit(running, ip_text)
             text = _('Stop Content server') + ip_text
+        else:
+            self.ip_text = ''
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):

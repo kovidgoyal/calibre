@@ -31,6 +31,7 @@ from calibre.srv.users import (
 )
 from calibre.utils.icu import primary_sort_key
 
+
 # Advanced {{{
 
 
@@ -240,7 +241,19 @@ class MainTab(QWidget):  # {{{
             if name == 'show_logs':
                 h.addStretch(10)
             h.addWidget(b)
+        self.ip_info = QLabel(self)
+        self.update_ip_info()
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
+        l.addSpacing(10)
+        l.addWidget(self.ip_info)
         l.addStretch(10)
+
+    def update_ip_info(self):
+        from calibre.gui2.ui import get_gui
+        t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
+        t = t.strip().strip('[]')
+        self.ip_info.setText(_('Content server listening at: %s') % t)
 
     def genesis(self):
         opts = server_config()
@@ -273,6 +286,8 @@ class MainTab(QWidget):  # {{{
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         is_running = gui.content_server is not None and gui.content_server.is_running
+        self.ip_info.setVisible(is_running)
+        self.update_ip_info()
         self.start_server_button.setEnabled(not is_running)
         self.stop_server_button.setEnabled(is_running)
         self.test_server_button.setEnabled(is_running)
