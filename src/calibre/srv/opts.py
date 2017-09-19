@@ -84,6 +84,10 @@ raw_options = (
     'url_prefix', None,
     _('Useful if you wish to run this server behind a reverse proxy. For example use, /calibre as the URL prefix.'),
 
+    _('Number of books to show in a single page'),
+    'num_per_page', 50,
+    _('The number of books to show in a single page in the browser.'),
+
     _('Advertise OPDS feeds via BonJour'),
     'use_bonjour', True,
     _('Advertise the OPDS feeds via the BonJour service, so that OPDS based'

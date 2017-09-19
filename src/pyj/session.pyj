@@ -166,6 +166,7 @@ default_interface_data = {
     'icon_map': {},
     'icon_path': '',
     'custom_list_template': None,
+    'num_per_page': 50,
 }
 
 def get_interface_data():

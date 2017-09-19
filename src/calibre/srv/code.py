@@ -115,9 +115,6 @@ def get_translations():
     return _cached_translations
 
 
-DEFAULT_NUMBER_OF_BOOKS = 50
-
-
 def custom_list_template():
     ans = getattr(custom_list_template, 'ans', None)
     if ans is None:
@@ -152,6 +149,7 @@ def basic_interface_data(ctx, rd):
         'icon_map': icon_map(),
         'icon_path': ctx.url_for('/icon', which=''),
         'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
+        'num_per_page': rd.opts.num_per_page,
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     return ans
@@ -224,7 +222,7 @@ def books(ctx, rd):
     '''
     ans = {}
     try:
-        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+        num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
@@ -256,7 +254,7 @@ def interface_data(ctx, rd):
     ans['library_id'], db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     ans['user_session_data'] = ud
     try:
-        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+        num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     ans.update(get_library_init_data(ctx, rd, db, num, sorts, orders, vl))
@@ -274,7 +272,7 @@ def more_books(ctx, rd):
     db, library_id = get_library_data(ctx, rd)[:2]
 
     try:
-        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+        num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     try:
@@ -327,7 +325,7 @@ def get_books(ctx, rd):
     '''
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     try:
-        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+        num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     searchq = rd.query.get('search', '')
