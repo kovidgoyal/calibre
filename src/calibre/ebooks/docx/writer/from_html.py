@@ -477,62 +477,63 @@ class Convert(object):
 
     def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
         tagname = barename(html_tag.tag)
-        if tagname in {'script', 'style', 'title', 'meta'}:
-            return
         tag_style = stylizer.style(html_tag)
-        if tag_style.is_hidden:
-            return
-
-        previous_link = self.current_link
-        if tagname == 'a' and html_tag.get('href'):
-            self.current_link = (self.current_item, html_tag.get('href'), html_tag.get('title'))
-        previous_lang = self.current_lang
-        tag_lang = lang_for_tag(html_tag)
-        if tag_lang:
-            self.current_lang = tag_lang
-
+        ignore_tag_contents = tagname in {'script', 'style', 'title', 'meta'} or tag_style.is_hidden
         display = tag_style._get('display')
-        is_float = tag_style['float'] in {'left', 'right'} and not is_first_tag
-        if float_spec is None and is_float:
-            float_spec = FloatSpec(self.docx.namespace, html_tag, tag_style)
+        is_block = False
 
-        if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we dont want to start a new paragraph
-            if is_float and float_spec.is_dropcaps:
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
-                float_spec = None
+        if not ignore_tag_contents:
+            previous_link = self.current_link
+            if tagname == 'a' and html_tag.get('href'):
+                self.current_link = (self.current_item, html_tag.get('href'), html_tag.get('title'))
+            previous_lang = self.current_lang
+            tag_lang = lang_for_tag(html_tag)
+            if tag_lang:
+                self.current_lang = tag_lang
+
+            is_float = tag_style['float'] in {'left', 'right'} and not is_first_tag
+            if float_spec is None and is_float:
+                float_spec = FloatSpec(self.docx.namespace, html_tag, tag_style)
+
+            if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we dont want to start a new paragraph
+                if is_float and float_spec.is_dropcaps:
+                    self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
+                    float_spec = None
+                else:
+                    self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
+            elif display == 'list-item':
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_list_item=True)
+            elif display.startswith('table') or display == 'inline-table':
+                if display == 'table-cell':
+                    self.blocks.start_new_cell(html_tag, tag_style)
+                    self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_table_cell=True)
+                elif display == 'table-row':
+                    self.blocks.start_new_row(html_tag, tag_style)
+                elif display in {'table', 'inline-table'}:
+                    self.blocks.end_current_block()
+                    self.blocks.start_new_table(html_tag, tag_style)
             else:
-                self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
-        elif display == 'list-item':
-            self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_list_item=True)
-        elif display.startswith('table') or display == 'inline-table':
-            if display == 'table-cell':
-                self.blocks.start_new_cell(html_tag, tag_style)
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_table_cell=True)
-            elif display == 'table-row':
-                self.blocks.start_new_row(html_tag, tag_style)
-            elif display in {'table', 'inline-table'}:
-                self.blocks.end_current_block()
-                self.blocks.start_new_table(html_tag, tag_style)
-        else:
-            if tagname == 'img' and is_float:
-                # Image is floating so dont start a new paragraph for it
-                self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
-            else:
-                if tagname == 'hr':
-                    for edge in 'right bottom left'.split():
-                        tag_style.set('border-%s-style' % edge, 'none')
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
+                if tagname == 'img' and is_float:
+                    # Image is floating so dont start a new paragraph for it
+                    self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
+                else:
+                    if tagname == 'hr':
+                        for edge in 'right bottom left'.split():
+                            tag_style.set('border-%s-style' % edge, 'none')
+                    self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
-        for child in html_tag.iterchildren('*'):
-            self.process_tag(child, stylizer, float_spec=float_spec)
+            for child in html_tag.iterchildren('*'):
+                self.process_tag(child, stylizer, float_spec=float_spec)
 
-        is_block = html_tag in self.blocks.open_html_blocks
-        self.blocks.finish_tag(html_tag)
-        if is_block and tag_style['page-break-after'] == 'avoid':
-            self.blocks.all_blocks[-1].keep_next = True
+            is_block = html_tag in self.blocks.open_html_blocks
+            self.blocks.finish_tag(html_tag)
+            if is_block and tag_style['page-break-after'] == 'avoid':
+                self.blocks.all_blocks[-1].keep_next = True
 
-        self.current_link = previous_link
-        self.current_lang = previous_lang
+            self.current_link = previous_link
+            self.current_lang = previous_lang
+
+        # Now, process the tail if any
 
         if display == 'table-row':
             return  # We ignore the tail for these tags
