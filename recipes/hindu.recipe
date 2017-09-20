@@ -24,8 +24,8 @@ class TheHindu(BasicNewsRecipe):
 
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [
-        dict(name='h1', attrs={'class': 'title'}),
-        classes('lead-img-cont mobile-author-cont'),
+        dict(name='h1', attrs={'class': ['title', 'special-article-heading']}),
+        classes('author-nm lead-img-cont mobile-author-cont photo-collage intro'),
         dict(id=lambda x: x and x.startswith('content-body-')),
     ]
 
@@ -56,6 +56,10 @@ class TheHindu(BasicNewsRecipe):
         return ans
 
     def parse_index(self):
+        # return [('xxx', [
+        #     {'title':'xxx', 'url':'http://www.thehindu.com/opinion/op-ed/rohingya-bangladeshs-burden-to-bear/article19694058.ece'},
+        #     {'title':'yyy', 'url':'http://www.thehindu.com/sci-tech/energy-and-environment/on-river-washed-antique-plains/article19699327.ece'}
+        # ])]
         soup = self.index_to_soup('http://www.thehindu.com/todays-paper/')
         nav_div = soup.find(id='subnav-tpbar-latest')
         section_list = []
