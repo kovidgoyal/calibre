@@ -184,9 +184,14 @@ class ImagesManager(object):
         finally:
             item.unload_data_from_memory(False)
 
-    def create_cover_markup(self, img, width, height):
+    def create_cover_markup(self, img, preserve_aspect_ratio, width, height):
         self.count += 1
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
+        if preserve_aspect_ratio:
+            if img.width >= img.height:
+                height *= img.height / img.width
+            else:
+                width *= img.width / img.height
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)

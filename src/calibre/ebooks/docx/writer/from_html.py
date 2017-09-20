@@ -457,7 +457,7 @@ class Convert(object):
         self.blocks.resolve_language()
 
         if self.cover_img is not None:
-            self.cover_img = self.images_manager.create_cover_markup(self.cover_img, *page_size(self.opts))
+            self.cover_img = self.images_manager.create_cover_markup(self.cover_img, self.opts.preserve_cover_aspect_ratio, *page_size(self.opts))
         self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
         self.write()
