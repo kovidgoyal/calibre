@@ -746,8 +746,8 @@ class Cache(object):
         Instead use, :meth:`copy_format_to`.
 
         Currently used only in calibredb list, the viewer, edit book,
-        compare_format to original format, open with and the catalogs (via
-        get_data_as_dict()).
+        compare_format to original format, open with, bulk metadata edit and
+        the catalogs (via get_data_as_dict()).
 
         Apart from the viewer, open with and edit book, I don't believe any of
         the others do any file write I/O with the results of this call.

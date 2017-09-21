@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>962</width>
-    <height>669</height>
+    <height>709</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,8 +70,8 @@ is completed. This can be slow on large libraries.</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>930</width>
-        <height>603</height>
+        <width>944</width>
+        <height>638</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -695,6 +695,16 @@ as that of the first selected book.</string>
              </item>
             </layout>
            </item>
+           <item row="14" column="0" colspan="4">
+            <widget class="QCheckBox" name="read_file_metadata">
+             <property name="toolTip">
+              <string>Set the metadata in calibre from the metadata in the e-book files associated with each book. Note that this does not change the cover, for that, use the separate option below.</string>
+             </property>
+             <property name="text">
+              <string>Set &amp;metadata (except cover) from the e-book files</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tab">
@@ -1181,8 +1191,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>908</width>
-                <height>253</height>
+                <width>203</width>
+                <height>70</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

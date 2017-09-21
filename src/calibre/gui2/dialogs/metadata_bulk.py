@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re, os
+import re
+from io import BytesIO
 from collections import namedtuple, defaultdict
 from threading import Thread
 
@@ -11,6 +12,8 @@ from PyQt5.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
                      QDateTime, QCompleter, QCoreApplication, QSize
 
+from calibre import prints
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.constants import DEBUG
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -25,43 +28,15 @@ from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.imghdr import identify
 from calibre.utils.date import qt_to_dt
 from calibre.db import _get_next_series_num_for_list
-
-
-def get_cover_data(stream, ext):  # {{{
-    from calibre.ebooks.metadata.meta import get_metadata
-    old = prefs['read_file_metadata']
-    if not old:
-        prefs['read_file_metadata'] = True
-    cdata = area = None
-
-    try:
-        with stream:
-            mi = get_metadata(stream, ext)
-        if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover).read()
-        elif mi.cover_data[1] is not None:
-            cdata = mi.cover_data[1]
-        if cdata:
-            fmt, width, height = identify(cdata)
-            area = width*height
-    except:
-        cdata = area = None
-
-    if old != prefs['read_file_metadata']:
-        prefs['read_file_metadata'] = old
-
-    return cdata, area
-# }}}
 
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
-    'restore_original comments generate_cover_settings')
+    'restore_original comments generate_cover_settings read_file_metadata')
 
 null = object()
 
@@ -134,9 +109,49 @@ class MyBlockingBusy(QDialog):  # {{{
 
         self.all_done.emit()
 
+    def read_file_metadata(self, args):
+        from calibre.utils.ipc.simple_worker import offload_worker
+        db = self.db.new_api
+        worker = offload_worker()
+        try:
+            for book_id in self.ids:
+                fmts = db.formats(book_id, verify_formats=False)
+                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                if paths:
+                    ret = worker(
+                        'calibre.ebooks.metadata.worker', 'read_metadata_bulk',
+                        args.read_file_metadata, args.cover_action == 'fromfmt', paths)
+                    if ret['tb'] is not None:
+                        prints(ret['tb'])
+                    else:
+                        ans = ret['result']
+                        opf, cdata = ans['opf'], ans['cdata']
+                        if opf is not None:
+                            try:
+                                mi = OPF(BytesIO(opf), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
+                            except Exception:
+                                import traceback
+                                traceback.print_exc()
+                            else:
+                                db.set_metadata(book_id, mi, allow_case_change=True)
+                        if cdata is not None:
+                            db.set_cover({book_id: cdata})
+        finally:
+            worker.shutdown()
+
     def do_all(self):
         cache = self.db.new_api
         args = self.args
+        from_file = args.cover_action == 'fromfmt' or args.read_file_metadata
+        if from_file:
+            old = prefs['read_file_metadata']
+            if not old:
+                prefs['read_file_metadata'] = True
+            try:
+                self.read_file_metadata(args)
+            finally:
+                if old != prefs['read_file_metadata']:
+                    prefs['read_file_metadata'] = old
 
         # Title and authors
         if args.do_swap_ta:
@@ -190,21 +205,6 @@ class MyBlockingBusy(QDialog):  # {{{
                 mi = self.db.get_metadata(book_id, index_is_id=True)
                 cdata = generate_cover(mi, prefs=args.generate_cover_settings)
                 cache.set_cover({book_id:cdata})
-        elif args.cover_action == 'fromfmt':
-            for book_id in self.ids:
-                fmts = cache.formats(book_id, verify_formats=False)
-                if fmts:
-                    covers = []
-                    for fmt in fmts:
-                        fmtf = cache.format(book_id, fmt, as_file=True)
-                        if fmtf is None:
-                            continue
-                        cdata, area = get_cover_data(fmtf, fmt)
-                        if cdata:
-                            covers.append((cdata, area))
-                    covers.sort(key=lambda x: x[1])
-                    if covers:
-                        cache.set_cover({book_id:covers[-1][0]})
         elif args.cover_action == 'trim':
             from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
             for book_id in self.ids:
@@ -1016,6 +1016,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
         do_title_sort = self.update_title_sort.isChecked()
+        read_file_metadata = self.read_file_metadata.isChecked()
         clear_languages = self.clear_languages.isChecked()
         restore_original = self.restore_original.isChecked()
         languages = self.languages.lang_codes
@@ -1037,12 +1038,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         elif self.cover_clone.isChecked():
             cover_action = 'clone'
 
-        args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
-                do_autonumber, do_swap_ta,
-                do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, series_increment, do_title_case, cover_action, clear_series, clear_pub,
-                pubdate, adddate, do_title_sort, languages, clear_languages,
-                restore_original, self.comments, self.generate_cover_settings)
+        args = Settings(
+            remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
+            do_autonumber, do_swap_ta, do_remove_conv, do_auto_author, series,
+            do_series_restart, series_start_value, series_increment,
+            do_title_case, cover_action, clear_series, clear_pub, pubdate,
+            adddate, do_title_sort, languages, clear_languages,
+            restore_original, self.comments, self.generate_cover_settings,
+            read_file_metadata)
         if DEBUG:
             print('Running bulk metadata operation with settings:')
             print(args)

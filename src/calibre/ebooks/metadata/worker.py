@@ -33,6 +33,23 @@ def serialize_metadata_for(paths, tdir, group_id):
     return mi, opf, has_cover
 
 
+def read_metadata_bulk(get_opf, get_cover, paths):
+    mi = metadata_from_formats(paths)
+    mi.cover = None
+    cdata = None
+    if mi.cover_data:
+        cdata = mi.cover_data[-1]
+    mi.cover_data = (None, None)
+    if not mi.application_id:
+        mi.application_id = '__calibre_dummy__'
+    ans = {'opf': None, 'cdata': None}
+    if get_opf:
+        ans['opf'] = metadata_to_opf(mi, default_lang='und')
+    if get_cover:
+        ans['cdata'] = cdata
+    return ans
+
+
 def run_import_plugins(paths, group_id, tdir):
     final_paths = []
     for path in paths:
