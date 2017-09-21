@@ -21,8 +21,8 @@ from calibre.constants import (
 from calibre.customize.ui import available_input_formats
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.gui2 import (
-    Application, choose_files, error_dialog, info_dialog, open_url,
-    setup_gui_option_parser, set_app_uid
+    Application, add_to_recent_docs, choose_files, error_dialog, info_dialog,
+    open_url, set_app_uid, setup_gui_option_parser
 )
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -1008,8 +1008,7 @@ class EbookViewer(MainWindow):
             vprefs.set('viewer_open_history', vh[:50])
             if iswindows:
                 try:
-                    from win32com.shell import shell, shellcon
-                    shell.SHAddToRecentDocs(shellcon.SHARD_PATHW, pathtoebook)
+                    add_to_recent_docs(pathtoebook)
                 except Exception:
                     import traceback
                     traceback.print_exc()

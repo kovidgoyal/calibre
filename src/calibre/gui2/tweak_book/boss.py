@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_re
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir, add_to_recent_docs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
@@ -345,8 +345,7 @@ class Boss(QObject):
             self.gui.update_recent_books()
             if iswindows:
                 try:
-                    from win32com.shell import shell, shellcon
-                    shell.SHAddToRecentDocs(shellcon.SHARD_PATHW, path)
+                    add_to_recent_docs(path)
                 except Exception:
                     import traceback
                     traceback.print_exc()

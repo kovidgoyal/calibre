@@ -1322,3 +1322,14 @@ def set_app_uid(val):
         prints(u'Failed to set app uid with error:', as_unicode(err))
         return False
     return True
+
+
+def add_to_recent_docs(path):
+    from win32com.shell import shell, shellcon
+    path = unicode(path)
+    app_id = get_app_uid()
+    if app_id is None:
+        shell.SHAddToRecentDocs(shellcon.SHARD_PATHW, path)
+    else:
+        item = shell.SHCreateItemFromParsingName(path, None, shell.IID_IShellItem)
+        shell.SHAddToRecentDocs(shellcon.SHARD_APPIDINFO, (item, app_id))
