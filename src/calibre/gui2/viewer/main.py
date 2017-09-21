@@ -22,7 +22,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.gui2 import (
     Application, choose_files, error_dialog, info_dialog, open_url,
-    setup_gui_option_parser
+    setup_gui_option_parser, set_app_uid
 )
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -1262,11 +1262,7 @@ def main(args=sys.argv):
         # Ensure that all ebook editor instances are grouped together in the task
         # bar. This prevents them from being grouped with viewer process when
         # launched from within calibre, as both use calibre-parallel.exe
-        import ctypes
-        try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(VIEWER_APP_UID)
-        except Exception:
-            pass  # Only available on windows 7 and newer
+        set_app_uid(VIEWER_APP_UID)
 
     parser = option_parser()
     opts, args = parser.parse_args(args)

@@ -11,7 +11,7 @@ from PyQt5.Qt import QIcon
 
 from calibre.constants import EDITOR_APP_UID, islinux, iswindows
 from calibre.gui2 import (
-    Application, decouple, set_gui_prefs, setup_gui_option_parser
+    Application, decouple, set_app_uid, set_gui_prefs, setup_gui_option_parser
 )
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
@@ -57,13 +57,7 @@ def _run(args, notify=None):
         # Ensure that all ebook editor instances are grouped together in the task
         # bar. This prevents them from being grouped with viewer process when
         # launched from within calibre, as both use calibre-parallel.exe
-        import ctypes
-        try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-                EDITOR_APP_UID
-            )
-        except Exception:
-            pass  # Only available on windows 7 and newer
+        set_app_uid(EDITOR_APP_UID)
 
     # The following two lines are needed to prevent circular imports causing
     # errors during initialization of plugins that use the polish container

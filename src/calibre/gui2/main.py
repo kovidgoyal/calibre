@@ -15,12 +15,12 @@ from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 
 from calibre import force_unicode, plugins, prints
 from calibre.constants import (
-    DEBUG, __appname__, filesystem_encoding, get_portable_base, islinux, isosx,
-    iswindows, MAIN_APP_UID
+    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
+    islinux, isosx, iswindows
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, setup_gui_option_parser
+    question_dialog, set_app_uid, setup_gui_option_parser
 )
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
@@ -522,11 +522,7 @@ def main(args=sys.argv):
         # Ensure that all ebook editor instances are grouped together in the task
         # bar. This prevents them from being grouped with viewer process when
         # launched from within calibre, as both use calibre-parallel.exe
-        import ctypes
-        try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(MAIN_APP_UID)
-        except Exception:
-            pass  # Only available on windows 7 and newer
+        set_app_uid(MAIN_APP_UID)
 
     try:
         app, opts, args = init_qt(args)
