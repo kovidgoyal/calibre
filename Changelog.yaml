@@ -20,6 +20,74 @@
 #   new recipes:
 #     - title:
 
+- version: 3.8.0
+  date: 2017-09-22
+
+  new features:
+    - title: "Bulk metadata edit dialog: Add an action to set metadata from e-book files."
+      tickets: [1717755]
+
+    - title: "Server: Add an option to control the number of books displayed per page in the browser (Preferences->Sharing over the net->Advanced)."
+      tickets: [1715283]
+
+    - title: "DOCX Output: Add an option to preserve the cover aspect ratio in the output document."
+      tickets: [1715800]
+
+    - title: "Book details panel: An option to control the layout of the panel in 'Narrow' mode (Preferences->Look & feel->Book details)"
+      tickets: [1714613]
+
+    - title: "If the --start-in-tray option is specified, create a tray icon even if the configuration option to enable tray icons is off."
+
+  bug fixes:
+    - title: "Possible fix for issue with pinning calibre to taskbar on windows. Note that as an unfortunate side-effect, you will have to unpin and re-pin calibre to the taskbar after updating."
+
+    - title: "DOCX Output: Fix text immediately after a hidden tag not being included."
+      tickets: [1717403]
+
+    - title: "Fix a regression that broke fetching of metadata from Douban"
+
+    - title: "Cover grid: Fix Shift+arrow keys to manipulate selection not working."
+      tickets: [1717828]
+
+    - title: "Editor snippets: Dont lose the last selected word when the user triggers a non-existent snippet."
+      tickets: [1713244]
+
+    - title: "Book details popup window: Show the cover size in the bottom right corner if the option to show cover size in the Book details panel is set."
+      tickets: [1716520]
+
+    - title: "Linux: Fix regression that broke using calibre on some older VNC servers"
+
+    - title: "Browser viewer: Do not fail if the book contains javascript that has errors."
+      tickets: [1715781]
+
+    - title: "Linux: Fix file open dialog on older KDE desktops not working correctly."
+      tickets: [1715648]
+
+    - title: "Update Ozon.ru metadata plugin for website changes."
+      tickets: [1715347]
+
+    - title: "LIT Input: Fix a buffer overflow caused by malformed LIT files."
+      tickets: [1713716]
+
+    - title: "Conversion: Expand -epub-writing-mode to -webkit-writing-mode and writing-mode properties for maximum compatibility."
+      tickets: [1713509]
+
+    - title: "Linux: Fix SONY PRS-650 not being detected"
+
+  improved recipes:
+    - The Hindu
+    - Le Monde
+    - Wired Monthly
+    - Cracked.com
+    - Carta
+    - FAZ.NET
+    - Newsweek
+    - Financial Times
+
+  new recipes:
+    - title: Dunya Halleri
+      author: Sukru Alatas
+
 - version: 3.7.0
   date: 2017-08-25
 
