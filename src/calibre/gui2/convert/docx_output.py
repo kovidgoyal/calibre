@@ -23,7 +23,7 @@ class PluginWidget(Widget):
         Widget.__init__(self, parent, [
             'docx_page_size', 'docx_custom_page_size', 'docx_no_cover', 'docx_no_toc',
             'docx_page_margin_left', 'docx_page_margin_top', 'docx_page_margin_right',
-            'docx_page_margin_bottom',
+            'docx_page_margin_bottom', 'preserve_cover_aspect_ratio',
         ])
         for x in get_option('docx_page_size').option.choices:
             self.opt_docx_page_size.addItem(x)
@@ -48,3 +48,5 @@ class PluginWidget(Widget):
         l.addRow(self.opt_docx_no_toc)
         self.opt_docx_no_cover = QCheckBox(_('Do not insert &cover as image at start of document'))
         l.addRow(self.opt_docx_no_cover)
+        self.opt_preserve_cover_aspect_ratio = QCheckBox(_('Preserve the aspect ratio of the image inserted as cover'))
+        l.addRow(self.opt_preserve_cover_aspect_ratio)
