@@ -38,6 +38,24 @@ class AdaptSQP(SearchQueryParser):
         pass
 
 
+def human_readable_interval(secs):
+    secs = int(secs)
+    days = secs // 86400
+    hours = secs // 3600 % 24
+    minutes = secs // 60 % 60
+    seconds = secs % 60
+    parts = []
+    if days > 0:
+        parts.append('%dd' % days)
+    if hours > 0:
+        parts.append('%dh' % hours)
+    if minutes > 0:
+        parts.append('%dm' % minutes)
+    if secs > 0:
+        parts.append('%ds' % seconds)
+    return ' '.join(parts)
+
+
 class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
 
     job_added = pyqtSignal(int)
@@ -128,7 +146,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                     rtime = job.running_time
                     if rtime is None:
                         return None
-                    return ('%dm %ds'%(int(rtime)//60, int(rtime)%60))
+                    return human_readable_interval(rtime)
                 if col == 4 and job.start_time is not None:
                     return (strftime(u'%H:%M -- %d %b', time.localtime(job.start_time)))
             if role == Qt.DecorationRole and col == 0:
