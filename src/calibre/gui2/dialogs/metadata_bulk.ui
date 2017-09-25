@@ -637,7 +637,7 @@ title and author are swapped before the title case is set</string>
               <item>
                <widget class="QRadioButton" name="cover_from_fmt">
                 <property name="text">
-                 <string>Set from &amp;e-book file(s)</string>
+                 <string>Set from &amp;e-book files</string>
                 </property>
                </widget>
               </item>

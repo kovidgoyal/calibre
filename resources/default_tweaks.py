@@ -555,7 +555,7 @@ content_server_thumbnail_compression_quality = 75
 cover_drop_exclude = ()
 
 #: Show the Saved searches box in the Search bar
-# In newer version of calibre, only a button that allows you to add a new Saved
+# In newer versions of calibre, only a button that allows you to add a new Saved
 # search is shown in the Search bar. If you would like to have the old
 # Saved searches box with its two buttons back, set this tweak to True.
 show_saved_search_box = False

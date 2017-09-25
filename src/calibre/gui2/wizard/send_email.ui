@@ -41,7 +41,7 @@
       <string>&lt;p&gt;A mail server is useful if the service you are sending mail to only accepts email from well know mail services.</string>
      </property>
      <property name="title">
-      <string>Mail server</string>
+      <string>Email server</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0" colspan="4">
