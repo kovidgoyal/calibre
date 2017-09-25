@@ -27,7 +27,7 @@ class AListApart (BasicNewsRecipe):
         return self.extra_css
 
     feeds = [
-        (u'A List Apart', u'http://feeds.feedburner.com/alistapart/abridged'),
+        (u'A List Apart', u'https://alistapart.com/main/feed'),
     ]
 
     def image_url_processor(self, baseurl, url):
