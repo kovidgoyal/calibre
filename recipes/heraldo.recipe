@@ -1,10 +1,10 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 __license__ = 'GPL v3'
 __copyright__ = '04 December 2010, desUBIKado'
 __author__ = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__ = 'v0.07'
-__date__ = '17, August 2014'
+__version__ = 'v0.08'
+__date__ = '10, September 2017'
 '''
 http://www.heraldo.es/
 '''
@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class heraldo(BasicNewsRecipe):
-    __author__ = 'desUBIKado'
+    author = 'desUBIKado'
     description = 'Daily newspaper from Aragon'
     title = u'Heraldo de Aragon'
     publisher = 'Grupo Heraldo'
@@ -26,29 +26,56 @@ class heraldo(BasicNewsRecipe):
     delay = 1
     max_articles_per_feed = 100
     use_embedded_content = False
-    masthead_url = 'http://www.heraldo.es/MODULOS/global/publico/interfaces/img/logo-Heraldo.png'
+    masthead_url = 'http://aureel.com/es/wp-content/uploads/sites/4/2016/07/Heraldo_de_Arago%CC%81n.png'
     remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
 
-    feeds = [
-        (u'Noticias', u'http://www.heraldo.es/index.php/mod.portadas/mem.rss')
+    feeds = [(u'Noticias', u'http://www.heraldo.es/index.php/mod.portadas/mem.rss')]
+
+    keep_only_tags = [
+        dict(
+            name='div',
+            attrs={
+                'class':
+                ['row-f2 brd-row-f4 bck-row-f1-f1 padd-t padd-btt con n-marg-btt']
+            }
+        ),
+        dict(name='div', attrs={'id': ['dts', 'com']}),
+        dict(name='img', attrs={'class': ['lazy']})
     ]
 
-    keep_only_tags = [dict(name='div', attrs={'class': ['row-f2 brd-row-f4 bck-row-f1-f1 padd-t padd-btt con n-marg-btt']}),
-                      dict(name='div', attrs={'id': ['dts', 'com']}),
-                      dict(name='img', attrs={'class': ['lazy']})]
-
-    remove_tags = [dict(name='a', attrs={'class': ['com flo-r', 'enl-if', 'enl-df', 'next_com']}),
-                   dict(name='div', attrs={'class': ['brb-b-s con marg-btt', 'cnt-rel con', 'col5-f1', 'tit txt-wh f-s con',
-                                                     'con cont-top ', 'col5-f1 flo-l', 'cnt-rel brr', 'caj_part con', 'caj_topic con']}),
-                   dict(name='div', attrs={'id': [
-                        'cont-Top-8760', 'caj-pub', '8760-cpt1', 'caj_topic con', 'slider-oferplan', 'cont-Top-']}),
-                   dict(name='form', attrs={'class': 'form'}),
-                   dict(name='ul', attrs={
-                       'class': ['tabs-nav', 'men_nav con hg_2n', 'lst-not-f2 con  ']}),
-                   dict(name='span', attrs={'class': ['flo-r']}),
-                   dict(name='ul', attrs={'id': ['cont-tags', 'pag-1', 'pag-cnt-I-']})]
+    remove_tags = [
+        dict(
+            name='a', attrs={'class': ['com flo-r', 'enl-if', 'enl-df', 'next_com']}
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'brb-b-s con marg-btt', 'cnt-rel con', 'col5-f1',
+                    'tit txt-wh f-s con', 'con cont-top ', 'col5-f1 flo-l',
+                    'cnt-rel brr', 'caj_part con', 'caj_topic con'
+                ]
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'id': [
+                    'cont-Top-8760', 'caj-pub', '8760-cpt1', 'caj_topic con',
+                    'slider-oferplan', 'cont-Top-'
+                ]
+            }
+        ),
+        dict(name='form', attrs={'class': 'form'}),
+        dict(
+            name='ul',
+            attrs={'class': ['tabs-nav', 'men_nav con hg_2n', 'lst-not-f2 con  ']}
+        ),
+        dict(name='span', attrs={'class': ['flo-r']}),
+        dict(name='ul', attrs={'id': ['cont-tags', 'pag-1', 'pag-cnt-I-']})
+    ]
 
     remove_tags_before = dict(name='div', attrs={'id': 'dts'})
     remove_tags_after = dict(name='div', attrs={'id': 'com'})
@@ -59,35 +86,42 @@ class heraldo(BasicNewsRecipe):
         year = str(st.tm_year)
         month = "%.2d" % st.tm_mon
         day = "%.2d" % st.tm_mday
-        # http://oldorigin-www.heraldo.es/20101211/primeras/portada_aragon.pdf
-        cover = 'http://oldorigin-www.heraldo.es/' + year + \
-            month + day + '/primeras/portada_aragon.pdf'
+
+        # http://img.kiosko.net/2017/09/10/es/heraldo_aragon.750.jpg
+        cover = 'http://img.kiosko.net/' + year + '/' + month + '/' + day + '/es/heraldo_aragon.750.jpg'
+
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
             self.log("\nPortada no disponible")
-            cover = 'http://www.heraldo.es/MODULOS/global/publico/interfaces/img/logo-Heraldo.png'
+            cover = 'http://aureel.com/es/wp-content/uploads/sites/4/2016/07/Heraldo_de_Arago%CC%81n.png'
         return cover
 
     extra_css = '''
-                    h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
-                    h2 {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:22px;color:#4D4D4D;}
-                    .ladillo {font-family:georgia,serif; font-weight:bold;font-size:18px;}
-                    .firm, .sp, .fech, ".com flo-r" {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
-                    img{margin-bottom: 0.4em}
-                '''
+        h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
+        h2 {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:22px;color:#4D4D4D;}
+        .ladillo {font-family:georgia,serif; font-weight:bold;font-size:18px;}
+        .firm, .sp, .fech, ".com flo-r" {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
+        img{margin-bottom: 0.4em}
+    '''
 
     preprocess_regexps = [
 
         # Para separar los comentarios con una linea en blanco
-        (re.compile(r'<div class="tit-f2">', re.DOTALL | re.IGNORECASE),
-         lambda match: '<br /><br /><div class="tit-f2">'),
-        (re.compile(r'<div id="com"', re.DOTALL | re.IGNORECASE),
-         lambda match: '<br><div id="com"'),
+        (
+            re.compile(r'<div class="tit-f2">', re.DOTALL | re.IGNORECASE),
+            lambda match: '<br /><br /><div class="tit-f2">'
+        ),
+        (
+            re.compile(r'<div id="com"', re.DOTALL | re.IGNORECASE),
+            lambda match: '<br><div id="com"'
+        ),
 
         # Para ver las imágenes de las noticias
-        (re.compile(r'<img class="lazy" data-original="', re.DOTALL |
-                    re.IGNORECASE), lambda match: '<img src="http://www.heraldo.es')
-
+        (
+            re.compile(
+                r'<img class="lazy" data-original="', re.DOTALL | re.IGNORECASE
+            ), lambda match: '<img src="http://www.heraldo.es'
+        )
     ]
