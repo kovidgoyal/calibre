@@ -1,12 +1,12 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
 __copyright__ = '04 December 2010, desUBIKado'
 __author__ = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__ = 'v0.09'
-__date__ = '07, August 2013'
+__version__ = 'v0.10'
+__date__ = '09, September 2017'
 '''
 elperiodicodearagon.com
 '''
@@ -20,7 +20,7 @@ class elperiodicodearagon(BasicNewsRecipe):
     publisher = u'elperiodicodearagon.com'
     category = u'news, politics, Spain, Aragon'
     oldest_article = 1
-    delay = 0
+    delay = 1
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
@@ -30,10 +30,6 @@ class elperiodicodearagon(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
-
     feeds = [
         (u'Portada', u'http://zetaestaticos.com/aragon/rss/portada_es.xml'),
         (u'Arag\xf3n', u'http://zetaestaticos.com/aragon/rss/2_es.xml'),
@@ -42,7 +38,7 @@ class elperiodicodearagon(BasicNewsRecipe):
         (u'Econom\xeda', u'http://zetaestaticos.com/aragon/rss/5_es.xml'),
         (u'Deportes', u'http://zetaestaticos.com/aragon/rss/7_es.xml'),
         (u'Real Zaragoza', u'http://zetaestaticos.com/aragon/rss/10_es.xml'),
-        (u'CAI Zaragoza', u'http://zetaestaticos.com/aragon/rss/91_es.xml'),
+        (u'Tecnyconta Zaragoza', u'http://zetaestaticos.com/aragon/rss/91_es.xml'),
         (u'Monta\xf1ismo', u'http://zetaestaticos.com/aragon/rss/354_es.xml'),
         (u'Opini\xf3n', u'http://zetaestaticos.com/aragon/rss/103_es.xml'),
         (u'Tema del d\xeda', u'http://zetaestaticos.com/aragon/rss/102_es.xml'),
@@ -50,15 +46,66 @@ class elperiodicodearagon(BasicNewsRecipe):
         (u'Sociedad', u'http://zetaestaticos.com/aragon/rss/104_es.xml'),
         (u'Gente', u'http://zetaestaticos.com/aragon/rss/330_es.xml'),
         (u'Espacio 3', u'http://zetaestaticos.com/aragon/rss/328_es.xml'),
-        (u'Fiestas del Pilar', u'http://zetaestaticos.com/aragon/rss/107_es.xml')
+        (u'Fiestas del Pilar', u'http://zetaestaticos.com/aragon/rss/107_es.xml'),
+        (u'Semana Santa', u'http://zetaestaticos.com/aragon/rss/385_es.xml'), (
+            u'La crónica de Valdejal\xf3n',
+            u'http://zetaestaticos.com/aragon/rss/206_es.xml'
+        ), (
+            u'La crónica de Campo de Borja',
+            u'http://zetaestaticos.com/aragon/rss/208_es.xml'
+        ), (
+            u'La crónica de Ejea y sus pueblos',
+            u'http://zetaestaticos.com/aragon/rss/212_es.xml'
+        ), (
+            u'La crónica del Bajo Gállego',
+            u'http://zetaestaticos.com/aragon/rss/205_es.xml'
+        ), (
+            u'La crónica del Campo de Cariñena',
+            u'http://zetaestaticos.com/aragon/rss/207_es.xml'
+        ), (
+            u'La crónica de la Ribera Alta del Ebro',
+            u'http://zetaestaticos.com/aragon/rss/211_es.xml'
+        ), (
+            u'La crónica del Campo de Belchite',
+            u'http://zetaestaticos.com/aragon/rss/331_es.xml'
+        )
     ]
 
-    remove_attributes = ['height', 'width']
+    remove_tags_before = dict(name='div', attrs={'class': 'Pagina'})
+    remove_tags_after = dict(name='div', attrs={'class': 'ComentariosNew'})
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'Noticia'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'Pagina'})]
 
-    # Recuperamos la portada de papel (la imagen format=1 tiene mayor
-    # resolucion)
+    remove_tags = [
+        dict(
+            name='nav',
+            attrs={'class': ['Compartir', 'HerramientasConversacion Herramientas']}
+        ),
+        dict(name='h5', attrs={'class': ['CintilloBox']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'BoxMenu BoxMenuConFoto', 'BxGalerias', 'ConStick',
+                    'HerramientasComentarioNew Herramientas', 'NumeroComentarioNew'
+                ]
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'BoxPestanas', 'Box', 'ColumnaDerecha',
+                    'NoticiasRelacionadasDeNoticia',
+                    'CintilloNoticiasRelacionadasDeNoticia'
+                ]
+            }
+        ),
+        dict(name='a', attrs={'class': ['IrA BotonLink']})
+    ]
+
+    # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
+
     def get_cover_url(self):
         index = 'http://pdf.elperiodicodearagon.com/edicion.php'
         soup = self.index_to_soup(index)
@@ -67,7 +114,8 @@ class elperiodicodearagon(BasicNewsRecipe):
                 return 'http://pdf.elperiodicodearagon.com' + image['src']
         return None
 
-    # Usamos la versión para móviles
-
-    def print_version(self, url):
-        return url.replace('http://www.elperiodicodearagon.com/', 'http://www.elperiodicodearagon.com/m/')
+    extra_css = '''
+                    h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
+                    h2 {font-family:Arial,Helvetica,sans-serif; font-style:italic;font-size:14px;color:#4D4D4D;}
+                    h3 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:18px;}
+                '''
