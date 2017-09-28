@@ -511,7 +511,7 @@ class IdentifyWidget(QWidget):  # {{{
             x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
             parts.append(x)
             if 'isbn' in identifiers:
-                simple_desc += ' ISBN: %s' % identifiers['isbn']
+                simple_desc += 'ISBN: %s' % identifiers['isbn']
         self.query.setText(simple_desc)
         self.log(unicode(self.query.text()))
 
