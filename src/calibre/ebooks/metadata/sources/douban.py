@@ -72,7 +72,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
             log.exception('Programming error:')
         return None
 
-    id_url = entry_id(entry_)[0].text
+    id_url = entry_id(entry_)[0].text.replace('http://', 'https://')
     douban_id = id_url.split('/')[-1]
     title_ = ': '.join([x.text for x in title(entry_)]).strip()
     authors = [x.text.strip() for x in creator(entry_) if x.text]
@@ -156,7 +156,7 @@ class Douban(Source):
     minimum_calibre_version = (2, 80, 0)
 
     description = _('Downloads metadata and covers from Douban.com. '
-            'Useful only for chinese language books.')
+            'Useful only for Chinese language books.')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags',
