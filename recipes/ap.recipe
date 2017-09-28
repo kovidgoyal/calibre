@@ -1,4 +1,19 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
 
 
 class AssociatedPress(BasicNewsRecipe):
@@ -8,45 +23,49 @@ class AssociatedPress(BasicNewsRecipe):
     __author__ = 'Krittika Goyal'
     use_embedded_content = False
     language = 'en'
+    encoding = 'utf-8'
     no_stylesheets = True
-    conversion_options = {
-        'linearize_tables': True
-    }
-    keep_only_tags = {'name': 'table', 'attrs': {
-        'class': lambda x: x and 'ap-story-table' in x.split()}}
-    remove_tags = [
-        {'class': ['ap-mediabox-table']},
-        {'name': 'img', 'src': lambda x: x and '//analytics.' in x},
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = False
+    keep_only_tags = [
+        classes('ap_headTitle'),
+        dict(id="byLine"),
+        dict(id=lambda x: x and x.startswith('storyBodyDiv')),
     ]
 
     def parse_index(self):
         feeds = []
-        fronts = ('HOME', 'US', 'WORLD', 'BUSINESS', 'TECHNOLOGY',
-                  'SPORTS', 'ENTERTAINMENT', 'HEALTH', 'SCIENCE', 'POLITICS')
-        for front in fronts:
-            feeds.append([front.capitalize(), self.parse_section(front)])
-        feeds[0][0] = 'Top Stories'
+        limit = self.test[0] if self.test else 100
+        for front in (
+            'topnews sports politics entertainment usnews oddities'
+            ' Travel technology lifestyle business Health science intlnews'.split()
+        ):
+            name = {
+                'topnews': 'Top News',
+                'intlnews': 'International',
+                'usnews': 'U.S. News'
+            }.get(front, front).capitalize()
+            feeds.append([name, self.parse_section(front)])
+            if len(feeds) >= limit:
+                break
         return feeds
 
     def parse_section(self, front):
-        self.log('Processing section:', front)
-        soup = self.index_to_soup(
-            'http://hosted.ap.org/dynamic/fronts/%s?SITE=AP' % front)
-
+        url = 'https://afs-prod.appspot.com/api/v2/feed/tag?tags=apf-' + front
+        self.log('Processing section:', front, 'at', url)
+        data = self.index_to_soup(url, raw=True)
+        data = json.loads(data)
+        cards = data.get('cards', ())
         articles = []
-        for x in soup.findAll('p', attrs={'class': ['ap-newsbriefitem-p', 'ap-topheadlineitem-p']}):
-            if not x.contents:
-                x = x.parent
-            a = x.find('a', href=True)
-            title = self.tag_to_string(a)
-            url = "http://hosted.ap.org" + a['href']
-            p = x.find(attrs={'class': 'topheadlinebody'})
-            desc = ''
-            if p is not None:
-                desc = self.tag_to_string(p)
-            self.log('\tFound article:', title, '\n\t\t', desc)
-            articles.append({'title': title, 'url': url})
 
-        self.log('\n\n')
-
+        for card in cards:
+            for article in card['contents']:
+                url = article['localLinkUrl']
+                title = article.get('flattenedFirstWords')
+                if not title:
+                    continue
+                title = title.split('\u2014')[-1]
+                self.log('\tFound article:', title, 'at', url)
+                articles.append({'title': title, 'url': url})
+        self.log('')
         return articles
