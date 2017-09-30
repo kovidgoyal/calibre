@@ -505,7 +505,7 @@ class VLTabs(QTabBar):  # {{{
 
     def contextMenuEvent(self, ev):
         m = QMenu(self)
-        m.addAction(_('Sort alphabetically'), self.sort_alphabetically)
+        m.addAction(_('Sort tabs alphabetically'), self.sort_alphabetically)
         hidden = self.current_db.prefs['virt_libs_hidden']
         if hidden:
             s = m._s = m.addMenu(_('Restore hidden tabs'))
