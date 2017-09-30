@@ -14,334 +14,388 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>What to search by default</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>When you enter a search term without a prefix, by default calibre will search all metadata for matches. For example, entering, &quot;asimov&quot; will search not just authors but title/tags/series/comments/etc. Use these options if you would like to change this behavior.</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="opt_limit_search_columns">
-        <property name="text">
-         <string>&amp;Limit the searched metadata</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>&amp;Columns that non-prefixed searches are limited to:</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_limit_search_columns_to</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="EditWithComplete" name="opt_limit_search_columns_to"/>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Note that this option affects all searches, including saved searches and restrictions. Therefore, if you use this option, it is best to ensure that you always use prefixes in your saved searches. For example, use &quot;series:Foundation&quot; rather than just &quot;Foundation&quot; in  a saved search</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox22">
-     <property name="title">
-      <string>What to search when searching similar books</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_22">
-      <item row="0" column="0" colspan="6">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>&lt;p&gt;When you search for similar books by right clicking the
-         book and selecting &quot;Similar books...&quot;,
-         calibre constructs a search using the column lookup names specified below.
-         By changing the lookup name to a grouped search term you can
-         search multiple columns at once.&lt;/p&gt;</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_221">
-        <property name="text">
-         <string>Similar auth&amp;ors: </string>
-        </property>
-        <property name="buddy">
-         <cstring>similar_authors_search_key</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="similar_authors_search_key">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>10</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QComboBox" name="opt_similar_authors_match_kind"/>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_222">
-        <property name="text">
-         <string>Similar s&amp;eries: </string>
-        </property>
-        <property name="buddy">
-         <cstring>similar_series_search_key</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QComboBox" name="similar_series_search_key">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>10</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="5">
-       <widget class="QComboBox" name="opt_similar_series_match_kind"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_223">
-        <property name="text">
-         <string>Similar ta&amp;gs: </string>
-        </property>
-        <property name="buddy">
-         <cstring>similar_tags_search_key</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="similar_tags_search_key"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QComboBox" name="opt_similar_tags_match_kind"/>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label_224">
-        <property name="text">
-         <string>Similar &amp;publishers: </string>
-        </property>
-        <property name="buddy">
-         <cstring>similar_publisher_search_key</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QComboBox" name="similar_publisher_search_key"/>
-      </item>
-      <item row="2" column="5">
-       <widget class="QComboBox" name="opt_similar_publisher_match_kind"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QPushButton" name="clear_history_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Clear search histories from all over calibre. Including the book list, E-book viewer, fetch news dialog, etc.</string>
-     </property>
-     <property name="text">
-      <string>Clear search &amp;histories</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_search_as_you_type">
-     <property name="text">
-      <string>Search as you &amp;type</string>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_highlight_search_matches">
-     <property name="text">
-      <string>&amp;Highlight search results instead of restricting the book list to the results</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Grouped search terms</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="l12">
-        <item>
-         <widget class="QLabel" name="la10">
-          <property name="text">
-           <string>&amp;Names:</string>
-          </property>
-          <property name="buddy">
-           <cstring>gst_names</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="gst_names">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Contains the names of the currently-defined group search terms.
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Genera&amp;l</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="opt_use_primary_find_in_search">
+         <property name="text">
+          <string>Unaccented characters match &amp;accented characters</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="clear_history_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Clear search histories from all over calibre. Including the book list, E-book viewer, fetch news dialog, etc.</string>
+         </property>
+         <property name="text">
+          <string>Clear search &amp;histories</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>What to search by default</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>When you enter a search term without a prefix, by default calibre will search all metadata for matches. For example, entering, &quot;asimov&quot; will search not just authors but title/tags/series/comments/etc. Use these options if you would like to change this behavior.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QCheckBox" name="opt_limit_search_columns">
+            <property name="text">
+             <string>&amp;Limit the searched metadata</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>&amp;Columns that non-prefixed searches are limited to:</string>
+            </property>
+            <property name="buddy">
+             <cstring>opt_limit_search_columns_to</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="EditWithComplete" name="opt_limit_search_columns_to"/>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Note that this option affects all searches, including saved searches and restrictions. Therefore, if you use this option, it is best to ensure that you always use prefixes in your saved searches. For example, use &quot;series:Foundation&quot; rather than just &quot;Foundation&quot; in  a saved search</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_search_as_you_type">
+         <property name="text">
+          <string>Search as you &amp;type</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="opt_case_sensitive">
+         <property name="text">
+          <string>Case &amp;sensitive searching</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_highlight_search_matches">
+         <property name="text">
+          <string>&amp;Highlight search results instead of restricting the book list to the results</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_show_highlight_toggle_button">
+         <property name="toolTip">
+          <string>&lt;p&gt;This option will cause a small button to appear next to the Search bar. Clicking the button will toggle between showing only the search results and showing all books with the search results highlighted.</string>
+         </property>
+         <property name="text">
+          <string>Show a &amp;quick toggle button to switch between highlighting and restricting results next to the Search bar</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>&amp;Grouped searches</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Grouped search terms</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="l12">
+            <item>
+             <widget class="QLabel" name="la10">
+              <property name="text">
+               <string>&amp;Names:</string>
+              </property>
+              <property name="buddy">
+               <cstring>gst_names</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="gst_names">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Contains the names of the currently-defined group search terms.
 Create a new name by entering it into the empty box, then
 pressing Save. Rename a search term by selecting it then
 changing the name and pressing Save. Change the value of
 a search term by changing the value box then pressing Save.</string>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="minimumContentsLength">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="gst_delete_button">
-          <property name="toolTip">
-           <string>Delete the current search term</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../../../../resources/images.qrc">
-            <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="EditWithComplete" name="gst_value"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="gst_save_button">
-          <property name="toolTip">
-           <string>Save the current search term. You can rename a search term by
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="minimumContentsLength">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="gst_delete_button">
+              <property name="toolTip">
+               <string>Delete the current search term</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../../../resources/images.qrc">
+                <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="EditWithComplete" name="gst_value"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="gst_save_button">
+              <property name="toolTip">
+               <string>Save the current search term. You can rename a search term by
 changing the name then pressing Save. You can change the value
 of a search term by changing the value box then pressing Save.</string>
-          </property>
-          <property name="text">
-           <string>&amp;Save</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="1" rowspan="3">
-       <widget class="QTextBrowser" name="gst_explanation">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>100</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout">
-        <item>
-         <widget class="QLabel" name="l11">
-          <property name="text">
-           <string>Make &amp;user categories from:</string>
-          </property>
-          <property name="buddy">
-           <cstring>opt_grouped_search_make_user_categories</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="EditWithComplete" name="opt_grouped_search_make_user_categories">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Enter the names of any grouped search terms you wish
+              </property>
+              <property name="text">
+               <string>&amp;Save</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" rowspan="3">
+           <widget class="QTextBrowser" name="gst_explanation">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>100</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout">
+            <item>
+             <widget class="QLabel" name="l11">
+              <property name="text">
+               <string>Make &amp;user categories from:</string>
+              </property>
+              <property name="buddy">
+               <cstring>opt_grouped_search_make_user_categories</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="EditWithComplete" name="opt_grouped_search_make_user_categories">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Enter the names of any grouped search terms you wish
 to be shown as user categories</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_show_highlight_toggle_button">
-     <property name="toolTip">
-      <string>&lt;p&gt;This option will cause a small button to appear next to the Search bar. Clicking the button will toggle between showing only the search results and showing all books with the search results highlighted.</string>
-     </property>
-     <property name="text">
-      <string>Show a &amp;quick toggle button to switch between highlighting and restricting results next to the Search bar</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_case_sensitive">
-     <property name="text">
-      <string>Case &amp;sensitive searching</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="opt_use_primary_find_in_search">
-     <property name="text">
-      <string>Unaccented characters match &amp;accented characters</string>
-     </property>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>&amp;Similar books</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox22">
+         <property name="title">
+          <string>What to search when searching similar books</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_22">
+          <item row="0" column="0" colspan="6">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>&lt;p&gt;When you search for similar books by right clicking the
+         book and selecting &quot;Similar books...&quot;,
+         calibre constructs a search using the column lookup names specified below.
+         By changing the lookup name to a grouped search term you can
+         search multiple columns at once.&lt;/p&gt;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_221">
+            <property name="text">
+             <string>S&amp;imilar authors: </string>
+            </property>
+            <property name="buddy">
+             <cstring>similar_authors_search_key</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="similar_authors_search_key">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>10</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QComboBox" name="opt_similar_authors_match_kind"/>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="label_222">
+            <property name="text">
+             <string>Si&amp;milar series: </string>
+            </property>
+            <property name="buddy">
+             <cstring>similar_series_search_key</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QComboBox" name="similar_series_search_key">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>10</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QComboBox" name="opt_similar_series_match_kind"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_223">
+            <property name="text">
+             <string>Similar &amp;tags: </string>
+            </property>
+            <property name="buddy">
+             <cstring>similar_tags_search_key</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="similar_tags_search_key"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QComboBox" name="opt_similar_tags_match_kind"/>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="label_224">
+            <property name="text">
+             <string>Simi&amp;lar publishers: </string>
+            </property>
+            <property name="buddy">
+             <cstring>similar_publisher_search_key</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QComboBox" name="similar_publisher_search_key"/>
+          </item>
+          <item row="2" column="5">
+           <widget class="QComboBox" name="opt_similar_publisher_match_kind"/>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
