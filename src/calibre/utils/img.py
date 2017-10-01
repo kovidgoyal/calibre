@@ -57,7 +57,7 @@ def load_jxr_data(data):
             tdir = tdir.encode('mbcs')
         with lopen(os.path.join(tdir, 'input.jxr'), 'wb') as f:
             f.write(data)
-        cmd = [get_exe_path('JxrDecApp'), '-i', 'input.jxr', '-o', 'output.tif', '-c', '0']
+        cmd = [get_exe_path('JxrDecApp'), '-i', 'input.jxr', '-o', 'output.tif']
         creationflags = 0x08 if iswindows else 0
         subprocess.Popen(cmd, cwd=tdir, stdout=lopen(os.devnull, 'wb'), stderr=subprocess.STDOUT, creationflags=creationflags).wait()
         i = QImage()
