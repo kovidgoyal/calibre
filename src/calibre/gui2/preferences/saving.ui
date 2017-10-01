@@ -98,7 +98,7 @@
    <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_show_files_after_save">
      <property name="text">
-      <string>&amp;Show files in file browser after saving to disk</string>
+      <string>&amp;Show files in the file browser after saving to disk</string>
      </property>
     </widget>
    </item>

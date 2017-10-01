@@ -959,7 +959,7 @@ be printed to it. If the debug output contains a line that looks like::
     Qt: internal: -108: Error ATSUMeasureTextImage text/qfontengine_mac.mm
 
 then the problem is probably a corrupted font cache. You can clear the cache by following these
-`instructions <http://www.macworld.com/article/1139383/fontcacheclear.html>`_. If that doesn't
+`instructions <https://www.macworld.com/article/1139383/fontcacheclear.html>`_. If that doesn't
 solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like. An easy way to
 check for corrupted fonts in macOS is to start the "Font Book" application, select all fonts and then in the File
 menu, choose "Validate fonts".
