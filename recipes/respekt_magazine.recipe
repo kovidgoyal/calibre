@@ -19,17 +19,21 @@ class respektRecipe(BasicNewsRecipe):
     __author__  = 'Tomáš Hnyk'
     publisher = u'Respekt Publishing a. s.'
     description = u'Articles from the print edition'
+    title = u'Respekt Magazine – Print'
     encoding = 'utf-8'
     language = 'cs'
+    delay = 0.001
     remove_javascript = True
     remove_tags_before = dict(name='h1')
     remove_tags_after = [dict(id='postcontent')]
-    remove_tags = [dict(name='div',attrs={'id':['postsharepopup','survey-respondents']}),
-    dict(name='div',attrs={'class':['ad','ad-content','adinarticle','ad-caption','post-actions','authorship-note','quote','postgallery']}),
-    dict(name='a',attrs={'class':['quote','authorship-face']}),
-    dict(name='span',attrs={'class':'embed'}),
-    dict(name='svg'),
-    dict(name='script')]
+    remove_tags = [
+        dict(name='div',attrs={'id':['postsharepopup','survey-respondents']}),
+        dict(name='div',attrs={'class':['ad','ad-content','adinarticle','ad-caption','post-actions','authorship-note','quote','postgallery']}),
+        dict(name='a',attrs={'class':['quote','authorship-face']}),
+        dict(name='span',attrs={'class':'embed'}),
+        dict(name='svg'),
+        dict(name='script')
+    ]
 
     extra_css = 'p {text-align:justify;margin-top:0;margin-bottom:0} \
                  ul {color:black} \
@@ -97,30 +101,6 @@ class respektRecipe(BasicNewsRecipe):
                 articles.append({'title':title,'url':url})
                 article = article.getnext()
             ans.append((section_name,articles))
-        highlights = zip(root2.xpath("//a[@class='issuedetail-highlighted-item']"),root2.xpath("//div[@class='issuedetail-highlighted-title']"))
-        highlights.reverse()
-        sections = [i[0] for i in ans]
-        for l,t in highlights:
-            title = t.text
-            link = l.xpath('@href')[0]
-            raw3 = self.index_to_soup(respekt_url + link, raw=True)
-            root3 = lxml.html.fromstring(raw3)
-            topics = [i.text.strip() for i in root3.xpath("//div[contains(@class, 'post-topics')]/a")]
-            # The name of the section changes its position
-            if u"Téma" in topics:
-                section_name = "Fokus"
-            elif u"Rozhovor" in topics:
-                section_name = "Rozhovor"
-            else:
-                for t in topics:
-                    if t in sections:
-                        section_name = t
-                        break
-            for i in ans:
-                if i[0] == section_name:
-                    i[1].insert(-(len(i[1])),{'title':title,'url':respekt_url+link})
-            if section_name == u"Rozhovor":
-                ans.insert(sections.index(u'Fokus')+1,(section_name,[{'title':title,'url':respekt_url+link}]))
         return ans
 
     def cleanup(self):
@@ -151,11 +131,14 @@ class respektRecipe(BasicNewsRecipe):
         try:
             aut = root.xpath("//div[@class='authorship-names']")[0]
             if aut.getchildren() and aut.getchildren()[0].tag == 'a':
-                t = aut.getchildren()[0]
-                t.text = 'Autor: ' + t.text + ' '
-                # Remove link
-                e = E.span(t.text)
-                t.getparent().replace(t,e)
+                for i,t in enumerate(aut.getchildren()):
+                    if i == 0:
+                        t.text = 'Autor: ' + t.text + ' '
+                    else:
+                        t.text = t.text + ' '
+                    # Remove link
+                    e = E.span(t.text)
+                    t.getparent().replace(t,e)
             else:
                 t = root.xpath("//span[@class='post-author-name']")[0]
                 t.text = ('Autor: ' + t.text + ' ')
@@ -187,4 +170,3 @@ class respektRecipe(BasicNewsRecipe):
         except:
             pass
         return(BeautifulSoup(lxml.etree.tostring(root,encoding=unicode)))
-
