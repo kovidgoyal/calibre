@@ -334,7 +334,7 @@ addition, there are many apps for your iDevice that can connect to the calibre
 Content server. Examples include: Marvin, Mapleread and iBooks itself. 
 
 Using the Content server
-*************************
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Start the Safari browser and type in the IP address and port of the computer
 running the calibre server, like this::
