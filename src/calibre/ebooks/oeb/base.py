@@ -1461,6 +1461,9 @@ class Guide(object):
     def __getitem__(self, key):
         return self.refs[key]
 
+    def get(self, key):
+        return self.refs.get(key)
+
     def __delitem__(self, key):
         del self.refs[key]
 
