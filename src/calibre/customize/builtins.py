@@ -709,7 +709,6 @@ from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
         JETBOOK_COLOR)
 from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
         KINDLE_FIRE)
-from calibre.devices.apple.driver import ITUNES
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prst1.driver import PRST1
@@ -801,7 +800,6 @@ plugins += [
     NEXTBOOK,
     ADAM,
     MOOVYBOOK, COBY, EX124G, WAYTEQ, WOXTER, POCKETBOOK626, SONYDPTS1,
-    ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
     MTP_DEVICE,
@@ -949,7 +947,7 @@ class ActionSendToDevice(InterfaceActionBase):
 class ActionConnectShare(InterfaceActionBase):
     name = 'Connect Share'
     actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
-    description = _('Send books via email or the web. Also connect to iTunes or'
+    description = _('Send books via email or the web. Also connect to'
             ' folders on your computer as if they are devices')
 
 

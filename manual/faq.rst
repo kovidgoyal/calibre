@@ -173,8 +173,8 @@ What devices does calibre support?
 calibre can directly connect to all the major (and most of the minor) e-book
 reading devices, smarthphones, tablets, etc.  In addition, using the
 :guilabel:`Connect to folder` function you can use it with any e-book reader
-that exports itself as a USB disk.  You can even connect to Apple devices (via
-iTunes), using the :guilabel:`Connect to iTunes` function.
+that exports itself as a USB disk. Finally, you can connect wirelessly to any
+device that has a web browser using the calibre Content server.
 
 .. _devsupport:
 
@@ -205,9 +205,10 @@ Follow these steps to find the problem:
     * Make sure that you are connecting only a single device to your computer
       at a time. Do not have another calibre supported device like an iPhone/iPad
       etc. at the same time.
-    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use
-      the 'Connect to iTunes' method in the 'Getting started' instructions in
-      `Calibre + Apple iDevices: Start here <https://www.mobileread.com/forums/showthread.php?t=118559>`_.
+    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), Apple
+      no longer allows third party software to conenct to their devices using a
+      USB cable. Instead use a wireless connection, via the calibre Content
+      server.
     * Make sure you are running the latest version of calibre. The latest version
       can always be downloaded from `the calibre website <https://calibre-ebook.com/download>`_.
       You can tell what version of calibre you are currently running by looking
@@ -306,9 +307,6 @@ simplest is to simply re-name the executable file that launches the library prog
 How do I use calibre with my iPad/iPhone/iPod touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Over the air
-^^^^^^^^^^^^^^
-
 The easiest way to transfer books wirelessly to your Apple device (iPad/iPhone/iPod)
 is to use the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
 iOS app. This app is maintained by a core calibre developer and allows
@@ -331,35 +329,12 @@ over the net. First perform the following steps in calibre
     and leave calibre running. You can also tell calibre to automatically start the
     Content server via :guilabel:`Preferences->Sharing->Sharing over the net`.
 
-There are many apps for your iDevice that can connect to the calibre Content
-server.
-One was mentioned above: Calibre Companion. Below we describe two more of them,
-iBooks and Stanza.
+The Content server allows you to read books directly in Safari itself. In
+addition, there are many apps for your iDevice that can connect to the calibre
+Content server. Examples include: Marvin, Mapleread and iBooks itself. 
 
-Using Stanza
-***************
-
-You should be able to access your books on your iPhone by opening Stanza. Go to
-"Get books" and then click the "Shared" tab. Under Shared you will see an entry
-"Books in calibre". If you don't, make sure your iPad/iPhone is connected using
-the WiFi network in your house, not 3G. If the calibre catalog is still not
-detected in Stanza, you can add it manually in Stanza. To do this, click the
-"Shared" tab, then click the "Edit" button and then click "Add book source" to
-add a new book source. In the Add Book Source screen enter whatever name you
-like and in the URL field, enter the following::
-
-    http://192.168.1.2:8080/
-
-Replace ``192.168.1.2`` with the local IP address of the computer running
-calibre. See :doc:`server` for details on running the server and finding out the
-right IP address to use.
-
-If you get timeout errors while browsing the calibre catalog in Stanza, try
-increasing the connection timeout value in the stanza settings. Go to
-Info->Settings and increase the value of Download Timeout.
-
-Using iBooks
-**************
+Using the Content server
+*************************
 
 Start the Safari browser and type in the IP address and port of the computer
 running the calibre server, like this::
@@ -370,20 +345,9 @@ Replace ``192.168.1.2`` with the local IP address of the computer running
 calibre. See :doc:`server` for details on running the server and finding out the
 right IP address to use.
 
-You will see a list of books in Safari, just click on the epub link for
-whichever book you want to read, Safari will then prompt you to open it with
-iBooks.
-
-
-With the USB cable + iTunes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <https://www.mobileread.com/forums/showthread.php?t=118559>`_.
-
-This method only works on Windows Vista and higher, and macOS up to 10.8. Linux
-is not supported (iTunes is not available in linux) and macOS newer than 10.8 is
-not supported, as Apple removed the facility to use iTunes to manage books,
-replacing it with iBooks.
+You will see a list of books in Safari, tap on any book and you will be given
+the option to either download it, or read it in the browser itself. If you
+choose to download it, Safari will ask you if you want to open it with iBooks.
 
 How do I use calibre with my Android phone/tablet or Kindle Fire HD?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

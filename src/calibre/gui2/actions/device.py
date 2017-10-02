@@ -9,7 +9,6 @@ from functools import partial
 
 from PyQt5.Qt import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
 
-from calibre.constants import get_osx_version, isosx, iswindows
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
@@ -20,7 +19,6 @@ from calibre.utils.smtp import config as email_config
 class ShareConnMenu(QMenu):  # {{{
 
     connect_to_folder = pyqtSignal()
-    connect_to_itunes = pyqtSignal()
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
@@ -38,13 +36,6 @@ class ShareConnMenu(QMenu):  # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
-        mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
-        self.connect_to_itunes_action = mitem
-        itunes_ok = iswindows or (isosx and get_osx_version() < (10, 9, 0))
-        mitem.setVisible(itunes_ok)
 
         self.addSeparator()
         self.toggle_server_action = \
@@ -65,9 +56,7 @@ class ShareConnMenu(QMenu):  # {{{
             r = parent.keyboard.register_shortcut
             prefix = 'Share/Connect Menu '
             gr = ConnectShareAction.action_spec[0]
-            for attr in ('folder', 'itunes'):
-                if not (iswindows or isosx) and attr == 'itunes':
-                    continue
+            for attr in ('folder', ):
                 ac = getattr(self, 'connect_to_%s_action'%attr)
                 r(prefix + attr, unicode(ac.text()), action=ac,
                         group=gr)
@@ -161,7 +150,6 @@ class ShareConnMenu(QMenu):  # {{{
 
     def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
-        self.connect_to_itunes_action.setEnabled(not device_connected)
 
 
 # }}}
@@ -202,7 +190,6 @@ class ConnectShareAction(InterfaceAction):
             initial_plugin=('Sharing', 'Email')))
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
-        self.share_conn_menu.connect_to_itunes.connect(self.gui.connect_to_itunes)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
