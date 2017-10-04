@@ -5,10 +5,11 @@ __docformat__ = 'restructuredtext en'
 
 
 import traceback
+from functools import partial
 
 from PyQt5.Qt import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
-    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray)
+    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -259,6 +260,21 @@ class Quickview(QDialog, Ui_Quickview):
         # Enable the refresh button only when QV is locked
         self.refresh_button.setEnabled(False)
         self.lock_qv.stateChanged.connect(self.lock_qv_changed)
+
+        self.view_icon = QIcon(I('view.png'))
+        self.view_plugin = self.gui.iactions['View']
+        self.books_table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.books_table.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, point):
+        index = self.books_table.indexAt(point)
+        item = self.books_table.item(index.row(), 0)
+        book_id = int(item.data(Qt.UserRole))
+        self.context_menu = QMenu(self)
+        self.context_menu.addAction(self.view_icon, _('View'),
+                            partial(self.view_plugin._view_calibre_books, [book_id]))
+        self.context_menu.popup(self.books_table.mapToGlobal(point))
+        return True
 
     def lock_qv_changed(self, state):
         self.refresh_button.setEnabled(state)
