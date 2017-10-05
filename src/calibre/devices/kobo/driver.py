@@ -764,20 +764,23 @@ class KOBO(USBMS):
     def set_readstatus(self, connection, ContentID, ReadStatus):
         cursor = connection.cursor()
         t = (ContentID,)
-        cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
+        cursor.execute('select DateLastRead, ReadStatus  from Content where BookID is Null and ContentID = ?', t)
         try:
             result = cursor.next()
             datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
+            current_ReadStatus = result[1]
         except StopIteration:
             datelastread = '1970-01-01T00:00:00'
+            current_ReadStatus = 0
 
-        t = (ReadStatus,datelastread,ContentID,)
-
-        try:
-            cursor.execute('update content set ReadStatus=?,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
-        except:
-            debug_print('    Database Exception:  Unable update ReadStatus')
-            raise
+        if not ReadStatus == current_ReadStatus:
+            t = (ReadStatus, datelastread, ContentID,)
+    
+            try:
+                cursor.execute('update content set ReadStatus=?,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
+            except:
+                debug_print('    Database Exception: Unable to update ReadStatus')
+                raise
 
         cursor.close()
 
@@ -1313,7 +1316,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 142
+    supported_dbversion             = 143
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1325,7 +1328,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 5, 9587)
+    max_supported_fwversion         = (4, 6, 9960)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2581,8 +2584,9 @@ class KOBOTOUCH(KOBO):
                 for ending, cover_options in self.cover_file_endings().items():
                     kobo_size, min_dbversion, max_dbversion, is_full_size = cover_options
                     if show_debug:
-                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s min_dbversion=%d max_dbversion=%d" % (
-                            library_cover_size, min_dbversion, max_dbversion))
+                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s min_dbversion=%d max_dbversion=%d, is_full_size=%s" % (
+                            library_cover_size, min_dbversion, max_dbversion, is_full_size))
+
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:
                             debug_print("KoboTouch:_upload_cover - creating cover for ending='%s'"%ending)  # , "library_cover_size'%s'"%library_cover_size)
