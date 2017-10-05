@@ -775,7 +775,7 @@ class KOBO(USBMS):
 
         if not ReadStatus == current_ReadStatus:
             t = (ReadStatus, datelastread, ContentID,)
-    
+
             try:
                 cursor.execute('update content set ReadStatus=?,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
             except:
