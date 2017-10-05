@@ -934,11 +934,9 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.column_color.mi = None
             return None
         elif role == Qt.DecorationRole:
+            default_icon = None
             if self.column_to_dc_decorator_map[col] is not None:
-                ccicon = self.column_to_dc_decorator_map[index.column()](index.row())
-                if ccicon is not None:
-                    return ccicon
-
+                default_icon = self.column_to_dc_decorator_map[index.column()](index.row())
             rules = self.db.prefs['column_icon_rules']
             if rules:
                 key = self.column_map[col]
@@ -960,10 +958,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                                   self.icon_template_cache)
                     if ccicon is not None:
                         return ccicon
-                    if need_icon_with_text:
+                    if need_icon_with_text and default_icon is None:
                         self.icon_cache[id_][cache_index] = self.bool_blank_icon
                         return self.bool_blank_icon
                     self.icon_cache[id_][cache_index] = None
+            return default_icon
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
