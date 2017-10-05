@@ -152,7 +152,7 @@ class Douban(Source):
 
     name = 'Douban Books'
     author = 'Li Fanxi'
-    version = (2, 0, 0)
+    version = (2, 1, 0)
     minimum_calibre_version = (2, 80, 0)
 
     description = _('Downloads metadata and covers from Douban.com. '
