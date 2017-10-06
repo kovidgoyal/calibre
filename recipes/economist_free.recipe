@@ -166,7 +166,7 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        img = soup.find(attrs={'class': 'print-edition__cover-widget__image'})
+        img = soup.find(attrs={'src': True, 'class': 'print-edition__cover-widget__image'})
         if img is not None:
             self.cover_url = process_url(img['src'], False)
         else:
