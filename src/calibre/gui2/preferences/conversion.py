@@ -82,7 +82,7 @@ class Base(ConfigWidgetBase):
         def widget_factory(cls):
             plugin = getattr(cls, 'conv_plugin', None)
             if plugin is None:
-                hfunc = self.plumber.get_option_by_name
+                hfunc = self.plumber.get_option_help
             else:
                 options = plugin.options.union(plugin.common_options)
 
@@ -166,5 +166,5 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     # test_widget('Conversion', 'Input Options')
-    # test_widget('Conversion', 'Common Options')
-    test_widget('Conversion', 'Output Options')
+    test_widget('Conversion', 'Common Options')
+    # test_widget('Conversion', 'Output Options')
