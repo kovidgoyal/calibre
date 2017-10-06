@@ -20,6 +20,43 @@
 #   new recipes:
 #     - title:
 
+- version: 3.9.0
+  date: 2017-10-06
+
+  new features:
+    - title: "Remove the Connect to iTunes function since Apple has removed that functionality from iTunes"
+      description: "Now you have to use one of the wireless connection methods to connect to an iPad/iPhone, as described at: https://manual.calibre-ebook.com/faq.html#how-do-i-use-calibre-with-my-ipad-iphone-ipod-touch"
+
+    - title: "Kobo driver: Support for new firmware"
+
+    - title: "Allow changing the icons in yes/no columns via column icon rules."
+      tickets: [1721374]
+
+    - title: 'Quickview panel: Add a context menu with a "View" action to the book table.'
+
+    - title: "Make the elapsed time display in the jobs dialog more human friendly."
+      tickets: [1719059]
+
+  bug fixes:
+    - title: "EPUB Input: Fix styles in existing titlepage not being flattened when the titlepage is preserved during conversion."
+      tickets: [1720715]
+
+    - title: "Fix conversion of grayscale JPEG-XR images not working"
+      tickets: [1720638]
+
+    - title: "Update the douban metadata download plugin to match changes to the website"
+
+    - title: "DOCX Output: Fix the preserve cover aspect ratio option not visible"
+      tickets: [1719026]
+
+  improved recipes:
+    - Respekt Magazine
+    - Associated Press
+    - Heraldo de Aragon
+    - El Correo
+    - El Periodico de Aragon
+    - A List Apart
+
 - version: 3.8.0
   date: 2017-09-22
 
