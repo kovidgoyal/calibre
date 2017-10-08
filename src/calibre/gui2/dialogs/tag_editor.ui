@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>360</height>
+    <width>640</width>
+    <height>666</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,48 +89,31 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="bottomMargin">
-      <number>8</number>
-     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>A&amp;vailable tags</string>
-         </property>
-         <property name="buddy">
-          <cstring>available_tags</cstring>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="available_filter_input">
+         <property name="placeholderText">
+          <string>Filter the available tags</string>
          </property>
         </widget>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLineEdit" name="available_filter_input">
-           <property name="placeholderText">
-            <string>Filter the available tags</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="available_filter_input_clear_btn">
-           <property name="toolTip">
-            <string>Clear the available tags filter input field</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
+       <item row="1" column="1">
+        <widget class="QToolButton" name="available_filter_input_clear_btn">
+         <property name="toolTip">
+          <string>Clear the available tags filter input field</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+         </property>
+        </widget>
        </item>
-       <item>
+       <item row="2" column="0" colspan="2">
         <widget class="QListWidget" name="available_tags">
          <property name="alternatingRowColors">
           <bool>true</bool>
@@ -143,7 +126,7 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="3" column="0" colspan="2">
         <widget class="QPushButton" name="delete_button">
          <property name="toolTip">
           <string>Delete tag from database. This will unapply the tag from all books and then remove it from the database.</string>
@@ -154,6 +137,16 @@
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Ava&amp;ilable tags</string>
+         </property>
+         <property name="buddy">
+          <cstring>available_tags</cstring>
          </property>
         </widget>
        </item>
@@ -174,43 +167,29 @@
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>A&amp;pplied tags</string>
-         </property>
-         <property name="buddy">
-          <cstring>applied_tags</cstring>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="applied_filter_input">
+         <property name="placeholderText">
+          <string>Filter the applied tags</string>
          </property>
         </widget>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLineEdit" name="applied_filter_input">
-           <property name="placeholderText">
-            <string>Filter the applied tags</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="applied_filter_input_clear_btn">
-           <property name="toolTip">
-            <string>Clear the applied tags filter input field</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
+       <item row="1" column="1">
+        <widget class="QToolButton" name="applied_filter_input_clear_btn">
+         <property name="toolTip">
+          <string>Clear the applied tags filter input field</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+         </property>
+        </widget>
        </item>
-       <item>
+       <item row="2" column="0" colspan="2">
         <widget class="QListWidget" name="applied_tags">
          <property name="alternatingRowColors">
           <bool>true</bool>
@@ -223,7 +202,17 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Applied &amp;tags</string>
+         </property>
+         <property name="buddy">
+          <cstring>applied_tags</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
         <widget class="QPushButton" name="unapply_button">
          <property name="toolTip">
           <string>Unapply (remove) tag from current book</string>
