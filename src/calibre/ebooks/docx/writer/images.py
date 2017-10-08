@@ -189,9 +189,11 @@ class ImagesManager(object):
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
         if preserve_aspect_ratio:
             if img.width >= img.height:
-                height *= img.height / img.width
+                ar = img.height / img.width
+                height = ar * width
             else:
-                width *= img.width / img.height
+                ar = img.width / img.height
+                width = ar * height
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)
