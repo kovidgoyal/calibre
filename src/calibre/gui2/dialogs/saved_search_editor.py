@@ -61,14 +61,14 @@ class AddSavedSearch(Dialog):
             return error_dialog(
                 self,
                 _('No search name'),
-                _('You must specify a search name'),
+                _('You must specify a name for the Saved search'),
                 show=True)
         expression = self.search.text().strip()
         if not expression:
             return error_dialog(
                 self,
                 _('No search expression'),
-                _('You must specify a search expression'),
+                _('You must specify a search expression for the Saved search'),
                 show=True)
         if icu_lower(name) in self.searches:
             self.searches.pop(icu_lower(name), None)

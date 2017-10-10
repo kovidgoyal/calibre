@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>User Categories Editor</string>
+   <string>User categories editor</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
