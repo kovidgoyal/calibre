@@ -70,9 +70,6 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.add_tag_button.clicked.connect(self.add_tag)
         self.delete_button.clicked.connect(lambda: self.delete_tags())
         self.add_tag_input.returnPressed[()].connect(self.add_tag)
-        # add the handlers for the filter input clear buttons
-        for x in ('available', 'applied'):
-            getattr(self, '%s_filter_input_clear_btn' % x).clicked.connect(getattr(self, '%s_filter_input' % x).clear)
         # add the handlers for the filter input fields
         self.available_filter_input.textChanged.connect(self.filter_tags)
         self.applied_filter_input.textChanged.connect(partial(self.filter_tags, which='applied_tags'))

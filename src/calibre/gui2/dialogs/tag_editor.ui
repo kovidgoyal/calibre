@@ -97,19 +97,8 @@
          <property name="placeholderText">
           <string>Filter the available tags</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QToolButton" name="available_filter_input_clear_btn">
-         <property name="toolTip">
-          <string>Clear the available tags filter input field</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -173,19 +162,8 @@
          <property name="placeholderText">
           <string>Filter the applied tags</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QToolButton" name="applied_filter_input_clear_btn">
-         <property name="toolTip">
-          <string>Clear the applied tags filter input field</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -222,7 +200,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/list_remove.png</normaloff>:/images/list_remove.png</iconset>
+           <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
          </property>
         </widget>
        </item>

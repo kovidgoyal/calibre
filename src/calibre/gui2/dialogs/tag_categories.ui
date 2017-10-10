@@ -133,7 +133,7 @@
      <item>
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Category &amp;filter: </string>
+        <string>&amp;Category filter: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -171,7 +171,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>A&amp;vailable items</string>
+          <string>&amp;Available items</string>
          </property>
          <property name="buddy">
           <cstring>available_items_box</cstring>
@@ -263,7 +263,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>A&amp;pplied items</string>
+          <string>Applied &amp;items</string>
          </property>
          <property name="buddy">
           <cstring>applied_items_box</cstring>
@@ -322,7 +322,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/list_remove.png</normaloff>:/images/list_remove.png</iconset>
+         <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
        </property>
       </widget>
      </item>
