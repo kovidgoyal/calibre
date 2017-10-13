@@ -354,7 +354,7 @@ class Container(ContainerBase):
                         a.set('href', 'javascript:void(0)')
                         parts = decode_url(href.split('|')[1])
                         lname, lfrag = parts[0], parts[1]
-                        ltm.setdefault(lname, {}).setdefault(lfrag or '', []).append(name)
+                        ltm.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
                         a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
                     else:
                         a.set('target', '_blank')
@@ -366,6 +366,10 @@ class Container(ContainerBase):
                 xlink = XLINK('href')
                 for elem in xlink_xpath(self.parsed(name)):
                     elem.set(xlink, link_replacer(name, elem.get(xlink)))
+
+        for name, amap in ltm.iteritems():
+            for k, v in tuple(amap.iteritems()):
+                amap[k] = tuple(v)  # needed for JSON serialization
 
         tuple(map(self.dirty, changed))
 
