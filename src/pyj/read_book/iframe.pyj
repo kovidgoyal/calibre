@@ -12,6 +12,7 @@ from read_book.flow_mode import (
     flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
+from read_book.footnotes import is_footnote_link
 from read_book.globals import (
     current_book, current_layout_mode, current_spine_item, set_boss,
     set_current_spine_item, set_layout_mode
@@ -383,6 +384,14 @@ class IframeBoss:
         name, frag = data.name, data.frag
         if not name:
             name = current_spine_item().name
+        try:
+            is_popup = is_footnote_link(evt.currentTarget, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
+        except:
+            import traceback
+            traceback.print_exc()
+            is_popup = False
+        if is_popup:
+            pass
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)

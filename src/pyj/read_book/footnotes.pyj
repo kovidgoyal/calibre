@@ -1,0 +1,70 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+def elem_roles(elem):
+    return {k.toLowerCase(): True for k in (elem.getAttribute('role') or '').split(' ')}
+
+
+def get_containing_block(node):
+    while node and node.tagName and get_containing_block.block_names[node.tagName.toLowerCase()] is not True:
+        node = node.parentNode
+    return node
+get_containing_block.block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
+
+
+def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
+    roles = elem_roles(a)
+    if roles['doc-noteref']:
+        return True
+    if roles['doc-link']:
+        return False
+
+    # Check if node or any of its first few parents have vertical-align set
+    x, num = a, 3
+    while x and num > 0:
+        style = window.getComputedStyle(x)
+        if not is_footnote_link.inline_displays[style.display]:
+            break
+        if is_footnote_link.vert_aligns[style.verticalAlign]:
+            return True
+        x = x.parentNode
+        num -= 1
+
+    # Check if node has a single child with the appropriate css
+    children = [x for x in a.childNodes if x.nodeType is Node.ELEMENT_NODE]
+    if children.length == 1:
+        style = window.getComputedStyle(children[0])
+        if is_footnote_link.inline_displays[style.display] and is_footnote_link.vert_aligns[style.verticalAlign]:
+            text_children = [x for x in a.childNodes if x.nodeType is Node.TEXT_NODE and x.nodeValue and /\S+/.test(x.nodeValue)]
+            if not text_children.length:
+                return True
+
+    eid = a.getAttribute('id') or a.getAttribute('name')
+    files_linking_to_self = link_to_map[src_name]
+    if eid and files_linking_to_self:
+        files_linking_to_anchor = files_linking_to_self[eid]
+        if files_linking_to_anchor.length > 1 or (files_linking_to_anchor.length == 1 and files_linking_to_anchor[0] is not src_name):
+            # An <a href="..." id="..."> link that is linked back from some other
+            # file in the spine, most likely an endnote. We exclude links that are
+            # the only content of their parent block tag, as these are not likely
+            # to be endnotes.
+            cb = get_containing_block(a)
+            if not cb or cb.tagName.toLowerCase() == 'body':
+                return False
+            ltext = a.textContent
+            if not ltext:
+                return False
+            ctext = cb.textContent
+            if not ctext:
+                return False
+            if ctext.strip() is ltext.strip():
+                return False
+            return True
+
+    return False
+
+
+is_footnote_link.inline_displays = {'inline': True, 'inline-block': True}
+is_footnote_link.vert_aligns = {'sub': True, 'super': True, 'top': True, 'bottom': True}

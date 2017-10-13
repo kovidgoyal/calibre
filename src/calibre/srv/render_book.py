@@ -201,6 +201,7 @@ class Container(ContainerBase):
             'spine_length': 0,
             'toc_anchor_map': toc_anchor_map(toc),
             'landmarks': landmarks,
+            'link_to_map': {},
         }
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
@@ -328,6 +329,8 @@ class Container(ContainerBase):
                 changed.add(base)
             return url
 
+        ltm = self.book_render_data['link_to_map']
+
         for name, mt in self.mime_map.iteritems():
             mt = mt.lower()
             if mt in OEB_STYLES:
@@ -350,7 +353,9 @@ class Container(ContainerBase):
                     if href.startswith(link_uid):
                         a.set('href', 'javascript:void(0)')
                         parts = decode_url(href.split('|')[1])
-                        a.set('data-' + link_uid, json.dumps({'name':parts[0], 'frag':parts[1]}, ensure_ascii=False))
+                        lname, lfrag = parts[0], parts[1]
+                        ltm.setdefault(lname, {}).setdefault(lfrag or '', []).append(name)
+                        a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
                     else:
                         a.set('target', '_blank')
                         a.set('rel', 'noopener noreferrer')
@@ -382,7 +387,7 @@ boolean_attributes = frozenset('allowfullscreen,async,autofocus,autoplay,checked
 
 EPUB_TYPE_MAP = {k:'doc-' + k for k in (
     'abstract acknowledgements afterword appendix biblioentry bibliography biblioref chapter colophon conclusion cover credit'
-    ' credits dedication epigraph epilogue errata footnote footnotes forward glossary glossref index introduction noteref notice'
+    ' credits dedication epigraph epilogue errata footnote footnotes forward glossary glossref index introduction link noteref notice'
     ' pagebreak pagelist part preface prologue pullquote qna locator subtitle title toc').split(' ')}
 for k in 'figure term definition directory list list-item table row cell'.split(' '):
     EPUB_TYPE_MAP[k] = k
