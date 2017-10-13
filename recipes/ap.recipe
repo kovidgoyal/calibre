@@ -55,8 +55,6 @@ class AssociatedPress(BasicNewsRecipe):
         self.log('Processing section:', front, 'at', url)
         data = self.index_to_soup(url, raw=True)
         data = json.loads(data)
-        from pprint import pformat
-        open('/t/raw', 'wb').write(pformat(data))
         cards = data.get('cards', ())
         articles = []
 
