@@ -298,7 +298,7 @@ class View:
             }
             return LOADING_DOC.replace(r, def(match, field): return data[field];)
 
-    def init_iframe(self, iframe_script):
+    def init_iframe(self):
         if self.main_srcdoc is None:
             return
         if not self.main_srcdoc:
@@ -306,6 +306,14 @@ class View:
         self.encrypted_communications = False
         self.iframe.srcdoc = self.main_srcdoc()
         self.main_srcdoc = None
+
+    def reset_iframe(self):
+        # Reset the iframe to ensure that all state from previous books is
+        # cleared
+        self.iframe_ready = False
+        if self.main_srcdoc is None:
+            self.main_srcdoc = def():
+                return self.iframe.srcdoc
 
     def send_message(self, action, **data):
         data.action = action
@@ -390,16 +398,19 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book):
+    def hide_overlays(self):
         self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
+
+    def display_book(self, book):
+        self.hide_overlays()
+        is_current_book = self.book and self.book.key == book.key
+        if not is_current_book:
+            self.reset_iframe()
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
-        # Ensure the iframe is cleared so that no state is persisted between
-        # book loads
-        self.iframe_ready = False
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
