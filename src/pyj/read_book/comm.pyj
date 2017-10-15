@@ -1,0 +1,144 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from aes import GCM
+
+from book_list.globals import main_js, get_translations
+from book_list.theme import get_font_family
+from dom import ensure_id
+
+
+LOADING_DOC = '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<script type="text/javascript" id="bootstrap">
+window.iframe_type = '__IFRAME_TYPE__';  // different in different iframes
+__SCRIPT__
+end_script
+</head>
+<body style="font-family: __FONT__">
+<div style="font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
+__BS__
+</div>
+</body>
+</html>
+'''.replace('end_script', '<' + '/script>')  # cannot have a closing script tag as this is embedded inside a script tag in index.html
+
+
+def iframe_js():
+    if not iframe_js.ans:
+        iframe_js.ans = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
+        main_js(None)
+    return iframe_js.ans
+
+
+class Messenger:
+
+    def __init__(self):
+        self.secret = Uint8Array(64)
+
+    def reset(self):
+        window.crypto.getRandomValues(self.secret)
+        self.gcm_to_iframe = GCM(self.secret.subarray(0, 32))
+        self.gcm_from_iframe = GCM(self.secret.subarray(32))
+
+    def encrypt(self, data):
+        return self.gcm_to_iframe.encrypt(JSON.stringify(data))
+
+    def decrypt(self, data):
+        return JSON.parse(self.gcm_from_iframe.decrypt(data))
+
+
+class IframeWrapper:
+
+    def __init__(self, handlers, iframe, iframe_type, bootstrap_text):
+        self.messenger = Messenger()
+        self.iframe_id = ensure_id(iframe, 'content-iframe')
+        self.needs_init = True
+        self.ready = False
+        self.encrypted_communications = False
+        self.srcdoc_created = False
+        self.iframe_type = iframe_type
+        self.bootstrap_text = bootstrap_text
+        self.handlers = {k: handlers[k] for k in handlers}
+        self.on_ready_handler = self.handlers.ready
+        self.handlers.ready = self.on_iframe_ready
+        window.addEventListener('message', self.handle_message, False)
+
+    @property
+    def iframe(self):
+        return document.getElementById(self.iframe_id)
+
+    def create_srcdoc(self):
+        r = /__([A-Z][A-Z_0-9]*[A-Z0-9])__/g
+        data = {
+            'BS': self.bootstrap_text,
+            'SCRIPT': iframe_js(),
+            'FONT': get_font_family(),
+            'IFRAME_TYPE': self.iframe_type,
+        }
+        self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+        self.srcdoc_created = True
+
+    def init(self):
+        if not self.needs_init:
+            return
+        self.needs_init = False
+        iframe = self.iframe
+        if self.srcdoc_created:
+            sdoc = iframe.srcdoc
+            iframe.srcdoc = '<p>&nbsp;</p>'
+            iframe.srcdoc = sdoc
+        else:
+            self.create_srcdoc()
+
+    def reset(self):
+        self.ready = False
+        self.needs_init = True
+        self.encrypted_communications = False
+
+    def _send_message(self, action, encrypted, data):
+        data.action = action
+        msg = {'data':data, 'encrypted': encrypted}
+        if encrypted:
+            msg.data = self.messenger.encrypt(data)
+        self.iframe.contentWindow.postMessage(msg, '*')
+
+    def send_message(self, action, **data):
+        self._send_message(action, self.encrypted_communications, data)
+
+    def send_unencrypted_message(self, action, **data):
+        self._send_message(action, False, data)
+
+    def handle_message(self, event):
+        if event.source is not self.iframe.contentWindow:
+            return
+        data = event.data
+        if self.encrypted_communications:
+            try:
+                data = self.messenger.decrypt(data)
+            except Exception as e:
+                print('Could not process message from iframe:')
+                console.log(e)
+                return
+        func = self.handlers[data.action]
+        if func:
+            func(data)
+        else:
+            print('Unknown action in message from iframe to parent: ' + data.action)
+
+    def on_iframe_ready(self, data):
+        self.messenger.reset()
+        msg = {'secret': self.messenger.secret, 'translations': get_translations()}
+        self.ready = True
+        callback = None
+        if self.on_ready_handler:
+            callback = self.on_ready_handler(msg)
+        self._send_message('initialize', False, msg)
+        self.encrypted_communications = True
+        if callback:
+            callback()

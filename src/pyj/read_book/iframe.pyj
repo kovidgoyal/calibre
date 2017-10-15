@@ -426,6 +426,7 @@ class IframeBoss:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
 def init():
-    script = document.getElementById('bootstrap')
-    script.parentNode.removeChild(script)  # free up some memory
-    IframeBoss()
+    if window.iframe_type is 'main':
+        script = document.getElementById('bootstrap')
+        script.parentNode.removeChild(script)  # free up some memory
+        IframeBoss()

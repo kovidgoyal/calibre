@@ -53,6 +53,10 @@ class ContentPopupOverlay:
         return document.getElementById('book-content-popup-overlay')
 
     @property
+    def iframe(self):
+        return self.container.querySelector('iframe')
+
+    @property
     def is_visible(self):
         return self.container.style.display is not 'none'
 
@@ -91,4 +95,3 @@ class ContentPopupOverlay:
         c.style.width = f'{width}vw'
         header = c.firstChild
         self.create_footnote_header(header)
-        # iframe = c.lastChild
