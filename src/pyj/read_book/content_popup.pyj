@@ -1,0 +1,94 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from dom import add_extra_css, build_rule, clear, svgicon
+
+CLASS_NAME = 'book-content-popup-container'
+TOP_LEVEL_DISPLAY = 'flex'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME
+    style = ''
+    style += build_rule(sel, justify_content='center', align_items='center', height='100%')
+
+    sel += ' > div'
+    style += build_rule(sel, border_radius='8px', border='solid currentColor 2px', margin='1rem', padding='0.5rem', box_shadow='2px 2px 4px currentColor')
+
+    sel += ' > div'
+    style += build_rule(sel, padding_bottom='1ex', margin_bottom='1ex', border_bottom='solid currentColor 2px', display='flex', justify_content='space-between', align_items='center')
+
+    sel += ' > div'  # button container
+    style += build_rule(sel, display='flex', justify_content='space-between', align_items='center')
+
+    sel += ' > a'  # buttons
+    style += build_rule(sel, margin_left='1ex', cursor='pointer', display='inline-block')
+    style += build_rule(sel + ':hover', transform='scale(1.5)')
+    style += build_rule(sel + ':active', transform='scale(2)')
+    return style
+)
+
+
+class ContentPopupOverlay:
+
+    def __init__(self, view):
+        self.view = view
+        c = self.container
+        c.classList.add(CLASS_NAME)
+
+        c.appendChild(E.div(
+            E.div(),
+            E.iframe(seamless=True, sandbox='allow-scripts')
+        ))
+        c.addEventListener('click', self.hide)
+        c.firstChild.addEventListener('click', def(ev):
+            ev.stopPropagation(), ev.preventDefault()
+        )
+
+    @property
+    def container(self):
+        return document.getElementById('book-content-popup-overlay')
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def hide(self):
+        self.container.style.display = 'none'
+
+    def show(self):
+        c = self.container
+        c.style.display = TOP_LEVEL_DISPLAY
+
+    def apply_color_scheme(self, bg, fg):
+        c = self.container.firstChild
+        c.style.backgroundColor = bg
+        c.style.color = fg
+
+    def create_footnote_header(self, header):
+        clear(header)
+        header.appendChild(
+            E.h3(self.current_footnote_data.title or _('Footnote')),
+        )
+        bc = E.div(
+            E.a(svgicon('arrow-right'), title=_('Go to this footnote in the main view'), href='javascript:void(0)'),
+            E.a(svgicon('close'), title=_('Close the footnotes window'), href='javascript:void(0)')
+        )
+        bc.firstChild.addEventListener('click', def():
+                self.hide()
+                self.view.goto_named_destination(self.current_footnote_data.name, self.current_footnote_data.frag)
+        )
+        bc.lastChild.addEventListener('click', self.hide)
+        header.appendChild(bc)
+
+    def show_footnote(self, data):
+        self.current_footnote_data = data
+        width = 100 // data.cols_per_screen
+        c = self.container.firstChild
+        c.style.width = f'{width}vw'
+        header = c.firstChild
+        self.create_footnote_header(header)
+        # iframe = c.lastChild

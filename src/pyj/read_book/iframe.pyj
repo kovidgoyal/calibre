@@ -19,11 +19,12 @@ from read_book.globals import (
 )
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    anchor_funcs as paged_anchor_funcs, handle_gesture as paged_handle_gesture,
-    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
-    onkeydown as paged_onkeydown, onwheel as paged_onwheel, progress_frac,
-    reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page, scroll_to_elem,
-    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
+    anchor_funcs as paged_anchor_funcs, calc_columns_per_screen,
+    handle_gesture as paged_handle_gesture, jump_to_cfi as paged_jump_to_cfi,
+    layout as paged_layout, onkeydown as paged_onkeydown, onwheel as paged_onwheel,
+    progress_frac, reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page,
+    scroll_to_elem, scroll_to_fraction as paged_scroll_to_fraction,
+    snap_to_selection
 )
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import apply_settings, opts
@@ -391,7 +392,8 @@ class IframeBoss:
             traceback.print_exc()
             is_popup = False
         if is_popup:
-            pass
+            self.send_message('show_footnote', name=name, frag=frag, title=evt.currentTarget.textContent, cols_per_screen=calc_columns_per_screen())
+            return
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)

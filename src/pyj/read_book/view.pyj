@@ -2,27 +2,29 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from ajax import ajax_send
-from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from utils import html_escape
-from session import get_interface_data, get_device_uuid
 
-from modals import error_dialog, warning_dialog
-from book_list.globals import get_session_data, main_js, get_translations
+from ajax import ajax_send
+from book_list.globals import get_session_data, get_translations, main_js
 from book_list.router import push_state, read_book_mode
-from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
-from read_book.resources import load_resources
+from book_list.theme import get_color, get_font_family
+from dom import add_extra_css, build_rule, set_css, svgicon
+from modals import error_dialog, warning_dialog
+from read_book.content_popup import ContentPopupOverlay
+from read_book.globals import (
+    current_book, iframe_id, messenger, set_current_spine_item
+)
+from read_book.goto import get_next_section
 from read_book.overlay import Overlay
-from read_book.search import SearchOverlay, find_in_spine
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
-from read_book.touch import set_left_margin_handler, set_right_margin_handler
+from read_book.resources import load_resources
+from read_book.search import SearchOverlay, find_in_spine
 from read_book.toc import update_visible_toc_nodes
-from read_book.goto import get_next_section
-from book_list.theme import get_color, get_font_family
-from utils import parse_url_params, username_key, is_ios
+from read_book.touch import set_left_margin_handler, set_right_margin_handler
+from session import get_device_uuid, get_interface_data
+from utils import html_escape, is_ios, parse_url_params, username_key
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -128,6 +130,7 @@ class View:
                         ),
                         right_margin,
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
@@ -135,6 +138,7 @@ class View:
             )
         )
         self.search_overlay = SearchOverlay(self)
+        self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
         self.processing_spine_item_display = False
         self.iframe_ready = False
@@ -155,6 +159,7 @@ class View:
             'bump_font_size': self.bump_font_size,
             'find_in_spine': self.on_find_in_spine,
             'request_size': self.on_request_size,
+            'show_footnote': self.on_show_footnote,
             'print': self.on_print,
         }
         self.currently_showing = {}
@@ -227,13 +232,24 @@ class View:
         delta = 2 if data.increase else -2
         change_font_size_by(delta)
 
+    def on_show_footnote(self, data):
+        self.show_content_popup()
+        self.content_popup_overlay.show_footnote(data)
+
     def show_chrome(self):
         self.search_overlay.hide()
+        self.content_popup_overlay.hide()
         self.overlay.show()
 
     def show_search(self):
         self.overlay.hide()
+        self.content_popup_overlay.hide()
         self.search_overlay.show()
+
+    def show_content_popup(self):
+        self.overlay.hide()
+        self.search_overlay.hide()
+        self.content_popup_overlay.show()
 
     def set_margins(self):
         no_margins = self.currently_showing.name is self.book.manifest.title_page_name
@@ -342,6 +358,7 @@ class View:
                     s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
                 s.backgroundColor = ans.background
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
+            self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
         return ans
 
     def on_resize(self):
@@ -376,6 +393,7 @@ class View:
     def display_book(self, book):
         self.overlay.hide()
         self.search_overlay.hide()
+        self.content_popup_overlay.hide()
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
@@ -479,7 +497,7 @@ class View:
 
     def on_update_cfi(self, data):
         overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible
-        if overlay_shown or self.search_overlay.is_visible:
+        if overlay_shown or self.search_overlay.is_visible or self.content_popup_overlay.is_visible:
             # Chrome on Android stupidly resizes the viewport when the on
             # screen keyboard is displayed. This means that the push_state()
             # below causes the overlay to be closed, making it impossible to

@@ -114,10 +114,7 @@ def fit_images():
         set_elem_data(img, 'height-limited', True)
 
 
-def layout(is_single_page):
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
-    body_style = window.getComputedStyle(document.body)
-    first_layout = not _in_paged_mode
+def calc_columns_per_screen():
     cps = opts.columns_per_screen or {}
     cps = cps.landscape if scroll_viewport.width() > scroll_viewport.height() else cps.portrait
     try:
@@ -127,6 +124,14 @@ def layout(is_single_page):
     if not cps:
         cps = int(Math.floor(scroll_viewport.width() / 500.0))
     cps = max(1, min(cps or 1, 20))
+    return cps
+
+
+def layout(is_single_page):
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    body_style = window.getComputedStyle(document.body)
+    first_layout = not _in_paged_mode
+    cps = calc_columns_per_screen()
     if first_layout:
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
