@@ -236,19 +236,21 @@ class View:
         self.show_content_popup()
         self.content_popup_overlay.show_footnote(data)
 
-    def show_chrome(self):
+    def hide_overlays(self):
+        self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
+
+    def show_chrome(self):
+        self.hide_overlays()
         self.overlay.show()
 
     def show_search(self):
-        self.overlay.hide()
-        self.content_popup_overlay.hide()
+        self.hide_overlays()
         self.search_overlay.show()
 
     def show_content_popup(self):
-        self.overlay.hide()
-        self.search_overlay.hide()
+        self.hide_overlays()
         self.content_popup_overlay.show()
 
     def set_margins(self):
@@ -397,11 +399,6 @@ class View:
                 name = book.manifest.spine[(int(snum) // 2) - 1] or name
                 cfi =  '/' + rest
         return name, cfi
-
-    def hide_overlays(self):
-        self.overlay.hide()
-        self.search_overlay.hide()
-        self.content_popup_overlay.hide()
 
     def display_book(self, book):
         self.hide_overlays()
