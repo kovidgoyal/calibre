@@ -249,6 +249,9 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     def row_to_job(self, row):
         return self.jobs[row]
 
+    def rows_to_jobs(self, rows):
+        return [self.jobs[row] for row in rows]
+
     def has_device_jobs(self, queued_also=False):
         for job in self.jobs:
             if isinstance(job, DeviceJob):
@@ -300,8 +303,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         for r in xrange(len(self.jobs)):
             self.dataChanged.emit(self.index(r, 0), self.index(r, 0))
 
-    def kill_job(self, row, view):
-        job = self.jobs[row]
+    def kill_job(self, job, view):
         if isinstance(job, DeviceJob):
             return error_dialog(view, _('Cannot kill job'),
                          _('Cannot kill jobs that communicate with the device')).exec_()
@@ -313,8 +315,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                     _('This job cannot be stopped'), show=True)
         self._kill_job(job)
 
-    def kill_multiple_jobs(self, rows, view):
-        jobs = [self.jobs[row] for row in rows]
+    def kill_multiple_jobs(self, jobs, view):
         devjobs = [j for j in jobs if isinstance(j, DeviceJob)]
         if devjobs:
             error_dialog(view, _('Cannot kill job'),
@@ -667,18 +668,18 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         indices = [self.proxy_model.mapToSource(index) for index in
                 self.jobs_view.selectionModel().selectedRows()]
         indices = [i for i in indices if i.isValid()]
-        rows = [index.row() for index in indices]
-        if not rows:
+        jobs = self.model.rows_to_jobs([index.row() for index in indices])
+        if not jobs:
             return error_dialog(self, _('No job'),
                 _('No job selected'), show=True)
         if question_dialog(self, _('Are you sure?'),
                 ngettext('Do you really want to stop the selected job?',
                     'Do you really want to stop all the selected jobs?',
-                    len(rows))):
-            if len(rows) > 1:
-                self.model.kill_multiple_jobs(rows, self)
+                    len(jobs))):
+            if len(jobs) > 1:
+                self.model.kill_multiple_jobs(jobs, self)
             else:
-                self.model.kill_job(rows[0], self)
+                self.model.kill_job(jobs[0], self)
 
     def kill_all_jobs(self, *args):
         if question_dialog(self, _('Are you sure?'),
