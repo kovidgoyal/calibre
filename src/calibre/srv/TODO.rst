@@ -5,8 +5,6 @@ particular order.
 New features for the in-browser viewer
 ----------------------------------------
 
-- Footnote popups
-
 - Bookmarks and more generally, annotations such as highlighting text and
   adding comments
 
@@ -17,7 +15,7 @@ New features for the in-browser viewer
 New features for the server generally
 ---------------------------------------
 
-- Create a UI for making changes to the library such as editing metadta,
+- Create a UI for making changes to the library such as editing metadata,
   adding/deleting books, converting, sending by email, etc.
 
 - Add a way to search the set of locally available books stored in offline

@@ -220,7 +220,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
         for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
             stack.push(v'[node[i], elem]')
 
-def unserialize_html(serialized_data, proceed):
+def unserialize_html(serialized_data, proceed, postprocess_dom):
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
     ns_map = serialized_data.ns_map
@@ -258,6 +258,8 @@ def unserialize_html(serialized_data, proceed):
     for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
         stack.push(v'[body[i], document.body]')
     process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
+    if postprocess_dom:
+        postprocess_dom()
     ev = document.createEvent('Event')
     ev.initEvent('DOMContentLoaded', True, True)
     document.dispatchEvent(ev)

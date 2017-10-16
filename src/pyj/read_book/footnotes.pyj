@@ -7,15 +7,17 @@ from read_book.comm import IframeClient
 from read_book.resources import finalize_resources, unserialize_html
 
 
+block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
+block_display_styles = dict.fromkeys(v"['block', 'list-item', 'table-cell', 'table']", True).as_object()
+
 def elem_roles(elem):
     return {k.toLowerCase(): True for k in (elem.getAttribute('role') or '').split(' ')}
 
 
 def get_containing_block(node):
-    while node and node.tagName and get_containing_block.block_names[node.tagName.toLowerCase()] is not True:
+    while node and node.tagName and block_names[node.tagName.toLowerCase()] is not True:
         node = node.parentNode
     return node
-get_containing_block.block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
 
 
 def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
@@ -74,6 +76,97 @@ is_footnote_link.inline_displays = {'inline': True, 'inline-block': True}
 is_footnote_link.vert_aligns = {'sub': True, 'super': True, 'top': True, 'bottom': True}
 
 
+def is_epub_footnote(node):
+    roles = elem_roles(node)
+    if roles['doc-note'] or roles['doc-footnote'] or roles['doc-rearnote']:
+        return True
+    return False
+
+
+def get_note_container(node):
+    while node and block_names[node.tagName.toLowerCase()] is not True and block_display_styles[window.getComputedStyle(node).display] is not True:
+        node = node.parentNode
+    return node
+
+
+def get_parents_and_self(node):
+    ans = v'[]'
+    while node and node is not document.body:
+        ans.push(node)
+        node = node.parentNode
+    return ans
+
+
+def get_page_break(node):
+    style = window.getComputedStyle(node)
+    return {
+        'before': get_page_break.on[style.getPropertyValue('page-break-before')] is True,
+        'after': get_page_break.on[style.getPropertyValue('page-break-after')] is True,
+    }
+get_page_break.on = {'always': True, 'left': True, 'right': True}
+
+
+def hide_children(node):
+    for child in node.childNodes:
+        if child.nodeType is Node.ELEMENT_NODE:
+            if child.do_not_hide:
+                hide_children(child)
+                v'delete child.do_not_hide'
+            else:
+                child.style.display = 'none'
+
+
+def unhide_tree(elem):
+    elem.do_not_hide = True
+    for c in elem.getElementsByTagName('*'):
+        c.do_not_hide = True
+
+
+ok_list_types = {'disc': True, 'circle': True, 'square': True}
+
+
+def show_footnote(target, known_anchors):
+    if not target:
+        return
+    start_elem = document.getElementById(target)
+    if not start_elem:
+        return
+    start_elem = get_note_container(start_elem)
+    for elem in get_parents_and_self(start_elem):
+        elem.do_not_hide = True
+        style = window.getComputedStyle(elem)
+        if style.display is 'list-item' and ok_list_types[style.listStyleType] is not True:
+            # We cannot display list numbers since they will be
+            # incorrect as we are removing siblings of this element.
+            elem.style.listStyleType = 'none'
+    if is_epub_footnote(start_elem):
+        unhide_tree(start_elem)
+    else:
+        # Try to detect natural boundaries based on markup for this note
+        found_note_start = False
+        for elem in document.body.getElementsByTagName('*'):
+            if found_note_start:
+                eid = elem.getAttribute('id')
+                if eid is not target and known_anchors[eid] and get_note_container(elem) is not start_elem:
+                    # console.log('Breaking footnote on anchor: ' + elem.getAttribute('id'))
+                    v'delete get_note_container(elem).do_not_hide'
+                    break
+                pb = get_page_break(elem)
+                if pb.before:
+                    # console.log('Breaking footnote on page break before')
+                    break
+                if pb.after:
+                    unhide_tree(elem)
+                    # console.log('Breaking footnote on page break after')
+                    break
+                elem.do_not_hide = True
+            else if elem is start_elem:
+                found_note_start = True
+
+    hide_children(document.body)
+    window.location.hash = '#' + target
+
+
 class PopupIframeBoss:
 
     def __init__(self):
@@ -106,7 +199,7 @@ class PopupIframeBoss:
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
-        self.resource_urls = unserialize_html(root_data, self.content_loaded)
+        self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote)
 
     def on_clear(self, data):
         clear(document.head)
@@ -114,6 +207,13 @@ class PopupIframeBoss:
         document.body.textContent = data.text
         self.name = None
         self.frag = None
+
+    def show_only_footnote(self):
+        known_anchors = {}
+        ltm = self.book.manifest.link_to_map?[self.name]
+        if ltm:
+            known_anchors = {k:True for k in Object.keys(ltm)}
+        show_footnote(self.frag, known_anchors)
 
     def content_loaded(self):
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
