@@ -3,10 +3,10 @@
 from __python__ import bound_methods, hash_literals
 
 import traceback
-from aes import GCM
-from gettext import gettext as _, install
+from gettext import gettext as _
 
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
+from read_book.comm import IframeClient
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
     flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
@@ -66,7 +66,6 @@ class IframeBoss:
 
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
-        self.ready_sent = False
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
         self.encrypted_communications = False
@@ -74,14 +73,8 @@ class IframeBoss:
         self.resource_urls = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
-        window.addEventListener('message', self.handle_message, False)
-        window.addEventListener('load', def():
-            if not self.ready_sent:
-                self.send_message('ready')
-                self.ready_sent = True
-        )
         set_boss(self)
-        self.handlers = {
+        handlers = {
             'initialize':self.initialize,
             'display': self.display,
             'scroll_to_anchor': self.on_scroll_to_anchor,
@@ -92,40 +85,12 @@ class IframeBoss:
             'find': self.find,
             'window_size': self.received_window_size,
         }
+        self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
 
-    def handle_message(self, event):
-        if event.source is not window.parent:
-            return
-        msg = event.data
-        data = msg.data
-        if msg.encrypted:
-            # We cannot use self.encrypted_communications as the 'display'
-            # message has to be unencrypted as it transports Blob objects
-            try:
-                data = JSON.parse(self.gcm_from_parent.decrypt(data))
-            except Exception as e:
-                print('Could not process message from parent:')
-                console.log(e)
-                return
-        func = self.handlers[data.action]
-        if func:
-            try:
-                func(data)
-            except Exception as e:
-                console.log('Error in iframe message handler:')
-                console.log(e)
-                self.send_message('error', title=_('Error in message handler'), details=traceback.format_exc(), msg=e.toString())
-        else:
-            print('Unknown action in message to iframe from parent: ' + data.action)
-
     def initialize(self, data):
-        nonlocal print
-        self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
         scroll_viewport.update_window_size(data.width, data.height)
-        if data.translations:
-            install(data.translations)
         window.onerror = self.onerror
         window.addEventListener('scroll', debounce(self.onscroll, 1000))
         window.addEventListener('resize', debounce(self.onresize, 500))
@@ -133,12 +98,7 @@ class IframeBoss:
         window.addEventListener('keydown', self.onkeydown)
         document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
         self.color_scheme = data.color_scheme
-        self.encrypted_communications = True
-        print = self.print_to_parent
         create_touch_handlers()
-
-    def print_to_parent(self, *args):
-        self.send_message('print', string=' '.join(map(str, args)))
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         if error_object is None:
@@ -365,10 +325,7 @@ class IframeBoss:
             self.send_message('show_chrome')
 
     def send_message(self, action, **data):
-        data.action = action
-        if self.encrypted_communications:
-            data = self.gcm_to_parent.encrypt(JSON.stringify(data))
-        window.parent.postMessage(data, '*')
+        self.comm.send_message(action, data)
 
     def connect_links(self):
         link_attr = 'data-' + self.book.manifest.link_uid
@@ -430,3 +387,5 @@ def init():
         script = document.getElementById('bootstrap')
         script.parentNode.removeChild(script)  # free up some memory
         IframeBoss()
+    # elif window.iframe_type is 'popup':
+    #     PopupIframeBoss()

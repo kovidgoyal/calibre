@@ -6,6 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
+from read_book.comm import IframeWrapper
 
 CLASS_NAME = 'book-content-popup-container'
 TOP_LEVEL_DISPLAY = 'flex'
@@ -38,15 +39,21 @@ class ContentPopupOverlay:
         self.view = view
         c = self.container
         c.classList.add(CLASS_NAME)
+        iframe = E.iframe(seamless=True, sandbox='allow-scripts')
 
         c.appendChild(E.div(
             E.div(),
-            E.iframe(seamless=True, sandbox='allow-scripts')
+            iframe
         ))
         c.addEventListener('click', self.hide)
         c.firstChild.addEventListener('click', def(ev):
             ev.stopPropagation(), ev.preventDefault()
         )
+        handlers = {
+            'ready': self.on_iframe_ready,
+        }
+        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'popup', _('Loading data, please wait...'))
+        self.pending_load = None
 
     @property
     def container(self):
@@ -54,7 +61,7 @@ class ContentPopupOverlay:
 
     @property
     def iframe(self):
-        return self.container.querySelector('iframe')
+        return self.iframe_wrapper.iframe
 
     @property
     def is_visible(self):
@@ -66,6 +73,9 @@ class ContentPopupOverlay:
     def show(self):
         c = self.container
         c.style.display = TOP_LEVEL_DISPLAY
+
+    def on_iframe_ready(self, msg):
+        return self.do_pending_load
 
     def apply_color_scheme(self, bg, fg):
         c = self.container.firstChild

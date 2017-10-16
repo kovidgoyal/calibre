@@ -325,6 +325,7 @@ class View:
         is_current_book = self.book and self.book.key == book.key
         if not is_current_book:
             self.iframe_wrapper.reset()
+            self.content_popup_overlay.iframe_wrapper.reset()
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
