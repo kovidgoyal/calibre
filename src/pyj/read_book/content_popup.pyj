@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
 from read_book.comm import IframeWrapper
+from read_book.resources import load_resources
 
 CLASS_NAME = 'book-content-popup-container'
 TOP_LEVEL_DISPLAY = 'flex'
@@ -22,7 +23,7 @@ add_extra_css(def():
     sel += ' > div'
     style += build_rule(sel, padding_bottom='1ex', margin_bottom='1ex', border_bottom='solid currentColor 2px', display='flex', justify_content='space-between', align_items='center')
 
-    sel += ' > div'  # button container
+    sel += ' > div' # button container
     style += build_rule(sel, display='flex', justify_content='space-between', align_items='center')
 
     sel += ' > a'  # buttons
@@ -37,9 +38,10 @@ class ContentPopupOverlay:
 
     def __init__(self, view):
         self.view = view
+        self.loaded_resources = {}
         c = self.container
         c.classList.add(CLASS_NAME)
-        iframe = E.iframe(seamless=True, sandbox='allow-scripts')
+        iframe = E.iframe(seamless=True, sandbox='allow-scripts', style='width: 100%; max-height: 70vh')
 
         c.appendChild(E.div(
             E.div(),
@@ -51,6 +53,8 @@ class ContentPopupOverlay:
         )
         handlers = {
             'ready': self.on_iframe_ready,
+            'error': self.view.on_iframe_error,
+            'content_loaded': self.on_content_loaded,
         }
         self.iframe_wrapper = IframeWrapper(handlers, iframe, 'popup', _('Loading data, please wait...'))
         self.pending_load = None
@@ -98,6 +102,12 @@ class ContentPopupOverlay:
         bc.lastChild.addEventListener('click', self.hide)
         header.appendChild(bc)
 
+    def load_doc(self, name, done_callback):
+        def cb(resource_data):
+            self.loaded_resources = resource_data
+            done_callback(resource_data)
+        load_resources(self.view.ui.db, self.view.book, name, self.loaded_resources, cb)
+
     def show_footnote(self, data):
         self.current_footnote_data = data
         width = 100 // data.cols_per_screen
@@ -105,3 +115,27 @@ class ContentPopupOverlay:
         c.style.width = f'{width}vw'
         header = c.firstChild
         self.create_footnote_header(header)
+        self.load_doc(data.name, self.show_footnote_item)
+        self.iframe.style.height = '12ex'
+        self.iframe_wrapper.send_message('clear', text=_('Loading note, please wait...'))
+
+    def show_footnote_item(self, resource_data):
+        self.pending_load = resource_data, self.show_footnote_item_stage2
+        if self.iframe_wrapper.ready:
+            self.do_pending_load()
+        else:
+            self.iframe_wrapper.init()
+
+    def do_pending_load(self):
+        if self.pending_load:
+            data, func = self.pending_load
+            self.pending_load = None
+            func(data)
+
+    def show_footnote_item_stage2(self, resource_data):
+        self.iframe_wrapper.send_unencrypted_message('display',
+            resource_data=resource_data, book=self.view.book, name=self.current_footnote_data.name,
+            frag=self.current_footnote_data.frag)
+
+    def on_content_loaded(self, data):
+        self.iframe.style.height = f'{data.height}px'

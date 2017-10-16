@@ -12,7 +12,7 @@ from read_book.flow_mode import (
     flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
-from read_book.footnotes import is_footnote_link
+from read_book.footnotes import is_footnote_link, PopupIframeBoss
 from read_book.globals import (
     current_book, current_layout_mode, current_spine_item, set_boss,
     set_current_spine_item, set_layout_mode
@@ -104,7 +104,7 @@ class IframeBoss:
         if error_object is None:
             # This happens for cross-domain errors (probably javascript injected
             # into the browser via extensions/ userscripts and the like). It also
-            # happens all the time when using Chrom on Safari, so ignore this
+            # happens all the time when using Chrome on Safari, so ignore this
             # type of error
             console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
             return
@@ -387,5 +387,5 @@ def init():
         script = document.getElementById('bootstrap')
         script.parentNode.removeChild(script)  # free up some memory
         IframeBoss()
-    # elif window.iframe_type is 'popup':
-    #     PopupIframeBoss()
+    elif window.iframe_type is 'popup':
+        PopupIframeBoss()

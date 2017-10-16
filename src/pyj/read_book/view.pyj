@@ -326,9 +326,10 @@ class View:
         if not is_current_book:
             self.iframe_wrapper.reset()
             self.content_popup_overlay.iframe_wrapper.reset()
+            self.loaded_resources = {}
+            self.content_popup_overlay.loaded_resources = {}
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
-        self.loaded_resources = {}
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
@@ -374,7 +375,13 @@ class View:
         if idx > -1:
             self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
         self.set_margins()
-        load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
+        self.load_doc(name, self.show_spine_item)
+
+    def load_doc(self, name, done_callback):
+        def cb(resource_data):
+            self.loaded_resources = resource_data
+            done_callback(resource_data)
+        load_resources(self.ui.db, self.book, name, self.loaded_resources, cb)
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
@@ -467,7 +474,6 @@ class View:
         update_visible_toc_nodes(data.visible_anchors)
 
     def show_spine_item(self, resource_data):
-        self.loaded_resources = resource_data
         self.pending_load = resource_data
         if self.iframe_wrapper.ready:
             self.do_pending_load()
