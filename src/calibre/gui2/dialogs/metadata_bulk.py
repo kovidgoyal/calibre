@@ -17,6 +17,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.constants import DEBUG
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
@@ -442,6 +443,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
+        self.s_r_template.setLineEdit(TemplateLineEditor(self.s_r_template))
         self.s_r_template.initialize('bulk_edit_template')
         self.test_text.initialize('bulk_edit_test_test')
         self.all_fields = ['']
