@@ -13,5 +13,5 @@ class Lomza(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_tags = [
         dict(name='div', attrs={'class': ['bxbanner', 'drukuj', 'wyslijznajomemu']})]
-    keep_only_tags = [dict(name='div', attrs={'class': 'wiadomosc'})]
+    keep_only_tags = [dict(name='div', attrs={'id': 'srodek'})]
     feeds = [(u'Łomża', u'http://feeds.feedburner.com/4lomza.pl')]
