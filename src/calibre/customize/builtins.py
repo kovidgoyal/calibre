@@ -1515,18 +1515,6 @@ class StoreBiblioStore(StoreBase):
     formats = ['EPUB, PDF']
 
 
-class StoreCdpStore(StoreBase):
-    name = 'Cdp.pl'
-    author = u'Tomasz Długosz'
-    description = u'E-booki w wielu formatach zabezpieczone znakiem wodnym RuneMark'
-    actual_plugin = 'calibre.gui2.store.stores.cdp_plugin:CdpStore'
-
-    drm_free_only = True
-    headquarters = 'PL'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
-
-
 class StoreChitankaStore(StoreBase):
     name = u'Моята библиотека'
     author = 'Alex Stanev'
@@ -1881,7 +1869,6 @@ plugins += [
     StoreBeamEBooksDEStore,
     StoreBiblioStore,
     StoreChitankaStore,
-    StoreCdpStore,
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
