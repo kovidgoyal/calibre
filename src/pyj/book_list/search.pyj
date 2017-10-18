@@ -153,9 +153,8 @@ def node_clicked(i):
         execute_search(expr)
 
 
-def add_to_search(node, search_type, anded):
-    if anded is undefined or anded is None:
-        anded = get_session_data().get('and_search_terms')
+def add_to_search(node, search_type):
+    anded = get_session_data().get('and_search_terms')
     state.active_nodes[node.id] = [search_type, anded]
     render_search_expression()
 
