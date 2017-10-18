@@ -48,16 +48,14 @@ def robots(ctx, rd):
     return b'User-agent: *\nDisallow: /'
 
 
-@endpoint('/auto-reload-port', auth_required=False, cache_control='no-cache')
-def auto_reload(ctx, rd):
+@endpoint('/ajax-setup', auth_required=False, cache_control='no-cache', postprocess=json)
+def ajax_setup(ctx, rd):
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
-    rd.outheaders.set('Content-Type', 'text/plain')
-    return str(max(0, auto_reload_port))
-
-
-@endpoint('/allow-console-print', cache_control='no-cache', auth_required=False)
-def allow_console_print(ctx, rd):
-    return 'y' if getattr(rd.opts, 'allow_console_print', False) else 'n'
+    return {
+        'auto_reload_port': max(0, auto_reload_port),
+        'allow_console_print': bool(getattr(rd.opts, 'allow_console_print', False)),
+        'ajax_timeout': rd.opts.ajax_timeout,
+    }
 
 
 print_lock = Lock()

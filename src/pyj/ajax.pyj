@@ -4,6 +4,15 @@ from __python__ import hash_literals
 
 from gettext import gettext as _
 
+
+default_timeout = 60
+
+
+def set_default_timeout(val):
+    nonlocal default_timeout
+    default_timeout = val
+
+
 def encode_query_component(x):
     ans = encodeURIComponent(x)
     # The following exceptions are to make epubcfi() look better
@@ -38,7 +47,7 @@ def absolute_path(path):
     return path
 
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200, progress_totals_needed=True):
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=None, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
     # 'load', 'timeout'. In case end_type is anything other than 'load' you can
@@ -47,6 +56,8 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     # where loaded is the number of bytes received, total is the total size.
     #
     # Returns the xhr object, call xhr.send() to start the request.
+    if timeout is None:
+        timeout = default_timeout
     query = query or {}
     xhr = XMLHttpRequest()
     eq = encode_query(query)
@@ -62,7 +73,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
         if is_network_error:
             xhr.error_html = str.format(_('Failed to communicate with "{}", network error, is the server running and accessible?'), xhr.request_path)
         elif event is 'timeout':
-            xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
+            xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout)
         elif event is 'abort':
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
@@ -99,7 +110,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr.addEventListener('load', def(ev): complete_callback('load', ev);)
     xhr.addEventListener('timeout', def(ev): complete_callback('timeout', ev);)
     xhr.open(method, path)
-    xhr.timeout = timeout  # IE requires timeout to be set after open
+    xhr.timeout = timeout * 1000 # IE requires timeout to be set after open
     return xhr
 
 def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=30*1000, ok_code=200):
