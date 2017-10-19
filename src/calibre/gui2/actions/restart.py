@@ -12,7 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 class RestartAction(InterfaceAction):
 
     name = 'Restart'
-    action_spec = (_('Restart'), None, _('Restart calibre'), 'Ctrl+R')
+    action_spec = (_('Restart'), 'restart.png', _('Restart calibre'), 'Ctrl+R')
 
     def genesis(self):
         self.qaction.triggered.connect(self.restart)
