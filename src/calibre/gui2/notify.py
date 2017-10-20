@@ -7,7 +7,9 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.constants import islinux, isosx, get_osx_version
+import time
+from calibre import prints
+from calibre.constants import islinux, isosx, get_osx_version, DEBUG
 
 
 class Notifier(object):
@@ -31,6 +33,9 @@ class DBUSNotifier(Notifier):
 
     def __init__(self, server, path, interface):
         self.ok, self.err = True, None
+        if DEBUG:
+            start = time.time()
+            prints('Looking for desktop notifier support from:', server)
         try:
             import dbus
             self.dbus = dbus
@@ -38,6 +43,8 @@ class DBUSNotifier(Notifier):
         except Exception as err:
             self.ok = False
             self.err = str(err)
+        if DEBUG:
+            prints(server, 'found' if self.ok else 'not found', 'in', '%.1f' % (time.time() - start), 'seconds')
 
 
 class KDENotifier(DBUSNotifier):
