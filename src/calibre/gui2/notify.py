@@ -31,15 +31,16 @@ class DBUSNotifier(Notifier):
 
     ICON = I('lt.png')
 
-    def __init__(self, server, path, interface):
+    def __init__(self, session_bus):
         self.ok, self.err = True, None
+        server, path, interface = self.SERVICE
         if DEBUG:
             start = time.time()
             prints('Looking for desktop notifier support from:', server)
         try:
             import dbus
             self.dbus = dbus
-            self._notify = dbus.Interface(dbus.SessionBus().get_object(server, path), interface)
+            self._notify = dbus.Interface(session_bus.get_object(server, path), interface)
         except Exception as err:
             self.ok = False
             self.err = str(err)
@@ -49,9 +50,7 @@ class DBUSNotifier(Notifier):
 
 class KDENotifier(DBUSNotifier):
 
-    def __init__(self):
-        DBUSNotifier.__init__(self, 'org.kde.VisualNotifications',
-                '/VisualNotifications', 'org.kde.VisualNotifications')
+    SERVICE = 'org.kde.VisualNotifications', '/VisualNotifications', 'org.kde.VisualNotifications'
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:
@@ -69,9 +68,7 @@ class KDENotifier(DBUSNotifier):
 
 class FDONotifier(DBUSNotifier):
 
-    def __init__(self):
-        DBUSNotifier.__init__(self, 'org.freedesktop.Notifications',
-                '/org/freedesktop/Notifications', 'org.freedesktop.Notifications')
+    SERVICE = 'org.freedesktop.Notifications', '/org/freedesktop/Notifications', 'org.freedesktop.Notifications'
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:
@@ -84,6 +81,17 @@ class FDONotifier(DBUSNotifier):
         except:
             import traceback
             traceback.print_exc()
+
+
+def get_dbus_notifier():
+    import dbus
+    session_bus = dbus.SessionBus()
+    names = frozenset(session_bus.list_names())
+    for srv in KDENotifier, FDONotifier:
+        if srv.SERVICE[0] in names:
+            ans = srv(session_bus)
+            if ans.ok:
+                return ans
 
 
 class QtNotifier(Notifier):
@@ -159,11 +167,7 @@ class AppleNotifier(Notifier):
 def get_notifier(systray=None):
     ans = None
     if islinux:
-        ans = KDENotifier()
-        if not ans.ok:
-            ans = FDONotifier()
-            if not ans.ok:
-                ans = None
+        ans = get_dbus_notifier()
     elif isosx:
         if get_osx_version() >= (10, 8, 0):
             ans = AppleNotifier()
