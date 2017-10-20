@@ -20,6 +20,34 @@
 #   new recipes:
 #     - title:
 
+- version: 3.10.0
+  date: 2017-10-20
+
+  new features:
+    - title: "Browser viewer: Show footnotes in a popup window. Similar to the popup footnote functionality in the calibre viewer."
+      type: major
+
+    - title: "Content server: Add an option to control the timeout for making AJAX queries to the server."
+      tickets: [1722016]
+
+  bug fixes:
+    - title: "Fix regression that broke Preferences->Conversion->Common options in version 3.9"
+
+    - title: "Server: Fix adding expressions to the search always using AND instead of respecting the setting to use OR or AND."
+      tickets: [1724405]
+
+    - title: "Browser viewer: Fix a regression that caused loading more than one book in the same session or using the back/forward browser buttons to require refreshing the browser."
+
+    - title: "Jobs list: Fix killing of job killing the wrong job if other jobs are completed while waiting for kill confirmation."
+
+    - title: "DOCX Output: Fix preserve cover aspect ratio option still distorting the aspect ratio slightly."
+      tickets: [1721864]
+
+  improved recipes:
+    - Lomza
+    - Go Comics
+    - Various Polish news sources
+
 - version: 3.9.0
   date: 2017-10-06
 
