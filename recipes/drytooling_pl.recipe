@@ -15,13 +15,4 @@ class BasicUserRecipe1337668045(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-    (u'Newsy', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=4&format=raw'),
-    (u'Artyku\u0142y', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=3&format=raw'),
-    (u'Imprezy i zawody', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=5&format=raw'),
-    (u'Baza G\xf3rska', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=6&format=raw'),
-    (u'Wyprawy', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=7&format=raw'),
-
-    (u'Newsy / alpinizm', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=12&format=raw'),
-    (u'Newsy / klasyka zimowa', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=11&format=raw'),
-    (u'Newsy / himalaizm', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=10&format=raw'),
-    (u'Outdoor', u'http://drytooling.com.pl/index.php?option=com_ninjarsssyndicator&feed_id=8&format=raw')]
+    (u'Newsy', u'http://drytooling.com.pl/rss?format=feed&type=rss')]

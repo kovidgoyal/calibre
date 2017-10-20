@@ -8,10 +8,12 @@ class Android_com_pl(BasicNewsRecipe):
     description = u'Android.com.pl - to największe w Polsce centrum Android OS. Znajdziesz tu: nowości, forum, pomoc, recenzje, gry, aplikacje.'
     category = 'Android, mobile'
     language = 'pl'
-    use_embedded_content = True
     cover_url = 'http://android.com.pl/wp-content/themes/android/images/logo.png'
     oldest_article = 8
     max_articles_per_feed = 100
+    keep_only_tags = [dict(name='div', attrs={'class': ['title', 'post-content']})]
+    remove_tags_after = [{'class': 'post-content'}]
+    remove_tags = [dict(name='ul', attrs={'class': 'tags small-tags'}), dict(name='a', attrs={'onclick': 'return ss_plugin_loadpopup_js(this);'})]
     preprocess_regexps = [
         (re.compile(ur'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
     feeds = [(u'Android', u'http://android.com.pl/feed/')]
