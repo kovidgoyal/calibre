@@ -17,6 +17,7 @@ class PluginWidget(QWidget):
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
     formats = set(['csv', 'xml'])
+    handles_scrolling = True
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)

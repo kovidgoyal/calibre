@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys, importlib
 
-from PyQt5.Qt import QDialog, QCoreApplication, QSize
+from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -143,7 +143,12 @@ class Catalog(QDialog, Ui_Dialog):
             self.tabs.removeTab(1)
         for pw in self.widgets:
             if cf in pw.formats:
-                self.tabs.addTab(pw, pw.TITLE)
+                if getattr(pw, 'handles_scrolling', False):
+                    self.tabs.addTab(pw, pw.TITLE)
+                else:
+                    self.sw__mem = s = QScrollArea(self)
+                    s.setWidget(pw), s.setWidgetResizable(True)
+                    self.tabs.addTab(s, pw.TITLE)
                 break
         if hasattr(self.tabs.widget(1),'show_help'):
             self.buttonBox.button(self.buttonBox.Help).setVisible(True)
