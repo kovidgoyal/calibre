@@ -14,14 +14,14 @@
    <string>Category editor</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
   <layout class="QGridLayout">
    <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_11">
      <item>
-      <widget class="QLabel">
+      <widget class="QLabel" name="label">
        <property name="text">
         <string>&amp;Search for:</string>
        </property>
@@ -32,24 +32,28 @@
      </item>
      <item>
       <widget class="HistoryLineEdit" name="search_box">
-       <property name="toolTip">
-        <string>Search for an item in the Tag column</string>
-       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>100</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Search for an item in the Tag column</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="search_button">
+       <property name="toolTip">
+        <string>Copy the selected color name to the clipboard</string>
+       </property>
        <property name="text">
         <string>&amp;Find</string>
        </property>
-       <property name="toolTip">
-        <string>Copy the selected color name to the clipboard</string>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
        </property>
       </widget>
      </item>
@@ -66,7 +70,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
        </property>
        <property name="iconSize">
@@ -86,7 +90,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
        </property>
        <property name="iconSize">
@@ -137,7 +141,9 @@
    <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
