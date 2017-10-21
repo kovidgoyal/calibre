@@ -26,6 +26,9 @@
      <property name="placeholderText">
       <string>Search by title</string>
      </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -45,6 +48,9 @@
     <widget class="HistoryLineEdit2" name="search_author">
      <property name="placeholderText">
       <string>Search by author</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -78,6 +84,9 @@
      </property>
      <property name="placeholderText">
       <string>Search by any keyword</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -116,8 +125,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>208</width>
-            <height>161</height>
+            <width>243</width>
+            <height>147</height>
            </rect>
           </property>
          </widget>
@@ -309,6 +318,10 @@
       <widget class="QPushButton" name="search">
        <property name="text">
         <string>&amp;Search</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../../resources/images.qrc">
+         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
        </property>
       </widget>
      </item>
