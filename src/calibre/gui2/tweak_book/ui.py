@@ -418,8 +418,9 @@ class Main(MainWindow):
             'embed-fonts.png', _('&Embed referenced fonts'), partial(
                 self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
         self.action_smarten_punctuation = treg(
-            'smarten-punctuation.png', _('&Smarten punctuation'), partial(
-                self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+            'smarten-punctuation.png', _('&Smarten punctuation (works best for English)'), partial(
+                self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')),
+            'smarten-punctuation', (), _('Smarten punctuation'))
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
