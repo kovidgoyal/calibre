@@ -185,16 +185,5 @@ def get_notifier(systray=None):
 
 
 if __name__ == '__main__':
-    n = KDENotifier()
+    n = get_notifier()
     n('hello')
-    n = FDONotifier()
-    n('hello')
-    '''
-    from PyQt5.Qt import QApplication, QSystemTrayIcon, QIcon
-    app = QApplication([])
-    ic = QIcon(I('lt.png'))
-    tray = QSystemTrayIcon(ic)
-    tray.setVisible(True)
-    n = QtNotifier(tray)
-    n('hello')
-    '''
