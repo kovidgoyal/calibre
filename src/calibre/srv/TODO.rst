@@ -11,6 +11,8 @@ New features for the in-browser viewer
 - When reaching the end of the book, show a popup that allows the user
   to rate the book and optionally delete it from the local storage.
 
+- Allow loading fonts from the computer running calibre and using them
+  for reading.
 
 New features for the server generally
 ---------------------------------------
