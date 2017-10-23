@@ -3285,7 +3285,7 @@
   date: 2015-01-30
 
   new features:
-    - title: "Edit book: Add 'Style Classes' and 'Links' report pages to the Reports tool"
+    - title: "Edit book: Add 'Style classes' and 'Links' report pages to the Reports tool"
 
     - title: "Tag browser: Allow expanding all children of a node by right clicking and choosing 'Expand all'"
       tickets: [1414315]

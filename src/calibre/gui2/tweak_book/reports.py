@@ -1298,11 +1298,11 @@ class ReportsWidget(QWidget):
 
         self.css = c = CSSWidget(self)
         s.addWidget(c)
-        QListWidgetItem(_('Style Rules'), r)
+        QListWidgetItem(_('Style rules'), r)
 
         self.css = c = ClassesWidget(self)
         s.addWidget(c)
-        QListWidgetItem(_('Style Classes'), r)
+        QListWidgetItem(_('Style classes'), r)
 
         self.chars = c = CharsWidget(self)
         s.addWidget(c)

@@ -78,7 +78,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Enable</string>
+        <string>Enable:</string>
        </property>
       </widget>
      </item>
