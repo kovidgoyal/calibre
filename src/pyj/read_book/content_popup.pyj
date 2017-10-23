@@ -135,7 +135,7 @@ class ContentPopupOverlay:
     def show_footnote_item_stage2(self, resource_data):
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.view.book, name=self.current_footnote_data.name,
-            frag=self.current_footnote_data.frag)
+            frag=self.current_footnote_data.frag, settings=self.view.iframe_settings())
 
     def on_content_loaded(self, data):
         self.iframe.style.height = f'{data.height}px'

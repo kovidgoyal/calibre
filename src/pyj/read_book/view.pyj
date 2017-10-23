@@ -353,12 +353,9 @@ class View:
     def redisplay_book(self):
         self.display_book(self.book)
 
-    def show_name(self, name, initial_position=None):
-        if self.currently_showing.loading:
-            return
-        self.processing_spine_item_display = False
+    def iframe_settings(self, name):
         sd = get_session_data()
-        settings={
+        return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
             'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
             'read_mode': sd.get('read_mode'),
@@ -366,8 +363,13 @@ class View:
             'color_scheme': self.get_color_scheme(True),
             'base_font_size': sd.get('base_font_size'),
         }
+
+    def show_name(self, name, initial_position=None):
+        if self.currently_showing.loading:
+            return
+        self.processing_spine_item_display = False
         initial_position = initial_position or {'replace_history':False}
-        self.currently_showing = {'name':name, 'settings':settings, 'initial_position':initial_position, 'loading':True}
+        self.currently_showing = {'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position, 'loading':True}
         self.show_loading()
         spine = self.book.manifest.spine
         idx = spine.indexOf(name)

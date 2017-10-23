@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 from dom import clear
 from read_book.comm import IframeClient
 from read_book.resources import finalize_resources, unserialize_html
+from read_book.settings import apply_settings, opts
 
 
 block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
@@ -200,6 +201,7 @@ class PopupIframeBoss:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote)
+        apply_settings(data.settings)
 
     def on_clear(self, data):
         clear(document.head)
@@ -216,4 +218,14 @@ class PopupIframeBoss:
         show_footnote(self.frag, known_anchors)
 
     def content_loaded(self):
+        self.apply_colors()
+        self.apply_font_size()
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
+
+    def apply_font_size(self):
+        document.documentElement.style.fontSize = document.body.style.fontSize = '{}px'.format(opts.base_font_size)
+
+    def apply_colors(self):
+        for elem in (document.documentElement, document.body):
+            elem.style.color = opts.color_scheme.foreground
+            elem.style.backgroundColor = opts.color_scheme.background
