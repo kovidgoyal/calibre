@@ -2,14 +2,42 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from elementmaker import E
+
 opts = {}
 
-def apply_settings(settings):
+def update_settings(settings):
     settings = settings or {}
     opts.columns_per_screen = settings.columns_per_screen or {'portrait':0, 'landscape':0}
     opts.margin_left = max(0, settings.margin_left or 0)
     opts.margin_right = max(0, settings.margin_right or 0)
     opts.color_scheme = settings.color_scheme
     opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
+    opts.user_stylesheet = settings.user_stylesheet or ''
 
-apply_settings()
+update_settings()
+
+
+def apply_font_size():
+    document.documentElement.style.fontSize = document.body.style.fontSize = '{}px'.format(opts.base_font_size)
+
+
+def apply_colors():
+    for elem in (document.documentElement, document.body):
+        elem.style.color = opts.color_scheme.foreground
+        elem.style.backgroundColor = opts.color_scheme.background
+
+
+def apply_stylesheet():
+    sid = 'calibre-browser-viewer-user-stylesheet'
+    style = document.getElementById(sid)
+    if not style:
+        style = E.style(type='text/css', id=sid)
+        document.body.appendChild(style)
+    style.textContent = opts.user_stylesheet or ''
+
+
+def apply_settings():
+    apply_font_size()
+    apply_colors()
+    apply_stylesheet()

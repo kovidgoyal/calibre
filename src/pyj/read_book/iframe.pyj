@@ -12,7 +12,7 @@ from read_book.flow_mode import (
     flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
-from read_book.footnotes import is_footnote_link, PopupIframeBoss
+from read_book.footnotes import PopupIframeBoss, is_footnote_link
 from read_book.globals import (
     current_book, current_layout_mode, current_spine_item, set_boss,
     set_current_spine_item, set_layout_mode
@@ -27,7 +27,10 @@ from read_book.paged_mode import (
     snap_to_selection
 )
 from read_book.resources import finalize_resources, unserialize_html
-from read_book.settings import apply_settings, opts
+from read_book.settings import (
+    apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
+    update_settings
+)
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.viewport import scroll_viewport
@@ -147,7 +150,7 @@ class IframeBoss:
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
-        apply_settings(data.settings)
+        update_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
         for name in self.blob_url_map:
@@ -180,23 +183,19 @@ class IframeBoss:
         else:
             paged_scroll_by_page(backwards, True)
 
-    def apply_font_size(self):
-        document.documentElement.style.fontSize = document.body.style.fontSize = '{}px'.format(opts.base_font_size)
-
-    def apply_colors(self):
-        for elem in (document.documentElement, document.body):
-            elem.style.color = opts.color_scheme.foreground
-            elem.style.backgroundColor = opts.color_scheme.background
-
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
-            self.apply_font_size()
+            apply_font_size()
+
+    def change_stylesheet(self, data):
+        opts.user_stylesheet = data.sheet or ''
+        apply_stylesheet()
 
     def change_color_scheme(self, data):
         if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
             opts.color_scheme = data.color_scheme
-            self.apply_colors()
+            apply_colors()
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
@@ -204,8 +203,7 @@ class IframeBoss:
         #     E.style()  # TODO: User style sheet
         # )
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
-        self.apply_colors()
-        self.apply_font_size()
+        apply_settings()
         self.do_layout()
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
