@@ -8,6 +8,7 @@ from elementmaker import E
 from book_list.item_list import build_list, create_item
 from read_book.prefs.colors import create_colors_panel, commit_colors
 from read_book.prefs.layout import create_layout_panel, commit_layout
+from read_book.prefs.user_stylesheet import create_user_stylesheet_panel, commit_user_stylesheet
 
 
 class Prefs:
@@ -58,8 +59,9 @@ class Prefs:
         c = E.div()
         container.appendChild(c)
         build_list(c, [
-            create_item(_('Colors'), def():self.show_panel('colors');, _('Change the colors of the page and text')),
-            create_item(_('Page layout'), def():self.show_panel('layout');, _('Change the page margins and number of pages per screen')),
+            create_item(_('Colors'), def():self.show_panel('colors');, _('Colors of the page and text')),
+            create_item(_('Page layout'), def():self.show_panel('layout');, _('Page margins and number of pages per screen')),
+            create_item(_('User style sheet'), def():self.show_panel('user_stylesheet');, _('Style rules for text')),
         ])
 
     def display_colors(self, container):
@@ -75,6 +77,14 @@ class Prefs:
 
     def close_layout(self):
         commit_layout(self.onchange, self.container)
+
+    def display_user_stylesheet(self, container):
+        document.getElementById(self.title_id).textContent = _('User style sheet')
+        create_user_stylesheet_panel(container)
+
+    def close_user_stylesheet(self):
+        commit_user_stylesheet(self.onchange, self.container)
+
 
 def create_prefs_panel(container, close_func, on_change):
     Prefs(container, close_func, on_change)

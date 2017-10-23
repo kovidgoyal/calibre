@@ -1,0 +1,45 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from gettext import gettext as _
+from dom import add_extra_css, build_rule, unique_id
+from book_list.globals import get_session_data
+from elementmaker import E
+
+CONTAINER = unique_id('reader-us-prefs')
+
+add_extra_css(def():
+    sel = '#' + CONTAINER
+    style = ''
+    style += build_rule(sel, display="flex", flex_direction="column")
+    style += build_rule(sel + ' textarea', margin_left='1em', margin_right='1em', min_height='75vh')
+    style += build_rule(sel + ' .simple-link', color='blue')
+    return style
+)
+
+def create_user_stylesheet_panel(container):
+    container.appendChild(E.div(id=CONTAINER))
+    container = container.lastChild
+    sd = get_session_data()
+    container.appendChild(E.div(style='margin:1ex 1rem; padding: 1ex 0'))
+    container.firstChild.innerHTML = _(
+        'A CSS style sheet that can be used to control the look and feel of books. For examples, click'
+        ' <a class="{cls}" href="{url}" target="{target}" title="Examples of user style sheets">here</a>.'
+    ).format(url='https://www.mobileread.com/forums/showthread.php?t=51500', target="_blank", cls="simple-link")
+    container.appendChild(E.textarea(style="flex-grow: 10"))
+    val = sd.get('user_stylesheet')
+    if val:
+        container.lastChild.value = val
+
+develop = create_user_stylesheet_panel
+
+
+def commit_user_stylesheet(onchange, container):
+    sd = get_session_data()
+    ta = document.getElementById(CONTAINER).querySelector('textarea')
+    val = ta.value or ''
+    old = sd.get('user_stylesheet')
+    if old is not val:
+        sd.set('user_stylesheet', val)
+        onchange()
