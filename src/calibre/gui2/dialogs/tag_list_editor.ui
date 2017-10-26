@@ -46,7 +46,7 @@
      <item>
       <widget class="QPushButton" name="search_button">
        <property name="toolTip">
-        <string>Copy the selected color name to the clipboard</string>
+        <string>Find the first/next matching item</string>
        </property>
        <property name="text">
         <string>&amp;Find</string>
