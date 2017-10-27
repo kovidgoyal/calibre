@@ -1937,6 +1937,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             try:
                 self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                set_socket_inherit(self.broadcast_socket, False)
             except:
                 message = 'creation of broadcast socket failed. This is not fatal.'
                 self._debug(message)
