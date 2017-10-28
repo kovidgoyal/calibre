@@ -328,7 +328,7 @@ class KINDLE2(KINDLE):
     # the .sdr sidecar folder
 
     PRODUCT_ID = [0x0002, 0x0004]
-    BCD        = [0x0100, 0x0310]
+    BCD        = [0x0100, 0x0310, 0x401]
     # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
     # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
