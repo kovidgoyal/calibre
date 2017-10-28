@@ -42,6 +42,8 @@ wherever possible in this module.
 #define UNICODE
 #include <Windows.h>
 #include <Wininet.h>
+#include <LMcons.h>
+#include <locale.h>
 #include <Python.h>
 #include <structseq.h>
 #include <timefuncs.h>
@@ -229,6 +231,62 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
 }
  
 static PyObject *
+winutil_getenv(PyObject *self, PyObject *args) {
+    const wchar_t *q;
+    if (!PyArg_ParseTuple(args, "u", &q)) return NULL;
+    wchar_t *ans = _wgetenv(q);
+    if (ans == NULL) Py_RETURN_NONE;
+    return PyUnicode_FromWideChar(ans, wcslen(ans));
+}
+
+static PyObject *
+winutil_username(PyObject *self) {
+    wchar_t buf[UNLEN + 1] = {0};
+    DWORD sz = sizeof(buf)/sizeof(buf[0]);
+    if (!GetUserName(buf, &sz)) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+static PyObject *
+winutil_temp_path(PyObject *self) {
+    wchar_t buf[MAX_PATH + 1] = {0};
+    DWORD sz = sizeof(buf)/sizeof(buf[0]);
+    if (!GetTempPath(sz, buf)) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+
+static PyObject *
+winutil_locale_name(PyObject *self) {
+    wchar_t buf[LOCALE_NAME_MAX_LENGTH + 1] = {0};
+    if (!GetUserDefaultLocaleName(buf, sizeof(buf)/sizeof(buf[0]))) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+
+static PyObject *
+winutil_localeconv(PyObject *self) {
+    struct lconv *d = localeconv();
+#define W(name) #name, d->_W_##name
+    return Py_BuildValue(
+        "{su su su su su su su su}", 
+        W(decimal_point), W(thousands_sep), W(int_curr_symbol), W(currency_symbol), 
+        W(mon_decimal_point), W(mon_thousands_sep), W(positive_sign), W(negative_sign)
+    );
+#undef W
+}
+
+
+static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
 {
 	PyObject *tup = NULL;
@@ -379,6 +437,26 @@ be a unicode string. Returns unicode strings."
 
     {"setmaxstdio", winutil_set_max_stdio, METH_VARARGS,
         "setmaxstdio(num)\n\nSet the maximum number of open file handles."
+    },
+
+    {"getenv", (PyCFunction)winutil_getenv, METH_VARARGS,
+        "getenv(name)\n\nGet the value of the specified env var as a unicode string."
+    },
+
+    {"username", (PyCFunction)winutil_username, METH_NOARGS,
+        "username()\n\nGet the current username as a unicode string."
+    },
+
+    {"temp_path", (PyCFunction)winutil_temp_path, METH_NOARGS,
+        "temp_path()\n\nGet the current temporary dir as a unicode string."
+    },
+
+    {"locale_name", (PyCFunction)winutil_locale_name, METH_NOARGS,
+        "locale_name()\n\nGet the current locale name as a unicode string."
+    },
+
+    {"localeconv", (PyCFunction)winutil_localeconv, METH_NOARGS,
+        "localeconv()\n\nGet the locale conventions as unicode strings."
     },
 
     {NULL, NULL, 0, NULL}

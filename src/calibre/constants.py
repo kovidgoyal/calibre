@@ -281,6 +281,10 @@ def get_portable_base():
 
 
 def get_unicode_windows_env_var(name):
+    winutil = plugins['winutil'][0]
+    getenv = getattr(winutil, 'getenv', None)
+    if getenv is not None:
+        return getenv(unicode(name))
     import ctypes
     name = unicode(name)
     n = ctypes.windll.kernel32.GetEnvironmentVariableW(name, None, 0)
@@ -293,19 +297,26 @@ def get_unicode_windows_env_var(name):
 
 def get_windows_username():
     '''
-    Return the user name of the currently loggen in user as a unicode string.
+    Return the user name of the currently logged in user as a unicode string.
     Note that usernames on windows are case insensitive, the case of the value
     returned depends on what the user typed into the login box at login time.
     '''
+    winutil = plugins['winutil'][0]
+    username = getattr(winutil, 'username', None)
+    if username is not None:
+        return username()
     import ctypes
+    from ctypes import wintypes
     try:
         advapi32 = ctypes.windll.advapi32
         GetUserName = getattr(advapi32, u'GetUserNameW')
+        GetUserName.argtypes = [wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+        GetUserName.restype = wintypes.BOOL
     except AttributeError:
         pass
     else:
         buf = ctypes.create_unicode_buffer(257)
-        n = ctypes.c_int(257)
+        n = wintypes.DWORD(257)
         if GetUserName(buf, ctypes.byref(n)):
             return buf.value
 
@@ -313,6 +324,10 @@ def get_windows_username():
 
 
 def get_windows_temp_path():
+    winutil = plugins['winutil'][0]
+    temp_path = getattr(winutil, 'temp_path', None)
+    if temp_path is not None:
+        return temp_path()
     import ctypes
     n = ctypes.windll.kernel32.GetTempPathW(0, None)
     if n == 0:
@@ -324,6 +339,10 @@ def get_windows_temp_path():
 
 
 def get_windows_user_locale_name():
+    winutil = plugins['winutil'][0]
+    locale_name = getattr(winutil, 'locale_name', None)
+    if locale_name is not None:
+        return locale_name()
     import ctypes
     k32 = ctypes.windll.kernel32
     n = 255
@@ -334,32 +353,17 @@ def get_windows_user_locale_name():
     return u'_'.join(buf.value.split(u'-')[:2])
 
 
-number_formats = None
-
-
 def get_windows_number_formats():
-    # This can be changed to use localeconv() once we switch to Visual Studio
-    # 2015 as localeconv() in that version has unicode variants for all strings.
-    global number_formats
-    if number_formats is None:
-        import ctypes
-        from ctypes.wintypes import DWORD
-        k32 = ctypes.windll.kernel32
-        n = 25
-        buf = ctypes.create_unicode_buffer(u'\0'*n)
-        k32.GetNumberFormatEx.argtypes = [ctypes.c_wchar_p, DWORD, ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
-        k32.GetNumberFormatEx.restype = ctypes.c_int
-        if k32.GetNumberFormatEx(None, 0, u'123456.7', None, buf, n) == 0:
-            raise ctypes.WinError()
-        src = buf.value
-        thousands_sep, decimal_point = u',.'
-        idx = src.find(u'6')
-        if idx > -1 and src[idx+1] != u'7':
-            decimal_point = src[idx+1]
-            src = src[:idx]
-        for c in src:
-            if c not in u'123456':
-                thousands_sep = c
-                break
-        number_formats = (thousands_sep, decimal_point)
-    return number_formats
+    ans = getattr(get_windows_number_formats, 'ans', None)
+    if ans is None:
+        winutil = plugins['winutil'][0]
+        localeconv = getattr(winutil, 'localeconv', None)
+        if localeconv is not None:
+            d = localeconv()
+            thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
+        else:
+            from locale import localeconv
+            d = localeconv()
+            thousands_sep, decimal_point = d['thousands_sep'].decode('mbcs'), d['decimal_point'].decode('mbcs')
+        ans = get_windows_number_formats.ans = thousands_sep, decimal_point
+    return ans

@@ -121,8 +121,20 @@ class BuildTest(unittest.TestCase):
     def test_winutil(self):
         from calibre.constants import plugins
         winutil = plugins['winutil'][0]
+
+        def au(x, name):
+            self.assertTrue(isinstance(x, unicode), name + '() did not return a unicode string')
         for x in winutil.argv():
-            self.assertTrue(isinstance(x, unicode), 'argv() not returning unicode string')
+            au(x, 'argv')
+        for x in 'username temp_path locale_name'.split():
+            au(getattr(winutil, x)(), x)
+        d = winutil.localeconv()
+        au(d['thousands_sep'], 'localeconv')
+        au(d['decimal_point'], 'localeconv')
+        for k, v in d.iteritems():
+            au(v, k)
+        for k in os.environ.keys():
+            au(winutil.getenv(unicode(k)), 'getenv-' + k)
 
     def test_sqlite(self):
         import sqlite3

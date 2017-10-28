@@ -163,7 +163,7 @@
         "name": "winutil",
         "only": "windows",
         "sources": "calibre/utils/windows/winutil.c",
-        "libraries": "shell32 wininet",
+        "libraries": "shell32 wininet advapi32",
         "cflags": "/X"
     },
     {
