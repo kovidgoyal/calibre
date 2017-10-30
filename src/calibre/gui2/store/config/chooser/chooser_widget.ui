@@ -31,12 +31,19 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="search">
        <property name="text">
         <string>Search</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../../../resources/images.qrc">
+         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
        </property>
       </widget>
      </item>
@@ -132,6 +139,8 @@
    <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

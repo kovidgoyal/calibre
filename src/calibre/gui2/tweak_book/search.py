@@ -94,6 +94,7 @@ class HistoryBox(HistoryComboBox):
         self.disable_popup = tprefs['disable_completion_popup_for_search']
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
+        self.lineEdit().setClearButtonEnabled(True)
 
     def event(self, ev):
         if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
@@ -242,7 +243,8 @@ class SearchWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
-        l.setContentsMargins(0, 0, 0, 0)
+        left, top, right, bottom = l.getContentsMargins()
+        l.setContentsMargins(0, 0, right, 0)
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)

@@ -125,7 +125,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>243</width>
+            <width>205</width>
             <height>147</height>
            </rect>
           </property>
@@ -211,18 +211,18 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QToolButton" name="configure">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="open_external">
            <property name="toolTip">
-            <string>Open a selected book in the system's web browser</string>
+            <string>Configure Get books behavior</string>
            </property>
            <property name="text">
-            <string>Open in &amp;external browser</string>
+            <string>&amp;Configure</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../../resources/images.qrc">
+             <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
            </property>
           </widget>
          </item>
@@ -239,49 +239,21 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QCheckBox" name="open_external">
+           <property name="toolTip">
+            <string>Open a selected book in the system's web browser</string>
+           </property>
+           <property name="text">
+            <string>Open in &amp;external browser</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
      </widget>
     </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
-    <layout class="QHBoxLayout" name="bottom_layout">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Books:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="total">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="close">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="0" column="1">
     <widget class="QLabel" name="label_4">
@@ -322,6 +294,48 @@
        <property name="icon">
         <iconset resource="../../../../../resources/images.qrc">
          <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <layout class="QHBoxLayout" name="bottom_layout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Books:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="total">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="close">
+       <property name="text">
+        <string>&amp;Close</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../../resources/images.qrc">
+         <normaloff>:/images/window-close.png</normaloff>:/images/window-close.png</iconset>
        </property>
       </widget>
      </item>

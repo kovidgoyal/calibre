@@ -282,6 +282,7 @@ class FilesWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = FilesModel(self)
         self.files = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -471,6 +472,7 @@ class ImagesWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = ImagesModel(self)
         self.files = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -591,6 +593,7 @@ class LinksWidget(QWidget):
         self.splitter = s = QSplitter(Qt.Vertical, self)
         l.addWidget(s)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = LinksModel(self)
         self.links = f = FilesView(m, self)
         f.DELETE_POSSIBLE = False
@@ -730,6 +733,7 @@ class WordsWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = WordsModel(self)
         self.words = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -818,6 +822,7 @@ class CharsWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = CharsModel(self)
         self.chars = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -1023,6 +1028,7 @@ class CSSWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = self.MODEL(self)
         self.proxy = p = self.PROXY(self)
         p.setSourceModel(m)
