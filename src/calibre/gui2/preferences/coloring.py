@@ -79,6 +79,8 @@ class ConditionEditor(QWidget):  # {{{
             'single'   : (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
+                (_('contains'), 'contains'),
+                (_('does not contain'), 'does not contain'),
                 (_('matches pattern'), 'matches pattern'),
                 (_('does not match pattern'), 'does not match pattern'),
                 (_('is set'), 'is set'),

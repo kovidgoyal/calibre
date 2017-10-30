@@ -199,6 +199,10 @@ class Rule(object):  # {{{
             return "contains(field('%s'), \"%s\", '1', '')"%(col, val)
         if action == 'does not match pattern':
             return "contains(field('%s'), \"%s\", '', '1')"%(col, val)
+        if action == 'contains':
+            return "contains(field('%s'), \"%s\", '1', '')"%(col, re.escape(val))
+        if action == 'does not contain':
+            return "contains(field('%s'), \"%s\", '', '1')"%(col, re.escape(val))
 
 # }}}
 
