@@ -939,6 +939,7 @@ class Application(QApplication):
             'MessageBoxCritical': u'dialog_error.png',
             'MessageBoxQuestion': u'dialog_question.png',
             'BrowserReload': u'view-refresh.png',
+            'LineEditClearButton': u'clear_left.png',
         }.iteritems():
             if v not in pcache:
                 p = I(v)
