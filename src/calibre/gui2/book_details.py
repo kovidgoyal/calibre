@@ -2,7 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import cPickle, re
+import cPickle
+import re
 from binascii import unhexlify
 from collections import namedtuple
 from functools import partial
@@ -23,8 +24,8 @@ from calibre.ebooks.metadata.search_internet import (
     url_for_book_search
 )
 from calibre.gui2 import (
-    NO_URL_FORMATTING, config, default_author_link, gprefs, open_url, pixmap_to_data,
-    rating_font
+    NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
+    open_url, pixmap_to_data, rating_font
 )
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
@@ -393,6 +394,7 @@ class CoverView(QWidget):  # {{{
         cm = QMenu(self)
         paste = cm.addAction(_('Paste cover'))
         copy = cm.addAction(_('Copy cover'))
+        save = cm.addAction(_('Save cover to disk'))
         remove = cm.addAction(_('Remove cover'))
         gc = cm.addAction(_('Generate cover from metadata'))
         cm.addSeparator()
@@ -402,6 +404,7 @@ class CoverView(QWidget):  # {{{
         paste.triggered.connect(self.paste_from_clipboard)
         remove.triggered.connect(self.remove_cover)
         gc.triggered.connect(self.generate_cover)
+        save.triggered.connect(self.save_cover)
 
         m = QMenu(_('Open cover with...'))
         populate_menu(m, self.open_with, 'cover_image')
@@ -439,6 +442,18 @@ class CoverView(QWidget):  # {{{
                 pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
             self.update_cover(pmap)
+
+    def save_cover(self):
+        from calibre.gui2.ui import get_gui
+        book_id = self.data.get('id')
+        db = get_gui().current_db.new_api
+        path = choose_save_file(
+            self, 'save-cover-from-book-details', _('Choose cover save location'),
+            filters=[(_('JPEG images'), ['jpg', 'jpeg'])], all_files=False,
+            initial_filename='{}.jpeg'.format(db.field_for('title', book_id, default_value='cover'))
+        )
+        if path:
+            db.copy_cover_to(book_id, path)
 
     def update_cover(self, pmap=None, cdata=None):
         if pmap is None:
