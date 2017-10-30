@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 __license__ = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2017, Darko Miletic <darko.miletic at gmail.com>'
 '''
 sciencedaily.com
 '''
@@ -26,14 +26,15 @@ class ScienceDaily(BasicNewsRecipe):
     max_articles_per_feed = 50
     auto_cleanup          = True
     language              = 'en'
+    encoding              = 'utf-8'
 
     # Feed are found here: https://www.sciencedaily.com/newsfeeds.htm
     feeds = [
-        ('Latest Science News', 'https://rss.sciencedaily.com/top.xml'),
-        ('All Top News', 'https://rss.sciencedaily.com/top/science.xml'),
-        ('Health News', 'https://rss.sciencedaily.com/top/health.xml'),
-        ('Technology News', 'https://rss.sciencedaily.com/top/technology.xml'),
-        ('Environment News', 'https://rss.sciencedaily.com/top/environment.xml'),
-        ('Society News', 'https://rss.sciencedaily.com/top/society.xml'),
-        ('Strange &amp; Offbeat News', 'https://rss.sciencedaily.com/strange_offbeat.xml'),
+        ('Latest Science News', 'https://www.sciencedaily.com/rss/top.xml'),
+        ('All Top News', 'https://www.sciencedaily.com/rss/top/science.xml'),
+        ('Health News', 'https://www.sciencedaily.com/rss/top/health.xml'),
+        ('Technology News', 'https://www.sciencedaily.com/rss/top/technology.xml'),
+        ('Environment News', 'https://www.sciencedaily.com/rss/top/environment.xml'),
+        ('Society News', 'https://www.sciencedaily.com/rss/top/society.xml'),
+        ('Strange &amp; Offbeat News', 'https://www.sciencedaily.com/rss/strange_offbeat.xml'),
     ]
