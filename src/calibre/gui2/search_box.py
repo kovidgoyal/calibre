@@ -109,8 +109,7 @@ class SearchBox2(QComboBox):  # {{{
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
-            self.clear_action = self.add_action('clear_left.png')
-            self.clear_action.triggered.connect(self.clear_clicked)
+            self.lineEdit().setClearButtonEnabled(True)
 
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
@@ -537,7 +536,9 @@ class SavedSearchBoxMixin(object):  # {{{
 
     def init_saved_seach_box_mixin(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
-        self.search.clear_action.triggered.connect(self.saved_search.clear)
+        ac = self.findChild(QAction, '_q_qlineeditclearaction')
+        if ac is not None:
+            ac.triggered.connect(self.saved_search.clear)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
         self.copy_search_button.clicked.connect(
