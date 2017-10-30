@@ -1,5 +1,8 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2017, Darko Miletic <darko.miletic at gmail.com>'
 '''
 tulsaworld.com
 '''
@@ -19,27 +22,18 @@ class TulsaWorld(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     country = 'US'
+    auto_cleanup=True
     remove_empty_feeds = True
-    masthead_url = 'http://www.tulsaworld.com/images/TW_logo-blue-footer.jpg'
+    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'
     extra_css = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '  # noqa
 
     conversion_options = {
-        'comment': description, 'publisher': publisher, 'language': language, 'linearize_tables': True
+        'comment': description, 'publisher': publisher, 'language': language
     }
-    keep_only_tags = [dict(name='div', attrs={'id': [
-                           'ctl00_body1_ArticleControl_divArticleText', 'ctl00_BodyContent_ArticleControl_divArticleText']})]
 
     feeds = [
-
-    (u'News', u'http://www.tulsaworld.com/site/rss.aspx?group=1'),
-    (u'Business', u'http://www.tulsaworld.com/site/rss.aspx?group=5'),
-    (u'Opinion', u'http://www.tulsaworld.com/site/rss.aspx?group=7')
+    (u'News', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=news&l=150&s=start_time&sd=desc'),
+    (u'Business', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=business&l=150&s=start_time&sd=desc'),
+    (u'Opinion', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=opinion&l=150&s=start_time&sd=desc')
     ]
 
-    def get_article_url(self, article):
-        return article.get('link',  None).rpartition('&rss')[0]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
