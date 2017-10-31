@@ -522,8 +522,14 @@ class Convert(object):
                             tag_style.set('border-%s-style' % edge, 'none')
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
-            for child in html_tag.iterchildren('*'):
-                self.process_tag(child, stylizer, float_spec=float_spec)
+            for child in html_tag.iterchildren():
+                if isinstance(getattr(child, 'tag', None), basestring):
+                    self.process_tag(child, stylizer, float_spec=float_spec)
+                else:  # Comment/PI/etc.
+                    tail = getattr(child, 'tail', None)
+                    if tail:
+                        block = self.create_block_from_parent(html_tag, stylizer)
+                        block.add_text(tail, tag_style, is_parent_style=False, link=self.current_link, lang=self.current_lang)
 
             is_block = html_tag in self.blocks.open_html_blocks
             self.blocks.finish_tag(html_tag)
