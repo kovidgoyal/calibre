@@ -433,7 +433,7 @@ class Boss(QObject):
         completion_worker().clear_caches('names')
 
     def add_file(self):
-        if not self.ensure_book(_('You must first open a book to tweak, before trying to create new files in it.')):
+        if not self.ensure_book(_('You must first open a book to edit, before trying to create new files in it.')):
             return
         self.commit_dirty_opf()
         d = NewFileDialog(self.gui)
@@ -448,8 +448,11 @@ class Boss(QObject):
         self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(file_name))
         c = current_container()
         adata = data.replace(b'%CURSOR%', b'') if using_template else data
+        spine_index = c.index_in_spine(self.currently_editing or '')
+        if spine_index is not None:
+            spine_index += 1
         try:
-            added_name = c.add_file(file_name, adata)
+            added_name = c.add_file(file_name, adata, spine_index=spine_index)
         except:
             self.rewind_savepoint()
             raise
@@ -469,7 +472,7 @@ class Boss(QObject):
         return added_name
 
     def add_files(self):
-        if not self.ensure_book(_('You must first open a book to tweak, before trying to create new files in it.')):
+        if not self.ensure_book(_('You must first open a book to edit, before trying to create new files in it.')):
             return
 
         files = choose_files(self.gui, 'tweak-book-bulk-import-files', _('Choose files'))
