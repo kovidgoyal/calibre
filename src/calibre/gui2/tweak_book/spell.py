@@ -1104,6 +1104,11 @@ class SpellCheck(Dialog):
                     self.suggested_list.setCurrentItem(item)
                     self.suggested_word.setText(s)
                     word_suggested = True
+                if s is current_word:
+                    f = item.font()
+                    f.setItalic(True)
+                    item.setFont(f)
+                    item.setToolTip(_('The original word'))
             if not word_suggested:
                 self.suggested_word.setText(current_word)
 
