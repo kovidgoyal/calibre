@@ -312,6 +312,6 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
     # print '\n'.join(ans)
     direction = 'rtl' if rtl else 'ltr'
     margin = 'left' if rtl else 'right'
-    return u'<style>table.fields td { vertical-align:middle}</style>' + \
+    return u'<style>table.fields td { vertical-align:top}</style>' + \
            u'<table class="fields" style="direction: %s; margin-%s:auto">%s</table>'%(
                direction, margin, u'\n'.join(ans)), comment_fields
