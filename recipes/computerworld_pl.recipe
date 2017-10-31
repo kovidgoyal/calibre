@@ -14,19 +14,13 @@ class Computerworld_pl(BasicNewsRecipe):
     no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100
-    remove_attributes = ['style', ]
     use_embedded_content = False
     preprocess_regexps = [(re.compile(u'Zobacz również:', re.IGNORECASE), lambda m: ''),
                           (re.compile(ur'[*]+reklama[*]+', re.IGNORECASE), lambda m: ''), ]
-    keep_only_tags = [dict(id=['article-default-body'])]
-    remove_tags = [dict(attrs={'class': ['share_tools nocontent', 'rec']}), dict(
-        id=['topComment', 'bottom_tools'])]
+    keep_only_tags = [dict(name='article')]
+    remove_tags = [dict(attrs={'class': ['share_tools nocontent', 'rec']}),
+         dict(name='ul',attrs={'class':'tags'}),
+         dict(name='ol'),
+         dict(id=['topComment', 'bottom_tools'])]
 
-    feeds = [(u'Wiadomo\u015bci', u'http://rssout.idg.pl/cw/news_iso.xml')]
-
-    def skip_ad_pages(self, soup):
-        if soup.title.string.lower() == 'advertisement':
-            tag = soup.find(name='a')
-            if tag:
-                new_soup = self.index_to_soup(tag['href'], raw=True)
-                return new_soup
+    feeds = [(u'Wiadomo\u015bci', u'https://www.computerworld.pl/news?rss')]
