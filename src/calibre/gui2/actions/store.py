@@ -124,7 +124,7 @@ class StoreAction(InterfaceAction):
 
     def open_store(self, store_plugin_name):
         self.gui.istores.check_for_updates()
-        self.show_disclaimer()
+        # self.show_disclaimer()
         # It's not too important that the updated plugin have finished loading
         # at this point
         self.gui.istores.join(1.0)
