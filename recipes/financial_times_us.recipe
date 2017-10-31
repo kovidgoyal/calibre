@@ -46,7 +46,8 @@ class FinancialTimes(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('n-content-related-box tour-tip n-content-recommended n-content-video')
+        classes('n-content-related-box tour-tip n-content-recommended n-content-video'),
+        dict(name=['aside'])
     ]
 
     extra_css = '''
