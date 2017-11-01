@@ -24,7 +24,7 @@ class TulsaWorld(BasicNewsRecipe):
     country = 'US'
     auto_cleanup=True
     remove_empty_feeds = True
-    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'
+    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'  # noqa
     extra_css = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '  # noqa
 
     conversion_options = {
@@ -36,4 +36,3 @@ class TulsaWorld(BasicNewsRecipe):
     (u'Business', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=business&l=150&s=start_time&sd=desc'),
     (u'Opinion', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=opinion&l=150&s=start_time&sd=desc')
     ]
-
