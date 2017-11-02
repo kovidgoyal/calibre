@@ -21,7 +21,7 @@
 #     - title:
 
 
-- version: 3.11.0
+- version: 3.11.1
   date: 2017-11-02
 
   new features:
@@ -50,6 +50,8 @@
     - title: "Book details panel: Fix metadata field titles not being top aligned"
 
     - title: "Linux: Fix long startup delay on systems that do not have a desktop notification service running"
+
+    - title: "3.11.1 fixes a couple of regression in 3.11.0 that broke configuring Get books and creating catalogs"
 
   improved recipes:
     - Financial Times
