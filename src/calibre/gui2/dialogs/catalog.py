@@ -137,6 +137,13 @@ class Catalog(QDialog, Ui_Dialog):
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 
+    @property
+    def options_widget(self):
+        ans = self.tabs.widget(1)
+        if isinstance(ans, QScrollArea):
+            ans = ans.widget()
+        return ans
+
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
         while self.tabs.count() > 1:
@@ -150,7 +157,7 @@ class Catalog(QDialog, Ui_Dialog):
                     s.setWidget(pw), s.setWidgetResizable(True)
                     self.tabs.addTab(s, pw.TITLE)
                 break
-        if hasattr(self.tabs.widget(1),'show_help'):
+        if hasattr(self.options_widget, 'show_help'):
             self.buttonBox.button(self.buttonBox.Help).setVisible(True)
         else:
             self.buttonBox.button(self.buttonBox.Help).setVisible(False)
@@ -168,14 +175,14 @@ class Catalog(QDialog, Ui_Dialog):
         When title/format change, invalidate Preset in E-book options tab
         '''
         cf = unicode(self.format.currentText()).lower()
-        if cf in ['azw3', 'epub', 'mobi'] and hasattr(self.tabs.widget(1), 'settings_changed'):
-            self.tabs.widget(1).settings_changed("title/format")
+        if cf in ['azw3', 'epub', 'mobi'] and hasattr(self.options_widget, 'settings_changed'):
+            self.options_widget.settings_changed("title/format")
 
     @property
     def fmt_options(self):
         ans = {}
         if self.tabs.count() > 1:
-            w = self.tabs.widget(1)
+            w = self.options_widget
             ans = w.options()
         return ans
 
@@ -193,7 +200,7 @@ class Catalog(QDialog, Ui_Dialog):
         # Store current values without building catalog
         self.save_catalog_settings()
         if self.tabs.count() > 1:
-            self.tabs.widget(1).options()
+            self.options_widget.options()
 
     def accept(self):
         self.save_catalog_settings()
@@ -213,9 +220,9 @@ class Catalog(QDialog, Ui_Dialog):
 
         Create the help file at resources/catalog/help_<format>.html
         '''
-        if self.tabs.count() > 1 and hasattr(self.tabs.widget(1),'show_help'):
+        if self.tabs.count() > 1 and hasattr(self.options_widget,'show_help'):
             try:
-                self.tabs.widget(1).show_help()
+                self.options_widget.show_help()
             except:
                 info_dialog(self, _('No help available'),
                     _('No help available for this output format.'),
