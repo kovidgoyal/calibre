@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title:
 
+
+- version: 3.11.0
+  date: 2017-11-02
+
+  new features:
+    - title: "Kindle driver: Add support for the new Kindle Oasis"
+
+    - title: "Browser viewer: Allow the user to specify a CSS style sheet to control the look and feel of the text"
+
+    - title: "Edit book spell check: In the list of suggestions show the original word in italics."
+      tickets: [1727827]
+
+    - title: "Edit Book: When adding a new HTML file, add it after the file being currently edited instead of at the end."
+      tickets: [1728601]
+
+    - title: "Column coloring: Add a contains rule type."
+      tickets: [1728464]
+
+    - title: "Book details panel: Allow saving the displayed cover to disk via the right click context menu."
+      tickets: [1728251]
+
+  bug fixes:
+    - title: "Browser viewer: Fix font size and color scheme settings not being respected in the footnote popup"
+
+    - title: "DOCX Output: Fix comments/XML processing instructions in the middle of text causing text to be skipped."
+      tickets: [1727599]
+
+    - title: "Book details panel: Fix metadata field titles not being top aligned"
+
+    - title: "Linux: Fix long startup delay on systems that do not have a desktop notification service running"
+
+  improved recipes:
+    - Financial Times
+    - computerworld.pl
+    - Tulsa World
+    - Science Daily
+    - El Mundo
+
 - version: 3.10.0
   date: 2017-10-20
 
