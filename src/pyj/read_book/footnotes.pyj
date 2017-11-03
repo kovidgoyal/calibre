@@ -198,6 +198,7 @@ class PopupIframeBoss:
         self.frag = data.frag
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
+        document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote)
         update_settings(data.settings)

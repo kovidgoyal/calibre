@@ -2,8 +2,10 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import clear
+from elementmaker import E
 from encodings import base64decode, utf8_decode
+
+from dom import clear
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -228,6 +230,7 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     apply_attributes(html, document.documentElement, ns_map)
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
+    document.head.appendChild(E.style('html { font-family: sans-serif }'))
     resource_urls = {}
     load_required = set()
     proceeded = False
