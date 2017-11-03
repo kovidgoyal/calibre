@@ -130,6 +130,10 @@ class Catalog(QDialog, Ui_Dialog):
             self.restoreGeometry(bytes(geom))
         else:
             self.resize(self.sizeHint())
+        d = QCoreApplication.instance().desktop()
+        g = d.availableGeometry(d.screenNumber(self))
+        self.setMaximumWidth(g.width() - 50)
+        self.setMaximumHeight(g.height() - 50)
 
     def sizeHint(self):
         desktop = QCoreApplication.instance().desktop()
