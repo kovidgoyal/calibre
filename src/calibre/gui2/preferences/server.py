@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
     QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit,
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
-    QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import as_unicode
@@ -30,7 +30,6 @@ from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
 from calibre.utils.icu import primary_sort_key
-
 
 # Advanced {{{
 
@@ -104,6 +103,7 @@ class Text(QLineEdit):
 
     def __init__(self, name, layout):
         QLineEdit.__init__(self)
+        self.setClearButtonEnabled(True)
         opt = options[name]
         self.textChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
@@ -113,6 +113,40 @@ class Text(QLineEdit):
 
     def set(self, val):
         self.setText(type(u'')(val or ''))
+
+
+class Path(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, name, layout):
+        QWidget.__init__(self)
+        self.dname = name
+        opt = options[name]
+        self.l = l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.text = t = QLineEdit(self)
+        t.setClearButtonEnabled(True)
+        t.textChanged.connect(self.changed_signal.emit)
+        l.addWidget(t)
+
+        self.b = b = QToolButton(self)
+        l.addWidget(b)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.setToolTip(_("Browse for the file"))
+        b.clicked.connect(self.choose)
+        init_opt(self, opt, layout)
+
+    def get(self):
+        return self.text.text().strip() or None
+
+    def set(self, val):
+        self.text.setText(type(u'')(val or ''))
+
+    def choose(self):
+        ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)
+        if ans:
+            self.set(ans[0])
 
 
 class Choices(QComboBox):
@@ -162,6 +196,8 @@ class AdvancedTab(QWidget):
                 w = Float
             else:
                 w = Text
+                if name in ('ssl_certfile', 'ssl_keyfile'):
+                    w = Path
             w = w(name, l)
             setattr(self, 'opt_' + name, w)
             self.widgets.append(w)
