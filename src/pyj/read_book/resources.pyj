@@ -230,6 +230,7 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     apply_attributes(html, document.documentElement, ns_map)
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
+    # Default stylesheet
     document.head.appendChild(E.style('html { font-family: sans-serif }'))
     resource_urls = {}
     load_required = set()
