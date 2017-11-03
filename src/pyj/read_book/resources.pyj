@@ -231,7 +231,7 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
     # Default stylesheet
-    document.head.appendChild(E.style('html { font-family: sans-serif }'))
+    document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
     resource_urls = {}
     load_required = set()
     proceeded = False

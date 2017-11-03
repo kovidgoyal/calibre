@@ -19,10 +19,11 @@ LOADING_DOC = '''
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <script type="text/javascript" id="bootstrap">
 window.iframe_type = '__IFRAME_TYPE__';  // different in different iframes
+window.default_font_family = '__FONT__';  // from the theme
 __SCRIPT__
 end_script
 </head>
-<body style="font-family: __FONT__">
+<body>
 <div style="font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
 __BS__
 </div>
