@@ -167,7 +167,12 @@ class AppleNotifier(Notifier):
 def get_notifier(systray=None):
     ans = None
     if islinux:
-        ans = get_dbus_notifier()
+        try:
+            ans = get_dbus_notifier()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            ans = None
     elif isosx:
         if get_osx_version() >= (10, 8, 0):
             ans = AppleNotifier()
