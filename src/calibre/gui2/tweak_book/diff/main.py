@@ -490,8 +490,10 @@ def main(args=sys.argv):
     d = Diff(show_as_window=True)
     func = getattr(d, attr)
     QTimer.singleShot(0, lambda : func(left, right))
-    d.exec_()
+    d.show()
+    app.exec_()
     return 0
+
 
 if __name__ == '__main__':
     main()
