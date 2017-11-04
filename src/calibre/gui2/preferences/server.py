@@ -181,6 +181,7 @@ class AdvancedTab(QWidget):
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.widgets = []
+        self.widget_map = {}
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         for name in sorted(options, key=lambda n: options[n].shortdoc.lower()):
             if name in ('auth', 'port', 'allow_socket_preallocation', 'userdb'):
@@ -201,6 +202,7 @@ class AdvancedTab(QWidget):
             w = w(name, l)
             setattr(self, 'opt_' + name, w)
             self.widgets.append(w)
+            self.widget_map[name] = w
 
     def genesis(self):
         opts = server_config()
@@ -212,10 +214,16 @@ class AdvancedTab(QWidget):
         for w in self.widgets:
             w.set(w.default_val)
 
+    def get(self, name):
+        return self.widget_map[name].get()
+
     @property
     def settings(self):
         return {w.name: w.get() for w in self.widgets}
 
+    @property
+    def has_ssl(self):
+        return bool(self.get('ssl_certfile')) and bool(self.get('ssl_keyfile'))
 
 # }}}
 
@@ -1011,10 +1019,14 @@ class ConfigWidget(ConfigWidgetBase):
         self.stopping_msg.accept()
 
     def test_server(self):
-        prefix = self.advanced_tab.opt_url_prefix.text().strip()
-        open_url(
-            QUrl('http://127.0.0.1:' + str(self.main_tab.opt_port.value()) + prefix)
-        )
+        prefix = self.advanced_tab.get('url_prefix') or ''
+        protocol = 'https' if self.advanced_tab.has_ssl else 'http'
+        lo = self.advanced_tab.get('listen_on') or '0.0.0.0'
+        lo = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(lo)
+        url = '{protocol}://{interface}:{port}{prefix}'.format(
+            protocol=protocol, interface=lo,
+            port=self.main_tab.opt_port.value(), prefix=prefix)
+        open_url(QUrl(url))
 
     def view_server_logs(self):
         from calibre.srv.embedded import log_paths
