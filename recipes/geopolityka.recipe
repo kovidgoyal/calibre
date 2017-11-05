@@ -9,4 +9,4 @@ class BasicUserRecipe1361379046(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds = [(u'Rss', u'http://geopolityka.org/index.php?format=feed&type=rss')]
+    feeds = [(u'Rss', u'http://geopolityka.org/component/k2/itemlist?format=feed&moduleID=200')]
