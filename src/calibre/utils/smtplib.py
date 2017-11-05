@@ -279,7 +279,7 @@ class SMTP:
             # if that can't be calculated, that we should use a domain literal
             # instead (essentially an encoded IP address like [A.B.C.D]).
             fqdn = socket.getfqdn()
-            if '.' in fqdn:
+            if '.' in fqdn and fqdn != '.':
                 self.local_hostname = fqdn
             else:
                 # We can't find an fqdn hostname, so use a domain literal
@@ -799,6 +799,7 @@ class SMTP:
         self.does_esmtp = False
         self.close()
         return res
+
 
 if _have_ssl:
 

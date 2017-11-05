@@ -18,7 +18,7 @@ def safe_localhost():
     # if that can't be calculated, that we should use a domain literal
     # instead (essentially an encoded IP address like [A.B.C.D]).
     fqdn = socket.getfqdn()
-    if '.' in fqdn:
+    if '.' in fqdn and fqdn != '.':
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
         try:
