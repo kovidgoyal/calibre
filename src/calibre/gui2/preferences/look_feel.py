@@ -217,18 +217,20 @@ class IdLinksEditor(Dialog):
 
 class DisplayedFields(QAbstractListModel):  # {{{
 
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None, pref_name=None):
+        self.pref_name = pref_name or 'book_display_fields'
         QAbstractListModel.__init__(self, parent)
 
         self.fields = []
         self.db = db
         self.changed = False
 
+    def get_field_list(self, use_defaults=False):
+        return get_field_list(self.db.field_metadata, use_defaults=use_defaults, pref_name=self.pref_name)
+
     def initialize(self, use_defaults=False):
         self.beginResetModel()
-        self.fields = [[x[0], x[1]] for x in
-                get_field_list(self.db.field_metadata,
-                    use_defaults=use_defaults)]
+        self.fields = [[x[0], x[1]] for x in self.get_field_list(use_defaults=use_defaults)]
         self.endResetModel()
         self.changed = True
 
@@ -273,7 +275,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
 
     def commit(self):
         if self.changed:
-            self.db.new_api.set_pref('book_display_fields', self.fields)
+            self.db.new_api.set_pref(self.pref_name, self.fields)
 
     def move(self, idx, delta):
         row = idx.row() + delta
@@ -286,6 +288,26 @@ class DisplayedFields(QAbstractListModel):  # {{{
             self.dataChanged.emit(idx, idx)
             self.changed = True
             return idx
+
+
+def move_field_up(widget, model):
+    idx = widget.currentIndex()
+    if idx.isValid():
+        idx = model.move(idx, -1)
+        if idx is not None:
+            sm = widget.selectionModel()
+            sm.select(idx, sm.ClearAndSelect)
+            widget.setCurrentIndex(idx)
+
+
+def move_field_down(widget, model):
+    idx = widget.currentIndex()
+    if idx.isValid():
+        idx = model.move(idx, 1)
+        if idx is not None:
+            sm = widget.selectionModel()
+            sm.select(idx, sm.ClearAndSelect)
+            widget.setCurrentIndex(idx)
 
 # }}}
 
@@ -478,18 +500,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.field_display_order)
         self.display_model.dataChanged.connect(self.changed_signal)
         self.field_display_order.setModel(self.display_model)
-        self.df_up_button.clicked.connect(partial(self.move_field_up,
+        self.df_up_button.clicked.connect(partial(move_field_up,
                                   self.field_display_order, self.display_model))
-        self.df_down_button.clicked.connect(partial(self.move_field_down,
+        self.df_down_button.clicked.connect(partial(move_field_down,
                                   self.field_display_order, self.display_model))
 
         self.qv_display_model = QVDisplayedFields(self.gui.current_db,
                 self.qv_display_order)
         self.qv_display_model.dataChanged.connect(self.changed_signal)
         self.qv_display_order.setModel(self.qv_display_model)
-        self.qv_up_button.clicked.connect(partial(self.move_field_up,
+        self.qv_up_button.clicked.connect(partial(move_field_up,
                                   self.qv_display_order, self.qv_display_model))
-        self.qv_down_button.clicked.connect(partial(self.move_field_down,
+        self.qv_down_button.clicked.connect(partial(move_field_down,
                                   self.qv_display_order, self.qv_display_model))
 
         self.edit_rules = EditRules(self.tabWidget)
@@ -701,24 +723,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.font_display.setFont(font)
         self.font_display.setText(name +
                 ' [%dpt]'%fi.pointSize())
-
-    def move_field_up(self, widget, model):
-        idx = widget.currentIndex()
-        if idx.isValid():
-            idx = model.move(idx, -1)
-            if idx is not None:
-                sm = widget.selectionModel()
-                sm.select(idx, sm.ClearAndSelect)
-                widget.setCurrentIndex(idx)
-
-    def move_field_down(self, widget, model):
-        idx = widget.currentIndex()
-        if idx.isValid():
-            idx = model.move(idx, 1)
-            if idx is not None:
-                sm = widget.selectionModel()
-                sm.select(idx, sm.ClearAndSelect)
-                widget.setCurrentIndex(idx)
 
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)

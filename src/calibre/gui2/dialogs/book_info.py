@@ -1,21 +1,71 @@
 #!/usr/bin/env  python2
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+from functools import partial
 
 from PyQt5.Qt import (
-    QCoreApplication, QModelIndex, QTimer, Qt, pyqtSignal, QWidget,
-    QGridLayout, QDialog, QPixmap, QSize, QPalette, QShortcut, QKeySequence,
-    QSplitter, QVBoxLayout, QCheckBox, QPushButton, QIcon, QBrush)
+    QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout, QHBoxLayout, QIcon,
+    QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap, QPushButton,
+    QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal
+)
 from PyQt5.QtWebKitWidgets import QWebView
 
-from calibre.gui2 import gprefs, NO_URL_FORMATTING
 from calibre import fit_image
-from calibre.gui2.book_details import render_html, details_context_menu_event, css
+from calibre.gui2 import NO_URL_FORMATTING, gprefs
+from calibre.gui2.book_details import css, details_context_menu_event, render_html
+from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
+from calibre.gui2.widgets2 import Dialog
+
+
+class Configure(Dialog):
+
+    def __init__(self, db, parent=None):
+        self.db = db
+        Dialog.__init__(self, _('Configure the book details window'), 'book-details-popup-conf', parent)
+
+    def setup_ui(self):
+        from calibre.gui2.preferences.look_feel import DisplayedFields, move_field_up, move_field_down
+        self.l = QVBoxLayout(self)
+        self.field_display_order = fdo = QListView(self)
+        self.model = DisplayedFields(self.db, fdo, pref_name='popup_book_display_fields')
+        self.model.initialize()
+        fdo.setModel(self.model)
+        fdo.setAlternatingRowColors(True)
+        del self.db
+        self.l.addWidget(QLabel('Select displayed metadata'))
+        h = QHBoxLayout()
+        h.addWidget(fdo)
+        v = QVBoxLayout()
+        self.mub = b = QToolButton(self)
+        b.clicked.connect(partial(move_field_up, fdo, self.model))
+        b.setIcon(QIcon(I('arrow-up.png')))
+        b.setToolTip(_('Move the selected field up'))
+        v.addWidget(b), v.addStretch(10)
+        self.mud = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setToolTip(_('Move the selected field down'))
+        b.clicked.connect(partial(move_field_down, fdo, self.model))
+        v.addWidget(b)
+        h.addLayout(v)
+
+        self.l.addLayout(h)
+        self.l.addWidget(QLabel('<p>' + _(
+            'Note that <b>comments</b> will always be displayed at the end, regardless of the order you assign here')))
+
+        b = self.bb.addButton(_('Restore &defaults'), self.bb.ActionRole)
+        b.clicked.connect(self.restore_defaults)
+        self.l.addWidget(self.bb)
+        self.setMinimumHeight(500)
+
+    def restore_defaults(self):
+        self.model.initialize(use_defaults=True)
+
+    def accept(self):
+        self.model.commit()
+        return Dialog.accept(self)
 
 
 class Details(QWebView):
@@ -74,7 +124,11 @@ class BookInfo(QDialog):
 
         self.fit_cover = QCheckBox(_('Fit &cover within view'), self)
         self.fit_cover.setChecked(gprefs.get('book_info_dialog_fit_cover', True))
-        l2.addWidget(self.fit_cover, l2.rowCount(), 0, 1, -1)
+        l2.addWidget(self.fit_cover, l2.rowCount(), 0, 1, 1)
+        self.clabel = QLabel('<div style="text-align: right"><a href="calibre:conf" title="{}" style="text-decoration: none">{}</a>'.format(
+            _('Configure this view'), _('Configure')))
+        self.clabel.linkActivated.connect(self.configure)
+        l2.addWidget(self.clabel, l2.rowCount() - 1, 1, 1, 1)
         self.previous_button = QPushButton(QIcon(I('previous.png')), _('&Previous'), self)
         self.previous_button.clicked.connect(self.previous)
         l2.addWidget(self.previous_button, l2.rowCount(), 0)
@@ -107,6 +161,14 @@ class BookInfo(QDialog):
                 self.splitter.restoreState(saved_layout[1])
             except Exception:
                 pass
+
+    def configure(self):
+        d = Configure(get_gui().current_db, self)
+        if d.exec_() == d.Accepted:
+            if self.current_row is not None:
+                mi = self.view.model().get_book_display_info(self.current_row)
+                if mi is not None:
+                    self.refresh(self.current_row, mi=mi)
 
     def link_clicked(self, qurl):
         link = unicode(qurl.toString(NO_URL_FORMATTING))
@@ -212,8 +274,20 @@ class BookInfo(QDialog):
             dpr = self.devicePixelRatio()
         self.cover_pixmap.setDevicePixelRatio(dpr)
         self.resize_cover()
-        html = render_html(mi, self.css, True, self, all_fields=True)
+        html = render_html(mi, self.css, True, self, pref_name='popup_book_display_fields')
         self.details.setHtml(html)
         self.marked = mi.marked
         self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
         self.update_cover_tooltip()
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.library import db
+    app = Application([])
+    app.current_db = db()
+    get_gui.ans = app
+    d = Configure(app.current_db)
+    d.exec_()
+    del d
+    del app

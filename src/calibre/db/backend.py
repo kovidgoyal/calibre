@@ -471,6 +471,7 @@ class DB(object):
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False), ('languages', False),
         ]
+        defs['popup_book_display_fields'] = [('title', True)] + [(f[0], True) for f in defs['book_display_fields'] if f[0] != 'title']
         defs['qv_display_fields'] = [('title', True), ('authors', True), ('series', True)]
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
