@@ -279,7 +279,7 @@ class SMTP:
             # if that can't be calculated, that we should use a domain literal
             # instead (essentially an encoded IP address like [A.B.C.D]).
             fqdn = socket.getfqdn()
-            if '.' in fqdn and fqdn != '.':
+            if '.' in fqdn and fqdn != '.':  # Changed by Kovid
                 self.local_hostname = fqdn
             else:
                 # We can't find an fqdn hostname, so use a domain literal
