@@ -332,6 +332,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'option disables keeping the copy, forcing the device to send '
               'metadata to calibre on every connect. Unset this option if '
               'you think that the cache might not be operating correctly.') + '</p>',
+        '',
+        _('Additional file extensions to send to the device') + ':::<p>' +
+        _('This is a comma-separated list of format file extensions you want '
+              'to be able to send to the device. For example, you might have '
+              'audio books in your library with the extension "m4b" that you '
+              'want to listen to on your device. Don\'t worry about the "extra '
+              'enabled extensions" warning.')
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -341,7 +348,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 '',    '',
                 False, '',
                 True,   '75',
-                True
+                True,   '',
+                ''
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -354,6 +362,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_OVERWRITE_BOOKS_UUID    = 12
     OPT_COMPRESSION_QUALITY     = 13
     OPT_USE_METADATA_CACHE      = 14
+    OPT_EXTRA_EXTENSIONS        = 16
     OPTNAME_TO_NUMBER_MAP = {
         'password': OPT_PASSWORD,
         'autostart': OPT_AUTOSTART,
@@ -1024,9 +1033,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             else:
                 challenge = ''
                 hash_digest = ''
+            formats = self.ALL_FORMATS[:]
+            extras = [f.lower() for f in
+                 self.settings().extra_customization[self.OPT_EXTRA_EXTENSIONS].split(',') if f]
+            formats.extend(extras)
             opcode, result = self._call_client('GET_INITIALIZATION_INFO',
                     {'serverProtocolVersion': self.PROTOCOL_VERSION,
-                    'validExtensions': self.ALL_FORMATS,
+                    'validExtensions': formats,
                     'passwordChallenge': challenge,
                     'currentLibraryName': self.current_library_name,
                     'currentLibraryUUID': library_uuid,
