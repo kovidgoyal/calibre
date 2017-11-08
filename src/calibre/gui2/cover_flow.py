@@ -133,6 +133,8 @@ if pictureflow is not None:
         def subtitle(self, index):
             try:
                 db = self.model.db.new_api
+                if not self.template_inited:
+                    self.init_template(db)
                 field = db.pref('cover_browser_subtitle_field', 'rating')
                 if field and field != 'none':
                     book_id = self.model.id(index)
