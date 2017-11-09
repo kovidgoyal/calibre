@@ -91,7 +91,7 @@ class NOOK_COLOR(NOOK):
         0x002, 0x003, 0x004,
         0x005,  # Nook HD+
         0x007,  # Glowlight from 2013
-        0xb,    # GLowlight from 2017
+        0xb,    # Glowlight from 2017
     ]
     BCD         = [0x216, 0x9999]
 
