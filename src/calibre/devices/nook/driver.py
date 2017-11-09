@@ -12,7 +12,8 @@ import os
 
 import cStringIO
 
-from calibre import fsync
+from calibre import fsync, prints
+from calibre.constants import DEBUG
 from calibre.devices.usbms.driver import USBMS
 
 
@@ -103,6 +104,15 @@ class NOOK_COLOR(NOOK):
 
     def upload_cover(self, path, filename, metadata, filepath):
         pass
+
+    def post_open_callback(self):
+        product_id = self.device_being_opened[1]
+        if DEBUG:
+            prints('Opened NOOK with product id:', product_id)
+        if product_id == 0xb:
+            if DEBUG:
+                prints('Setting Nook upload directory to NOOK')
+            self.EBOOK_DIR_MAIN = 'NOOK'
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:
