@@ -74,7 +74,9 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     d.l = l = QFormLayout(d)
     d.setLayout(l)
     d.prefix = p = QLineEdit(d)
-    prefix = prefix or {k:v for k, __, v in CATEGORIES}.get(category, _('Chapter-'))
+    default_prefix = {k:v for k, __, v in CATEGORIES}.get(category, _('Chapter-'))
+    previous = tprefs.get('file-list-bulk-rename-prefix', {})
+    prefix = prefix or previous.get(category, default_prefix)
     p.setText(prefix)
     p.selectAll()
     d.la = la = QLabel(msg or _(
@@ -90,6 +92,8 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
 
     if d.exec_() == d.Accepted:
         prefix = sanitize(unicode(d.prefix.text()))
+        previous[category] = prefix
+        tprefs.set('file-list-bulk-rename-prefix', previous)
         num = d.num.value()
         fmt = '%d'
         if leading_zeros:
