@@ -204,7 +204,7 @@ class Saver(QObject):
     def write_book(self, book_id, mi, components, fmts):
         base_path = os.path.join(self.root, *components)
         base_dir = os.path.dirname(base_path)
-        if self.opts.formats != 'all':
+        if self.opts.formats and self.opts.formats != 'all':
             asked_formats = {x.lower().strip() for x in self.opts.formats.split(',')}
             fmts = asked_formats.intersection(fmts)
             if not fmts:
