@@ -101,6 +101,13 @@ def add_button(container, icon, action=None, tooltip=''):
                     event.preventDefault(), action()
                 )
 
+def clear_buttons(container):
+    bars = get_bars(container)
+    for i, bar in enumerate(bars):
+        right = bar.firstChild.nextSibling
+        clear(right)
+
+
 def set_button_visibility(container, icon, visible):
     for bar in get_bars(container):
         right = bar.firstChild.nextSibling

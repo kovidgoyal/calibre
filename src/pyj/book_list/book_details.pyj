@@ -15,7 +15,7 @@ from book_list.library_data import (
 )
 from book_list.router import back, home, open_book
 from book_list.theme import get_color, get_font_size
-from book_list.top_bar import add_button, create_top_bar, set_title
+from book_list.top_bar import add_button, create_top_bar, set_title, clear_buttons
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
@@ -443,9 +443,10 @@ def render_book(container_id, book_id):
 def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
+        clear_buttons(container)
         book_id = parse_url_params().book_id
         if book_id is '0':
-            add_button(container.parentNode, 'random', def(): fetch_metadata(container_id, 0);)
+            add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
         add_button(container, 'ellipsis-v', action=show_subsequent_panel.bind(None, 'more_actions'), tooltip=_('More actions'))
 
 
