@@ -36,7 +36,7 @@ class HistoryAction(QAction):
 class ViewAction(InterfaceAction):
 
     name = 'View'
-    action_spec = (_('View'), 'view.png', _('Read books'), (_('V'), 'Return'))
+    action_spec = (_('View'), 'view.png', _('Read books'), _('V'))
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = True
