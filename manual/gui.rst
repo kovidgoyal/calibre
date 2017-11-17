@@ -686,7 +686,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Save to disk
     * - :kbd:`T`
       - Edit book
-    * - :kbd:`V`
+    * - :kbd:`V` or `Enter`
       - View
     * - :kbd:`Alt+V/Cmd+V in macOS`
       - View specific format
