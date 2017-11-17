@@ -44,6 +44,9 @@ class EncodeError(ValueError):
 
 def handle_enter_press(self, ev, special_action=None):
     if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+        mods = ev.modifiers()
+        if mods & Qt.CTRL or mods & Qt.ALT or mods & Qt.SHIFT or mods & Qt.META:
+            return
         if self.state() != self.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
             ev.ignore()
