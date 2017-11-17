@@ -21,7 +21,7 @@ from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
+from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface, handle_enter_press
 from calibre.gui2.gestures import GestureManager
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
@@ -984,6 +984,11 @@ class BooksView(QTableView):  # {{{
         if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
             return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
         return super(BooksView, self).selectionCommand(index, event)
+
+    def keyPressEvent(self, ev):
+        if handle_enter_press(self, ev):
+            return
+        return QTableView.keyPressEvent(self, ev)
 
     def ids_to_rows(self, ids):
         row_map = OrderedDict()

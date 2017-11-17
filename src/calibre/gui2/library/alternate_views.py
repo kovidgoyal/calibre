@@ -42,6 +42,17 @@ class EncodeError(ValueError):
     pass
 
 
+def handle_enter_press(self, ev, special_action=None):
+    if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if self.state() != self.EditingState and self.hasFocus() and self.currentIndex().isValid():
+            from calibre.gui2.ui import get_gui
+            ev.ignore()
+            if special_action is not None:
+                special_action(self.currentIndex())
+            get_gui().iactions['View'].view_triggered(self.currentIndex())
+            return True
+
+
 def image_to_data(image):  # {{{
     ba = QByteArray()
     buf = QBuffer(ba)
@@ -714,11 +725,14 @@ class GridView(QListView):
         for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
-    def double_clicked(self, index):
+    def start_view_animation(self, index):
         d = self.delegate
         if d.animating is None and not config['disable_animations']:
             d.animating = index
             d.animation.start()
+
+    def double_clicked(self, index):
+        self.start_view_animation(index)
         if tweaks['doubleclick_on_library_view'] == 'open_viewer':
             self.gui.iactions['View'].view_triggered(index)
         elif tweaks['doubleclick_on_library_view'] in {'edit_metadata', 'edit_cell'}:
@@ -1000,6 +1014,8 @@ class GridView(QListView):
         return self._ncols
 
     def keyPressEvent(self, ev):
+        if handle_enter_press(self, ev, self.start_view_animation):
+            return
         k = ev.key()
         if ev.modifiers() & Qt.ShiftModifier and k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
             ci = self.currentIndex()
