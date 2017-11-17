@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
-    qBlue, QItemSelectionModel, QIcon, QFont)
+    qBlue, QItemSelectionModel, QIcon, QFont, QKeyEvent)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir, islinux
@@ -47,9 +47,22 @@ def handle_enter_press(self, ev, special_action=None):
         if self.state() != self.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
             ev.ignore()
-            if special_action is not None:
+            tweak = tweaks['enter_key_behavior']
+            if tweak != 'down_arrow' and special_action is not None:
+                # Don't animate (or whatever) if emulating the down arrow
+                # Could be that this should check == 'do nothing', but the
+                # animation is nice when opening the viewer.
                 special_action(self.currentIndex())
-            get_gui().iactions['View'].view_triggered(self.currentIndex())
+            gui = get_gui()
+            if tweak == 'viewer':
+                gui.iactions['View'].view_triggered(self.currentIndex())
+            elif tweak == 'down_arrow':
+                nev = QKeyEvent(QEvent.KeyPress, Qt.Key_Down, ev.modifiers(), ev.text())
+                self.keyPressEvent(nev)
+            elif tweak == 'edit_metadata':
+                gui.iactions['Edit Metadata'].edit_metadata(False)
+            elif tweak == 'do_nothing': # for completeness
+                pass
             return True
 
 

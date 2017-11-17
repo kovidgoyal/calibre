@@ -559,3 +559,11 @@ cover_drop_exclude = ()
 # new Saved search is shown in the Search bar. If you would like to have the
 # old Saved searches box with its two buttons back, set this tweak to True.
 show_saved_search_box = False
+
+#: Control behavior of Enter key on the books view
+# The behaviors:
+#    'viewer': open the book in the viewer,
+#    'down_arrow': perform a down arrow,
+#    'edit_metadata': open the edit metadata (single) dialog,
+#    'do_nothing': makes the key do nothing.
+enter_key_behavior = 'viewer'
