@@ -393,7 +393,7 @@ sort_dates_using_visible_fields = False
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
-# You can control the behavior of double clicks on the books list.
+# You can control the behavior of double clicks and pressing enter on the books list.
 # Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting anything other than open_viewer has the
 # side effect of disabling editing a field using a single click.
@@ -402,6 +402,7 @@ cover_trim_fuzz_value = 10
 # You can also control whether the book list scrolls horizontal per column or
 # per pixel. Default is per column.
 doubleclick_on_library_view = 'open_viewer'
+enter_key_behavior = 'open_viewer'
 horizontal_scrolling_per_column = True
 
 #: Language to use when sorting
