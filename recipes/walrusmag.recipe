@@ -10,4 +10,10 @@ class AdvancedUserRecipe1371743239(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds = [(u'The Walrus Mag', u'http://thewalrus.ca/feed/')]
+    feeds = [(u'The Walrus Mag', u'https://thewalrus.ca/feed/')]
+
+    def get_article_url(self, article):
+        ans = BasicNewsRecipe.get_article_url(self, article)
+        if ans and ans.startswith('/'):
+            ans = 'https://thewalrus.ca' + ans
+        return ans
