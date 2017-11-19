@@ -112,6 +112,7 @@ class SavedSearchEditor(Dialog):
         b.clicked.connect(self.edit_search)
 
         self.slist = QListWidget(self)
+        self.slist.activated.connect(self.edit_search)
         self.slist.setAlternatingRowColors(True)
         self.searches = {name: db.saved_search_lookup(name) for name in db.saved_search_names()}
         self.populate_search_list()
