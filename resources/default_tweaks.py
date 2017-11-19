@@ -402,7 +402,7 @@ cover_trim_fuzz_value = 10
 # You can also control whether the book list scrolls horizontal per column or
 # per pixel. Default is per column.
 doubleclick_on_library_view = 'open_viewer'
-enter_key_behavior = 'open_viewer'
+enter_key_behavior = 'do_nothing'
 horizontal_scrolling_per_column = True
 
 #: Language to use when sorting
