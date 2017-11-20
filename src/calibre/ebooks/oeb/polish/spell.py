@@ -192,7 +192,7 @@ def group_sort(locations):
 
 
 def get_checkable_file_names(container):
-    file_names = [name for name, linear in container.spine_names] + [container.opf_name]
+    file_names = [name for name in container.manifest_items_of_type("application/xhtml+xml")] + [container.opf_name]
     for f in (find_existing_ncx_toc, find_existing_nav_toc):
         toc = f(container)
         if toc is not None and container.exists(toc) and toc not in file_names:
