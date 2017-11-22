@@ -15,6 +15,8 @@ from threading import Lock
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows
 
+from calibre.utils.localization import canonicalize_lang
+
 
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
@@ -84,13 +86,15 @@ def find_identical_books(mi, data):
         return set()
 
     alg = set()
-    #languages = tuple(filter(None, map(canonicalize_lang, mi.languages)))
-    langq = mi.language
+    langq = canonicalize_lang(mi.language)
+    if langq is None:
+        return ans
     for book_id in ans:
         lang_list = lang_map.get(book_id, '')
         if lang_list is None:
             return ans
         for lang in lang_list:
+            lang=canonicalize_lang(lang)
             if lang == langq:
                 alg.add(book_id)
     return alg
