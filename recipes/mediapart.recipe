@@ -144,10 +144,12 @@ class Mediapart(BasicNewsRecipe):
 
 # -- Handle login
     def get_browser(self):
+        def is_form_login(form):
+            return "id" in form.attrs and form.attrs['id'] == "logFormEl"
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.mediapart.fr/login')
-            br.select_form(nr=2)
+            br.select_form(predicate=is_form_login)
             br['name'] = self.username
             br['password'] = self.password
             br.submit()
