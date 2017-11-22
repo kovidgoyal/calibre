@@ -175,12 +175,13 @@ def locale_from_tag(tag):
 
 
 def read_words_from_html(root, words, file_name, book_locale):
-    stack = [(root, book_locale)]
-    while stack:
-        parent, parent_locale = stack.pop()
-        locale = locale_from_tag(parent) or parent_locale
-        read_words_from_html_tag(parent, words, file_name, parent_locale, locale)
-        stack.extend((tag, locale) for tag in parent.iterchildren('*'))
+    if type(root) is not str:
+        stack = [(root, book_locale)]
+        while stack:
+            parent, parent_locale = stack.pop()
+            locale = locale_from_tag(parent) or parent_locale
+            read_words_from_html_tag(parent, words, file_name, parent_locale, locale)
+            stack.extend((tag, locale) for tag in parent.iterchildren('*'))
 
 
 def group_sort(locations):
