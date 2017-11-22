@@ -933,7 +933,7 @@ class Cache(object):
                 else:
                     return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
-                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, )
+                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
 
                 def skf(book_id):
                     return (func(book_id), idx_func(book_id))
