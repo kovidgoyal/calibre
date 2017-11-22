@@ -450,25 +450,16 @@ class NYTimes(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import timedelta, date
-        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-            str(date.today().day) + '/lg/' + self.cover_tag + '.jpg'
+        today = date.today()
+        cover = 'https://static01.nyt.com/images/' \
+            + today.strftime('%Y') + '/' + today.strftime('%m') + '/' \
+            + today.strftime('%d') + '/nytfrontpage/scan.jpg'
+        self.log(cover)
         br = BasicNewsRecipe.get_browser(self)
         daysback = 1
         try:
             br.open(cover)
         except:
-            while daysback < 7:
-                cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-                    str((date.today() - timedelta(days=daysback)).day) + \
-                    '/lg/' + self.cover_tag + '.jpg'
-                br = BasicNewsRecipe.get_browser(self)
-                try:
-                    br.open(cover)
-                except:
-                    daysback = daysback + 1
-                    continue
-                break
-        if daysback == 7:
             self.log("\nCover unavailable")
             cover = None
         return cover
