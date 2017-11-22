@@ -65,8 +65,6 @@ def find_identical_books(mi, data):
         author_ids = author_map.get(icu_lower(a))
         if author_ids is None:
             return set()
-        for aid in author_ids: #debug
-            print ("find author",aid) #debug
         books_by_author = {book_id for aid in author_ids for book_id in aid_map.get(aid, ())}
         if found_books is None:
             found_books = books_by_author
@@ -90,13 +88,9 @@ def find_identical_books(mi, data):
     for book_id in ans:
         lang_list = lang_map.get(book_id, '')
         for lang in lang_list:
-            title = title_map.get(book_id, '') #debug
-            print(" title",title) #debug
-            print("  lang",lang,lang_map[lang],langq)#debug
             if lang == langq:
                 alg.add(book_id)
 
-    #return ans
     return alg
 
 
