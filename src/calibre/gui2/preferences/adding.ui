@@ -111,7 +111,7 @@
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
          <property name="text">
-          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title and author</string>
+          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same language, title, and author</string>
          </property>
         </widget>
        </item>
@@ -165,7 +165,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
          <property name="toolTip">
           <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats automatically into
 existing book records. This box controls what happens when an existing record already has
-the incoming format: 
+the incoming format:
 
 Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
 Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
