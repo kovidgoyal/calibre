@@ -331,7 +331,7 @@ over the net. First perform the following steps in calibre
 
 The Content server allows you to read books directly in Safari itself. In
 addition, there are many apps for your iDevice that can connect to the calibre
-Content server. Examples include: Marvin, Mapleread and iBooks itself.
+Content server. Examples include: Marvin, Mapleread and iBooks itself. 
 
 Using the Content server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -414,11 +414,11 @@ You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
 android device.
 
-Calibre Companion and many reading apps support browsing the calibre library
-directly. For example, in Aldiko, click My Catalogs, then + to add a catalog,
-then give the catalog a title such as "calibre" and provide the URL listed
-above. You can now browse the calibre library and download directly into the
-reading software.
+Calibre Companion and many reading apps support browsing the calibre library 
+directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, 
+then give the catalog a title such as "calibre" and provide the URL listed 
+above. You can now browse the calibre library and download directly into the 
+reading software. 
 
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -627,7 +627,7 @@ To those of you that claim that you need access to the filesystem, so that you c
 
 If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to Disk` feature in calibre that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
 
-Finally, the reason there are numbers at the end of every title folder, is for *robustness*. That number is the id number of the book record in the calibre database. The presence of the number allows you to have multiple records with the same language, title and author names. It is also part of what allows calibre to magically regenerate the database with all metadata if the database file gets corrupted. Given that calibre's mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
+Finally, the reason there are numbers at the end of every title folder, is for *robustness*. That number is the id number of the book record in the calibre database. The presence of the number allows you to have multiple records with the same title and author names. It is also part of what allows calibre to magically regenerate the database with all metadata if the database file gets corrupted. Given that calibre's mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
 
 If you are still not convinced, then I'm afraid calibre is not for you. Look elsewhere for your book cataloguing needs. Just so we're clear, **this is not going to change**. Kindly do not contact us in an attempt to get us to change this.
 
@@ -689,7 +689,7 @@ then import it on another computer. First let's see how to export the data:
     find out what the library folder is by clicking the calibre icon in the
     toolbar. Choose the :guilabel:`Switch/create calibre library` action and
     you will see the path to the current calibre library.
-
+    
     Now on the new computer, start calibre for the first time. It will run the
     Welcome Wizard asking you for the location of the calibre library. Point it
     to the previously copied folder. If the computer you are transferring to

@@ -284,7 +284,7 @@ Author matching is exact.</string>
        <item row="5" column="0">
         <widget class="QCheckBox" name="opt_auto_add_everything">
          <property name="toolTip">
-          <string>By default, calibre will automatically add only known e-book files.
+          <string>By default, calibre will automatically add only known e-book files. 
 This option tells calibre to add all file types, except those
 that have been explicitly ignored below.</string>
          </property>

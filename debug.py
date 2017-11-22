@@ -10,3 +10,4 @@ from calibre.db.cache import Cache
 db=Cache(create_backend("C:/Users/juamp/Develop/Biblio", None))
 db.init()
 db.fields['languages'].book_value_map
+db.data_for_find_identical_books()
