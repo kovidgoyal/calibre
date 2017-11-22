@@ -156,7 +156,7 @@ class EmbedFonts(object):
             manifest = self.oeb.manifest
             id_, href = manifest.generate('page_css', 'page_styles.css')
             self.page_sheet = manifest.add(id_, href, CSS_MIME, data=self.parser.parseString('', validate=False))
-            head = self.current_item.xpath('//*[local-name()="head"][1]')
+            head = self.current_item.data.xpath('//*[local-name()="head"][1]')
             if head:
                 href = self.current_item.relhref(href)
                 l = etree.SubElement(head[0], XHTML('link'),
