@@ -81,16 +81,17 @@ def find_identical_books(mi, data):
             ans.add(book_id)
 
     if ans is None:
-        return ans
+        return set()
 
     alg = set()
     langq = mi.language
     for book_id in ans:
         lang_list = lang_map.get(book_id, '')
+        if lang_list is None:
+            return ans
         for lang in lang_list:
             if lang == langq:
                 alg.add(book_id)
-
     return alg
 
 
