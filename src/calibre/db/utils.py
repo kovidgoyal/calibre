@@ -84,6 +84,7 @@ def find_identical_books(mi, data):
         return set()
 
     alg = set()
+    #languages = tuple(filter(None, map(canonicalize_lang, mi.languages)))
     langq = mi.language
     for book_id in ans:
         lang_list = lang_map.get(book_id, '')
