@@ -59,12 +59,14 @@ def fuzzy_title(title):
 
 
 def find_identical_books(mi, data):
-    author_map, aid_map, title_map = data
+    author_map, aid_map, title_map, lang_map = data
     found_books = None
     for a in mi.authors:
         author_ids = author_map.get(icu_lower(a))
         if author_ids is None:
             return set()
+        for aid in author_ids: #debug
+            print ("find author",aid) #debug
         books_by_author = {book_id for aid in author_ids for book_id in aid_map.get(aid, ())}
         if found_books is None:
             found_books = books_by_author
@@ -79,7 +81,23 @@ def find_identical_books(mi, data):
         title = title_map.get(book_id, '')
         if fuzzy_title(title) == titleq:
             ans.add(book_id)
-    return ans
+
+    if ans is None:
+        return ans
+
+    alg = set()
+    langq = mi.language
+    for book_id in ans:
+        lang_list = lang_map.get(book_id, '')
+        for lang in lang_list:
+            title = title_map.get(book_id, '') #debug
+            print(" title",title) #debug
+            print("  lang",lang,lang_map[lang],langq)#debug
+            if lang == langq:
+                alg.add(book_id)
+
+    #return ans
+    return alg
 
 
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')

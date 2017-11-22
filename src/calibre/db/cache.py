@@ -933,7 +933,7 @@ class Cache(object):
                 else:
                     return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
-                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
+                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, )
 
                 def skf(book_id):
                     return (func(book_id), idx_func(book_id))
@@ -1931,12 +1931,16 @@ class Cache(object):
         author_map = defaultdict(set)
         for aid, author in at.id_map.iteritems():
             author_map[icu_lower(author)].add(aid)
-        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy())
+        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy(),self.fields['languages'].table.book_col_map.copy())
 
     @read_api
     def update_data_for_find_identical_books(self, book_id, data):
-        author_map, author_book_map, title_map = data
+        author_map, author_book_map, title_map, lang_map = data
         title_map[book_id] = self._field_for('title', book_id)
+        lang_map[book_id] = self._field_for('languages', book_id)
+        print("Hola Mundo")
+        for lang in lang_map[book_id]: #debug
+            print("add book id",book_id,"language:",lang) #debug
         at = self.fields['authors'].table
         for aid in at.book_col_map.get(book_id, ()):
             author_map[icu_lower(at.id_map[aid])].add(aid)
