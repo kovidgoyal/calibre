@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.constants import iswindows
+from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
@@ -1091,6 +1092,11 @@ class AddCover(Dialog):
         b.setIcon(QIcon(I('document_open.png')))
         self.names.setFocus(Qt.OtherFocusReason)
         self.names.selectionModel().currentChanged.connect(self.current_image_changed)
+        cname = get_raster_cover_name(self.container)
+        if cname:
+            row = self.names.model().find_name(cname)
+            if row > -1:
+                self.names.setCurrentIndex(self.names.model().index(row))
 
     def double_clicked(self):
         self.accept()
