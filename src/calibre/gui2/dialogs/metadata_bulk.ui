@@ -489,7 +489,7 @@ from the value in the box</string>
                 <bool>false</bool>
                </property>
                <property name="minimum">
-                <double>1.000000000000000</double>
+                <double>0.000000000000000</double>
                </property>
                <property name="maximum">
                 <double>99000000.000000000000000</double>
@@ -511,7 +511,10 @@ from the value in the box</string>
                 <string>+ </string>
                </property>
                <property name="minimum">
-                <double>0.010000000000000</double>
+                <double>0.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>99999.0</double>
                </property>
                <property name="value">
                 <double>1.000000000000000</double>
