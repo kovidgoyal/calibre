@@ -164,17 +164,31 @@ class Economist(BasicNewsRecipe):
                 'recipe needs to be updated.'
             )
         return ans
-
+    
+    def get_cover_url(self):
+        from datetime import date
+        from datetime import timedelta
+        today = date.today()
+        today_index = today.weekday()
+        if (today_index >= 5): # new edition cover URL dates on Saturday
+            today -= timedelta(today_index - 5)
+        elif (today_index <= 4):  # Mon-Wed
+            today_index = today_index + 2 # rebase index to Monday = 2
+            today = today - timedelta(today_index)  # Rewind to most recent Saturday
+        cover = 'https://cdn.static-economist.com/sites/default/files/imagecache/200-width/print-covers/' + today.strftime(
+            '%Y') + today.strftime('%m') + today.strftime(
+                '%d') + '_cuk400.jpg'
+        self.log("Cover URL: ")
+        self.log(cover)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+    
     def economist_parse_index(self, soup):
-        img = soup.find(attrs={'src': True, 'class': 'print-edition__cover-widget__image'})
-        if img is not None:
-            self.cover_url = process_url(img['src'], False)
-        else:
-            div = soup.find('div', attrs={'class': 'issue-image'})
-            if div is not None:
-                img = div.find('img', src=True)
-                if img is not None:
-                    self.cover_url = re.sub('thumbnail', 'full', img['src'])
         sections = soup.findAll(
             'div', attrs={'class': 'list__title',
                           'data-reactid': True}
