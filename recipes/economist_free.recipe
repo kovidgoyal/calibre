@@ -6,7 +6,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 economist.com
 '''
 import cookielib
-import re
 from collections import OrderedDict
 
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
@@ -40,7 +39,7 @@ class Economist(BasicNewsRecipe):
     INDEX = 'https://www.economist.com/printedition'
     description = (
         'Global news and current affairs from a European'
-        ' perspective. Best downloaded on Friday mornings (GMT)'
+        ' perspective. Best downloaded on Saturday mornings (GMT)'
     )
     extra_css = '''
         .headline {font-size: x-large;}
@@ -82,7 +81,7 @@ class Economist(BasicNewsRecipe):
         ),
         dict(attrs={
                 'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
-        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section'),
+        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section newsletter-form'),
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
@@ -166,15 +165,13 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        img = soup.find(attrs={'src': True, 'class': 'print-edition__cover-widget__image'})
+        img = soup.find(attrs={'srcset': True, 'class': lambda x: x and 'print-edition__cover-widget__image' in x.split()})
         if img is not None:
-            self.cover_url = process_url(img['src'], False)
-        else:
-            div = soup.find('div', attrs={'class': 'issue-image'})
-            if div is not None:
-                img = div.find('img', src=True)
-                if img is not None:
-                    self.cover_url = re.sub('thumbnail', 'full', img['src'])
+            for part in img['srcset'].split():
+                if part.startswith('//'):
+                    self.cover_url = 'https:' + part
+                    break
+
         sections = soup.findAll(
             'div', attrs={'class': 'list__title',
                           'data-reactid': True}
