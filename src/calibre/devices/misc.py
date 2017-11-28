@@ -573,7 +573,7 @@ class CERVANTES(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
     VENDOR_ID   = [0x2a47]
-    PRODUCT_ID  = [0xad78, 0xad77, 0xad75]
+    PRODUCT_ID  = [0xad79, 0xad78, 0xad77, 0xad75]
     BCD         = [0x0110]
 
     EBOOK_DIR_MAIN = 'Books'
