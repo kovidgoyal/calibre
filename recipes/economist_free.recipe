@@ -76,12 +76,14 @@ class Economist(BasicNewsRecipe):
                     'related-items', 'main-content-container', 'ec-topic-widget',
                     'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
                     'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
+                    'newsletter-form','share-links-header','teaser--wrapped', 'latest-updates-panel__container',
+                    'latest-updates-panel__article-link','blog-post__section'
                 ]
             }
         ),
         dict(attrs={
                 'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
-        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section newsletter-form'),
+        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section')
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
