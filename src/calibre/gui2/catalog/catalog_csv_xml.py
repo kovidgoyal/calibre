@@ -11,12 +11,31 @@ from calibre.gui2.ui import get_gui
 from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
 
 
+def get_saved_field_data(name, all_fields):
+    db = get_gui().current_db
+    val = db.new_api.pref('catalog-field-data-for-' + name)
+    if val is None:
+        sort_order = gprefs.get(name + '_db_fields_sort_order', {})
+        fields = frozenset(gprefs.get(name+'_db_fields', all_fields))
+    else:
+        sort_order = val['sort_order']
+        fields = frozenset(val['fields'])
+    return sort_order, fields
+
+
+def set_saved_field_data(name, fields, sort_order):
+    db = get_gui().current_db
+    db.new_api.set_pref('catalog-field-data-for-' + name, {'fields': fields, 'sort_order': sort_order})
+    gprefs.set(name+'_db_fields', fields)
+    gprefs.set(name + '_db_fields_sort_order', sort_order)
+
+
 class PluginWidget(QWidget):
 
     TITLE = _('CSV/XML options')
     HELP  = _('Options specific to')+' CSV/XML '+_('output')
     sync_enabled = False
-    formats = set(['csv', 'xml'])
+    formats = {'csv', 'xml'}
     handles_scrolling = True
 
     def __init__(self, parent=None):
@@ -40,7 +59,7 @@ class PluginWidget(QWidget):
         from calibre.library.catalogs import FIELDS
         db = get_gui().current_db
         self.all_fields = {x for x in FIELDS if x != 'all'} | set(db.custom_field_keys())
-        sort_order = gprefs.get(self.name + '_db_fields_sort_order', {})
+        sort_order, fields = get_saved_field_data(self.name, self.all_fields)
         fm = db.field_metadata
 
         def name(x):
@@ -63,7 +82,6 @@ class PluginWidget(QWidget):
                 QListWidgetItem(name(x) + ' (%s)' % x, self.db_fields).setData(Qt.UserRole, x)
 
         # Restore the activated fields from last use
-        fields = frozenset(gprefs.get(self.name+'_db_fields', self.all_fields))
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             item.setCheckState(Qt.Checked if unicode(item.data(Qt.UserRole)) in fields else Qt.Unchecked)
@@ -76,8 +94,7 @@ class PluginWidget(QWidget):
             all_fields.append(unicode(item.data(Qt.UserRole)))
             if item.checkState() == Qt.Checked:
                 fields.append(unicode(item.data(Qt.UserRole)))
-        gprefs.set(self.name+'_db_fields', fields)
-        gprefs.set(self.name + '_db_fields_sort_order', {x:i for i, x in enumerate(all_fields)})
+        set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget
         if len(fields):
