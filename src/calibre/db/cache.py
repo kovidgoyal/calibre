@@ -1931,12 +1931,13 @@ class Cache(object):
         author_map = defaultdict(set)
         for aid, author in at.id_map.iteritems():
             author_map[icu_lower(author)].add(aid)
-        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy())
+        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy(), self.fields['languages'].book_value_map.copy())
 
     @read_api
     def update_data_for_find_identical_books(self, book_id, data):
-        author_map, author_book_map, title_map = data
+        author_map, author_book_map, title_map, lang_map = data
         title_map[book_id] = self._field_for('title', book_id)
+        lang_map[book_id] = self._field_for('languages', book_id)
         at = self.fields['authors'].table
         for aid in at.book_col_map.get(book_id, ()):
             author_map[icu_lower(at.id_map[aid])].add(aid)
