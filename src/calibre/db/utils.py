@@ -34,6 +34,7 @@ def force_to_bool(val):
             val = None
     return val
 
+
 _fuzzy_title_patterns = None
 
 
@@ -82,22 +83,15 @@ def find_identical_books(mi, data):
         if fuzzy_title(title) == titleq:
             ans.add(book_id)
 
-    if ans is None:
-        return set()
-
-    alg = set()
-    langq = canonicalize_lang(mi.language)
-    if langq is None:
+    langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
+    if not langq:
         return ans
-    for book_id in ans:
-        lang_list = lang_map.get(book_id, '')
-        if lang_list is None:
-            return ans
-        for lang in lang_list:
-            lang=canonicalize_lang(lang)
-            if lang == langq:
-                alg.add(book_id)
-    return alg
+
+    def lang_matches(book_id):
+        book_langq = lang_map.get(book_id)
+        return not book_langq or langq == book_langq
+
+    return {book_id for book_id in ans if lang_matches(book_id)}
 
 
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
@@ -382,6 +376,7 @@ class ThumbnailCache(object):
             self.max_size = int(size_in_mb * (1024**2))
             if hasattr(self, 'total_size'):
                 self._apply_size()
+
 
 number_separators = None
 

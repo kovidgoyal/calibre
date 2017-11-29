@@ -684,11 +684,17 @@ class ReadingTest(BaseTest):
         from calibre.db.utils import find_identical_books
         # 'find_identical_books': [(,), (Metadata('unknown'),), (Metadata('xxxx'),)],
         cache = self.init_cache(self.library_path)
+        cache.set_field('languages', {1: ('fra', 'deu')})
         data = cache.data_for_find_identical_books()
+        lm = cache.get_metadata(1)
+        lm2 = cache.get_metadata(1)
+        lm2.languages = ['eng']
         for mi, books in (
                 (Metadata('title one', ['author one']), {2}),
                 (Metadata(_('Unknown')), {3}),
                 (Metadata('title two', ['author one']), {1}),
+                (lm, {1}),
+                (lm2, set()),
         ):
             self.assertEqual(books, cache.find_identical_books(mi))
             self.assertEqual(books, find_identical_books(mi, data))

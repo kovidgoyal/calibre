@@ -111,7 +111,7 @@
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
          <property name="text">
-          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same language, title, and author</string>
+          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title, author and language</string>
          </property>
         </widget>
        </item>

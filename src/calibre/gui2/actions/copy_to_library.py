@@ -351,7 +351,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         QDialog.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
-        self.la = la = QLabel(_('Books with the same, language, title and author as the following already exist in the library %s.'
+        self.la = la = QLabel(_('Books with the same, title, author and language as the following already exist in the library %s.'
                                 ' Select which books you want copied anyway.') %
                               os.path.basename(loc))
         la.setWordWrap(True)
