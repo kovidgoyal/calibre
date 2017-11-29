@@ -161,6 +161,11 @@ class Cache(object):
         will happen.'''
         return SafeReadLock(self.read_lock)
 
+    @write_api
+    def ensure_has_search_category(self, fail_on_existing=True):
+        if len(self._search_api.saved_searches.names()) > 0:
+            self.field_metadata.add_search_category(label='search', name=_('Searches'), fail_on_existing=fail_on_existing)
+
     def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
         fm = self.field_metadata
@@ -184,9 +189,7 @@ class Cache(object):
                     self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
-
-        if len(self._search_api.saved_searches.names()) > 0:
-            self.field_metadata.add_search_category(label='search', name=_('Searches'))
+        self._ensure_has_search_category()
 
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
