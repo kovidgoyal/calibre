@@ -12,6 +12,7 @@ simple_vendor_prefixes = {
     'animation-direction': v"['webkit', 'moz', 'o']",
     'animation-fill-mode': v"['webkit', 'moz', 'o']",
     'animation-play-state': v"['webkit', 'moz', 'o']",
+    'hyphens': v"['webkit', 'moz', 'ms']",
     'transform': v"['webkit', 'ms', 'moz', 'o']",
     'transform-origin': v"['webkit', 'ms', 'moz', 'o']",
     'transition': v"['webkit', 'moz', 'o']",

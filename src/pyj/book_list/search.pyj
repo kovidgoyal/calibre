@@ -31,7 +31,8 @@ CLASS_NAME = 'book-search-panel'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
 
-    style =  build_rule(sel + ' div.tag-name:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style =  build_rule(sel + ' div.tag-name > span', word_break='break-all', hyphens='auto', padding_left='1ex')
+    style +=  build_rule(sel + ' div.tag-name:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
     style += build_rule(sel + ' div.tag-menu:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
     style += build_rule(sel + ' div.tag-name:active', transform='scale(1.5)')
     style += build_rule(sel + ' div.tag-menu:active', transform='scale(2)')
@@ -266,14 +267,14 @@ def render_children(container, children):
                 E.div(class_='tag-name',
                     style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
                     E.img(src=icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
-                    '\xa0' + data.name
+                    E.span(data.name),
                 ),
                 E.div(class_='tag-menu',
                     style='padding: 1ex; display:flex; align-items:center',
                     E.div(svgicon('angle-down'))
                 )
         )
-        set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
+        set_css(div, max_width='95vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
         div.firstChild.addEventListener('click', node_clicked.bind(None, i))
         div.lastChild.addEventListener('click', menu_clicked.bind(None, i))
         container.appendChild(div)
