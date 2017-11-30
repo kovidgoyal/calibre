@@ -1059,6 +1059,21 @@ class ConfigWidget(ConfigWidgetBase):
         bx = QDialogButtonBox(QDialogButtonBox.Ok)
         layout.addWidget(bx)
         bx.accepted.connect(d.accept)
+        b = bx.addButton(_('&Clear logs'), bx.ActionRole)
+
+        def clear_logs():
+            if getattr(self.server, 'is_running', False):
+                return error_dialog(d, _('Server running'), _(
+                    'Cannot clear logs while the server is running. First stop the server.'), show=True)
+            for x in (log_error_file, log_access_file):
+                try:
+                    os.remove(x)
+                except EnvironmentError as err:
+                    if err.errno != errno.ENOENT:
+                        raise
+            el.setPlainText(''), al.setPlainText('')
+
+        b.clicked.connect(clear_logs)
         d.show()
 
     def save_changes(self):
