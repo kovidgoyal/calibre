@@ -24,7 +24,7 @@ class Configure(Dialog):
 
     def __init__(self, db, parent=None):
         self.db = db
-        Dialog.__init__(self, _('Configure the book details window'), 'book-details-popup-conf', parent)
+        Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
     def setup_ui(self):
         from calibre.gui2.preferences.look_feel import DisplayedFields, move_field_up, move_field_down

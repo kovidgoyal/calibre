@@ -27,7 +27,7 @@
     - title: "Driver for the new Nook Glowlight 3"
       tickets: [1731024]
 
-    - title: "Allow configuring the metadata fields displayed in the popup book details window. To configure, simply click the 'Configure' link at the bottom of the window."
+    - title: "Allow configuring the metadata fields displayed in the pop-up Book details window. To configure, simply click the 'Configure' link at the bottom of the window."
 
     - title: "Wireless driver: Allow specifying extra file formats (unknown to calibre) to send"
 
