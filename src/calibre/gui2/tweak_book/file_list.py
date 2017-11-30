@@ -23,6 +23,7 @@ from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image
 )
+from calibre.ebooks.oeb.polish.css import add_stylesheet_links
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.gui2 import (
     choose_dir, choose_files, choose_save_file, elided_text, error_dialog,
@@ -827,6 +828,9 @@ class NewFileDialog(QDialog):  # {{{
         self.name = n = QLineEdit(self)
         n.textChanged.connect(self.update_ok)
         l.addWidget(n)
+        self.link_css = lc = QCheckBox(_('Automatically add style-sheet links into new HTML files'))
+        lc.setChecked(tprefs['auto_link_stylesheets'])
+        l.addWidget(lc)
         self.err_label = la = QLabel('')
         la.setWordWrap(True)
         l.addWidget(la)
@@ -856,6 +860,7 @@ class NewFileDialog(QDialog):  # {{{
             self.do_import_file(path[0])
 
     def do_import_file(self, path, hide_button=False):
+        self.link_css.setVisible(False)
         with open(path, 'rb') as f:
             self.file_data = f.read()
         name = os.path.basename(path)
@@ -878,6 +883,7 @@ class NewFileDialog(QDialog):  # {{{
         if not self.name_is_ok:
             return error_dialog(self, _('No name specified'), _(
                 'You must specify a name for the new file, with an extension, for example, chapter1.html'), show=True)
+        tprefs['auto_link_stylesheets'] = self.link_css.isChecked()
         name = unicode(self.name.text())
         name, ext = name.rpartition('.')[0::2]
         name = (name + '.' + ext.lower()).replace('\\', '/')
@@ -885,6 +891,10 @@ class NewFileDialog(QDialog):  # {{{
         if not self.file_data:
             if mt in OEB_DOCS:
                 self.file_data = template_for('html').encode('utf-8')
+                if tprefs['auto_link_stylesheets']:
+                    data = add_stylesheet_links(current_container(), name, self.file_data)
+                    if data is not None:
+                        self.file_data = data
                 self.using_template = True
             elif mt in OEB_STYLES:
                 self.file_data = template_for('css').encode('utf-8')

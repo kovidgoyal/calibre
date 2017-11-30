@@ -13,9 +13,9 @@ from cssutils.css import CSSRule, CSSStyleDeclaration
 from css_selectors import parse, SelectorSyntaxError
 
 from calibre import force_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XHTML
 from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
-from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
+from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
 
@@ -369,3 +369,19 @@ def sort_sheet(container, sheet_or_text):
         return primary, secondary, tertiary
     sheet.cssRules.sort(key=rule_sort_key)
     return sheet
+
+
+def add_stylesheet_links(container, name, text):
+    root = container.parse_xhtml(text, name)
+    head = root.xpath('//*[local-name() = "head"]')
+    if not head:
+        return
+    head = head[0]
+    sheets = tuple(container.manifest_items_of_type(lambda mt: mt in OEB_STYLES))
+    if not sheets:
+        return
+    for sname in sheets:
+        link = head.makeelement(XHTML('link'), type='text/css', rel='stylesheet', href=container.name_to_href(sname, name))
+        head.append(link)
+    pretty_xml_tree(head)
+    return serialize(root, 'text/html')
