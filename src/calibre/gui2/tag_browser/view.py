@@ -13,7 +13,7 @@ from itertools import izip
 
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
-    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect,
+    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
 )
 
@@ -213,16 +213,17 @@ class TagsView(QTreeView):  # {{{
     def get_state(self):
         state_map = {}
         expanded_categories = []
-        row = -1
         hide_empty_categories = self.model().prefs['tag_browser_hide_empty_categories']
+        crmap = self._model.category_row_map()
         for category in self._model.category_nodes:
             if (category.category_key in self.hidden_categories or
                     (hide_empty_categories and len(category.child_tags()) == 0)):
                 continue
-            row += 1
-            index = self._model.index_for_category(category.category_key)
-            if index is not None and self.isExpanded(index):
-                expanded_categories.append(category.category_key)
+            row = crmap.get(category.category_key)
+            if row is not None:
+                index = self._model.index(row, 0, QModelIndex())
+                if self.isExpanded(index):
+                    expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
             state_map[category.category_key] = dict(izip(names, states))
