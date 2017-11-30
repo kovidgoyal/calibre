@@ -13,7 +13,7 @@ from itertools import izip
 
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
-    QMenu, QPoint, QModelIndex, QToolTip, QCursor, QDrag, QRect,
+    QMenu, QPoint, QToolTip, QCursor, QDrag, QRect,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
 )
 
@@ -220,7 +220,8 @@ class TagsView(QTreeView):  # {{{
                     (hide_empty_categories and len(category.child_tags()) == 0)):
                 continue
             row += 1
-            if self.isExpanded(self._model.index(row, 0, QModelIndex())):
+            index = self._model.index_for_category(category.category_key)
+            if index is not None and self.isExpanded(index):
                 expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
