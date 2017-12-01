@@ -20,6 +20,66 @@
 #   new recipes:
 #     - title:
 
+- version: 3.13.0
+  date: 2017-12-01
+
+  new features:
+    - title: "Driver for the new Bq Cervantes 4"
+
+    - title: "Edit book: Auto-generate links to existing stylesheets when adding a new HTML file."
+      tickets: [1733845]
+
+    - title: "Add a button to easily clear server logs in Preferences->Sharing over the net->Show server logs."
+      tickets: [1730046]
+
+    - title: "Catalog generation: Store the list of fields to be used in generating CSV/XML catalogs per library."
+      tickets: [1730500]
+
+    - title: "Bulk metadata edit: Make the custom series controls similar to the builtin series ones, with the same set of features"
+
+    - title: "Edit book: Pre-select existing cover image (if any) in add cover dialog"
+
+    - title: "Make the Manage saved searches dialog a little easier for new users."
+      tickets: [1733163]
+
+    - title: "Add a tweak to control behavior of Enter on the book list"
+
+    - title: "Content server: Fix random book button on book details page multiplying."
+      tickets: [1732493]
+
+    - title: "Edit Book: Bulk file rename dialog: Remember last used prefix for renaming files"
+
+  bug fixes:
+    - title: "Tag browser: Fix use of the tweak to control order of items in the Tag browser causing unexpected expansion of items after editing metadata."
+      tickets: [1730245]
+
+    - title: "Content server: Improve rendering of tags/categories with long words on small screens."
+      tickets: [1734119]
+
+    - title: "Fix first added saved search not appearing in Tag browser until calibre restart."
+      tickets: [1733151]
+
+    - title: "When checking added books for duplicates, also check on the language field. So books with the same title/authors but different languages are not considered duplicates."
+
+    - title: "Edit Book: Spell check should not fail if there are non-HTML files in the spine"
+
+    - title: "Conversion: Fix an error when using the embed_all_fonts option with certain books"
+
+    - title: "Save to disk: Dont error out if the user deletes all formats to be saved."
+
+    - title: "Linux binary: Fix calibre not starting on systems where QT_QPA_PLATFORM is set to use wayland"
+
+  improved recipes:
+    - The Economist
+    - The Walrun Magazine
+    - China Daily
+    - Telepolis
+
+  new recipes:
+    - title: Various Russian news source
+      author: bugmen00t
+
+
 - version: 3.12.0
   date: 2017-11-09
 
