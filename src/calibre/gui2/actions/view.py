@@ -200,7 +200,7 @@ class ViewAction(InterfaceAction):
         book_id = self.gui.library_view.model().id(row)
         self.gui.book_details.open_fmt_with.emit(book_id, fmt, entry)
 
-    def _view_check(self, num, max_=3):
+    def _view_check(self, num, max_=5, skip_dialog_name=None):
         if num <= max_:
             return True
         return question_dialog(self.gui, _('Multiple books selected'),
@@ -208,7 +208,7 @@ class ViewAction(InterfaceAction):
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
                 'cannot be stopped until complete. Do you wish to continue?'
-                ) % num, show_copy_button=False)
+                ) % num, show_copy_button=False, skip_dialog_name=skip_dialog_name)
 
     def view_folder(self, *args):
         rows = self.gui.current_view().selectionModel().selectedRows()
@@ -217,7 +217,7 @@ class ViewAction(InterfaceAction):
                     _('No book selected'))
             d.exec_()
             return
-        if not self._view_check(len(rows)):
+        if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return
         for i, row in enumerate(rows):
             path = self.gui.library_view.model().db.abspath(row.row())
