@@ -35,7 +35,7 @@ class Configure(Dialog):
         fdo.setModel(self.model)
         fdo.setAlternatingRowColors(True)
         del self.db
-        self.l.addWidget(QLabel('Select displayed metadata'))
+        self.l.addWidget(QLabel(_('Select displayed metadata')))
         h = QHBoxLayout()
         h.addWidget(fdo)
         v = QVBoxLayout()
