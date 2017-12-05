@@ -21,8 +21,6 @@ class LeMonde(BasicNewsRecipe):
 
     needs_subscription = True
 
-    login_url = 'https://www.lemonde.fr/web/journal_electronique/identification/1,56-0,45-0,0.html'
-
     extra_css = '''
                 img{max-width:100%}
                 h1{font-size:1.2em !important; line-height:1.2em !important; }
@@ -53,23 +51,12 @@ class LeMonde(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open(self.login_url)
-        br.select_form(nr=0)
-        br['login'] = self.username
-        br['password'] = self.password
+        br.open('https://secure.lemonde.fr/sfuser/connexion')
+        br.select_form(name='connection')
+        br['connection[mail]'] = self.username
+        br['connection[password]'] = self.password
         br.submit()
         return br
-
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(
-            'http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
-        link_item = soup.find('div', attrs={'class': 'pg-gch'})
-
-        if link_item and link_item.img:
-            cover_url = link_item.img['src']
-
-        return cover_url
 
     def preprocess_html(self, soup):
         for lgd in soup.findAll(id="lgd"):
