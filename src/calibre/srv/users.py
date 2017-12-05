@@ -76,7 +76,14 @@ class UserManager(object):
     def conn(self):
         with self.lock:
             if self._conn is None:
-                self._conn = apsw.Connection(self.path)
+                try:
+                    self._conn = apsw.Connection(self.path)
+                except apsw.CantOpenError:
+                    pdir = os.path.dirname(self.path)
+                    if os.path.isdir(pdir):
+                        raise
+                    os.makedirs(pdir)
+                    self._conn = apsw.Connection(self.path)
                 with self._conn:
                     c = self._conn.cursor()
                     uv = next(c.execute('PRAGMA user_version'))[0]
