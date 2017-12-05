@@ -9,7 +9,7 @@ import os, shutil, copy
 from functools import partial
 from io import BytesIO
 
-from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication
+from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication, QMimeData
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -90,6 +90,8 @@ class EditMetadataAction(InterfaceAction):
                 shortcut='Alt+Shift+M')
         self.merge_menu = mb
         md.addSeparator()
+        self.action_copy = cm('copy', _('Copy metadata'), icon='edit-copy.png', triggered=self.copy_metadata)
+        self.action_paset = cm('paste', _('Paste metadata'), icon='edit-paste.png', triggered=self.paste_metadata)
         self.action_merge = cm('merge', _('Merge book records'), icon='merge_books.png',
             shortcut=_('M'), triggered=self.merge_books)
         self.action_merge.setMenu(mb)
@@ -100,6 +102,53 @@ class EditMetadataAction(InterfaceAction):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
+
+    def copy_metadata(self):
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return error_dialog(self.gui, _('Cannot copy metadata'),
+                                _('No books selected'), show=True)
+        if len(rows) > 1:
+            return error_dialog(self.gui, _('Cannot copy metadata'),
+                                _('Multiple books selected, can only copy from one book at a time.'), show=True)
+        db = self.gui.current_db
+        book_id = db.id(rows[0].row())
+        mi = db.new_api.get_metadata(book_id)
+        md = QMimeData()
+        md.setText(unicode(mi))
+        md.setData('application/calibre-book-metadata', bytearray(metadata_to_opf(mi, default_lang='und')))
+        img = db.new_api.cover(book_id, as_image=True)
+        if img:
+            md.setImageData(img)
+        c = QApplication.clipboard()
+        c.setMimeData(md)
+
+    def paste_metadata(self):
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return error_dialog(self.gui, _('Cannot paste metadata'),
+                                _('No books selected'), show=True)
+        c = QApplication.clipboard()
+        md = c.mimeData()
+        if not md.hasFormat('application/calibre-book-metadata'):
+            return error_dialog(self.gui, _('Cannot paste metadata'),
+                                _('No copied metadata available'), show=True)
+        if len(rows) > 1:
+            if not confirm(_(
+                    'You are pasting metadata onto <b>multiple books</b> ({num_of_books}). Are you'
+                    ' sure you want to do that?').format(num_of_books=len(rows)), 'paste-onto-multiple', parent=self.gui):
+                return
+        data = bytes(md.data('application/calibre-book-metadata'))
+        mi = OPF(BytesIO(data), populate_spine=False, read_toc=False, try_to_guess_cover=False).to_book_metadata()
+        mi.application_id = mi.uuid_id = None
+        cover = md.imageData()
+        db = self.gui.current_db
+        book_ids = {db.id(r.row()) for r in rows}
+        for book_id in book_ids:
+            db.new_api.set_metadata(book_id, mi, ignore_errors=True)
+        if cover:
+            db.new_api.set_cover({book_id: cover for book_id in book_ids})
+        self.refresh_books_after_metadata_edit(book_ids)
 
     # Download metadata {{{
     def download_metadata(self, ids=None, ensure_fields=None):
