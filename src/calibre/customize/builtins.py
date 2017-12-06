@@ -1638,18 +1638,6 @@ class StoreKoboStore(StoreBase):
     affiliate = True
 
 
-class StoreKoobeStore(StoreBase):
-    name = 'Koobe'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia internetowa oferuje ebooki (książki elektroniczne) w postaci plików epub, mobi i pdf.'
-    actual_plugin = 'calibre.gui2.store.stores.koobe_plugin:KoobeStore'
-
-    drm_free_only = True
-    headquarters = 'PL'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
-
-
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
     author = u'Tomasz Długosz'
@@ -1790,6 +1778,18 @@ class StoreSmashwordsStore(StoreBase):
     affiliate = True
 
 
+class StoreSwiatEbookowStore(StoreBase):
+    name = 'Świat Ebooków'
+    author = u'Tomasz Długosz'
+    description = u'Ebooki maje tę zaletę, że są zawsze i wszędzie tam, gdzie tylko nas dopadnie ochota na czytanie.'
+    actual_plugin = 'calibre.gui2.store.stores.swiatebookow_plugin:SwiatEbookowStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
+
 class StoreVirtualoStore(StoreBase):
     name = 'Virtualo'
     author = u'Tomasz Długosz'
@@ -1879,7 +1879,6 @@ plugins += [
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
-    StoreKoobeStore,
     StoreLegimiStore,
     StoreLibreDEStore,
     StoreLitResStore,
@@ -1893,6 +1892,7 @@ plugins += [
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
+    StoreSwiatEbookowStore,
     StoreVirtualoStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
