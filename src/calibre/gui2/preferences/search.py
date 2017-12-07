@@ -245,6 +245,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()
+        from calibre.gui2.widgets import history
+        for key in 'bulk_edit_search_for bulk_edit_replace_with'.split():
+            history.set('lineedit_history_' + key, [])
 
 
 if __name__ == '__main__':
