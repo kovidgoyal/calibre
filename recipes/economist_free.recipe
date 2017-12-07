@@ -171,7 +171,7 @@ class Economist(BasicNewsRecipe):
         if img is not None:
             for part in img['srcset'].split():
                 if part.startswith('//'):
-                    part = part.replace('200-width','1200-width')
+                    part = part.replace('200-width','640-width')
                     self.cover_url = 'https:' + part
                     self.log('Got cover: ',self.cover_url)
                     break
