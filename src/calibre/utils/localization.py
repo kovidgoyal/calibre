@@ -45,8 +45,16 @@ def get_system_locale():
             traceback.print_exc()
     if lang is None:
         try:
-            lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
-                                        'LC_MESSAGES', 'LANG'])[0]
+            envvars = ['LANGUAGE', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'LANG']
+            lang = locale.getdefaultlocale(envvars)[0]
+
+            # lang is None in two cases: either the environment variable is not
+            # set or it's "C". Stop looking for a language in the later case.
+            if lang is None:
+                for var in envvars:
+                    if var in os.environ.keys() and os.environ[var] == 'C':
+                        lang = 'en_US'
+                        break
         except:
             pass  # This happens on Ubuntu apparently
         if lang is None and 'LANG' in os.environ:  # Needed for OS X
