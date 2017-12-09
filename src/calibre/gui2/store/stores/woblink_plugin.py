@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 13  # Needed for dynamic plugin loading
+store_version = 14  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -61,7 +61,7 @@ def search(query, max_results=10, timeout=60):
         formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_format"]/span/text()'))
 
         s = SearchResult()
-        s.cover_url = 'http://woblink.com' + cover_url
+        s.cover_url = cover_url
         s.title = title.strip()
         s.author = author.strip()
         s.price = price + ' zł'
