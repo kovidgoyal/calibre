@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -29,7 +29,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/9/58/'
 
-        url = 'http://www.legimi.com/pl/ebooki/'
+        url = 'https://www.legimi.pl/ebooki/'
 
         aff_url = aff_root + str(b64encode(url))
 
@@ -46,7 +46,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.legimi.com/pl/ebooki/?szukaj=' + urllib.quote_plus(query)
+        url = 'https://www.legimi.pl/ebooki/?szukaj=' + urllib.quote_plus(query)
 
         br = browser()
 
@@ -73,7 +73,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                s.detail_item = 'http://www.legimi.com/' + id.strip()
+                s.detail_item = 'https://www.legimi.pl/' + id.strip()
 
                 yield s
 
