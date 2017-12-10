@@ -204,7 +204,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.gst_names.setCurrentIndex(self.gst_names.findText(select))
 
     def gst_text_changed(self):
-        self.gst_delete_button.setEnabled(False)
+        t = self.gst_names.currentText()
+        self.gst_delete_button.setEnabled(len(t) > 0 and t in self.gst)
         self.gst_save_button.setEnabled(True)
 
     def gst_index_changed(self, idx):
