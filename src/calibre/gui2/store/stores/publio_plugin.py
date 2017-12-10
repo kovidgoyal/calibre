@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012-2017, Tomasz Długosz <tomek3d@gmail.com>'
@@ -64,7 +64,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     title = ''.join(data.xpath('.//span[@class="product-tile-title-long"]/text()'))
                     author = ', '.join(data.xpath('.//span[@class="product-tile-author"]/a/text()'))
                     price = ''.join(data.xpath('.//div[@class="product-tile-price-wrapper "]/a/ins/text()'))
-                    # formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
+                    formats = ''.join(data.xpath('.//a[@class="product-tile-cover"]/img/@alt')).split(' - ebook ')[1]
 
                     counter -= 1
 
@@ -74,8 +74,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     s.author = author
                     s.price = price
                     s.detail_item = 'http://www.publio.pl' + id.strip()
-                    # s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
-                    # s.formats = formats.replace(' DRM','').strip()
+                    s.formats = formats.upper().strip()
 
                     yield s
                 if not doc.xpath('boolean(//a[@class="next"])'):
