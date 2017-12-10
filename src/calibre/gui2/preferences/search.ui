@@ -154,8 +154,8 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <layout class="QHBoxLayout" name="l12">
-            <item>
+           <layout class="QGridLayout" name="l12">
+            <item row="0" column="0">
              <widget class="QLabel" name="la10">
               <property name="text">
                <string>&amp;Names:</string>
@@ -165,7 +165,7 @@
               </property>
              </widget>
             </item>
-            <item>
+            <item  row="0" column="1">
              <widget class="QComboBox" name="gst_names">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -188,7 +188,7 @@ a search term by changing the value box then pressing Save.</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="0" column="2">
              <widget class="QToolButton" name="gst_delete_button">
               <property name="toolTip">
                <string>Delete the current search term</string>
@@ -202,20 +202,39 @@ a search term by changing the value box then pressing Save.</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="EditWithComplete" name="gst_value"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="gst_save_button">
-              <property name="toolTip">
-               <string>Save the current search term. You can rename a search term by
-changing the name then pressing Save. You can change the value
-of a search term by changing the value box then pressing Save.</string>
-              </property>
+            <item row="1" column="0">
+             <widget class="QLabel" name="la112">
               <property name="text">
-               <string>&amp;Save</string>
+               <string>&amp;Value:</string>
+              </property>
+              <property name="buddy">
+               <cstring>gst_value</cstring>
               </property>
              </widget>
+            </item>
+            <item  row="1" column="1">
+             <widget class="EditWithComplete" name="gst_value">
+              <property name="toolTip">
+               <string>Enter a comma-separated list of lookup names of the columns
+to include in the grouped search term</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <layout class="QHBoxLayout">
+              <item>
+               <widget class="QToolButton" name="gst_save_button">
+                <property name="toolTip">
+                 <string>Save the current search term. You can rename a search term by
+changing the name then pressing Save. You can change the value
+of a search term by changing the value box then pressing Save.</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Save</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
@@ -230,7 +249,7 @@ of a search term by changing the value box then pressing Save.</string>
            </widget>
           </item>
           <item row="1" column="0">
-           <layout class="QHBoxLayout">
+           <layout class="QHBoxLayout" name="user_category_layout">
             <item>
              <widget class="QLabel" name="l11">
               <property name="text">
