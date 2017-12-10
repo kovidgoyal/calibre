@@ -76,6 +76,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.update_items_cache(fl)
         self.fill_gst_box(select=None)
 
+        self.user_category_layout.setContentsMargins(0, 30, 0, 0)
+        self.gst_names.lineEdit().setPlaceholderText(
+                         _('Enter new or select existing name'))
+        self.gst_value.lineEdit().setPlaceholderText(
+                         _('Enter list of column lookup names to search'))
+
         self.category_fields = fl
         ml = [(_('Match any'), 'match_any'), (_('Match all'), 'match_all')]
         r('similar_authors_match_kind', db.prefs, choices=ml)
