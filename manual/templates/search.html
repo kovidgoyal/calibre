@@ -9,10 +9,6 @@
 #}
 {% extends "layout.html" %}
 {% set title = _('Search') %}
-{% block extrahead %}
-    <link rel="stylesheet" href="https://www.google.com/cse/style/look/default.css" type="text/css" />
-  {{ super() }}
-{% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   <div id="fallback" class="admonition warning">
@@ -23,26 +19,11 @@
   </p>
   </div>
   <p>
-    {% trans %}From here you can search these documents. Enter your search
-    words into the box below and click "search". Note that the search
-    function will automatically search for all of the words. Pages
-    containing fewer words won't appear in the result list.{% endtrans %}
+    {% trans %}From here you can search the User Manual. Enter your search
+    words into the box below and click "search".
+    {% endtrans %}
   </p>
-  <div id="cse" style="width: 100%;">Loading</div>
-<script src="https://www.google.com/jsapi" type="text/javascript"></script>
-<script type="text/javascript"> 
-  google.load('search', '1');
-  google.setOnLoadCallback(function() {
-    var customSearchControl = new google.search.CustomSearchControl('partner-pub-5939552585043235:2303012306');
-    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
-    var options = new google.search.DrawOptions();
-    options.setAutoComplete(true);
-    customSearchControl.draw('cse', options);
-    var params = $.getQueryParameters();
-    if (params.q) {
-        var query = params.q[0];
-        customSearchControl.execute(query);
-    }
-  }, true);
-</script>
+  <div class="gcse-search" data-enableHistory="true">
+      <script type="text/javascript" async src="https://cse.google.com/cse.js?cx=partner-pub-5939552585043235:2303012306"></script>
+  </div>
 {% endblock %}
