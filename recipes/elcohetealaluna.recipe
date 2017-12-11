@@ -1,0 +1,37 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2017, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.elcohetealaluna.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class elcohetealaluna(BasicNewsRecipe):
+    title                = 'El Cohete a la Luna'
+    __author__           = 'Darko Miletic'
+    description          = 'El nuevo portal de Horacio Verbitsky'
+    publisher            = 'Horacio Verbitsky'
+    category             = 'news, politics, Argentina'
+    oldest_article       = 7
+    no_stylesheets       = True
+    encoding             = 'utf8'
+    use_embedded_content = False
+    language             = 'es_AR'
+    remove_empty_feeds   = True
+    publication_type     = 'newsportal'
+    auto_cleanup         = True
+    resolve_internal_links = True
+    extra_css            = """
+        body{font-family: serif}
+        img{margin-top:1em; margin-bottom: 1em; display:block}
+    """
+
+    conversion_options = {
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
+
+    feeds = [(u'Articulos', u'https://www.elcohetealaluna.com/feed/')]
