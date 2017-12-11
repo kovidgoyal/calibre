@@ -1779,7 +1779,7 @@ class StoreSmashwordsStore(StoreBase):
 
 
 class StoreSwiatEbookowStore(StoreBase):
-    name = 'Świat Ebooków'
+    name = u'Świat Ebooków'
     author = u'Tomasz Długosz'
     description = u'Ebooki maje tę zaletę, że są zawsze i wszędzie tam, gdzie tylko nas dopadnie ochota na czytanie.'
     actual_plugin = 'calibre.gui2.store.stores.swiatebookow_plugin:SwiatEbookowStore'
