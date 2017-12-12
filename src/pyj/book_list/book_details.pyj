@@ -100,6 +100,13 @@ def adjust_iframe_height(iframe):
     # scrollHeight is inaccurate on Firefox
     iframe.style.height = de.offsetHeight + 5 + 'px'
     iframe.dataset.last_window_width = window.innerWidth + ''
+    return de
+
+
+def setup_iframe(iframe):
+    de = adjust_iframe_height(iframe)
+    for a in de.querySelectorAll('a[href]'):
+        a.setAttribute('target', '_blank')
 
 
 def adjust_all_iframes(ev):
@@ -113,8 +120,10 @@ window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
 def adjusting_sandboxed_html(html):
     css =  'html, body {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
-    ans = sandboxed_html(html, css, 'allow-same-origin')
-    ans.addEventListener('load', def(ev): adjust_iframe_height(ev.target);)
+    # allow-same-origin is needed for resizing and allow-popups is needed for
+    # target="_blank"
+    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups')
+    ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
     return ans
