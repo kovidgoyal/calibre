@@ -70,8 +70,8 @@ is completed. This can be slow on large libraries.</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>944</width>
-        <height>638</height>
+        <width>946</width>
+        <height>661</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -97,6 +97,22 @@ is completed. This can be slow on large libraries.</string>
            <string>&amp;Basic metadata</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout">
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Ser&amp;ies:</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>series</cstring>
+             </property>
+            </widget>
+           </item>
            <item row="9" column="0">
             <widget class="QLabel" name="label_10">
              <property name="text">
@@ -130,20 +146,6 @@ is completed. This can be slow on large libraries.</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="3">
-            <widget class="QToolButton" name="tag_editor_button">
-             <property name="toolTip">
-              <string>Open Tag editor</string>
-             </property>
-             <property name="text">
-              <string>Open Tag editor</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../../../../resources/images.qrc">
-               <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
@@ -168,6 +170,20 @@ is completed. This can be slow on large libraries.</string>
              </item>
             </layout>
            </item>
+           <item row="5" column="3">
+            <widget class="QToolButton" name="tag_editor_button">
+             <property name="toolTip">
+              <string>Open Tag editor</string>
+             </property>
+             <property name="text">
+              <string>Open Tag editor</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
@@ -181,7 +197,7 @@ is completed. This can be slow on large libraries.</string>
              </property>
             </widget>
            </item>
-           <item row="18" column="0">
+           <item row="19" column="0">
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -307,22 +323,6 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
            </item>
            <item row="3" column="2">
             <widget class="RatingEditor" name="rating"/>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Ser&amp;ies:</string>
-             </property>
-             <property name="textFormat">
-              <enum>Qt::PlainText</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>series</cstring>
-             </property>
-            </widget>
            </item>
            <item row="11" column="0">
             <widget class="QLabel" name="label_11">
@@ -514,7 +514,7 @@ from the value in the box</string>
                 <double>0.000000000000000</double>
                </property>
                <property name="maximum">
-                <double>99999.0</double>
+                <double>99999.000000000000000</double>
                </property>
                <property name="value">
                 <double>1.000000000000000</double>
@@ -589,23 +589,36 @@ from the value in the box</string>
 title and author are swapped before the title case is set</string>
                </property>
                <property name="text">
-                <string>Change title to title &amp;case</string>
+                <string>Change title &amp;case to:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="update_title_sort">
-               <property name="toolTip">
-                <string>Update title sort based on the current title. This will be applied only after other changes to title.</string>
-               </property>
-               <property name="text">
-                <string>Update &amp;title sort</string>
+              <widget class="QComboBox" name="casing_algorithm">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>0</height>
+                </size>
                </property>
               </widget>
              </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
-           <item row="16" column="0" colspan="4">
+           <item row="17" column="0" colspan="4">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
               <string>Change &amp;cover</string>
@@ -658,7 +671,7 @@ as that of the first selected book.</string>
              </layout>
             </widget>
            </item>
-           <item row="17" column="0" colspan="4">
+           <item row="18" column="0" colspan="4">
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
               <widget class="QPushButton" name="button_config_cover_gen">
@@ -705,6 +718,16 @@ as that of the first selected book.</string>
              </property>
              <property name="text">
               <string>Set &amp;metadata (except cover) from the e-book files</string>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="0">
+            <widget class="QCheckBox" name="update_title_sort">
+             <property name="toolTip">
+              <string>Update title sort based on the current title. This will be applied only after other changes to title.</string>
+             </property>
+             <property name="text">
+              <string>Update &amp;title sort</string>
              </property>
             </widget>
            </item>
@@ -1194,8 +1217,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>203</width>
-                <height>70</height>
+                <width>924</width>
+                <height>311</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1308,8 +1331,6 @@ not multiple and the destination field is multiple</string>
   <tabstop>languages</tabstop>
   <tabstop>clear_languages</tabstop>
   <tabstop>restore_original</tabstop>
-  <tabstop>change_title_to_title_case</tabstop>
-  <tabstop>update_title_sort</tabstop>
   <tabstop>cover_generate</tabstop>
   <tabstop>cover_remove</tabstop>
   <tabstop>cover_from_fmt</tabstop>
