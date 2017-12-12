@@ -13,7 +13,7 @@ from functools import partial
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
-from calibre.ebooks.oeb.polish.subset import subset_all_fonts
+from calibre.ebooks.oeb.polish.subset import subset_all_fonts, iter_subsettable_fonts
 from calibre.ebooks.oeb.polish.images import compress_images
 from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
@@ -145,8 +145,12 @@ def polish_one(ebook, opts, report, customization=None):
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()
+    has_subsettable_fonts = False
+    for x in iter_subsettable_fonts(ebook):
+        has_subsettable_fonts = True
+        break
 
-    if opts.subset or opts.embed:
+    if (opts.subset and has_subsettable_fonts) or opts.embed:
         stats = StatsCollector(ebook, do_embed=opts.embed)
 
     if opts.opf:
@@ -196,12 +200,16 @@ def polish_one(ebook, opts, report, customization=None):
         rt(_('Embedding referenced fonts'))
         if embed_all_fonts(ebook, stats, report):
             changed = True
+            has_subsettable_fonts = True
         report('')
 
     if opts.subset:
-        rt(_('Subsetting embedded fonts'))
-        if subset_all_fonts(ebook, stats.font_stats, report):
-            changed = True
+        if has_subsettable_fonts:
+            rt(_('Subsetting embedded fonts'))
+            if subset_all_fonts(ebook, stats.font_stats, report):
+                changed = True
+        else:
+            rt(_('No embedded fonts to subset'))
         report('')
 
     if opts.remove_unused_css:
