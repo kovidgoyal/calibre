@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2  # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -28,12 +28,11 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
         url = 'http://klick.affiliwelt.net/klick.php?bannerid=10072&pid=32307&prid=908'
         url_details = ('http://klick.affiliwelt.net/klick.php?'
                        'bannerid=66830&pid=32307&prid=908&'
-                       'url=http://www.beam-ebooks.de/ebook/{0}')
+                       'url={0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
                 url = url_details.format(detail_item)
-
             open_url(QUrl(url))
         else:
             detail_url = None
@@ -45,37 +44,26 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.beam-ebooks.de/suchergebnis.php?Type=&limit={0}&sw={1}'.format(
-                                                    max_results, urllib2.quote(query))
+        url = 'https://www.beam-shop.de/search?saltFieldLimitation=all&sSearch=' + urllib2.quote(query)
+        print(url)
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//table[tr/td/div[@class="stil2"]]'):
+            for data in doc.xpath('//div[contains(@class, "product--box")]'):
                 if counter <= 0:
                     break
 
-                id_ = ''.join(data.xpath('./tr/td[1]/a/@href')).strip()
+                id_ = ''.join(data.xpath('./div/div[contains(@class, "product--info")]/a/@href')).strip()
                 if not id_:
                     continue
-                id_ = id_[7:]
-                cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
+                cover_url = ''.join(data.xpath('./div/div[contains(@class, "product--info")]/a//img/@srcset'))
                 if cover_url:
-                    cover_url = 'http://www.beam-ebooks.de' + cover_url
-                temp = ''.join(data.xpath('./tr/td[1]/a/img/@alt'))
-                colon = temp.find(':')
-                if not temp.startswith('eBook') or colon < 0:
-                    continue
-                author = temp[5:colon]
-                title = temp[colon+1:]
-                price = ''.join(data.xpath('./tr/td[3]/text()'))
-                pdf = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')
-                epub = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "ePub")]/@alt)')
-                mobi = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "Mobipocket")]/@alt)')
+                    cover_url = cover_url.split(',')[0].strip()
+                author = data.xpath('.//a[@class="product--author"]/text()')[0].strip()
+                title = data.xpath('.//a[@class="product--title"]/text()')[0].strip()
+                price = data.xpath('.//div[@class="product--price"]/span/text()')[0].strip()
                 counter -= 1
 
                 s = SearchResult()
@@ -85,14 +73,6 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id_
-                formats = []
-                if epub:
-                    formats.append('ePub')
-                if pdf:
-                    formats.append('PDF')
-                if mobi:
-                    formats.append('MOBI')
-                s.formats = ', '.join(formats)
-
+#                 s.formats = None
                 yield s
 
