@@ -34,6 +34,7 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
                     elif c.name.endswith('_password'):
                         br[c.name] = self.password
                 br.submit().read()
+                break
         return br
 
     extra_css = '''
