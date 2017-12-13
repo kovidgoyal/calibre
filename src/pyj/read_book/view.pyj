@@ -6,10 +6,11 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send
+from book_list.book_details import render_metadata, CLASS_NAME as BD_CLASS_NAME
 from book_list.globals import get_session_data
 from book_list.router import push_state, read_book_mode
 from book_list.theme import get_color
-from dom import add_extra_css, build_rule, set_css, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog, warning_dialog
 from read_book.comm import IframeWrapper
 from read_book.content_popup import ContentPopupOverlay
@@ -34,7 +35,7 @@ add_extra_css(def():
 )
 
 
-# ControlsOverlay {{{
+# Simple Overlays {{{
 
 def show_controls_help():
     container = document.getElementById('controls-help-overlay')
@@ -65,6 +66,27 @@ def show_controls_help():
             )
         )
     ))
+
+
+def show_metadata_overlay(mi):
+    container = document.getElementById('book-metadata-overlay')
+    clear(container)
+    container.style.display = 'block'
+    container.style.backgroundColor = get_color('window-background')
+    container.appendChild(E.div(
+        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between;',
+            E.h2(mi.title),
+            E.div(svgicon('close'), style='cursor:pointer', class_='simple-link', onclick=def(event):
+                  event.preventDefault()
+                  event.stopPropagation()
+                  document.getElementById('book-metadata-overlay').style.display = 'none'
+            )
+        )
+    )
+    container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
+    table = E.table(class_='metadata')
+    container.lastChild.appendChild(table)
+    render_metadata(mi, table)
 
 # }}}
 
@@ -112,6 +134,7 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; min-height: 100%; display:none', id='book-metadata-overlay'),  # book metadata overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
                 )
@@ -389,6 +412,10 @@ class View:
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
         self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
+
+    def show_book_metadata(self):
+        mi = self.book.metadata
+        show_metadata_overlay(mi)
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})

@@ -24,6 +24,7 @@ def create_goto_list(onclick):
         items.push(create_item(_('Previous section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
     items.push(create_item(_('Document start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
     items.push(create_item(_('Document end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
+    items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view): view.show_book_metadata();)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)

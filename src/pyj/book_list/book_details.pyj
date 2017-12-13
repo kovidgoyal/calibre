@@ -197,7 +197,7 @@ def render_metadata(mi, table, book_id):  # {{{
         add_row(name, val, is_searchable=field)
 
     def process_formats(field, fm, name, val):
-        if val.length:
+        if val.length and book_id?:
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             td = table.lastChild.lastChild
             for fmt in val:
