@@ -228,7 +228,7 @@ class LoopTest(BaseTest):
         b = monotonic()
         self.assertGreaterEqual(b, a)
         self.assertGreaterEqual(b - a, 0.09)
-        self.assertLessEqual(b - a, 0.2)
+        self.assertLessEqual(b - a, 0.4)
 
     def test_jobs_manager(self):
         'Test the jobs manager'
