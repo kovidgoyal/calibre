@@ -1117,7 +1117,7 @@ class Columns(PreferencesPlugin):
 class Toolbar(PreferencesPlugin):
     name = 'Toolbar'
     icon = I('wizard.png')
-    gui_name = _('Toolbars and menus')
+    gui_name = _('Toolbars & menus')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1

@@ -189,6 +189,7 @@ class ImportForeign(Dialog):  # {{{
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         la = self.la = QLabel(_(
@@ -206,7 +207,7 @@ class ImportForeign(Dialog):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
         b.setText(_('Choose file'))
         h1.addWidget(b)
-        l.addRow(_('Source file'), h1)
+        l.addRow(_('Source file:'), h1)
         b.clicked.connect(self.choose_source)
         b.setFocus(Qt.OtherFocusReason)
 
@@ -218,7 +219,7 @@ class ImportForeign(Dialog):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
         b.setText(_('Choose file'))
         h1.addWidget(b)
-        l.addRow(_('Destination file'), h1)
+        l.addRow(_('Destination file:'), h1)
         b.clicked.connect(self.choose_destination)
 
         l.addRow(self.bb)
