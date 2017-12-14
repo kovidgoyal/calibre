@@ -21,10 +21,10 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
     keep_only_tags = [
-        classes('main-hed lead-figure byline article-text comic'),
+        classes('comic article__title methode__story article-header__headline lead-media figure article-header__byline article-content'),
     ]
     remove_tags = [
-        classes('inline-newsletter ad skip-nav'),
+        classes('inline-newsletter ad skip-nav article-footer'),
         dict(name=['meta', 'link'])
     ]
     remove_attributes = ['style']
@@ -66,13 +66,13 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             def is_login_form(form):
-                return form.action == "/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/login2.jsp"
+                return form.action == "https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/login2.jsp"
 
             # br.set_debug_http(True)
             # br.set_debug_responses(True)
             # br.set_debug_redirects(True)
             br.open(
-                "https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/final-login.jsp")
+                "https://www.bostonglobe.com/login?p1=BGHeader_LogIn")
             br.select_form(predicate=is_login_form)
             br["username"] = self.username
             br["password"] = self.password
@@ -103,10 +103,12 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             self.log("Getting Top Stories")
             articles = []
             topStoriesDiv = soup.find("div", {"class": "stories-top"})
-            stories = topStoriesDiv.findAll("div", {"class": "story"})
+            stories = topStoriesDiv.findAll("div", {"class": lambda x: x and 'story' in x.split()})
             for story in stories:
                 h2 = story.find("h2", {"class": 'story-title'})
-                link = story.find("a")
+                link = story.find("a", {'class': 'story-perm'})
+                for img in h2.findAll('img'):
+                    img.extract()
                 if h2 is not None and link is not None:
                     title = self.tag_to_string(h2)
                     url = self.absolutize_url(link["href"])
