@@ -14,8 +14,8 @@ used throughout the rest of calibre.
 Character classes
 ------------------
 
-Character classes are useful to represent differet groups of characters,
-succintly.
+Character classes are useful to represent different groups of characters,
+succinctly.
 
 Examples:
 
@@ -72,7 +72,7 @@ Shorthand character classes
 | ``\S``              | Any “non-whitespace” character                                                                                                               |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
-| ``.``               | Any character except newline. Use the “dot all” checkbox or the ``(?s)`` regex modifier to include the newline character.                    |
+| ``.``               | Any character except newline. Use the “dot all” checkbox or the ``(?s)`` regexp modifier to include the newline character.                   |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
 
@@ -122,7 +122,7 @@ Alternation
 -----------
 
 The ``|`` character in a regular expression is a logical ``OR``. It means
-that either the preceeding or the follwoing expression can match.
+that either the preceding or the following expression can match.
 
 Exclusion
 ---------
@@ -164,7 +164,7 @@ character. The most useful anchors for text processing are:
 
   ``\K``
      Resets the start position of the selection to its position in the pattern.
-     Some regex engines (but not calibre) do not allow lookbehind of variable
+     Some regexp engines (but not calibre) do not allow lookbehind of variable
      length, especially with quantifiers. When you can use ``\K`` with these
      engines, it also allows you to get rid of this limit by writing the
      equivalent of a positive lookbehind of variable length.
@@ -181,7 +181,7 @@ Groups
         Group that does not capture the selection
 
     ``(?>expression)``      
-        Atomic Group: As soon as the expression is satisfied, the regex engine
+        Atomic Group: As soon as the expression is satisfied, the regexp engine
         passes, and if the rest of the pattern fails, it will not backtrack to
         try other combinations with the expression. Atomic groups do not
         capture. 
@@ -218,7 +218,7 @@ Lookarounds
 
 Lookaheads and lookbehinds do not consume characters, they are zero length and
 do not capture. They are atomic groups: as soon as the assertion is satisfied,
-the regex engine passes, and if the rest of the pattern fails, it will not
+the regexp engine passes, and if the rest of the pattern fails, it will not
 backtrack inside the lookaround to try other combinations. 
 
 When looking for multiple matches in a string, at the starting position of each
@@ -227,7 +227,7 @@ position. Therefore, on the string 123, the pattern ``(?<=\d)\d`` (a digit prece
 by a digit) should, in theory, select 2 and 3. On the other hand, ``\d\K\d`` can
 only select 2, because the starting position after the first selection is
 immediately before 3, and there are not enough digits for a second match.
-Similarly, ``\d(\d)`` only captures 2. In calibre's regex engine practice, the
+Similarly, ``\d(\d)`` only captures 2. In calibre's regexp engine practice, the
 positive lookbehind behaves in the same way, and selects only 2, contrary to
 theory. 
 
@@ -297,16 +297,16 @@ Special characters
 |                    |                   |
 +--------------------+-------------------+
 
-Metacharacters
---------------
+Meta-characters
+---------------
 
-Metacharacters are those that have a special meaning for the regex engine. Of
+Meta-characters are those that have a special meaning for the regexp engine. Of
 these, twelve must be preceded by an escape character, the backslash (``\``), to
 lose their special meaning and become a regular character again::
 
     ^ . [ ] $ ( ) * + ? | \
 
-Seven other metacharacters do not need to be preceded by a backslash (but can
+Seven other meta-characters do not need to be preceded by a backslash (but can
 be without any other consequence)::
 
     { } ! < > = :
@@ -315,10 +315,10 @@ be without any other consequence)::
 Special characters lose their status if they are used inside a class (between
 brackets ``[]``). The closing bracket and the dash have a special status in a
 class. Outside the class, the dash is a simple literal, the closing bracket
-remains a metacharacter.
+remains a meta-character.
 
 The slash (/) and the number sign (or hash character) (#) are not
-metacharacters, they don’t need to be escaped.
+meta-characters, they don’t need to be escaped.
 
 In some tools, like regex101.com with the Python engine, double quotes have the
 special status of separator, and must be escaped, or the options changed. This
@@ -328,7 +328,7 @@ Modes
 -----
 
     ``(?s)``
-        Causes the dot (``.``)to match newline characters as well
+        Causes the dot (``.``) to match newline characters as well
 
     ``(?m)``
         Makes the ``^`` and ``$`` anchors match the start and end of lines
