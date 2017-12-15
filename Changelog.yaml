@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title:
 
+- version: 3.14.0
+  date: 2017-12-15
+
+  new features:
+    - title: "User manual: A new quick reference primer for regular expression syntax https://manual.calibre-ebook.com/regexp_quick_reference.html"
+
+    - title: "Content server: Allow viewing the book metadata while reading a book. In the viewer controls, tap Goto and then Metadata to see the metadata."
+      tickets: [1736312]
+
+    - title: "Kobo driver: Add support for new firmware"
+
+    - title: "Bulk metadata edit: Allow choosing the algorithm used for changing the case of titles"
+
+    - title: "Get books: The koobe.pl store plugin has now become the Swiat Ebookow store plugin"
+
+    - title: "Allow Copy/paste of book metadata from the main book list. Right click the Edit metadata button to access these actions."
+
+    - title: "Allow disabling the confirmation popup when opening the containing folder of many books at once."
+      tickets: [1735862]
+
+  bug fixes:
+    - title: "Nook driver: Fix books sent via calibre not appearing under My Files on the Glowlight 3 Plus"
+
+    - title: "Get Books: Update Mills & Boon, publio, empik, legimi, woblink and beam-ebooks.de plugins for website changes"
+
+    - title: "Book polishing: Do not scan book for font usage when subsetting if no embedded fonts are available."
+      tickets: [1737400]
+
+    - title: "Content server: Open links in the comments section from the book details page in new windows."
+      tickets: [1737644]
+
+    - title: "Choose English as the User interface language when a locale related environment variable is set to the C locale"
+
+    - title: "Linux installer: A nicer error message if the user tries to run the installer on an ARM machine"
+
+  improved recipes:
+    - Boston Globe
+    - The Times
+    - Economist
+
+  new recipes:
+    - title: El Cohete a la luna
+      author: Darko Miletic
+
 - version: 3.13.0
   date: 2017-12-01
 
