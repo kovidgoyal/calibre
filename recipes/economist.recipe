@@ -176,10 +176,7 @@ class Economist(BasicNewsRecipe):
                     self.log('Got cover:', self.cover_url)
                     break
 
-        sections = soup.findAll(
-            'div', attrs={'class': 'list__title',
-                          'data-reactid': True}
-        )
+        sections = soup.findAll('div', attrs={'class': 'list__title'})
         if sections:
             feeds = []
             for section in sections:
