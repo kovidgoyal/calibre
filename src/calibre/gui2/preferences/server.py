@@ -1065,12 +1065,16 @@ class ConfigWidget(ConfigWidgetBase):
             if getattr(self.server, 'is_running', False):
                 return error_dialog(d, _('Server running'), _(
                     'Cannot clear logs while the server is running. First stop the server.'), show=True)
-            for x in (log_error_file, log_access_file):
-                try:
-                    os.remove(x)
-                except EnvironmentError as err:
-                    if err.errno != errno.ENOENT:
-                        raise
+            if self.server:
+                self.server.access_log.clear()
+                self.server.log.clear()
+            else:
+                for x in (log_error_file, log_access_file):
+                    try:
+                        os.remove(x)
+                    except EnvironmentError as err:
+                        if err.errno != errno.ENOENT:
+                            raise
             el.setPlainText(''), al.setPlainText('')
 
         b.clicked.connect(clear_logs)

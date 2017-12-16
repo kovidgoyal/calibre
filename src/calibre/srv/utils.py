@@ -376,6 +376,22 @@ class RotatingStream(object):
         self.rename(self.filename, '%s.%d' % (self.filename, 1))
         self.set_output()
 
+    def clear(self):
+        if self.filename in ('/dev/stdout', '/dev/stderr'):
+            return
+        self.stream.close()
+        failed = {}
+        try:
+            os.remove(self.filename)
+        except EnvironmentError as e:
+            failed[self.filename] = e
+        import glob
+        for f in glob.glob(self.filename + '.*'):
+            try:
+                os.remove(f)
+            except EnvironmentError as e:
+                failed[f] = e
+
 
 class RotatingLog(ServerLog):
 
