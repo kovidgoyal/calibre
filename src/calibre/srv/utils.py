@@ -391,6 +391,8 @@ class RotatingStream(object):
                 os.remove(f)
             except EnvironmentError as e:
                 failed[f] = e
+        self.set_output()
+        return failed
 
 
 class RotatingLog(ServerLog):
