@@ -117,6 +117,10 @@ class Metadata(object):
         except:
             return True
 
+    def set_null(self, field):
+        null_val = copy.copy(NULL_VALUES.get(field))
+        setattr(self, field, null_val)
+
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
         if field in SIMPLE_GET:
