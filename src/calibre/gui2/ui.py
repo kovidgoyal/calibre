@@ -271,7 +271,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.system_tray_icon is not None:
             self.system_tray_icon.setIcon(QIcon(I('lt.png', allow_user_override=False)))
             if not (iswindows or isosx):
-                self.system_tray_icon.setIcon(QIcon.fromTheme('calibre-gui', self.system_tray_icon.icon()))
+                self.system_tray_icon.setIcon(QIcon.fromTheme('calibre-tray', self.system_tray_icon.icon()))
             self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
