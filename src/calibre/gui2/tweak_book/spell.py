@@ -58,14 +58,15 @@ class AddDictionary(QDialog):  # {{{
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Add a dictionary'))
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         self.la = la = QLabel('<p>' + _(
         '''{0} supports the use of LibreOffice dictionaries for spell checking. You can
             download more dictionaries from <a href="{1}">the LibreOffice extensions repository</a>.
             The dictionary will download as an .oxt file. Simply specify the path to the
-            downloaded .oxt file here to add the dictionary to {0}.'''.format(
-                __appname__, 'http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings'))+'<p>')  # noqa
+            downloaded .oxt file here to add the dictionary to {0}.''').format(
+                __appname__, 'http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings')+'<p>')  # noqa
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         la.setMinimumWidth(450)
