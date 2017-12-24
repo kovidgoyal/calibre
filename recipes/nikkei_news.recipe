@@ -39,13 +39,6 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
 
-        # pp.pprint(self.parse_index())
-        # exit(1)
-
-        # br.set_debug_http(True)
-        # br.set_debug_redirects(True)
-        # br.set_debug_responses(True)
-
         if self.username is not None and self.password is not None:
             print "-------------------------open top page-------------------------------------"
             br.open('http://www.nikkei.com/')
@@ -53,11 +46,12 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             try:
                 url = list(br.links(
                     url_regex="www.nikkei.com/etc/accounts/login"))[0].url
+            except IndexError:
+                print "Found IndexError"
+                url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
-            br.open(url)  # br.follow_link(link)
-            # response = br.response()
-            # print response.get_data()
+            br.open(url)
             print "-------------------------JS redirect(send autoPostForm)--------------------"
             br.select_form(name='autoPostForm')
             br.submit()
@@ -67,14 +61,10 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             br['LA7010Form01:LA7010Email'] = self.username
             br['LA7010Form01:LA7010Password'] = self.password
             br.submit(id='LA7010Form01:submitBtn')
-            # response = br.response()
             print "-------------------------JS redirect---------------------------------------"
             br.select_form(nr=0)
             br.submit()
 
-            # br.set_debug_http(False)
-            # br.set_debug_redirects(False)
-            # br.set_debug_responses(False)
         return br
 
     def cleanup(self):
@@ -85,25 +75,17 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         print "-------------------------get index of paper--------------------------------"
         result = []
         soup = self.index_to_soup('http://www.nikkei.com/paper/')
-        # soup = self.index_to_soup(self.test_data())
-        sections = soup.findAll(
-            'div', 'cmn-section kn-special JSID_baseSection')
-        if len(sections) == 0:
-            sections = soup.findAll('div', 'cmn-section kn-special')
+        sections = soup.findAll(attrs={'class': re.compile(".*cmn-article_title.*")})
+
         for sect in sections:
-            sect_title = sect.find('h3', 'cmnc-title').string
+            sect_title = sect.find(attrs={'class' : re.compile(".*cmnc-((large)|(middle)|(small)).*")})
+            if sect_title is None: continue
+            sect_title = sect_title.contents[0]
             sect_result = []
-            for elem in sect.findAll(attrs={'class': ['cmn-article_title']}):
-                if elem.span.a is None or elem.span.a['href'].startswith('javascript'):
-                    continue
-                url = 'http://www.nikkei.com' + elem.span.a['href']
-                # print version.
-                url = re.sub("/article/", "/print-article/", url)
-                span = elem.span.a.span
-                if ((span is not None) and (len(span.contents) > 1)):
-                    title = span.contents[1].string
-                    sect_result.append(dict(title=title, url=url, date='',
-                                            description='', content=''))
+            url = sect.a['href']
+            url = re.sub("/article/", "/print-article/", url)
+            url = 'http://www.nikkei.com' + url
+            sect_result.append(dict(title=sect_title, url=url, date='',description='', content=''))
             result.append([sect_title, sect_result])
         return result
 
