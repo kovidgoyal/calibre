@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isosx, ishaiku, SRC, iswindows, __version__
+from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
@@ -87,9 +87,9 @@ def expand_file_list(items, is_paths=True):
 def is_ext_allowed(ext):
     only = ext.get('only', '')
     if only:
-        only = only.split()
-        q = 'windows' if iswindows else 'osx' if isosx else 'bsd' if isbsd else 'haiku' if ishaiku else 'linux'
-        return q in only
+        only = set(only.split())
+        q = set(filter(lambda x: globals()["is" + x], ["bsd", "freebsd", "haiku", "linux", "osx", "windows"]))
+        return len(q.intersection(only)) > 0
     return True
 
 
@@ -107,6 +107,8 @@ def parse_extension(ext):
             ans = ext.pop('osx_' + k, ans)
         elif isbsd:
             ans = ext.pop('bsd_' + k, ans)
+        elif isfreebsd:
+            ans = ext.pop('freebsd_' + k, ans)
         elif ishaiku:
             ans = ext.pop('haiku_' + k, ans)
         else:
