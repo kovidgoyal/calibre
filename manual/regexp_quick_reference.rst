@@ -157,10 +157,11 @@ character. The most useful anchors for text processing are:
      not ``absurd``.
 
   ``^``
-     Matches the start of the string or in multi-line mode the start of a line.
+     Matches the start of the start of a line (in multi-line mode, which is the
+     default)
 
   ``$``
-     Matches the end of the string or, in multi-line mode the end of a line.
+     Matches the end of a line (in multi-line mode, which is the default)
 
   ``\K``
      Resets the start position of the selection to its position in the pattern.
