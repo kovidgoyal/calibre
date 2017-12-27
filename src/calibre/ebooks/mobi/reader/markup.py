@@ -200,14 +200,19 @@ def update_flow_links(mobi8_reader, resource_map, log):
             tag = srcpieces[j]
             if tag.startswith('<'):
                 for m in re.finditer(flow_pattern, tag):
-                    num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        flowtext = mr.flows[num]
-                        tag = flowtext
+                    try:
+                        num = int(m.group(1), 32)
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference in tag', tag)
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            flowtext = mr.flows[num]
+                            tag = flowtext
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         flow = "".join(srcpieces)
 
@@ -390,4 +395,3 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
                 f.write(flow.encode('utf-8'))
 
     return spine
-
