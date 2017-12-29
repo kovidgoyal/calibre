@@ -192,7 +192,7 @@ class StatusNotifierItemAPI(Object):
     def Menu(self):
         return dbus.ObjectPath(self.dbus_menu.object_path)
 
-    @dbus_property(IFACE, signature='i')
+    @dbus_property(IFACE, signature='u')
     def WindowId(self):
         return 0
 
