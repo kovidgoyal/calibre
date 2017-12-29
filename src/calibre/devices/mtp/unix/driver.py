@@ -60,7 +60,7 @@ class MTP_DEVICE(MTPDeviceBase):
             self._is_device_mtp = self.osx_is_device_mtp
 
     def is_device_mtp(self, d, debug=None):
-        ''' Returns True iff the _is_device_mtp check returns True and libmtp
+        ''' Returns True if the _is_device_mtp check returns True and libmtp
         is able to probe the device successfully. '''
         if self._is_device_mtp is None:
             return False
