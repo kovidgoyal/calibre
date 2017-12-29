@@ -296,7 +296,9 @@ class Boss(QObject):
         self.container_count = -1
         if self.tdir:
             shutil.rmtree(self.tdir, ignore_errors=True)
-        self.tdir = PersistentTemporaryDirectory()
+        # We use the cache dir rather than the temporary dir to try and prevent
+        # temp file cleaners from nuking ebooks. See https://bugs.launchpad.net/bugs/1740460
+        self.tdir = PersistentTemporaryDirectory(prefix='calibre-ew-', dir=cache_dir())
         self._edit_file_on_open = edit_file
         self._clear_notify_data = clear_notify_data
         self.gui.blocking_job('open_book', _('Opening book, please wait...'), self.book_opened, get_container, path, tdir=self.mkdtemp())
