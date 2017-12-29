@@ -22,7 +22,7 @@ def cover_grid_css():
                      align_content='flex-start', user_select='none', overflow='hidden', margin_top=f'{margin / 2}{margin_unit}')
 
     # Container for an individual cover
-    sel += ' > div'
+    sel += ' > a'
     ans += build_rule(
         sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
         max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
@@ -61,13 +61,13 @@ def on_img_load(img, load_type):
         ))
         set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
-def create_item(book_id, metadata, create_image, show_book_details):
+def create_item(book_id, metadata, create_image, show_book_details, href):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
     tooltip = _('{} by {}').format(metadata.title, authors)
     img.setAttribute('alt', tooltip)
     img.dataset.title, img.dataset.authors = metadata.title, authors
-    ans = E.div(img, onclick=show_book_details, title=tooltip)
+    ans = E.a(img, onclick=show_book_details, title=tooltip, href=href)
     return ans
 
 def append_item(container, item):

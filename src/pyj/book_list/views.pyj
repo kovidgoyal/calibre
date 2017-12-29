@@ -33,7 +33,7 @@ from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
 from book_list.top_bar import add_button, create_top_bar
-from book_list.ui import set_panel_handler, show_panel
+from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
 from modals import error_dialog
 from session import get_interface_data
@@ -99,7 +99,8 @@ def show_subsequent_panel(name, query=None, replace=False):
     show_panel(name, query, replace)
 
 
-def show_book_details(book_id):
+def on_book_click(book_id, evt):
+    evt.preventDefault()
     show_subsequent_panel('book_details', {'book_id':book_id})
 
 
@@ -112,7 +113,7 @@ def render_id(book_id):
     book_list_data.shown_book_ids.add(book_id)
     if l < book_list_data.shown_book_ids.length:
         metadata = book_metadata(book_id)
-        ans = book_list_data.render_book(book_id, metadata, create_image, show_book_details.bind(None, book_id))
+        ans = book_list_data.render_book(book_id, metadata, create_image, on_book_click.bind(None, book_id), query_as_href({'book_id': book_id + ''}, 'book_details'))
         ans.classList.add(ITEM_CLASS_NAME)
         ans.dataset.bookId = str(book_id)
         return ans
