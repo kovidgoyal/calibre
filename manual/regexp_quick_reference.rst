@@ -60,7 +60,7 @@ Shorthand character classes
 | ``\D``              | Any non-numeric character (same as ``[^0-9]``)                                                                                               |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
-| ``\w``              | An alphanumeric character plus the underscore (``[a-zA-Z0-9_]``) including characters with accent mark and ligatures                         |
+| ``\w``              | An alphanumeric character (``[a-zA-Z0-9]``) including characters with accent mark and ligatures                                              |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
 | ``\W``              | Any “non-word” character                                                                                                                     |
