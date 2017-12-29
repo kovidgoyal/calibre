@@ -1296,6 +1296,10 @@ class EpubContainer(Container):
 
     def commit(self, outpath=None, keep_parsed=False):
         super(EpubContainer, self).commit(keep_parsed=keep_parsed)
+        container_path = join(self.root, 'META-INF', 'container.xml')
+        if not exists(container_path):
+            raise InvalidEpub('No META-INF/container.xml in EPUB, this typically happens if the temporary files calibre'
+                              ' is using are deleted by some other program while calibre is running')
         restore_fonts = {}
         for name in self.obfuscated_fonts:
             if name not in self.name_path_map:
