@@ -237,7 +237,7 @@ class DBusMenu(QObject):
         return parent_id, props, self.get_layout_children(parent_id, depth, property_names)
 
     def get_layout_children(self, parent_id, depth, property_names):
-        ans = dbus.Array(signature='(ia{sv}av)')
+        ans = dbus.Array(signature='v')
         ac = self.id_to_action(parent_id)
         if ac is not None and depth != 0 and ac.menu() is not None:
             for child in menu_actions(ac.menu()):
