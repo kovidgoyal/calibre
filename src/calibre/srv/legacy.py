@@ -252,7 +252,20 @@ def mobile(ctx, rd):
 
 @endpoint('/browse/{+rest=""}')
 def browse(ctx, rd, rest):
-    raise HTTPRedirect(ctx.url_for(None))
+    if rest.startswith('book/'):
+        # implementation of https://bugs.launchpad.net/calibre/+bug/1698411
+        # redirect old server book URLs to new URLs
+        redirect = ctx.url_for(None) + '#book_id=' + rest[5:] + "&amp;panel=book_details"
+        from lxml import etree as ET
+        return html(ctx, rd, endpoint,
+                 E.html(E.head(
+                     ET.XML('<meta http-equiv="refresh" content="0;url=' + redirect + '"/>'),
+                     ET.XML('<script language="javascript">' +
+                         'window.location.href = "' + redirect + '"' +
+                         '</script>'
+                         ))))
+    else:
+        raise HTTPRedirect(ctx.url_for(None))
 
 
 @endpoint('/stanza/{+rest=""}')
