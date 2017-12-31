@@ -1,45 +1,57 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
-'''Dialog to edit metadata in bulk'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from collections import defaultdict, namedtuple
 from io import BytesIO
-from collections import namedtuple, defaultdict
 from threading import Thread
 
-from PyQt5.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDateTime, QCompleter, QCoreApplication, QSize
+from PyQt5.Qt import (
+    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont,
+    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+)
 
 from calibre import prints
-from calibre.ebooks.metadata.opf2 import OPF
 from calibre.constants import DEBUG
+from calibre.db import _get_next_series_num_for_list
+from calibre.ebooks.metadata import authors_to_string, string_to_authors, title_sort
+from calibre.ebooks.metadata.book.formatter import SafeFormat
+from calibre.ebooks.metadata.opf2 import OPF
+from calibre.gui2 import (
+    UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, question_dialog
+)
+from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
-from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, UNDEFINED_QDATETIME, \
-    gprefs, question_dialog, FunctionDispatcher
-from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
-from calibre.utils.config import dynamic, JSONConfig
-from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import sort_key, capitalize
-from calibre.utils.config import prefs, tweaks
+from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import qt_to_dt
-from calibre.db import _get_next_series_num_for_list
-
+from calibre.utils.icu import capitalize, sort_key
+from calibre.utils.titlecase import titlecase
+from calibre.gui2.widgets import LineEditECM
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
-    'restore_original comments generate_cover_settings read_file_metadata')
+    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm')
 
 null = object()
+
+
+class Caser(LineEditECM):
+
+    def __init__(self, title):
+        self.title = title
+
+    def text(self):
+        return self.title
+
+    def setText(self, text):
+        self.title = text
 
 
 class MyBlockingBusy(QDialog):  # {{{
@@ -154,6 +166,11 @@ class MyBlockingBusy(QDialog):  # {{{
                 if old != prefs['read_file_metadata']:
                     prefs['read_file_metadata'] = old
 
+        def change_title_casing(val):
+            caser = Caser(val)
+            getattr(caser, args.casing_algorithm)()
+            return caser.title
+
         # Title and authors
         if args.do_swap_ta:
             title_map = cache.all_field_for('title', self.ids)
@@ -161,7 +178,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
             def new_title(authors):
                 ans = authors_to_string(authors)
-                return titlecase(ans) if args.do_title_case else ans
+                return change_title_casing(ans) if args.do_title_case else ans
             new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
             new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
             cache.set_field('authors', new_authors_map)
@@ -169,7 +186,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
         if args.do_title_case and not args.do_swap_ta:
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:titlecase(title) for bid, title in title_map.iteritems()})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.iteritems()})
 
         if args.do_title_sort:
             lang_map = cache.all_field_for('languages', self.ids)
@@ -363,6 +380,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
         self.adddate.dateTimeChanged.connect(self.do_apply_adddate)
+        self.casing_algorithm.addItems([
+            _('Title case'), _('Capitalize'), _('Upper case'), _('Lower case'), _('Swap case')
+        ])
+        self.casing_map = ['title_case', 'capitalize', 'upper_case', 'lower_case', 'swap_case']
+        prevca = gprefs.get('bulk-mde-casing-algorithm', 'title_case')
+        idx = max(0, self.casing_map.index(prevca))
+        self.casing_algorithm.setCurrentIndex(idx)
+        self.casing_algorithm.setEnabled(False)
+        self.change_title_to_title_case.toggled.connect(lambda : self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()))
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -1047,7 +1073,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             do_title_case, cover_action, clear_series, clear_pub, pubdate,
             adddate, do_title_sort, languages, clear_languages,
             restore_original, self.comments, self.generate_cover_settings,
-            read_file_metadata)
+            read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()])
         if DEBUG:
             print('Running bulk metadata operation with settings:')
             print(args)
@@ -1073,6 +1099,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     show=True)
 
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
+        gprefs.set('bulk-mde-casing-algorithm', args.casing_algorithm)
         self.db.clean()
         return QDialog.accept(self)
 

@@ -119,8 +119,8 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
             loc.location_node, loc.node_item = node, (False, attr)
         words[k].extend(locs)
 
-_opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 
+_opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
 # We can only use barename() for tag names and simple attribute checks so that
@@ -136,6 +136,7 @@ def read_words_from_opf(root, words, file_name, book_locale):
                 add_words_from_text(tag, 'text', words, file_name, book_locale)
         add_words_from_attr(tag, _opf_file_as, words, file_name, book_locale)
 
+
 ncx_spell_tags = {'text'}
 xml_spell_tags = opf_spell_tags | ncx_spell_tags
 
@@ -144,6 +145,7 @@ def read_words_from_ncx(root, words, file_name, book_locale):
     for tag in root.xpath('//*[local-name()="text"]'):
         if tag.text is not None:
             add_words_from_text(tag, 'text', words, file_name, book_locale)
+
 
 html_spell_tags = {'script', 'style', 'link'}
 
@@ -212,7 +214,7 @@ def get_all_words(container, book_locale, get_word_count=False):
             read_words_from_opf(root, words, file_name, book_locale)
         elif file_name == toc:
             read_words_from_ncx(root, words, file_name, book_locale)
-        else:
+        elif hasattr(root, 'xpath'):
             read_words_from_html(root, words, file_name, book_locale)
     count = words.pop(None)
     ans = {k:group_sort(v) for k, v in words.iteritems()}
@@ -272,6 +274,7 @@ def undo_replace_word(container, undo_cache):
         container.replace(file_name, node.getroottree().getroot())
         changed.add(file_name)
     return changed
+
 
 if __name__ == '__main__':
     import pprint

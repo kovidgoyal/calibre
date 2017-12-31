@@ -723,6 +723,12 @@ def check_umask():
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
     if not ignore_umask and not isolated:
         check_umask()
+    machine = os.uname()[4]
+    if machine and machine.lower().startswith('arm'):
+        raise SystemExit(
+            'You are running on an ARM system. The calibre binaries are only'
+            ' available for x86 systems. You will have to compile from'
+            ' source.')
     run_installer(install_dir, isolated, bin_dir, share_dir)
 
 

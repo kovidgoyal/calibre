@@ -1046,6 +1046,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                 id(internal_pointer))
         return idx
 
+    def category_row_map(self):
+        return {category.category_key:row for row, category in enumerate(self.root_item.children)}
+
     def index_for_category(self, name):
         for row, category in enumerate(self.root_item.children):
             if category.category_key == name:

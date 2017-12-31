@@ -140,7 +140,7 @@ def manage_users_cli(path=None):
             for k, v in r['library_restrictions'].iteritems():
                 prints(k + ':', v)
         else:
-            prints(_('{} has the no additional per-library restrictions'))
+            prints(_('{} has no additional per-library restrictions').format(username))
         c = choice(
             choices=[
                 _('Allow access to all libraries'),

@@ -57,6 +57,7 @@ class NewYorker(BasicNewsRecipe):
         classes('content-ad-wrapper social-hover background-image'),
         dict(id=['newsletter-signup']),
         dict(attrs={'class': lambda x: x and 'ImageEmbed__button___' in x}),
+        dict(attrs={'class': lambda x: x and 'ArticleLedeImage__button___' in x}),
         dict(name='links source'.split()), ]
     remove_attributes = ['style']
 

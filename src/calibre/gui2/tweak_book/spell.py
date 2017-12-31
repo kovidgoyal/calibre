@@ -58,14 +58,15 @@ class AddDictionary(QDialog):  # {{{
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Add a dictionary'))
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         self.la = la = QLabel('<p>' + _(
         '''{0} supports the use of LibreOffice dictionaries for spell checking. You can
             download more dictionaries from <a href="{1}">the LibreOffice extensions repository</a>.
             The dictionary will download as an .oxt file. Simply specify the path to the
-            downloaded .oxt file here to add the dictionary to {0}.'''.format(
-                __appname__, 'http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings'))+'<p>')  # noqa
+            downloaded .oxt file here to add the dictionary to {0}.''').format(
+                __appname__, 'http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings')+'<p>')  # noqa
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         la.setMinimumWidth(450)
@@ -940,15 +941,11 @@ class SpellCheck(Dialog):
         self.main = m = QWidget(self)
         s.addWidget(m)
         m.l = l = QVBoxLayout(m)
-        m.h1 = h = QHBoxLayout()
-        l.addLayout(h)
         self.filter_text = t = QLineEdit(self)
         t.setPlaceholderText(_('Filter the list of words'))
         t.textChanged.connect(self.do_filter)
-        m.fc = b = QToolButton(m)
-        b.setIcon(QIcon(I('clear_left.png'))), b.setToolTip(_('Clear filter'))
-        b.clicked.connect(t.clear)
-        h.addWidget(t), h.addWidget(b)
+        t.setClearButtonEnabled(True)
+        l.addWidget(t)
 
         m.h2 = h = QHBoxLayout()
         l.addLayout(h)

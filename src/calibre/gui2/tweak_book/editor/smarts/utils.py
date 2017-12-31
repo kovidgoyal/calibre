@@ -15,6 +15,8 @@ def get_text_around_cursor(editor, before=True):
     cursor.movePosition((cursor.StartOfBlock if before else cursor.EndOfBlock), cursor.KeepAnchor)
     text = editor.selected_text_from_cursor(cursor)
     return cursor, text
+
+
 get_text_before_cursor = get_text_around_cursor
 get_text_after_cursor = lambda editor: get_text_around_cursor(editor, before=False)
 
@@ -87,6 +89,8 @@ def smart_tab(editor, ev):
 
 
 def smart_backspace(editor, ev):
+    if editor.textCursor().hasSelection():
+        return False
     cursor, text = get_text_before_cursor(editor)
     if text and not text.lstrip():
         # cursor is preceded by only whitespace
@@ -97,4 +101,3 @@ def smart_backspace(editor, ev):
         editor.setTextCursor(cursor)
         return True
     return False
-

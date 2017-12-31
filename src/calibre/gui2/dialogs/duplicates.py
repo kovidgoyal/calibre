@@ -23,7 +23,7 @@ class DuplicatesQuestion(QDialog):
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
-        t = ngettext('Duplicate found', 'Duplicates found', len(duplicates))
+        t = ngettext('Duplicate found', 'duplicates found', len(duplicates))
         if len(duplicates) > 1:
             t = '%d %s' % (len(duplicates), t)
         self.setWindowTitle(t)
@@ -161,4 +161,3 @@ if __name__ == '__main__':
     d = DuplicatesQuestion(db, [(M('Life of Pi', ['Yann Martel']), None, None),
                             (M('Heirs of the blade', ['Adrian Tchaikovsky']), None, None)])
     print (tuple(d.duplicates))
-

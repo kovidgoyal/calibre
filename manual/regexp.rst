@@ -122,6 +122,15 @@ Well, that just about concludes the very short introduction to regular expressio
 
 One last word of warning, though: Regexps are powerful, but also really easy to get wrong. calibre provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
 
+
+Quick Reference
+-------------------
+
+.. toctree::
+
+    regexp_quick_reference
+
+
 Credits
 -------------
 
@@ -133,6 +142,7 @@ Thanks for helping with tips, corrections and such:
     * dwanthny
     * kacir
     * Starson17
+    * Orpheu
 
 For more about regexps see `The Python User Manual <https://docs.python.org/2/library/re.html>`_.
 

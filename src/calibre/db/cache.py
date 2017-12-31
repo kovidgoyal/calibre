@@ -35,6 +35,7 @@ from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import canonicalize_lang
 
 
 def api(f):
@@ -160,6 +161,11 @@ class Cache(object):
         will happen.'''
         return SafeReadLock(self.read_lock)
 
+    @write_api
+    def ensure_has_search_category(self, fail_on_existing=True):
+        if len(self._search_api.saved_searches.names()) > 0:
+            self.field_metadata.add_search_category(label='search', name=_('Searches'), fail_on_existing=fail_on_existing)
+
     def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
         fm = self.field_metadata
@@ -183,9 +189,7 @@ class Cache(object):
                     self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
-
-        if len(self._search_api.saved_searches.names()) > 0:
-            self.field_metadata.add_search_category(label='search', name=_('Searches'))
+        self._ensure_has_search_category()
 
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
@@ -1952,6 +1956,7 @@ class Cache(object):
         title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
         from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
+        langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
         if mi.authors:
             try:
                 quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail
@@ -1980,7 +1985,9 @@ class Cache(object):
                 fbook_title = fuzzy_title(fbook_title)
                 mbook_title = fuzzy_title(mi.title)
                 if fbook_title == mbook_title:
-                    identical_book_ids.add(book_id)
+                    bl = self._field_for('languages', book_id)
+                    if not langq or not bl or bl == langq:
+                        identical_book_ids.add(book_id)
         return identical_book_ids
 
     @read_api

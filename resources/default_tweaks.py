@@ -426,7 +426,7 @@ metadata_single_use_2_cols_for_custom_fields = True
 #: Order of custom column(s) in edit metadata
 # Controls the order that custom columns are listed in edit metadata single
 # and bulk. The columns listed in the tweak are displayed first and in the
-# order provided. Any columns not listed are dislayed after the listed ones,
+# order provided. Any columns not listed are displayed after the listed ones,
 # in alphabetical order. Do note that this tweak does not change the size of
 # the edit widgets. Putting comments widgets in this list may result in some
 # odd widget spacing when using two-column mode.
@@ -560,3 +560,10 @@ cover_drop_exclude = ()
 # new Saved search is shown in the Search bar. If you would like to have the
 # old Saved searches box with its two buttons back, set this tweak to True.
 show_saved_search_box = False
+
+#: Exclude fields when copy/pasting metadata
+# You can ask calibre to not paste some metadata fields when using the
+# Edit metadata->Copy metadata/Paste metadata actions. For example,
+# exclude_fields_on_paste = ['cover', 'timestamp', '#mycolumn']
+# to prevent pasting of the cover, Date and custom column, mycolumn.
+exclude_fields_on_paste = []

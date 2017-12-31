@@ -69,7 +69,7 @@ def sandbox_css():
     return sandbox_css.ans
 
 
-def create_item(book_id, metadata, create_image, show_book_details):
+def create_item(book_id, metadata, create_image, show_book_details, href):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
     img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
@@ -103,7 +103,7 @@ def create_item(book_id, metadata, create_image, show_book_details):
         ),
         comments,
     )
-    ans = E.div(img_div, right,
+    ans = E.a(img_div, right, href=href,
                 style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
                 class_=ITEM_CLASS,
     )

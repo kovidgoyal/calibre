@@ -433,6 +433,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (key, list(gprefs.get('action-layout-'+key, [])))
             for key in all_locations])
 
+        # If this is an update, do nothing
+        if previously_installed:
+            return
         # If already installed in a GUI container, do nothing
         for action_names in installed_actions.itervalues():
             if plugin_action.name in action_names:

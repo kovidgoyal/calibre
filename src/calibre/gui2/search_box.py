@@ -605,6 +605,7 @@ class SavedSearchBoxMixin(object):  # {{{
         from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch
         d = AddSavedSearch(parent=self, search=self.search.current_text)
         if d.exec_() == d.Accepted:
+            self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 
     def get_saved_search_text(self):

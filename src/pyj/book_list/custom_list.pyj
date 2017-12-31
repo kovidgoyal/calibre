@@ -263,7 +263,7 @@ def on_img_load(img, load_type):
         set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
 
-def create_item(book_id, metadata, create_image, show_book_details):
+def create_item(book_id, metadata, create_image, show_book_details, href):
     template = get_interface_data().custom_list_template or default_template()
     text_data = render_template_text(template, book_id, metadata)
     text_data.style.flexGrow = '10'
@@ -278,9 +278,9 @@ def create_item(book_id, metadata, create_image, show_book_details):
             height = template.height
             if jstype(height) is 'number':
                 height += 'px'
-    ans = E.div(
+    ans = E.a(
         style=f'height:{height}; display: flex',
-        class_=ITEM_CLASS,
+        class_=ITEM_CLASS, href=href
     )
     if template.thumbnail:
         h = template.thumbnail_height

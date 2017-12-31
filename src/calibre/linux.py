@@ -329,7 +329,7 @@ class ZshCompleter(object):  # {{{
                                 '--input-encoding' not in o._long_opts]
                 if not opts:
                     continue
-                opts = '\\\n  '.join(tuple(self.get_options(opts)))
+                opts = '\\\n  '.join(tuple(sorted(self.get_options(opts))))
                 w('\n%s() {'%(func%fmt))
                 w('\n  _arguments -s \\\n  ' + opts)
                 w('\n}\n')

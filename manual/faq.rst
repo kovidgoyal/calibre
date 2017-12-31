@@ -206,7 +206,7 @@ Follow these steps to find the problem:
       at a time. Do not have another calibre supported device like an iPhone/iPad
       etc. at the same time.
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), Apple
-      no longer allows third party software to conenct to their devices using a
+      no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
     * Make sure you are running the latest version of calibre. The latest version

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2013-2016, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -23,12 +23,12 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
-class KoobeStore(BasicStoreConfig, StorePlugin):
+class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/15/58/'
+        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/181/58/'
 
-        url = 'http://www.koobe.pl/'
+        url = 'https://www.swiatebookow.pl/'
 
         aff_url = aff_root + str(b64encode(url))
 
@@ -51,36 +51,33 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         while counter:
-            with closing(br.open('http://www.koobe.pl/s,p,' + str(page) + ',szukaj/fraza:' + urllib.quote(query), timeout=timeout)) as f:
+            with closing(br.open('https://www.swiatebookow.pl/ebooki/?q=' + urllib.quote(query) + '&page=' + str(page), timeout=timeout)) as f:
                 doc = html.fromstring(f.read().decode('utf-8'))
-                for data in doc.xpath('//div[@class="seach_result"]/div[@class="result"]'):
+                for data in doc.xpath('//div[@class="category-item-container"]//div[@class="book-large"]'):
                     if counter <= 0:
                         break
 
-                    id = ''.join(data.xpath('.//div[@class="cover"]/a/@href'))
+                    id = ''.join(data.xpath('./a/@href'))
                     if not id:
                         continue
 
-                    cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
-                    price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
-                    if not price:
-                        price = ''.join(data.xpath('.//div[@class="book_promo_price"]/span/text()'))
-                    title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
-                    author = ', '.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
-                    formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
+                    cover_url = ''.join(data.xpath('.//div[@class="cover-xs"]/img/@src'))
+                    price = ''.join(data.xpath('.//span[@class="item-price"]/text()')+data.xpath('.//span[@class="sub-price"]/text()'))
+                    title = ''.join(data.xpath('.//h3/text()'))
+                    author = ', '.join(data.xpath('.//div[@class="details"]/p/a/text()'))
 
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url =  'http://www.koobe.pl/' + cover_url
+                    s.cover_url =  'https://www.swiatebookow.pl' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
                     s.price = price
-                    s.detail_item = 'http://www.koobe.pl' + id[1:]
-                    s.formats = formats.upper()
+                    s.detail_item = 'https://www.swiatebookow.pl' + id
+                    # s.formats = formats.upper()
                     s.drm = SearchResult.DRM_UNLOCKED
 
                     yield s
-                if not doc.xpath('//div[@class="site_bottom"]//a[@class="right"]'):
+                if not doc.xpath('//div[@class="paging_bootstrap pagination"]//a[@class="next"]'):
                     break
             page+=1

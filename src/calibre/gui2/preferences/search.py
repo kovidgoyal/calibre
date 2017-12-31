@@ -76,6 +76,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.update_items_cache(fl)
         self.fill_gst_box(select=None)
 
+        self.user_category_layout.setContentsMargins(0, 30, 0, 0)
+        self.gst_names.lineEdit().setPlaceholderText(
+                         _('Enter new or select existing name'))
+        self.gst_value.lineEdit().setPlaceholderText(
+                         _('Enter list of column lookup names to search'))
+
         self.category_fields = fl
         ml = [(_('Match any'), 'match_any'), (_('Match all'), 'match_all')]
         r('similar_authors_match_kind', db.prefs, choices=ml)
@@ -198,7 +204,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.gst_names.setCurrentIndex(self.gst_names.findText(select))
 
     def gst_text_changed(self):
-        self.gst_delete_button.setEnabled(False)
+        t = self.gst_names.currentText()
+        self.gst_delete_button.setEnabled(len(t) > 0 and t in self.gst)
         self.gst_save_button.setEnabled(True)
 
     def gst_index_changed(self, idx):
@@ -245,6 +252,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()
+        from calibre.gui2.widgets import history
+        for key in 'bulk_edit_search_for bulk_edit_replace_with'.split():
+            history.set('lineedit_history_' + key, [])
 
 
 if __name__ == '__main__':

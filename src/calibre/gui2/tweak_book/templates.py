@@ -14,12 +14,13 @@ DEFAULT_TEMPLATES = {
 '''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{TITLE}</title>
-    </head>
-    <body>
-        %CURSOR%
-    </body>
+<head>
+    <title>{TITLE}</title>
+</head>
+
+<body>
+    %CURSOR%
+</body>
 </html>
 ''',
 
@@ -46,4 +47,3 @@ def template_for(syntax):
     }
     return raw_template_for(syntax).format(
         **{k:prepare_string_for_xml(v, True) for k, v in data.iteritems()})
-
