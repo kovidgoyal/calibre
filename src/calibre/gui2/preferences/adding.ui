@@ -111,11 +111,7 @@
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_check_for_dupes_on_ctl">
          <property name="text">
-<<<<<<< HEAD
-          <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same language, title, and author</string>
-=======
           <string>When using the &quot;Copy to library&quot; action check for &amp;duplicates with the same title, author and language</string>
->>>>>>> upstream/master
          </property>
         </widget>
        </item>
@@ -288,7 +284,7 @@ Author matching is exact.</string>
        <item row="5" column="0">
         <widget class="QCheckBox" name="opt_auto_add_everything">
          <property name="toolTip">
-          <string>By default, calibre will automatically add only known e-book files. 
+          <string>By default, calibre will automatically add only known e-book files.
 This option tells calibre to add all file types, except those
 that have been explicitly ignored below.</string>
          </property>
