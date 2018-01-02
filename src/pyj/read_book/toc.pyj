@@ -17,12 +17,11 @@ def update_visible_toc_nodes(visible_anchors):
 update_visible_toc_nodes.data = {}
 
 
-def iter_toc_nodes(node, callback):
-    if callback(node):
-        return
+def iter_toc_descendants(node, callback):
     for child in node.children:
         if callback(child):
             return
+        iter_toc_descendants(child, callback)
 
 
 def get_border_nodes(toc, id_map):
@@ -47,7 +46,7 @@ def get_border_nodes(toc, id_map):
         else:
             which[name] = True
     prev = None
-    iter_toc_nodes(toc, def(node):
+    iter_toc_descendants(toc, def(node):
         nonlocal prev, before, after
         if node.dest:
             if spine_before[node.dest]:
