@@ -8,6 +8,15 @@ from pprint import pformat
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={
+            'class': lambda x: x and frozenset(x.split()).intersection(q)
+        }
+    )
+
+
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.latimes.com' + url
@@ -30,13 +39,21 @@ class LATimes(BasicNewsRecipe):
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
-        dict(itemprop='articleBody'),
         dict(name='h1'),
-        dict(attrs={'data-content-type': 'image'}),
+        dict(attrs={
+            'class': 'trb_ar_main'
+        }),
     ]
+
+    remove_tags_after = [
+        dict(itemprop='articleBody'),
+    ]
+
     remove_tags = [
-        dict(attrs={'data-content-type': 'story'}),
-        dict(attrs={'data-load-type': 'commentFrame'}),
+        dict(attrs={
+            'data-content-type': 'blurb'
+        }),
+        classes('trb_ar_cont trb_gptAd trb_filmstrip trb_ar_sponsoredmod'),
     ]
 
     def parse_index(self):
@@ -49,7 +66,11 @@ class LATimes(BasicNewsRecipe):
                 'data-content-slug': True,
             }
         ):
-            a = x.find('a', attrs={'class': lambda x: not x or 'SectionHeading' not in x})
+            a = x.find(
+                'a', attrs={
+                    'class': lambda x: not x or 'SectionHeading' not in x
+                }
+            )
             if a is not None:
                 url = absurl(a['href'])
                 section = x['data-content-section'].capitalize()
