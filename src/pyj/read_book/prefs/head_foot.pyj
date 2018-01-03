@@ -1,0 +1,90 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+
+CONTAINER = unique_id('reader-hf-prefs')
+
+
+def create_item(region, label):
+    def sep():
+        return E.option('\xa0', disabled=True, style='min-height: 1pt; max-height: 1pt; font-size: 1pt; background-color: currentColor')
+
+    def opt(label, name, selected):
+        return E.option(label, id=name, value=name, selected=bool(selected))
+
+    return E.tr(
+        E.td(label + ':', style='padding: 1ex 1rem'),
+        E.td(E.select(
+            data_region=region,
+            opt(_('Empty'), 'empty', True),
+            sep(),
+            opt(_('Book title'), 'title'),
+            opt(_('Authors'), 'authors'),
+            sep(),
+            opt(_('Top level section'), 'top-section'),
+            opt(_('Current section'), 'section'),
+            sep(),
+            opt(_('Progress'), 'progress'),
+            opt(_('Clock'), 'clock'),
+        ))
+    )
+
+
+def create_items(which):
+    ans = E.table(
+        data_which=which,
+        create_item('left', _('Left')),
+        create_item('middle', _('Middle')),
+        create_item('right', _('Right'))
+    )
+    return ans
+
+
+def apply_setting(table, val):
+    for region in 'left middle right'.split(' '):
+        sel = table.querySelector(f'select[data-region={region}]')
+        for opt in sel.selectedOptions:
+            opt.selected = False
+        x = val[region] or 'empty'
+        opt = sel.namedItem(x)
+        if opt:
+            opt.selected = True
+        else:
+            sel.selectedIndex = 0
+
+
+def get_setting(table):
+    ans = {}
+    for region in 'left middle right'.split(' '):
+        sel = table.querySelector(f'select[data-region={region}]')
+        if sel.selectedIndex > -1:
+            ans[region] = sel.options[sel.selectedIndex].value
+    return ans
+
+
+def create_head_foot_panel(container):
+    container.appendChild(E.div(id=CONTAINER))
+    container = container.lastChild
+    container.appendChild(E.h4(_('Header'), style="margin: 1rem"))
+    container.appendChild(create_items('header'))
+    container.appendChild(E.hr())
+    container.appendChild(E.h4(_('Footer'), style="margin: 1rem; margin-top: 0"))
+    container.appendChild(create_items('footer'))
+
+    sd = get_session_data()
+    for which in 'header footer'.split(' '):
+        table = container.querySelector(f'table[data-which={which}]')
+        apply_setting(table, sd.get(which) or {})
+
+
+def commit_head_foot(onchange, container):
+    sd = get_session_data()
+    for which in 'header footer'.split(' '):
+        table = container.querySelector(f'table[data-which={which}]')
+        sd.set(which, get_setting(table))

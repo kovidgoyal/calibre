@@ -36,6 +36,8 @@ defaults = {
     'user_color_schemes': {},
     'base_font_size': 16,
     'controls_help_shown_count': 0,
+    'header': {},
+    'footer': {'right': 'progress'},
 }
 
 is_local_setting = {
