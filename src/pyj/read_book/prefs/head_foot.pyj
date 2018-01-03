@@ -7,13 +7,15 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from dom import unique_id
+from session import get_interface_data
+from utils import fmt_sidx
 
 CONTAINER = unique_id('reader-hf-prefs')
 
 
 def create_item(region, label):
     def sep():
-        return E.option('\xa0', disabled=True, style='min-height: 1pt; max-height: 1pt; font-size: 1pt; background-color: currentColor')
+        return E.option('\xa0', disabled=True)
 
     def opt(label, name, selected):
         return E.option(label, id=name, value=name, selected=bool(selected))
@@ -26,6 +28,7 @@ def create_item(region, label):
             sep(),
             opt(_('Book title'), 'title'),
             opt(_('Authors'), 'authors'),
+            opt(_('Series'), 'series'),
             sep(),
             opt(_('Top level section'), 'top-section'),
             opt(_('Current section'), 'section'),
@@ -85,6 +88,49 @@ def create_head_foot_panel(container):
 
 def commit_head_foot(onchange, container):
     sd = get_session_data()
+    changed = False
     for which in 'header footer'.split(' '):
+        prev = sd.get(which) or {}
         table = container.querySelector(f'table[data-which={which}]')
+        current = get_setting(table)
+        for region in 'left middle right'.split(' '):
+            if prev[region] is not current[region]:
+                changed = True
         sd.set(which, get_setting(table))
+
+    if changed:
+        onchange()
+
+
+if window.Intl?.DateTimeFormat:
+    date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
+else:
+    date_formatter = {'format': def(date):
+        return '{}:{}'.format(date.getHours(), date.getMinutes())
+    }
+
+
+def render_head_foot(div, which, region, progress_frac, metadata):
+    template = get_session_data().get(which) or {}
+    field = template[region] or 'empty'
+    interface_data = get_interface_data()
+    text = ''
+    has_clock = False
+    if field is 'progress':
+        percent = min(100, max(Math.round(progress_frac * 100), 0))
+        text = percent + '%'
+    elif field is 'title':
+        text = metadata.title or _('Untitled')
+    elif field is 'authors':
+        text = ' & '.join(metadata.authors or v'[]')
+    elif field is 'series':
+        if metadata.series:
+            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            text = _('{0} of {1}').format(ival, metadata.series)
+    elif field is 'clock':
+        text = date_formatter.format(Date())
+        has_clock = True
+    if text is not div.textContent:
+        div.textContent = text
+    div.style.display = 'block' if text else 'none'
+    return text, has_clock

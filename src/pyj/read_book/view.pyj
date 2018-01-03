@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send
-from book_list.book_details import render_metadata, CLASS_NAME as BD_CLASS_NAME
+from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.router import push_state, read_book_mode
 from book_list.theme import get_color
@@ -19,6 +19,7 @@ from read_book.goto import get_next_section
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
+from read_book.prefs.head_foot import render_head_foot
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.toc import update_visible_toc_nodes
@@ -93,10 +94,11 @@ def show_metadata_overlay(mi):
 def margin_elem(sd, which, id, onclick):
     sz = sd.get(which, 20)
     fsz = min(max(0, sz - 6), 12)
+    s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
         style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center',
         id=id,
-        E.div(), E.div()
+        E.div(style='margin-right: 1.5em' + s), E.div(style=s), E.div(style='margin-left: 1.5em' + s)
     )
     if onclick:
         ans.addEventListener('click', onclick)
@@ -114,6 +116,8 @@ class View:
     def __init__(self, container, ui):
         self.ui = ui
         self.loaded_resources = {}
+        self.current_progress_frac = 0
+        self.clock_timer_id = 0
         sd = get_session_data()
         left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
         set_left_margin_handler(left_margin)
@@ -479,7 +483,8 @@ class View:
         self.book.last_read_position[unkey] = data.cfi
         self.ui.db.update_last_read_time(self.book)
         lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
-        self.update_read_percent(data.progress_frac)
+        self.current_progress_frac = data.progress_frac
+        self.update_header_footer()
         key = self.book.key
         if username:
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
@@ -488,17 +493,41 @@ class View:
                         print('Failed to update last read position, AJAX call did not succeed')
             )
 
-    def update_read_percent(self, pos_frac):
+    def update_header_footer(self):
         sd = get_session_data()
+        has_clock = False
+
+        def render_template(div, sz_attr, name):
+            nonlocal has_clock
+            if sd.get(sz_attr, 20) > 5:
+                mi = self.book.metadata
+                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi)
+                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi)
+                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi)
+                has_clock = hca or hcb or hcc
+                if textc and not textb and not texta:
+                    # There is only a right, we want it to be right aligned,
+                    # not left-aligned
+                    div.firstChild.style.display = 'block'
+                    div.firstChild.nextSibling.style.display = 'block'
+            else:
+                for c in div.childNodes:
+                    c.style.display = 'none'
+
         div = document.getElementById('book-bottom-margin')
-        if not div:
-            return
-        pcelem = div.lastChild
-        percent = min(100, max(Math.round(pos_frac * 100), 0))
-        text = percent + '%'
-        if text is not pcelem.textContent:
-            pcelem.textContent = text
-        pcelem.style.display = 'block' if sd.get('margin_bottom', 20) > 5 else 'none'
+        if div:
+            render_template(div, 'margin_bottom', 'footer')
+        div = document.getElementById('book-top-margin')
+        if div:
+            render_template(div, 'margin_top', 'header')
+        if has_clock:
+            if not self.clock_timer_id:
+                self.clock_timer_id = window.setInterval(self.update_header_footer, 60000)
+        else:
+            if self.clock_timer_id:
+                window.clearInterval(self.clock_timer_id)
+                self.clock_timer_id = 0
+
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
@@ -525,7 +554,8 @@ class View:
         self.processing_spine_item_display = False
         self.hide_loading()
         frac = data.progress_frac or 0
-        self.update_read_percent(frac)
+        self.current_progress_frac = frac
+        self.update_header_footer()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
 
     def update_font_size(self):
