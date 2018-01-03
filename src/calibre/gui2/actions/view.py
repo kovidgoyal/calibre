@@ -316,8 +316,15 @@ class ViewAction(InterfaceAction):
             return
 
         if self.gui.current_view() is self.gui.library_view:
-            ids = list(map(self.gui.library_view.model().id, rows))
-            self._view_calibre_books(ids)
+            ids = []
+            m = self.gui.library_view.model().id
+            for r in rows:
+                try:
+                    ids.append(m(r))
+                except Exception:
+                    pass
+            if ids:
+                self._view_calibre_books(ids)
         else:
             paths = self.gui.current_view().model().paths(rows)
             for path in paths:
