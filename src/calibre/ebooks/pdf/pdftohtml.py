@@ -140,13 +140,13 @@ def parse_outline(raw, output_dir):
         count = [0]
 
         def process_node(node, toc):
-            for child in node.iterdescendants('*'):
+            for child in node.iterchildren('*'):
                 if child.tag == 'outline':
                     parent = toc.children[-1] if toc.children else toc
                     process_node(child, parent)
                 else:
                     page = child.get('page', '1')
-                    toc.add(child.text, 'index.html', 'p' + page)
+                    toc.add(child.text or '', 'index.html', 'p' + page)
                     count[0] += 1
         process_node(outline, toc)
         if count[0] > 2:
