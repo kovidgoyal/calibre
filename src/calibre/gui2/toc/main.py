@@ -586,6 +586,26 @@ class TreeWidget(QTreeWidget):  # {{{
             t = unicode(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, icu_upper(t))
 
+    def lower_case(self):
+        self.push_history()
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            item.setData(0, Qt.DisplayRole, icu_lower(t))
+
+    def swap_case(self):
+        self.push_history()
+        from calibre.utils.icu import swapcase
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            item.setData(0, Qt.DisplayRole, swapcase(t))
+
+    def capitalize(self):
+        self.push_history()
+        from calibre.utils.icu import capitalize
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            item.setData(0, Qt.DisplayRole, capitalize(t))
+
     def bulk_rename(self):
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
         sort_map = {item:i for i, item in enumerate(self.iteritems())}
@@ -625,6 +645,10 @@ class TreeWidget(QTreeWidget):  # {{{
 
         if item is not None:
             m = QMenu()
+            m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
+            m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
+            m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
+            m.addSeparator()
             ci = unicode(item.data(0, Qt.DisplayRole) or '')
             p = item.parent() or self.invisibleRootItem()
             idx = p.indexOfChild(item)
@@ -632,15 +656,20 @@ class TreeWidget(QTreeWidget):  # {{{
                 m.addAction(QIcon(I('arrow-up.png')), (_('Move "%s" up')%ci)+key(Qt.Key_Up), self.move_up)
             if idx + 1 < p.childCount():
                 m.addAction(QIcon(I('arrow-down.png')), (_('Move "%s" down')%ci)+key(Qt.Key_Down), self.move_down)
-            m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
             if item.parent() is not None:
                 m.addAction(QIcon(I('back.png')), (_('Unindent "%s"')%ci)+key(Qt.Key_Left), self.move_left)
             if idx > 0:
                 m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key_Right), self.move_right)
-            m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
-            m.addAction(_('Change all selected items to title case'), self.title_case)
-            m.addAction(_('Change all selected items to upper case'), self.upper_case)
-            m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
+
+            m.addSeparator()
+            case_menu = QMenu(_('Change case'))
+            case_menu.addAction(_('Upper case'), self.upper_case)
+            case_menu.addAction(_('Lower case'), self.lower_case)
+            case_menu.addAction(_('Swap case'), self.swap_case)
+            case_menu.addAction(_('Title case'), self.title_case)
+            case_menu.addAction(_('Capitalize'), self.capitalize)
+            m.addMenu(case_menu)
+
             m.exec_(QCursor.pos())
 # }}}
 
