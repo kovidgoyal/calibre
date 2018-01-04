@@ -61,6 +61,33 @@ def get_border_nodes(toc, id_map):
     return before, after
 
 
+def get_current_toc_nodes():
+    toc = current_book().manifest.toc
+    parent_map, id_map = get_toc_maps(toc)
+    data = update_visible_toc_nodes.data
+    ans = {}
+    if data.has_visible:
+        ans = data.visible_anchors
+    else:
+        if data.before:
+            ans[data.before] = True
+        else:
+            before = get_border_nodes(toc, id_map)[0]
+            if before:
+                ans[before.id] = True
+    ans = Object.keys(ans)
+    if ans.length:
+        pid = node_id = ans[0]
+        p = parent_map[pid]
+        while p and p.title:
+            pid = p.id
+            p = parent_map[pid]
+        p = id_map[pid]
+        return id_map[node_id], p if p and p.title else None
+
+    return None, None
+
+
 def get_highlighted_toc_nodes(toc, parent_map, id_map):
     data = update_visible_toc_nodes.data
     ans = {}
@@ -74,10 +101,10 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map):
             if before:
                 ans[before.id] = True
     for node_id in Object.keys(ans):
-        pid = parent_map[node_id]
-        while pid:
-            ans[pid] = True
-            pid = parent_map[pid]
+        p = parent_map[node_id]
+        while p and p.title:
+            ans[p.id] = True
+            p = parent_map[p.id]
     return ans
 
 def get_toc_maps(toc):

@@ -110,7 +110,7 @@ else:
     }
 
 
-def render_head_foot(div, which, region, progress_frac, metadata):
+def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -130,6 +130,12 @@ def render_head_foot(div, which, region, progress_frac, metadata):
     elif field is 'clock':
         text = date_formatter.format(Date())
         has_clock = True
+    elif field is 'section':
+        text = current_toc_node.title if current_toc_node else ''
+    elif field is 'top-section':
+        text = current_toc_toplevel_node.title if current_toc_toplevel_node else ''
+        if not text:
+            text = current_toc_node.title if current_toc_node else ''
     if text is not div.textContent:
         div.textContent = text
     div.style.display = 'block' if text else 'none'

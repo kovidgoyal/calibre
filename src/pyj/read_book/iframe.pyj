@@ -239,6 +239,7 @@ class IframeBoss:
         self.send_message('content_loaded', progress_frac=self.get_progress_frac())
         self.last_cfi = None
         window.setTimeout(self.update_cfi, 0)
+        window.setTimeout(self.update_toc_position, 0)
 
 
     def calculate_progress_frac(self, current_name, spine_index):

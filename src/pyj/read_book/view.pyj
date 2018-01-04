@@ -22,7 +22,7 @@ from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
-from read_book.toc import update_visible_toc_nodes
+from read_book.toc import update_visible_toc_nodes, get_current_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import html_escape, is_ios, parse_url_params, username_key
@@ -117,6 +117,7 @@ class View:
         self.ui = ui
         self.loaded_resources = {}
         self.current_progress_frac = 0
+        self.current_toc_node = self.current_toc_toplevel_node = None
         self.clock_timer_id = 0
         sd = get_session_data()
         left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
@@ -501,15 +502,18 @@ class View:
             nonlocal has_clock
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi)
+                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
+                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
+                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
                 has_clock = hca or hcb or hcc
                 if textc and not textb and not texta:
-                    # There is only a right, we want it to be right aligned,
-                    # not left-aligned
+                    # Want right-aligned
                     div.firstChild.style.display = 'block'
                     div.firstChild.nextSibling.style.display = 'block'
+                elif not texta and not textc and textb:
+                    # Want centered
+                    div.firstChild.style.display = 'block'
+                    div.lastChild.style.display = 'block'
             else:
                 for c in div.childNodes:
                     c.style.display = 'none'
@@ -531,6 +535,8 @@ class View:
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
+        self.current_toc_node, self.current_toc_toplevel_node = get_current_toc_nodes()
+        self.update_header_footer()
 
     def show_spine_item(self, resource_data):
         self.pending_load = resource_data
