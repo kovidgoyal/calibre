@@ -123,7 +123,7 @@ Well, that just about concludes the very short introduction to regular expressio
 One last word of warning, though: Regexps are powerful, but also really easy to get wrong. calibre provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
 
 
-Quick Reference
+Quick reference
 -------------------
 
 .. toctree::
