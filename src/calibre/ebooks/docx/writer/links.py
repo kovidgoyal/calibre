@@ -60,7 +60,7 @@ class TOCItem(object):
 
 def sanitize_bookmark_name(base):
     # Max length allowed by Word appears to be 40, we use 32 to leave some
-    # space for making the name non-unique
+    # space for making the name unique
     return re.sub(r'[^0-9a-zA-Z]', '_', ascii_text(base))[:32].rstrip('_')
 
 
