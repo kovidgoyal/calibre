@@ -194,7 +194,7 @@
        <item row="6" column="0">
         <widget class="QCheckBox" name="opt_disable_tray_notification">
          <property name="toolTip">
-          <string>Disable popup notifications when calibre completes jobs such a conversion, sending to device etc. The notifications are sent via the operating system notification facility, if available.</string>
+          <string>Disable popup notifications when calibre completes jobs such a conversion, sending to device etc. The notifications are sent via the operating system notification facility, if available. Note that on windows, you have to enable the system tray icon for notifications to work.</string>
          </property>
          <property name="text">
           <string>Disable n&amp;otifications on job completion</string>
