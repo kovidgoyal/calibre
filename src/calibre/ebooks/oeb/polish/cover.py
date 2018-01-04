@@ -302,9 +302,11 @@ def clean_opf(container):
             name = gtm.get(typ, None)
             if name and name in container.name_path_map:
                 yield name
-    removed_names = container.apply_unique_properties(None, 'cover-image', 'calibre:title-page')[0]
-    for name in removed_names:
-        yield name
+    ver = container.opf_version_parsed
+    if ver.major > 2:
+        removed_names = container.apply_unique_properties(None, 'cover-image', 'calibre:title-page')[0]
+        for name in removed_names:
+            yield name
     container.dirty(container.opf_name)
 
 
