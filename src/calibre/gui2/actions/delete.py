@@ -73,8 +73,7 @@ class MultiDeleter(QObject):  # {{{
         self.pd = None
         self.model.db.commit()
         self.model.db.clean()
-        self.model.books_deleted()
-        self.gui.tags_view.recount()
+        self.model.books_deleted()  # calls recount on the tag browser
         self.callback(self.deleted_ids)
         if self.failures:
             msg = ['==> '+x[1]+'\n'+x[2] for x in self.failures]
@@ -182,14 +181,14 @@ class DeleteAction(InterfaceAction):
         self.gui.library_view.model().refresh_ids([book_id])
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
-        self.gui.tags_view.recount()
+        self.gui.tags_view.recount_with_position_based_index()
 
     def restore_format(self, book_id, original_fmt):
         self.gui.current_db.restore_original_format(book_id, original_fmt)
         self.gui.library_view.model().refresh_ids([book_id])
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
-        self.gui.tags_view.recount()
+        self.gui.tags_view.recount_with_position_based_index()
 
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -205,7 +204,7 @@ class DeleteAction(InterfaceAction):
         m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
         if ids:
-            self.gui.tags_view.recount()
+            self.gui.tags_view.recount_with_position_based_index()
 
     def delete_all_but_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -235,7 +234,7 @@ class DeleteAction(InterfaceAction):
             m.current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
             if ids:
-                self.gui.tags_view.recount()
+                self.gui.tags_view.recount_with_position_based_index()
 
     def delete_all_formats(self, *args):
         ids = self._get_selected_ids()
@@ -258,7 +257,7 @@ class DeleteAction(InterfaceAction):
             self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
             if ids:
-                self.gui.tags_view.recount()
+                self.gui.tags_view.recount_with_position_based_index()
 
     def remove_matching_books_from_device(self, *args):
         if not self.gui.device_manager.is_device_present:

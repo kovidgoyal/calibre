@@ -69,7 +69,7 @@ class TagBrowserMixin(object):  # {{{
                     m.addAction(name, partial(self.do_tags_list_edit, None, cat))
 
     def init_tag_browser_mixin(self, db):
-        self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
+        self.library_view.model().count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
         self.tags_view.set_database(db, self.alter_tb)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tags_list_edit.connect(self.do_tags_list_edit)
