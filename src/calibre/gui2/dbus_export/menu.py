@@ -388,5 +388,6 @@ def test():
     app.exec_()
     del dbus_name
 
+
 if __name__ == '__main__':
     test()
