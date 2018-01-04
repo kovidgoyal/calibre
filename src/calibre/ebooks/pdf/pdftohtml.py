@@ -145,9 +145,10 @@ def parse_outline(raw, output_dir):
                     parent = toc.children[-1] if toc.children else toc
                     process_node(child, parent)
                 else:
-                    page = child.get('page', '1')
-                    toc.add(child.text or '', 'index.html', 'p' + page)
-                    count[0] += 1
+                    if child.text:
+                        page = child.get('page', '1')
+                        toc.add(child.text, 'index.html', 'p' + page)
+                        count[0] += 1
         process_node(outline, toc)
         if count[0] > 2:
             root = create_ncx(toc, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
