@@ -46,13 +46,13 @@ def usage(code, msg=''):
 def add(id, str, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
     global MESSAGES
-    if not id:
-        return
     if not fuzzy and str:
         MESSAGES[id] = str
-        STATS['translated'] += 1
+        if id:
+            STATS['translated'] += 1
     else:
-        STATS['untranslated'] += 1
+        if id:
+            STATS['untranslated'] += 1
 
 
 def generate():
