@@ -211,8 +211,8 @@ class Source(Plugin):
     #: Set this to True if your plugin returns HTML formatted comments
     has_html_comments = False
 
-    #: Setting this to True means that the browser object will add
-    #: Accept-Encoding: gzip to all requests. This can speedup downloads
+    #: Setting this to True means that the browser object will indicate
+    #: that it supports gzip transfer encoding. This can speedup downloads
     #: but make sure that the source actually supports gzip transfer encoding
     #: correctly first
     supports_gzip_transfer_encoding = False
