@@ -653,7 +653,7 @@ class GetTranslations(Translations):  # {{{
 
         def check_for_control_chars(f):
             raw = open(f, 'rb').read().decode('utf-8')
-            pat = re.compile(ur'[\0-\x08\x0b\x0c\x0e-\x1f\x7f]')
+            pat = re.compile(ur'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]')
             errs = []
             for i, line in enumerate(raw.splitlines()):
                 if pat.search(line) is not None:
