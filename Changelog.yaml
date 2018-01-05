@@ -22,7 +22,7 @@
 
 
 - version: 3.15.0
-  date: 2018-01-04
+  date: 2018-01-05
 
   new features:
     - title: "Browser viewer: Allow customizing what information is displayed in the header and footer areas. Access Preferences from the viewer controls to change."
