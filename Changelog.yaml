@@ -54,7 +54,7 @@
 
     - title: "Edit book: Fix backspace key un-indenting instead of deleting even when text is selected if the cursor is at the start of the line"
 
-    - title: "Tag browser: Fix position not bing preserved when deleting books."
+    - title: "Tag browser: Fix position not being preserved when deleting books."
       tickets: [1740387]
 
     - title: "Edit Book: Use the cache directory rather than the temp directory to store working files. Hopefully prevents temp file cleaners from destroying books."
