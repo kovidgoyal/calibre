@@ -651,6 +651,15 @@ class GetTranslations(Translations):  # {{{
             p.wait()
             return errs
 
+        def check_for_control_chars(f):
+            raw = open(f, 'rb').read().decode('utf-8')
+            pat = re.compile(ur'[\0-\x08\x0b\x0c\x0e-\x1f\x7f]')
+            errs = []
+            for i, line in enumerate(raw.splitlines()):
+                if pat.search(line) is not None:
+                    errs.append('There are ASCII control codes on line number: {}'.format(i + 1))
+            return '\n'.join(errs)
+
         for f in files:
             errs = check(f)
             if errs:
@@ -659,6 +668,11 @@ class GetTranslations(Translations):  # {{{
                 edit_file(f)
                 if check(f):
                     raise SystemExit('Aborting as not all errors were fixed')
+            errs = check_for_control_chars(f)
+            if errs:
+                print(f, 'has ASCII control codes in it')
+                print(errs)
+                raise SystemExit(1)
 
     def check_website(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
