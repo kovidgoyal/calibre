@@ -157,7 +157,7 @@ character. The most useful anchors for text processing are:
      not ``absurd``.
 
   ``^``
-     Matches the start of the start of a line (in multi-line mode, which is the
+     Matches the start of the line (in multi-line mode, which is the
      default)
 
   ``$``
