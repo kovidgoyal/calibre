@@ -5,8 +5,8 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# - version: ?.?.?
-#   date: 2017-??-??
+# - version: 3.?.?
+#   date: 2018-??-??
 #
 #   new features:
 #     - title:
@@ -19,6 +19,62 @@
 #
 #   new recipes:
 #     - title:
+
+
+- version: 3.15.0
+  date: 2018-01-04
+
+  new features:
+    - title: "Browser viewer: Allow customizing what information is displayed in the header and footer areas. Access Preferences from the viewer controls to change."
+
+    - title: "Add support for MTP devices on FreeBSD"
+
+    - title: "ToC editor: Add more case changing operations to the right click menu"
+
+    - title: "Content server: Redirect pre 2.x book URLs to new 3.x URLs via a JavaScript redirect"
+
+    - title: "Content server: Allow opening entries in the book list in a new tab via middle click/right click"
+
+    - title: "Add a tweak in Preferences->Tweaks to exclude some fields when using the Edit metadata->Copy/paste actions"
+
+    - title: "Linux: Allow using calibre-tray.png in the calibre resources folder to override the system tray icon."
+      tickets: [1738518]
+
+  bug fixes:
+    - title: "Browser viewer: Fix goto next/previous section actions not working when the sections are in different individual HTML files."
+      tickets: [1740333]
+
+    - title: "Edit book/Book polishing: When compressing images and the compressed image is larger thant he original, use the original image."
+      tickets: [1741063]
+
+    - title: "PDF input: Fix conversion of multi-level PDF Outline causing duplicate entries in the Table of Contents."
+      tickets: [1738385]
+
+    - title: "Edit book: Fix incorrect EPUB 3 declarations being added to the OPF file when adding covers to an EPUB 2 book"
+
+    - title: "Edit book: Fix backspace key un-indenting instead of deleting even when text is selected if the cursor is at the start of the line"
+
+    - title: "Tag browser: Fix position not bing preserved when deleting books."
+      tickets: [1740387]
+
+    - title: "Edit Book: Use the cache directory rather than the temp directory to store working files. Hopefully prevents temp file cleaners from destroying books."
+      tickets: [1740460]
+
+    - title: "EPUB input: Handle books that erroneously set the mimetype for font files to text/plain"
+
+    - title: "AZW3 input: Do not fail to process files with invalid internal flow references."
+      tickets: [1740140]
+
+    - title: "When updating plugins, do not show the dialog asking which toolbar to put the plugin, even if the user has removed the plugin for all toolbars."
+
+    - title: "Content server: Fix using the Clear logs button preventing the server from restarting until calibre itself is restarted."
+      tickets: [1738433]
+
+  improved recipes:
+    - LA Times
+    - Popular Science
+    - Nikkei News
+
 
 - version: 3.14.0
   date: 2017-12-15
