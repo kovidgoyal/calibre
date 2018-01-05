@@ -156,10 +156,7 @@ class OptionSet(object):
             if opt.help:
                 opt.help = t(opt.help)
                 if opt.name == 'use_primary_find_in_search':
-                    h = opt.help
-                    if isinstance(h, bytes):
-                        h = h.decode('utf-8', 'replace')
-                    opt.help = h.format(u'ñ')
+                    opt.help = opt.help.format(u'ñ')
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
