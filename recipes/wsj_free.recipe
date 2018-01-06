@@ -197,7 +197,7 @@ class WSJ(BasicNewsRecipe):
         root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
         for span in CSSSelect('span.date-date')(root):
             if span.text and span.text.strip():
-                self.timefmt = span.text
+                self.timefmt = ' [%s]' % span.text.strip()
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
             self.cover_url = a.get('href')
