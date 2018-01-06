@@ -94,6 +94,12 @@ steps:
      network configurations possible, it is not possible to give you a
      roadmap for doing so.
 
+  #. If you have setup a username and password, first try it without that
+     to see if it is causing issues. Some e-ink devices have browsers that
+     do not handle authentication. You can sometimes workaround this by
+     including the username and password in the URL, for example:
+     ``http://username:password@192.168.1.2:8080``.
+
   #. If you are stuck, you can always ask for help in the `calibre user forums`_.
 
 
