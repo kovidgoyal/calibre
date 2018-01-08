@@ -659,7 +659,9 @@ You can export all calibre data (books, settings and plugins) and
 then import it on another computer. First let's see how to export the data:
 
   * Right click the calibre icon in the main calibre toolbar and select
-    :guilabel:`Export/import all calibre data`. Then click the button labelled
+    :guilabel:`Export/import all calibre data`. Note that if there is currently
+    a device connected, this menu option will not be available -- so,
+    disconnect any connected devices. Then click the button labelled
     :guilabel:`Export all your calibre data`. You will see a list of all your
     calibre libraries. Click OK and choose an empty folder somewhere on your
     computer. The exported data will be saved in this folder. Simply copy this
