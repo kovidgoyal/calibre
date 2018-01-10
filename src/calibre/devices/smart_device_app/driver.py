@@ -1927,7 +1927,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     return message
 
             try:
-                self.listen_socket.listen(0)
+                self.listen_socket.listen(1)
             except:
                 message = 'listen on port %d failed' % port
                 self._debug(message)
