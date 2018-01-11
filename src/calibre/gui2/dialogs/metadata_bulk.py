@@ -8,7 +8,7 @@ from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import (
-    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont,
+    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar,
     QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal
 )
 
@@ -57,20 +57,50 @@ class Caser(LineEditECM):
 class MyBlockingBusy(QDialog):  # {{{
 
     all_done = pyqtSignal()
+    progress_update = pyqtSignal(int)
+    progress_finished_cur_step = pyqtSignal()
+    progress_next_step_range = pyqtSignal(int)
 
     def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
         self._layout =  l = QVBoxLayout()
         self.setLayout(l)
+        # Every Path that will be taken in do_all
+        options = [ args.cover_action == 'fromfmt' or args.read_file_metadata,
+                    args.do_swap_ta, args.do_title_case and not
+                    args.do_swap_ta, args.do_title_sort, bool(args.au),
+                    args.do_auto_author, bool(args.aus) and args.do_aus,
+                    args.cover_action == 'remove' or args.cover_action ==
+                    'generate' or args.cover_action == 'trim' or
+                    args.cover_action == 'clone', args.restore_original,
+                    args.rating != -1, args.clear_pub, bool(args.pub),
+                    args.clear_series, args.pubdate is not None, args.adddate
+                    is not None, args.do_series, bool(args.series) and
+                    args.do_autonumber, args.comments is not null,
+                    args.do_remove_conv, args.clear_languages, args.remove_all,
+                    bool(do_sr) ]
+        self.selected_options = sum(options)
+        if DEBUG:
+            print("Number of steps for bulk metadata: %d" % self.selected_options)
+            print("Optionslist: ")
+            print(options)
 
         self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
-        self.pi = ProgressIndicator(self)
-        self.pi.setDisplaySize(100)
-        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self.current_step_pb = QProgressBar(self)
+        if self.selected_options > 1:
+            # More than one Option needs to be done! Add Overall ProgressBar
+            self.overall_pb = QProgressBar(self)
+            self.overall_pb.setRange(0, self.selected_options)
+            self.overall_pb.setValue(0)
+            self._layout.addWidget(self.overall_pb, 0, Qt.AlignHCenter)
+            self._layout.addSpacing(15)
+        self.current_option = 0
+        self.current_step_value = 0
+        self._layout.addWidget(self.current_step_pb, 0, Qt.AlignHCenter)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
         self.setWindowTitle(window_title + '...')
@@ -78,6 +108,9 @@ class MyBlockingBusy(QDialog):  # {{{
         self.resize(self.sizeHint())
         self.error = None
         self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
+        self.progress_update.connect(self.on_progress_update, type=Qt.QueuedConnection)
+        self.progress_finished_cur_step.connect(self.on_progress_finished_cur_step, type=Qt.QueuedConnection)
+        self.progress_next_step_range.connect(self.on_progress_next_step_range, type=Qt.QueuedConnection)
         self.args, self.ids = args, ids
         self.db, self.cc_widgets = db, cc_widgets
         self.s_r_func = FunctionDispatcher(s_r_func)
@@ -91,6 +124,26 @@ class MyBlockingBusy(QDialog):  # {{{
     def reject(self):
         pass
 
+    def on_progress_update(self, processed_steps):
+        """
+        This signal should be emitted if a step can be traced with numbers.
+        """
+        self.current_step_value += processed_steps
+        self.current_step_pb.setValue(self.current_step_value)
+
+    def on_progress_finished_cur_step(self):
+        if self.selected_options > 1:
+            self.current_option += 1
+            self.overall_pb.setValue(self.current_option)
+
+    def on_progress_next_step_range(self, steps_of_progress):
+        """
+        If steps_of_progress equals 0 results this in a indetermined ProgressBar
+        Otherwise the range is from 0..steps_of_progress
+        """
+        self.current_step_value = 0
+        self.current_step_pb.setRange(0, steps_of_progress)
+
     def on_all_done(self):
         if not self.error:
             # The cc widgets can only be accessed in the GUI thread
@@ -100,13 +153,11 @@ class MyBlockingBusy(QDialog):  # {{{
             except Exception as err:
                 import traceback
                 self.error = (err, traceback.format_exc())
-        self.pi.stopAnimation()
         QDialog.accept(self)
 
     def exec_(self):
         self.thread = Thread(target=self.do_it)
         self.thread.start()
-        self.pi.startAnimation()
         return QDialog.exec_(self)
 
     def do_it(self):
@@ -127,6 +178,7 @@ class MyBlockingBusy(QDialog):  # {{{
         db = self.db.new_api
         worker = offload_worker()
         try:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
                 paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
@@ -149,6 +201,9 @@ class MyBlockingBusy(QDialog):  # {{{
                                 db.set_metadata(book_id, mi, allow_case_change=True)
                         if cdata is not None:
                             db.set_cover({book_id: cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         finally:
             worker.shutdown()
 
@@ -173,24 +228,33 @@ class MyBlockingBusy(QDialog):  # {{{
 
         # Title and authors
         if args.do_swap_ta:
+            self.progress_next_step_range.emit(3)
             title_map = cache.all_field_for('title', self.ids)
             authors_map = cache.all_field_for('authors', self.ids)
+            self.progress_update.emit(1)
 
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
             new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
             new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
+            self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
 
         if args.do_title_case and not args.do_swap_ta:
+            self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
             cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.iteritems()})
+            self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
+            self.progress_next_step_range.emit(2)
             lang_map = cache.all_field_for('languages', self.ids)
             title_map = cache.all_field_for('title', self.ids)
+            self.progress_update.emit(1)
 
             def get_sort(book_id):
                 if args.languages:
@@ -201,29 +265,47 @@ class MyBlockingBusy(QDialog):  # {{{
                     except (KeyError, IndexError, TypeError, AttributeError):
                         lang = 'eng'
                 return title_sort(title_map[book_id], lang=lang)
+
             cache.set_field('sort', {bid:get_sort(bid) for bid in self.ids})
+            self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
 
         if args.au:
+            self.progress_next_step_range.emit(0)
+            self.processed_books = 0
             authors = string_to_authors(args.au)
-            cache.set_field('authors', {bid:authors for bid in self.ids})
+            cache.set_field('authors', {bid: authors for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_auto_author:
+            self.progress_next_step_range.emit(0)
             aus_map = cache.author_sort_strings_for_books(self.ids)
-            cache.set_field('author_sort', {book_id:' & '.join(aus_map[book_id]) for book_id in aus_map})
+            cache.set_field('author_sort', {book_id: ' & '.join(aus_map[book_id]) for book_id in aus_map})
+            self.progress_finished_cur_step.emit()
 
         if args.aus and args.do_aus:
+            self.progress_next_step_range.emit(0)
             cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         # Covers
         if args.cover_action == 'remove':
-            cache.set_cover({bid:None for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_cover({bid: None for bid in self.ids})
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'generate':
+            self.progress_next_step_range.emit(len(self.ids))
             from calibre.ebooks.covers import generate_cover
             for book_id in self.ids:
                 mi = self.db.get_metadata(book_id, index_is_id=True)
                 cdata = generate_cover(mi, prefs=args.generate_cover_settings)
                 cache.set_cover({book_id:cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'trim':
+            self.progress_next_step_range.emit(len(self.ids))
             from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
@@ -233,46 +315,75 @@ class MyBlockingBusy(QDialog):  # {{{
                     if nimg is not img:
                         cdata = image_to_data(nimg)
                         cache.set_cover({book_id:cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'clone':
+            self.progress_next_step_range.emit(len(self.ids))
             cdata = None
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:
                     break
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
             if cdata:
+                self.progress_next_step_range.emit(0)
                 cache.set_cover({bid:cdata for bid in self.ids if bid != book_id})
+                self.progress_finished_cur_step.emit()
 
         if args.restore_original:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 formats = cache.formats(book_id)
                 originals = tuple(x.upper() for x in formats if x.upper().startswith('ORIGINAL_'))
                 for ofmt in originals:
                     cache.restore_original_format(book_id, ofmt)
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
 
         # Various fields
         if args.rating != -1:
-            cache.set_field('rating', {bid:args.rating for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('rating', {bid: args.rating for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.clear_pub:
-            cache.set_field('publisher', {bid:'' for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('publisher', {bid: '' for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.pub:
-            cache.set_field('publisher', {bid:args.pub for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('publisher', {bid: args.pub for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.clear_series:
-            cache.set_field('series', {bid:'' for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('series', {bid: '' for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.pubdate is not None:
-            cache.set_field('pubdate', {bid:args.pubdate for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('pubdate', {bid: args.pubdate for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.adddate is not None:
-            cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('timestamp', {bid: args.adddate for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_series:
+            self.progress_next_step_range.emit(0)
             sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
             cache.set_field('series', {bid:args.series for bid in self.ids})
+            self.progress_finished_cur_step.emit()
             if not args.series:
+                self.progress_next_step_range.emit(0)
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                self.progress_finished_cur_step.emit()
             else:
                 def next_series_num(bid, i):
                     if args.do_series_restart:
@@ -283,32 +394,55 @@ class MyBlockingBusy(QDialog):  # {{{
 
                 smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
                 if args.do_autonumber:
+                    self.progress_next_step_range.emit(0)
                     cache.set_field('series_index', smap)
+                    self.progress_finished_cur_step.emit()
                 elif tweaks['series_index_auto_increment'] != 'no_change':
+                    self.progress_next_step_range.emit(0)
                     cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                    self.progress_finished_cur_step.emit()
 
         if args.comments is not null:
-            cache.set_field('comments', {bid:args.comments for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('comments', {bid: args.comments for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_remove_conv:
+            self.progress_next_step_range.emit(0)
             cache.delete_conversion_options(self.ids)
+            self.progress_finished_cur_step.emit()
 
         if args.clear_languages:
-            cache.set_field('languages', {bid:() for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('languages', {bid: () for bid in self.ids})
+            self.progress_finished_cur_step.emit()
         elif args.languages:
-            cache.set_field('languages', {bid:args.languages for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('languages', {bid: args.languages for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.remove_all:
-            cache.set_field('tags', {bid:() for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('tags', {bid: () for bid in self.ids})
+            self.progress_finished_cur_step.emit()
+
         if args.add or args.remove:
+            self.progress_next_step_range.emit(0)
             self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+            self.progress_finished_cur_step.emit()
 
         if self.do_sr:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 self.s_r_func(book_id)
+                self.progress_update.emit(1)
             if self.sr_calls:
+                self.progress_next_step_range.emit(len(self.ids))
                 for field, book_id_val_map in self.sr_calls.iteritems():
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
+                    self.progress_update.emit(1)
+                self.progress_finished_cur_step.emit()
+            self.progress_finished_cur_step.emit()
 
 # }}}
 
