@@ -26,7 +26,6 @@ from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
-from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import qt_to_dt
 from calibre.utils.icu import capitalize, sort_key
@@ -67,19 +66,21 @@ class MyBlockingBusy(QDialog):  # {{{
         self._layout =  l = QVBoxLayout()
         self.setLayout(l)
         # Every Path that will be taken in do_all
-        options = [ args.cover_action == 'fromfmt' or args.read_file_metadata,
-                    args.do_swap_ta, args.do_title_case and not
-                    args.do_swap_ta, args.do_title_sort, bool(args.au),
-                    args.do_auto_author, bool(args.aus) and args.do_aus,
-                    args.cover_action == 'remove' or args.cover_action ==
-                    'generate' or args.cover_action == 'trim' or
-                    args.cover_action == 'clone', args.restore_original,
-                    args.rating != -1, args.clear_pub, bool(args.pub),
-                    args.clear_series, args.pubdate is not None, args.adddate
-                    is not None, args.do_series, bool(args.series) and
-                    args.do_autonumber, args.comments is not null,
-                    args.do_remove_conv, args.clear_languages, args.remove_all,
-                    bool(do_sr) ]
+        options = [
+            args.cover_action == 'fromfmt' or args.read_file_metadata,
+            args.do_swap_ta, args.do_title_case and not
+            args.do_swap_ta, args.do_title_sort, bool(args.au),
+            args.do_auto_author, bool(args.aus) and args.do_aus,
+            args.cover_action == 'remove' or args.cover_action ==
+            'generate' or args.cover_action == 'trim' or
+            args.cover_action == 'clone', args.restore_original,
+            args.rating != -1, args.clear_pub, bool(args.pub),
+            args.clear_series, args.pubdate is not None, args.adddate
+            is not None, args.do_series, bool(args.series) and
+            args.do_autonumber, args.comments is not null,
+            args.do_remove_conv, args.clear_languages, args.remove_all,
+            bool(do_sr)
+        ]
         self.selected_options = sum(options)
         if DEBUG:
             print("Number of steps for bulk metadata: %d" % self.selected_options)
@@ -342,7 +343,6 @@ class MyBlockingBusy(QDialog):  # {{{
                     cache.restore_original_format(book_id, ofmt)
                 self.progress_update.emit(1)
             self.progress_finished_cur_step.emit()
-
 
         # Various fields
         if args.rating != -1:
