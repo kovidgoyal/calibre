@@ -92,16 +92,18 @@ class MyBlockingBusy(QDialog):  # {{{
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
         self.current_step_pb = QProgressBar(self)
+        self.current_step_pb.setFormat(_("Current step progress: %p %"))
         if self.selected_options > 1:
             # More than one Option needs to be done! Add Overall ProgressBar
             self.overall_pb = QProgressBar(self)
             self.overall_pb.setRange(0, self.selected_options)
             self.overall_pb.setValue(0)
-            self._layout.addWidget(self.overall_pb, 0, Qt.AlignHCenter)
+            self.overall_pb.setFormat(_("Step %v/%m"))
+            self._layout.addWidget(self.overall_pb)
             self._layout.addSpacing(15)
         self.current_option = 0
         self.current_step_value = 0
-        self._layout.addWidget(self.current_step_pb, 0, Qt.AlignHCenter)
+        self._layout.addWidget(self.current_step_pb)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
         self.setWindowTitle(window_title + '...')
