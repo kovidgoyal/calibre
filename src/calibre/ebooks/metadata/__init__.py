@@ -176,7 +176,7 @@ def roman(num):
     return ''.join(result)
 
 
-def fmt_sidx(i, fmt='%.2f', use_roman=False):
+def fmt_sidx(i, fmt=tweaks['series_decimal_number'], use_roman=False):
     if i is None or i == '':
         i = 1
     try:

@@ -567,3 +567,10 @@ show_saved_search_box = False
 # exclude_fields_on_paste = ['cover', 'timestamp', '#mycolumn']
 # to prevent pasting of the cover, Date and custom column, mycolumn.
 exclude_fields_on_paste = []
+
+#: Number of decimal to use for series number display
+# Choose how many decimal should be used to display series.
+# This uses python number formatting. For example:
+# use '%.2f' to display series with 2 decimals (e.g. book 1.10)
+# use '%.1f' to display series with 1 decimal (e.g. book 1.1)
+series_decimal_number = '%.2f'
