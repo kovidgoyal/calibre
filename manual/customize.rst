@@ -83,9 +83,9 @@ in preference to the built-in one the next time it is started.
 
 For example, if you wanted to change the icon for the :guilabel:`Remove books`
 action, you would first look in the built-in resources folder and see that the
-relevant file is :file:`resources/images/trash.png`. Assuming you have an
-alternate icon in PNG format called :file:`mytrash.png` you would save it in
-the configuration directory as :file:`resources/images/trash.png`. All the
+relevant file is :file:`resources/images/remove_books.png`. Assuming you have an
+alternate icon in PNG format called :file:`my_remove_books.png` you would save it in
+the configuration directory as :file:`resources/images/remove_books.png`. All the
 icons used by the calibre user interface are in :file:`resources/images` and
 its sub-folders.
 
