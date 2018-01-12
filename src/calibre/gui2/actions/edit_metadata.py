@@ -150,7 +150,13 @@ class EditMetadataAction(InterfaceAction):
             mi.set_null(field)
         db = self.gui.current_db
         book_ids = {db.id(r.row()) for r in rows}
+        title_excluded = 'title' in exclude
+        authors_excluded = 'authors' in exclude
         for book_id in book_ids:
+            if title_excluded:
+                mi.title = db.new_api.field_for('title', book_id)
+            if authors_excluded:
+                mi.authors = db.new_api.field_for('authors', book_id)
             db.new_api.set_metadata(book_id, mi, ignore_errors=True)
         if cover:
             db.new_api.set_cover({book_id: cover for book_id in book_ids})
