@@ -13,7 +13,7 @@ from Queue import Empty
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.constants import DEBUG
 from calibre.customize.ui import can_set_metadata
 from calibre.db.errors import NoSuchFormat
@@ -330,6 +330,7 @@ class Saver(QObject):
         a = report.append
 
         def indent(text):
+            text = force_unicode(text)
             return '\xa0\xa0\xa0\xa0' + '\n\xa0\xa0\xa0\xa0'.join(text.splitlines())
 
         for book_id, errors in self.errors.iteritems():
