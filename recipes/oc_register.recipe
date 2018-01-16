@@ -1,77 +1,137 @@
-#!/usr/bin/env  python2
-__license__ = 'GPL v3'
-__author__ = 'Lorenzo Vigentini (updated by rrrrrrrrrrrryan at gmail.com)'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description = 'News from Orange county - v1.02 (10, August 2014)'
-
-'''
-http://www.ocregister.com/
-'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+import time
+import json
+import urllib
+from pprint import pprint
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class ocRegister(BasicNewsRecipe):
-    author = 'Lorenzo Vigentini'
-    description = 'News from the Orange county'
-
-    cover_url = 'http://images.onset.freedom.com/ocregister/logo.gif'
+class OrangeCountyRegister(BasicNewsRecipe):
     title = u'Orange County Register'
-    publisher = 'Orange County Register Communication'
-    category = 'News, finance, economy, politics'
-
+    __author__ = 'TechnoCat'
+    description = 'The O.C. Register\nRecipe: Nov 2016'
+    cover_url = 'http://www.realclearpolitics.com/dev/mt-static/images/logo.gif'
+    custom_title = 'OC Register - ' + time.strftime('%d %b %Y')
+    auto_cleanup = True
+    extra_css = 'div.metaAuthor { display:none;}\n'
+    encoding = 'utf8'
     language = 'en'
-    timefmt = '[%a, %d %b, %Y]'
-
-    oldest_article = 1
-    max_articles_per_feed = 25
-    use_embedded_content = False
-    recursion = 10
-
-    # remove_javascript     = True
+    needs_subscription = False
     no_stylesheets = True
+    oldest_article = 7
+    remove_javascript = True
+    remove_tags = [dict(name='img', attrs={})]
+    # Don't go down
+    recursions = 0
+    max_articles_per_feed = 400
+    debugMessages = False
 
-    needs_subscription = "optional"
+    feeds = [('News', 'https://www.ocregister.com/news/'),
+             ('Opinion', 'https://www.ocregister.com/opinion/'),
+             ('Politics', 'https://www.ocregister.com/news/politics/'),
+             ('Business', 'https://www.ocregister.com/business/')]
 
-    use_javascript_to_login = True
+    def parsePage(self, index):
+        if self.debugMessages is True:
+            print("\n\nStarting " + self.feeds[index][0])
+        articleList = []
+        soup = self.index_to_soup(self.feeds[index][1])
+        # Have this index page now.
+        # look for a.article-title
+        # If any, the description is <div class="excerpt">
+        for newsentry in soup.findAll("a", {"class": "article-title"}):
+            print('Next up:')
+            print(newsentry)
+            title = newsentry["title"]
+            url = newsentry['href']
+            print("Title: ")
+            print(title)
+            print('URL')
+            print(url)
+            pubdate = time.strftime('%a, %d %b')
+            articleList.append(
+                dict(
+                    title=title,
+                    url=url,
+                    date=pubdate,
+                    description=title,
+                    content=''
+                )
+            )
+        return articleList
 
-    def javascript_login(self, browser, username, password):
-        browser.visit('http://www.ocregister.com/sections/login')
-        form = browser.select_form(nr=1)  # Select the second form on the page
-        form['username'] = username
-        form['password_temp'] = password
-        # Submit the form and wait at most two minutes for loading to complete
-        browser.submit(timeout=120)
+    def extract_readable_article(self, html, url):
+        cleanedHTML = super(OrangeCountyRegister,
+                            self).extract_readable_article(html, url)
+        print("Processing html for author")
+        # Find the attribs...
+        attribDict = self.htmlToAttribsDict(html)
+        print("dict is type...")
+        print(type(attribDict))
+        author = attribDict.get('Byline')
+        if author is not None:
+            # add author code after <body>
+            print("Adding author in meta")
+            print(author)
+            cleanedHTML = cleanedHTML.replace(
+                "<body>",
+                "<body>\n<div class=\"metaAuthor\" value=\"" + author + "\"></div>\n"
+            )
+        else:
+            print('no author found')
+            print(html)
+        # pubDate = attribDict.get('Publish Hour of Day')
+        return cleanedHTML
 
-    def print_version(self, url):
-        printUrl = 'http://www.ocregister.com/common/printer/view.php?db=ocregister&id='
-        segments = url.split('/')
-        subSegments = (segments[4]).split('.')
-        subSubSegments = (subSegments[0]).split('-')
-        myArticle = (subSubSegments[1])
-        myURL = printUrl + myArticle
-        return myURL
+    def loadURL(self, url):
+        socket = urllib.urlopen(url)
+        rawHTML = socket.read()
+        return rawHTML
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'ArticleContentWrap'})
-    ]
+    def htmlToAttribsDict(self, rawHTML):
+        tokenStart = 'dataLayer.push({'
+        tokenEnd = '});'
+        print("1")
+        startJSON = rawHTML.find(tokenStart)
+        if (startJSON < 0):
+            return
+        JSONBeginning = rawHTML[startJSON + len(tokenStart) - 1:]
+        endJSON = JSONBeginning.find(tokenEnd)
+        if (endJSON < 0):
+            return
+        JSON = JSONBeginning[:endJSON + 1]
+        JSONQuoted = JSON.replace("'", "\"")
+        try:
+            metadata = json.loads(JSONQuoted)
+            pprint(metadata)
+            return metadata
+        except ValueError:
+            print("Could not decode JSON:")
+            print(JSONQuoted)
+        return None
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'hideForPrint'}),
-        dict(name='div', attrs={'id': 'ContentFooter'})
-    ]
-
-    feeds = [
-        (u'News', u'http://www.ocregister.com/common/rss/rss.php?catID=18800'),
-        (u'Top Stories',
-         u'http://www.ocregister.com/common/rss/rss.php?catID=23541'),
-        (u'Business', u'http://www.ocregister.com/common/rss/rss.php?catID=18909'),
-        (u'Cars', u'http://www.ocregister.com/common/rss/rss.php?catID=20128'),
-        (u'Entertainment',
-         u'http://www.ocregister.com/common/rss/rss.php?catID=18926'),
-        (u'Home', u'http://www.ocregister.com/common/rss/rss.php?catID=19142'),
-        (u'Life', u'http://www.ocregister.com/common/rss/rss.php?catID=18936'),
-        (u'Opinion', u'http://www.ocregister.com/common/rss/rss.php?catID=18963'),
-        (u'Sports', u'http://www.ocregister.com/common/rss/rss.php?catID=18901'),
-        (u'Travel', u'http://www.ocregister.com/common/rss/rss.php?catID=18959')
-    ]
+    # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
+    # returns a list of tuple ('feed title', list of articles)
+    # {
+    # 'title'       : article title,
+    # 'url'         : URL of print version,
+    # 'date'        : The publication date of the article as a string,
+    # 'description' : A summary of the article
+    # 'content'     : The full article (can be an empty string). This is used by FullContentProfile
+    # }
+    # this is used instead of BasicNewsRecipe.parse_feeds().
+    def parse_index(self):
+        # Parse the page into Python Soup
+        # articleList = []
+        ans = []
+        feedsCount = len(self.feeds)
+        for x in range(0, feedsCount - 1):  # should be ,4
+            feedarticles = self.parsePage(x)
+            if feedarticles is not None:
+                ans.append((self.feeds[x][0], feedarticles))
+        if self.debugMessages is True:
+            print(ans)
+        return ans
