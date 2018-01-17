@@ -1,67 +1,62 @@
-from __future__ import with_statement
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import re
+import shutil
+import urllib
+
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class GalaxyEdge(BasicNewsRecipe):
-    title = u'The Galaxy\'s Edge'
-    language = 'en'
-
+class AdvancedUserRecipe1515196393(BasicNewsRecipe):
+    title = "The Galaxy's Edge"
+    __author__ = 'andyh2000'
+    delay = 2
     oldest_article = 7
-    __author__ = 'Krittika Goyal'
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    language = 'en'
+    encoding = 'utf8'
     no_stylesheets = True
-
-    auto_cleanup = True
 
     extra_css = '.photo-caption { font-size: smaller }'
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.galaxysedge.com/')
-        main = soup.find('table', attrs={'width': '944'})
-        toc = main.find('td', attrs={'width': '204'})
-
-        current_section = None
+        cover_image = soup.find('div', attrs={'class':'ci-img'})
+        cover_image = cover_image.find('img')
+        self.cover_url = cover_image['src']
+        issue_title = soup.find('h1')
+        self.title = "Galaxy's Edge: " + self.tag_to_string(issue_title).lower().title()
+        toc = soup.find('div', attrs={'class':'nav-tabs'})
+        current_section = "Articles"
         current_articles = []
         feeds = []
-        c = 0
-        for x in toc.findAll(['p']):
-            c = c + 1
-            if c == 5:
-                if current_articles and current_section:
-                    feeds.append((current_section, current_articles))
-                edwo = x.find('a')
-                current_section = self.tag_to_string(edwo)
-                current_articles = []
-                self.log('\tFound section:', current_section)
-                title = self.tag_to_string(edwo)
-                url = edwo.get('href', True)
-                url = 'http://www.galaxysedge.com/' + url
-                print(title)
-                print(c)
-                if not url or not title:
-                    continue
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url': url,
-                                         'description': '', 'date': ''})
-            elif c > 5:
-                current_section = self.tag_to_string(x.find('b'))
-                current_articles = []
-                self.log('\tFound section:', current_section)
-                for y in x.findAll('a'):
-                    title = self.tag_to_string(y)
-                    url = y.get('href', True)
-                    url = 'http://www.galaxysedge.com/' + url
-                    print(title)
-                    if not url or not title:
-                        continue
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
-                    current_articles.append({'title': title, 'url': url,
-                                             'description': '', 'date': ''})
-            if current_articles and current_section:
-                feeds.append((current_section, current_articles))
+        br = self.get_browser()
+        self.ctdir = PersistentTemporaryDirectory()
+        for x in toc.findAll(['li'], attrs={"class": re.compile(".*get_content.*")}):
+            edwo = x.find('a')
+            title = self.tag_to_string(edwo)
+            self.log('\t\tFound article:', title)
+            post_id = x["data-post-id"]
+            cat_id = x["data-cat-id"]
+            parent_id = x["data-parent-id"]
+            self.log('\t\tdata-parent-id', parent_id)
+            self.log('\t\tdata-cat-id', cat_id)
+            self.log('\t\tdata-post-id', post_id)
+            data = urllib.urlencode({'action':'get_content', 'cat_id':cat_id, 'parent_id':parent_id, 'post_id':post_id})
+            r=br.open('http://www.galaxysedge.com/wp-content/themes/galaxyedge/get_content.php', data)
+            content_file = PersistentTemporaryFile(suffix='.html', dir=self.ctdir)
+            content_file.write(r.read())
+            content_file.close()
+            current_articles.append({'title': title, 'url':'file://' + content_file.name, 'description':'', 'date':''})
+        if current_articles and current_section:
+            feeds.append((current_section, current_articles))
 
         return feeds
+
+    def cleanup(self):
+        self.log("Deleting temp files...")
+        shutil.rmtree(self.ctdir)
