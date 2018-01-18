@@ -385,10 +385,8 @@ class TestSQP(unittest.TestCase):
 
         t('xxx', 'W', 'xxx')
         t('"a \\" () b"', 'Q', 'a " () b')
-        t('“a \\"“\\” () b”', 'Q', 'a "“” () b')
         t('"a“b"', 'Q', 'a“b')
         t('"a”b"', 'Q', 'a”b')
-        t('a:“b ”', 'W', 'a:', 'Q', 'b ')
 
 
 def find_tests():

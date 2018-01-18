@@ -142,15 +142,14 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(ur'\"()“”'))
+    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(ur'\"()'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
             (ur'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (ur'@.+?:[^"“)\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (ur'[^"“()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
+            (ur'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode(t))),
+            (ur'[^"()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
             (ur'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (ur'“.*?((?<!\\)”)', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
             (ur'\s+',              None)
     ], flags=re.DOTALL)
 
