@@ -15,11 +15,11 @@ class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
-        base_url = "http://www.guardian.co.uk/theobserver"
+        base_url = "https://www.theguardian.com/theobserver"
         cover_pic = 'Observer digital edition'
         masthead_url = 'http://static.guim.co.uk/sys-images/Guardian/Pix/site_furniture/2010/10/19/1287478087992/The-Observer-001.gif'
     else:
-        base_url = "http://www.guardian.co.uk/theguardian"
+        base_url = "https://www.theguardian.com/uk"
         cover_pic = 'Guardian digital edition'
         masthead_url = 'http://static.guim.co.uk/static/f76b43f9dcfd761f0ecf7099a127b603b2922118/common/images/logos/the-guardian/titlepiece.gif'
 
@@ -95,5 +95,7 @@ class Guardian(BasicNewsRecipe):
     def parse_index(self):
         feeds = self.parse_section(self.base_url)
         feeds += self.parse_section(
-            'http://www.theguardian.com/uk/sport', 'Sport - ')
+            'https://www.theguardian.com/uk/sport', 'Sport - ')
+        if date.today().weekday() in (5, 6):
+            feeds += self.parse_section('https://www.theguardian.com/theguardian/weekend', 'Weekend - ')
         return feeds
