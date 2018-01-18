@@ -142,14 +142,16 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
+    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(ur'\"()“”'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (r'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (r'[^"()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (r'\s+',              None)
+            (ur'[()]', lambda x,t: (Parser.OPCODE, t)),
+            (ur'@.+?:[^"“)\s]+', lambda x,t: (Parser.WORD, unicode(t))),
+            (ur'[^"“()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
+            (ur'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (ur'“.*?((?<!\\)”)', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (ur'\s+',              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):
@@ -179,21 +181,26 @@ class Parser(object):
     def advance(self):
         self.current_token += 1
 
-    def parse(self, expr, locations):
-        self.locations = locations
-
+    def tokenize(self, expr):
         # Strip out escaped backslashes, quotes and parens so that the
         # lex scanner doesn't get confused. We put them back later.
-        expr = expr.replace(u'\\\\', u'\x01').replace(u'\\"', u'\x02')
-        expr = expr.replace(u'\\(', u'\x03').replace(u'\\)', u'\x04')
-        self.tokens = self.lex_scanner.scan(expr)[0]
-        for (i,tok) in enumerate(self.tokens):
-            tt, tv = tok
-            if tt == self.WORD or tt == self.QUOTED_WORD:
-                self.tokens[i] = (tt,
-                    tv.replace(u'\x01', u'\\').replace(u'\x02', u'"').
-                    replace(u'\x03', u'(').replace(u'\x04', u')'))
+        for k, v in self.REPLACEMENTS:
+            expr = expr.replace(k, v)
+        tokens = self.lex_scanner.scan(expr)[0]
 
+        def unescape(x):
+            for k, v in self.REPLACEMENTS:
+                x = x.replace(v, k[1:])
+            return x
+
+        return [
+            (tt, unescape(tv) if tt in (self.WORD, self.QUOTED_WORD) else tv)
+            for tt, tv in tokens
+        ]
+
+    def parse(self, expr, locations):
+        self.locations = locations
+        self.tokens = self.tokenize(expr)
         self.current_token = 0
         prog = self.or_expression()
         if not self.is_eof():
