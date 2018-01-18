@@ -221,7 +221,7 @@ static PyObject *
 winutil_get_max_stdio(PyObject *self, PyObject *args) {
 	return Py_BuildValue("i", _getmaxstdio());
 }
- 
+
 static PyObject *
 winutil_set_max_stdio(PyObject *self, PyObject *args) {
 	int num = 0;
@@ -229,7 +229,7 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
 	if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
 	Py_RETURN_NONE;
 }
- 
+
 static PyObject *
 winutil_getenv(PyObject *self, PyObject *args) {
     const wchar_t *q;
@@ -237,6 +237,15 @@ winutil_getenv(PyObject *self, PyObject *args) {
     wchar_t *ans = _wgetenv(q);
     if (ans == NULL) Py_RETURN_NONE;
     return PyUnicode_FromWideChar(ans, wcslen(ans));
+}
+
+static PyObject*
+winutil_move_file(PyObject *self, PyObject *args) {
+	Py_UNICODE *a, *b;
+	unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
+	if (!PyArg_ParseTuple(args, "uu|I", &a, &b, &flags)) return NULL;
+	if (!MoveFileExW(a, b, flags)) { PyErr_SetFromWindowsErr(0); return NULL; }
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -278,8 +287,8 @@ winutil_localeconv(PyObject *self) {
     struct lconv *d = localeconv();
 #define W(name) #name, d->_W_##name
     return Py_BuildValue(
-        "{su su su su su su su su}", 
-        W(decimal_point), W(thousands_sep), W(int_curr_symbol), W(currency_symbol), 
+        "{su su su su su su su su}",
+        W(decimal_point), W(thousands_sep), W(int_curr_symbol), W(currency_symbol),
         W(mon_decimal_point), W(mon_thousands_sep), W(positive_sign), W(negative_sign)
     );
 #undef W
@@ -459,6 +468,10 @@ be a unicode string. Returns unicode strings."
         "localeconv()\n\nGet the locale conventions as unicode strings."
     },
 
+    {"move_file", (PyCFunction)winutil_move_file, METH_VARARGS,
+        "move_file()\n\nRename the specified file."
+    },
+
     {NULL, NULL, 0, NULL}
 };
 
@@ -491,4 +504,3 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
 
 }
-

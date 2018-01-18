@@ -3,12 +3,16 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os, errno, time, shutil
+import errno
+import os
+import shutil
+import time
 from math import ceil
 
-from calibre import sanitize_file_name, isbytestring, force_unicode, prints
-from calibre.constants import (preferred_encoding, iswindows,
-        filesystem_encoding)
+from calibre import force_unicode, isbytestring, prints, sanitize_file_name
+from calibre.constants import (
+    filesystem_encoding, iswindows, plugins, preferred_encoding
+)
 from calibre.utils.localization import get_udc
 
 
@@ -476,15 +480,30 @@ def nlinks_file(path):
     return os.stat(path).st_nlink
 
 
+if iswindows:
+    def rename_file(a, b):
+        move_file = getattr(plugins['winutil'][0], 'move_file', None)
+        if move_file is None:
+            import win32file
+
+            def mf_impl(a, b):
+                win32file.MoveFileEx(a, b, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+            move_file = mf_impl
+        if isinstance(a, bytes):
+            a = a.decode('mbcs')
+        if isinstance(b, bytes):
+            b = b.decode('mbcs')
+        move_file(a, b)
+
+
 def atomic_rename(oldpath, newpath):
     '''Replace the file newpath with the file oldpath. Can fail if the files
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
     or may not exist. If it exists, it is replaced. '''
     if iswindows:
-        import win32file
         for i in xrange(10):
             try:
-                win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+                rename_file(oldpath, newpath)
                 break
             except Exception:
                 if i > 8:
