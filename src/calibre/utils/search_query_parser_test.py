@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import operator
 import unittest
 
-from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.utils.search_query_parser import SearchQueryParser, Parser
 
 
 class Tester(SearchQueryParser):
@@ -370,6 +370,25 @@ class TestSQP(unittest.TestCase):
 
     def test_sqp_unoptimized(self):
         self.do_test(False)
+
+    def test_sqp_tokenizer(self):
+        p = Parser()
+
+        def tokens(*a):
+            ans = []
+            for i in range(0, len(a), 2):
+                ans.append(({'O': Parser.OPCODE, 'W': Parser.WORD, 'Q': Parser.QUOTED_WORD}[a[i]], a[i+1]))
+            return ans
+
+        def t(query, *a):
+            self.assertEqual(tokens(*a), p.tokenize(query))
+
+        t('xxx', 'W', 'xxx')
+        t('"a \\" () b"', 'Q', 'a " () b')
+        t('“a \\"“\\” () b”', 'Q', 'a "“” () b')
+        t('"a“b"', 'Q', 'a“b')
+        t('"a”b"', 'Q', 'a”b')
+        t('a:“b ”', 'W', 'a:', 'Q', 'b ')
 
 
 def find_tests():
