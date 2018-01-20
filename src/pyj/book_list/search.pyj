@@ -8,8 +8,8 @@ from dom import clear, set_css, build_rule, svgicon, add_extra_css, ensure_id
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, create_spinner, Breadcrumbs
-from modals import show_modal
-from utils import rating_to_stars, safe_set_inner_html
+from modals import show_modal, create_custom_dialog
+from utils import rating_to_stars, safe_set_inner_html, is_ios
 from session import get_interface_data
 
 from book_list.library_data import library_data, current_library_id, current_virtual_library
@@ -73,13 +73,43 @@ def node_for_path(path):
 
 def execute_search(text):
     nonlocal last_accepted_search
+    if state.tag_path and state.tag_path.length:
+        last_accepted_search = {'library_id': current_library_id(), 'vl': current_virtual_library(), 'tag_path': list(state.tag_path)}
+    apply_search(text)
+
+
+def ask_about_smart_quotes(text):
+    create_custom_dialog(_('Search contains smart quotes'), def(parent, close_modal):
+
+        def action(replace):
+            nonlocal text
+            close_modal()
+            if replace:
+                text = text.replace(/[“”«»„]/g, '"')
+            execute_search(text)
+
+        parent.appendChild(E.div(
+            E.div(_('The search expression {} contains smart quotes. By default, Apple inserts smart quotes instead of normal quotes when tapping the quote button. This will prevent the search from working, if you intended to use normal quotes. You can type normal quotes by long-tapping the quotes button. Do you want to keep the smart quotes or replace them with normal quotes?').format(text)),
+            E.div(class_='button-box',
+                create_button(_('Replace'), None, action.bind(None, True), highlight=True),
+                '\xa0',
+                create_button(_('Keep'), None, action.bind(None, False)),
+            )
+        ))
+    )
+
+
+
+
+def execute_search_interactive(text):
     if not text:
         container = document.getElementById(state.container_id)
         search_control = container.querySelector('input[name="search-books"]')
         text = search_control.value or ''
-    if state.tag_path and state.tag_path.length:
-        last_accepted_search = {'library_id': current_library_id(), 'vl': current_virtual_library(), 'tag_path': list(state.tag_path)}
-    apply_search(text)
+    if is_ios and /[“”«»„]/.test(text):
+        ask_about_smart_quotes(text)
+    else:
+        execute_search(text)
 
 
 def search_expression_for_item(node, node_state):
@@ -398,7 +428,7 @@ def create_search_panel(container):
     # keyboard to popup and obscure the rest of the page
     search_container = component(container, 'search')
     search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
-    search_bar = create_search_bar(execute_search, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
+    search_bar = create_search_bar(execute_search_interactive, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
     set_css(search_bar, flex_grow='10', margin_right='0.5em')
     search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
     search_container.appendChild(E.ul(class_='search-items', data_component='search_expression'))
