@@ -139,6 +139,7 @@ def create_defs():
     defs['cover_grid_show_title'] = False
     defs['cover_grid_texture'] = None
     defs['show_vl_tabs'] = False
+    defs['closable_tabs'] = True
     defs['show_highlight_toggle_button'] = False
     defs['add_comments_to_email'] = False
     defs['cb_preserve_aspect_ratio'] = False
