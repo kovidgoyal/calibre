@@ -95,7 +95,8 @@ def get_parser(usage):
         '--password',
         help=_('Password for connecting to a calibre Content server.'
                ' To read the password from standard input, use the special value: {}.'
-               ' To read the password from a file, use: {}.)').format(
+               ' To read the password from a file, use: {}. The angle brackets in the'
+               ' above are required, remember to escape them or use quotes for your shell.').format(
                    '<stdin>', '<f:/path/to/file>')
     )
 
