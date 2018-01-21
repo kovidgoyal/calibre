@@ -149,6 +149,7 @@ def create_defs():
     defs['emblem_position'] = 'left'
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
+    defs['tag_browser_show_tooltips'] = True
     defs['row_numbers_in_book_list'] = True
     defs['hidpi'] = 'auto'
     defs['tag_browser_item_padding'] = 0.5

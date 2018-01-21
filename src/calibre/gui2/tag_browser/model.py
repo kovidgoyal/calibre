@@ -173,7 +173,7 @@ class TagTreeItem(object):  # {{{
         if role == Qt.FontRole:
             return bf()
         if role == Qt.ToolTipRole:
-            return self.tooltip
+            return self.tooltip if gprefs['tag_browser_show_tooltips'] else None
         if role == DRAG_IMAGE_ROLE:
             self.ensure_icon()
             return self.icon_state_map[0]
@@ -199,21 +199,23 @@ class TagTreeItem(object):  # {{{
                 self.ensure_icon()
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
-            tt = [self.tooltip] if self.tooltip else []
-            if tag.original_categories:
-                tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
-            else:
-                tt.append('%s:%s' % (tag.category, tag.original_name))
-            ar = self.average_rating
-            if ar:
-                tt.append(_('Average rating for books in this category: %.1f') % ar)
-            elif self.type == self.TAG and ar is not None:
-                tt.append(_('Books in this category are unrated'))
-            if self.type == self.TAG and self.tag.category == 'search':
-                tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
-            if self.type == self.TAG:
-                tt.append(_('Number of books: %s') % self.item_count)
-            return '\n'.join(tt)
+            if gprefs['tag_browser_show_tooltips']:
+                tt = [self.tooltip] if self.tooltip else []
+                if tag.original_categories:
+                    tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
+                else:
+                    tt.append('%s:%s' % (tag.category, tag.original_name))
+                ar = self.average_rating
+                if ar:
+                    tt.append(_('Average rating for books in this category: %.1f') % ar)
+                elif self.type == self.TAG and ar is not None:
+                    tt.append(_('Books in this category are unrated'))
+                if self.type == self.TAG and self.tag.category == 'search':
+                    tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
+                if self.type == self.TAG:
+                    tt.append(_('Number of books: %s') % self.item_count)
+                return '\n'.join(tt)
+            return None
         if role == DRAG_IMAGE_ROLE:
             self.ensure_icon()
             return self.icon_state_map[0]
