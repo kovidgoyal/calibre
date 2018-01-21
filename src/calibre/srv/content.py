@@ -12,8 +12,9 @@ from io import BytesIO
 from threading import Lock
 from future_builtins import map
 from functools import partial
+from urllib import quote
 
-from calibre import fit_image
+from calibre import fit_image, sanitize_file_name_unicode
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
@@ -156,14 +157,19 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
 
-def book_filename(rd, book_id, mi, fmt):
+def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     au = authors_to_string(mi.authors or [_('Unknown')])
     title = mi.title or _('Unknown')
     ext = (fmt or '').lower()
     if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
         ext = 'kepub.epub'
     fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, ext)
-    fname = ascii_filename(fname).replace('"', '_')
+    if as_encoded_unicode:
+        # See https://tools.ietf.org/html/rfc6266
+        fname = sanitize_file_name_unicode(fname).encode('utf-8')
+        fname = quote(fname).decode('ascii')
+    else:
+        fname = ascii_filename(fname).replace('"', '_')
     return fname
 
 
@@ -197,7 +203,8 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
             set_metadata(dest, mi, fmt)
             dest.seek(0)
 
-    rd.outheaders['Content-Disposition'] = 'attachment; filename="%s"' % book_filename(rd, book_id, mi, fmt)
+    rd.outheaders['Content-Disposition'] = '''attachment; filename="%s"; filename*=utf-8''%s''' % (
+        book_filename(rd, book_id, mi, fmt), book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True))
 
     return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
 # }}}
