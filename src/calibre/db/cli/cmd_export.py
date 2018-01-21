@@ -69,6 +69,12 @@ an opf file). You can get id numbers from the search command.
         action='store_true',
         help=_('Export all books into a single directory')
     )
+    parser.add_option(
+        '--progress',
+        default=False,
+        action='store_true',
+        help=_('Report progress')
+    )
     c = config()
     for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
         opt = c.get_option(pref)
@@ -138,6 +144,12 @@ def main(opts, args, dbctx):
     dest = os.path.abspath(os.path.expanduser(opts.to_dir))
     dbproxy = DBProxy(dbctx)
     dest, opts, length = sanitize_args(dest, opts)
+    total = len(book_ids)
     for i, book_id in enumerate(book_ids):
         export(opts, dbctx, book_id, dest, dbproxy, length, i == 0)
+        if opts.progress:
+            num = i + 1
+            print('\r  {:.0%} [{}/{}]'.format(num / total, num, total), end=' '*20)
+    if opts.progress:
+        print()
     return 0
