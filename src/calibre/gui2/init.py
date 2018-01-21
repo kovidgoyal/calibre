@@ -396,7 +396,7 @@ class VLTabs(QTabBar):  # {{{
         self.setDocumentMode(True)
         self.setDrawBase(False)
         self.setMovable(True)
-        self.setTabsClosable(True)
+        self.setTabsClosable(gprefs['vl_tabs_closable'])
         self.gui = parent
         self.ignore_tab_changed = False
         self.currentChanged.connect(self.tab_changed)
@@ -431,6 +431,23 @@ class VLTabs(QTabBar):  # {{{
     def disable_bar(self):
         gprefs['show_vl_tabs'] = False
         self.setVisible(False)
+
+    def lock_tab(self):
+        gprefs['vl_tabs_closable'] = False
+        self.setTabsClosable(False)
+
+    def unlock_tab(self):
+        gprefs['vl_tabs_closable'] = True
+        self.setTabsClosable(True)
+        try:
+            self.tabButton(0, self.RightSide).setVisible(False)
+        except AttributeError:
+            try:
+                self.tabButton(0, self.LeftSide).setVisible(False)
+            except AttributeError:
+                # On some OS X machines (using native style) the tab button is
+                # on the left
+                pass
 
     def tab_changed(self, idx):
         if self.ignore_tab_changed:
@@ -512,6 +529,10 @@ class VLTabs(QTabBar):  # {{{
             for x in hidden:
                 s.addAction(x, partial(self.restore, x))
         m.addAction(_('Hide virtual library tabs'), self.disable_bar)
+        if gprefs['vl_tabs_closable']:
+            m.addAction(_('Lock virtual library tabs'), self.lock_tab)
+        else:
+            m.addAction(_('Unlock virtual library tabs'), self.unlock_tab)
         i = self.tabAt(ev.pos())
         if i > -1:
             vl = unicode(self.tabData(i) or '')
