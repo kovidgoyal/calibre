@@ -126,7 +126,7 @@ def read_credentials(opts):
     if pw:
         if pw == '<stdin>':
             from calibre.utils.unicode_getpass import getpass
-            pw = getpass.getpass(_('Enter the password: '))
+            pw = getpass(_('Enter the password: '))
         elif pw.startswith('<f:') and pw.endswith('>'):
             with lopen(pw[3:-1], 'rb') as f:
                 pw = f.read().decode('utf-8').rstrip()
