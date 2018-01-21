@@ -35,6 +35,7 @@ from book_list.search import (
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
+from file_uploads import upload_files_widget
 from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
@@ -449,6 +450,13 @@ def create_more_actions_panel(container_id):
     create_item_list(container.lastChild, items)
 
 # }}}
+
+# Adding books {{{
+def implement_me():
+    upload_files_widget()
+
+# }}}
+
 
 set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)

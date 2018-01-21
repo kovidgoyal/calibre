@@ -1,0 +1,55 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from utils import safe_set_inner_html
+
+
+def upload_files_widget(container, proceed, msg):
+    container_id = container.id
+
+    def files_selected():
+        files = this.files
+        container = document.getElementById(container_id)
+        container.removeChild(container.lastChild)
+        if callable(proceed):
+            proceed(container, files)
+
+    msg = msg or _('Upload books by <a>selecting the book files</a> or drag and drop of the files here')
+    c = E.div(E.span(), E.input(type='file', multiple=True, style='display:none', onchange=files_selected))
+    c.style.minHeight = '40vh'
+    c.style.borderBottom = 'solid 1px currentColor'
+
+    safe_set_inner_html(c.firstChild, msg)
+    a = c.getElementsByTagName('a')[0]
+    a.setAttribute('href', 'javascript: void(0)')
+    a.classList.add('simple-link')
+    a.style.color = 'blue'
+    a.addEventListener('click', def():
+        document.getElementById(container_id).querySelector('input[type=file]').click()
+    , False)
+    container.appendChild(c)
+
+    def stop(e):
+        e.stopPropagation(), e.preventDefault()
+
+    def drop(e):
+        stop(e)
+        dt = e.dataTransfer
+        files_selected.call(dt)
+
+    c.addEventListener('dragenter', stop, False)
+    c.addEventListener('dragover', stop, False)
+    c.addEventListener('drop', drop, False)
+    return c
+
+
+def start_send(container, files):
+    pass
+
+
+def develop(container):
+    upload_files_widget(container)
