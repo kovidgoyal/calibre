@@ -125,9 +125,12 @@ def _expand(groups, repl, group_name_map):
         return '\\' + q
 
     ans = ch = ''
-    while (ch = next()):
+    while True:
+        ch = next()
         if ch is '\\':
             ans += read_escape_sequence()
+        elif not ch:
+            break
         else:
             ans += ch
     return ans
