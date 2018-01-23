@@ -7,6 +7,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send
+from book_list.add import add_books_panel
 from book_list.cover_grid import (
     DESCRIPTION as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
     cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid
@@ -35,7 +36,6 @@ from book_list.search import (
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
-from file_uploads import upload_files_widget
 from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
@@ -452,8 +452,11 @@ def create_more_actions_panel(container_id):
 # }}}
 
 # Adding books {{{
-def implement_me():
-    upload_files_widget()
+def add_books(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    add_books_panel(container_id)
 
 # }}}
 

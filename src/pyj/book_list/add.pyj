@@ -1,0 +1,83 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+
+from ajax import ajax_send_file
+from book_list.router import back
+from book_list.top_bar import create_top_bar
+from dom import ensure_id
+from file_uploads import (
+    update_status_widget, upload_files_widget, upload_status_widget
+)
+
+state = {
+    'in_progress': False,
+    'container_id': None,
+    'counter': 0,
+    'fake_send': False,
+}
+
+def on_close():
+    back()
+
+
+def get_job_container(container_id, job_id):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    return container.querySelector(f'[data-job="{job_id}"]')
+
+
+def on_progress(container_id, job_id):
+    container = get_job_container(container_id, job_id)
+    if container is None:
+        return
+
+
+def on_complete(container_id, job_id):
+    container = get_job_container(container_id, job_id)
+    if container is None:
+        return
+
+
+def fake_send(container_id, job_id):
+    container = get_job_container(container_id, job_id)
+    prev = parseInt(container.dataset.fake or '0')
+    container.dataset.fake = prev + 10
+    update_status_widget(container, container.dataset.fake, 100)
+    if parseInt(container.dataset.fake or '0') < 100:
+        setTimeout(fake_send.bind(None, container_id, job_id), 1000)
+
+
+def files_chosen(container_id, files):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    for file in files:
+        state.counter += 1
+        job_id = state.counter
+        w = upload_status_widget(file.name, job_id)
+        container.appendChild(w)
+        w.style.borderBottom = 'solid 1px currentColor'
+        if state.fake_send:
+            setTimeout(fake_send.bind(None, container_id, job_id), 100)
+        else:
+            ajax_send_file('/add-book', file, on_complete.bind(None, container_id, job_id), on_progress.bind(None, container_id, job_id), query={'id': '' + job_id})
+
+
+def add_books_panel(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Add books'), action=on_close, icon='close')
+    state.in_progress = True
+    state.container_id = container_id
+    state.fake_send = False
+    return upload_files_widget(container, files_chosen)
+
+
+def develop(container):
+    c = add_books_panel(ensure_id(container))
+    state.fake_send = True
+    container.removeChild(c)
+    files_chosen(container.id, [{'name': 'test1.epub', 'type': 'application/epub+zip'}, {'name': 'xxxx.yyy'}])
