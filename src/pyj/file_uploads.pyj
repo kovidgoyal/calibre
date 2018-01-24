@@ -62,7 +62,3 @@ def upload_status_widget(name, job_id):
     ans.appendChild(E.progress())
     ans.appendChild(E.span())
     return ans
-
-
-def start_send(container, files):
-    pass

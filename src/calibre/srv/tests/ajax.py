@@ -7,17 +7,19 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, zlib, json, base64, os
+from io import BytesIO
 from functools import partial
-from urllib import urlencode
+from urllib import urlencode, quote
 from httplib import OK, NOT_FOUND, FORBIDDEN
 
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 
 
-def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET'):
+def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):
     if username and password:
         headers[b'Authorization'] = b'Basic ' + base64.standard_b64encode((username + ':' + password).encode('utf-8'))
-    conn.request(method, prefix + url, headers=headers)
+    conn.request(method, prefix + url, headers=headers, body=data)
     r = conn.getresponse()
     data = r.read()
     if r.status == httplib.OK and data and data[0] in b'{[':
@@ -82,7 +84,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(set(data['book_ids']), {2})
     # }}}
 
-    def test_srv_restrictions(self):
+    def test_srv_restrictions(self):  # {{{
         ' Test that virtual lib. + search restriction works on all end points'
         with self.create_server(auth=True, auth_mode='basic') as server:
             db = server.handler.router.ctx.library_broker.get(None)
@@ -136,6 +138,7 @@ class ContentTest(LibraryBaseTest):
 
             # cdb.py
             r(url_for('/cdb/cmd', which='list'), status=FORBIDDEN)
+            r(url_for('/cdb/add-book', filename='test.epub'), status=FORBIDDEN)
 
             # code.py
             def sr(path, **k):
@@ -151,4 +154,33 @@ class ContentTest(LibraryBaseTest):
             ok(url_for('/get', what='thumb', book_id=1))
             nf(url_for('/get', what='thumb', book_id=3))
 
-            # Not going test legacy and opds as they are to painful
+            # Not going test legacy and opds as they are too painful
+    # }}}
+
+    def test_srv_add_book(self):  # {{{
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            server.handler.ctx.user_manager.add_user('ro', 'test', readonly=True)
+            conn = server.connect()
+
+            ae = self.assertEqual
+
+            def r(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
+                r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8')).decode('ascii')),
+                                       username=username, password='test', prefix='', method=method, data=data)
+                ae(status, r.status)
+                return data
+
+            r('test.epub', None, username='ro', status=FORBIDDEN)
+            content = b'content'
+            filename = 'test add - XXX.txt'
+            data = r(filename, content)
+            s = BytesIO(content)
+            s.name = filename
+            mi = get_metadata(s, stream_type='txt')
+            ae(data,  {'title': mi.title, 'book_id': data['book_id'], 'authors': mi.authors, 'languages': mi.languages, 'id': '1', 'filename': filename})
+            r, q = make_request(conn, '/get/txt/{}'.format(data['book_id']), username='12', password='test', prefix='')
+            ae(r.status, OK)
+            ae(q, content)
+
+    # }}}

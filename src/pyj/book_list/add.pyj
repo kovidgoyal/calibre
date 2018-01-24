@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 from gettext import gettext as _
 
 from ajax import ajax_send_file
+from book_list.library_data import loaded_books_query
 from book_list.router import back
 from book_list.top_bar import create_top_bar
 from dom import ensure_id
@@ -51,6 +52,14 @@ def fake_send(container_id, job_id):
         setTimeout(fake_send.bind(None, container_id, job_id), 1000)
 
 
+def send_file(file, container_id, job_id, add_duplicates):
+    lid = loaded_books_query().library_id
+    ad = 'y' if add_duplicates else 'n'
+    return ajax_send_file(
+        f'/cdb/add-book/{job_id}/{ad}/{encodeURIComponent(file.name)}/{lid}',
+        file, on_complete.bind(None, container_id, job_id), on_progress.bind(None, container_id, job_id))
+
+
 def files_chosen(container_id, files):
     container = document.getElementById(container_id)
     if not container:
@@ -64,7 +73,7 @@ def files_chosen(container_id, files):
         if state.fake_send:
             setTimeout(fake_send.bind(None, container_id, job_id), 100)
         else:
-            ajax_send_file('/add-book', file, on_complete.bind(None, container_id, job_id), on_progress.bind(None, container_id, job_id), query={'id': '' + job_id})
+            send_file(file, container_id, job_id)
 
 
 def add_books_panel(container_id):

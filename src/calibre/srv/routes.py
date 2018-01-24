@@ -66,7 +66,11 @@ def endpoint(route,
              # 200 for GET and HEAD and 201 for POST
              ok_code=None,
 
-             postprocess=None
+             postprocess=None,
+
+             # Needs write access to the calibre database
+             needs_db_write=False
+
 ):
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
@@ -82,6 +86,7 @@ def endpoint(route,
         f.postprocess = postprocess
         f.ok_code = ok_code
         f.is_endpoint = True
+        f.needs_db_write = needs_db_write
         argspec = inspect.getargspec(f)
         if len(argspec.args) < 2:
             raise TypeError('The endpoint %r must take at least two arguments' % f.route)
@@ -303,6 +308,8 @@ class Router(object):
             data.status_code = endpoint_.ok_code
 
         self.init_session(endpoint_, data)
+        if endpoint_.needs_db_write:
+            self.ctx.check_for_write_access(data)
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)
         outheaders = data.outheaders

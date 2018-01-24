@@ -456,6 +456,9 @@ def add_books(container_id):
     if not library_data.sortable_fields:
         show_panel('book_list', replace=True)
         return
+    if not get_interface_data().username:
+        error_dialog(_('Not logged in'), _('You must be logged in to add books'))
+        return
     add_books_panel(container_id)
 
 # }}}

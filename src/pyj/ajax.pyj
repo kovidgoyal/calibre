@@ -122,10 +122,8 @@ def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=Non
     return xhr
 
 
-def ajax_send_file(path, file, on_complete, on_progress, query=None, timeout=None, ok_code=200):
-    xhr = ajax(path, on_complete, on_progress, False, 'POST', query, timeout, ok_code)
-    if file.name:
-        xhr.setRequestHeader('Calibre-Filename', file.name)
+def ajax_send_file(path, file, on_complete, on_progress, timeout=None, ok_code=200):
+    xhr = ajax(path, on_complete, on_progress, False, 'POST', timeout, ok_code)
     if file.type:
         xhr.overrideMimeType(file.type)
     r = FileReader()
