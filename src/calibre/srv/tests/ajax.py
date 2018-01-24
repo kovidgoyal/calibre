@@ -138,7 +138,7 @@ class ContentTest(LibraryBaseTest):
 
             # cdb.py
             r(url_for('/cdb/cmd', which='list'), status=FORBIDDEN)
-            r(url_for('/cdb/add-book', filename='test.epub'), status=FORBIDDEN)
+            r(url_for('/cdb/add-book', job_id=1, add_duplicates='n', filename='test.epub'), status=FORBIDDEN)
 
             # code.py
             def sr(path, **k):
