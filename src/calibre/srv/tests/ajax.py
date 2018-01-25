@@ -139,6 +139,7 @@ class ContentTest(LibraryBaseTest):
             # cdb.py
             r(url_for('/cdb/cmd', which='list'), status=FORBIDDEN)
             r(url_for('/cdb/add-book', job_id=1, add_duplicates='n', filename='test.epub'), status=FORBIDDEN)
+            r(url_for('/cdb/delete-books', book_ids='1'), status=FORBIDDEN)
 
             # code.py
             def sr(path, **k):
@@ -165,16 +166,23 @@ class ContentTest(LibraryBaseTest):
 
             ae = self.assertEqual
 
-            def r(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
+            def a(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
                 r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8')).decode('ascii')),
                                        username=username, password='test', prefix='', method=method, data=data)
                 ae(status, r.status)
                 return data
 
-            r('test.epub', None, username='ro', status=FORBIDDEN)
+            def d(book_ids, username='12', status=OK):
+                book_ids = ','.join(map(str, book_ids))
+                r, data = make_request(conn, '/cdb/delete-books/{}'.format(book_ids),
+                                       username=username, password='test', prefix='', method='POST')
+                ae(status, r.status)
+                return data
+
+            a('test.epub', None, username='ro', status=FORBIDDEN)
             content = b'content'
             filename = 'test add - XXX.txt'
-            data = r(filename, content)
+            data = a(filename, content)
             s = BytesIO(content)
             s.name = filename
             mi = get_metadata(s, stream_type='txt')
@@ -182,5 +190,6 @@ class ContentTest(LibraryBaseTest):
             r, q = make_request(conn, '/get/txt/{}'.format(data['book_id']), username='12', password='test', prefix='')
             ae(r.status, OK)
             ae(q, content)
-
+            d((1,), username='ro', status=FORBIDDEN)
+            d((1, data['book_id']))
     # }}}

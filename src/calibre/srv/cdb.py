@@ -11,7 +11,7 @@ from io import BytesIO
 from calibre import as_unicode, sanitize_file_name_unicode
 from calibre.db.cli import module_for_cmd
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.srv.changes import books_added
+from calibre.srv.changes import books_added, books_deleted
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
@@ -91,3 +91,18 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
         ans['book_id'] = ids[0]
         books_added(ids)
     return ans
+
+
+@endpoint('/cdb/delete-books/{book_ids}/{library_id=None}',
+          needs_db_write=True, postprocess=json, methods=receive_data_methods, cache_control='no-cache')
+def cdb_delete_book(ctx, rd, book_ids, library_id):
+    db = get_db(ctx, rd, library_id)
+    if ctx.restriction_for(rd, db):
+        raise HTTPForbidden('Cannot use the delete book interface with a user who has per library restrictions')
+    try:
+        ids = {int(x) for x in book_ids.split(',')}
+    except Exception:
+        raise HTTPBadRequest('invalid book_ids: {}'.format(book_ids))
+    db.remove_books(ids)
+    books_deleted(ids)
+    return {}
