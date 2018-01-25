@@ -251,6 +251,7 @@ class Block(object):
 class Blocks(object):
 
     def __init__(self, namespace, styles_manager, links_manager):
+        self.top_bookmark = None
         self.namespace = namespace
         self.styles_manager = styles_manager
         self.links_manager = links_manager
@@ -372,6 +373,9 @@ class Blocks(object):
         if self.pos > 0 and self.pos < len(self.all_blocks):
             # Insert a page break corresponding to the start of the html file
             self.all_blocks[self.pos].page_break_before = True
+            if self.top_bookmark is not None:
+                self.all_blocks[self.pos].bookmarks.add(self.top_bookmark)
+        self.top_bookmark = None
         self.block_map = {}
 
     def apply_page_break_after(self):
@@ -472,7 +476,7 @@ class Convert(object):
         self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang
         for i, body in enumerate(XPath('//h:body')(item.data)):
             with self.blocks:
-                self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
+                self.blocks.top_bookmark = self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
     def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
