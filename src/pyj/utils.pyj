@@ -219,7 +219,7 @@ def simple_markup(html):
     div.textContent = html
     html = div.innerHTML
     return html.replace(/\uffff(\/?[a-z1-6]+)\uffff/g, '<$1>')
-simple_markup.allowed_tags = v"'a|b|i|br|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
+simple_markup.allowed_tags = v"'a|b|i|br|hr|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
 
 
 def safe_set_inner_html(elem, html):

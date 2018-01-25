@@ -126,10 +126,7 @@ def ajax_send_file(path, file, on_complete, on_progress, timeout=None, ok_code=2
     xhr = ajax(path, on_complete, on_progress, False, 'POST', timeout, ok_code)
     if file.type:
         xhr.overrideMimeType(file.type)
-    r = FileReader()
-    r.onload = def(evt):
-        xhr.send(evt.target.result)
-    r.readAsBinaryString(file)
+    xhr.send(file)
     return xhr
 
 

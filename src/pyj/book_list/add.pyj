@@ -2,25 +2,41 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send_file
 from book_list.library_data import loaded_books_query
 from book_list.router import back
 from book_list.top_bar import create_top_bar
-from dom import ensure_id
+from book_list.ui import query_as_href, show_panel
+from dom import clear, ensure_id
 from file_uploads import (
     update_status_widget, upload_files_widget, upload_status_widget
 )
+from session import get_interface_data
+from utils import safe_set_inner_html
+from widgets import create_button
 
 state = {
     'in_progress': False,
     'container_id': None,
     'counter': 0,
+    'number': 0,
     'fake_send': False,
+    'transfers': v'[]',
 }
 
+
+def cancel_in_progress():
+    for xhr in state.transfers:
+        xhr.abort()
+    state.transfers = v'[]'
+    state.in_progress = False
+
+
 def on_close():
+    cancel_in_progress()
     back()
 
 
@@ -31,16 +47,66 @@ def get_job_container(container_id, job_id):
     return container.querySelector(f'[data-job="{job_id}"]')
 
 
-def on_progress(container_id, job_id):
+def on_progress(container_id, job_id, loaded, total, xhr):
     container = get_job_container(container_id, job_id)
     if container is None:
         return
+    if total:
+        update_status_widget(container, loaded, total)
 
 
-def on_complete(container_id, job_id):
+def list_added_book(container, data):
+    container.appendChild(E.h3(E.b(data.title), E.span(' ' + _('by') + ' '), E.i(' & '.join(data.authors))))
+    container.appendChild(E.span(_('Added successfully') + ' '))
+    q = {'book_id': data.book_id + ''}
+    a = create_button(_('Open'), action=query_as_href(q, 'book_details'))
+    if state.number > 1:
+        a.setAttribute('target', '_blank')
+    else:
+        a.addEventListener('click', def(e):
+            e.preventDefault()
+            show_panel('book_details', {'book_id': data.book_id + ''}, True)
+        )
+    container.appendChild(a)
+
+
+def list_duplicate_book(container, container_id, job_id, data, file):
+    container.appendChild(E.div(style="padding: 1rem 1ex", _('A book with the title "{0}" already exists in the library.').format(data.title)))
+    b = create_button(_('Add anyway'), action=def():
+        c = get_job_container(container_id, job_id)
+        clear(c)
+        w = upload_status_widget(file.name, job_id)
+        c.appendChild(w)
+        send_file(file, container_id, job_id, True)
+    )
+    container.appendChild(b)
+
+
+def on_complete(container_id, job_id, end_type, xhr, ev):
+    idx = state.transfers.indexOf(xhr)
+    if idx > -1:
+        state.transfers.splice(idx, 1)
     container = get_job_container(container_id, job_id)
     if container is None:
         return
+    clear(container)
+    if end_type is 'load':
+        data = JSON.parse(xhr.responseText)
+        if data.book_id:
+            list_added_book(container, data)
+        else:
+            list_duplicate_book(container, container_id, job_id, data, this)
+    elif end_type is 'abort':
+        return
+    else:
+        html = _('Failed to upload the file: {}').format(this.name) + '<br>'
+        if xhr.status is 403:
+            un = get_interface_data().username
+            if un:
+                html += _('You are not allowed to make changes to the library') + '<hr>'
+            else:
+                html += _('You must be logged in to make changes to the library') + '<hr>'
+        safe_set_inner_html(container, html + '<br>' + xhr.error_html)
 
 
 def fake_send(container_id, job_id):
@@ -55,17 +121,21 @@ def fake_send(container_id, job_id):
 def send_file(file, container_id, job_id, add_duplicates):
     lid = loaded_books_query().library_id
     ad = 'y' if add_duplicates else 'n'
-    return ajax_send_file(
+    xhr = ajax_send_file(
         f'/cdb/add-book/{job_id}/{ad}/{encodeURIComponent(file.name)}/{lid}',
-        file, on_complete.bind(None, container_id, job_id), on_progress.bind(None, container_id, job_id))
+        file, on_complete.bind(file, container_id, job_id), on_progress.bind(None, container_id, job_id))
+    state.transfers.push(xhr)
+    return xhr
 
 
 def files_chosen(container_id, files):
     container = document.getElementById(container_id)
     if not container:
         return
+    state.number = 0
     for file in files:
         state.counter += 1
+        state.number += 1
         job_id = state.counter
         w = upload_status_widget(file.name, job_id)
         container.appendChild(w)
@@ -79,6 +149,7 @@ def files_chosen(container_id, files):
 def add_books_panel(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Add books'), action=on_close, icon='close')
+    cancel_in_progress()
     state.in_progress = True
     state.container_id = container_id
     state.fake_send = False
@@ -86,7 +157,4 @@ def add_books_panel(container_id):
 
 
 def develop(container):
-    c = add_books_panel(ensure_id(container))
-    state.fake_send = True
-    container.removeChild(c)
-    files_chosen(container.id, [{'name': 'test1.epub', 'type': 'application/epub+zip'}, {'name': 'xxxx.yyy'}])
+    add_books_panel(ensure_id(container))

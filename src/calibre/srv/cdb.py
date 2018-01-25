@@ -82,6 +82,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     add_duplicates = add_duplicates in ('y', '1')
     path = os.path.join(rd.tdir, sfilename)
     rd.request_body_file.name = path
+    rd.request_body_file.seek(0)
     mi = get_metadata(rd.request_body_file, stream_type=fmt, use_libprs_metadata=True)
     rd.request_body_file.seek(0)
     ids, duplicates = db.add_books([(mi, {fmt: rd.request_body_file})], add_duplicates=add_duplicates)
