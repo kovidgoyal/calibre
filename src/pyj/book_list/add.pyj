@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send_file
-from book_list.library_data import loaded_books_query
+from book_list.library_data import force_refresh_on_next_load, loaded_books_query
 from book_list.router import back
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
@@ -94,6 +94,7 @@ def on_complete(container_id, job_id, end_type, xhr, ev):
         data = JSON.parse(xhr.responseText)
         if data.book_id:
             list_added_book(container, data)
+            force_refresh_on_next_load()
         else:
             list_duplicate_book(container, container_id, job_id, data, this)
     elif end_type is 'abort':

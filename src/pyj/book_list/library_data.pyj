@@ -11,7 +11,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]'}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False}
 
 
 def current_library_id():
@@ -156,20 +156,31 @@ def set_book_metadata(book_id, value):
     library_data.metadata[book_id] = value
 
 
+def force_refresh_on_next_load():
+    library_data.force_refresh = True
+
+
 def ensure_current_library_data():
-    q = url_books_query()
-    loaded = loaded_books_query()
-    matches = True
+    fr = library_data.force_refresh
+    library_data.force_refresh = False
 
     def is_same(a, b):
         if not a and not b:
             return True
         return a is b
 
-    for key in q:
-        if not is_same(q[key], loaded[key]):
-            matches = False
-            break
+
+    if fr:
+        matches = False
+    else:
+        q = url_books_query()
+        loaded = loaded_books_query()
+        matches = True
+
+        for key in q:
+            if not is_same(q[key], loaded[key]):
+                matches = False
+                break
     if not matches:
         fetch_init_data()
 
