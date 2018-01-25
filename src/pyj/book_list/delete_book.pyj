@@ -1,0 +1,110 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from ajax import ajax
+from book_list.add import write_access_error
+from book_list.library_data import book_after, force_refresh_on_next_load
+from book_list.router import back
+from book_list.ui import show_panel
+from dom import clear
+from modals import create_custom_dialog
+from read_book.db import get_db
+from utils import safe_set_inner_html
+from widgets import create_button
+
+
+def delete_from_cache(library_id, book_id, title):
+    db = get_db()
+    db.delete_books_matching(library_id, book_id)
+
+
+def do_delete_from_library(parent, close_modal, library_id, book_id, title):
+    parent.appendChild(E.div(_('Deleting {0} from library, please wait...').format(title)))
+
+    def oncomplete(end_type, xhr, ev):
+        if end_type is 'load' or end_type is 'abort':
+            close_modal()
+            if end_type is 'load':
+                force_refresh_on_next_load()
+                next_book_id = book_after(book_id)
+                if next_book_id:
+                    show_panel('book_details', {'book_id': str(next_book_id), 'library_id': library_id}, True)
+                else:
+                    back()
+            return
+        clear(parent)
+        msg = E.div()
+        safe_set_inner_html(msg, write_access_error(_('Failed to delete {0}, with error:').format(title), xhr))
+        parent.appendChild(E.div(
+            msg,
+            E.div(class_='button-box',
+                create_button(_('Close'), None, close_modal, True)
+            )
+        ))
+
+    ajax(f'cdb/delete-books/{book_id}/{library_id}', oncomplete, method='POST').send()
+
+
+def confirm_delete_from_library(library_id, book_id, title):
+    create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
+
+        def action(doit):
+            if doit:
+                clear(parent)
+                do_delete_from_library(parent, close_modal, library_id, book_id, title)
+            else:
+                close_modal()
+
+        msg = _('This will <b>permanently delete</b> <i>{0}</i> from your calibre library. Are you sure?').format(title)
+        m = E.div()
+        safe_set_inner_html(m, msg)
+        parent.appendChild(E.div(
+            m,
+            E.div(class_='button-box',
+                create_button(_('OK'), None, action.bind(None, True)),
+                '\xa0',
+                create_button(_('Cancel'), None, action.bind(None, False), highlight=True),
+            )
+        ))
+    )
+
+
+def choose_which_delete(library_id, book_id, title):
+
+    create_custom_dialog(_('Delete from?'), def(parent, close_modal):
+
+        def action(from_cache, from_library):
+            close_modal()
+            if from_cache:
+                delete_from_cache(library_id, book_id, title)
+            if from_library:
+                confirm_delete_from_library(library_id, book_id, title)
+
+
+        parent.appendChild(E.div(
+            E.div(_('{0} is available both in the browser cache for offline reading and in'
+                    ' your calibre library. Where do you want to delete it from?').format(title)),
+            E.div(class_='button-box',
+                create_button(_('Cache'), None, action.bind(None, True, False)),
+                '\xa0',
+                create_button(_('Library and cache'), None, action.bind(None, True, True)),
+            )
+        ))
+    )
+
+
+def delete_book_stage2(library_id, book_id, title, has_offline_copies):
+    if has_offline_copies:
+        choose_which_delete(library_id, book_id, title)
+    else:
+        confirm_delete_from_library(library_id, book_id, title)
+
+
+def start_delete_book(library_id, book_id, title):
+    book_id = int(book_id)
+    db = get_db()
+    db.has_book_matching(library_id, book_id, delete_book_stage2.bind(None, library_id, book_id, title))

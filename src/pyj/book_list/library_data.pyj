@@ -97,6 +97,16 @@ def current_book_ids():
     return library_data.previous_book_ids.concat(library_data.search_result.book_ids)
 
 
+def book_after(book_id):
+    ids = current_book_ids()
+    idx = ids.indexOf(int(book_id))
+    if idx > -1:
+        if idx < ids.length - 1:
+            return ids[idx + 1]
+        if idx > 0:  # wrap around
+            return ids[0]
+
+
 def on_data_loaded(end_type, xhr, ev):
     load_status.current_fetch = None
     def bad_load(msg):

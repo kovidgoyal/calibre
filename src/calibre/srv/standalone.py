@@ -11,6 +11,7 @@ import sys
 from calibre import as_unicode
 from calibre.constants import is_running_from_develop, isosx, iswindows, plugins
 from calibre.db.legacy import LibraryDatabase
+from calibre.db.delete_service import shutdown as shutdown_delete_service
 from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
@@ -220,4 +221,7 @@ def main(args=sys.argv):
     # Needed for dynamic cover generation, which uses Qt for drawing
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    finally:
+        shutdown_delete_service()

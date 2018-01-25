@@ -7,6 +7,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax, encode_query_component
+from book_list.delete_book import start_delete_book
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
@@ -15,7 +16,7 @@ from book_list.library_data import (
 )
 from book_list.router import back, home, open_book
 from book_list.theme import get_color, get_font_size
-from book_list.top_bar import add_button, create_top_bar, set_title, clear_buttons
+from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
@@ -415,6 +416,7 @@ def render_book(container_id, book_id):
     if not c:
         return
     metadata = book_metadata(book_id)
+    render_book.title = metadata.title
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     alt = _('{} by {}').format(metadata.title, authors)
@@ -453,6 +455,7 @@ def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
+        add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
         book_id = parse_url_params().book_id
         if book_id is '0':
             add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
@@ -629,6 +632,10 @@ def search_internet(container_id):
         ),
 
     ))
+
+
+def delete_book():
+    start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
 set_panel_handler('book_details', init)
 set_panel_handler('book_details^more_actions', create_more_actions_panel)

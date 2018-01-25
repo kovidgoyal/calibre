@@ -348,6 +348,25 @@ class DB:
             if cursor:
                 cursor.continue()
 
+    def has_book_matching(self, library_id, book_id, proceed):
+        # Should really be using a multiEntry index to avoid iterating over all
+        # books in JS, but since the number of stored books is not that large,
+        # I can't be bothered.
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            proceed(False)
+        book_id = int(book_id)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    proceed(True)
+                    return
+                cursor.continue()
+            else:
+                proceed(False)
+
     def delete_book(self, book, proceed):
         c = self.idb.transaction(['books', 'files'], 'readwrite')
         files = c.objectStore('files')
@@ -365,6 +384,31 @@ class DB:
             else:
                 books.delete(book.key)
         next_step()
+
+    def delete_books_matching(self, library_id, book_id, proceed):
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            pass
+        book_id = int(book_id)
+        matches = v'[]'
+
+        def delete_all():
+            if matches.length:
+                book = matches.pop()
+                self.delete_book(book, delete_all)
+            else:
+                if proceed:
+                    proceed()
+
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    matches.push(book)
+                cursor.continue()
+            else:
+                delete_all()
 
 
 def get_db(callback, show_read_book_error):
