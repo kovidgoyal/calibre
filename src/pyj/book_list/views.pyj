@@ -260,6 +260,7 @@ def create_books_list(container):
     show_top_message()
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
+    add_button(container.parentNode, icon='plus', action=show_subsequent_panel.bind(None, 'book_list^add'), tooltip=_('Add books'))
     add_button(container.parentNode, icon='sort-amount-desc', action=show_subsequent_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
     add_button(container.parentNode, icon='search', action=show_subsequent_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
     add_button(container.parentNode, icon='ellipsis-v', action=show_subsequent_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
@@ -452,12 +453,9 @@ def create_more_actions_panel(container_id):
 # }}}
 
 # Adding books {{{
-def add_books(container_id):
+def create_add_panel(container_id):
     if not library_data.sortable_fields:
         show_panel('book_list', replace=True)
-        return
-    if not get_interface_data().username:
-        error_dialog(_('Not logged in'), _('You must be logged in to add books'))
         return
     add_books_panel(container_id)
 
@@ -465,6 +463,7 @@ def add_books(container_id):
 
 
 set_panel_handler('book_list', init)
+set_panel_handler('book_list^add', create_add_panel)
 set_panel_handler('book_list^sort', create_sort_panel)
 set_panel_handler('book_list^vl', create_vl_panel)
 set_panel_handler('book_list^search', init_search_panel)
