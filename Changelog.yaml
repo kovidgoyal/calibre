@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title:
 
+- version: 3.16.0
+  date: 2018-01-26
+
+  new features:
+    - title: "Content server: Allow adding and deleting of books using the web interface"
+      type: major
+      description: "Use the + icon in the top bar of the book list to add new books and the trash icon in the top bar of the book details page to a delete a book. Note that only authenticated users are allowed to perform these actions, so you have to setup user accounts for the server to use these features."
+
+    - title: "Allow removing the close button from tabs in the Virtual library tab bar. Right click the tab bar and choose 'Lock tabs' to do that."
+
+    - title: "calibredb export: Add --progress option"
+
+    - title: "Bulk metadata editing: Show progress bars to track progress of the operation"
+
+    - title: "Content server: When downloading books from the server send both the ASCII and full Unicode file names. Browsers that support RFC 6266 can make use of the unicode file name."
+
+    - title: "Content server: Show a warning popup on Apple devices when the user tries to search with an expression containing smart quotes, since Apple devices now automatically replace quotes with smart quotes when typing."
+
+  bug fixes:
+    - title: "DOCX Output: Fix links without anchors in the input document not being converted correctly."
+      tickets: [1741098]
+
+    - title: "calibredb: Fix a regression that broke reading of passwords from stdin"
+
+    - title: "Edit book: Fix an error when saving files with filenames that cannot be encoded using the system codepage on Windows"
+
+    - title: "Pasting metadata: Fix excluding title and authors not working"
+
+  improved recipes:
+    - The Galaxy's Edge
+    - Orange County Register
+    - Danas
+
+  new recipes:
+    - title: Revista Veintitres
+      author: Darko Miletic
+
+    - title: Cronica
+      author: Darko Miletic
 
 - version: 3.15.0
   date: 2018-01-05
