@@ -294,19 +294,21 @@ def better_mktemp(*args, **kwargs):
     return path
 
 
-TDIR_LOCK = 'tdir-lock'
+TDIR_LOCK = u'tdir-lock'
 
 if iswindows:
     def lock_tdir(path):
-        return lopen(os.path.join(path, TDIR_LOCK), 'wb')
+        from calibre.utils.lock import windows_open
+        return windows_open(os.path.join(path, TDIR_LOCK))
 
     def remove_tdir(path, lock_file):
         lock_file.close()
         remove_dir(path)
 
     def is_tdir_locked(path):
+        from calibre.utils.lock import windows_open
         try:
-            with lopen(os.path.join(path, TDIR_LOCK), 'wb'):
+            with windows_open(os.path.join(path, TDIR_LOCK)):
                 pass
         except EnvironmentError:
             return True
