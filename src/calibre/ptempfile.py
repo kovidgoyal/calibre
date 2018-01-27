@@ -5,11 +5,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit
+import tempfile, os, atexit, errno
 from future_builtins import map
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
+        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx, cache_dir)
 
 
 def cleanup(path):
@@ -293,3 +293,93 @@ def better_mktemp(*args, **kwargs):
     os.close(fd)
     return path
 
+
+TDIR_LOCK = 'tdir-lock'
+
+if iswindows:
+    def lock_tdir(path):
+        return lopen(os.path.join(path, TDIR_LOCK), 'wb')
+
+    def remove_tdir(path, lock_file):
+        lock_file.close()
+        remove_dir(path)
+
+    def is_tdir_locked(path):
+        try:
+            with lopen(os.path.join(path, TDIR_LOCK), 'wb'):
+                pass
+        except EnvironmentError:
+            return True
+        return False
+else:
+    import fcntl
+
+    def lock_tdir(path):
+        from calibre.utils.ipc import eintr_retry_call
+        lf = os.path.join(path, TDIR_LOCK)
+        f = lopen(lf, 'w')
+        eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return f
+
+    def remove_tdir(path, lock_file):
+        lock_file.close()
+        remove_dir(path)
+
+    def is_tdir_locked(path):
+        from calibre.utils.ipc import eintr_retry_call
+        lf = os.path.join(path, TDIR_LOCK)
+        f = lopen(lf, 'w')
+        try:
+            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_UN)
+            return False
+        except EnvironmentError:
+            return True
+        finally:
+            f.close()
+
+
+def tdirs_in(b):
+    try:
+        tdirs = os.listdir(b)
+    except EnvironmentError as e:
+        if e.errno != errno.ENOENT:
+            raise
+        tdirs = ()
+    for x in tdirs:
+        x = os.path.join(b, x)
+        if os.path.isdir(x):
+            yield x
+
+
+def clean_tdirs_in(b):
+    # Remove any stale tdirs left by previous program crashes
+    for q in tdirs_in(b):
+        if not is_tdir_locked(q):
+            remove_dir(q)
+
+
+def tdir_in_cache(base):
+    ''' Create a temp dir inside cache_dir/base. The created dir is robust
+    against application crashes. i.e. it will be cleaned up the next time the
+    application starts, even if it was left behind by a previous crash. '''
+    b = os.path.join(cache_dir(), base)
+    try:
+        os.makedirs(b)
+    except EnvironmentError as e:
+        if e.errno != errno.EEXIST:
+            raise
+    if b not in tdir_in_cache.scanned:
+        tdir_in_cache.scanned.add(b)
+        try:
+            clean_tdirs_in(b)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+    tdir = _make_dir('', '', b)
+    lock_data = lock_tdir(tdir)
+    atexit.register(remove_tdir, tdir, lock_data)
+    return tdir
+
+
+tdir_in_cache.scanned = set()

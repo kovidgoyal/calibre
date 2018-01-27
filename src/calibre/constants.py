@@ -95,9 +95,6 @@ def debug():
     DEBUG = True
 
 
-_cache_dir = None
-
-
 def _get_cache_dir():
     confcache = os.path.join(config_dir, u'caches')
     if isportable:
@@ -131,10 +128,10 @@ def _get_cache_dir():
 
 
 def cache_dir():
-    global _cache_dir
-    if _cache_dir is None:
-        _cache_dir = _get_cache_dir()
-    return _cache_dir
+    ans = getattr(cache_dir, 'ans', None)
+    if ans is None:
+        ans = cache_dir.ans = _get_cache_dir()
+    return ans
 
 # plugins {{{
 
