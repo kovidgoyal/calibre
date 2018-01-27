@@ -135,7 +135,7 @@ class IPCLockTest(unittest.TestCase):
         child = run_worker('calibre.utils.test_lock', 'other4')
         tdirs = []
         while not tdirs:
-            tdirs = list(tdirs_in('t'))
+            tdirs = list(tdirs_in('t', check_for_lock=True))
         self.assertTrue(is_tdir_locked(tdirs[0]))
         c2 = run_worker('calibre.utils.test_lock', 'other5')
         c2.wait()

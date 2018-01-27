@@ -339,7 +339,7 @@ else:
             f.close()
 
 
-def tdirs_in(b):
+def tdirs_in(b, check_for_lock=False):
     try:
         tdirs = os.listdir(b)
     except EnvironmentError as e:
@@ -348,7 +348,7 @@ def tdirs_in(b):
         tdirs = ()
     for x in tdirs:
         x = os.path.join(b, x)
-        if os.path.isdir(x):
+        if os.path.isdir(x) and (not check_for_lock or os.path.exists(os.path.join(x, TDIR_LOCK))):
             yield x
 
 
