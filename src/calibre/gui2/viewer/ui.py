@@ -109,7 +109,7 @@ class Metadata(QWebView):  # {{{
 
     def paintEvent(self, ev):
         p = QPainter(self)
-        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 220), Qt.SolidPattern))
+        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 247), Qt.SolidPattern))
         p.end()
         QWebView.paintEvent(self, ev)
 # }}}
