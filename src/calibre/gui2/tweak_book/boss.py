@@ -16,7 +16,7 @@ from PyQt5.Qt import (
 
 from calibre import prints, isbytestring
 from calibre.constants import cache_dir, iswindows
-from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_DOCS, OEB_STYLES
@@ -49,6 +49,7 @@ from calibre.gui2.tweak_book.widgets import (
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
+from calibre.utils.tdir_in_cache import tdir_in_cache
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -298,7 +299,7 @@ class Boss(QObject):
             shutil.rmtree(self.tdir, ignore_errors=True)
         # We use the cache dir rather than the temporary dir to try and prevent
         # temp file cleaners from nuking ebooks. See https://bugs.launchpad.net/bugs/1740460
-        self.tdir = PersistentTemporaryDirectory(prefix='calibre-ew-', dir=cache_dir())
+        self.tdir = tdir_in_cache('ee')
         self._edit_file_on_open = edit_file
         self._clear_notify_data = clear_notify_data
         self.gui.blocking_job('open_book', _('Opening book, please wait...'), self.book_opened, get_container, path, tdir=self.mkdtemp())
