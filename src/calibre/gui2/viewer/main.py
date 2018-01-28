@@ -574,7 +574,7 @@ class EbookViewer(MainWindow):
         self.selected_text = selected_text.strip()
         self.action_copy.setEnabled(bool(self.selected_text))
 
-    def copy(self, x):
+    def copy(self, x=False):
         if self.selected_text:
             QApplication.clipboard().setText(self.selected_text)
 
@@ -1098,7 +1098,7 @@ class EbookViewer(MainWindow):
         action = {
             'Quit':self.action_quit,
             'Show metadata':self.action_metadata,
-            'Copy':self.view.copy_action,
+            'Copy':self.action_copy,
             'Font larger': self.action_font_size_larger,
             'Font smaller': self.action_font_size_smaller,
             'Fullscreen': self.action_full_screen,

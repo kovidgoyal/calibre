@@ -12,7 +12,7 @@ from future_builtins import map
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, QPainter, QPalette, QBrush,
     QDialog, QColor, QPoint, QImage, QRegion, QIcon, QAction, QMenu,
-    pyqtSignal, QApplication, pyqtSlot, QKeySequence, QMimeData)
+    pyqtSignal, QApplication, pyqtSlot, QKeySequence)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 
@@ -553,13 +553,10 @@ class DocumentView(QWebView):  # {{{
         self.document.selectionChanged[()].connect(self.selection_changed)
         self.document.animated_scroll_done_signal.connect(self.animated_scroll_done, type=Qt.QueuedConnection)
         self.document.page_turn.connect(self.page_turn_requested)
-        copy_action = self.copy_action
-        copy_action.setIcon(QIcon(I('edit-copy.png')))
-        copy_action.triggered.connect(self.copy, Qt.QueuedConnection)
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk, d.CopyImageUrlToClipboard,
-                d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement]))
+                d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement, d.Copy]))
 
         self.search_online_action = QAction(QIcon(I('search.png')), '', self)
         self.search_online_action.triggered.connect(self.search_online)
@@ -628,10 +625,6 @@ class DocumentView(QWebView):  # {{{
         if self.manager is not None:
             self.manager.goto_end()
 
-    @property
-    def copy_action(self):
-        return self.pageAction(self.document.Copy)
-
     def animated_scroll_done(self):
         if self.manager is not None:
             self.manager.scrolled(self.document.scroll_fraction)
@@ -667,17 +660,6 @@ class DocumentView(QWebView):  # {{{
     @property
     def selected_text(self):
         return self.document.selectedText().replace(u'\u00ad', u'').strip()
-
-    def copy(self):
-        self.document.triggerAction(self.document.Copy)
-        c = QApplication.clipboard()
-        md = c.mimeData()
-        if iswindows:
-            nmd = QMimeData()
-            nmd.setHtml(md.html().replace(u'\u00ad', ''))
-            md = nmd
-        md.setText(self.selected_text)
-        QApplication.clipboard().setMimeData(md)
 
     def selection_changed(self):
         if self.manager is not None:
@@ -723,6 +705,9 @@ class DocumentView(QWebView):  # {{{
         menu = self.document.createStandardContextMenu()
         for action in self.unimplemented_actions:
             menu.removeAction(action)
+
+        if self.manager is not None and self.manager.action_copy.isEnabled():
+            menu.addAction(self.manager.action_copy)
 
         if not img.isNull():
             cia = self.pageAction(self.document.CopyImageToClipboard)
@@ -1383,7 +1368,8 @@ class DocumentView(QWebView):  # {{{
             if self.manager is not None:
                 self.manager.forward(None)
         elif event.matches(QKeySequence.Copy):
-            self.copy()
+            if self.manager is not None:
+                self.manager.copy()
         else:
             handled = False
         return handled
