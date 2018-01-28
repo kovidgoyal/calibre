@@ -49,8 +49,10 @@ def unix_retry(err):
 
 
 def windows_open(path):
+    if isinstance(path, bytes):
+        path = path.decode('mbcs')
     try:
-        h = win32file.CreateFile(
+        h = win32file.CreateFileW(
             path,
             win32file.GENERIC_READ |
             win32file.GENERIC_WRITE,  # Open for reading and writing
@@ -86,9 +88,8 @@ def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
 class ExclusiveFile(object):
 
     def __init__(self, path, timeout=15, sleep_time=0.2):
-        if iswindows:
-            if isinstance(path, bytes):
-                path = path.decode(filesystem_encoding)
+        if iswindows and isinstance(path, bytes):
+            path = path.decode(filesystem_encoding)
         self.path = path
         self.timeout = timeout
         self.sleep_time = sleep_time
