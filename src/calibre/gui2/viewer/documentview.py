@@ -661,9 +661,13 @@ class DocumentView(QWebView):  # {{{
     def selected_text(self):
         return self.document.selectedText().replace(u'\u00ad', u'').strip()
 
+    @property
+    def selected_html(self):
+        return self.document.selectedHtml().replace(u'\u00ad', u'').strip()
+
     def selection_changed(self):
         if self.manager is not None:
-            self.manager.selection_changed(self.selected_text)
+            self.manager.selection_changed(self.selected_text, self.selected_html)
 
     def _selectedText(self):
         t = unicode(self.selectedText()).strip()

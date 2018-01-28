@@ -10,8 +10,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QAction, QApplication, QByteArray, QIcon, QInputDialog, QModelIndex, QObject,
-    QPropertyAnimation, QSize, Qt, QTime, QTimer, pyqtSignal
+    QAction, QApplication, QByteArray, QIcon, QInputDialog, QMimeData, QModelIndex,
+    QObject, QPropertyAnimation, QSize, Qt, QTime, QTimer, pyqtSignal
 )
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -174,7 +174,7 @@ class EbookViewer(MainWindow):
         self.pending_toc_click = None
         self.cursor_hidden     = False
         self.existing_bookmarks= []
-        self.selected_text     = None
+        self.selected_text     = self.selected_html = None
         self.was_maximized     = False
         self.read_settings()
         self.autosave_timer = t = QTimer(self)
@@ -570,13 +570,19 @@ class EbookViewer(MainWindow):
                 self.link_clicked(url)
         self.view.setFocus(Qt.OtherFocusReason)
 
-    def selection_changed(self, selected_text):
-        self.selected_text = selected_text.strip()
-        self.action_copy.setEnabled(bool(self.selected_text))
+    def selection_changed(self, selected_text, selected_html):
+        self.selected_text = selected_text
+        self.selected_html = selected_html
+        self.action_copy.setEnabled(bool(self.selected_text) or bool(self.selected_html))
 
     def copy(self, x=False):
-        if self.selected_text:
-            QApplication.clipboard().setText(self.selected_text)
+        if self.selected_text or self.selected_html:
+            md = QMimeData()
+            if self.selected_text:
+                md.setText(self.selected_text)
+            if self.selected_html:
+                md.setHtml(self.selected_html)
+            QApplication.clipboard().setMimeData(md)
 
     def back(self, x):
         pos = self.history.back(self.pos.value())
