@@ -103,7 +103,7 @@ def tdir_in_cache(base):
     ''' Create a temp dir inside cache_dir/base. The created dir is robust
     against application crashes. i.e. it will be cleaned up the next time the
     application starts, even if it was left behind by a previous crash. '''
-    b = os.path.join(cache_dir(), base)
+    b = os.path.join(os.path.realpath(cache_dir()), base)
     try:
         os.makedirs(b)
     except EnvironmentError as e:
@@ -121,6 +121,8 @@ def tdir_in_cache(base):
         tdir = tempfile.mkdtemp(dir=b)
         lock_data = lock_tdir(tdir)
         atexit.register(remove_tdir, tdir, lock_data)
+        tdir = os.path.join(tdir, 'a')
+        os.mkdir(tdir)
         return tdir
     finally:
         unlock_file(global_lock)
