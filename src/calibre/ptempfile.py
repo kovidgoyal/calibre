@@ -5,11 +5,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit, errno
+import tempfile, os, atexit
 from future_builtins import map
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx, cache_dir)
+        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
 
 
 def cleanup(path):
@@ -292,6 +292,3 @@ def better_mktemp(*args, **kwargs):
     fd, path = tempfile.mkstemp(*args, **kwargs)
     os.close(fd)
     return path
-
-
-
