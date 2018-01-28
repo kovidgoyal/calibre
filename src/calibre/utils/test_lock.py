@@ -14,8 +14,11 @@ import unittest
 from threading import Thread
 
 from calibre.constants import cache_dir, fcntl, iswindows
-from calibre.ptempfile import clean_tdirs_in, is_tdir_locked, tdir_in_cache, tdirs_in
 from calibre.utils.lock import ExclusiveFile, create_single_instance_mutex, unix_open
+from calibre.utils.tdir_in_cache import (
+    clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
+    unlock_file
+)
 
 
 def FastFailEF(name):
@@ -135,21 +138,22 @@ class IPCLockTest(unittest.TestCase):
         child = run_worker('calibre.utils.test_lock', 'other4')
         tdirs = []
         while not tdirs:
-            tdirs = list(tdirs_in('t', check_for_lock=True))
-        for i in range(5):
-            if is_tdir_locked(tdirs[0]):
-                break
-            time.sleep(1)
+            time.sleep(0.05)
+            gl = retry_lock_tdir('t', sleep=0.05)
+            try:
+                tdirs = list(tdirs_in('t'))
+            finally:
+                unlock_file(gl)
         self.assertTrue(is_tdir_locked(tdirs[0]))
         c2 = run_worker('calibre.utils.test_lock', 'other5')
-        c2.wait()
+        self.assertEqual(c2.wait(), 0)
         self.assertTrue(is_tdir_locked(tdirs[0]))
         child.kill(), child.wait()
         self.assertTrue(os.path.exists(tdirs[0]))
         self.assertFalse(is_tdir_locked(tdirs[0]))
         clean_tdirs_in('t')
         self.assertFalse(os.path.exists(tdirs[0]))
-        self.assertFalse(os.listdir('t'))
+        self.assertEqual(os.listdir('t'), [u'tdir-lock'])
 
 
 def other1():
@@ -179,7 +183,8 @@ def other4():
 
 def other5():
     cache_dir.ans = os.getcwdu()
-    tdir_in_cache('t')
+    if not os.path.isdir(tdir_in_cache('t')):
+        raise SystemExit(1)
 
 
 def find_tests():

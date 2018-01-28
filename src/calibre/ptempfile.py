@@ -301,6 +301,9 @@ if iswindows:
         from calibre.utils.lock import windows_open
         return windows_open(os.path.join(path, TDIR_LOCK))
 
+    def unlock_file(fobj):
+        fobj.close()
+
     def remove_tdir(path, lock_file):
         lock_file.close()
         remove_dir(path)
@@ -322,6 +325,11 @@ else:
         f = lopen(lf, 'w')
         eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         return f
+
+    def unlock_file(fobj):
+        from calibre.utils.ipc import eintr_retry_call
+        eintr_retry_call(fcntl.lockf, fobj.fileno(), fcntl.LOCK_UN)
+        fobj.close()
 
     def remove_tdir(path, lock_file):
         lock_file.close()
@@ -361,6 +369,18 @@ def clean_tdirs_in(b):
             remove_dir(q)
 
 
+def retry_lock_tdir(path, timeout=30):
+    from calibre.utils.monotonic import monotonic
+    st = monotonic()
+    while True:
+        try:
+            return lock_tdir(path)
+        except Exception:
+            if monotonic() - st > timeout:
+                raise
+            time.sleep(0.1)
+
+
 def tdir_in_cache(base):
     ''' Create a temp dir inside cache_dir/base. The created dir is robust
     against application crashes. i.e. it will be cleaned up the next time the
@@ -371,17 +391,21 @@ def tdir_in_cache(base):
     except EnvironmentError as e:
         if e.errno != errno.EEXIST:
             raise
-    if b not in tdir_in_cache.scanned:
-        tdir_in_cache.scanned.add(b)
-        try:
-            clean_tdirs_in(b)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-    tdir = _make_dir('', '', b)
-    lock_data = lock_tdir(tdir)
-    atexit.register(remove_tdir, tdir, lock_data)
-    return tdir
+    global_lock = retry_lock_tdir(b)
+    try:
+        if b not in tdir_in_cache.scanned:
+            tdir_in_cache.scanned.add(b)
+            try:
+                clean_tdirs_in(b)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+        tdir = _make_dir('', '', b)
+        lock_data = lock_tdir(tdir)
+        atexit.register(remove_tdir, tdir, lock_data)
+        return tdir
+    finally:
+        unlock_file(global_lock)
 
 
 tdir_in_cache.scanned = set()
