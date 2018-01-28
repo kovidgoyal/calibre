@@ -960,7 +960,7 @@ class EbookViewer(MainWindow):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()
-        self.iterator = EbookIterator(pathtoebook, copy_bookmarks_to_file=self.view.document.copy_bookmarks_to_file)
+        self.iterator = EbookIterator(pathtoebook, copy_bookmarks_to_file=self.view.document.copy_bookmarks_to_file, use_tdir_in_cache=True)
         self.history.clear()
         self.open_progress_indicator(_('Loading e-book...'))
         worker = Worker(target=partial(self.iterator.__enter__, view_kepub=True))

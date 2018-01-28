@@ -16,9 +16,10 @@ import re, os, math
 from functools import partial
 
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, remove_dir
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import default_log
+from calibre.utils.tdir_in_cache import tdir_in_cache
 from calibre import guess_type, prepare_string_for_xml
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 from calibre.ebooks.oeb.iterator.spine import (SpineItem, create_indexing_data)
@@ -92,8 +93,9 @@ class EbookIterator(BookmarksMixin):
 
     CHARACTERS_PER_PAGE = 1000
 
-    def __init__(self, pathtoebook, log=None, copy_bookmarks_to_file=True):
+    def __init__(self, pathtoebook, log=None, copy_bookmarks_to_file=True, use_tdir_in_cache=False):
         BookmarksMixin.__init__(self, copy_bookmarks_to_file=copy_bookmarks_to_file)
+        self.use_tdir_in_cache = use_tdir_in_cache
         self.log = log or default_log
         pathtoebook = pathtoebook.strip()
         self.pathtoebook = os.path.abspath(pathtoebook)
@@ -138,8 +140,11 @@ class EbookIterator(BookmarksMixin):
         display in viewers/preprocessing etc. '''
 
         self.delete_on_exit = []
-        self._tdir = TemporaryDirectory('_ebook_iter')
-        self.base  = os.path.realpath(self._tdir.__enter__())
+        if self.use_tdir_in_cache:
+            self._tdir = tdir_in_cache('ev')
+        else:
+            self._tdir = PersistentTemporaryDirectory('_ebook_iter')
+        self.base  = os.path.realpath(self._tdir)
         self.book_format, self.pathtoopf, input_fmt = run_extract_book(
             self.pathtoebook, self.base, only_input_plugin=only_input_plugin, view_kepub=view_kepub, processed=processed)
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
@@ -226,7 +231,7 @@ class EbookIterator(BookmarksMixin):
                         item.verified_links.add((path, p.fragment))
 
     def __exit__(self, *args):
-        self._tdir.__exit__(*args)
+        remove_dir(self._tdir)
         for x in self.delete_on_exit:
             try:
                 os.remove(x)
