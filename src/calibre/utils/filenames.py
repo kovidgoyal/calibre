@@ -482,13 +482,7 @@ def nlinks_file(path):
 
 if iswindows:
     def rename_file(a, b):
-        move_file = getattr(plugins['winutil'][0], 'move_file', None)
-        if move_file is None:
-            import win32file
-
-            def mf_impl(a, b):
-                win32file.MoveFileEx(a, b, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
-            move_file = mf_impl
+        move_file = plugins['winutil'][0].move_file
         if isinstance(a, bytes):
             a = a.decode('mbcs')
         if isinstance(b, bytes):
