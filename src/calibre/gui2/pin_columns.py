@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import QWidget, QHBoxLayout, QTableView
+from PyQt5.Qt import QSplitter, QTableView
 
 
 class PinTableView(QTableView):
@@ -15,12 +15,11 @@ class PinTableView(QTableView):
         self.verticalHeader().close()
 
 
-class PinContainer(QWidget):
+class PinContainer(QSplitter):
 
     def __init__(self, books_view, parent=None):
-        QWidget.__init__(self, parent)
+        QSplitter.__init__(self, parent)
+        self.setChildrenCollapsible(False)
         self.books_view = books_view
-        self.l = l = QHBoxLayout(self)
-        l.addWidget(books_view)
-        l.addWidget(books_view.pin_view)
-        l.setContentsMargins(0, 0, 0, 0)
+        self.addWidget(books_view)
+        self.addWidget(books_view.pin_view)

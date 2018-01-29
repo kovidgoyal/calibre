@@ -300,7 +300,15 @@ class BooksView(QTableView):  # {{{
                 type=Qt.QueuedConnection)
         self.set_row_header_visibility()
         if modelcls is not BooksModel:
-            self.pin_view.close()
+            self.pin_view.setVisible(False)
+        else:
+            self.set_pin_view_visibility(gprefs['book_list_split'])
+            self.pin_view.verticalScrollBar().valueChanged.connect(self.verticalScrollBar().setValue)
+            self.verticalScrollBar().valueChanged.connect(self.pin_view.verticalScrollBar().setValue)
+
+    def set_pin_view_visibility(self, visible=False):
+        self.pin_view.setVisible(visible)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -343,6 +351,9 @@ class BooksView(QTableView):  # {{{
                     current_col = self.column_map.index(column)
                     index = self.model().index(current_row, current_col)
                     qv.change_quickview_column(index)
+        elif action == 'split':
+            self.set_pin_view_visibility(not self.pin_view.isVisible())
+            gprefs['book_list_split'] = self.pin_view.isVisible()
 
         self.save_state()
 
@@ -430,7 +441,11 @@ class BooksView(QTableView):  # {{{
                         partial(self.column_header_context_handler,
                             action='addcustcol', column=col))
 
-            self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
+        self.column_header_context_menu.addSeparator()
+        self.column_header_context_menu.addAction(
+            _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
+            partial(self.column_header_context_handler, action='split', column=col or 'title'))
+        self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
     # }}}
 
     # Sorting {{{
