@@ -48,7 +48,7 @@ Advanced formatting
 
 You can do more than just simple substitution with the templates. You can also conditionally include text and control how the substituted data is formatted.
 
-First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is ``series`` and ``series_index``, where you want either nothing or the two values with a hyphen between them. Calibre handles this case using a special field syntax.
+First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is ``series`` and ``series_index``, where you want either nothing or the two values with a hyphen between them. calibre handles this case using a special field syntax.
 
 For example, assume you want to use the template::
 
