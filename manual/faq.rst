@@ -1008,11 +1008,12 @@ How do I get calibre to use my HTTP proxy?
 By default, calibre uses whatever proxy settings are set in your OS. Sometimes
 these are incorrect, for example, on Windows if you don't use Internet Explorer
 then the proxy settings may not be up to date. You can tell calibre to use a
-particular proxy server by setting the ``http_proxy`` environment variable. The
-format of the variable is: ``http://username:password@servername`` you should
-ask your network administrator to give you the correct value for this variable.
-Note that calibre only supports HTTP proxies not SOCKS proxies. You can see the
-current proxies used by calibre in Preferences->Miscellaneous.
+particular proxy server by setting the ``http_proxy`` and ``https_proxy``
+environment variables. The format of the variable is:
+``http://username:password@servername`` you should ask your network
+administrator to give you the correct value for this variable.  Note that
+calibre only supports HTTP proxies not SOCKS proxies. You can see the current
+proxies used by calibre in Preferences->Miscellaneous.
 
 I want some feature added to calibre. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

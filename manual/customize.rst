@@ -41,7 +41,7 @@ Environment variables
     * ``CALIBRE_SHOW_DEPRECATION_WARNINGS`` - Causes calibre to print deprecation warnings to stdout. Useful for calibre developers.
     * ``CALIBRE_NO_DEFAULT_PROGRAMS`` - Prevent calibre from automatically registering the filetypes it is capable of handling with Windows.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
-    * ``http_proxy`` - Used on linux to specify an HTTP proxy
+    * ``http_proxy``, ``https_proxy`` - Used on linux to specify an HTTP(S) proxy
 
 See `How to set environment variables in Windows <https://www.computerhope.com/issues/ch000549.htm>`_ or
 `How to set environment variables in macOS <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
