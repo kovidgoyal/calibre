@@ -382,6 +382,10 @@ class CSSFlattener(object):
                 elif val in ('left', 'right'):
                     cssdict['float'] = val
             del node.attrib['align']
+        if 'valign' in node.attrib and tag == 'td':
+            if cssdict.get('vertical-align') == 'inherit':
+                cssdict['vertical-align'] = node.attrib['valign']
+            del node.attrib['valign']
         if node.tag == XHTML('font'):
             tags = ['descendant::h:%s'%x for x in ('p', 'div', 'table', 'h1',
                 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'dl', 'blockquote')]
