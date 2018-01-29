@@ -21,6 +21,7 @@ from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
+from calibre.gui2.pin_columns import PinTableView
 from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface, handle_enter_press
 from calibre.gui2.gestures import GestureManager
 from calibre.utils.config import tweaks, prefs
@@ -204,10 +205,12 @@ class BooksView(QTableView):  # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.pin_view = PinTableView(self, parent)
         self.gesture_manager = GestureManager(self)
         self.default_row_height = self.verticalHeader().defaultSectionSize()
         self.gui = parent
         self.setProperty('highlight_current_item', 150)
+        self.pin_view.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
         self.alternate_views = AlternateViews(self)
 
@@ -231,9 +234,10 @@ class BooksView(QTableView):  # {{{
                 self.setEditTriggers(self.DoubleClicked|self.editTriggers())
 
         setup_dnd_interface(self)
-        self.setAlternatingRowColors(True)
-        self.setShowGrid(False)
-        self.setWordWrap(False)
+        for wv in self, self.pin_view:
+            wv.setAlternatingRowColors(True)
+            wv.setShowGrid(False)
+            wv.setWordWrap(False)
 
         self.rating_delegate = RatingDelegate(self)
         self.half_rating_delegate = RatingDelegate(self, is_half_star=True)
@@ -258,10 +262,12 @@ class BooksView(QTableView):  # {{{
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
+        self.pin_view.setModel(self._model)
         self._model.count_changed_signal.connect(self.do_row_sizing,
                                                  type=Qt.QueuedConnection)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSortingEnabled(True)
+        for wv in self, self.pin_view:
+            wv.setSelectionBehavior(QAbstractItemView.SelectRows)
+            wv.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
@@ -293,6 +299,8 @@ class BooksView(QTableView):  # {{{
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
         self.set_row_header_visibility()
+        if modelcls is not BooksModel:
+            self.pin_view.close()
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -780,12 +788,18 @@ class BooksView(QTableView):  # {{{
     def database_changed(self, db):
         db.data.add_marked_listener(self.marked_changed_listener)
         for i in range(self.model().columnCount(None)):
-            if self.itemDelegateForColumn(i) in (
-                    self.rating_delegate, self.timestamp_delegate, self.pubdate_delegate,
-                    self.last_modified_delegate, self.languages_delegate, self.half_rating_delegate):
-                self.setItemDelegateForColumn(i, self.itemDelegate())
+            for vw in self, self.pin_view:
+                if vw.itemDelegateForColumn(i) in (
+                        self.rating_delegate, self.timestamp_delegate, self.pubdate_delegate,
+                        self.last_modified_delegate, self.languages_delegate, self.half_rating_delegate):
+                    vw.setItemDelegateForColumn(i, vw.itemDelegate())
 
         cm = self.column_map
+
+        def set_item_delegate(colhead, delegate):
+            idx = cm.index(colhead)
+            self.setItemDelegateForColumn(idx, delegate)
+            self.pin_view.setItemDelegateForColumn(idx, delegate)
 
         for colhead in cm:
             if self._model.is_custom_column(colhead):
@@ -793,43 +807,40 @@ class BooksView(QTableView):  # {{{
                 if cc['datatype'] == 'datetime':
                     delegate = CcDateDelegate(self)
                     delegate.set_format(cc['display'].get('date_format',''))
-                    self.setItemDelegateForColumn(cm.index(colhead), delegate)
+                    set_item_delegate(colhead, delegate)
                 elif cc['datatype'] == 'comments':
                     ctype = cc['display'].get('interpret_as', 'html')
                     if ctype == 'short-text':
-                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                        set_item_delegate(colhead, self.cc_text_delegate)
                     elif ctype in ('long-text', 'markdown'):
-                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_longtext_delegate)
+                        set_item_delegate(colhead, self.cc_longtext_delegate)
                     else:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
+                        set_item_delegate(colhead, self.cc_comments_delegate)
                 elif cc['datatype'] == 'text':
                     if cc['is_multiple']:
                         if cc['display'].get('is_names', False):
-                            self.setItemDelegateForColumn(cm.index(colhead),
-                                                          self.cc_names_delegate)
+                            set_item_delegate(colhead, self.cc_names_delegate)
                         else:
-                            self.setItemDelegateForColumn(cm.index(colhead),
-                                                          self.tags_delegate)
+                            set_item_delegate(colhead, self.tags_delegate)
                     else:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                        set_item_delegate(colhead, self.cc_text_delegate)
                 elif cc['datatype'] == 'series':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                    set_item_delegate(colhead, self.cc_text_delegate)
                 elif cc['datatype'] in ('int', 'float'):
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_number_delegate)
+                    set_item_delegate(colhead, self.cc_number_delegate)
                 elif cc['datatype'] == 'bool':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
+                    set_item_delegate(colhead, self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':
                     d = self.half_rating_delegate if cc['display'].get('allow_half_stars', False) else self.rating_delegate
-                    self.setItemDelegateForColumn(cm.index(colhead), d)
+                    set_item_delegate(colhead, d)
                 elif cc['datatype'] == 'composite':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_template_delegate)
+                    set_item_delegate(colhead, self.cc_template_delegate)
                 elif cc['datatype'] == 'enumeration':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_enum_delegate)
+                    set_item_delegate(colhead, self.cc_enum_delegate)
             else:
                 dattr = colhead+'_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'
-                self.setItemDelegateForColumn(cm.index(colhead), getattr(self,
-                    delegate+'_delegate'))
+                set_item_delegate(colhead, getattr(self, delegate+'_delegate'))
 
         self.restore_state()
         self.set_ondevice_column_visibility()

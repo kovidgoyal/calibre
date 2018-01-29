@@ -23,6 +23,7 @@ from PyQt5.Qt import (
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir, islinux
+from calibre.gui2.pin_columns import PinContainer
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config, rating_font, empty_index
@@ -276,7 +277,9 @@ class AlternateViews(object):
 
     def set_stack(self, stack):
         self.stack = stack
-        self.stack.addWidget(self.main_view)
+        pin_container = PinContainer(self.main_view, stack)
+        self.stack.addWidget(pin_container)
+        return pin_container
 
     def add_view(self, key, view):
         self.views[key] = view

@@ -159,7 +159,7 @@ class LibraryWidget(Splitter):  # {{{
         parent.library_view.setObjectName('library_view')
         stack = QStackedWidget(self)
         av = parent.library_view.alternate_views
-        av.set_stack(stack)
+        parent.pin_container = av.set_stack(stack)
         parent.grid_view = GridView(parent)
         parent.grid_view.setObjectName('grid_view')
         av.add_view('grid', parent.grid_view)
