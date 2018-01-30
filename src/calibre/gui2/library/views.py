@@ -214,24 +214,25 @@ class BooksView(QTableView):  # {{{
         self.row_sizing_done = False
         self.alternate_views = AlternateViews(self)
 
-        if not tweaks['horizontal_scrolling_per_column']:
-            self.setHorizontalScrollMode(self.ScrollPerPixel)
+        for wv in self, self.pin_view:
+            if not tweaks['horizontal_scrolling_per_column']:
+                wv.setHorizontalScrollMode(self.ScrollPerPixel)
 
-        self.setEditTriggers(self.EditKeyPressed)
-        if tweaks['doubleclick_on_library_view'] == 'edit_cell':
-            self.setEditTriggers(self.DoubleClicked|self.editTriggers())
-        elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
-            self.setEditTriggers(self.SelectedClicked|self.editTriggers())
-            self.doubleClicked.connect(parent.iactions['View'].view_triggered)
-        elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
-            # Must not enable single-click to edit, or the field will remain
-            # open in edit mode underneath the edit metadata dialog
-            if use_edit_metadata_dialog:
-                self.doubleClicked.connect(
-                        partial(parent.iactions['Edit Metadata'].edit_metadata,
-                                checked=False))
-            else:
-                self.setEditTriggers(self.DoubleClicked|self.editTriggers())
+            wv.setEditTriggers(self.EditKeyPressed)
+            if tweaks['doubleclick_on_library_view'] == 'edit_cell':
+                wv.setEditTriggers(self.DoubleClicked|wv.editTriggers())
+            elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
+                wv.setEditTriggers(self.SelectedClicked|wv.editTriggers())
+                wv.doubleClicked.connect(parent.iactions['View'].view_triggered)
+            elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
+                # Must not enable single-click to edit, or the field will remain
+                # open in edit mode underneath the edit metadata dialog
+                if use_edit_metadata_dialog:
+                    wv.doubleClicked.connect(
+                            partial(parent.iactions['Edit Metadata'].edit_metadata,
+                                    checked=False))
+                else:
+                    wv.setEditTriggers(self.DoubleClicked|wv.editTriggers())
 
         setup_dnd_interface(self)
         for wv in self, self.pin_view:
