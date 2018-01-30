@@ -300,6 +300,7 @@ class BooksView(QTableView):  # {{{
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
         self.set_row_header_visibility()
+        self.allow_mirroring = True
         if modelcls is not BooksModel:
             self.pin_view.setVisible(False)
         else:
@@ -307,18 +308,20 @@ class BooksView(QTableView):  # {{{
             self.pin_view.verticalScrollBar().valueChanged.connect(self.verticalScrollBar().setValue)
             self.verticalScrollBar().valueChanged.connect(self.pin_view.verticalScrollBar().setValue)
             for wv in self, self.pin_view:
-                wv.selectionModel().currentRowChanged.connect(self.mirror_selection_between_views)
-                wv.selectionModel().selectionChanged.connect(self.mirror_selection_between_views)
+                wv.selectionModel().currentRowChanged.connect(partial(self.mirror_selection_between_views, wv))
+                wv.selectionModel().selectionChanged.connect(partial(self.mirror_selection_between_views, wv))
 
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
 
-    def mirror_selection_between_views(self):
-        src = self if self.hasFocus() else self.pin_view
-        dest = self.pin_view if self.hasFocus() else self
-        dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
-        dest.selectionModel().setCurrentIndex(src.selectionModel().currentIndex(), QItemSelectionModel.NoUpdate)
+    def mirror_selection_between_views(self, src):
+        if self.allow_mirroring:
+            dest = self.pin_view if src is self else self
+            self.allow_mirroring = False
+            dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
+            dest.selectionModel().setCurrentIndex(src.selectionModel().currentIndex(), QItemSelectionModel.NoUpdate)
+            self.allow_mirroring = True
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
