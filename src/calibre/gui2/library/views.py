@@ -301,15 +301,15 @@ class BooksView(QTableView):  # {{{
                 type=Qt.QueuedConnection)
         self.set_row_header_visibility()
         self.allow_mirroring = True
-        if modelcls is not BooksModel:
-            self.pin_view.setVisible(False)
-        else:
+        if self.is_library_view:
             self.set_pin_view_visibility(gprefs['book_list_split'])
             self.pin_view.verticalScrollBar().valueChanged.connect(self.verticalScrollBar().setValue)
             self.verticalScrollBar().valueChanged.connect(self.pin_view.verticalScrollBar().setValue)
             for wv in self, self.pin_view:
                 wv.selectionModel().currentRowChanged.connect(partial(self.mirror_selection_between_views, wv))
                 wv.selectionModel().selectionChanged.connect(partial(self.mirror_selection_between_views, wv))
+        else:
+            self.pin_view.setVisible(False)
 
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
@@ -454,10 +454,11 @@ class BooksView(QTableView):  # {{{
                         partial(self.column_header_context_handler,
                             action='addcustcol', column=col))
 
-        self.column_header_context_menu.addSeparator()
-        self.column_header_context_menu.addAction(
-            _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
-            partial(self.column_header_context_handler, action='split', column=col or 'title'))
+        if self.is_library_view:
+            self.column_header_context_menu.addSeparator()
+            self.column_header_context_menu.addAction(
+                _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
+                partial(self.column_header_context_handler, action='split', column=col or 'title'))
         self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
     # }}}
 
