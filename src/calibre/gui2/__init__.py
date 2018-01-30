@@ -87,6 +87,13 @@ def create_defs():
             'Similar Books', 'Tweak ePub', None, 'Remove Books',
             )
 
+    defs['action-layout-context-menu-split'] = (
+            'Edit Metadata', 'Send To Device', 'Save To Disk',
+            'Connect Share', 'Copy To Library', None,
+            'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+            'Similar Books', 'Tweak ePub', None, 'Remove Books',
+            )
+
     defs['action-layout-context-menu-device'] = (
             'View', 'Save To Disk', None, 'Remove Books', None,
             'Add To Library', 'Edit Collections', 'Match Books'

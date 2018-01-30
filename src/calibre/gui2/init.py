@@ -82,6 +82,9 @@ class LibraryViewMixin(object):  # {{{
         populate_menu(dm, gprefs['action-layout-context-menu-device'], self.iactions)
         ec = self.iactions['Edit Collections'].qaction
         self.library_view.set_context_menu(lm, ec)
+        sm = QMenu(self)
+        populate_menu(sm, gprefs['action-layout-context-menu-split'], self.iactions)
+        self.library_view.pin_view.set_context_menu(sm)
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
 

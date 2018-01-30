@@ -14,6 +14,12 @@ class PinTableView(QTableView):
         self.books_view = books_view
         self.verticalHeader().close()
 
+    def set_context_menu(self, menu):
+        self.context_menu = menu
+
+    def contextMenuEvent(self, event):
+        self.books_view.show_context_menu(self.context_menu, event)
+
 
 class PinContainer(QSplitter):
 

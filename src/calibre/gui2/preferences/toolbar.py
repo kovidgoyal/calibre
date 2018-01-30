@@ -241,6 +241,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             ('menubar-device', _('The menubar when a device is connected')),
             ('context-menu', _('The context menu for the books in the '
                 'calibre library')),
+            ('context-menu-split', _('The context menu for the split book list')),
             ('context-menu-device', _('The context menu for the books on '
                 'the device')),
             ('context-menu-cover-browser', _('The context menu for the Cover '

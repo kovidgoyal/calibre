@@ -886,11 +886,14 @@ class BooksView(QTableView):  # {{{
         self.alternate_views.set_context_menu(menu)
         self.edit_collections_action = edit_collections_action
 
-    def contextMenuEvent(self, event):
+    def show_context_menu(self, menu, event):
         from calibre.gui2.main_window import clone_menu
-        m = clone_menu(self.context_menu) if islinux else self.context_menu
+        m = clone_menu(menu) if islinux else menu
         m.popup(event.globalPos())
         event.accept()
+
+    def contextMenuEvent(self, event):
+        self.show_context_menu(self.context_menu, event)
     # }}}
 
     @property
