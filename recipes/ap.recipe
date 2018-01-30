@@ -32,6 +32,9 @@ class AssociatedPress(BasicNewsRecipe):
         dict(id="byLine"),
         dict(id=lambda x: x and x.startswith('storyBodyDiv')),
     ]
+    remove_tags = [
+        dict(id='ppPhoto ppPhoto1'.split()),
+    ]
 
     def parse_index(self):
         feeds = []
