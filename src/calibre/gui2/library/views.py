@@ -305,10 +305,19 @@ class BooksView(QTableView):  # {{{
             self.set_pin_view_visibility(gprefs['book_list_split'])
             self.pin_view.verticalScrollBar().valueChanged.connect(self.verticalScrollBar().setValue)
             self.verticalScrollBar().valueChanged.connect(self.pin_view.verticalScrollBar().setValue)
+            for wv in self, self.pin_view:
+                wv.selectionModel().currentRowChanged.connect(self.mirror_selection_between_views)
+                wv.selectionModel().selectionChanged.connect(self.mirror_selection_between_views)
 
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
+
+    def mirror_selection_between_views(self):
+        src = self if self.hasFocus() else self.pin_view
+        dest = self.pin_view if self.hasFocus() else self
+        dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
+        dest.selectionModel().setCurrentIndex(src.selectionModel().currentIndex(), QItemSelectionModel.NoUpdate)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
