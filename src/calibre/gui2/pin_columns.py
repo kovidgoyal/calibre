@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from PyQt5.Qt import QSplitter, QTableView
 
 from calibre.gui2.library import DEFAULT_SORT
+from calibre.gui2 import gprefs
 
 
 class PinTableView(QTableView):
@@ -15,6 +16,7 @@ class PinTableView(QTableView):
         QTableView.__init__(self, parent)
         self.books_view = books_view
         self.verticalHeader().close()
+        self.splitter = None
 
     @property
     def column_map(self):
@@ -108,6 +110,8 @@ class PinTableView(QTableView):
         if db is not None:
             state = self.get_state()
             db.new_api.set_pref('books view split pane state', state)
+            if self.splitter is not None:
+                self.splitter.save_state()
 
     def restore_state(self):
         db = getattr(self.model(), 'db', None)
@@ -115,6 +119,8 @@ class PinTableView(QTableView):
             state = db.prefs.get('books view split pane state', None)
             if state:
                 self.apply_state(state)
+            if self.splitter is not None:
+                self.splitter.restore_state()
 
 
 class PinContainer(QSplitter):
@@ -125,3 +131,13 @@ class PinContainer(QSplitter):
         self.books_view = books_view
         self.addWidget(books_view)
         self.addWidget(books_view.pin_view)
+        books_view.pin_view.splitter = self
+
+    def save_state(self):
+        state = bytearray(self.saveState())
+        gprefs['book_list_pin_splitter_state'] = state
+
+    def restore_state(self):
+        val = gprefs.get('book_list_pin_splitter_state', None)
+        if val is not None:
+            self.restoreState(val)
