@@ -73,6 +73,7 @@ class WeeklyLWN(BasicNewsRecipe):
         return url
 
     def parse_index(self):
+        # from pprint import pprint
         if self.username is not None and self.password is not None:
             index_url = self.print_version('/current/bigpage')
         else:
@@ -83,7 +84,12 @@ class WeeklyLWN(BasicNewsRecipe):
         articles = {}
         ans = []
 
-        section = soup.title.string
+        section = soup.title
+        while True:
+            if section and hasattr(section, 'contents'):
+                section = section.contents[0]
+            else:
+                break
         subsection = None
 
         while True:
@@ -93,16 +99,21 @@ class WeeklyLWN(BasicNewsRecipe):
             if curr is None:
                 break
 
-            text = curr.contents[0].string
+            text = curr
+            while True:
+                if text and hasattr(text, 'contents'):
+                    text = text.contents[0]
+                else:
+                    break
 
-            if 'Cat2HL' in curr.attrMap['class']:
+            if 'Cat2HL' in curr['class']:
                 subsection = text
 
-            elif 'Cat1HL' in curr.attrMap['class']:
+            elif 'Cat1HL' in curr['class']:
                 section = text
                 subsection = None
 
-            elif 'SummaryHL' in curr.attrMap['class']:
+            elif 'SummaryHL' in curr['class']:
                 article_title = text
                 if not article_title:
                     article_title = _('Undefined article title')
@@ -145,7 +156,6 @@ class WeeklyLWN(BasicNewsRecipe):
 
         ans = [(section2, articles[section2])
                for section2 in ans if section2 in articles]
-        # from pprint import pprint
         # pprint(ans)
 
         return ans
