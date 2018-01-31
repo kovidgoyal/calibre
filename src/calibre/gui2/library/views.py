@@ -468,10 +468,21 @@ class BooksView(QTableView):  # {{{
     # }}}
 
     # Sorting {{{
+
+    def set_sort_indicator(self, logical_idx, ascending):
+        views = [self, self.pin_view] if self.is_library_view else [self]
+        for v in views:
+            ch = v.column_header
+            ch.blockSignals(True)
+            ch.setSortIndicator(logical_idx, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+            ch.blockSignals(False)
+
     def sort_by_column_and_order(self, col, ascending):
         self.column_header.blockSignals(True)
         self.sortByColumn(col, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
         self.column_header.blockSignals(False)
+        if self.is_library_view:
+            self.set_sort_indicator(col, ascending)
 
     def user_sort_requested(self, col, order=Qt.AscendingOrder):
         if col >= len(self.column_map) or col < 0:
@@ -509,9 +520,7 @@ class BooksView(QTableView):  # {{{
             self.sort_by_column_and_order(idx, order)
         else:
             self._model.sort_by_named_field(field, order, reset)
-            self.column_header.blockSignals(True)
-            self.column_header.setSortIndicator(-1, Qt.AscendingOrder)
-            self.column_header.blockSignals(False)
+            self.set_sort_indicator(-1, True)
 
     def multisort(self, fields, reset=True, only_if_different=False):
         if len(fields) == 0:
@@ -534,14 +543,12 @@ class BooksView(QTableView):  # {{{
         self._model.sort_history = [tuple(x) for x in sh]
         self._model.resort(reset=reset)
         col = fields[0][0]
-        dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
-        if col in self.column_map:
-            col = self.column_map.index(col)
-            self.column_header.blockSignals(True)
-            try:
-                self.column_header.setSortIndicator(col, dir)
-            finally:
-                self.column_header.blockSignals(False)
+        ascending = fields[0][1]
+        try:
+            idx = self.column_map.index(col)
+        except Exception:
+            idx = -1
+        self.set_sort_indicator(idx, ascending)
     # }}}
 
     # Ondevice column {{{
