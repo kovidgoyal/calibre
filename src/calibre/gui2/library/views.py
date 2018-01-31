@@ -35,6 +35,10 @@ class HeaderView(QHeaderView):  # {{{
 
     def __init__(self, *args):
         QHeaderView.__init__(self, *args)
+        if self.orientation() == Qt.Horizontal:
+            self.setSectionsMovable(True)
+            self.setSectionsClickable(True)
+            self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.hover = -1
         self.current_font = QFont(self.font())
         self.current_font.setBold(True)
@@ -277,13 +281,12 @@ class BooksView(QTableView):  # {{{
         self.can_add_columns = True
         self.was_restored = False
         self.column_header = HeaderView(Qt.Horizontal, self)
+        self.pin_view.column_header = HeaderView(Qt.Horizontal, self.pin_view)
         self.setHorizontalHeader(self.column_header)
+        self.pin_view.setHorizontalHeader(self.pin_view.column_header)
+        self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.sortIndicatorChanged.disconnect()
         self.column_header.sortIndicatorChanged.connect(self.user_sort_requested)
-        self.column_header.setSectionsMovable(True)
-        self.column_header.setSectionsClickable(True)
-        self.column_header.sectionMoved.connect(self.save_state)
-        self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         self.row_header = HeaderView(Qt.Vertical, self)
@@ -327,6 +330,11 @@ class BooksView(QTableView):  # {{{
     def column_header_context_handler(self, action=None, column=None):
         if not action or not column:
             return
+        if action == 'split':
+            self.set_pin_view_visibility(not self.pin_view.isVisible())
+            gprefs['book_list_split'] = self.pin_view.isVisible()
+            self.save_state()
+            return
         try:
             idx = self.column_map.index(column)
         except:
@@ -364,9 +372,6 @@ class BooksView(QTableView):  # {{{
                     current_col = self.column_map.index(column)
                     index = self.model().index(current_row, current_col)
                     qv.change_quickview_column(index)
-        elif action == 'split':
-            self.set_pin_view_visibility(not self.pin_view.isVisible())
-            gprefs['book_list_split'] = self.pin_view.isVisible()
 
         self.save_state()
 
