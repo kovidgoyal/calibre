@@ -300,11 +300,12 @@ class BooksView(QTableView):  # {{{
         self.column_header.sortIndicatorChanged.connect(self.user_sort_requested)
         self.pin_view.column_header.sortIndicatorChanged.disconnect()
         self.pin_view.column_header.sortIndicatorChanged.connect(self.pin_view_user_sort_requested)
-        self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
+        self.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self))
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         if self.is_library_view:
             self.pin_view.column_header.sectionResized.connect(self.pin_view_column_resized, Qt.QueuedConnection)
             self.pin_view.column_header.sectionMoved.connect(self.pin_view.save_state)
+            self.pin_view.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self.pin_view))
         self.row_header = HeaderView(Qt.Vertical, self)
         self.row_header.setSectionResizeMode(self.row_header.Fixed)
         self.setVerticalHeader(self.row_header)
@@ -343,19 +344,19 @@ class BooksView(QTableView):  # {{{
             self.allow_mirroring = True
 
     # Column Header Context Menu {{{
-    def column_header_context_handler(self, action=None, column=None):
-        if not action or not column:
-            return
+    def column_header_context_handler(self, action=None, column=None, view=None):
         if action == 'split':
             self.set_pin_view_visibility(not self.pin_view.isVisible())
             gprefs['book_list_split'] = self.pin_view.isVisible()
             self.save_state()
             return
+        if not action or not column or not view:
+            return
         try:
             idx = self.column_map.index(column)
         except:
             return
-        h = self.column_header
+        h = view.column_header
 
         if action == 'hide':
             if h.hiddenSectionCount() >= h.count():
@@ -372,7 +373,7 @@ class BooksView(QTableView):  # {{{
         elif action == 'descending':
             self.sort_by_column_and_order(idx, False)
         elif action == 'defaults':
-            self.apply_state(self.get_default_state())
+            view.apply_state(view.get_default_state())
         elif action == 'addcustcol':
             self.add_column_signal.emit()
         elif action.startswith('align_'):
@@ -391,96 +392,67 @@ class BooksView(QTableView):  # {{{
 
         self.save_state()
 
-    def show_column_header_context_menu(self, pos):
-        idx = self.column_header.logicalIndexAt(pos)
+    def create_context_menu(self, col, name, view):
+        ans = QMenu(view)
+        handler = partial(self.column_header_context_handler, view=view, column=col)
+        if col not in ('ondevice', 'inlibrary'):
+            ans.addAction(_('Hide column %s') % name, partial(handler, action='hide'))
+        m = ans.addMenu(_('Sort on %s')  % name)
+        a = m.addAction(_('Ascending'), partial(handler, action='ascending'))
+        d = m.addAction(_('Descending'), partial(handler, action='descending'))
+        if self._model.sorted_on[0] == col:
+            ac = a if self._model.sorted_on[1] else d
+            ac.setCheckable(True)
+            ac.setChecked(True)
+        if col not in ('ondevice', 'inlibrary') and \
+                (not self.model().is_custom_column(col) or
+                self.model().custom_columns[col]['datatype'] not in ('bool',
+                    )):
+            m = ans.addMenu(_('Change text alignment for %s') % name)
+            al = self._model.alignment_map.get(col, 'left')
+            for x, t in (('left', _('Left')), ('right', _('Right')), ('center', _('Center'))):
+                    a = m.addAction(t, partial(handler, action='align_'+x))
+                    if al == x:
+                        a.setCheckable(True)
+                        a.setChecked(True)
+        if self.is_library_view:
+            if self._model.db.field_metadata[col]['is_category']:
+                act = ans.addAction(_('Quickview column %s') % name, partial(handler, action='quickview'))
+                rows = self.selectionModel().selectedRows()
+                if len(rows) > 1:
+                    act.setEnabled(False)
+
+        hidden_cols = {self.column_map[i]: i for i in range(view.column_header.count())
+                       if view.column_header.isSectionHidden(i) and self.column_map[i] not in ('ondevice', 'inlibrary')}
+
+        ans.addSeparator()
+        if hidden_cols:
+            m = ans.addMenu(_('Show column'))
+            for hcol, hidx in hidden_cols.iteritems():
+                hname = unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')
+                m.addAction(hname, partial(handler, action='show', column=hcol))
+        ans.addSeparator()
+        ans.addAction(_('Shrink column if it is too wide to fit'),
+                partial(self.resize_column_to_fit, view, col))
+        ans.addAction(_('Restore default layout'), partial(handler, action='defaults'))
+        if self.can_add_columns:
+            ans.addAction(
+                    QIcon(I('column.png')), _('Add your own columns'), partial(handler, action='addcustcol'))
+        return ans
+
+    def show_column_header_context_menu(self, pos, view=None):
+        view = view or self
+        idx = view.column_header.logicalIndexAt(pos)
         if idx > -1 and idx < len(self.column_map):
             col = self.column_map[idx]
-            name = unicode(self.model().headerData(idx, Qt.Horizontal,
-                    Qt.DisplayRole) or '')
-            self.column_header_context_menu = QMenu(self)
-            if col != 'ondevice':
-                self.column_header_context_menu.addAction(_('Hide column %s') %
-                        name,
-                    partial(self.column_header_context_handler, action='hide',
-                        column=col))
-            m = self.column_header_context_menu.addMenu(
-                    _('Sort on %s')  % name)
-            a = m.addAction(_('Ascending'),
-                    partial(self.column_header_context_handler,
-                        action='ascending', column=col))
-            d = m.addAction(_('Descending'),
-                    partial(self.column_header_context_handler,
-                        action='descending', column=col))
-            if self._model.sorted_on[0] == col:
-                ac = a if self._model.sorted_on[1] else d
-                ac.setCheckable(True)
-                ac.setChecked(True)
-            if col not in ('ondevice', 'inlibrary') and \
-                    (not self.model().is_custom_column(col) or
-                    self.model().custom_columns[col]['datatype'] not in ('bool',
-                        )):
-                m = self.column_header_context_menu.addMenu(
-                        _('Change text alignment for %s') % name)
-                al = self._model.alignment_map.get(col, 'left')
-                for x, t in (('left', _('Left')), ('right', _('Right')), ('center',
-                    _('Center'))):
-                        a = m.addAction(t,
-                            partial(self.column_header_context_handler,
-                            action='align_'+x, column=col))
-                        if al == x:
-                            a.setCheckable(True)
-                            a.setChecked(True)
-
-            if not isinstance(self, DeviceBooksView):
-                if self._model.db.field_metadata[col]['is_category']:
-                    act = self.column_header_context_menu.addAction(_('Quickview column %s') %
-                            name,
-                        partial(self.column_header_context_handler, action='quickview',
-                            column=col))
-                    rows = self.selectionModel().selectedRows()
-                    if len(rows) > 1:
-                        act.setEnabled(False)
-
-            hidden_cols = [self.column_map[i] for i in
-                    range(self.column_header.count()) if
-                    self.column_header.isSectionHidden(i)]
-            try:
-                hidden_cols.remove('ondevice')
-            except:
-                pass
-            if hidden_cols:
-                self.column_header_context_menu.addSeparator()
-                m = self.column_header_context_menu.addMenu(_('Show column'))
-                for col in hidden_cols:
-                    hidx = self.column_map.index(col)
-                    name = unicode(self.model().headerData(hidx, Qt.Horizontal,
-                            Qt.DisplayRole) or '')
-                    m.addAction(name,
-                        partial(self.column_header_context_handler,
-                        action='show', column=col))
-
-            self.column_header_context_menu.addSeparator()
-            self.column_header_context_menu.addAction(
-                    _('Shrink column if it is too wide to fit'),
-                    partial(self.resize_column_to_fit, column=self.column_map[idx]))
-            self.column_header_context_menu.addAction(
-                    _('Restore default layout'),
-                    partial(self.column_header_context_handler,
-                        action='defaults', column=col))
-
-            if self.can_add_columns:
-                self.column_header_context_menu.addAction(
-                        QIcon(I('column.png')),
-                        _('Add your own columns'),
-                        partial(self.column_header_context_handler,
-                            action='addcustcol', column=col))
-
+            name = unicode(self.model().headerData(idx, Qt.Horizontal, Qt.DisplayRole) or '')
+            view.column_header_context_menu = self.create_context_menu(col, name, view)
         if self.is_library_view:
-            self.column_header_context_menu.addSeparator()
-            self.column_header_context_menu.addAction(
+            view.column_header_context_menu.addSeparator()
+            view.column_header_context_menu.addAction(
                 _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
                 partial(self.column_header_context_handler, action='split', column=col or 'title'))
-        self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
+        view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
 
     # Sorting {{{
@@ -799,9 +771,10 @@ class BooksView(QTableView):  # {{{
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
-    def resize_column_to_fit(self, column):
+    def resize_column_to_fit(self, view, column):
         col = self.column_map.index(column)
-        self.column_resized(col, self.columnWidth(col), self.columnWidth(col))
+        w = view.columnWidth(col)
+        restrict_column_width(view, col, w, w)
 
     def column_resized(self, col, old_size, new_size):
         restrict_column_width(self, col, old_size, new_size)
