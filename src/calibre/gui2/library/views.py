@@ -553,8 +553,10 @@ class BooksView(QTableView):  # {{{
 
     # Ondevice column {{{
     def set_ondevice_column_visibility(self):
-        col, h = self._model.column_map.index('ondevice'), self.column_header
-        h.setSectionHidden(col, not self._model.device_connected)
+        col = self._model.column_map.index('ondevice')
+        self.column_header.setSectionHidden(col, not self._model.device_connected)
+        if self.is_library_view:
+            self.pin_view.column_header.setSectionHidden(col, True)
 
     def set_device_connected(self, is_connected):
         self._model.set_device_connected(is_connected)
