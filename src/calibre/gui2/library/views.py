@@ -595,6 +595,8 @@ class BooksView(QTableView):  # {{{
         if len(self.column_map) > 0 and self.was_restored:
             state = self.get_state()
             self.write_state(state)
+            if self.is_library_view:
+                self.pin_view.save_state()
 
     def cleanup_sort_history(self, sort_history, ignore_column_map=False):
         history = []
@@ -750,6 +752,9 @@ class BooksView(QTableView):  # {{{
             old_state['sort_history'] = sh
             max_levels = max(3, len(sh))
 
+        if self.is_library_view:
+            self.pin_view.restore_state()
+
         self.column_header.blockSignals(True)
         self.apply_state(old_state, max_sort_levels=max_levels)
         self.column_header.blockSignals(False)
@@ -766,7 +771,10 @@ class BooksView(QTableView):  # {{{
         # Resize all rows to have the correct height
         if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
             vh = self.verticalHeader()
-            vh.setDefaultSectionSize(max(vh.minimumSectionSize(), self.default_row_height + gprefs['book_list_extra_row_spacing']))
+            h = max(vh.minimumSectionSize(), self.default_row_height + gprefs['book_list_extra_row_spacing'])
+            vh.setDefaultSectionSize(h)
+            if self.is_library_view:
+                self.pin_view.verticalHeader().setDefaultSectionSize(h)
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
