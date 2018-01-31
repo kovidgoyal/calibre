@@ -31,6 +31,17 @@ from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
 
+def restrict_column_width(self, col, old_size, new_size):
+    # arbitrary: scroll bar + header + some
+    sw = self.verticalScrollBar().width() if self.verticalScrollBar().isVisible() else 0
+    hw = self.verticalHeader().width() if self.verticalHeader().isVisible() else 0
+    max_width = max(200, self.width() - (sw + hw + 10))
+    if new_size > max_width:
+        self.column_header.blockSignals(True)
+        self.setColumnWidth(col, max_width)
+        self.column_header.blockSignals(False)
+
+
 class HeaderView(QHeaderView):  # {{{
 
     def __init__(self, *args):
@@ -287,8 +298,13 @@ class BooksView(QTableView):  # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.sortIndicatorChanged.disconnect()
         self.column_header.sortIndicatorChanged.connect(self.user_sort_requested)
+        self.pin_view.column_header.sortIndicatorChanged.disconnect()
+        self.pin_view.column_header.sortIndicatorChanged.connect(self.pin_view_user_sort_requested)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
+        if self.is_library_view:
+            self.pin_view.column_header.sectionResized.connect(self.pin_view_column_resized, Qt.QueuedConnection)
+            self.pin_view.column_header.sectionMoved.connect(self.pin_view.save_state)
         self.row_header = HeaderView(Qt.Vertical, self)
         self.row_header.setSectionResizeMode(self.row_header.Fixed)
         self.setVerticalHeader(self.row_header)
@@ -489,6 +505,11 @@ class BooksView(QTableView):  # {{{
             return QTableView.sortByColumn(self, col)
         field = self.column_map[col]
         self.intelligent_sort(field, order == Qt.AscendingOrder)
+
+    def pin_view_user_sort_requested(self, col, order=Qt.AscendingOrder):
+        if col < len(self.column_map) and col >= 0:
+            field = self.column_map[col]
+            self.intelligent_sort(field, order == Qt.AscendingOrder)
 
     def intelligent_sort(self, field, ascending):
         m = self.model()
@@ -783,15 +804,10 @@ class BooksView(QTableView):  # {{{
         self.column_resized(col, self.columnWidth(col), self.columnWidth(col))
 
     def column_resized(self, col, old_size, new_size):
-        # arbitrary: scroll bar + header + some
-        max_width = self.width() - (self.verticalScrollBar().width() +
-                                    self.verticalHeader().width() + 10)
-        if max_width < 200:
-            max_width = 200
-        if new_size > max_width:
-            self.column_header.blockSignals(True)
-            self.setColumnWidth(col, max_width)
-            self.column_header.blockSignals(False)
+        restrict_column_width(self, col, old_size, new_size)
+
+    def pin_view_column_resized(self, col, old_size, new_size):
+        restrict_column_width(self.pin_view, col, old_size, new_size)
 
     # }}}
 
