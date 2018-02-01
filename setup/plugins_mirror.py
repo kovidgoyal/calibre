@@ -27,7 +27,7 @@ INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
 u = HTMLParser.HTMLParser().unescape
 
-socket.setdefaulttimeout(60)
+socket.setdefaulttimeout(120)
 
 
 def read(url, get_info=False):  # {{{
