@@ -340,7 +340,11 @@ class BooksView(QTableView):  # {{{
             dest = self.pin_view if src is self else self
             self.allow_mirroring = False
             dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
-            dest.selectionModel().setCurrentIndex(src.selectionModel().currentIndex(), QItemSelectionModel.NoUpdate)
+            ci = dest.currentIndex()
+            nci = src.selectionModel().currentIndex()
+            if ci.isValid():
+                nci = dest.model().index(nci.row(), ci.column())
+            dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
             self.allow_mirroring = True
 
     # Column Header Context Menu {{{
