@@ -20,7 +20,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     delay = 1
     use_embedded_content = False
     encoding = 'utf-8'
-    INDEX = 'http://www.lrb.co.uk'
+    INDEX = 'https://www.lrb.co.uk'
     LOGIN = INDEX + '/login'
     masthead_url = INDEX + '/assets/images/lrb_logo_big.gif'
     needs_subscription = True
@@ -31,10 +31,12 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
-            br.select_form(nr=1)
+            br.select_form(action='/login')
             br['username'] = self.username
             br['password'] = self.password
-            br.submit()
+            raw = br.submit().read()
+            if 'You are logged in as' not in raw:
+                raise ValueError('Failed to log in, check username and password')
         return br
 
     def parse_index(self):
