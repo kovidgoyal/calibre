@@ -83,7 +83,7 @@ class WeeklyLWN(BasicNewsRecipe):
         articles = {}
         ans = []
 
-        section = soup.title.string
+        section = self.tag_to_string(soup.title)
         subsection = None
 
         while True:
@@ -93,16 +93,16 @@ class WeeklyLWN(BasicNewsRecipe):
             if curr is None:
                 break
 
-            text = curr.contents[0].string
+            text = self.tag_to_string(curr.contents[0])
 
-            if 'Cat2HL' in curr.attrMap['class']:
+            if 'Cat2HL' in curr['class']:
                 subsection = text
 
-            elif 'Cat1HL' in curr.attrMap['class']:
+            elif 'Cat1HL' in curr['class']:
                 section = text
                 subsection = None
 
-            elif 'SummaryHL' in curr.attrMap['class']:
+            elif 'SummaryHL' in curr['class']:
                 article_title = text
                 if not article_title:
                     article_title = _('Undefined article title')
@@ -125,7 +125,7 @@ class WeeklyLWN(BasicNewsRecipe):
                         continue
 
                 else:
-                    print >>sys.stderr, 'article_anchor is None for "%s"; skipping' % article_title
+                    self.log.warn('article_anchor is None for "%s"; skipping' % article_title)
                     article_url = None
                     continue
 
@@ -141,7 +141,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 })
 
             else:
-                print >>sys.stderr, "lwn_weekly.recipe: something bad happened; should not be able to reach this"
+                self.log.error("lwn_weekly.recipe: something bad happened; should not be able to reach this")
 
         ans = [(section2, articles[section2])
                for section2 in ans if section2 in articles]
