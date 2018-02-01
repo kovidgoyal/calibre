@@ -331,6 +331,7 @@ class BooksView(QTableView):  # {{{
         else:
             self.pin_view.setVisible(False)
 
+    # Pin view {{{
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
@@ -346,6 +347,7 @@ class BooksView(QTableView):  # {{{
                 nci = dest.model().index(nci.row(), ci.column())
             dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
             self.allow_mirroring = True
+    # }}}
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None, view=None):
