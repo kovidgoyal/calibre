@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket, subprocess, atexit
+import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket, subprocess, atexit, time
 from future_builtins import map, zip, filter
 from collections import namedtuple
 from multiprocessing.pool import ThreadPool
@@ -27,7 +27,7 @@ INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
 u = HTMLParser.HTMLParser().unescape
 
-socket.setdefaulttimeout(120)
+socket.setdefaulttimeout(30)
 
 
 def read(url, get_info=False):  # {{{
@@ -38,7 +38,11 @@ def read(url, get_info=False):  # {{{
         ('User-Agent', USER_AGENT),
         ('Accept-Encoding', 'gzip,deflate'),
     ]
-    res = opener.open(url)
+    try:
+        res = opener.open(url)
+    except Exception:
+        time.sleep(180)
+        res = opener.open(url)
     info = res.info()
     encoding = info.get('Content-Encoding')
     raw = res.read()
