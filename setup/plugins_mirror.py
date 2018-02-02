@@ -1,20 +1,40 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+# Imports {{{
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket, subprocess, atexit, time
-from future_builtins import map, zip, filter
+import ast
+import atexit
+import bz2
+import errno
+import glob
+import gzip
+import HTMLParser
+import io
+import json
+import os
+import random
+import re
+import socket
+import stat
+import subprocess
+import sys
+import tempfile
+import time
+import urllib2
+import urlparse
+import zipfile
+import zlib
 from collections import namedtuple
-from multiprocessing.pool import ThreadPool
+from contextlib import closing
 from datetime import datetime
 from email.utils import parsedate
-from contextlib import closing
 from functools import partial
+from future_builtins import filter, map, zip
+from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
+# }}}
 
 USER_AGENT = 'calibre mirror'
 MR_URL = 'https://www.mobileread.com/forums/'
@@ -38,11 +58,15 @@ def read(url, get_info=False):  # {{{
         ('User-Agent', USER_AGENT),
         ('Accept-Encoding', 'gzip,deflate'),
     ]
-    try:
-        res = opener.open(url)
-    except Exception:
-        time.sleep(180)
-        res = opener.open(url)
+    # Sporadic network failures in rackspace, so retry with random sleeps
+    for i in range(10):
+        try:
+            res = opener.open(url)
+            break
+        except urllib2.URLError as e:
+            if not isinstance(e.reason, socket.timeout) or i == 9:
+                raise
+            time.sleep(random.randint(10, 45))
     info = res.info()
     encoding = info.get('Content-Encoding')
     raw = res.read()
