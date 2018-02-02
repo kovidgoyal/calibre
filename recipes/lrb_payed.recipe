@@ -25,6 +25,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     masthead_url = INDEX + '/assets/images/lrb_logo_big.gif'
     needs_subscription = True
     publication_type = 'magazine'
+    requires_version = (3, 0, 0)
     extra_css = ' body{font-family: Georgia,Palatino,"Palatino Linotype",serif} '
 
     def get_browser(self):
