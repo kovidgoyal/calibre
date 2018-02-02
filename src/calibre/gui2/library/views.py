@@ -335,10 +335,13 @@ class BooksView(QTableView):  # {{{
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
+        self.mirror_selection_between_views(self)
 
     def mirror_selection_between_views(self, src):
         if self.allow_mirroring:
             dest = self.pin_view if src is self else self
+            if dest is self.pin_view and not dest.isVisible():
+                return
             self.allow_mirroring = False
             dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
             ci = dest.currentIndex()
