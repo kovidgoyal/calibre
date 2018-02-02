@@ -80,14 +80,14 @@ class EPUBInput(InputFormatPlugin):
         return False
 
     def set_guide_type(self, opf, gtype, href=None, title=''):
-        # Set the titlepage guide entry
+        # Set the specified guide entry
         for elem in list(opf.iterguide()):
-            if elem.get('type', '').lower() == 'titlepage':
+            if elem.get('type', '').lower() == gtype:
                 elem.getparent().remove(elem)
 
         if href is not None:
             t = opf.create_guide_item(gtype, title, href)
-            for guide in opf.root.iterchildren('guide'):
+            for guide in opf.root.xpath('./*[local-name()="guide"]'):
                 guide.append(t)
                 return
             guide = opf.create_guide_element()
