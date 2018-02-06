@@ -1,81 +1,43 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
+__copyright__ = '2018, Darko Miletic <darko.miletic at gmail.com>'
 '''
-newstatesman.com
+www.newstatesman.com
 '''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NewStatesman(BasicNewsRecipe):
-
     title = 'New Statesman'
-    language = 'en_GB'
-    __author__ = "NotTaken"
-    description = "Britain's Current Affairs & Politics Magazine (bi-weekly)"
-    oldest_article = 4.0
+    __author__ = 'Darko Miletic'
+    description = "Current affairs, world politics, the arts and more from Britain's award-winning magazine"
+    publisher = 'New Statesman Media'
+    category = 'New Statesman magazine, International Politics, British Politics, Britain, UK, Tony Blair, Gordon Brown, Geoffrey Robinson, David Cameron, Sir Menzies Campbell, Labour, Conservative, Liberal Democrat, UK Politics, House of Commons, House of Lords, Legislation, politics magazine'  # noqa
+    oldest_article = 30
     no_stylesheets = True
-    use_embedded_content = False
+    encoding = 'utf8'
+    use_embedded_content = True
+    language = 'en_GB'
     remove_empty_feeds = True
+    publication_type = 'magazine'
+    auto_cleanup = True
+    resolve_internal_links = True
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.newstatesman.com/sites/all/themes/creative-responsive-theme/images/newstatesman_logo@2x.png'
 
-    keep_only_tags = [dict(attrs={'class': 'node'})]
+    extra_css = """
+        body{font-family: serif}
+        img{margin-top:1em; margin-bottom: 1em; display:block}
+    """
 
-    remove_tags_after = [
-        dict(attrs={'class': lambda x: x and 'content123' in x})
-    ]
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
 
-    remove_tags = [
-        dict(attrs={'class': lambda x: x and 'links_bookmark' in x})
-    ]
-
-    extra_css = '''
-        .title-main {font-size: x-large;}
-        h2 { font-size: small;  }
-        h1 { font-size: medium;  }
-        .field-field-nodeimage-title {
-            font-size: small;
-            color: #3C3C3C;
-        }
-        .link_col {
-            font-size: x-small;
-        }
-    '''
-
-    processed_urls = []
-
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            pic = soup.find('img')
-            if pic is not None:
-                self.add_toc_thumbnail(article, pic['src'])
-
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-
-        if url in self.processed_urls:
-            self.log('skipping duplicate article: %s' % article.title)
-            return None
-
-        self.processed_urls.append(url)
-        return url
-
-    feeds = [
-        (u'Politics',
-         u'http://www.newstatesman.com/politics.rss'),
-        (u'Business',
-         u'http://www.newstatesman.com/business.rss'),
-        (u'Economics',
-         u'http://www.newstatesman.com/economics.rss'),
-        (u'Culture',
-         u'http://www.newstatesman.com/culture.rss'),
-        (u'Media',
-         u'http://www.newstatesman.com/media.rss'),
-        (u'Books',
-         u'http://www.newstatesman.com/taxonomy/term/feed/27'),
-        (u'Life & Society',
-         u'http://www.newstatesman.com/taxonomyfeed/11'),
-        (u'World Affairs',
-         u'http://www.newstatesman.com/world-affairs.rss'),
-        (u'Sci-Tech',
-         u'http://www.newstatesman.com/feeds/topics/sci-tech.rss'),
-        (u'Others',
-         u'http://www.newstatesman.com/feeds_allsite/site_feed.php'),
-    ]
+    feeds = [(u'Articles', u'https://www.newstatesman.com/feeds/site_feed.rss')]
