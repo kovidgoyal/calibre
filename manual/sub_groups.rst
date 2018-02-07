@@ -79,6 +79,12 @@ After doing the above, you see in the Tag browser:
 
 From here on, to apply this new genre to a book (a comic book, presumably), you can either drag the book onto the genre, or add it to the book using edit metadata in exactly the same way as done above.
 
+
+.. note::
+    Hierarchical display only works if the Tag browser is set to sort items by
+    name. This is the default and can be checked by clicking the
+    :guilabel:`Configure` button at the bottom of the Tag browser.
+
 Searching
 ---------------
 
