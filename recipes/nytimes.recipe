@@ -66,7 +66,7 @@ class NewYorkTimes(BasicNewsRecipe):
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
         dict(attrs={'data-videoid':True}),
-        dict(name='button'),
+        dict(name='button meta link'.split()),
         dict(id=lambda x: x and x.startswith('story-ad-')),
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
