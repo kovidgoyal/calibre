@@ -26,46 +26,21 @@ class ledevoir(BasicNewsRecipe):
     timefmt = '[%a, %d %b, %Y]'
 
     oldest_article = 1
-    max_articles_per_feed = 200
+    max_articles_per_feed = 50
     min_articles_per_feed = 0
     use_embedded_content = False
-    recursion = 10
     needs_subscription = 'optional'
 
     compress_news_images = True
     compress_news_images_auto_size = 4
 
-    url_list = []
-
     remove_javascript = True
     no_stylesheets = True
+    remove_empty_feeds = True
 
     keep_only_tags = [
-        # dict(name='div', attrs={'id':'article_detail'}),
-        # dict(name='div', attrs={'id':'colonne_principale'}),
-        dict(name='article', attrs={'id': 'article', 'class': 'clearfix'}),
-        dict(name='article', attrs={
-             'id': 'article', 'class': 'clearfix portrait'})
-    ]
-
-    remove_tags = [
-        dict(name='div', attrs={'id': 'prive'}),
-        dict(name='div', attrs={'class': 'acheter_article'}),
-        dict(name='div', attrs={'id': 'col_complement'}),
-        dict(name='div', attrs={'id': 'raccourcis', 'class': 'clearfix'}),
-        dict(name='div', attrs={'id': 'dialog'}),
-        dict(name='div', attrs={
-             'id': 'liste_photos_article', 'class': 'clearfix'}),
-        dict(name='script', attrs={'type': 'text/javascript'}),
-        dict(name='div', attrs={'class': ['interesse_actions', 'reactions',
-                                          'taille_du_texte right clearfix', 'partage_sociaux clearfix']}),
-        dict(name='aside', attrs={
-             'class': ['article_actions clearfix', 'partage_sociaux_wrapper']}),
-        dict(name='aside', attrs={'class': 'reactions', 'id': 'reactions'}),
-        dict(name='ul', attrs={'class': 'mots_cles'}),
-        dict(name='ul', attrs={'id': 'commentaires'}),
-        dict(name='a', attrs={'class': 'haut'}),
-        dict(name='h5', attrs={'class': 'interesse_actions'})
+        dict(name='h1'),
+        dict(attrs={'class': 'col-xs-14 col-sm-8 col-md-10'}),
     ]
 
     feeds = [
@@ -90,8 +65,8 @@ class ledevoir(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.ledevoir.com')
-            br.select_form(nr=1)
+            br.open('http://www.ledevoir.com/auth/login')
+            br.select_form(action='/auth/login')
             br['login[courriel]'] = self.username
             br['login[password]'] = self.password
             br.submit()
