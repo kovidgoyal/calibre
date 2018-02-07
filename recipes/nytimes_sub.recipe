@@ -148,6 +148,7 @@ class NewYorkTimes(BasicNewsRecipe):
                 yield article
 
     def parse_web_sections(self):
+        self.read_nyt_metadata()
         feeds = []
         for section_title, slug in web_sections:
             url = 'https://www.nytimes.com/section/' + slug
