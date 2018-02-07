@@ -1042,7 +1042,7 @@ class BulkSeries(BulkBase):
             apply_changes = True
         elif self.main_widget.text():
             self.remove_series.setEnabled(False)
-            disable_numbering_checkboxes(idx_widget_enable=True)
+            self.idx_widget.setEnabled(True)
             apply_changes = True
         else:  # no text, no clear. Basically reinitialize
             self.main_widget.setEnabled(True)
