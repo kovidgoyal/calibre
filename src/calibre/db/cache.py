@@ -547,7 +547,7 @@ class Cache(object):
         '''
         af = self.fields['authors']
         if author_ids is None:
-            author_ids = tuple(af.table.id_map)
+            return {aid:af.author_data(aid) for aid in af.table.id_map}
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
