@@ -76,7 +76,7 @@ class TrimImage(QDialog):
         self.msg.setVisible(not has_selection)
 
     def image_changed(self, qimage):
-        self.sz.setText('\xa0' + _('Size:') + '%dx%d' % (qimage.width(), qimage.height()))
+        self.sz.setText('\xa0' + _('Size:') + ' ' + '%dx%d' % (qimage.width(), qimage.height()))
 
     def cleanup(self):
         self.canvas.break_cycles()
