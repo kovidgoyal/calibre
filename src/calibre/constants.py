@@ -96,11 +96,28 @@ def debug():
 
 
 def _get_cache_dir():
+    import errno
     confcache = os.path.join(config_dir, u'caches')
+    try:
+        os.makedirs(confcache)
+    except EnvironmentError as err:
+        if err.errno != errno.EEXIST:
+            raise
     if isportable:
         return confcache
     if 'CALIBRE_CACHE_DIRECTORY' in os.environ:
-        return os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
+        if iswindows:
+            ans = get_unicode_windows_env_var(u'CALIBRE_CACHE_DIRECTORY')
+        else:
+            ans = os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
+            if isinstance(ans, bytes):
+                ans = ans.decode(filesystem_encoding)
+        try:
+            os.makedirs(ans)
+            return ans
+        except EnvironmentError as err:
+            if err.errno == errno.EEXIST:
+                return ans
 
     if iswindows:
         w = plugins['winutil'][0]
@@ -119,10 +136,10 @@ def _get_cache_dir():
                 candidate = candidate.decode(filesystem_encoding)
             except ValueError:
                 candidate = confcache
-    if not os.path.exists(candidate):
-        try:
-            os.makedirs(candidate)
-        except:
+    try:
+        os.makedirs(candidate)
+    except EnvironmentError as err:
+        if err.errno != errno.EEXIST:
             candidate = confcache
     return candidate
 
@@ -274,22 +291,12 @@ def get_version():
 def get_portable_base():
     'Return path to the directory that contains calibre-portable.exe or None'
     if isportable:
-        return os.path.dirname(os.path.dirname(os.environ['CALIBRE_PORTABLE_BUILD']))
+        return os.path.dirname(os.path.dirname(get_unicode_windows_env_var(u'CALIBRE_PORTABLE_BUILD')))
 
 
 def get_unicode_windows_env_var(name):
-    winutil = plugins['winutil'][0]
-    getenv = getattr(winutil, 'getenv', None)
-    if getenv is not None:
-        return getenv(unicode(name))
-    import ctypes
-    name = unicode(name)
-    n = ctypes.windll.kernel32.GetEnvironmentVariableW(name, None, 0)
-    if n == 0:
-        return None
-    buf = ctypes.create_unicode_buffer(u'\0'*n)
-    ctypes.windll.kernel32.GetEnvironmentVariableW(name, buf, n)
-    return buf.value
+    getenv = plugins['winutil'][0].getenv
+    return getenv(unicode(name))
 
 
 def get_windows_username():
@@ -298,69 +305,25 @@ def get_windows_username():
     Note that usernames on windows are case insensitive, the case of the value
     returned depends on what the user typed into the login box at login time.
     '''
-    winutil = plugins['winutil'][0]
-    username = getattr(winutil, 'username', None)
-    if username is not None:
-        return username()
-    import ctypes
-    from ctypes import wintypes
-    try:
-        advapi32 = ctypes.windll.advapi32
-        GetUserName = getattr(advapi32, u'GetUserNameW')
-        GetUserName.argtypes = [wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
-        GetUserName.restype = wintypes.BOOL
-    except AttributeError:
-        pass
-    else:
-        buf = ctypes.create_unicode_buffer(257)
-        n = wintypes.DWORD(257)
-        if GetUserName(buf, ctypes.byref(n)):
-            return buf.value
-
-    return get_unicode_windows_env_var(u'USERNAME')
+    username = plugins['winutil'][0].username
+    return username()
 
 
 def get_windows_temp_path():
-    winutil = plugins['winutil'][0]
-    temp_path = getattr(winutil, 'temp_path', None)
-    if temp_path is not None:
-        return temp_path()
-    import ctypes
-    n = ctypes.windll.kernel32.GetTempPathW(0, None)
-    if n == 0:
-        return None
-    buf = ctypes.create_unicode_buffer(u'\0'*n)
-    ctypes.windll.kernel32.GetTempPathW(n, buf)
-    ans = buf.value
-    return ans if ans else None
+    temp_path = plugins['winutil'][0].temp_path
+    return temp_path()
 
 
 def get_windows_user_locale_name():
-    winutil = plugins['winutil'][0]
-    locale_name = getattr(winutil, 'locale_name', None)
-    if locale_name is not None:
-        return locale_name()
-    import ctypes
-    k32 = ctypes.windll.kernel32
-    n = 255
-    buf = ctypes.create_unicode_buffer(u'\0'*n)
-    n = k32.GetUserDefaultLocaleName(buf, n)
-    if n == 0:
-        return None
-    return u'_'.join(buf.value.split(u'-')[:2])
+    locale_name = plugins['winutil'][0].locale_name
+    return locale_name()
 
 
 def get_windows_number_formats():
     ans = getattr(get_windows_number_formats, 'ans', None)
     if ans is None:
-        winutil = plugins['winutil'][0]
-        localeconv = getattr(winutil, 'localeconv', None)
-        if localeconv is not None:
-            d = localeconv()
-            thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
-        else:
-            from locale import localeconv
-            d = localeconv()
-            thousands_sep, decimal_point = d['thousands_sep'].decode('mbcs'), d['decimal_point'].decode('mbcs')
+        localeconv = plugins['winutil'][0].localeconv
+        d = localeconv()
+        thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
         ans = get_windows_number_formats.ans = thousands_sep, decimal_point
     return ans
