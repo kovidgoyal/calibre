@@ -106,10 +106,15 @@ class NewYorkTimes(BasicNewsRecipe):
         soup = self.read_nyt_metadata()
         section = soup.find(id='collection-todays-new-york-times')
         feeds = []
-        for h1 in section.findAll('h1')[1:]:
+        for i, h1 in enumerate(section.findAll('h1')):
+            if i == 0:
+                continue
             section_title = self.tag_to_string(h1)
             self.log('Found section:', section_title)
-            articles = list(self.parse_todays_sections(h1.parent))
+            container = h1.parent
+            articles = list(self.parse_todays_sections(container))
+            if i == 1:
+                articles += list(self.parse_todays_sections(container.findNextSibling('div')))
             if articles:
                 feeds.append((section_title, articles))
         return feeds
