@@ -64,8 +64,12 @@ class UpdateEditorGeometry(object):
             new_width += r.width()
 
         # Compute the maximum we can show if we consume the entire viewport
-        max_width = (self.table_widget.horizontalScrollBar().geometry().width() -
-                     self.table_widget.verticalHeader().width())
+        pin_view = self.table_widget.pin_view
+        if pin_view.isVisible() and pin_view.geometry().x() <= initial_geometry.x():
+            max_width = pin_view.horizontalScrollBar().geometry().width()
+        else:
+            view = self.table_widget
+            max_width = view.horizontalScrollBar().geometry().width() - view.verticalHeader().width()
         # What we have to display might not fit. If so, adjust down
         new_width = new_width if new_width < max_width else max_width
 
@@ -155,6 +159,7 @@ def make_clearing_spinbox(spinbox):
             else:
                 return spinbox.keyPressEvent(self, ev)
     return SpinBox
+
 
 ClearingSpinBox = make_clearing_spinbox(QSpinBox)
 ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
