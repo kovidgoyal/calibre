@@ -111,10 +111,12 @@ class NewYorkTimes(BasicNewsRecipe):
                 continue
             section_title = self.tag_to_string(h1)
             self.log('Found section:', section_title)
-            container = h1.parent
-            articles = list(self.parse_todays_sections(container))
             if i == 1:
+                container = h1.parent
+                articles = list(self.parse_todays_sections(container))
                 articles += list(self.parse_todays_sections(container.findNextSibling('div')))
+            else:
+                articles = list(self.parse_todays_sections(h1.findNextSibling('ol')))
             if articles:
                 feeds.append((section_title, articles))
         return feeds
