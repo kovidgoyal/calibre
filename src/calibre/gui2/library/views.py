@@ -323,11 +323,11 @@ class BooksView(QTableView):  # {{{
         self.allow_mirroring = True
         if self.is_library_view:
             self.set_pin_view_visibility(gprefs['book_list_split'])
-            self.pin_view.verticalScrollBar().valueChanged.connect(self.verticalScrollBar().setValue)
-            self.verticalScrollBar().valueChanged.connect(self.pin_view.verticalScrollBar().setValue)
             for wv in self, self.pin_view:
                 wv.selectionModel().currentRowChanged.connect(partial(self.mirror_selection_between_views, wv))
                 wv.selectionModel().selectionChanged.connect(partial(self.mirror_selection_between_views, wv))
+                wv.verticalScrollBar().valueChanged.connect(partial(self.mirror_vscroll, wv))
+                wv.verticalScrollBar().rangeChanged.connect(partial(self.mirror_vscroll, wv))
         else:
             self.pin_view.setVisible(False)
 
@@ -349,6 +349,16 @@ class BooksView(QTableView):  # {{{
             if ci.isValid():
                 nci = dest.model().index(nci.row(), ci.column())
             dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
+            self.allow_mirroring = True
+
+    def mirror_vscroll(self, src, *a):
+        if self.allow_mirroring:
+            dest = self.pin_view if src is self else self
+            if dest is self.pin_view and not dest.isVisible():
+                return
+            self.allow_mirroring = False
+            s, d = src.verticalScrollBar(), dest.verticalScrollBar()
+            d.setRange(s.minimum(), s.maximum()), d.setValue(s.value())
             self.allow_mirroring = True
     # }}}
 
@@ -958,10 +968,10 @@ class BooksView(QTableView):  # {{{
                 pass
 
     def current_book_state(self):
-        return self.current_book, self.horizontalScrollBar().value()
+        return self.current_book, self.horizontalScrollBar().value(), self.pin_view.horizontalScrollBar().value()
 
     def restore_current_book_state(self, state):
-        book_id, hpos = state
+        book_id, hpos, pv_hpos = state
         try:
             row = self.model().db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
@@ -969,6 +979,8 @@ class BooksView(QTableView):  # {{{
         self.set_current_row(row)
         self.scroll_to_row(row)
         self.horizontalScrollBar().setValue(hpos)
+        if self.pin_view.isVisible():
+            self.pin_view.horizontalScrollBar().setValue(pv_hpos)
 
     def set_current_row(self, row=0, select=True, for_sync=False):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
