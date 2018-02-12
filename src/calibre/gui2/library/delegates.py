@@ -65,7 +65,13 @@ class UpdateEditorGeometry(object):
 
         # Compute the maximum we can show if we consume the entire viewport
         pin_view = self.table_widget.pin_view
-        if pin_view.isVisible() and pin_view.geometry().x() <= initial_geometry.x():
+        is_pin_view, p = False, editor.parent()
+        while p is not None:
+            if p is pin_view:
+                is_pin_view = True
+                break
+            p = p.parent()
+        if is_pin_view:
             max_width = pin_view.horizontalScrollBar().geometry().width()
         else:
             view = self.table_widget
