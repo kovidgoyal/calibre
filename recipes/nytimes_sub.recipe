@@ -104,7 +104,7 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def parse_todays_page(self):
         soup = self.read_nyt_metadata()
-        section = soup.find(id='collection-todays-new-york-times')
+        section = soup.find(id=lambda x: x and x.startswith('collection-todays-new-york-times'))
         feeds = []
         for i, h1 in enumerate(section.findAll('h1')):
             if i == 0:
