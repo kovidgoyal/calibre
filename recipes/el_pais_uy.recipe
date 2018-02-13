@@ -1,6 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 ##
-# Last Edited:  2016-01-11 Carlos Alves <carlos@carlosalves.info>
+# Last Edited:  2018-02-13 Carlos Alves <carlosalves90@gmail.com>
 ##
 
 __license__ = 'GPL v3'
@@ -28,12 +28,11 @@ class General(BasicNewsRecipe):
     no_stylesheets = True
 
     oldest_article = 2
-    max_articles_per_feed = 200
+    max_articles_per_feed = 20
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'title'}),
-        dict(name='div', attrs={'class': 'pc'}),
-        dict(name='div', attrs={'class': 'image'}),
-        dict(name='div', attrs={'class': 'article-content'})
+        dict(name='h1', attrs={'class': 'title'}),
+        dict(name='div', attrs={'class': 'composite-captioned-image'}),
+        dict(name='div', attrs={'class': 'content-modules'})
     ]
 
     conversion_options = {
@@ -49,32 +48,27 @@ class General(BasicNewsRecipe):
         dict(name=['object', 'table'])]
 
     extra_css = '''
-                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
-                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
-                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
-                p {font-family:Arial,Helvetica,sans-serif;}
-                body{font-family: Verdana,Arial,Helvetica,sans-serif }
+                h1{font-family: Georgia,"Times New Roman",Times,serif}
+                h3{font-family: Georgia,"Times New Roman",Times,serif}
+                h2{font-family: Georgia,"Times New Roman",Times,serif}
+                p{font-family: Verdana,Arial,Helvetica,sans-serif}
+                body{font-family: Verdana,Arial,Helvetica,sans-serif}
                 img{margin-bottom: 0.4em; display:block;}
                 '''
+
     feeds = [
         (u'Ultimo Momento',
-         u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=umomento'),
-        (u'Editorial', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=editorial'),
-        (u'Nacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=nacional'),
-        (u'Internacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=internacional'),
-        (u'Espectaculos', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=espectaculos'),
-        (u'Ciudades', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=ciudades'),
-        (u'Economia', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=economia')
+         u'https://www.elpais.com.uy/rss/')
     ]
 
     def get_cover_url(self):
         cover_url = None
-        index = 'http://www.elpais.com.uy/impresa/'
+        index = 'https://www.elpais.com.uy/impresa/'
         soup = self.index_to_soup(index)
-        link_item = soup.find('div', attrs={'class': 'box-dotted-white'})
-        print link_item
+        link_item = soup.find('a', attrs={'class': 'page-link link-module'})
+        #print link_item
         if link_item:
-            cover_url = 'http://www.elpais.com.uy' + link_item.img['src']
+            cover_url = 'https://www.elpais.com.uy' + link_item.get('href')
         return cover_url
 
     def preprocess_html(self, soup):
