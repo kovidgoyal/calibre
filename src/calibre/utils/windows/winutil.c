@@ -152,51 +152,51 @@ format_last_error() {
     (LPTSTR) &lpMsgBuf,
     0,
     NULL
-	);
-	return lpMsgBuf;
+    );
+    return lpMsgBuf;
 }
 
 static PyObject *
 winutil_set_debug(PyObject *self, PyObject *args) {
-	PyObject *yes;
-	if (!PyArg_ParseTuple(args, "O", &yes)) return NULL;
-	DEBUG = (BOOL)PyObject_IsTrue(yes);
-	return Py_None;
+    PyObject *yes;
+    if (!PyArg_ParseTuple(args, "O", &yes)) return NULL;
+    DEBUG = (BOOL)PyObject_IsTrue(yes);
+    return Py_None;
 }
 
 static int
 gettmarg(PyObject *args, struct tm *p)
 {
-	int y;
-	memset((void *) p, '\0', sizeof(struct tm));
+    int y;
+    memset((void *) p, '\0', sizeof(struct tm));
 
-	if (!PyArg_Parse(args, "(iiiiiiiii)",
-			 &y,
-			 &p->tm_mon,
-			 &p->tm_mday,
-			 &p->tm_hour,
-			 &p->tm_min,
-			 &p->tm_sec,
-			 &p->tm_wday,
-			 &p->tm_yday,
-			 &p->tm_isdst))
-		return 0;
-	if (y < 1900) {
-		if (69 <= y && y <= 99)
-			y += 1900;
-		else if (0 <= y && y <= 68)
-			y += 2000;
-		else {
-			PyErr_SetString(PyExc_ValueError,
-					"year out of range");
-			return 0;
-		}
-	}
-	p->tm_year = y - 1900;
-	p->tm_mon--;
-	p->tm_wday = (p->tm_wday + 1) % 7;
-	p->tm_yday--;
-	return 1;
+    if (!PyArg_Parse(args, "(iiiiiiiii)",
+             &y,
+             &p->tm_mon,
+             &p->tm_mday,
+             &p->tm_hour,
+             &p->tm_min,
+             &p->tm_sec,
+             &p->tm_wday,
+             &p->tm_yday,
+             &p->tm_isdst))
+        return 0;
+    if (y < 1900) {
+        if (69 <= y && y <= 99)
+            y += 1900;
+        else if (0 <= y && y <= 68)
+            y += 2000;
+        else {
+            PyErr_SetString(PyExc_ValueError,
+                    "year out of range");
+            return 0;
+        }
+    }
+    p->tm_year = y - 1900;
+    p->tm_mon--;
+    p->tm_wday = (p->tm_wday + 1) % 7;
+    p->tm_yday--;
+    return 1;
 }
 
 static PyObject *
@@ -219,15 +219,15 @@ winutil_prepare_for_restart(PyObject *self, PyObject *args) {
 
 static PyObject *
 winutil_get_max_stdio(PyObject *self, PyObject *args) {
-	return Py_BuildValue("i", _getmaxstdio());
+    return Py_BuildValue("i", _getmaxstdio());
 }
 
 static PyObject *
 winutil_set_max_stdio(PyObject *self, PyObject *args) {
-	int num = 0;
-	if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
-	if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
-	Py_RETURN_NONE;
+    int num = 0;
+    if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
+    if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -241,11 +241,11 @@ winutil_getenv(PyObject *self, PyObject *args) {
 
 static PyObject*
 winutil_move_file(PyObject *self, PyObject *args) {
-	Py_UNICODE *a, *b;
-	unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
-	if (!PyArg_ParseTuple(args, "uu|I", &a, &b, &flags)) return NULL;
-	if (!MoveFileExW(a, b, flags)) { PyErr_SetFromWindowsErr(0); return NULL; }
-	Py_RETURN_NONE;
+    Py_UNICODE *a, *b;
+    unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
+    if (!PyArg_ParseTuple(args, "uu|I", &a, &b, &flags)) return NULL;
+    if (!MoveFileExW(a, b, flags)) { PyErr_SetFromWindowsErr(0); return NULL; }
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -298,16 +298,16 @@ winutil_localeconv(PyObject *self) {
 static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
 {
-	PyObject *tup = NULL;
-	struct tm buf;
-	const char *_fmt;
-	size_t fmtlen, buflen;
-	wchar_t *outbuf = NULL, *fmt = NULL;
-	size_t i;
+    PyObject *tup = NULL;
+    struct tm buf;
+    const char *_fmt;
+    size_t fmtlen, buflen;
+    wchar_t *outbuf = NULL, *fmt = NULL;
+    size_t i;
     memset((void *) &buf, '\0', sizeof(buf));
 
-	if (!PyArg_ParseTuple(args, "s|O:strftime", &_fmt, &tup))
-		return NULL;
+    if (!PyArg_ParseTuple(args, "s|O:strftime", &_fmt, &tup))
+        return NULL;
 
     if (mbstowcs_s(&fmtlen, NULL, 0, _fmt, strlen(_fmt)) != 0) {
         PyErr_SetString(PyExc_ValueError, "Failed to convert fmt to wchar");
@@ -320,24 +320,24 @@ winutil_strftime(PyObject *self, PyObject *args)
         goto end;
     }
 
-	if (tup == NULL) {
-		time_t tt = time(NULL);
-		if(localtime_s(&buf, &tt) != 0) {
+    if (tup == NULL) {
+        time_t tt = time(NULL);
+        if(localtime_s(&buf, &tt) != 0) {
             PyErr_SetString(PyExc_ValueError, "Failed to get localtime()");
             goto end;
         }
-	} else if (!gettmarg(tup, &buf))
-	    goto end;
+    } else if (!gettmarg(tup, &buf))
+        goto end;
 
-	if (buf.tm_mon == -1)
-	    buf.tm_mon = 0;
-	else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
+    if (buf.tm_mon == -1)
+        buf.tm_mon = 0;
+    else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
             PyErr_SetString(PyExc_ValueError, "month out of range");
             goto end;
         }
-	if (buf.tm_mday == 0)
-	    buf.tm_mday = 1;
-	else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
+    if (buf.tm_mday == 0)
+        buf.tm_mday = 1;
+    else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
             PyErr_SetString(PyExc_ValueError, "day of month out of range");
             goto end;
         }
@@ -359,9 +359,9 @@ winutil_strftime(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_ValueError, "day of week out of range");
             goto end;
         }
-	if (buf.tm_yday == -1)
-	    buf.tm_yday = 0;
-	else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
+    if (buf.tm_yday == -1)
+        buf.tm_yday = 0;
+    else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
             PyErr_SetString(PyExc_ValueError, "day of year out of range");
             goto end;
         }
@@ -371,28 +371,28 @@ winutil_strftime(PyObject *self, PyObject *args)
             goto end;
         }
 
-	for (i = 5*fmtlen; ; i += i) {
-		outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
-		if (outbuf == NULL) {
-			PyErr_NoMemory(); goto end;
-		}
-		buflen = wcsftime(outbuf, i, fmt, &buf);
-		if (buflen > 0 || i >= 256 * fmtlen) {
-			/* If the buffer is 256 times as long as the format,
-			   it's probably not failing for lack of room!
-			   More likely, the format yields an empty result,
-			   e.g. an empty format, or %Z when the timezone
-			   is unknown. */
-			PyObject *ret;
-			ret = PyUnicode_FromWideChar(outbuf, buflen);
-			PyMem_Free(outbuf); PyMem_Free(fmt);
-			return ret;
-		}
-		PyMem_Free(outbuf);
+    for (i = 5*fmtlen; ; i += i) {
+        outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
+        if (outbuf == NULL) {
+            PyErr_NoMemory(); goto end;
+        }
+        buflen = wcsftime(outbuf, i, fmt, &buf);
+        if (buflen > 0 || i >= 256 * fmtlen) {
+            /* If the buffer is 256 times as long as the format,
+               it's probably not failing for lack of room!
+               More likely, the format yields an empty result,
+               e.g. an empty format, or %Z when the timezone
+               is unknown. */
+            PyObject *ret;
+            ret = PyUnicode_FromWideChar(outbuf, buflen);
+            PyMem_Free(outbuf); PyMem_Free(fmt);
+            return ret;
+        }
+        PyMem_Free(outbuf);
 #if defined _MSC_VER && _MSC_VER >= 1400 && defined(__STDC_SECURE_LIB__)
-		/* VisualStudio .NET 2005 does this properly */
-		if (buflen == 0 && errno == EINVAL) {
-			PyErr_SetString(PyExc_ValueError, "Invalid format string");
+        /* VisualStudio .NET 2005 does this properly */
+        if (buflen == 0 && errno == EINVAL) {
+            PyErr_SetString(PyExc_ValueError, "Invalid format string");
             goto end;
         }
 #endif
@@ -405,23 +405,23 @@ end:
 static PyMethodDef WinutilMethods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
-    		"Get paths to common system folders. "
-    		"See windows documentation of SHGetFolderPath. "
-    		"The paths are returned as unicode objects. csidl_id should be one "
-    		"of the symbolic constants defined in this module. You can also OR "
-    		"a symbolic constant with CSIDL_FLAG_CREATE to force the operating "
-    		"system to create a folder if it does not exist."},
+            "Get paths to common system folders. "
+            "See windows documentation of SHGetFolderPath. "
+            "The paths are returned as unicode objects. csidl_id should be one "
+            "of the symbolic constants defined in this module. You can also OR "
+            "a symbolic constant with CSIDL_FLAG_CREATE to force the operating "
+            "system to create a folder if it does not exist."},
 
     {"argv", winutil_argv, METH_VARARGS,
     "argv() -> list of command line arguments\n\n"
-    		"Get command line arguments as unicode objects. Note that the "
-    		"first argument will be the path to the interpreter, *not* the "
-    		"script being run. So to replace sys.argv, you should use "
-    		"sys.argv[1:] = argv()[1:]."},
+            "Get command line arguments as unicode objects. Note that the "
+            "first argument will be the path to the interpreter, *not* the "
+            "script being run. So to replace sys.argv, you should use "
+            "sys.argv[1:] = argv()[1:]."},
 
-	{"set_debug", winutil_set_debug, METH_VARARGS,
-			"set_debug(bool)\n\nSet debugging mode."
-	},
+    {"set_debug", winutil_set_debug, METH_VARARGS,
+            "set_debug(bool)\n\nSet debugging mode."
+    },
 
     {"strftime", winutil_strftime, METH_VARARGS,
         "strftime(format[, tuple]) -> string\n\
