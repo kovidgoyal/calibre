@@ -550,7 +550,7 @@ def strftime(fmt, t=None):
     else:
         ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
     if early_year:
-        ans = ans.replace('_early year hack##', str(orig_year))
+        ans = ans.replace(u'_early year hack##', unicode(orig_year))
     return ans
 
 
