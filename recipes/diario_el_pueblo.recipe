@@ -11,7 +11,6 @@
 ##
 __license__ = 'GPL v3'
 __author__ = '2013, Carlos Alves <carlosalves90@gmail.com>'
-
 '''
 diarioelpueblo.com.uy
 '''
@@ -37,11 +36,18 @@ class General(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class': 'post-alt blog'})]
 
     remove_tags = [
+        dict(
+            name='div',
+            attrs={
+                'class': ['hr', 'titlebar', 'volver-arriba-right', 'navigation']
+            }
+        ),
         dict(name='div', attrs={
-             'class': ['hr', 'titlebar', 'volver-arriba-right', 'navigation']}),
-        dict(name='div', attrs={'id': 'comment',
-                                'id': 'suckerfish', 'id': 'crp_related'}),
-        dict(name='h3', attrs={'class': ['post_date']}),
+            'id': 'comment suckerfish crp_related'.split(),
+        }),
+        dict(name='h3', attrs={
+            'class': ['post_date']
+        }),
         dict(name=['object', 'link'])
     ]
 
@@ -54,9 +60,7 @@ class General(BasicNewsRecipe):
                 img{margin-bottom: 0.4em; display:block;}
                 '''
 
-    feeds = [
-        (u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')
-    ]
+    feeds = [(u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')]
 
     def get_cover_url(self):
         return None

@@ -96,6 +96,7 @@ class TrimImage(QDialog):
         if self.canvas.trim_image():
             self.accept()
 
+
 if __name__ == '__main__':
     app = QApplication([])
     fname = sys.argv[-1]
