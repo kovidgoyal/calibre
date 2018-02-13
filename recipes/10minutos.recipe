@@ -1,17 +1,17 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 ##
 # Title:        Diario 10minutos.com.uy News and Sports Calibre Recipe
-# Contact:      Carlos Alves - <carlos@carlosalves.info>
+# Contact:      Carlos Alves - <carlosalves90@gmail.com>
 ##
 # License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-# Copyright:    Carlos Alves - <carlos@carlosalves.info>
+# Copyright:    Carlos Alves - <carlosalves90@gmail.com>
 ##
 # Written:      September 2013
-# Last Edited:  2016-01-11
+# Last Edited:  2018-02-13
 ##
 
 __license__ = 'GPL v3'
-__author__ = '2016, Carlos Alves <carlos@carlosalves.info>'
+__author__ = '2016, Carlos Alves <carlosalves90@gmail.com>'
 '''
 10minutos.com.uy
 '''
@@ -44,17 +44,20 @@ class General(BasicNewsRecipe):
     ]
 
     extra_css = '''
-                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
-                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
-                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
-                p {font-family:Arial,Helvetica,sans-serif;}
+                h1{font-family: Georgia,"Times New Roman",Times,serif}
+                h3{font-family: Georgia,"Times New Roman",Times,serif}
+                h2{font-family: Georgia,"Times New Roman",Times,serif}
+                p{font-family: Verdana,Arial,Helvetica,sans-serif}
+                body{font-family: Verdana,Arial,Helvetica,sans-serif}
+                img{margin-bottom: 0.4em; display:block;}
                 '''
+
     feeds = [
         (u'Articulos', u'http://10minutos.com.uy/?feed=rss2')
     ]
 
     def get_cover_url(self):
-        return 'http://10minutos.com.uy/a/img/logo.png'
+        return None
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
