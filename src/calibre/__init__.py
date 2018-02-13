@@ -543,9 +543,9 @@ def strftime(fmt, t=None):
         t[0] = replacement
     ans = None
     if iswindows:
-        if isinstance(fmt, unicode):
-            fmt = fmt.encode('mbcs', 'replace')
-        fmt = fmt.replace(b'%e', b'%#d')
+        if isinstance(fmt, bytes):
+            fmt = fmt.decode('mbcs', 'replace')
+        fmt = fmt.replace(u'%e', u'%#d')
         ans = plugins['winutil'][0].strftime(fmt, t)
     else:
         ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
