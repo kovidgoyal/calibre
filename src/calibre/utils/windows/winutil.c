@@ -232,11 +232,15 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
 
 static PyObject *
 winutil_getenv(PyObject *self, PyObject *args) {
-    const wchar_t *q;
+    const Py_UNICODE *q;
     if (!PyArg_ParseTuple(args, "u", &q)) return NULL;
-    wchar_t *ans = _wgetenv(q);
-    if (ans == NULL) Py_RETURN_NONE;
-    return PyUnicode_FromWideChar(ans, wcslen(ans));
+    wchar_t *buf = NULL;
+    size_t sz = 0;
+    PyObject *ans = NULL;
+    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL) { ans = Py_None; Py_INCREF(ans); }
+    else ans = PyUnicode_FromWideChar(buf, sz);
+    if (buf) free(buf);
+    return ans;
 }
 
 static PyObject*
