@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import datetime
 import re
 
+from calibre import strftime
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -52,9 +53,9 @@ def date_from_url(url):
 
 def format_date(d):
     try:
-        return d.strftime(' [%a, %d %b %Y]').decode('utf-8')
+        return strftime(' [%a, %d %b %Y]', d)
     except Exception:
-        return d.strftime(' [%Y/%m/%d]').decode('utf-8')
+        return strftime(' [%Y/%m/%d]', d)
 
 
 def classes(classes):
@@ -101,7 +102,7 @@ class NewYorkTimes(BasicNewsRecipe):
         pdate = soup.find('meta', attrs={'name':'pdate', 'content': True})['content']
         date = strptime(pdate, '%Y%m%d', assume_utc=False, as_utc=False)
         self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(date.strftime('%Y/%m/%d'))
-        self.timefmt = date.strftime(' [%d %b, %Y]')
+        self.timefmt = strftime(' [%d %b, %Y]', date)
         return soup
 
     def parse_todays_sections(self, container):
