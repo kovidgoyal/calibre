@@ -11,6 +11,8 @@ from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 is_web_edition = True
+oldest_web_edition_article = 7  # days
+
 # The sections to download when downloading the web edition, comment out
 # the section you are not interested in
 web_sections = [
@@ -155,12 +157,21 @@ class NewYorkTimes(BasicNewsRecipe):
                     p = article.find(**classes('summary'))
                     if p is not None:
                         desc = self.tag_to_string(p)
-                    yield {'title': title, 'url': url, 'description': desc}
+                    date = ''
+                    d = date_from_url(url)
+                    if d is not None:
+                        date = format_date(d)
+                        today = datetime.date.today()
+                        delta = today - d
+                        if delta.days > oldest_web_edition_article:
+                            self.log.debug('\tSkipping article', title, 'as it is too old')
+                            continue
+                    yield {'title': title, 'url': url, 'description': desc, 'date': date}
 
     def parse_web_section(self, soup, slug):
 
         def log(article):
-            self.log('\t', article['title'], ':', article['url'])
+            self.log('\t', article['title'] + article['date'], ':', article['url'])
             if article.get('description'):
                 self.log('\t\t', article['description'])
 
