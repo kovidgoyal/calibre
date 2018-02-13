@@ -4,8 +4,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from calibre.web.feeds.news import BasicNewsRecipe
+import datetime
+import re
+
 from calibre.utils.date import strptime
+from calibre.web.feeds.news import BasicNewsRecipe
 
 is_web_edition = False
 # The sections to download when downloading the web edition, comment out
@@ -36,6 +39,20 @@ web_sections = [
     ('Obituaries', 'obituaries'),
     ('Sunday Magazine', 'magazine')
 ]
+url_date_pat = re.compile(r'/(2\d\d\d)/(\d\d)/(\d\d)/')
+
+
+def date_from_url(url):
+    m = url_date_pat.search(url)
+    if m is not None:
+        return datetime.date(*map(int, m.groups()))
+
+
+def format_date(d):
+    try:
+        return d.strftime(' [%a, %d %b %Y]').decode('utf-8')
+    except Exception:
+        return d.strftime(' [%Y/%m/%d]').decode('utf-8')
 
 
 def classes(classes):
@@ -71,7 +88,7 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
-        dict(id='newsletter-promo'.split()),
+        dict(id='newsletter-promo supported-by-ad'.split()),
         classes('story-print-citation'),
     ]
 
@@ -98,9 +115,14 @@ class NewYorkTimes(BasicNewsRecipe):
                 s = p.find(**classes('summary'))
                 if s is not None:
                     desc = self.tag_to_string(s)
-            self.log('\t', title, ': ', url)
+            date = ''
+            d = date_from_url(url)
+            if d is not None:
+                date = format_date(d)
+
+            self.log('\t', title + date, ': ', url)
             self.log('\t\t', desc)
-            yield {'title': title, 'url': url, 'description': desc}
+            yield {'title': title, 'url': url, 'description': desc, 'date': date}
 
     def parse_todays_page(self):
         soup = self.read_nyt_metadata()
