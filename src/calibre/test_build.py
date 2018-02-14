@@ -144,7 +144,7 @@ class BuildTest(unittest.TestCase):
         for fmt in (fmt, fmt.encode('ascii')):
             x = winutil.strftime(fmt, t)
             au(x, 'strftime')
-            self.ae(unicode(time.strftime(fmt, t)), x)
+            self.assertEqual(unicode(time.strftime(fmt, t)), x)
 
     def test_sqlite(self):
         import sqlite3
