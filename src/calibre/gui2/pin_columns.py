@@ -17,6 +17,7 @@ class PinTableView(QTableView):
         self.books_view = books_view
         self.verticalHeader().close()
         self.splitter = None
+        self.disable_save_state = False
 
     @property
     def column_map(self):
@@ -49,6 +50,7 @@ class PinTableView(QTableView):
         return old_state
 
     def apply_state(self, state):
+        self.disable_save_state = True  # moveSection() can cause save_state() to be called
         h = self.column_header
         cmap = {}
         hidden = state.get('hidden_columns', [])
@@ -89,6 +91,7 @@ class PinTableView(QTableView):
             if not h.isSectionHidden(i) and h.sectionSize(i) < 3:
                 sz = h.sectionSizeHint(i)
                 h.resizeSection(i, sz)
+        self.disable_save_state = False
 
     def get_state(self):
         h = self.column_header
@@ -107,7 +110,7 @@ class PinTableView(QTableView):
 
     def save_state(self):
         db = getattr(self.model(), 'db', None)
-        if db is not None:
+        if db is not None and not self.disable_save_state:
             state = self.get_state()
             db.new_api.set_pref('books view split pane state', state)
             if self.splitter is not None:
@@ -117,10 +120,10 @@ class PinTableView(QTableView):
         db = getattr(self.model(), 'db', None)
         if db is not None:
             state = db.prefs.get('books view split pane state', None)
-            if state:
-                self.apply_state(state)
             if self.splitter is not None:
                 self.splitter.restore_state()
+            if state:
+                self.apply_state(state)
 
 
 class PinContainer(QSplitter):
