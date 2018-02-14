@@ -120,6 +120,7 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(iswindows, 'winutil is windows only')
     def test_winutil(self):
         from calibre.constants import plugins
+        from calibre import strftime
         winutil = plugins['winutil'][0]
 
         def au(x, name):
@@ -142,9 +143,9 @@ class BuildTest(unittest.TestCase):
         t = time.localtime()
         fmt = u'%Y%a%b%e%H%M'
         for fmt in (fmt, fmt.encode('ascii')):
-            x = winutil.strftime(fmt, t)
+            x = strftime(fmt, t)
             au(x, 'strftime')
-            self.assertEqual(unicode(time.strftime(fmt, t)), x)
+            self.assertEqual(unicode(time.strftime(fmt.replace('%e', '%#d'), t)), x)
 
     def test_sqlite(self):
         import sqlite3
