@@ -237,8 +237,8 @@ winutil_getenv(PyObject *self, PyObject *args) {
     wchar_t *buf = NULL;
     size_t sz = 0;
     PyObject *ans = NULL;
-    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL) { ans = Py_None; Py_INCREF(ans); }
-    else ans = PyUnicode_FromWideChar(buf, sz);
+    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL || sz == 0) { ans = Py_None; Py_INCREF(ans); }
+    else ans = PyUnicode_FromWideChar(buf, sz - 1);
     if (buf) free(buf);
     return ans;
 }
