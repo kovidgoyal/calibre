@@ -864,12 +864,13 @@ There are several possible things I know of, that can cause this:
       clicking on the :guilabel:`Add books` button or the :guilabel:`Save to
       Disk button`, then you have some software that has installed broken Shell
       extensions on your computer. Known culprits include: *SpiderOak*, *odrive
-      sync* and *Dell Backup and Recovery*. If you have one of these, uninstall
-      them and you will be fine. You can also use the `NirSoft Shell Extension
-      Viewer <https://www.nirsoft.net/utils/shexview.html>`_ to see what shell
-      extensions are installed on your system and disable them individually, if
-      you dont want to uninstall the full program.  Remember to use "Restart
-      Explorer" or reboot your computer after disabling the shell extensions.
+      sync* and *Dell Backup and Recovery* and *NetDrive*. If you have one of
+      these, uninstall them and you will be fine. You can also use the `NirSoft
+      Shell Extension Viewer <https://www.nirsoft.net/utils/shexview.html>`_ to
+      see what shell extensions are installed on your system and disable them
+      individually, if you dont want to uninstall the full program.  Remember
+      to use "Restart Explorer" or reboot your computer after disabling the
+      shell extensions.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with calibre. First reboot your computer in safe
