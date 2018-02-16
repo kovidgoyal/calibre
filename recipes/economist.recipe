@@ -83,6 +83,8 @@ class Economist(BasicNewsRecipe):
         ),
         dict(attrs={
                 'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
+        dict(attrs={
+                'class': lambda x: x and 'newsletter-form' in x.split()}),
         classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section')
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
@@ -169,15 +171,16 @@ class Economist(BasicNewsRecipe):
     def economist_parse_index(self, soup):
         img = soup.find(attrs={'srcset': True, 'class': lambda x: x and 'print-edition__cover-widget__image' in x.split()})
         if img is not None:
+            self.log('Looking for cover...')
             for part in img['srcset'].split():
-                if part.startswith('//'):
-                    self.cover_url = 'https:' + part
+                if part.startswith('/'):
+                    part = part.replace('200-width', '640-width')
+                    self.cover_url = 'https://www.economist.com' + part
+                    self.log('Got cover:', self.cover_url)
                     break
-
-        sections = soup.findAll(
-            'div', attrs={'class': 'list__title',
-                          'data-reactid': True}
-        )
+        if img is None: 
+            self.log('No cover found')
+        sections = soup.findAll('div', attrs={'class': 'list__title'})
         if sections:
             feeds = []
             for section in sections:
