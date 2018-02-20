@@ -83,7 +83,7 @@ class Economist(BasicNewsRecipe):
         ),
         dict(attrs={
                 'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
-        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section')
+        classes('share-links-header teaser--wrapped latest-updates-panel__container latest-updates-panel__article-link blog-post__section newsletter-form')
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
@@ -170,9 +170,9 @@ class Economist(BasicNewsRecipe):
         img = soup.find(attrs={'srcset': True, 'class': lambda x: x and 'print-edition__cover-widget__image' in x.split()})
         if img is not None:
             for part in img['srcset'].split():
-                if part.startswith('//'):
+                if part.startswith('/'):
                     part = part.replace('200-width', '640-width')
-                    self.cover_url = 'https:' + part
+                    self.cover_url = 'https://www.economist.com' + part
                     self.log('Got cover:', self.cover_url)
                     break
 
