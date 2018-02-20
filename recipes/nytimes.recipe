@@ -92,7 +92,7 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
         dict(id='newsletter-promo supported-by-ad'.split()),
-        classes('story-print-citation'),
+        classes('story-print-citation supported-by'),
     ]
 
     def read_nyt_metadata(self):
