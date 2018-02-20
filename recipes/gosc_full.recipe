@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
-                 2013-2016, Tomasz Długosz, tomek3d@gmail.com'
+                 2013-2018, Tomasz Długosz, tomek3d@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
@@ -21,7 +21,7 @@ class GN(BasicNewsRecipe):
     language = 'pl'
     remove_javascript = True
     ignore_duplicate_articles = {'url'}
-    masthead_url = 'http://m.gosc.pl/static/themes/czerwony_gosc-mobile/logo.png'
+    masthead_url = 'http://gosc.pl/static/images/base/logotypes/100x68/gosc-niedzielny.png'
 
     def find_last_issue(self):
         raw = self.index_to_soup(
@@ -53,12 +53,12 @@ class GN(BasicNewsRecipe):
         feeds.append((u'Na dobry początek', articles))
         # columns:
         for addr in soup.findAll('a', attrs={'href': re.compile('kategoria')}):
-            if addr.string != u'wszystkie artyku\u0142y z tej kategorii \xbb':
+            if not addr.span:
                 main_block = self.index_to_soup(
                     'http://www.gosc.pl' + addr['href'])
                 articles = list(self.find_articles(main_block))
                 if len(articles) > 0:
-                    section = addr.string
+                    section = addr.contents[0]
                     feeds.append((section, articles))
         # not assigned content:
         page = 1
@@ -77,11 +77,11 @@ class GN(BasicNewsRecipe):
         return feeds
 
     def find_articles(self, main_block):
-        for a in main_block.findAll('div', attrs={'class': ['attachmentContent']}):
+        for a in main_block.findAll('div', attrs={'class': ['infoBox']}):
             art = a.find('a')
             yield {
                 'title': self.tag_to_string(art),
-                'url': 'http://www.gosc.pl' + art['href'],
+                'url': 'http://www.gosc.pl' + art['href'].split('.')[0],
                 'date': self.tag_to_string(a.find('b', attrs={'class': 'time'})).replace('DODANE', ' '),
                 'description': self.tag_to_string(a.find('div', attrs={'class': 'txt'}))
             }
@@ -113,12 +113,13 @@ class GN(BasicNewsRecipe):
         return soup
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'cf txt'})
+        dict(name='div', attrs={'class': ['cf txt ', 'cf txt att-audio']})
     ]
 
     remove_tags = [
-        dict(name='p', attrs={'class': ['r tr', 'l l-2', 'wykop', 'l l-2 doc-source']}),
-        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl','txt__social-icons','txt__tags']}),
+        dict(name='p', attrs={'class': 'l l-2 doc-source'}),
+        dict(name='span', attrs={'class': 'wykop'}),
+        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl','txt__social-icons','txt__tags','fb-like fb_iframe_widget', 'jp-audio', 'jp-jplayer']}),
         dict(name='div', attrs={'id': 'vote'}),
         dict(name='link'),
         dict(name='a', attrs={'class': 'img_enlarge'})
@@ -127,6 +128,9 @@ class GN(BasicNewsRecipe):
     extra_css = '''
             h1 {font-size:150%}
             p.limiter {font-size:150%; font-weight: bold}
+            p.gn_subtitle {font-weight: bold}
             span.cm-i-a {text-transform:uppercase;font-size:50%}
             span.cm-i-p {font-style:italic; font-size:70%;text-align:right}
+            span.gn_brb {color: red; font-weight: bold}
+            div.txt__lead {font-weight: bold; font-size:150%}
         '''
