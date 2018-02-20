@@ -91,6 +91,7 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
+        dict(attrs={'class': lambda x: x and 'supported-by' in x.split()}),
         dict(id='newsletter-promo supported-by-ad'.split()),
         classes('story-print-citation supported-by'),
     ]
