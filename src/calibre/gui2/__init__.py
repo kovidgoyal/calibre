@@ -844,6 +844,11 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
+        if not isosx and not iswindows:
+            # Qt 5.10.1 on Linux resets the global font on first event loop tick.
+            # So workaround it by setting the font once again in a timer.
+            font_from_prefs = self.font()
+            QTimer.singleShot(0, lambda : QApplication.setFont(font_from_prefs))
         self.line_height = max(12, QFontMetrics(self.font()).lineSpacing())
 
         dl = QLocale(get_lang())
