@@ -10,6 +10,7 @@ HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 7  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 10  # pixels
+LONG_TAP_THRESHOLD = 500  # milliseconds
 
 gesture_id = 0
 
@@ -39,7 +40,7 @@ def max_displacement(points):
 def interpret_single_gesture(touch, gesture_id):
     max_x_displacement = max_displacement(touch.viewport_x)
     max_y_displacement = max_displacement(touch.viewport_y)
-    ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id}
+    ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id, 'start_time': touch.ctime}
     if max(max_x_displacement, max_y_displacement) < TAP_THRESHOLD:
         ans.type = 'tap'
         ans.viewport_x = touch.viewport_x[0]
@@ -234,15 +235,10 @@ class BookTouchHandler(TouchHandler):
         gesture.from_side_margin = self.for_side_margin
         if gesture.type is 'tap':
             if gesture.is_held:
-                if not self.for_side_margin and not self.handled_tap_hold:
+                if not self.for_side_margin and not self.handled_tap_hold and window.performance.now() - gesture.start_time >= LONG_TAP_THRESHOLD:
                     self.handled_tap_hold = True
-                    fake_click = new MouseEvent('click', {
-                        'clientX': gesture.viewport_x, 'clientY':gesture.viewport_y, 'buttons': 1,
-                        'view':window.self, 'bubbles': True, 'cancelable': True,
-                    })
-                    elem = document.elementFromPoint(fake_click.clientX, fake_click.clientY)
-                    if elem:
-                        elem.dispatchEvent(fake_click)
+                    gesture.type = 'long-tap'
+                    get_boss().handle_gesture(gesture)
                 return
             if not gesture.active:
                 if self.for_side_margin or not tap_on_link(gesture):

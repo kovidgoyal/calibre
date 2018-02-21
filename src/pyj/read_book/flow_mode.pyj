@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from select import word_at_point
+
 from dom import set_css
 from keycodes import get_key
 from read_book.globals import get_boss
@@ -164,6 +166,14 @@ def handle_gesture(gesture):
         scroll_by_page(True)
     elif gesture.type is 'next-page':
         scroll_by_page(False)
+    elif gesture.type is 'long-tap':
+        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
+        if r:
+            s = document.getSelection()
+            s.removeAllRanges()
+            s.addRange(r)
+            get_boss().send_message('lookup_word', word=str(r))
+
 
 anchor_funcs = {
     'pos_for_elem': def pos_for_elem(elem):

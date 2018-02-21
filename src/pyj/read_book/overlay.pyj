@@ -16,6 +16,7 @@ from read_book.goto import create_goto_panel
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
+from read_book.word_actions import create_word_actions_panel
 from session import get_device_uuid
 from widgets import create_button, create_spinner
 
@@ -309,6 +310,26 @@ class TOCOverlay: # {{{
             self.overlay.view.goto_named_destination(dest, frag)
 # }}}
 
+class WordActionsOverlay:  # {{{
+
+    def __init__(self, word, overlay):
+        self.word = word
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def show(self, container):
+        container.style.backgroundColor = get_color('window-background')
+        container.appendChild(E.div(
+            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
+            E.h2(_('Lookup: {}').format(self.word)),
+                E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
+            ))
+        container.appendChild(E.div())
+        create_word_actions_panel(container, self.word, self.overlay.hide)
+# }}}
+
 class PrefsOverlay: # {{{
 
     def __init__(self, overlay):
@@ -330,13 +351,15 @@ class PrefsOverlay: # {{{
 
 # }}}
 
-class FontSizeOverlay:
+class FontSizeOverlay:  # {{{
 
     def __init__(self, overlay):
         self.overlay = overlay
 
     def show(self, container):
         create_font_size_panel(container, self.overlay.hide_current_panel)
+# }}}
+
 
 class Overlay:
 
@@ -438,4 +461,9 @@ class Overlay:
     def show_font_size_chooser(self):
         self.hide_current_panel()
         self.panels.push(FontSizeOverlay(self))
+        self.show_current_panel()
+
+    def show_word_actions(self, word):
+        self.hide_current_panel()
+        self.panels.push(WordActionsOverlay(word, self))
         self.show_current_panel()

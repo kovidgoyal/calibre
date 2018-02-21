@@ -1,0 +1,26 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+from book_list.item_list import create_item, create_item_list
+
+
+def lookup(close_panel_func, url):
+    close_panel_func()
+    window.open(url, '_blank')
+
+
+def lookup_items(word, close_panel_func):
+    eword = encodeURIComponent(word)
+    items = [
+        create_item(_('Lookup in Google dictionary'), lookup.bind(word, close_panel_func, f'https://google.com/search?q=define:{eword}')),
+        create_item(_('Lookup in Wordnik'), lookup.bind(word, close_panel_func, f'https://www.wordnik.com/words/{eword}')),
+        create_item(_('Search the internet'), lookup.bind(word, close_panel_func, f'https://google.com/search?q={eword}')),
+    ]
+    return items
+
+
+def create_word_actions_panel(container, word, close_panel_func):
+    list_container = container.lastChild
+    create_item_list(list_container, lookup_items(word, close_panel_func))

@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 import traceback
 from elementmaker import E
+from select import word_at_point
 
 from dom import set_css
 from keycodes import get_key
@@ -507,6 +508,13 @@ def handle_gesture(gesture):
         scroll_by_page(True, False)
     elif gesture.type is 'next-page':
         scroll_by_page(False, False)
+    elif gesture.type is 'long-tap':
+        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
+        if r:
+            s = document.getSelection()
+            s.removeAllRanges()
+            s.addRange(r)
+            get_boss().send_message('lookup_word', word=str(r))
 
 
 anchor_funcs = {

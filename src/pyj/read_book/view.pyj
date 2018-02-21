@@ -150,6 +150,7 @@ class View:
             'error': self.on_iframe_error,
             'next_spine_item': self.on_next_spine_item,
             'next_section': self.on_next_section,
+            'lookup_word': self.on_lookup_word,
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
@@ -173,6 +174,9 @@ class View:
     @property
     def iframe(self):
         return self.iframe_wrapper.iframe
+
+    def on_lookup_word(self, data):
+        self.overlay.show_word_actions(data.word)
 
     def left_margin_clicked(self, event):
         if event.button is 0:
