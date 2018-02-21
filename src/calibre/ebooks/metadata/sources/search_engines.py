@@ -230,7 +230,11 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     root = query(br, url, 'google', dump_raw, timeout=timeout)
     ans = []
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="g"]'):
-        a = div.xpath('descendant::h3[@class="r"]/a[@href]')[0]
+        try:
+            a = div.xpath('descendant::h3[@class="r"]/a[@href]')[0]
+        except IndexError:
+            log('Ignoring div with no descendant')
+            continue
         title = tostring(a)
         try:
             c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
