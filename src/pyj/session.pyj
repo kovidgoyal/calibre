@@ -38,6 +38,7 @@ defaults = {
     'controls_help_shown_count': 0,
     'header': {},
     'footer': {'right': 'progress'},
+    'word_actions': v'[]',
 }
 
 is_local_setting = {

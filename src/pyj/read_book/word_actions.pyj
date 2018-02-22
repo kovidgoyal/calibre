@@ -2,8 +2,14 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
 from gettext import gettext as _
+
+from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
+from dom import clear, ensure_id
+from modals import error_dialog
+from widgets import create_button
 
 
 def lookup(close_panel_func, url):
@@ -11,16 +17,126 @@ def lookup(close_panel_func, url):
     window.open(url, '_blank')
 
 
-def lookup_items(word, close_panel_func):
+def toggle_custom_container(container_id, visible):
+    container = document.getElementById(container_id)
+    if container:
+        c = container.lastChild
+        list_container = c.previousSibling
+        list_container.style.display = 'none' if visible else 'block'
+        c.style.display = 'block' if visible else 'none'
+        return c
+
+
+def add(container_id):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    c = container.lastChild
+    name = c.querySelector('input[name="name"]').value
+    url = c.querySelector('input[name="url"]').value
+    if not name or not url:
+        error_dialog(_('Required fields missing'), _(
+            'You must specify both a name and a URL.'))
+        return
+    sd = get_session_data()
+    actions = sd.get('word_actions', v'[]')
+    actions.push({'title': name, 'url': url})
+    sd.set('word_actions', actions)
+    toggle_custom_container(container_id, False)
+    populate_list(container)
+
+
+def add_custom(container_id):
+    container = toggle_custom_container(container_id, True)
+    if not container:
+        return
+    clear(container)
+    container.appendChild(E.div(style="margin: 1rem",
+        _('Enter the name and URL for a custom lookup source. The URL must contain '
+          ' {0} in it, which will be replaced by the word being looked up. For example: '
+          ' {1}').format('{word}', 'https://google.com/search?q={word}')
+    ))
+    do_add = add.bind(None, container_id)
+    container.appendChild(E.form(E.button(style='display:none', onclick=do_add), E.table(style='margin: 1rem',
+        E.tr(E.td(_('Name:') + '\xa0'), E.td(E.input(type='text', name='name'))),
+        E.tr(E.td('\xa0'), E.td('\xa0')),
+        E.tr(E.td(_('URL:') + '\xa0'), E.td(E.input(type='url', name='url'))),
+    )))
+    container.append(E.div(style='margin: 1rem',
+        create_button(_('Add'), 'plus', add.bind(None, container_id), highlight=True),
+        '\xa0',
+        create_button(_('Cancel'), toggle_custom_container.bind(None, container_id, False)),
+    ))
+    container.querySelector('input').focus()
+
+
+def remove(container_id, num):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    sd = get_session_data()
+    actions = sd.get('word_actions', v'[]')
+    actions.splice(num, 1)
+    sd.set('word_actions', actions)
+    toggle_custom_container(container_id, False)
+    populate_list(container)
+
+
+def remove_custom(container_id):
+    container = toggle_custom_container(container_id, True)
+    if not container:
+        return
+    clear(container)
+    container.appendChild(E.div(style="margin: 1rem", _('Choose a custom lookup to remove')))
+    items = [create_item(_('Cancel (no removals)'), toggle_custom_container.bind(None, container_id, False))]
+    sd = get_session_data()
+    actions = sd.get('word_actions', v'[]')
+    for i, item in enumerate(actions):
+        items.push(create_item(item.title, remove.bind(None, container_id, i)))
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
+
+
+def lookup_items(word, close_panel_func, container_id):
     eword = encodeURIComponent(word)
-    items = [
-        create_item(_('Lookup in Google dictionary'), lookup.bind(word, close_panel_func, f'https://google.com/search?q=define:{eword}')),
-        create_item(_('Lookup in Wordnik'), lookup.bind(word, close_panel_func, f'https://www.wordnik.com/words/{eword}')),
-        create_item(_('Search the internet'), lookup.bind(word, close_panel_func, f'https://google.com/search?q={eword}')),
-    ]
+    items = []
+
+    def a(title, url):
+        items.push(create_item(title, lookup.bind(word, close_panel_func, url.format(word=eword))))
+
+    custom_actions = get_session_data().get('word_actions', v'[]')
+    has_custom = custom_actions and custom_actions.length
+    if has_custom:
+        for entry in custom_actions:
+            if entry.title and entry.url:
+                a(entry.title, entry.url)
+    a(_('Google dictionary'), 'https://google.com/search?q=define:{word}')
+    a(_('Wordnik'), 'https://www.wordnik.com/words/{word}')
+    a(_('Search the internet'), 'https://google.com/search?q={word}')
+    items.push(create_item(_('Add a custom lookup'), add_custom.bind(None, container_id)))
+    if has_custom:
+        items.push(create_item(_('Remove a custom lookup'), remove_custom.bind(None, container_id)))
+
     return items
 
 
+current_data = None
+
+
+def populate_list(container):
+    word, close_panel_func = current_data
+    list_container = container.lastChild.previousSibling
+    clear(list_container)
+    create_item_list(list_container, lookup_items(word, close_panel_func, ensure_id(container)))
+
+
 def create_word_actions_panel(container, word, close_panel_func):
-    list_container = container.lastChild
-    create_item_list(list_container, lookup_items(word, close_panel_func))
+    nonlocal current_data
+    current_data = word, close_panel_func
+    container.appendChild(E.div(style='display:none'))
+    populate_list(container)
+
+
+def develop(container):
+    container.appendChild(E.div())
+    create_word_actions_panel(container, 'develop', def():pass;)
