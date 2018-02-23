@@ -430,6 +430,8 @@ class CSSFlattener(object):
             except (ValueError, SyntaxErr):
                 pass
             del node.attrib['bgcolor']
+        if tag == 'ol' and 'type' in node.attrib:
+            del node.attrib['type']
         if cssdict.get('font-weight', '').lower() == 'medium':
             cssdict['font-weight'] = 'normal'  # ADE chokes on font-weight medium
 
