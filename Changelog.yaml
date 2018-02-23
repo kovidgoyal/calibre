@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title:
 
+- version: 3.18.0
+  date: 2018-02-23
+
+  new features:
+    - title: "Browser viewer: Allow long tapping a word to look it up in a dictionary or search the internet for it."
+      tickets: [1738995]
+
+  bug fixes:
+    - title: "Conversion: Handle the deprecated type attribute on <ol> tags."
+      tickets: [1751148]
+
+    - title: "Fix metadata download from amazon stopped working because of a website change"
+
+    - title: "Fix re-ordering of columns causing split book splitter state not being restored on restart"
+
+    - title: "Fix errors when using strftime with unicode strings on non-utf-8 windows systems."
+      tickets: [1749219]
+
+    - title: "Split book view: Fix vertical scroll position of the two views getting out of sync after doing some searches."
+      tickets: [1748739]
+
+    - title: "Fix some edit widget appearing in the wrong place when editing in the right hand panel of the new split book list."
+      tickets: [1748713]
+
+    - title: "Portable build: Fix cache directory not always being auto-created"
+      tickets: [1747887]
+
+    - title: "Workaround for Qt 5.10 on Linux resetting the global font, preventing custom interface font settings from working"
+
+  improved recipes:
+    - New York Times
+    - The Economist
+    - Gosc
+    - Various Uruguayan recipes
+
+
 - version: 3.17.0
   date: 2018-02-09
 
