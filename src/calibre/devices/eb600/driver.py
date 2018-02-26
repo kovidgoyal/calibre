@@ -398,6 +398,22 @@ class POCKETBOOK701(USBMS):
         return drives
 
 
+class POCKETBOOK740(USBMS):
+
+    name = 'PocketBook 701 Device Interface'
+    description = _('Communicate with the PocketBook 740')
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
+            'doc', 'tcr', 'txt']
+    EBOOK_DIR_MAIN = 'books'
+    SUPPORTS_SUB_DIRS = True
+    SCAN_FROM_ROOT = True
+
+    VENDOR_ID   = [0x18d1]
+    PRODUCT_ID  = [0x0001]
+    BCD         = [0x0101]
+
+
 class PI2(EB600):
 
     name           = 'Infibeam Pi2 Device Interface'
