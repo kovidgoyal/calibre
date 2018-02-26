@@ -1037,6 +1037,12 @@ class ActionMarkBooks(InterfaceActionBase):
     description = _('Temporarily mark books')
 
 
+class ActionVirtualLibrary(InterfaceActionBase):
+    name = 'Virtual Library'
+    actual_plugin = 'calibre.gui2.actions.virtual_library:VirtualLibraryAction'
+    description = _('Change the current Virtual library')
+
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -1070,7 +1076,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper]
+        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper,
+        ActionVirtualLibrary]
 
 # }}}
 
