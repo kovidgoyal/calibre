@@ -531,7 +531,7 @@ class Boss(QObject):
 
     def show_current_diff(self, allow_revert=True, to_container=None):
         self.commit_all_editors_to_container()
-        d = self.create_diff_dialog()
+        d = self.create_diff_dialog(revert_msg=_('&Revert changes') if allow_revert else '')
         d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
         other = to_container or self.global_undo.previous_container
         d.container_diff(other, self.global_undo.current_container,
