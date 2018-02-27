@@ -1,7 +1,7 @@
 ##
 # Written:      October 2012 (new coding)
 # Version:      9.0
-# Last update:  2015-03-12
+# Last update:  2018-02-22
 ##
 
 __license__ = 'GPL v3'
@@ -9,12 +9,21 @@ __copyright__ = ''
 '''
 Fetch RSS-Feeds spektrum.de
 '''
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     title = u'Spektrum der Wissenschaft'
-    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2014-02-25
+    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2014-02-25, UDe 2018-02-22
     description = u'German  online portal of Spektrum der Wissenschaft'
     publisher = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category = 'science news, Germany'
@@ -24,52 +33,31 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     language = 'de'
-    encoding = 'utf8'  # AGe 2015-03-13 new, old encoding'cp1252'
-#    recursions						= 0 # AGe 2014-08-21 new
+    encoding = 'utf8'
+    ignore_duplicate_articles = {'title'}
 
-    # Cover from Rainer Zenz
-    # AGE 2015-03-12 new cover location
-    cover_url = 'http://www58.zippyshare.com/scaled/VISHzqJj/file.html'
+    cover_url = 'https://www.spektrum.de/fm/862/thumbnails/Cover_SdW01-2018.jpg.2786617.jpg'
     masthead_url = 'http://www.spektrum.de/fm/861/spektrum.de.png'
 
-    # AGE 2014-02-25 add .textbox-wide
-    extra_css      =  '''
-                      h1 {font-size: 1.6em; text-align: left}
-                      h2 {font-size: 1em; font-style: italic; font-weight: normal}
-                      h3 {font-size: 1.3em;text-align: left}
-                      h4, h5, h6, .heading, .hgroup {font-size: 1em;text-align: left}
-                      .textbox-wide {font-size: 1.3em; font-style: italic}
-                      '''
-
     feeds = [
-        (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
-        (u'Spektrum der Wissenschaft',
-         u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
-        (u'Gehirn & Geist',
-         u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
-        (u'Sterne und Weltraum',
-         u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'),
-        # AGe 2014-08-21 available but empty
-        (u'Pressemitteilungen',
-         u'http://www.spektrum.de/alias/rss/pressemitteilungen/995265'),
-        # AGe 2014-08-21 new
-        (u'Meistgelesene Artikel',
-         u'http://www.spektrum.de/alias/rss/spektrum-de-meistgelesene-artikel/1224665'),
-
+        (
+            u'Spektrum.de',
+            u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'
+        ),
+        #              (u'Spektrum der Wissenschaft', u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
+        #              (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
+        (
+            u'Sterne und Weltraum',
+            u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'
+        ),
+        #              (u'Meistgelesene Artikel',u'http://www.spektrum.de/alias/rss/spektrum-de-meistgelesene-artikel/1224665'), # AGe 2014-08-21 new
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={
-             'class': 'border-h clearfix article-top relcontainer'}),
-        dict(name='article', attrs={'class': 'clearfix'}),
+        dict(name='article', attrs={'class': 'content'}),
     ]
 
     remove_tags = [
-        dict(name='aside', attrs={
-             'class': ['bilderrahmenlinks', 'bilderrahmenrechts']}),  # AGE 2014-08-29
-        # AGE 2014-08-29
-        dict(name='div', attrs={'class': 'textbox-wide clearfix'}),
-        # AGe 2015-03-13
-        dict(name='span', attrs={
-             'class': ['no-display', 'sprite-a sprite-lupe']}),
+        classes('hide-for-print content__meta content__author content__video'),
+        dict(name='div', attrs={'role': 'navigation'}),
     ]
