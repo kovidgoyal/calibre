@@ -27,6 +27,7 @@ from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
+from calibre.utils.monotonic import monotonic
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -212,7 +213,8 @@ class GuiRunner(QObject):
     initialization'''
 
     def __init__(self, opts, args, actions, listener, app, gui_debug=None):
-        self.startup_time = time.time()
+        self.startup_time = monotonic()
+        self.timed_print('Starting up...')
         self.opts, self.args, self.listener, self.app = opts, args, listener, app
         self.gui_debug = gui_debug
         self.actions = actions
@@ -220,11 +222,14 @@ class GuiRunner(QObject):
         QObject.__init__(self)
         self.splash_screen = None
         self.timer = QTimer.singleShot(1, self.initialize)
+
+    def timed_print(self, *a, **kw):
         if DEBUG:
-            prints('Starting up...')
+            prints('[{:.2f}]'.format(monotonic() - self.startup_time), *a, **kw)
 
     def start_gui(self, db):
         from calibre.gui2.ui import Main
+        self.timed_print('Constructing main UI...')
         main = self.main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.show_message(_('Initializing user interface...'))
@@ -232,12 +237,13 @@ class GuiRunner(QObject):
             with gprefs:  # Only write gui.json after initialization is complete
                 main.initialize(self.library_path, db, self.listener, self.actions)
         finally:
+            self.timed_print('main UI initialized...')
             if self.splash_screen is not None:
+                self.timed_print('Hiding splash screen')
                 self.splash_screen.finish(main)
+                self.timed_print('splash screen hidden')
             self.splash_screen = None
-        if DEBUG:
-            prints('Started up in %.2f seconds'%(time.time() -
-                self.startup_time), 'with', len(db.data), 'books')
+        self.timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         main.set_exception_handler()
         if len(self.args) > 1:
@@ -289,6 +295,7 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc())
                 self.initialization_failed()
 
+        self.timed_print('db initialized')
         try:
             self.start_gui(db)
         except Exception:
@@ -300,6 +307,7 @@ class GuiRunner(QObject):
     def initialize_db(self):
         from calibre.db.legacy import LibraryDatabase
         db = None
+        self.timed_print('Initializing db...')
         try:
             db = LibraryDatabase(self.library_path)
         except apsw.Error:
@@ -332,9 +340,11 @@ class GuiRunner(QObject):
         self.initialize_db_stage2(db, None)
 
     def show_splash_screen(self):
+        self.timed_print('Showing splash screen...')
         self.splash_screen = SplashScreen()
         self.splash_screen.show()
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
+        self.timed_print('splash screen shown')
 
     def hide_splash_screen(self):
         if self.splash_screen is not None:
