@@ -95,6 +95,12 @@ class NewYorkTimes(BasicNewsRecipe):
         classes('story-print-citation supported-by accessibility-ad-header visually-hidden'),
     ]
 
+    def postprocess_html(self, soup, first_fetch):
+        t = soup.find(**classes('dateline'))
+        if t is not None:
+            t.insert(0, ' ')
+        return soup
+
     def read_nyt_metadata(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
