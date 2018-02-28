@@ -2,11 +2,66 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from book_list.ui import set_panel_handler
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.book_details import no_book, report_load_failure, fetch_metadata
+from book_list.library_data import book_metadata, load_status
+from book_list.router import back
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler, show_panel
+from dom import clear
+from utils import conditional_timeout, parse_url_params
+
+current_book_id = None
+current_fetch = None
+CLASS_NAME = 'edit-metadata-panel'
+
+
+def proceed_after_succesful_fetch_metadata(container_id, book_id):
+    print(book_metadata(book_id))
+
+
+def create_edit_metadata(container):
+    q = parse_url_params()
+    current_book_id = q.book_id
+    if not current_book_id:
+        no_book(container)
+        return
+    current_book_id = int(current_book_id)
+    container_id = container.parentNode.id
+    if not book_metadata(current_book_id):
+        fetch_metadata(container_id, current_book_id, proceed_after_succesful_fetch_metadata)
+    else:
+        proceed_after_succesful_fetch_metadata(container_id, current_book_id)
+
+
+def check_for_books_loaded():
+    container = this
+    if load_status.loading:
+        conditional_timeout(container.id, 5, check_for_books_loaded)
+        return
+    container = container.lastChild
+    clear(container)
+    if not load_status.ok:
+        report_load_failure(container)
+        return
+    create_edit_metadata(container)
 
 
 def init(container_id):
-    pass
+    nonlocal current_book_id
+    container = document.getElementById(container_id)
+    container.appendChild(E.div(class_=CLASS_NAME))
+    container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_books_loaded)
+    q = parse_url_params()
+    current_book_id = int(q.book_id or 0)
+    mi = book_metadata(current_book_id)
+    if not mi or not container:
+        show_panel('book_details', query=q, replace=True)
+        return
+    create_top_bar(container, title=_('Edit metadata for {}').format(mi.title), action=back, icon='close')
 
 
 set_panel_handler('edit_metadata', init)
