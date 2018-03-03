@@ -206,6 +206,7 @@ class RegexEdit(QWidget, Ui_Edit):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.edit.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         self.book_id = None
         self.db = None
