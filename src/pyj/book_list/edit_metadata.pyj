@@ -5,21 +5,55 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.book_details import no_book, report_load_failure, fetch_metadata
+from book_list.book_details import fetch_metadata, no_book, report_load_failure
 from book_list.library_data import book_metadata, load_status
 from book_list.router import back
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
 from dom import clear
 from utils import conditional_timeout, parse_url_params
 
-current_book_id = None
-current_fetch = None
 CLASS_NAME = 'edit-metadata-panel'
 
 
+def show_book(container_id, book_id):
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not mi or not container:
+        return
+    div = container.querySelector('div[data-ctype="show"]')
+    if not div:
+        return
+    div.appendChild(E.div(style='margin: 1ex 1rem', _(
+        'Tap any field below to edit it')))
+
+
+def on_close(container_id):
+    c = document.getElementById(container_id)
+    if c:
+        d = c.querySelector('div[data-ctype="edit"]')
+        if d:
+            if d.style.display is 'block':
+                d.style.display = 'none'
+                d.previousSibling.style.display = 'block'
+                clear(d), clear(d.previousSibling)
+                q = parse_url_params()
+                show_book(container_id, int(q.book_id))
+                return
+        back()
+
+
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
-    print(book_metadata(book_id))
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not mi or not container:
+        show_panel('book_details', query=parse_url_params(), replace=True)
+        return
+    set_title(container, _('Edit metadata for {}').format(mi.title))
+    clear(container.lastChild)
+    container.lastChild.appendChild(E.div(data_ctype='show', style='display:block'))
+    container.lastChild.appendChild(E.div(data_ctype='edit', style='display:none'))
+    show_book(container_id, book_id)
 
 
 def create_edit_metadata(container):
@@ -50,18 +84,11 @@ def check_for_books_loaded():
 
 
 def init(container_id):
-    nonlocal current_book_id
     container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
     container.appendChild(E.div(class_=CLASS_NAME))
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
-    q = parse_url_params()
-    current_book_id = int(q.book_id or 0)
-    mi = book_metadata(current_book_id)
-    if not mi or not container:
-        show_panel('book_details', query=q, replace=True)
-        return
-    create_top_bar(container, title=_('Edit metadata for {}').format(mi.title), action=back, icon='close')
 
 
 set_panel_handler('edit_metadata', init)
