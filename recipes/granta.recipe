@@ -264,14 +264,14 @@ class Granta(BasicNewsRecipe):
                 # Either user is logged in or the article is unlocked
                 h1 = toc.find('h1')
                 h2 = toc.find('h2')
-                if h1.find('a') is not None and h1.find('a').contents is not None:
-                    title = h1.find('a').contents[0].strip()
+                if h1.find('a') is not None and len(h1.find('a').contents) > 0 and h1.find('a').contents[0] is not None:
+                    title = str(h1.find('a').contents[0]).strip()
                 elif len(h1.contents) > 0 and h1.contents[0] is not None:
                     title = h1.contents[0]
                 else:
                     title = ''
-                if h2.find('a') is not None and h2.find('a').contents is not None:
-                    author = h2.find('a').contents[0].strip()
+                if h2.find('a') is not None and len(h2.find('a').contents) > 0 and h2.find('a').contents[0] is not None:
+                    author = str(h2.find('a').contents[0]).strip()
                     title = title + u' (%s)' % author
                 elif len(h2.contents) > 0 and h2.contents[0] is not None:
                     author = h2.contents[0]
