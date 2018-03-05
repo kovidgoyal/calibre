@@ -15,6 +15,8 @@ force_issue_download = None
 
 ##################################################################
 # Adapted from https://gist.github.com/FlyingTopHat/7cfdd5434ec704916174
+
+
 def plus_with_unknown_component(first_comp, second_comp, result):
     if result is None:
         return first_comp + second_comp
@@ -45,11 +47,12 @@ def solve_captcha(captcha):
         numeric_problem = numeric_problem + str(text2num(part))
 
     # Parse into parts
-    pattern = re.compile(u'(?P<first_component>[0-9]+)?'
-                         + u'\s*(?P<operator>[+×−])\s*'
-                         + u'(?P<second_component>[0-9]+)'
-                         + u'\s*(=)\s*'
-                         + u'(?P<result>[0-9]+)?', re.UNICODE)
+    pattern = re.compile(
+            u'(?P<first_component>[0-9]+)?'
+            u'\s*(?P<operator>[+×−])\s*'
+            u'(?P<second_component>[0-9]+)'
+            u'\s*(=)\s*'
+            u'(?P<result>[0-9]+)?', re.UNICODE)
 
     calculationParts = re.search(pattern, numeric_problem)
     if calculationParts is None:
@@ -212,9 +215,8 @@ class Granta(BasicNewsRecipe):
         articleHeader = soup.find(
             'div', attrs={'class': 'article-feature-image-container'})
         if articleHeader is None:
-            # This feels brittle, but bs3 demands a full match
             articleHeader = soup.find(
-                'div', attrs={'class': 'col-xs-12 col-sm-12 col-md-12 article-header'})
+                    'div', attrs={'class': lambda x: x and 'article-header' in x.split()})
         if articleHeader is not None:
             image = articleHeader.find(
                 'div', attrs={'class': 'article-feature-image'})
@@ -238,7 +240,7 @@ class Granta(BasicNewsRecipe):
 
             # Get latest issue
             issueInfo = soup.find(
-                'div', attrs={'class': 'dnd_container dnd_container__heading'})
+                    'div', attrs={'class': lambda x: x and 'dnd_container__heading' in x.split()})
 
             issueAnchor = issueInfo.find('a')
             issueTitle = issueAnchor.contents[0]
