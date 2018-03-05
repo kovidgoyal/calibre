@@ -233,11 +233,6 @@ class Granta(BasicNewsRecipe):
         self.log.info('Making soup out of index')
         soup = self.index_to_soup('https://granta.com/')
 
-        # import urllib2
-        # from calibre.ebooks.BeautifulSoup import BeautifulSoup
-        # page = urllib2.urlopen("https://granta.com/introduction-animalia/")
-        # soup = BeautifulSoup(page)
-
         # Get latest issue
         issueInfo = soup.find(
             'div', attrs={'class': 'dnd_container dnd_container__heading'})
