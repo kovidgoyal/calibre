@@ -356,12 +356,17 @@ def render_metadata(mi, table, book_id):  # {{{
 # }}}
 
 
-add_extra_css(def():
-    sel = '.' + CLASS_NAME + ' '
+def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
     style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
+    return style
+
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = basic_table_rules(sel)
     style += build_rule(sel + 'table.metadata a[href]', color='blue')
     style += build_rule(sel + 'table.metadata a[href]:hover', color=get_color('window-hover-foreground'))
     style += build_rule(sel + 'table.metadata a[href]:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')

@@ -2,18 +2,233 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.book_details import fetch_metadata, no_book, report_load_failure
-from book_list.library_data import book_metadata, load_status
+from book_list.book_details import (
+    basic_table_rules, fetch_metadata, field_sorter, no_book, report_load_failure
+)
+from book_list.library_data import book_metadata, library_data, load_status
 from book_list.router import back
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
-from dom import clear
-from utils import conditional_timeout, parse_url_params
+from date import format_date
+from dom import add_extra_css, build_rule, clear, svgicon
+from session import get_interface_data
+from utils import (
+    conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
+)
 
 CLASS_NAME = 'edit-metadata-panel'
+IGNORED_FIELDS = {'formats', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = basic_table_rules(sel)
+    style += build_rule(sel + 'table.metadata', margin_left='1rem')
+    style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
+    style += build_rule(sel + 'table.metadata tr:hover', color='red')
+    style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
+    return style
+)
+
+def truncated_html(val):
+    ans = val.replace(/<[^>]+>/g, '')
+    if ans.length > 40:
+        ans = ans[:40] + '…'
+    return ans
+
+
+def edit_field(container_id, book_id, field):
+    print(1111111, field)
+
+
+def render_metadata(mi, table, container_id, book_id):  # {{{
+    field_metadata = library_data.field_metadata
+    interface_data = get_interface_data()
+    current_edit_action = None
+
+    def allowed_fields(field):
+        if field.endswith('_index'):
+            fm = field_metadata[field[:-len('_index')]]
+            if fm and fm.datatype is 'series':
+                return False
+        if field.startswith('#'):
+            return True
+        if field in IGNORED_FIELDS or field.endswith('_sort') or field[0] is '@':
+            return False
+        return True
+
+    fields = library_data.book_display_fields
+    if not fields or not fields.length:
+        fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+    else:
+        fields = filter(allowed_fields, fields)
+    fields = list(fields)
+    added_fields = {f:True for f in fields}
+    if not added_fields.title:
+        added_fields.title = True
+        fields.insert(0, 'title')
+    for other_field in Object.keys(library_data.field_metadata):
+        if not added_fields[other_field] and allowed_fields(other_field) and other_field not in IGNORED_FIELDS:
+            fields.push(other_field)
+
+    def add_row(name, val, is_html=False, join=None):
+        if val is undefined or val is None:
+            val = v'[" "]' if join else '\xa0'
+        def add_val(v):
+            if not v.appendChild:
+                v += ''
+            if v.appendChild:
+                table.lastChild.lastChild.appendChild(v)
+            else:
+                table.lastChild.lastChild.appendChild(document.createTextNode(v))
+
+        table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+        if is_html:
+            table.lastChild.lastChild.appendChild(document.createTextNode(truncated_html(val + '')))
+        else:
+            if not join:
+                add_val(val)
+            else:
+                for v in val:
+                    add_val(v)
+                    if v is not val[-1]:
+                        table.lastChild.lastChild.appendChild(document.createTextNode(join))
+        return table.lastChild.lastChild
+
+    def process_composite(field, fm, name, val):
+        if fm.display and fm.display.contains_html:
+            add_row(name, val, is_html=True)
+        elif fm.is_multiple and fm.is_multiple.list_to_ui:
+            all_vals = filter(None, map(str.strip, val.split(fm.is_multiple.list_to_ui)))
+            add_row(name, all_vals, join=fm.is_multiple.list_to_ui)
+        else:
+            add_row(name, val)
+
+    def process_authors(field, fm, name, val):
+        add_row(name, val, join=' & ')
+
+    def process_publisher(field, fm, name, val):
+        add_row(name, val)
+
+    def process_rating(field, fm, name, val):
+        stars = E.span()
+        val = int(val or 0)
+        if val > 0:
+            for i in range(val // 2):
+                stars.appendChild(svgicon('star'))
+            if fm.display.allow_half_stars and (val % 2):
+                stars.appendChild(svgicon('star-half'))
+            add_row(name, stars)
+        else:
+            add_row(name, None)
+
+    def process_identifiers(field, fm, name, val):
+        if val:
+            keys = Object.keys(val)
+            if keys.length:
+                table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+                td = table.lastChild.lastChild
+                for k in keys:
+                    if td.childNodes.length:
+                        td.appendChild(document.createTextNode(', '))
+                    td.appendChild(document.createTextNode(k))
+                return
+        add_row(name, None)
+
+    def process_languages(field, fm, name, val):
+        if val and val.length:
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            td = table.lastChild.lastChild
+            for k in val:
+                lang = mi.lang_names[k] or k
+                td.appendChild(document.createTextNode(lang))
+                if k is not val[-1]:
+                    td.appendChild(document.createTextNode(', '))
+            return
+        add_row(name, None)
+
+    def process_datetime(field, fm, name, val):
+        if val:
+            fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
+            add_row(name, format_date(val, fmt))
+        else:
+            add_row(name, None)
+
+    def process_series(field, fm, name, val):
+        if val:
+            ifield = field + '_index'
+            try:
+                ival = float(mi[ifield])
+            except Exception:
+                ival = 1.0
+            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            s = safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, val))
+            table.lastChild.lastChild.appendChild(s)
+        else:
+            add_row(name, None)
+
+    def process_field(field, fm):
+        name = fm.name or field
+        datatype = fm.datatype
+        val = mi[field]
+        if field is 'comments' or datatype is 'comments':
+            add_row(name, truncated_html(val or ''))
+            return
+        func = None
+        if datatype is 'composite':
+            func = process_composite
+        elif datatype is 'rating':
+            func = process_rating
+        elif field is 'identifiers':
+            func = process_identifiers
+        elif field is 'authors':
+            func = process_authors
+        elif field is 'publisher':
+            func = process_publisher
+        elif field is 'languages':
+            func = process_languages
+        elif datatype is 'datetime':
+            func = process_datetime
+        elif datatype is 'series':
+            func = process_series
+        if func:
+            func(field, fm, name, val)
+        else:
+            if datatype is 'text' or datatype is 'enumeration':
+                if val is not undefined and val is not None:
+                    join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+                    add_row(name, val, join=join)
+                else:
+                    add_row(name, None)
+            elif datatype is 'bool':
+                add_row(name, _('Yes') if val else _('No'))
+            elif datatype is 'int' or datatype is 'float':
+                if val is not undefined and val is not None:
+                    fmt = (fm.display or {}).number_format
+                    if fmt:
+                        val = fmt.format(val)
+                    else:
+                        val += ''
+                    add_row(name, val)
+                else:
+                    add_row(name, None)
+
+    for field in fields:
+        fm = field_metadata[field]
+        if not fm:
+            continue
+        current_edit_action = edit_field.bind(None, container_id, book_id, field)
+        try:
+            process_field(field, fm)
+        except Exception:
+            print('Failed to render metadata field: ' + field)
+            traceback.print_exc()
+
+# }}}
 
 
 def show_book(container_id, book_id):
@@ -26,6 +241,8 @@ def show_book(container_id, book_id):
         return
     div.appendChild(E.div(style='margin: 1ex 1rem', _(
         'Tap any field below to edit it')))
+    div.appendChild(E.table(class_='metadata'))
+    render_metadata(mi, div.lastChild, container_id, book_id)
 
 
 def on_close(container_id):
