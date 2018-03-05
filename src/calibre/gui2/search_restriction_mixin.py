@@ -35,8 +35,8 @@ class SelectNames(QDialog):  # {{{
         self._names.setSelectionMode(self._names.ExtendedSelection)
         l.addWidget(self._names)
 
-        self._or = QRadioButton(_('Match any of the selected %s names')%txt)
-        self._and = QRadioButton(_('Match all of the selected %s names')%txt)
+        self._or = QRadioButton(_('Match any of the selected %s')%txt)
+        self._and = QRadioButton(_('Match all of the selected %s')%txt)
         self._or.setChecked(True)
         l.addWidget(self._or)
         l.addWidget(self._and)
