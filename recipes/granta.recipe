@@ -1,0 +1,287 @@
+#!/usr/bin/env  python2
+__license__ = 'GPL v3'
+__copyright__ = '2018, Gary Arnold garnold@garyarnold.com'
+__docformat__ = 'restructuredtext en'
+
+'''
+granta.com
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+# Set this variable to the URL of the issue you want to download, if not the current issue
+force_issue_download = None
+
+##################################################################
+# Adapted from https://gist.github.com/FlyingTopHat/7cfdd5434ec704916174
+def plus_with_unknown_component(first_comp, second_comp, result):
+    if result is None:
+        return first_comp + second_comp
+
+    component = (first_comp if second_comp is None else second_comp)
+    return result - component
+
+
+def subtract_with_unknown_component(first_comp, second_comp, result):
+    if result is None:
+        return first_comp - second_comp
+
+    return (first_comp - result) if second_comp is None else (result + second_comp)
+
+
+def multiply_with_unknown_component(first_comp, second_comp, result):
+    if result is None:
+        return first_comp * second_comp
+
+    component = (first_comp if second_comp is None else second_comp)
+    return result / component
+
+
+def solve_captcha(captcha):
+    # # Convert from a word problem into a numeric problem
+    numeric_problem = ''
+    for part in captcha.split(' '):
+        numeric_problem = numeric_problem + str(text2num(part))
+
+    # Parse into parts
+    pattern = re.compile(u'(?P<first_component>[0-9]+)?'
+                         + u'\s*(?P<operator>[+×−])\s*'
+                         + u'(?P<second_component>[0-9]+)'
+                         + u'\s*(=)\s*'
+                         + u'(?P<result>[0-9]+)?', re.UNICODE)
+
+    calculationParts = re.search(pattern, numeric_problem)
+    if calculationParts is None:
+        return 0
+
+    operator = calculationParts.group('operator')
+
+    result = calculationParts.group('result')
+    result = int(result) if result is not None else None
+
+    component_one = calculationParts.group('first_component')
+    component_one = int(component_one) if component_one is not None else None
+
+    component_two = calculationParts.group('second_component')
+    component_two = int(component_two) if component_two is not None else None
+
+    # Calculate answer
+    answer = 0
+    if operator == u'+':
+        answer = plus_with_unknown_component(component_one, component_two, result)
+    elif operator == u'×':
+        answer = multiply_with_unknown_component(component_one, component_two, result)
+    elif operator == u'−':
+        answer = subtract_with_unknown_component(component_one, component_two, result)
+
+    return answer
+##################################################################
+
+
+##################################################################
+# Adapted from https://github.com/ghewgill/text2num/blob/master/text2num.py
+# Removes external dependency on digify library
+Small = {
+    'zero': 0,
+    'one': 1,
+    'two': 2,
+    'three': 3,
+    'four': 4,
+    'five': 5,
+    'six': 6,
+    'seven': 7,
+    'eight': 8,
+    'nine': 9,
+    'ten': 10,
+    'eleven': 11,
+    'twelve': 12,
+    'thirteen': 13,
+    'fourteen': 14,
+    'fifteen': 15,
+    'sixteen': 16,
+    'seventeen': 17,
+    'eighteen': 18,
+    'nineteen': 19,
+    'twenty': 20,
+    'thirty': 30,
+    'forty': 40,
+    'fifty': 50,
+    'sixty': 60,
+    'seventy': 70,
+    'eighty': 80,
+    'ninety': 90
+}
+
+Magnitude = {
+    'thousand':     1000,
+    'million':      1000000,
+    'billion':      1000000000,
+    'trillion':     1000000000000,
+    'quadrillion':  1000000000000000,
+    'quintillion':  1000000000000000000,
+    'sextillion':   1000000000000000000000,
+    'septillion':   1000000000000000000000000,
+    'octillion':    1000000000000000000000000000,
+    'nonillion':    1000000000000000000000000000000,
+    'decillion':    1000000000000000000000000000000000,
+}
+
+
+def text2num(s):
+    a = re.split(r"[\s-]+", s)
+    n = 0
+    g = 0
+    for w in a:
+        x = Small.get(w, None)
+        if x is not None:
+            g += x
+        elif w == "hundred" and g != 0:
+            g *= 100
+        else:
+            x = Magnitude.get(w, None)
+            if x is not None:
+                n += g * x
+                g = 0
+            else:
+                return s
+    return n + g
+##################################################################
+
+
+##################################################################
+# Utilities
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://www.granta.com' + url
+    return url
+
+
+def stripstyle(tag):
+    if tag is not None:
+        del tag['style']
+##################################################################
+
+
+class Granta(BasicNewsRecipe):
+
+    title = u'Granta'
+    description = u'Granta magazine'
+    language = 'en'
+
+    __author__ = 'Gary Arnold'
+
+    needs_subscription = True
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'article-feature-image-container'}),
+        dict(name='div', attrs={'class': 'carousel-inner'}),
+        dict(name='div', attrs={'class': 'article-content'}),
+    ]
+
+    preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
+                           m:'<head></head>')]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            # User has a subscription, log in
+            response = br.open('https://granta.com/')
+
+            # Get captcha solution
+            captcha = '0'
+            html = response.read()
+            soup = self.index_to_soup(html)
+            captcha_field = soup.find('input', attrs={'name': 'capcha'})
+            captcha_question = ''
+            if captcha_field is not None:
+                captcha_question = captcha_field['placeholder']
+                if captcha_question is not None:
+                    captcha = str(solve_captcha(captcha_question))
+
+            br.select_form(method="post", action="https://granta.com/")
+            br['username'] = self.username
+            br['password'] = self.password
+            br['capcha'] = captcha
+            self.log.info('Logging in with captcha ' + str(captcha_question) + ', solution ' + captcha)
+            br.submit()
+
+        return br
+
+    def preprocess_html(self, soup):
+        articleHeader = soup.find(
+            'div', attrs={'class': 'article-feature-image-container'})
+        if articleHeader is None:
+            # This feels brittle, but bs3 demands a full match
+            articleHeader = soup.find(
+                'div', attrs={'class': 'col-xs-12 col-sm-12 col-md-12 article-header'})
+        if articleHeader is not None:
+            image = articleHeader.find(
+                'div', attrs={'class': 'article-feature-image'})
+            if image is not None and image.attrs is not None:
+                style = dict(image.attrs)['style']
+                if style is not None:
+                    m = re.search('url\(([^\)]*)\)', style)
+                    if m.group(1) is not None:
+                        stripstyle(image)
+                        image.name = 'img'
+                        image['src'] = m.group(1)
+
+            stripstyle(articleHeader.find('h1'))
+            stripstyle(articleHeader.find('h2'))
+
+        return soup
+
+    def parse_index(self):
+        if force_issue_download is None:
+            soup = self.index_to_soup('https://granta.com/')
+
+            # Get latest issue
+            issueInfo = soup.find(
+                'div', attrs={'class': 'dnd_container dnd_container__heading'})
+
+            issueAnchor = issueInfo.find('a')
+            issueTitle = issueAnchor.contents[0]
+            issueLink = issueAnchor.get('href')
+        else:
+            issueLink = force_issue_download
+            issueTitle = ''
+
+        soup = self.index_to_soup(issueLink)
+
+        # Find cover
+        cover = soup.find('div', attrs={'class': 'product-img-container'})
+        if cover is not None:
+            img = cover.find('img', src=True)
+            self.cover_url = absurl(img['src'])
+            self.log.info('Found cover at:', self.cover_url)
+
+        # Find TOC
+        tocs = soup.findAll('div', attrs={'class': 'product-article'})
+        articles = []
+        for toc in tocs:
+            if (self.username and self.password) or (toc.find('img') is None):
+                # Either user is logged in or the article is unlocked
+                h1 = toc.find('h1')
+                h2 = toc.find('h2')
+                if h1.find('a') is not None and h1.find('a').contents is not None:
+                    title = h1.find('a').contents[0].strip()
+                elif len(h1.contents) > 0 and h1.contents[0] is not None:
+                    title = h1.contents[0]
+                else:
+                    title = ''
+                if h2.find('a') is not None and h2.find('a').contents is not None:
+                    author = h2.find('a').contents[0].strip()
+                    title = title + u' (%s)' % author
+                elif len(h2.contents) > 0 and h2.contents[0] is not None:
+                    author = h2.contents[0]
+                    title = title + u' (%s)' % author
+                else:
+                    author = ''
+                url = absurl(h1.find('a', href=True)['href'])
+                self.log.info('Found article:', title)
+                self.log.info('\t', url)
+                articles.append({'title': title, 'url': url,
+                                 'date': '', 'description': ''})
+
+        return [(issueTitle, articles)]
