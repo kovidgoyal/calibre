@@ -10,6 +10,9 @@ import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+# Set this variable to the URL of the issue you want to download, if not the current issue
+force_issue_download = None
+
 ##################################################################
 # Adapted from https://gist.github.com/FlyingTopHat/7cfdd5434ec704916174
 def plus_with_unknown_component(first_comp, second_comp, result):
@@ -230,16 +233,20 @@ class Granta(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        self.log.info('Making soup out of index')
-        soup = self.index_to_soup('https://granta.com/')
+        if force_issue_download is None:
+            soup = self.index_to_soup('https://granta.com/')
 
-        # Get latest issue
-        issueInfo = soup.find(
-            'div', attrs={'class': 'dnd_container dnd_container__heading'})
+            # Get latest issue
+            issueInfo = soup.find(
+                'div', attrs={'class': 'dnd_container dnd_container__heading'})
 
-        issueAnchor = issueInfo.find('a')
-        issueTitle = issueAnchor.contents[0]
-        issueLink = issueAnchor.get('href')
+            issueAnchor = issueInfo.find('a')
+            issueTitle = issueAnchor.contents[0]
+            issueLink = issueAnchor.get('href')
+        else:
+            issueLink = force_issue_download
+            issueTitle = ''
+
         soup = self.index_to_soup(issueLink)
 
         # Find cover
