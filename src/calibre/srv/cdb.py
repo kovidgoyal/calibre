@@ -11,7 +11,7 @@ from io import BytesIO
 from calibre import as_unicode, sanitize_file_name_unicode
 from calibre.db.cli import module_for_cmd
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.srv.changes import books_added, books_deleted
+from calibre.srv.changes import books_added, books_deleted, metadata
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
@@ -132,4 +132,5 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     dirtied = set()
     for field, value in changes.iteritems():
         dirtied |= db.set_field(field, {book_id: value})
+    metadata(dirtied)
     return {bid: book_as_json(db, book_id) for bid in (dirtied & loaded_book_ids) | {book_id}}
