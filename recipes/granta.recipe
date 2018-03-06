@@ -159,17 +159,21 @@ def absurl(url):
         url = 'https://www.granta.com' + url
     return url
 
-
 def stripstyle(tag):
     if tag is not None:
         del tag['style']
+
+def get_innermost_string(tag):
+    while hasattr(tag, 'contents') and len(tag.contents) > 0 and tag.contents[0] is not None:
+        tag = tag.contents[0]
+    return str(tag).strip()
 ##################################################################
 
 
 class Granta(BasicNewsRecipe):
 
     title = u'Granta'
-    description = u'Granta magazine'
+    description = u'The Magazine of New Writing'
     language = 'en'
 
     __author__ = 'Gary Arnold'
@@ -266,17 +270,17 @@ class Granta(BasicNewsRecipe):
                 # Either user is logged in or the article is unlocked
                 h1 = toc.find('h1')
                 h2 = toc.find('h2')
-                if h1.find('a') is not None and h1.find('a').contents is not None:
-                    title = h1.find('a').contents[0].strip()
+                if h1.find('a') is not None and len(h1.find('a').contents) > 0 and h1.find('a').contents[0] is not None:
+                    title = get_innermost_string(h1.find('a').contents[0])
                 elif len(h1.contents) > 0 and h1.contents[0] is not None:
-                    title = h1.contents[0]
+                    title = get_innermost_string(h1.contents[0])
                 else:
                     title = ''
-                if h2.find('a') is not None and h2.find('a').contents is not None:
-                    author = h2.find('a').contents[0].strip()
+                if h2.find('a') is not None and len(h2.find('a').contents) > 0 and h2.find('a').contents[0] is not None:
+                    author = get_innermost_string(h2.find('a').contents[0])
                     title = title + u' (%s)' % author
                 elif len(h2.contents) > 0 and h2.contents[0] is not None:
-                    author = h2.contents[0]
+                    author = get_innermost_string(h2.contents[0])
                     title = title + u' (%s)' % author
                 else:
                     author = ''
