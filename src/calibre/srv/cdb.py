@@ -16,6 +16,7 @@ from calibre.srv.errors import HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
+from calibre.srv.metadata import book_as_json
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -37,6 +38,7 @@ def cdb_run(ctx, rd, which, version):
         raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     raw = rd.read()
     ct = rd.inheaders.get('Content-Type', all=True)
+    ct = {x.lower().partition(';')[0] for x in ct}
     try:
         if MSGPACK_MIME in ct:
             args = msgpack_loads(raw)
@@ -106,3 +108,28 @@ def cdb_delete_book(ctx, rd, book_ids, library_id):
     db.remove_books(ids)
     books_deleted(ids)
     return {}
+
+
+@endpoint('/cdb/set-fields/{book_id}/{library_id=None}', types={'book_id': int},
+          needs_db_write=True, postprocess=msgpack_or_json, methods=receive_data_methods, cache_control='no-cache')
+def cdb_set_fields(ctx, rd, book_id, library_id):
+    db = get_db(ctx, rd, library_id)
+    if ctx.restriction_for(rd, db):
+        raise HTTPForbidden('Cannot use the set fields interface with a user who has per library restrictions')
+    raw = rd.read()
+    ct = rd.inheaders.get('Content-Type', all=True)
+    ct = {x.lower().partition(';')[0] for x in ct}
+    try:
+        if MSGPACK_MIME in ct:
+            data = msgpack_loads(raw)
+        elif 'application/json' in ct:
+            data = json_loads(raw)
+        else:
+            raise HTTPBadRequest('Only JSON or msgpack requests are supported')
+        changes, loaded_book_ids = data['changes'], frozenset(map(int, data['loaded_book_ids']))
+    except Exception:
+        raise HTTPBadRequest('Invalid encoded data')
+    dirtied = set()
+    for field, value in changes.iteritems():
+        dirtied |= db.set_field(field, {book_id: value})
+    return {bid: book_as_json(db, book_id) for bid in (dirtied & loaded_book_ids) | {book_id}}

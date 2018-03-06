@@ -166,6 +166,10 @@ def set_book_metadata(book_id, value):
     library_data.metadata[book_id] = value
 
 
+def loaded_book_ids():
+    return Object.keys(library_data.metadata)
+
+
 def force_refresh_on_next_load():
     library_data.force_refresh = True
 

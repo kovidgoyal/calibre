@@ -6,15 +6,20 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
+from ajax import ajax_send
 from book_list.book_details import (
     basic_table_rules, fetch_metadata, field_sorter, no_book, report_load_failure
 )
-from book_list.library_data import book_metadata, library_data, load_status
+from book_list.library_data import (
+    book_metadata, current_library_id, library_data, load_status, loaded_book_ids,
+    set_book_metadata
+)
 from book_list.router import back
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
 from date import format_date
 from dom import add_extra_css, build_rule, clear, svgicon
+from modals import error_dialog
 from session import get_interface_data
 from utils import (
     conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
@@ -23,6 +28,9 @@ from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
 IGNORED_FIELDS = {'formats', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
+value_to_json = None
+changes = {}
+has_changes = False
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
@@ -34,11 +42,19 @@ add_extra_css(def():
     return style
 )
 
+
+def resolved_metadata(mi, field):
+    if Object.prototype.hasOwnProperty.call(changes, field):
+        return changes[field]
+    return mi[field]
+
+
 def truncated_html(val):
     ans = val.replace(/<[^>]+>/g, '')
     if ans.length > 40:
         ans = ans[:40] + '…'
     return ans
+
 
 
 def onsubmit_field(get_value, container_id, book_id, field):
@@ -56,10 +72,16 @@ def onsubmit_field(get_value, container_id, book_id, field):
         return
 
     def proceed():
+        nonlocal has_changes
         clear(d)
         d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
-        value
-        # TODO: ajax to server with field and value and get updated metadata
+        jval = value_to_json(value)
+        changes[field] = jval
+        has_changes = True
+        show_book(container_id, book_id)
+        on_close(container_id)
+
+
     window.setTimeout(proceed, 0)  # needed to avoid console error about form submission failing because form is removed from DOM in onsubmit handler
 
 
@@ -80,16 +102,20 @@ def line_edit_get_value(container):
 
 
 def simple_line_edit(container_id, book_id, field, fm, div, mi):
-    le = E.input(type='text')
-    le.value = mi[field] or ''
+    nonlocal value_to_json
     name = fm.name or field
+    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True)
+    le.value = resolved_metadata(mi, field) or ''
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     le.focus(), le.select()
+    value_to_json = def(x):
+        return x
 
 
 def edit_field(container_id, book_id, field):
+    nonlocal value_to_json
     fm = library_data.field_metadata[field]
     c = document.getElementById(container_id)
     mi = book_metadata(book_id)
@@ -100,6 +126,9 @@ def edit_field(container_id, book_id, field):
     d.previousSibling.style.display = 'none'
     clear(d)
     simple_line_edit(container_id, book_id, field, fm, d, mi)
+    if field is 'title':
+        value_to_json = def(x):
+            return x or _('Untitled')
 
 
 def render_metadata(mi, table, container_id, book_id):  # {{{
@@ -219,7 +248,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
         if val:
             ifield = field + '_index'
             try:
-                ival = float(mi[ifield])
+                ival = float(resolved_metadata(mi, ifield))
             except Exception:
                 ival = 1.0
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
@@ -232,7 +261,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     def process_field(field, fm):
         name = fm.name or field
         datatype = fm.datatype
-        val = mi[field]
+        val = resolved_metadata(mi, field)
         if field is 'comments' or datatype is 'comments':
             add_row(name, truncated_html(val or ''))
             return
@@ -289,18 +318,58 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 # }}}
 
 
+def changes_submitted(container_id, book_id, end_type, xhr, ev):
+    nonlocal changes, has_changes
+    changes = {}
+    has_changes = False
+    if end_type is 'abort':
+        on_close(container_id)
+        return
+    if end_type is not 'load':
+        error_dialog(_('Failed to update metadata on server'), _(
+            'Updating metadata for the book: {} failed.').format(book_id), xhr.error_html)
+        return
+    try:
+        dirtied = JSON.parse(xhr.responseText)
+    except Exception as err:
+        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), err.toString())
+        return
+
+    for bid in dirtied:
+        set_book_metadata(bid, dirtied[book_id])
+    on_close(container_id)
+
+
+def submit_changes(container_id, book_id):
+    c = document.getElementById(container_id)
+    d = c.querySelector('div[data-ctype="show"]')
+    clear(d)
+    d.appendChild(E.div(style='margin: 1ex 1rem', _('Uploading changes to server, please wait...')))
+    data = {'changes': changes, 'loaded_book_ids': loaded_book_ids()}
+    ajax_send(
+        f'cdb/set-fields/{book_id}/{current_library_id()}', data, changes_submitted.bind(None, container_id, book_id))
+
+
 def show_book(container_id, book_id):
     container = document.getElementById(container_id)
     mi = book_metadata(book_id)
-    if not mi or not container:
+    if not container or not mi:
         return
     div = container.querySelector('div[data-ctype="show"]')
     if not div:
         return
-    div.appendChild(E.div(style='margin: 1ex 1rem', _(
-        'Tap any field below to edit it')))
+    clear(div)
+    if has_changes:
+        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
+        div.appendChild(E.div(style='margin: 1ex 1rem', b))
+    else:
+        div.appendChild(E.div(style='margin: 1ex 1rem', _(
+            'Tap any field below to edit it')))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
+    if has_changes:
+        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
+        div.appendChild(E.div(style='margin: 1ex 1rem', b))
 
 
 def on_close(container_id):
@@ -319,6 +388,9 @@ def on_close(container_id):
 
 
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
+    nonlocal changes, has_changes
+    changes = {}
+    has_changes = False
     container = document.getElementById(container_id)
     mi = book_metadata(book_id)
     if not mi or not container:
