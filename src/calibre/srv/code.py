@@ -384,3 +384,13 @@ def tag_browser(ctx, rd):
         return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl))
 
     return rd.etagged_dynamic_response(etag, generate)
+
+
+@endpoint('/interface-data/field-names/{field}', postprocess=json)
+def field_names(ctx, rd, field):
+    '''
+    Get a list of all names for the specified field
+    Optional: ?library_id=<default library>
+    '''
+    db, library_id = get_library_data(ctx, rd)[:2]
+    return tuple(db.all_field_names(field))

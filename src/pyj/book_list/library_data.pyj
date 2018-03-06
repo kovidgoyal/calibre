@@ -73,6 +73,9 @@ def update_library_data(data):
     load_status.ok = True
     load_status.error_html = None
     library_data.previous_book_ids = v'[]'
+    if library_data.for_library is not current_library_id():
+        library_data.field_names = {}
+    library_data.for_library = current_library_id()
     for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
@@ -138,6 +141,40 @@ def fetch_init_data():
     load_status.error_html = None
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
+
+
+def field_names_received(library_id, field, proceed, end_type, xhr, event):
+    if library_id is not current_library_id():
+        return
+    if end_type is not 'load':
+        if end_type is not 'abort':
+            proceed(False, field, xhr.error_html)
+        return
+    try:
+        names = JSON.parse(xhr.responseText)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        proceed(False, field, 'Invalid JSON from server')
+        return
+    library_data.field_names[field] = {
+        'loading': False,
+        'loaded': True,
+        'last_updated_at': Date.now(),
+        'names': names
+    }
+    proceed(True, field, names)
+
+
+def field_names_for(field, proceed):
+    if library_data.field_names[field] and library_data.field_names[field].loaded:
+        proceed(True, field, library_data.field_names[field].names)
+    if not library_data.field_names[field] or (not library_data.field_names[field].loading and Date.now() - library_data.field_names[field].last_updated_at > 3600 * 1000):
+
+        ajax(f'interface-data/field-names/{encodeURIComponent(field)}', field_names_received.bind(None, current_library_id(), field, proceed), query={'library_id': current_library_id()}).send()
+        if not library_data.field_names[field]:
+            library_data.field_names[field] = {'last_updated_at': 0, 'loaded': False, 'names': v'[]'}
+        library_data.field_names[field].loading = True
 
 
 def thumbnail_url(book_id, width, height):
