@@ -179,6 +179,7 @@ class Granta(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='div', attrs={'class': 'article-feature-image-container'}),
+        dict(name='div', attrs={'class': 'col-xs-12 col-sm-12 col-md-12 article-header'}),
         dict(name='div', attrs={'class': 'carousel-inner'}),
         dict(name='div', attrs={'class': 'article-content'}),
     ]
