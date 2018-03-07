@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, ast
+import os, ast, json
 
 from calibre.utils.config import config_dir
 from calibre.utils.lock import ExclusiveFile
@@ -25,8 +25,8 @@ def name_to_path(name):
 
 def save_defaults(name, recs):
     path = name_to_path(name)
-    raw = str(recs)
-    with open(path, 'wb'):
+    raw = recs.serialize()
+    with lopen(path, 'wb'):
         pass
     with ExclusiveFile(path) as f:
         f.write(raw)
@@ -40,12 +40,12 @@ def load_defaults(name):
         raw = f.read()
     r = GuiRecommendations()
     if raw:
-        r.from_string(raw)
+        r.deserialize(raw)
     return r
 
 
 def save_specifics(db, book_id, recs):
-    raw = str(recs)
+    raw = recs.serialize()
     db.set_conversion_options(book_id, 'PIPE', raw)
 
 
@@ -53,7 +53,7 @@ def load_specifics(db, book_id):
     raw = db.conversion_options(book_id, 'PIPE')
     r = GuiRecommendations()
     if raw:
-        r.from_string(raw)
+        r.deserialize(raw)
     return r
 
 
@@ -82,14 +82,24 @@ class GuiRecommendations(dict):
         ans.append('}')
         return '\n'.join(ans)
 
-    def from_string(self, raw):
+    def serialize(self):
+        ans = json.dumps(self, indent=2, ensure_ascii=False)
+        if isinstance(ans, unicode):
+            ans = ans.encode('utf-8')
+        return b'json:' + ans
+
+    def deserialize(self, raw):
         try:
-            d = ast.literal_eval(raw)
+            if raw.startswith(b'json:'):
+                d = json.loads(raw[len(b'json:'):])
+            else:
+                d = ast.literal_eval(raw)
         except Exception:
             pass
         else:
             if d:
                 self.update(d)
+    from_string = deserialize
 
     def merge_recommendations(self, get_option, level, options,
             only_existing=False):
