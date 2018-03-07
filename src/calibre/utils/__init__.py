@@ -24,3 +24,29 @@ def join_with_timeout(q, timeout=2):
     finally:
         q.all_tasks_done.release()
 
+
+def unpickle_binary_string(data):
+    # Maintains compatibility with python's pickle module protocol version 2
+    import struct
+    from pickle import PROTO, SHORT_BINSTRING, BINSTRING
+    if data.startswith(PROTO + b'\x02'):
+        offset = 2
+        which = data[offset]
+        offset += 1
+        if which == BINSTRING:
+            sz, = struct.unpack_from(b'<i', data, offset)
+            offset += struct.calcsize(b'<i')
+        elif which == SHORT_BINSTRING:
+            sz = ord(data[offset])
+            offset += 1
+        else:
+            return
+        return data[offset:offset + sz]
+
+
+def pickle_binary_string(data):
+    # Maintains compatibility with python's pickle module protocol version 2
+    import struct
+    from pickle import PROTO, BINSTRING
+    data = bytes(data)
+    return PROTO + b'\x1b' + BINSTRING + struct.pack(b'<i', len(data)) + data
