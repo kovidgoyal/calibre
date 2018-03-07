@@ -26,7 +26,7 @@ from calibre.srv.metadata import (
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, numeric_sort_key
 from calibre.utils.localization import get_lang
 from calibre.utils.search_query_parser import ParseException
 
@@ -393,4 +393,4 @@ def field_names(ctx, rd, field):
     Optional: ?library_id=<default library>
     '''
     db, library_id = get_library_data(ctx, rd)[:2]
-    return tuple(db.all_field_names(field))
+    return tuple(sorted(db.all_field_names(field), key=numeric_sort_key))
