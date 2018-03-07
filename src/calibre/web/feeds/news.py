@@ -889,11 +889,6 @@ class BasicNewsRecipe(Recipe):
             self.verbose = True
         self.report_progress = progress_reporter
 
-        if isinstance(self.feeds, basestring):
-            self.feeds = eval(self.feeds)
-            if isinstance(self.feeds, basestring):
-                self.feeds = [self.feeds]
-
         if self.needs_subscription and (
                 self.username is None or self.password is None or
                 (not self.username and not self.password)):
