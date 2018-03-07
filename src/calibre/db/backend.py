@@ -35,6 +35,7 @@ from calibre.utils.formatter_functions import (load_user_template_functions,
             unload_user_template_functions,
             compile_user_template_functions,
             formatter_functions)
+import calibre.utils.safe_pickle as safe_pickle
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, UUIDTable, RatingTable)
@@ -1694,7 +1695,7 @@ class DB(object):
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
             if data:
-                return cPickle.loads(bytes(data))
+                return safe_pickle.loads(bytes(data))
 
     def has_conversion_options(self, ids, fmt='PIPE'):
         ids = frozenset(ids)

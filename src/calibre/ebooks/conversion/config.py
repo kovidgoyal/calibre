@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, ast
 
 from calibre.utils.config import config_dir
 from calibre.utils.lock import ExclusiveFile
@@ -84,11 +84,12 @@ class GuiRecommendations(dict):
 
     def from_string(self, raw):
         try:
-            d = eval(raw)
-        except (SyntaxError, TypeError):
-            d = None
-        if d:
-            self.update(d)
+            d = ast.literal_eval(raw)
+        except Exception:
+            pass
+        else:
+            if d:
+                self.update(d)
 
     def merge_recommendations(self, get_option, level, options,
             only_existing=False):
@@ -103,5 +104,3 @@ class GuiRecommendations(dict):
                 self.disabled_options.add(name)
             elif opt.level > level or name not in self:
                 self[name] = opt.recommended_value
-
-
