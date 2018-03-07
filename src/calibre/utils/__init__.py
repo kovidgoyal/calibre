@@ -47,6 +47,6 @@ def unpickle_binary_string(data):
 def pickle_binary_string(data):
     # Maintains compatibility with python's pickle module protocol version 2
     import struct
-    from pickle import PROTO, BINSTRING
+    from pickle import PROTO, BINSTRING, STOP
     data = bytes(data)
-    return PROTO + b'\x1b' + BINSTRING + struct.pack(b'<i', len(data)) + data
+    return PROTO + b'\x02' + BINSTRING + struct.pack(b'<i', len(data)) + data + STOP

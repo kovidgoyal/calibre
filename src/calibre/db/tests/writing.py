@@ -444,7 +444,7 @@ class WritingTest(BaseTest):
         all_ids = cache.all_book_ids()
         self.assertFalse(cache.has_conversion_options(all_ids))
         self.assertIsNone(cache.conversion_options(1))
-        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        op1, op2 = b"{'xx':'yy'}", b"{'yy':'zz'}"
         cache.set_conversion_options({1:op1, 2:op2})
         self.assertTrue(cache.has_conversion_options(all_ids))
         self.assertEqual(cache.conversion_options(1), op1)
