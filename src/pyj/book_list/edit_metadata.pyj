@@ -121,7 +121,21 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
 
 
 def add_completion(container_id, name):
-    pass
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    le = c.querySelector('[data-ctype="edit"] input')
+    val = le.value or ''
+    val = value_to_json(val)
+    if jstype(val) is 'string':
+        le.value = name
+    elif val:
+        if val.length:
+            val[-1] = name
+        else:
+            val.push(name)
+        le.value = val.join(update_completions.list_to_ui) + update_completions.list_to_ui
+    le.focus()
 
 
 def show_completions(container_id, div, field, prefix, names):
