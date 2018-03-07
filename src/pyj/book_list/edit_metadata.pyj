@@ -160,7 +160,7 @@ def update_completions(container_id, ok, field, names):
         return
     pl = prefix.toLowerCase().strip()
     if pl:
-        if pl.startswith(update_completions.prefix.toLowerCase()):
+        if update_completions.prefix and pl.startswith(update_completions.prefix.toLowerCase()):
             matching_names = [x for x in update_completions.names if x.toLowerCase().startswith(pl)]
         else:
             matching_names = [x for x in names if x.toLowerCase().startswith(pl)]
