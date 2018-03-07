@@ -1695,7 +1695,11 @@ class DB(object):
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
             if data:
-                return safe_pickle.loads(bytes(data))
+                try:
+                    return safe_pickle.loads(bytes(data))
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
 
     def has_conversion_options(self, ids, fmt='PIPE'):
         ids = frozenset(ids)
