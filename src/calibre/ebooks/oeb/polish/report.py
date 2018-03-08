@@ -7,14 +7,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath, os, time, types
-from collections import namedtuple, defaultdict, Counter
+from collections import namedtuple, defaultdict
 from itertools import chain
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
-from calibre.ebooks.oeb.polish.spell import get_all_words
-from calibre.utils.icu import numeric_sort_key, ord_string, safe_chr
+from calibre.ebooks.oeb.polish.spell import get_all_words, count_all_chars
+from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
 from css_selectors import Select, SelectorError
 
@@ -63,6 +63,7 @@ def files_data(container, *args):
     for name, path in container.name_path_map.iteritems():
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
                    get_category(name, container.mime_map.get(name, '')))
+
 
 Image = namedtuple('Image', 'name mime_type usage size basename id width height')
 
@@ -139,6 +140,7 @@ def create_anchor_map(root, pat, name):
             ans[anchor] = (LinkLocation(name, elem.sourceline, anchor), description_for_anchor(elem))
     return ans
 
+
 Anchor = namedtuple('Anchor', 'id location text')
 L = namedtuple('Link', 'location text is_external href path_ok anchor_ok anchor ok')
 
@@ -192,6 +194,7 @@ def links_data(container, *args):
                 link = Link(location, text, False, dest, False, False, Anchor(frag, None, None))
         yield link
 
+
 Word = namedtuple('Word', 'id word locale usage')
 
 
@@ -199,32 +202,19 @@ def words_data(container, book_locale, *args):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
+
 Char = namedtuple('Char', 'id char codepoint usage count')
 
 
-def chars_data(container, *args):
-    chars = defaultdict(set)
-    counter = Counter()
-
-    def count(codepoint):
-        counter[codepoint] += 1
-
-    for name, is_linear in container.spine_names:
-        if container.mime_map.get(name) not in OEB_DOCS:
-            continue
-        raw = container.raw_data(name)
-        counts = Counter(ord_string(raw))
-        counter.update(counts)
-        for codepoint in counts:
-            chars[codepoint].add(name)
-
+def chars_data(container, book_locale, *args):
+    cc = count_all_chars(container, book_locale)
     nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
 
     def sort_key(name):
         return nmap.get(name, len(nmap)), numeric_sort_key(name)
 
-    for i, (codepoint, usage) in enumerate(chars.iteritems()):
-        yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), counter[codepoint])
+    for i, (codepoint, usage) in enumerate(cc.chars.iteritems()):
+        yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), cc.counter[codepoint])
 
 
 CSSRule = namedtuple('CSSRule', 'selector location')
