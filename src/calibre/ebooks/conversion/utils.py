@@ -358,7 +358,7 @@ class HeuristicProcessor(object):
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
-        lookahead = "(?<=.{"+unicode(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))"
+        lookahead = "(?<=.{"+unicode(length)+u"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))"
         em_en_lookahead = "(?<=.{"+unicode(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
         line_ending = "\s*(?P<style_close></(span|[iub])>)?\s*(</(p|div)>)?"
