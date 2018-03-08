@@ -874,7 +874,7 @@ class CharsWidget(QWidget):
             ed = boss.edit_file_requested(file_name)
             if ed is None:
                 return
-            if ed.editor.find(pat, complete=not from_cursor):
+            if ed.editor.find_text(pat, complete=not from_cursor):
                 boss.show_editor(file_name)
                 return True
         return False
