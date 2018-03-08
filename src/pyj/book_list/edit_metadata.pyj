@@ -110,7 +110,7 @@ def line_edit_get_value(container):
 def simple_line_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
     name = fm.name or field
-    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True)
+    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True, style='width: 100%')
     le.value = resolved_metadata(mi, field) or ''
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
@@ -200,7 +200,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     update_completions.ui_to_list = ui_to_list
     update_completions.list_to_ui = list_to_ui
     name = fm.name or field
-    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True, oninput=line_edit_updated.bind(None, container_id, field))
+    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True, style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
     le.value = (resolved_metadata(mi, field) or v'[]').join(list_to_ui)
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
