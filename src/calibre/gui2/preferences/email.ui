@@ -40,6 +40,12 @@
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
         <widget class="QToolButton" name="email_add">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="toolTip">
           <string>Add an email address to which to send books</string>
          </property>
@@ -63,6 +69,12 @@
        </item>
        <item>
         <widget class="QPushButton" name="email_make_default">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Make &amp;default</string>
          </property>
@@ -70,6 +82,12 @@
        </item>
        <item>
         <widget class="QToolButton" name="email_remove">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>&amp;Remove email</string>
          </property>
