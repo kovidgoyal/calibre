@@ -72,6 +72,7 @@ class EditorWidget(QWebView):  # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
+        self.base_url = None
         self._parent = weakref.ref(parent)
         self.readonly = False
 
@@ -370,9 +371,16 @@ class EditorWidget(QWebView):  # {{{
             return ans
 
         def fset(self, val):
-            self.setHtml(val)
+            if self.base_url is None:
+                self.setHtml(val)
+            else:
+                self.setHtml(val, self.base_url)
             self.set_font_style()
         return property(fget=fget, fset=fset)
+
+    def set_base_url(self, qurl):
+        self.base_url = qurl
+        self.setHtml('', self.base_url)
 
     def set_html(self, val, allow_undo=True):
         if not allow_undo or self.readonly:
@@ -650,6 +658,7 @@ class Editor(QWidget):  # {{{
             t = getattr(self, 'toolbar%d'%i)
             t.setIconSize(QSize(18, 18))
         self.editor = EditorWidget(self)
+        self.set_base_url = self.editor.set_base_url
         self.set_html = self.editor.set_html
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)

@@ -14,7 +14,7 @@ from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
-from calibre.gui2.book_details import css, details_context_menu_event, render_html
+from calibre.gui2.book_details import css, details_context_menu_event, render_html, set_html
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog
@@ -275,7 +275,7 @@ class BookInfo(QDialog):
         self.cover_pixmap.setDevicePixelRatio(dpr)
         self.resize_cover()
         html = render_html(mi, self.css, True, self, pref_name='popup_book_display_fields')
-        self.details.setHtml(html)
+        set_html(mi, html, self.details)
         self.marked = mi.marked
         self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
         self.update_cover_tooltip()

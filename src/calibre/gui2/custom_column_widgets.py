@@ -5,10 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from functools import partial
 
 from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
-        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout,
+        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, QUrl,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
         QPushButton, QMessageBox, QToolButton, Qt, QPlainTextEdit)
 
@@ -314,6 +315,12 @@ class Comments(Base):
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
+
+    def initialize(self, book_id):
+        path = self.db.abspath(book_id, index_is_id=True)
+        if path:
+            self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
+        return Base.initialize(self, book_id)
 
     def setter(self, val):
         if not val or not val.strip():

@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
     QPixmap, QDialog, QMenu, QLineEdit, QSizePolicy, QKeySequence,
     QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime, QUndoCommand,
-    QUndoStack, QVBoxLayout, QPlainTextEdit)
+    QUndoStack, QVBoxLayout, QPlainTextEdit, QUrl)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog, RatingEditor
@@ -1247,6 +1247,9 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        path = db.abspath(id_, index_is_id=True)
+        if path:
+            self.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         self.current_val = db.comments(id_, index_is_id=True)
         self.original_val = self.current_val
 

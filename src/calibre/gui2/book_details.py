@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import cPickle
+import os
 import re
 from binascii import unhexlify
 from collections import namedtuple
@@ -36,6 +37,18 @@ from calibre.utils.localization import is_rtl
 
 _css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
+
+
+def set_html(mi, html, web_view):
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    book_id = getattr(mi, 'id', None)
+    if gui and book_id is not None:
+        path = gui.current_db.abspath(book_id, index_is_id=True)
+        if path:
+            web_view.setHtml(html, QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
+            return
+    web_view.setHtml(html)
 
 
 def css():
@@ -603,7 +616,7 @@ class BookInfo(QWebView):
 
     def show_data(self, mi):
         html = render_html(mi, css(), self.vertical, self.parent())
-        self.setHtml(html)
+        set_html(mi, html, self)
 
     def mouseDoubleClickEvent(self, ev):
         swidth = self.page().mainFrame().scrollBarGeometry(Qt.Vertical).width()
