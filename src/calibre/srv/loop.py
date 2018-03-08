@@ -273,6 +273,10 @@ class Connection(object):  # {{{
             self.read_buffer.recv_from(self.socket)
         except ssl.SSLWantReadError:
             return
+        except ssl.SSLError as e:
+            self.log.error('Error while reading SSL data from client: %s' % as_unicode(e))
+            self.ready = False
+            return
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return
