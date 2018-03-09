@@ -115,7 +115,7 @@ def get_sourceforge_data():
 
 def get_fosshub_data():
     with open(os.environ['PENV'] + '/fosshub', 'rb') as f:
-        return f.read().decode('utf-8')
+        return f.read().decode('utf-8').strip()
 
 
 def send_data(loc):
