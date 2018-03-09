@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title:
 
+- version: 3.19.0
+  date: 2018-03-09
+
+  new features:
+    - title: "Driver for the new PocketBook 740"
+
+    - title: "Allow using relative URLs in comments type metadata. The relative URLs are interpreted relative to the book folder in the calibre library"
+
+    - title: "Edit book: Reports: Do not show characters from the HTML markup in the characters report."
+      tickets: [1753788]
+
+    - title: "Allow adding the Virtual library button to any toolbar/menu via Preferences->Toolbars & menus"
+
+  bug fixes:
+    - title: "Server: Fix server becoming unresponsive if a client sends invalid SSL data at exactly the right moment"
+
+    - title: "Conversion heuristics: Make unwrapping recognize Georgian letters as well."
+      tickets: [1753533]
+
+    - title: "Make de-serialization of stored conversion options safe against maliciously crafted input"
+      tickets: [1753870]
+
+    - title: "E-book viewer: Change the file format used to import/export bookmarks to use JSON. This prevents malicious bookmarks files from causing code execution."
+      tickets: [1753870]
+
+    - title: "Make the history completion for the search and replace edit box case-sensitive."
+      tickets: [1752447]
+
+    - title: "PDF Output: When the input document contains multiple anchors with the same value, use the first anchor rather than the last. This follows browser behavior."
+      tickets: [1752825]
+
+    - title: "FB2 Input: Add <div> to <blockquote> content to silence the useless epubcheck"
+      tickets: [1752141]
+
+  improved recipes:
+    - WirtschaftsWoche Online
+    - Spektrum der Wissenschaft
+
+  new recipes:
+    - title: Granta
+      author: Gary Arnold
+
 - version: 3.18.0
   date: 2018-02-23
 
