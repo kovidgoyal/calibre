@@ -159,9 +159,11 @@ def absurl(url):
         url = 'https://www.granta.com' + url
     return url
 
+
 def stripstyle(tag):
     if tag is not None:
         del tag['style']
+
 
 def get_innermost_string(tag):
     while hasattr(tag, 'contents') and len(tag.contents) > 0 and tag.contents[0] is not None:
