@@ -148,6 +148,14 @@ def show_completions(container_id, div, field, prefix, names):
             break
 
 
+def query_contains(haystack, needle):
+    return haystack.toLowerCase().indexOf(needle) is not -1
+
+
+def query_startswitch(haystack, needle):
+    return haystack.toLowerCase().indexOf(needle) is 0
+
+
 def update_completions(container_id, ok, field, names):
     c = document.getElementById(container_id)
     if not c:
@@ -172,12 +180,13 @@ def update_completions(container_id, ok, field, names):
         prefix = val[-1] if val.length else ''
     if prefix is update_completions.prefix:
         return
-    pl = prefix.toLowerCase().strip()
-    if pl:
-        if update_completions.prefix and pl.startswith(update_completions.prefix.toLowerCase()):
-            matching_names = [x for x in update_completions.names if x.toLowerCase().startswith(pl)]
-        else:
-            matching_names = [x for x in names if x.toLowerCase().startswith(pl)]
+    needle = prefix.toLowerCase().strip()
+
+    if needle:
+        interface_data = get_interface_data()
+        universe = update_completions.names if update_completions.prefix and needle.startswith(update_completions.prefix.toLowerCase()) else names
+        q = query_contains if interface_data.completion_mode is 'contains' else query_startswitch
+        matching_names = [x for x in universe if q(x, needle)]
     else:
         matching_names = []
     update_completions.prefix = prefix

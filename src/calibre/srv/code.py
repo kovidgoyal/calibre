@@ -142,6 +142,7 @@ def basic_interface_data(ctx, rd):
         'gui_pubdate_display_format': tweaks['gui_pubdate_display_format'],
         'gui_timestamp_display_format': tweaks['gui_timestamp_display_format'],
         'gui_last_modified_display_format': tweaks['gui_last_modified_display_format'],
+        'completion_mode': tweaks['completion_mode'],
         'use_roman_numerals_for_series_number': get_use_roman(),
         'translations': get_translations(),
         'icon_map': icon_map(),
