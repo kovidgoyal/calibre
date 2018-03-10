@@ -95,11 +95,12 @@ pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
 
 def get_sip_dir():
     if iswindows:
-        q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'sip'))
+        q = os.path.join(sys.prefix, 'share', 'sip')
     elif isfreebsd:
-        q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'py-sip'))
+        q = os.path.join(sys.prefix, 'share', 'py-sip')
     else:
-        q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'sip'))
+        q = os.path.join(sys.prefix, 'share', 'sip')
+    q = os.environ.get('SIP_DIR', q)
     for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
