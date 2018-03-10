@@ -36,6 +36,7 @@ PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
 if (islinux or ishaiku) and not PKGCONFIG:
     raise SystemExit('Failed to find pkg-config on your system. You can use the environment variable PKG_CONFIG to point to the pkg-config executable')
 
+
 def run_pkgconfig(name, envvar, default, flag, prefix):
     ans = []
     if envvar:
@@ -54,21 +55,28 @@ def run_pkgconfig(name, envvar, default, flag, prefix):
 
     return ans or ([default] if default else [])
 
+
 def pkgconfig_include_dirs(name, envvar, default):
     return run_pkgconfig(name, envvar, default, '--cflags-only-I', '-I')
+
 
 def pkgconfig_lib_dirs(name, envvar, default):
     return run_pkgconfig(name, envvar, default,'--libs-only-L', '-L')
 
+
 def pkgconfig_libs(name, envvar, default):
     return run_pkgconfig(name, envvar, default,'--libs-only-l', '-l')
+
 
 def consolidate(envvar, default):
     val = os.environ.get(envvar, default)
     ans = [x.strip() for x in val.split(os.pathsep)]
     return [x for x in ans if x and os.path.exists(x)]
 
+
 qraw = subprocess.check_output([QMAKE, '-query']).decode('utf-8')
+
+
 def readvar(name):
     return re.search('^%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
 
@@ -83,18 +91,22 @@ pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
+
+
 def get_sip_dir():
     if iswindows:
         q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'sip'))
     elif isfreebsd:
         q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'py-sip'))
     else:
-        q = os.path.join(sys.prefix, 'share', 'sip')
+        q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'sip'))
     for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
             return base
     raise EnvironmentError('Failed to find the location of the PyQt5 .sip files')
+
+
 pyqt['pyqt_sip_dir'] = get_sip_dir()
 pyqt['sip_inc_dir'] = os.environ.get('SIP_INC_DIR', sysconfig.get_path('include'))
 
