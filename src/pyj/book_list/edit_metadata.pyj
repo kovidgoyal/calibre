@@ -73,7 +73,12 @@ def onsubmit_field(get_value, container_id, book_id, field):
     ok, value = get_value(d)
     if not ok:
         return
-    if value is book_metadata(book_id)[field]:
+    is_series = value.series_index is not undefined
+    if is_series:
+        unchanged = value.series_name is book_metadata(book_id)[field] and value.series_index is book_metadata(book_id)[field + '_index']
+    else:
+        unchanged = value is book_metadata(book_id)[field]
+    if unchanged:
         on_close(container_id)
         return
 
@@ -81,8 +86,11 @@ def onsubmit_field(get_value, container_id, book_id, field):
         nonlocal has_changes
         clear(d)
         d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
-        jval = value_to_json(value)
-        changes[field] = jval
+        if is_series:
+            changes[field] = value_to_json(value.series_name)
+            changes[field + '_index'] = float(value.series_index)
+        else:
+            changes[field] = value_to_json(value)
         has_changes = True
         show_book(container_id, book_id)
         on_close(container_id)
@@ -91,20 +99,28 @@ def onsubmit_field(get_value, container_id, book_id, field):
     window.setTimeout(proceed, 0)  # needed to avoid console error about form submission failing because form is removed from DOM in onsubmit handler
 
 
-def create_form(widget, get_value, container_id, book_id, field, *edit_widgets):
+def create_form(widget, get_value, container_id, book_id, field):
     submit_action = onsubmit_field.bind(None, get_value, container_id, book_id, field)
     button = create_button(_('OK'), action=submit_action)
     widget.classList.add('metadata-editor')
     form = E.form(
         action='javascript: void(0)', onsubmit=submit_action, style='margin: 1ex auto',
         E.div(widget, style='margin-bottom: 1ex'),
-        E.div(button)
+        E.div(button), E.input(type='submit', style='display:none'),
     )
     return form
 
 
 def line_edit_get_value(container):
     return True, container.querySelector('input[type="text"]').value
+
+
+def series_edit_get_value(container):
+    val = {
+        'series_name': container.querySelector('input[type="text"]').value,
+        'series_index': parseFloat(parseFloat(container.querySelector('input[type="number"]').value).toFixed(2)),
+    }
+    return True, val
 
 
 def simple_line_edit(container_id, book_id, field, fm, div, mi):
@@ -209,7 +225,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     update_completions.ui_to_list = ui_to_list
     update_completions.list_to_ui = list_to_ui
     name = fm.name or field
-    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True, style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
+    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
     le.value = (resolved_metadata(mi, field) or v'[]').join(list_to_ui)
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
@@ -219,6 +235,27 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     le.focus(), le.select()
     value_to_json = def(x):
         return [a.strip() for a in x.split(ui_to_list) if a.strip()]
+    field_names_for(field, update_completions.bind(None, container_id))
+
+
+def series_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
+    le.value = resolved_metadata(mi, field) or ''
+    value_to_json = def(x):
+        return x
+    ne = E.input(type='number', step='any', name=name.replace('#', '_c_') + '_index')
+    ne.value = parseFloat(parseFloat(resolved_metadata(mi, field + '_index')).toFixed(2))
+    table = E.table(style='width: 100%',
+        E.tr(E.td(_('Name:') + '\xa0'), E.td(le, style='width: 99%; padding-bottom: 1ex')),
+        E.tr(E.td(_('Number:') + '\xa0'), E.td(ne))
+    )
+    form = create_form(table, series_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
+    le.focus(), le.select()
     field_names_for(field, update_completions.bind(None, container_id))
 
 
@@ -239,6 +276,8 @@ def edit_field(container_id, book_id, field):
     update_completions.prefix = ''
     if field is 'authors':
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'series':
+        series_edit(container_id, book_id, field, fm, d, mi)
     else:
         simple_line_edit(container_id, book_id, field, fm, d, mi)
     if field is 'title':
@@ -246,7 +285,10 @@ def edit_field(container_id, book_id, field):
             return x or _('Untitled')
     elif field is 'authors':
         value_to_json = def(x):
-            return [a.strip() for a in x.split('&') if a.strip()] or [_('Unknown')]
+            ans = [a.strip() for a in x.split('&') if a.strip()]
+            if not ans.length:
+                ans = [_('Unknown')]
+            return ans
 
 
 def render_metadata(mi, table, container_id, book_id):  # {{{

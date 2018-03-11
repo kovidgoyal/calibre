@@ -460,7 +460,7 @@ def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
-        # add_button(container, 'edit', action=edit_metadata, tooltip=_('Edit the metadata for this book'))
+        add_button(container, 'edit', action=edit_metadata, tooltip=_('Edit the metadata for this book'))
         add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
         book_id = parse_url_params().book_id
         if book_id is '0':
