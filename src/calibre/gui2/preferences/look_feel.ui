@@ -234,7 +234,7 @@
        <item row="6" column="1">
         <widget class="QCheckBox" name="opt_show_splash_screen">
          <property name="text">
-          <string>Show &amp;splash screen at startup</string>
+          <string>Show the &amp;splash screen at startup</string>
          </property>
         </widget>
        </item>
