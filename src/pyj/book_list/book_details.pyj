@@ -117,6 +117,13 @@ def adjust_all_iframes(ev):
             adjust_iframe_height(iframe)
 
 
+def add_stars_to(stars, val, allow_half_stars):
+    for i in range(val // 2):
+        stars.appendChild(svgicon('star'))
+    if allow_half_stars and (val % 2):
+        stars.appendChild(svgicon('star-half'))
+
+
 window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
 def adjusting_sandboxed_html(html):
@@ -215,10 +222,7 @@ def render_metadata(mi, table, book_id):  # {{{
         stars = E.span()
         val = int(val or 0)
         if val > 0:
-            for i in range(val // 2):
-                stars.appendChild(svgicon('star'))
-            if fm.display.allow_half_stars and (val % 2):
-                stars.appendChild(svgicon('star-half'))
+            add_stars_to(stars, val, fm.display?.allow_half_stars)
             add_row(name, stars)
 
     def process_identifiers(field, fm, name, val):

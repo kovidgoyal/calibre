@@ -8,7 +8,8 @@ from gettext import gettext as _
 
 from ajax import ajax_send
 from book_list.book_details import (
-    basic_table_rules, fetch_metadata, field_sorter, no_book, report_load_failure
+    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
+    report_load_failure
 )
 from book_list.library_data import (
     book_metadata, current_library_id, field_names_for, library_data, load_status,
@@ -47,6 +48,10 @@ add_extra_css(def():
     style += build_rule(sel + '.completions > div', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
     style += build_rule(sel + '.completions > div:active', transform='scale(1.5)')
     style += build_rule(sel + '.completions > div:hover', background=get_color('window-foreground'), color=get_color('window-background'))
+
+    style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
+    style += build_rule(sel + '.rating-edit-container > li', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
+    style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
     return style
 )
 
@@ -278,7 +283,6 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     field_names_for(field, update_completions.bind(None, container_id))
 # }}}
 
-
 # Series edit {{{
 
 def series_edit_get_value(container):
@@ -382,6 +386,39 @@ def identifiers_edit(container_id, book_id, field, fm, div, mi):
     value_to_json = identity
 # }}}
 
+# Rating edit {{{
+
+def rating_get_value(container):
+    return True, parseInt(container.querySelector('.current-rating[data-rating]').getAttribute('data-rating'))
+
+
+def set_rating(evt):
+    li = evt.currentTarget
+    for nli in li.closest('ul').childNodes:
+        nli.classList.remove('current-rating')
+    li.classList.add('current-rating')
+
+
+def rating_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field) or 0
+    numbers = list(range(11)) if fm.display?.allow_half_stars else list(range(0, 11, 2))
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    for n in numbers:
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        if n:
+            add_stars_to(s, n, numbers.length > 6)
+        else:
+            s.appendChild(document.createTextNode(_('Unrated')))
+    form = create_form(c, rating_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    value_to_json = identity
+# }}}
 
 def edit_field(container_id, book_id, field):
     nonlocal value_to_json
@@ -404,8 +441,8 @@ def edit_field(container_id, book_id, field):
         series_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'datetime':
         date_edit(container_id, book_id, field, fm, d, mi)
-    # elif fm.datatype is 'rating':
-    #     rating_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'rating':
+        rating_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'int' or fm.datatype is 'float':
         number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
