@@ -131,6 +131,34 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
     value_to_json = identity
 # }}}
 
+# Number edit {{{
+
+def number_edit_get_value(container):
+    return True, container.querySelector('input[type="number"]').value
+
+
+def number_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.input(type='number', name=name.replace('#', '_c_'), step='any' if fm.datatype is 'float' else '1')
+    val = resolved_metadata(mi, field)
+    if val?:
+        le.value = val
+    else:
+        le.value = ''
+    form = create_form(le, number_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+
+    def safe_parse(x):
+        f = parseFloat if fm.datatype is 'float' else parseInt
+        ans = f(x)
+        if isNaN(ans):
+            ans = None
+        return ans
+    value_to_json = safe_parse
+# }}}
 
 # Line edit with completions {{{
 
@@ -378,6 +406,8 @@ def edit_field(container_id, book_id, field):
         date_edit(container_id, book_id, field, fm, d, mi)
     # elif fm.datatype is 'rating':
     #     rating_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'int' or fm.datatype is 'float':
+        number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
         identifiers_edit(container_id, book_id, field, fm, d, mi)
     else:
