@@ -29,7 +29,9 @@ from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
 IGNORED_FIELDS = {'formats', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
-value_to_json = None
+def identity(x):
+    return x
+value_to_json = identity
 changes = {}
 has_changes = False
 
@@ -126,8 +128,7 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     le.focus(), le.select()
-    value_to_json = def(x):
-        return x
+    value_to_json = identity
 # }}}
 
 
@@ -207,7 +208,6 @@ def update_completions(container_id, ok, field, names):
     show_completions(container_id, div, field, prefix, matching_names)
 
 
-update_completions.ui_to_list = None
 update_completions.list_to_ui = None
 update_completions.names = v'[]'
 update_completions.prefix = ''
@@ -219,19 +219,34 @@ def line_edit_updated(container_id, field):
 
 def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
-    update_completions.ui_to_list = ui_to_list
     update_completions.list_to_ui = list_to_ui
     name = fm.name or field
     le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
-    le.value = (resolved_metadata(mi, field) or v'[]').join(list_to_ui)
+    val = (resolved_metadata(mi, field) or v'[]')
+    if list_to_ui:
+        val = val.join(list_to_ui)
+    le.value = val
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
-        'Edit the "{0}" below. Multiple items can be separated by {1}.').format(name, list_to_ui.strip())))
+    if list_to_ui:
+        div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
+            'Edit the "{0}" below. Multiple items can be separated by {1}.').format(name, list_to_ui.strip())))
+    else:
+        div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
+            'Edit the "{0}" below.').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
     le.focus(), le.select()
-    value_to_json = def(x):
-        return [a.strip() for a in x.split(ui_to_list) if a.strip()]
+    if list_to_ui:
+        value_to_json = def(raw):
+            seen = {}
+            ans = v'[]'
+            for x in [a.strip() for a in raw.split(ui_to_list) if a.strip()]:
+                if not seen[x]:
+                    seen[x] = True
+                    ans.push(x)
+            return ans
+    else:
+        value_to_json = identity
     field_names_for(field, update_completions.bind(None, container_id))
 # }}}
 
@@ -251,8 +266,7 @@ def series_edit(container_id, book_id, field, fm, div, mi):
     name = fm.name or field
     le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
     le.value = resolved_metadata(mi, field) or ''
-    value_to_json = def(x):
-        return x
+    value_to_json = identity
     ne = E.input(type='number', step='any', name=name.replace('#', '_c_') + '_index')
     ne.value = parseFloat(parseFloat(resolved_metadata(mi, field + '_index')).toFixed(2))
     table = E.table(style='width: 100%',
@@ -311,8 +325,7 @@ def identifiers_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     for k in Object.keys(val):
         add_identifier(container_id, k, val[k])
-    value_to_json = def(x):
-        return x
+    value_to_json = identity
 # }}}
 
 
@@ -335,10 +348,15 @@ def edit_field(container_id, book_id, field):
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'series':
         series_edit(container_id, book_id, field, fm, d, mi)
+    # elif fm.datatype is 'rating':
+    #     rating_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
         identifiers_edit(container_id, book_id, field, fm, d, mi)
     else:
-        simple_line_edit(container_id, book_id, field, fm, d, mi)
+        if fm.link_column:
+            multiple_line_edit(fm.is_multiple?.list_to_ui, fm.is_multiple?.ui_to_list, container_id, book_id, field, fm, d, mi)
+        else:
+            simple_line_edit(container_id, book_id, field, fm, d, mi)
     if field is 'title':
         value_to_json = def(x):
             return x or _('Untitled')
