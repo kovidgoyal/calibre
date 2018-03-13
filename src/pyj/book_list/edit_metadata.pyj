@@ -18,7 +18,7 @@ from book_list.router import back
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
-from date import format_date
+from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
 from modals import error_dialog
 from session import get_interface_data
@@ -281,6 +281,32 @@ def series_edit(container_id, book_id, field, fm, div, mi):
     field_names_for(field, update_completions.bind(None, container_id))
 # }}}
 
+# Date edit {{{
+
+def date_edit_get_value(container):
+    return True, container.querySelector('input[type="date"]').value
+
+def date_to_datetime(raw):
+    if not raw:
+        return UNDEFINED_DATE_ISO
+    return raw + 'T12:00:00+00:00'  # we use 12 so that the date is the same in most timezones
+
+
+def date_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    value_to_json = date_to_datetime
+    name = fm.name or field
+    le = E.input(type='date', name=name.replace('#', '_c_'), min=UNDEFINED_DATE_ISO.split('T')[0], pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}")
+    val = resolved_metadata(mi, field) or ''
+    if val:
+        val = format_date(val, 'yyyy-MM-dd')
+    le.value = val or ''
+    form = create_form(le, date_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+
+# }}}
 
 # Identifiers edit {{{
 
@@ -348,6 +374,8 @@ def edit_field(container_id, book_id, field):
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'series':
         series_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'datetime':
+        date_edit(container_id, book_id, field, fm, d, mi)
     # elif fm.datatype is 'rating':
     #     rating_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':

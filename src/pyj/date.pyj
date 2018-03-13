@@ -2,7 +2,8 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-UNDEFINED_DATE = Date('0101-01-01T00:00:00+00:00')
+UNDEFINED_DATE_ISO = '0101-01-01T00:00:00+00:00'
+UNDEFINED_DATE = Date(UNDEFINED_DATE_ISO)
 
 def is_date_undefined(date):
     dy, uy = date.getUTCFullYear(), UNDEFINED_DATE.getUTCFullYear()
