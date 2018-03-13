@@ -106,21 +106,15 @@ def create_form(widget, get_value, container_id, book_id, field):
     form = E.form(
         action='javascript: void(0)', onsubmit=submit_action, style='margin: 1ex auto',
         E.div(widget, style='margin-bottom: 1ex'),
-        E.div(button), E.input(type='submit', style='display:none'),
+        E.div(class_='edit-form-button-container', button), E.input(type='submit', style='display:none'),
     )
     return form
 
 
+# Simple line edit {{{
+
 def line_edit_get_value(container):
     return True, container.querySelector('input[type="text"]').value
-
-
-def series_edit_get_value(container):
-    val = {
-        'series_name': container.querySelector('input[type="text"]').value,
-        'series_index': parseFloat(parseFloat(container.querySelector('input[type="number"]').value).toFixed(2)),
-    }
-    return True, val
 
 
 def simple_line_edit(container_id, book_id, field, fm, div, mi):
@@ -134,7 +128,10 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
     le.focus(), le.select()
     value_to_json = def(x):
         return x
+# }}}
 
+
+# Line edit with completions {{{
 
 def add_completion(container_id, name):
     c = document.getElementById(container_id)
@@ -236,6 +233,17 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     value_to_json = def(x):
         return [a.strip() for a in x.split(ui_to_list) if a.strip()]
     field_names_for(field, update_completions.bind(None, container_id))
+# }}}
+
+
+# Series edit {{{
+
+def series_edit_get_value(container):
+    val = {
+        'series_name': container.querySelector('input[type="text"]').value,
+        'series_index': parseFloat(parseFloat(container.querySelector('input[type="number"]').value).toFixed(2)),
+    }
+    return True, val
 
 
 def series_edit(container_id, book_id, field, fm, div, mi):
@@ -257,6 +265,55 @@ def series_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
     le.focus(), le.select()
     field_names_for(field, update_completions.bind(None, container_id))
+# }}}
+
+
+# Identifiers edit {{{
+
+def remove_identifier(evt):
+    li = evt.currentTarget.closest('li')
+    li.parentNode.removeChild(li)
+
+
+def add_identifier(container_id, name, val):
+    c = document.getElementById(container_id)?.querySelector('.identifiers-edit')
+    if not c:
+        return
+    b = create_button(_('Remove'), action=remove_identifier)
+    c.appendChild(E.li(style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor',
+        E.table(style='width: 100%',
+            E.tr(E.td(_('Type:') + '\xa0'), E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')), E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b)),
+
+            E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),
+    )))
+
+
+def identifiers_get_value(container):
+    ans = {}
+    for li in container.querySelectorAll('.identifiers-edit > li'):
+        n, v = li.querySelectorAll('input')
+        n, v = n.value, v.value
+        if n and v:
+            ans[n] = v
+    return True, ans
+
+
+def identifiers_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    val = resolved_metadata(mi, 'identifiers') or {}
+    c = E.ul(class_='identifiers-edit', style='list-style-type: none')
+    form = create_form(c, identifiers_get_value, container_id, book_id, field)
+    bc = form.querySelector('.edit-form-button-container')
+    bc.insertBefore(create_button(_('Add identifier'), None, add_identifier.bind(None, container_id, '', '')), bc.firstChild)
+    bc.insertBefore(document.createTextNode('\xa0'), bc.lastChild)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    for k in Object.keys(val):
+        add_identifier(container_id, k, val[k])
+    value_to_json = def(x):
+        return x
+# }}}
 
 
 def edit_field(container_id, book_id, field):
@@ -278,6 +335,8 @@ def edit_field(container_id, book_id, field):
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'series':
         series_edit(container_id, book_id, field, fm, d, mi)
+    elif field is 'identifiers':
+        identifiers_edit(container_id, book_id, field, fm, d, mi)
     else:
         simple_line_edit(container_id, book_id, field, fm, d, mi)
     if field is 'title':

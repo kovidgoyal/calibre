@@ -225,9 +225,8 @@ def render_metadata(mi, table, book_id):  # {{{
         if val:
             keys = Object.keys(val)
             if keys.length:
-                table.appendChild(E.tr(E.td(name + ':'), E.td()))
+                td = E.td()
                 url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-                td = table.lastChild.lastChild
                 for k in keys:
                     idval = val[k]
                     x = url_map[k]
@@ -235,6 +234,8 @@ def render_metadata(mi, table, book_id):  # {{{
                         if td.childNodes.length:
                             td.appendChild(document.createTextNode(', '))
                         td.appendChild(E.a(title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+                if td.childNodes.length:
+                    table.appendChild(E.tr(E.td(name + ':'), td))
 
     def process_languages(field, fm, name, val):
         if val and val.length:
