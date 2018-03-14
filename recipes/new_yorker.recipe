@@ -39,7 +39,6 @@ class NewYorker(BasicNewsRecipe):
                 h3 { margin-bottom: 6px; }
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
-    needs_subscription = 'optional'
     keep_only_tags = [
         dict(attrs={'class': lambda x: x and 'ArticleHeader__hed___' in x}),
         dict(attrs={'class': lambda x: x and 'ArticleHeader__dek___' in x}),
