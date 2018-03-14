@@ -12,8 +12,8 @@ from book_list.book_details import (
     report_load_failure
 )
 from book_list.library_data import (
-    book_metadata, current_library_id, field_names_for, library_data, load_status,
-    loaded_book_ids, set_book_metadata
+    book_metadata, cover_url, current_library_id, field_names_for, library_data,
+    load_status, loaded_book_ids, set_book_metadata
 )
 from book_list.router import back
 from book_list.theme import get_color
@@ -21,6 +21,9 @@ from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
+from file_uploads import (
+    update_status_widget, upload_files_widget, upload_status_widget
+)
 from modals import error_dialog
 from session import get_interface_data
 from utils import (
@@ -474,6 +477,29 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
         return val_map[x]
 # }}}
 
+# Cover edit {{{
+
+def cover_chosen(top_container_id, book_id, container_id, files):
+    nonlocal has_changes
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    if not files[0]:
+        return
+    file = files[0]
+    changes.cover = file
+    has_changes = True
+    on_close(top_container_id)
+cover_chosen.counter = 0
+
+
+def cover_edit(container_id, book_id, field, fm, div, mi):
+    upload_files_widget(div, cover_chosen.bind(None, container_id, book_id), _(
+        'Change the cover by <a>selecting the cover image</a> or drag and drop of the cover image here.'),
+    single_file=True, accept_extensions='png jpeg jpg')
+
+# }}}
+
 def edit_field(container_id, book_id, field):
     nonlocal value_to_json
     fm = library_data.field_metadata[field]
@@ -491,6 +517,8 @@ def edit_field(container_id, book_id, field):
     update_completions.prefix = ''
     if field is 'authors':
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
+    elif field is 'cover':
+        cover_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'series':
         series_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'datetime':
@@ -710,6 +738,21 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             print('Failed to render metadata field: ' + field)
             traceback.print_exc()
 
+    current_edit_action = edit_field.bind(None, container_id, book_id, 'cover')
+    table.appendChild(E.tr(onclick=current_edit_action, E.td(_('Cover') + ':'), E.td()))
+    img = E.img(
+        style='max-width: 300px; max-height: 400px',
+    )
+    if changes.cover:
+        r = FileReader()
+        r.onload = def(evt):
+            img.src = evt.target.result
+            changes.cover = evt.target.result
+        r.readAsDataURL(changes.cover)
+        v'delete changes.cover'
+    else:
+        img.src = cover_url(book_id)
+    table.lastChild.lastChild.appendChild(img)
 # }}}
 
 
@@ -735,14 +778,22 @@ def changes_submitted(container_id, book_id, end_type, xhr, ev):
     on_close(container_id)
 
 
+def on_progress(container_id, book_id, loaded, total, xhr):
+    container = document.getElementById(container_id)
+    if container and total:
+        update_status_widget(container, loaded, total)
+
+
 def submit_changes(container_id, book_id):
     c = document.getElementById(container_id)
     d = c.querySelector('div[data-ctype="show"]')
     clear(d)
     d.appendChild(E.div(style='margin: 1ex 1rem', _('Uploading changes to server, please wait...')))
     data = {'changes': changes, 'loaded_book_ids': loaded_book_ids()}
+    w = upload_status_widget()
+    d.appendChild(w)
     ajax_send(
-        f'cdb/set-fields/{book_id}/{current_library_id()}', data, changes_submitted.bind(None, container_id, book_id))
+        f'cdb/set-fields/{book_id}/{current_library_id()}', data, changes_submitted.bind(None, container_id, book_id), on_progress.bind(None, container_id, book_id))
 
 
 def show_book(container_id, book_id):
