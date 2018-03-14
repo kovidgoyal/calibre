@@ -415,7 +415,37 @@ def rating_edit(container_id, book_id, field, fm, div, mi):
         else:
             s.appendChild(document.createTextNode(_('Unrated')))
     form = create_form(c, rating_get_value, container_id, book_id, field)
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    value_to_json = identity
+# }}}
+
+# Enum edit {{{
+
+def enum_get_value(container):
+    return True, container.querySelector('.current-rating[data-rating]').getAttribute('data-rating')
+
+
+def set_enum(evt):
+    li = evt.currentTarget
+    for nli in li.closest('ul').childNodes:
+        nli.classList.remove('current-rating')
+    li.classList.add('current-rating')
+
+
+def enum_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field) or 0
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    for n in v'[""]'.concat(fm.display.enum_values):
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        s.appendChild(document.createTextNode(n or _('Blank')))
+    form = create_form(c, enum_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     value_to_json = identity
 # }}}
@@ -443,6 +473,8 @@ def edit_field(container_id, book_id, field):
         date_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'rating':
         rating_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'enumeration':
+        enum_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'int' or fm.datatype is 'float':
         number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
@@ -469,10 +501,15 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     current_edit_action = None
 
     def allowed_fields(field):
+        fm = field_metadata[field]
+        if not fm:
+            return False
         if field.endswith('_index'):
-            fm = field_metadata[field[:-len('_index')]]
-            if fm and fm.datatype is 'series':
+            pfm = field_metadata[field[:-len('_index')]]
+            if pfm and pfm.datatype is 'series':
                 return False
+        if fm.datatype is 'composite':
+            return False
         if field.startswith('#'):
             return True
         if field in IGNORED_FIELDS or field.endswith('_sort') or field[0] is '@':
