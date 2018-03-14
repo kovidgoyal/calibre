@@ -426,6 +426,16 @@ def lang_map():
     return _lang_map
 
 
+def lang_map_for_ui():
+    ans = getattr(lang_map_for_ui, 'ans', None)
+    if ans is None:
+        ans = lang_map().copy()
+        for x in ('zxx', 'mis', 'mul'):
+            ans.pop(x, None)
+        lang_map_for_ui.ans = ans
+    return ans
+
+
 def langnames_to_langcodes(names):
     '''
     Given a list of localized language names return a mapping of the names to 3
