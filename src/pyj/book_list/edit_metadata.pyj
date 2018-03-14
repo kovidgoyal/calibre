@@ -426,16 +426,9 @@ def enum_get_value(container):
     return True, container.querySelector('.current-rating[data-rating]').getAttribute('data-rating')
 
 
-def set_enum(evt):
-    li = evt.currentTarget
-    for nli in li.closest('ul').childNodes:
-        nli.classList.remove('current-rating')
-    li.classList.add('current-rating')
-
-
 def enum_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
-    val = resolved_metadata(mi, field) or 0
+    val = resolved_metadata(mi, field) or ''
     name = fm.name or field
     c = E.ul(class_='rating-edit-container')
     for n in v'[""]'.concat(fm.display.enum_values):
@@ -448,6 +441,35 @@ def enum_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     value_to_json = identity
+# }}}
+
+# Bool edit {{{
+
+def bool_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field)
+    if val:
+        val = 'y'
+    else:
+        if val is False:
+            val = 'n'
+        else:
+            val = ''
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    names = {'': _('Blank'), 'y': _('Yes'), 'n': _('No')}
+    for n in v"['', 'y', 'n']":
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        s.appendChild(document.createTextNode(names[n]))
+    form = create_form(c, enum_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    val_map = {'': None, 'y': True, 'n': False}
+    value_to_json = def(x):
+        return val_map[x]
 # }}}
 
 def edit_field(container_id, book_id, field):
@@ -475,6 +497,8 @@ def edit_field(container_id, book_id, field):
         rating_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'enumeration':
         enum_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'bool':
+        bool_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'int' or fm.datatype is 'float':
         number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
@@ -661,7 +685,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
                 else:
                     add_row(name, None)
             elif datatype is 'bool':
-                add_row(name, _('Yes') if val else _('No'))
+                add_row(name, _('Yes') if val else (_('No') if val? else ''))
             elif datatype is 'int' or datatype is 'float':
                 if val is not undefined and val is not None:
                     fmt = (fm.display or {}).number_format
