@@ -256,6 +256,8 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     name = fm.name or field
     le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
     val = (resolved_metadata(mi, field) or v'[]')
+    if field is 'languages':
+        val = [mi.lang_names[l] or l for l in val]
     if list_to_ui:
         val = val.join(list_to_ui)
     le.value = val
