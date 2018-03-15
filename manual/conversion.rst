@@ -98,7 +98,7 @@ This group of options controls various aspects of the look and feel of the conve
 
 .. _font-size-rescaling:
 
-Font size rescaling
+Fonts
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 One of the nicest features of the e-reading experience is the ability to easily adjust font sizes to
@@ -157,7 +157,34 @@ own line heights. However, this is something of a blunt weapon and should be use
 If you want to adjust the line heights for some section of the input, it's better to use
 the :ref:`extra-css`.
 
-Paragraph spacing
+In this section you can also tell calibre to embed any referenced fonts into
+the book. This will allow the fonts to work on reader devices even if they are
+not available on the device. 
+
+Text
+~~~~~~~~
+
+Text can be either justified or not. Justified text has extra spaces between
+words to give a smooth right margin. Some people prefer justified text, others
+do not. Normally, calibre will preserve the justification in the original
+document. If you want to override it you can use the :guilabel:`Text
+justification` option in this section.
+
+You can also tell calibre to :guilabel:`Smarten punctuation` which will replace
+plain quotes, dashes and ellipses with their typographically correct alternatives.
+Note that this algorithm is not perfect so it is worth reviewing the results.
+The reverse, namely, :guilabel:`Unsmarted punctuation` is also available.
+
+Finally, there is :guilabel:`Input character encoding`.  Older documents
+sometimes don't specify their character encoding. When converted, this can
+result in non-English characters or special characters like smart quotes being
+corrupted.  calibre tries to auto-detect the character encoding of the source
+document, but it does not always succeed. You can force it to assume a
+particular character encoding by using this setting.  `cp1252` is a common
+encoding for documents produced using Windows software. You should also read
+:ref:`char-encoding-faq` for more on encoding issues.
+ 
+Layout
 ~~~~~~~~~~~~~~~~~~~
 
 Normally, paragraphs in XHTML are rendered with a blank line between them and no leading text
@@ -181,17 +208,25 @@ Then, in your source document, mark the paragraphs that need spacing with `class
 If your input document is not in HTML, use the Debug option, described in the Introduction to get HTML
 (use the :file:`input` sub-directory).
 
+Another useful options is :guilabel:`Linearize tables`.  Some badly designed
+documents use tables to control the layout of text on the page.  When converted
+these documents often have text that runs off the page and other artifacts.
+This option will extract the content from the tables and present it in a linear
+fashion.  Note that this option linearizes *all* tables, so only use it if you
+are sure the input document does not use tables for legitimate purposes, like
+presenting tabular information.
+
+Styling
+~~~~~~~~~~
 
 .. _extra-css:
 
-Extra CSS
-~~~~~~~~~~
-
-This option allows you to specify arbitrary CSS that will be applied to all HTML files in the
-input. This CSS is applied with very high priority and so should override most CSS present in
-the **input document** itself. You can use this setting to fine tune the presentation/layout of your
-document. For example, if you want all paragraphs of class `endnote` to be right aligned, just 
-add::
+The :guilabel:`Extra CSS` option allows you to specify arbitrary CSS that will
+be applied to all HTML files in the input. This CSS is applied with very high
+priority and so should override most CSS present in the **input document**
+itself. You can use this setting to fine tune the presentation/layout of your
+document. For example, if you want all paragraphs of class `endnote` to be
+right aligned, just add::
     
     .endnote { text-align: right }
 
@@ -203,41 +238,18 @@ or if you want to change the indentation of all paragraphs::
 to use it to its full potential. You can use the debug pipeline option described above to see what
 CSS is present in your input document.
 
-Miscellaneous
-~~~~~~~~~~~~~~
+A simpler option is to use :guilabel:`Filter style information`. This allows
+you to remove all CSS properties of the specified types from the document. For
+example, you can use it to remove all colors or fonts.
 
-There are a few more options in this section.
+Transform styles
+~~~~~~~~~~~~~~~~~~~
 
-:guilabel:`No text justification`
-    Normally, if the output format supports it, calibre will force the output e-book
-    to have *justified* text (i.e., a smooth right margin). This option will turn
-    off this behavior, in which case whatever justification is specified in the input document
-    will be used instead.
+This is the most powerful styling related facility. You can use it to define
+rules that change styles based on various conditions. For example you can use
+it to change all green colors to blue, or remove all bold styling from the text
+or color all headings a certain color, etc.
 
-:guilabel:`Linearize tables`
-    Some badly designed documents use tables to control the layout of text on the page.
-    When converted these documents often have text that runs off the page and other artifacts.
-    This option will extract the content from the tables and present it in a linear fashion.
-    Note that this option linearizes *all* tables, so only use it if you are sure the
-    input document does not use tables for legitimate purposes, like presenting tabular information.
-
-:guilabel:`Transliterate unicode characters`
-    Transliterate unicode characters to an ASCII representation. Use with care because this will
-    replace unicode characters with ASCII. For instance it will replace "Михаил Горбачёв"
-    with "Mikhail Gorbachiov". Also, note that in cases where there are multiple representations
-    of a character (characters shared by Chinese and Japanese for instance) the representation used
-    by the largest number of people will be used (Chinese in the previous example).
-    This option is mainly useful if you are going to view the e-book on a device that does not
-    have support for unicode.
-
-:guilabel:`Input character encoding`
-    Older documents sometimes don't specify their character encoding. When converted, this can
-    result in non-English characters or special characters like smart quotes being corrupted. 
-    calibre tries to auto-detect the character encoding of the source document, but it does not
-    always succeed. You can force it to assume a particular character encoding by using this setting.
-    `cp1252` is a common encoding for documents produced using Windows software. You should also read
-    :ref:`char-encoding-faq` for more on encoding issues.
-    
 
 .. _page-setup:
 
