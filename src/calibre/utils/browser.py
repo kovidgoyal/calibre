@@ -149,7 +149,7 @@ class Browser(B):
         self._clone_actions['add_proxy_password'] = ('add_proxy_password', args, kwargs)
 
     def clone_browser(self):
-        clone = Browser()
+        clone = self.__class__()
         clone.https_handler.ssl_context = self.https_handler.ssl_context
         clone.addheaders = copy.deepcopy(self.addheaders)
         for func, args, kwargs in self._clone_actions.values():
