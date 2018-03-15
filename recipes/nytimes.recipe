@@ -10,6 +10,7 @@ import re
 from calibre import strftime
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 is_web_edition = True
 oldest_web_edition_article = 7  # days
@@ -79,10 +80,6 @@ class NewYorkTimes(BasicNewsRecipe):
     compress_news_images = True
     compress_news_images_auto_size = 5
 
-    keep_only_tags = [
-        dict(id='story-header'),
-        classes('story-body-supplemental story-interrupter'),
-    ]
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
         dict(attrs={'data-videoid':True}),
@@ -91,11 +88,37 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
-        dict(id='newsletter-promo supported-by-ad'.split()),
-        classes('story-print-citation supported-by accessibility-ad-header visually-hidden'),
+        dict(id='newsletter-promo supported-by-ad bottom-wrapper'.split()),
+        classes('story-print-citation supported-by accessibility-ad-header visually-hidden bottom-of-article ad'),
+        dict(attrs={'class': lambda x: x and ('SectionBar' in x or 'recirculation' in x or 'ResponsiveAd' in x)}),
     ]
 
-    def postprocess_html(self, soup, first_fetch):
+    def preprocess_html(self, soup):
+        article = soup.find(id='story')
+        # The NYT is apparently A/B testing a new page layout
+        has_supplemental = article.find(**classes('story-body-supplemental')) is not None
+        if has_supplemental:
+            keep_only_tags = [
+                dict(id='story-header'),
+                classes('story-body-supplemental story-interrupter'),
+            ]
+        else:
+            keep_only_tags = [
+                dict(id='story')
+            ]
+        body = Tag(soup, 'body')
+        for spec in keep_only_tags:
+            for tag in soup.find('body').findAll(**spec):
+                body.insert(len(body.contents), tag)
+        soup.find('body').replaceWith(body)
+
+        # Remove the header bar with New York Times as an SVG in it
+        for svg in soup.findAll('svg'):
+            h = svg.findParent('header')
+            if h is not None:
+                h.extract()
+
+        # Add a space to the dateline
         t = soup.find(**classes('dateline'))
         if t is not None:
             t.insert(0, ' ')
@@ -217,3 +240,28 @@ class NewYorkTimes(BasicNewsRecipe):
         if is_web_edition:
             return self.parse_web_sections()
         return self.parse_todays_page()
+
+    # The NYT occassionally returns bogus articles for some reason just in case
+    # it is because of cookies, dont store cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        from calibre import browser
+        br = browser()
+        response = br.open_novisit(*args, **kwargs)
+        # headers = response.info()
+        # if headers.get('X-PageType') == 'vi-story':
+        #     import tempfile
+        #     with tempfile.NamedTemporaryFile(suffix='.html', dir='/t/n', delete=False) as f:
+        #         f.write(response.read())
+        #     import time
+        #     time.sleep(1)
+        #     br = browser()
+        #     response = br.open_novisit(*args, **kwargs)
+        return response
+
+    open = open_novisit
