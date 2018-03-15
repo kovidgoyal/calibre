@@ -1,144 +1,50 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime, timedelta
-from calibre.ebooks.BeautifulSoup import Tag, BeautifulSoup
-from calibre.utils.magick import Image, PixelWand
-from urllib2 import Request, urlopen, URLError
 
 
-class FolhaOnline(BasicNewsRecipe):
-    THUMBALIZR_API = ''  # ---->Get your at http://www.thumbalizr.com/ and put here
-    LANGUAGE = 'pt_br'
-    language = 'pt_BR'
-    LANGHTM = 'pt-br'
-    ENCODING = 'cp1252'
-    ENCHTM = 'iso-8859-1'
-    directionhtm = 'ltr'
-    requires_version = (0, 7, 47)
-    news = True
+class Folha(BasicNewsRecipe):
+    title          = 'Folha de São Paolo'
+    language       = 'pt_BR'
+    __author__     = 'Bola de Fogo'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup   = True
 
-    title = u'Folha de S\xE3o Paulo'
-    __author__ = 'Euler Alves and Alex Mitrani, improved by Bola de Fogo'
-    description = u'Brazilian news from Folha de S\xE3o Paulo'
-    publisher = u'Folha de S\xE3o Paulo'
-    category = 'news, rss'
-
-    oldest_article = 4
-    max_articles_per_feed = 200
-    summary_length = 1000
-
-    remove_javascript = True
-    no_stylesheets = True
-    use_embedded_content = False
-    remove_empty_feeds = True
-    timefmt = ' [%d %b %Y (%a)]'
-
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
+    feeds          = [
+        (u'Poder', u'http://feeds.folha.uol.com.br/poder/rss091.xml'),
+        (u'Cotidiano', u'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
+        ('Painel', 'http://painel.blogfolha.uol.com.br/feed/'),
+        ('Josias', 'http://josiasdesouza.blogosfera.uol.com.br/feed/'),
+        ('Milton Neves', 'http://blogmiltonneves.bol.uol.com.br/feed/'),
+        ('Noblat', 'http://noblat.oglobo.globo.com/rss/ultimas.feed'),
+        (u'Mercado', u'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
+        (u'Mundo', u'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
+        (u'Esporte', u'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
+        (u'Comida', u'http://feeds.folha.uol.com.br/comida/rss091.xml'),
+        (u'Tec', u'http://feeds.folha.uol.com.br/tec/rss091.xml'),
+        (u'Ilustrada', u'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
+        (u'Opiniao', u'http://feeds.folha.uol.com.br/opiniao/rss091.xml'),
+        (u'Ciência', u'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
+        (u'Equilíbrio e Saúde', u'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
+        (u'Elio Gaspari', u'http://feeds.folha.uol.com.br/colunas/eliogaspari/rss091.xml'),
+        (u'Tati Bernardi', u'http://feeds.folha.uol.com.br/colunas/tatibernardi/rss091.xml'),
+        (u'PVC', u'http://feeds.folha.uol.com.br/colunas/pvc/rss091.xml'),
+        (u'Clóvis Rossi', u'http://feeds.folha.uol.com.br/colunas/clovisrossi/rss091.xml'),
+        (u'Hélio Schwartsman', u'http://feeds.folha.uol.com.br/colunas/helioschwartsman/rss091.xml'),
+        (u'Janio de Freitas', u'http://feeds.folha.uol.com.br/colunas/janiodefreitas/rss091.xml'),
+        (u'João Pereira Coutinho', u'http://feeds.folha.uol.com.br/colunas/joaopereiracoutinho/rss091.xml'),
+        (u'Juca', u'http://feeds.folha.uol.com.br/colunas/jucakfouri/rss091.xml'),
+        (u'Vinicius Torres Freitas', u'http://feeds.folha.uol.com.br/colunas/viniciustorres/rss091.xml'),
+        (u'Monica Bergamo', u'http://feeds.folha.uol.com.br/colunas/monicabergamo/rss091.xml'),
+        (u'Alexandre Schwartsman', u'http://feeds.folha.uol.com.br/colunas/alexandreschwartsman/rss091.xml'),
+        (u'Vinicius Mota', u'http://feeds.folha.uol.com.br/colunas/viniciusmota/rss091.xml'),
+        (u'Tostao', u'http://feeds.folha.uol.com.br/colunas/tostao/rss091.xml'),
+        (u'Reinaldo Azevedo', u'http://feeds.folha.uol.com.br/colunas/reinaldoazevedo/rss091.xml'),
+        (u'Contardo', u'http://feeds.folha.uol.com.br/colunas/contardocalligaris/rss091.xml'),
+        (u'Samuel Pessoa', u'http://feeds.folha.uol.com.br/colunas/samuelpessoa/rss091.xml'),
+        (u'Onbudsman', u'http://feeds.folha.uol.com.br/colunas/paula-cesarino-costa-ombudsman/rss091.xml'),
+        ('Mariliz Pereira', 'http://feeds.folha.uol.com.br/colunas/marilizpereirajorge/rss091.xml'),
+        ('X', 'http://xdesexo.blogfolha.uol.com.br/feed/'),
     ]
-
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
-
-    hoje = datetime.now()
-    pubdate = hoje.strftime('%a, %d %b')
-    if hoje.hour < 6:
-        hoje = hoje - timedelta(days=1)
-
-    CAPA = 'http://img.kiosko.net/' + hoje.strftime('%Y') + '/' + hoje.strftime(
-        '%m') + '/' + hoje.strftime('%d') + '/br/br_folha_spaulo.200.jpg'
-    SCREENSHOT = 'http://www1.folha.uol.com.br/'
-    cover_margins = (0, 0, 'white')
-    masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'articleNew'}),
-        dict(name='article', id='news'),
-    ]
-
-    feeds = [
-
-    (u'Em cima da hora', u'http://feeds.folha.uol.com.br/emcimadahora/rss091.xml'),
-    (u'Poder', u'http://feeds.folha.uol.com.br/poder/rss091.xml'),
-    (u'Cotidiano', u'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
-    (u'Mercado', u'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
-    (u'Mundo', u'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
-    (u'Esporte', u'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
-    (u'Comida', u'http://feeds.folha.uol.com.br/comida/rss091.xml'),
-    (u'Tec', u'http://feeds.folha.uol.com.br/tec/rss091.xml'),
-    (u'Ilustrada', u'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
-    (u'Ambiente', u'http://feeds.folha.uol.com.br/ambiente/rss091.xml'),
-    (u'Opiniao', u'http://feeds.folha.uol.com.br/opiniao/rss091.xml'),
-    (u'Ci\xEAncia', u'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
-    (u'Equil\xEDbrio e Sa\xFAde', u'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
-    (u'Elio Gaspari', u'http://feeds.folha.uol.com.br/colunas/eliogaspari/rss091.xml'),
-    (u'Tati Bernardi', u'http://feeds.folha.uol.com.br/colunas/tatibernardi/rss091.xml'),
-    (u'PVC', u'http://feeds.folha.uol.com.br/colunas/pvc/rss091.xml'),
-    (u'Clóvis Rossi', u'http://feeds.folha.uol.com.br/colunas/clovisrossi/rss091.xml'),
-    (u'Hélio Schwartsman', u'http://feeds.folha.uol.com.br/colunas/helioschwartsman/rss091.xml'),
-    (u'Humberto Luiz Peron', u'http://feeds.folha.uol.com.br/colunas/futebolnarede/rss091.xml'),
-    (u'João Pereira Coutinho', u'http://feeds.folha.uol.com.br/colunas/joaopereiracoutinho/rss091.xml'),
-    (u'Cony', u'http://feeds.folha.uol.com.br/colunas/carlosheitorcony/rss091.xml'),
-    (u'Juca', u'http://feeds.folha.uol.com.br/colunas/jucakfouri/rss091.xml'),
-    (u'Viniciu Torres Freitas', u'http://feeds.folha.uol.com.br/colunas/viniciustorres/rss091.xml'),
-    (u'Monica Bergamo', u'http://feeds.folha.uol.com.br/colunas/monicabergamo/rss091.xml'),
-    (u'Vinicius Mota', u'http://feeds.folha.uol.com.br/colunas/viniciusmota/rss091.xml'),
-    (u'Bernardo Guimaraes', u'http://aeconomianoseculo21.blogfolha.uol.com.br/feed/'),
-    (u'Tostao', u'http://feeds.folha.uol.com.br/colunas/tostao/rss091.xml'),
-    (u'Valdo Cruz', u'http://feeds.folha.uol.com.br/colunas/valdocruz/rss091.xml')
-    ]
-
-    conversion_options = {
-        'title': title, 'comments': description, 'publisher': publisher, 'tags': category, 'language': LANGUAGE, 'linearize_tables': True
-    }
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        if not soup.find(attrs={'http-equiv': 'Content-Language'}):
-            meta0 = Tag(soup, 'meta', [
-                        ("http-equiv", "Content-Language"), ("content", self.LANGHTM)])
-            soup.head.insert(0, meta0)
-        if not soup.find(attrs={'http-equiv': 'Content-Type'}):
-            meta1 = Tag(soup, 'meta', [
-                        ("http-equiv", "Content-Type"), ("content", "text/html; charset=" + self.ENCHTM)])
-            soup.head.insert(0, meta1)
-        return soup
-
-    def postprocess_html(self, soup, first):
-        # process all the images. assumes that the new html has the correct
-        # path
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and 'src' in tag):
-            iurl = tag['src']
-            img = Image()
-            img.open(iurl)
-            width, height = img.size
-            print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
-            if img < 0:
-                raise RuntimeError('Out of memory')
-            pw = PixelWand()
-            if(width > height and width > 590):
-                print 'Rotate image'
-                img.rotate(pw, -90)
-                img.save(iurl)
-        return soup
-
-    def get_cover_url(self):
-        cover_url = self.CAPA
-        pedido = Request(self.CAPA)
-        pedido.add_header('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ' +
-                          self.LANGHTM + '; userid=' + self.THUMBALIZR_API + ') Calibre/0.8.47 (like Gecko)')
-        pedido.add_header('Accept-Charset', self.ENCHTM)
-        pedido.add_header('Referer', self.SCREENSHOT)
-        try:
-            resposta = urlopen(pedido)
-            soup = BeautifulSoup(resposta)
-            cover_item = soup.find('body')
-            if cover_item:
-                cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
-                    '&url=' + self.SCREENSHOT + '&width=600&quality=90'
-            return cover_url
-        except URLError:
-            cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
-                '&url=' + self.SCREENSHOT + '&width=600&quality=90'
-            return cover_url
