@@ -49,7 +49,7 @@ META_NAMES = {
     'series': ('series',),
     'series_index': ('seriesnumber', 'series_index', 'series.index'),
     'rating': ('rating',),
-    'comments': ('comments',),
+    'comments': ('comments', 'dc.description'),
     'tags': ('tags',),
 }
 
