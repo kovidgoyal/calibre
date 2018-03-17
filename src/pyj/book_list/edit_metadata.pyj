@@ -139,6 +139,25 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
     value_to_json = identity
 # }}}
 
+# Text edit {{{
+
+def text_edit_get_value(container):
+    return True, container.querySelector('textarea').value
+
+
+def text_edit(container_id, book_id, field, fm, div, mi, get_name):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.textarea(name=name.replace('#', '_c_'), spellcheck='true', wrap='soft', style='width: 100%; min-height: 70vh')
+    le.value = resolved_metadata(mi, get_name or field) or ''
+    form = create_form(le, text_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+    value_to_json = identity
+
+# }}}
+
 # Number edit {{{
 
 def number_edit_get_value(container):
@@ -533,6 +552,16 @@ def edit_field(container_id, book_id, field):
         number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
         identifiers_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'comments':
+        ias = fm.display?.interpret_as
+        if ias is 'short-text':
+            simple_line_edit(container_id, book_id, field, fm, d, mi)
+        elif ias is 'long-text':
+            text_edit(container_id, book_id, field, fm, d, mi)
+        elif ias is 'markdown':
+            text_edit(container_id, book_id, field, fm, d, mi, field + '#markdown#')
+        else:
+            text_edit(container_id, book_id, field, fm, d, mi)
     else:
         if fm.link_column:
             multiple_line_edit(fm.is_multiple?.list_to_ui, fm.is_multiple?.ui_to_list, container_id, book_id, field, fm, d, mi)

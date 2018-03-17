@@ -55,6 +55,7 @@ def add_field(field, db, book_id, ans, field_metadata):
             elif datatype == 'comments' or field == 'comments':
                 ctype = field_metadata.get('display', {}).get('interpret_as', 'html')
                 if ctype == 'markdown':
+                    ans[field + '#markdown#'] = val
                     val = markdown(val)
                 elif ctype not in passthrough_comment_types:
                     val = comments_to_html(val)
