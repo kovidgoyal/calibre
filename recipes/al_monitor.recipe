@@ -95,7 +95,7 @@ class AlMonitor(BasicNewsRecipe):
 
         self._p('Got section. Processing links.')
 
-        for link in soup.findAll('a'):
+        for link in soup.findAll('a', href=True):
             href = link.get('href')
             text = self.text(link)
             if text and ('pulse/originals' in href):
