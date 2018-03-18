@@ -1374,7 +1374,7 @@ class KOBOTOUCH(KOBO):
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
                           AURA_ONE_PRODUCT_ID
 
-    BCD = [0x0110, 0x0326]
+    BCD = [0x0110, 0x0326, 0x401]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
