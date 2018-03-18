@@ -11,6 +11,10 @@ from book_list.book_details import (
     add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
     report_load_failure
 )
+from book_list.comments_editor import (
+    create_comments_editor, focus_comments_editor, get_comments_html,
+    set_comments_html
+)
 from book_list.library_data import (
     book_metadata, cover_url, current_library_id, field_names_for, library_data,
     load_status, loaded_book_ids, set_book_metadata
@@ -153,9 +157,26 @@ def text_edit(container_id, book_id, field, fm, div, mi, get_name):
     form = create_form(le, text_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
-    le.focus(), le.select()
-    value_to_json = identity
+    le.focus()
 
+
+def html_edit_get_value(container):
+    return True, get_comments_html(container)
+
+
+def html_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    value_to_json = identity
+    val = resolved_metadata(mi, field) or ''
+    name = fm.name or field
+    c = E.div(style='width: 100%; min-height: 75vh')
+    form = create_form(c, html_edit_get_value, container_id, book_id, field)
+    create_comments_editor(c)
+    set_comments_html(c, val)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    focus_comments_editor(c)
+    value_to_json = identity
 # }}}
 
 # Number edit {{{
@@ -561,7 +582,7 @@ def edit_field(container_id, book_id, field):
         elif ias is 'markdown':
             text_edit(container_id, book_id, field, fm, d, mi, field + '#markdown#')
         else:
-            text_edit(container_id, book_id, field, fm, d, mi)
+            html_edit(container_id, book_id, field, fm, d, mi)
     else:
         if fm.link_column:
             multiple_line_edit(fm.is_multiple?.list_to_ui, fm.is_multiple?.ui_to_list, container_id, book_id, field, fm, d, mi)

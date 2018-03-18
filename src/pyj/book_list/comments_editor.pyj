@@ -1,0 +1,56 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+from elementmaker import maker_for_document
+
+
+class CommentsEditorBoss:
+    pass
+
+
+def create_comments_editor(container):
+    ans = window.document.createElement('iframe')
+    ans.setAttribute('sandbox', 'allow-scripts')
+    ans.setAttribute('seamless', '')
+    ans.style.width = '100%'
+    container.appendChild(ans)
+    document = ans.contentWindow.document
+    E = maker_for_document(document)
+    toolbar1 = E.div(style='flex-grow: 1')
+    content = E.div(class_='content', style='flex-grow: 10')
+    content.onkeydown = def(evt):
+        evt.preventDefault()
+    content.contentEditable = True
+    document.body.appendChild(E.div(
+        style='display: flex; flex-direction: column; align-items: stretch',
+        toolbar1, content
+    ))
+
+
+
+def focus_comments_editor(container):
+    iframe = container.querySelector('iframe')
+    document = iframe.contentWindow.document
+    document.querySelector('.content').focus()
+    iframe.contentWindow.focus()
+
+
+def set_comments_html(container, html):
+    iframe = container.querySelector('iframe')
+    document = iframe.contentWindow.document
+    document.querySelector('.content').innerHTML = html
+
+
+def get_comments_html(container):
+    iframe = container.querySelector('iframe')
+    document = iframe.contentWindow.document
+    return document.querySelector('.content').innerHTML
+
+
+def develop(container):
+    container.setAttribute('style', 'width: 100%; min-height: 90vh; display: flex; flex-direction: column; align-items: stretch')
+    create_comments_editor(container)
+    set_comments_html(container, '<p>Testing, <i>testing</i> 123...')
+    focus_comments_editor(container)
