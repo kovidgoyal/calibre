@@ -5,14 +5,15 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.router import push_state, read_book_mode
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
-from read_book.comm import IframeWrapper
 from read_book.content_popup import ContentPopupOverlay
 from read_book.globals import current_book, set_current_spine_item
 from read_book.goto import get_next_section
@@ -22,7 +23,7 @@ from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
-from read_book.toc import update_visible_toc_nodes, get_current_toc_nodes
+from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import html_escape, is_ios, parse_url_params, username_key
@@ -163,7 +164,7 @@ class View:
             'show_footnote': self.on_show_footnote,
             'print': self.on_print,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), 'main', _('Bootstrapping book reader...'))
+        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), 'read_book.iframe', _('Bootstrapping book reader...'))
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)

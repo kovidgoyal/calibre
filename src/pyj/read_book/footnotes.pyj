@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from dom import clear
-from read_book.comm import IframeClient
+from iframe_comm import IframeClient
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import apply_settings, update_settings
 
@@ -220,3 +220,7 @@ class PopupIframeBoss:
     def content_loaded(self):
         apply_settings()
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
+
+
+def main():
+    main.boss = PopupIframeBoss()

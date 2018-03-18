@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
-from read_book.comm import IframeWrapper
+from iframe_comm import IframeWrapper
 from read_book.resources import load_resources
 
 CLASS_NAME = 'book-content-popup-container'
@@ -56,7 +56,7 @@ class ContentPopupOverlay:
             'error': self.view.on_iframe_error,
             'content_loaded': self.on_content_loaded,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'popup', _('Loading data, please wait...'))
+        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'read_book.footnotes', _('Loading data, please wait...'))
         self.pending_load = None
 
     @property

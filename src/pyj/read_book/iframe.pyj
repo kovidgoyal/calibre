@@ -5,14 +5,14 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from gettext import gettext as _
 
+from iframe_comm import IframeClient
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
-from read_book.comm import IframeClient
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
     flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
-from read_book.footnotes import PopupIframeBoss, is_footnote_link
+from read_book.footnotes import is_footnote_link
 from read_book.globals import (
     current_book, current_layout_mode, current_spine_item, set_boss,
     set_current_spine_item, set_layout_mode
@@ -382,10 +382,6 @@ class IframeBoss:
             else:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
-def init():
-    if window.iframe_type is 'main':
-        script = document.getElementById('bootstrap')
-        script.parentNode.removeChild(script)  # free up some memory
-        IframeBoss()
-    elif window.iframe_type is 'popup':
-        PopupIframeBoss()
+
+def main():
+    main.boss = IframeBoss()

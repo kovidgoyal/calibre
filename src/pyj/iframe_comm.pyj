@@ -18,7 +18,7 @@ LOADING_DOC = '''
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <script type="text/javascript" id="bootstrap">
-window.iframe_type = '__IFRAME_TYPE__';  // different in different iframes
+window.iframe_entry_point = '__ENTRY_POINT__';  // different in different iframes
 window.default_font_family = '__FONT__';  // from the theme
 __SCRIPT__
 end_script
@@ -58,14 +58,14 @@ class Messenger:
 
 class IframeWrapper:
 
-    def __init__(self, handlers, iframe, iframe_type, bootstrap_text):
+    def __init__(self, handlers, iframe, entry_point, bootstrap_text):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
         self.needs_init = True
         self.ready = False
         self.encrypted_communications = False
         self.srcdoc_created = False
-        self.iframe_type = iframe_type
+        self.entry_point = entry_point
         self.bootstrap_text = bootstrap_text
         self.handlers = {k: handlers[k] for k in handlers}
         self.on_ready_handler = self.handlers.ready
@@ -82,7 +82,7 @@ class IframeWrapper:
             'BS': self.bootstrap_text,
             'SCRIPT': iframe_js(),
             'FONT': get_font_family(),
-            'IFRAME_TYPE': self.iframe_type,
+            'ENTRY_POINT': self.entry_point,
         }
         self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
         self.srcdoc_created = True
