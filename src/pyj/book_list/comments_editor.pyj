@@ -2,55 +2,152 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+from gettext import gettext as _
 
-from elementmaker import maker_for_document
+from dom import clear, ensure_id
+from iframe_comm import IframeClient, IframeWrapper
 
 
 class CommentsEditorBoss:
-    pass
+
+    def __init__(self):
+        handlers = {
+            'initialize': self.initialize,
+            'set_html': self.set_html,
+            'get_html': self.get_html,
+        }
+        self.comm = IframeClient(handlers)
+
+    def initialize(self, data):
+        window.onerror = self.onerror
+        clear(document.body)
+        document.body.style.margin = '0'
+        document.body.style.padding = '0'
+        document.documentElement.style.height = document.body.style.height = '100%'
+        document.documentElement.style.overflow = document.body.style.overflow = 'hidden'
+        document.body.style.fontFamily = window.default_font_family
+        document.body.appendChild(E.div(style='width: 100%; height: 100%; padding: 0; margin: 0; border: solid 3px transparent; box-sizing: border-box'))
+        document.body.lastChild.contentEditable = True
+        document.body.lastChild.focus()
+
+    def onerror(self, msg, script_url, line_number, column_number, error_object):
+        if error_object is None:
+            # This happens for cross-domain errors (probably javascript injected
+            # into the browser via extensions/ userscripts and the like). It also
+            # happens all the time when using Chrome on Safari
+            console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
+        else:
+            console.log(error_object)
+
+    def set_html(self, data):
+        document.body.lastChild.innerHTML = data.html
+
+    def get_html(self, data):
+        self.comm.send_message('html', html=document.body.lastChild.innerHTML)
+
+
+registry = {}
+
+def add_editor(editor):
+    for k in Object.keys(registry):
+        if not document.getElementById(k):
+            v'delete registry[k]'
+    registry[editor.id] = editor
+
+
+class Editor:
+
+    def __init__(self, iframe):
+        handlers = {
+            'ready': self.on_iframe_ready,
+            'html': self.on_html_received,
+        }
+        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'book_list.comments_editor', _('Loading comments editor...'))
+        self.id = ensure_id(iframe)
+        self.ready = False
+        self.pending_set_html = None
+        self.get_html_callbacks = v'[]'
+
+    def init(self):
+        self.iframe_wrapper.init()
+
+    @property
+    def iframe(self):
+        return self.iframe_wrapper.iframe
+
+    def on_iframe_ready(self, msg):
+        self.ready = True
+        return self.after_iframe_initialized
+
+    def after_iframe_initialized(self):
+        if self.pending_set_html is not None:
+            self.set_html(self.pending_set_html)
+            self.pending_set_html = None
+        if self.get_html_callbacks.length:
+            self.get_html(self.get_html_callback)
+
+    def set_html(self, html):
+        if not self.ready:
+            self.pending_set_html = html
+            return
+        self.iframe_wrapper.send_message('set_html', html=html)
+
+    def get_html(self, proceed):
+        self.get_html_callbacks.push(proceed)
+        if self.ready:
+            self.iframe_wrapper.send_message('get_html')
+
+    def on_html_received(self, data):
+        if self.get_html_callbacks.length:
+            for f in self.get_html_callbacks:
+                f(data.html)
+            self.get_html_callbacks = v'[]'
+
+
+
+def create_editor():
+    iframe = E.iframe(sandbox='allow-scripts', seamless=True, style='flex-grow: 10', id=self.id)
+    editor = Editor(iframe)
+    add_editor(editor)
+    return iframe, editor
 
 
 def create_comments_editor(container):
-    ans = window.document.createElement('iframe')
-    ans.setAttribute('sandbox', 'allow-scripts')
-    ans.setAttribute('seamless', '')
-    ans.style.width = '100%'
-    container.appendChild(ans)
-    document = ans.contentWindow.document
-    E = maker_for_document(document)
-    toolbar1 = E.div(style='flex-grow: 1')
-    content = E.div(class_='content', style='flex-grow: 10')
-    content.onkeydown = def(evt):
-        evt.preventDefault()
-    content.contentEditable = True
-    document.body.appendChild(E.div(
-        style='display: flex; flex-direction: column; align-items: stretch',
-        toolbar1, content
-    ))
-
+    iframe, editor = create_editor()
+    toolbar1 = E.div(style='flex-grow: 0')
+    container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
+    container.appendChild(toolbar1)
+    container.appendChild(iframe)
+    return editor
 
 
 def focus_comments_editor(container):
     iframe = container.querySelector('iframe')
-    document = iframe.contentWindow.document
-    document.querySelector('.content').focus()
     iframe.contentWindow.focus()
 
 
 def set_comments_html(container, html):
     iframe = container.querySelector('iframe')
-    document = iframe.contentWindow.document
-    document.querySelector('.content').innerHTML = html
+    eid = iframe.getAttribute('id')
+    editor = registry[eid]
+    editor.set_html(html or '')
 
 
-def get_comments_html(container):
+def get_comments_html(container, proceed):
     iframe = container.querySelector('iframe')
-    document = iframe.contentWindow.document
-    return document.querySelector('.content').innerHTML
+    eid = iframe.getAttribute('id')
+    editor = registry[eid]
+    editor.get_html(proceed)
 
 
 def develop(container):
     container.setAttribute('style', 'width: 100%; min-height: 90vh; display: flex; flex-direction: column; align-items: stretch')
-    create_comments_editor(container)
+    editor = create_comments_editor(container)
     set_comments_html(container, '<p>Testing, <i>testing</i> 123...')
     focus_comments_editor(container)
+    editor.init()
+
+
+def main():
+    main.boss = CommentsEditorBoss()
