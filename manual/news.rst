@@ -29,7 +29,7 @@ The calibre blog is a blog of posts that describe many useful calibre features
 in a simple and accessible way for new calibre users. In order to download this
 blog into an e-book, we rely on the :term:`RSS` feed of the blog::
 
-    https://blog.calibre-ebook.com/feeds/posts/default
+    http://blog.calibre-ebook.com/feeds/posts/default
 
 I got the RSS URL by looking under "Subscribe to" at the bottom of the blog
 page and choosing :guilabel:`Posts->Atom`. To make calibre download the feeds and convert

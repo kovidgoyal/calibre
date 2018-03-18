@@ -639,7 +639,7 @@ fields. In addition, you can add any columns you like. Columns can be added via
 :guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
 `UI Power tips <https://calibre-ebook.com/demo#tutorials>`_ to learn how to
 create your own columns, or read `this blog post
-<https://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
+<http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
 
 You can also create "virtual columns" that contain combinations of the metadata
 from other columns. In the add column dialog  use the :guilabel:`Quick create`
