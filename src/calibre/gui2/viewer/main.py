@@ -1127,6 +1127,7 @@ class EbookViewer(MainWindow):
             if not self.tool_bar.isVisible():
                 self.toggle_toolbars()
             self.search.setFocus(Qt.OtherFocusReason)
+            self.search.lineEdit().selectAll()
             return
         if not self.view.handle_key_press(event):
             event.ignore()
