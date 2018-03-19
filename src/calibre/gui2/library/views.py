@@ -462,6 +462,7 @@ class BooksView(QTableView):  # {{{
     def show_column_header_context_menu(self, pos, view=None):
         view = view or self
         idx = view.column_header.logicalIndexAt(pos)
+        col = None
         if idx > -1 and idx < len(self.column_map):
             col = self.column_map[idx]
             name = unicode(self.model().headerData(idx, Qt.Horizontal, Qt.DisplayRole) or '')
