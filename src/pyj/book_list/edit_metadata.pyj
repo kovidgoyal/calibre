@@ -76,16 +76,13 @@ def truncated_html(val):
     return ans
 
 
-
-def onsubmit_field(get_value, container_id, book_id, field):
+def onsubmit_field2(container_id, book_id, field, value):
+    nonlocal has_changes
     c = document.getElementById(container_id)
     if not c:
         return
     d = c.querySelector('div[data-ctype="edit"]')
     if not d:
-        return
-    ok, value = get_value(d)
-    if not ok:
         return
     is_series = value.series_index is not undefined
     if is_series:
@@ -96,21 +93,33 @@ def onsubmit_field(get_value, container_id, book_id, field):
         on_close(container_id)
         return
 
-    def proceed():
-        nonlocal has_changes
-        clear(d)
-        d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
-        if is_series:
-            changes[field] = value_to_json(value.series_name)
-            changes[field + '_index'] = float(value.series_index)
-        else:
-            changes[field] = value_to_json(value)
-        has_changes = True
-        show_book(container_id, book_id)
-        on_close(container_id)
+    clear(d)
+    d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
+    if is_series:
+        changes[field] = value_to_json(value.series_name)
+        changes[field + '_index'] = float(value.series_index)
+    else:
+        changes[field] = value_to_json(value)
+    has_changes = True
+    show_book(container_id, book_id)
+    on_close(container_id)
 
 
-    window.setTimeout(proceed, 0)  # needed to avoid console error about form submission failing because form is removed from DOM in onsubmit handler
+def onsubmit_field(get_value, container_id, book_id, field):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    if not d:
+        return
+    if get_value is html_edit_get_value:
+        html_edit_get_value(d, onsubmit_field2.bind(None, container_id, book_id, field))
+    else:
+        ok, value = get_value(d)
+        if not ok:
+            return
+        # needed to avoid console error about form submission failing because form is removed from DOM in onsubmit handler
+        window.setTimeout(onsubmit_field2, 0, container_id, book_id, field, value)
 
 
 def create_form(widget, get_value, container_id, book_id, field):
@@ -160,8 +169,8 @@ def text_edit(container_id, book_id, field, fm, div, mi, get_name):
     le.focus()
 
 
-def html_edit_get_value(container):
-    return True, get_comments_html(container)
+def html_edit_get_value(container, proceed):
+    get_comments_html(container, proceed)
 
 
 def html_edit(container_id, book_id, field, fm, div, mi):
@@ -171,12 +180,13 @@ def html_edit(container_id, book_id, field, fm, div, mi):
     name = fm.name or field
     c = E.div(style='width: 100%; min-height: 75vh')
     form = create_form(c, html_edit_get_value, container_id, book_id, field)
-    create_comments_editor(c)
+    editor = create_comments_editor(c)
     set_comments_html(c, val)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     focus_comments_editor(c)
     value_to_json = identity
+    editor.init()
 # }}}
 
 # Number edit {{{
@@ -573,7 +583,7 @@ def edit_field(container_id, book_id, field):
         number_edit(container_id, book_id, field, fm, d, mi)
     elif field is 'identifiers':
         identifiers_edit(container_id, book_id, field, fm, d, mi)
-    elif fm.datatype is 'comments':
+    elif fm.datatype is 'comments' or field is 'comments':
         ias = fm.display?.interpret_as
         if ias is 'short-text':
             simple_line_edit(container_id, book_id, field, fm, d, mi)

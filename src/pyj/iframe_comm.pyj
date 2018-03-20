@@ -72,6 +72,9 @@ class IframeWrapper:
         self.handlers.ready = self.on_iframe_ready
         window.addEventListener('message', self.handle_message, False)
 
+    def destroy(self):
+        window.removeEventListener('message', self.handle_message, False)
+
     @property
     def iframe(self):
         return document.getElementById(self.iframe_id)
@@ -118,7 +121,7 @@ class IframeWrapper:
         self._send_message(action, False, data)
 
     def handle_message(self, event):
-        if event.source is not self.iframe.contentWindow:
+        if event.source is not self.iframe?.contentWindow:
             return
         data = event.data
         if self.encrypted_communications:

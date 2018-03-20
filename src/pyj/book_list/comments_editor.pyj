@@ -52,6 +52,7 @@ registry = {}
 def add_editor(editor):
     for k in Object.keys(registry):
         if not document.getElementById(k):
+            registry[k].destroy()
             v'delete registry[k]'
     registry[editor.id] = editor
 
@@ -71,6 +72,10 @@ class Editor:
 
     def init(self):
         self.iframe_wrapper.init()
+
+    def destroy(self):
+        self.iframe_wrapper.destroy()
+        self.get_html_callbacks = v'[]'
 
     @property
     def iframe(self):
@@ -115,7 +120,7 @@ def create_editor():
 
 def create_comments_editor(container):
     iframe, editor = create_editor()
-    toolbar1 = E.div(style='flex-grow: 0')
+    toolbar1 = E.div('TODO: add toolbar', style='flex-grow: 0')
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
     container.appendChild(toolbar1)
     container.appendChild(iframe)
