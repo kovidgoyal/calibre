@@ -27,7 +27,7 @@ add_extra_css(def():
 )
 
 
-def all_editor_actions():
+def all_editor_actions():  # {{{
     if not all_editor_actions.ans:
         all_editor_actions.ans = {
             'select-all': {
@@ -78,10 +78,27 @@ def all_editor_actions():
                 'execute': def (editor, activated):
                     editor.exec_command('strikeThrough')
             },
-
+            'superscript': {
+                'icon': 'superscript',
+                'title': _('Superscript'),
+                'execute': def (editor, activated):
+                    editor.exec_command('superscript')
+            },
+            'subscript': {
+                'icon': 'subscript',
+                'title': _('Subscript'),
+                'execute': def (editor, activated):
+                    editor.exec_command('subscript')
+            },
+            'hr': {
+                'icon': 'hr',
+                'title': _('Insert separator'),
+                'execute': def (editor, activated):
+                    editor.exec_command('insertHorizontalRule')
+            },
         }
     return all_editor_actions.ans
-
+# }}}
 
 
 class CommentsEditorBoss:
@@ -100,6 +117,7 @@ class CommentsEditorBoss:
         window.onerror = self.onerror
         clear(document.body)
         document.execCommand("defaultParagraphSeparator", False, "div")
+        document.execCommand("styleWithCSS", False, False)
         document.body.style.margin = '0'
         document.body.style.padding = '0'
         document.documentElement.style.height = document.body.style.height = '100%'
@@ -135,7 +153,7 @@ class CommentsEditorBoss:
         self.update_state()
 
     def update_state(self):
-        state = {name: document.queryCommandState(name) for name in 'bold italic underline'.split(' ')}
+        state = {name: document.queryCommandState(name) for name in 'bold italic underline superscript subscript'.split(' ')}
         state.strikethrough = document.queryCommandState('strikeThrough')
         self.comm.send_message('update_state', state=state)
 
@@ -254,7 +272,7 @@ def create_comments_editor(container):
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbars.appendChild(toolbar1)
     acmap = all_editor_actions()
-    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough |'.split(' '):
+    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript'.split(' '):
         if acmap[ac_name]:
             add_action(toolbar1, ac_name, acmap[ac_name], editor.id)
         else:
