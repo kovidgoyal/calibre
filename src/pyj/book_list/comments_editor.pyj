@@ -30,6 +30,30 @@ add_extra_css(def():
 def all_editor_actions():
     if not all_editor_actions.ans:
         all_editor_actions.ans = {
+            'select-all': {
+                'icon': 'select-all',
+                'title': _('Select all'),
+                'execute': def (editor, activated):
+                    editor.exec_command('selectAll')
+            },
+            'remove-format': {
+                'icon': 'eraser',
+                'title': _('Remove formatting'),
+                'execute': def (editor, activated):
+                    editor.exec_command('removeFormat')
+            },
+            'undo': {
+                'icon': 'undo',
+                'title': _('Undo'),
+                'execute': def (editor, activated):
+                    editor.exec_command('undo')
+            },
+            'redo': {
+                'icon': 'redo',
+                'title': _('Redo'),
+                'execute': def (editor, activated):
+                    editor.exec_command('redo')
+            },
             'bold': {
                 'icon': 'bold',
                 'title': _('Bold'),
@@ -230,7 +254,7 @@ def create_comments_editor(container):
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbars.appendChild(toolbar1)
     acmap = all_editor_actions()
-    for ac_name in 'bold italic underline strikethrough |'.split(' '):
+    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough |'.split(' '):
         if acmap[ac_name]:
             add_action(toolbar1, ac_name, acmap[ac_name], editor.id)
         else:
