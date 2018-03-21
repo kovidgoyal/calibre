@@ -5,8 +5,59 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from dom import clear, ensure_id
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from iframe_comm import IframeClient, IframeWrapper
+
+CLASS_NAME = 'comments-editor'
+TOOLBAR_CLASS = 'comments-editor-toolbar'
+
+add_extra_css(def():
+    sel = '.' + TOOLBAR_CLASS + ' '
+    style = ''
+    style += build_rule(sel, display='flex', flex_wrap='wrap', padding_top='0.25ex', padding_bottom='0.25ex')
+    sel += ' > div'
+    style += build_rule(sel, padding='0.5ex', margin_right='0.5ex', cursor='pointer')
+    style += build_rule(sel + ':hover', color='red')
+    style += build_rule(sel + '.activated', color=get_color('window-background'), background=get_color('window-foreground'))
+    sel += '.sep'
+    style += build_rule(sel, border_left='solid 2px currentColor', cursor='auto')
+    style += build_rule(sel + ':hover', color='currentColor')
+    return style
+)
+
+
+def all_editor_actions():
+    if not all_editor_actions.ans:
+        all_editor_actions.ans = {
+            'bold': {
+                'icon': 'bold',
+                'title': _('Bold'),
+                'execute': def (editor, activated):
+                    editor.exec_command('bold')
+            },
+            'italic': {
+                'icon': 'italic',
+                'title': _('Italic'),
+                'execute': def (editor, activated):
+                    editor.exec_command('italic')
+            },
+            'underline': {
+                'icon': 'underline',
+                'title': _('Underline'),
+                'execute': def (editor, activated):
+                    editor.exec_command('underline')
+            },
+            'strikethrough': {
+                'icon': 'strikethrough',
+                'title': _('Strikethrough'),
+                'execute': def (editor, activated):
+                    editor.exec_command('strikeThrough')
+            },
+
+        }
+    return all_editor_actions.ans
+
 
 
 class CommentsEditorBoss:
@@ -16,12 +67,15 @@ class CommentsEditorBoss:
             'initialize': self.initialize,
             'set_html': self.set_html,
             'get_html': self.get_html,
+            'exec_command': self.exec_command,
+            'focus': self.focus,
         }
         self.comm = IframeClient(handlers)
 
     def initialize(self, data):
         window.onerror = self.onerror
         clear(document.body)
+        document.execCommand("defaultParagraphSeparator", False, "div")
         document.body.style.margin = '0'
         document.body.style.padding = '0'
         document.documentElement.style.height = document.body.style.height = '100%'
@@ -29,6 +83,12 @@ class CommentsEditorBoss:
         document.body.style.fontFamily = window.default_font_family
         document.body.appendChild(E.div(style='width: 100%; height: 100%; padding: 0; margin: 0; border: solid 3px transparent; box-sizing: border-box'))
         document.body.lastChild.contentEditable = True
+        document.body.lastChild.addEventListener('keyup', self.update_state)
+        document.body.lastChild.addEventListener('mouseup', self.update_state)
+        document.body.lastChild.focus()
+        self.update_state()
+
+    def focus(self):
         document.body.lastChild.focus()
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
@@ -45,6 +105,16 @@ class CommentsEditorBoss:
 
     def get_html(self, data):
         self.comm.send_message('html', html=document.body.lastChild.innerHTML)
+
+    def exec_command(self, data):
+        document.execCommand(data.name, False, data.value)
+        self.update_state()
+
+    def update_state(self):
+        state = {name: document.queryCommandState(name) for name in 'bold italic underline'.split(' ')}
+        state.strikethrough = document.queryCommandState('strikeThrough')
+        self.comm.send_message('update_state', state=state)
+
 
 
 registry = {}
@@ -63,6 +133,7 @@ class Editor:
         handlers = {
             'ready': self.on_iframe_ready,
             'html': self.on_html_received,
+            'update_state': self.update_state,
         }
         self.iframe_wrapper = IframeWrapper(handlers, iframe, 'book_list.comments_editor', _('Loading comments editor...'))
         self.id = ensure_id(iframe)
@@ -76,6 +147,11 @@ class Editor:
     def destroy(self):
         self.iframe_wrapper.destroy()
         self.get_html_callbacks = v'[]'
+
+    def focus(self):
+        self.iframe.contentWindow.focus()
+        if self.ready:
+            self.iframe_wrapper.send_message('focus')
 
     @property
     def iframe(self):
@@ -109,6 +185,19 @@ class Editor:
                 f(data.html)
             self.get_html_callbacks = v'[]'
 
+    def exec_command(self, name, value=None):
+        if self.ready:
+            self.iframe_wrapper.send_message('exec_command', name=name, value=value)
+
+    def update_state(self, data):
+        c = self.iframe.closest('.' + CLASS_NAME)
+        for name in Object.keys(data.state):
+            div = c.querySelector(f'.{TOOLBAR_CLASS} > [name="{name}"]')
+            if div:
+                if data.state[name]:
+                    div.classList.add('activated')
+                else:
+                    div.classList.remove('activated')
 
 
 def create_editor():
@@ -118,18 +207,47 @@ def create_editor():
     return iframe, editor
 
 
+def action_activated(editor_id, ac_name, evt):
+    editor = registry[editor_id]
+    if not editor:
+        return
+    action = all_editor_actions()[ac_name]
+    if not action:
+        return
+    button = evt.currentTarget
+    action.execute(editor, button.classList.contains('activated'))
+    editor.focus()
+
+
+def add_action(toolbar, ac_name, action, editor_id):
+    b = E.div(svgicon(action.icon), title=action.title, onclick=action_activated.bind(None, editor_id, ac_name), name=ac_name)
+    toolbar.appendChild(b)
+
+
 def create_comments_editor(container):
     iframe, editor = create_editor()
-    toolbar1 = E.div('TODO: add toolbar', style='flex-grow: 0')
+    toolbars = E.div(style='flex-grow: 0')
+    toolbar1 = E.div(class_=TOOLBAR_CLASS)
+    toolbars.appendChild(toolbar1)
+    acmap = all_editor_actions()
+    for ac_name in 'bold italic underline strikethrough |'.split(' '):
+        if acmap[ac_name]:
+            add_action(toolbar1, ac_name, acmap[ac_name], editor.id)
+        else:
+            toolbar1.appendChild(E.div(class_='sep'))
+
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
-    container.appendChild(toolbar1)
+    container.appendChild(toolbars)
     container.appendChild(iframe)
+    container.classList.add(CLASS_NAME)
     return editor
 
 
 def focus_comments_editor(container):
     iframe = container.querySelector('iframe')
-    iframe.contentWindow.focus()
+    editor = registry[iframe.getAttribute('id')]
+    if editor:
+        editor.focus()
 
 
 def set_comments_html(container, html):
