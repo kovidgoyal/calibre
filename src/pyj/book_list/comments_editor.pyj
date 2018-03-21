@@ -130,10 +130,33 @@ def all_editor_actions():  # {{{
                     choose_block_style(def(cmd):
                         if cmd:
                             editor.exec_command('formatBlock', f'<{cmd}>')
-                            editor.focus()
+                        editor.focus()
                     )
             },
-
+            'ul': {
+                'icon': 'ul',
+                'title': _('Unordered list'),
+                'execute': def (editor, activated):
+                    editor.exec_command('insertUnorderedList')
+            },
+            'ol': {
+                'icon': 'ol',
+                'title': _('Ordered list'),
+                'execute': def (editor, activated):
+                    editor.exec_command('insertOrderedList')
+            },
+            'indent': {
+                'icon': 'indent',
+                'title': _('Increase indentation'),
+                'execute': def (editor, activated):
+                    editor.exec_command('indent')
+            },
+            'outdent': {
+                'icon': 'outdent',
+                'title': _('Decrease indentation'),
+                'execute': def (editor, activated):
+                    editor.exec_command('outdent')
+            },
         }
     return all_editor_actions.ans
 # }}}
@@ -308,13 +331,21 @@ def create_comments_editor(container):
     iframe, editor = create_editor()
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
-    toolbars.appendChild(toolbar1)
+    toolbar2 = E.div(class_=TOOLBAR_CLASS)
+    toolbars.appendChild(toolbar1), toolbars.appendChild(toolbar2)
     acmap = all_editor_actions()
-    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
+
+    def add(toolbar, ac_name):
         if acmap[ac_name]:
-            add_action(toolbar1, ac_name, acmap[ac_name], editor.id)
+            add_action(toolbar, ac_name, acmap[ac_name], editor.id)
         else:
-            toolbar1.appendChild(E.div(class_='sep'))
+            toolbar.appendChild(E.div(class_='sep'))
+
+    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
+        add(toolbar1, ac_name)
+
+    for ac_name in 'ul ol indent outdent |'.split(' '):
+        add(toolbar2, ac_name)
 
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
     container.appendChild(toolbars)
