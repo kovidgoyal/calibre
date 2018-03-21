@@ -8,6 +8,8 @@ from gettext import gettext as _
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from iframe_comm import IframeClient, IframeWrapper
+from modals import create_custom_dialog
+from widgets import create_button
 
 CLASS_NAME = 'comments-editor'
 TOOLBAR_CLASS = 'comments-editor-toolbar'
@@ -25,6 +27,31 @@ add_extra_css(def():
     style += build_rule(sel + ':hover', color='currentColor')
     return style
 )
+
+
+def choose_block_style(proceed):
+    create_custom_dialog(_('Choose style'), def(parent, close_modal):
+
+        def action(which):
+            close_modal()
+            proceed(which)
+
+        def s(text, tag):
+            ans = create_button(text, action=action.bind(None, tag))
+            ans.style.marginBottom = '1ex'
+            return ans
+
+        spc = '\xa0'
+
+        parent.appendChild(E.div(
+            E.div(_('Choose the block style you would like to use')),
+        E.div(class_='button-box', style='flex-wrap: wrap',
+                s(_('Normal'), 'div'), spc, s('H1', 'h1'), spc, s('H2', 'h2'), spc, s('H3', 'h3'), spc, s('H4', 'h4'), spc, s('H5', 'h5'), spc, s('H6', 'h6'), spc, s(_('Quote'), 'blockquote')
+            )
+        ))
+    )
+
+
 
 
 def all_editor_actions():  # {{{
@@ -96,6 +123,17 @@ def all_editor_actions():  # {{{
                 'execute': def (editor, activated):
                     editor.exec_command('insertHorizontalRule')
             },
+            'format-block': {
+                'icon': 'heading',
+                'title': _('Style the selected text block'),
+                'execute': def (editor, activated):
+                    choose_block_style(def(cmd):
+                        if cmd:
+                            editor.exec_command('formatBlock', f'<{cmd}>')
+                            editor.focus()
+                    )
+            },
+
         }
     return all_editor_actions.ans
 # }}}
@@ -272,7 +310,7 @@ def create_comments_editor(container):
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbars.appendChild(toolbar1)
     acmap = all_editor_actions()
-    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript'.split(' '):
+    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
         if acmap[ac_name]:
             add_action(toolbar1, ac_name, acmap[ac_name], editor.id)
         else:
