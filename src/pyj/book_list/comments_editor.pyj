@@ -9,6 +9,7 @@ from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from iframe_comm import IframeClient, IframeWrapper
 from modals import create_custom_dialog
+from utils import html_escape
 from widgets import create_button
 
 CLASS_NAME = 'comments-editor'
@@ -45,13 +46,56 @@ def choose_block_style(proceed):
 
         parent.appendChild(E.div(
             E.div(_('Choose the block style you would like to use')),
-        E.div(class_='button-box', style='flex-wrap: wrap',
+            E.div(class_='button-box', style='flex-wrap: wrap',
                 s(_('Normal'), 'div'), spc, s('H1', 'h1'), spc, s('H2', 'h2'), spc, s('H3', 'h3'), spc, s('H4', 'h4'), spc, s('H5', 'h5'), spc, s('H6', 'h6'), spc, s(_('Quote'), 'blockquote')
             )
         ))
     )
 
 
+
+def insert_link(title, msg, proceed):
+    create_custom_dialog(title, def(parent, close_modal):
+
+        def action(ok, evt):
+            close_modal()
+            c = evt.currentTarget.closest('.il-modal-container')
+            url = c.querySelector('input[name="url"]').value
+            name = c.querySelector('input[name="name"]').value
+            proceed(ok, url, name)
+
+        parent.appendChild(E.div(class_='il-modal-container',
+            E.div(msg),
+            E.table(style='width: 95%; margin-top: 1ex',
+                E.tr(E.td('URL:'), E.td(style='padding-bottom: 1ex', E.input(type='url', name='url', style='width: 100%'))),
+                E.tr(E.td(_('Name (optional):')), E.td(E.input(type='text', name='name', style='width: 100%'))),
+            ),
+            E.div(class_='button-box',
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
+                  '\xa0',
+                  create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+            ),
+        ))
+    )
+
+
+def insert_link_or_image(editor_id, is_image, ok, url, title):
+    editor = registry[editor_id]
+    if ok:
+        if title:
+            markup = '<img src="{}" title="{}"></img>' if is_image else '<a href="{}">{}</a>'
+            editor.exec_command('insertHTML', markup.format(html_escape(url), html_escape(title)))
+        else:
+            cmd = 'insertImage' if is_image else 'createLink'
+            editor.exec_command(cmd, url)
+    editor.focus()
+
+
+def insert_heading(editor_id, cmd):
+    editor = registry[editor_id]
+    if cmd:
+        editor.exec_command('formatBlock', f'<{cmd}>')
+    editor.focus()
 
 
 def all_editor_actions():  # {{{
@@ -127,11 +171,7 @@ def all_editor_actions():  # {{{
                 'icon': 'heading',
                 'title': _('Style the selected text block'),
                 'execute': def (editor, activated):
-                    choose_block_style(def(cmd):
-                        if cmd:
-                            editor.exec_command('formatBlock', f'<{cmd}>')
-                        editor.focus()
-                    )
+                    choose_block_style(insert_heading.bind(None, editor.id))
             },
             'ul': {
                 'icon': 'ul',
@@ -181,7 +221,18 @@ def all_editor_actions():  # {{{
                 'execute': def (editor, activated):
                     editor.exec_command('justifyRight')
             },
-
+            'insert-link': {
+                'icon': 'insert-link',
+                'title': _('Insert a link or linked image'),
+                'execute': def (editor, activated):
+                    insert_link(_('Insert a link'), _('Enter the link URL and optionally the link name'), insert_link_or_image.bind(None, editor.id, False))
+            },
+            'insert-image': {
+                'icon': 'image',
+                'title': _('Insert an image'),
+                'execute': def (editor, activated):
+                    insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
+            },
         }
     return all_editor_actions.ans
 # }}}
@@ -370,7 +421,7 @@ def create_comments_editor(container):
     for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
         add(toolbar1, ac_name)
 
-    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full |'.split(' '):
+    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full | insert-link insert-image'.split(' '):
         add(toolbar2, ac_name)
 
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
