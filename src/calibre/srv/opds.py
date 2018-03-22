@@ -21,6 +21,8 @@ from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
 from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
 from calibre.utils.search_query_parser import ParseException
+from calibre.utils.config import prefs
+from calibre import force_unicode
 
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
@@ -39,6 +41,7 @@ def unhexlify(x):
 
 def atom(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
+    rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
     elif isinstance(output, type('')):
