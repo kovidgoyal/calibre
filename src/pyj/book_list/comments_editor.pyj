@@ -53,6 +53,12 @@ def choose_block_style(proceed):
     )
 
 
+def insert_heading(editor_id, cmd):
+    editor = registry[editor_id]
+    if cmd:
+        editor.exec_command('formatBlock', f'<{cmd}>')
+    editor.focus()
+
 
 def insert_link(title, msg, proceed):
     create_custom_dialog(title, def(parent, close_modal):
@@ -91,11 +97,32 @@ def insert_link_or_image(editor_id, is_image, ok, url, title):
     editor.focus()
 
 
-def insert_heading(editor_id, cmd):
+def set_color(title, msg, proceed):
+    create_custom_dialog(title, def(parent, close_modal):
+        def action(ok, evt):
+            close_modal()
+            c = evt.currentTarget.closest('.sc-modal-container')
+            color = c.querySelector('input[name="color"]').value
+            proceed(ok, color)
+
+        parent.appendChild(E.div(class_='sc-modal-container',
+            E.div(msg),
+            E.div(E.input(type='color', name='color')),
+            E.div(class_='button-box',
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
+                  '\xa0',
+                  create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+            ),
+        ))
+    )
+
+
+def change_color(editor_id, which, ok, color):
     editor = registry[editor_id]
-    if cmd:
-        editor.exec_command('formatBlock', f'<{cmd}>')
+    if ok:
+        editor.exec_command(which, color)
     editor.focus()
+
 
 
 def all_editor_actions():  # {{{
@@ -232,6 +259,18 @@ def all_editor_actions():  # {{{
                 'title': _('Insert an image'),
                 'execute': def (editor, activated):
                     insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
+            },
+            'fg': {
+                'icon': 'fg',
+                'title': _('Change the text color'),
+                'execute': def (editor, activated):
+                    set_color(_('Choose text color'), _('Choose the color below'), change_color.bind(None, editor.id, 'foreColor'))
+            },
+            'bg': {
+                'icon': 'bg',
+                'title': _('Change the highlight color'),
+                'execute': def (editor, activated):
+                    set_color(_('Choose highlight color'), _('Choose the color below'), change_color.bind(None, editor.id, 'hiliteColor'))
             },
         }
     return all_editor_actions.ans
@@ -421,7 +460,7 @@ def create_comments_editor(container):
     for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
         add(toolbar1, ac_name)
 
-    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full | insert-link insert-image'.split(' '):
+    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full | insert-link insert-image fg bg'.split(' '):
         add(toolbar2, ac_name)
 
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
