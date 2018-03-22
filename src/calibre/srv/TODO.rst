@@ -20,8 +20,7 @@ New features for the in-browser viewer
 New features for the server generally
 ---------------------------------------
 
-- Create a UI for making changes to the library such as editing metadata,
-  converting, sending by email, etc.
+- Create a UI for converting, sending by email, etc.
 
 - Add a way to search the set of locally available books stored in offline
   storage.
