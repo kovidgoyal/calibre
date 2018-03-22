@@ -323,7 +323,7 @@ if False:
     _('Select All')
     _('Copy Link')
     _('&Select All')
-    _('Copy &Link location')
+    _('Copy &Link Location')
     _('&Undo')
     _('&Redo')
     _('Cu&t')
