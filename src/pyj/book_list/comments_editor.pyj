@@ -447,7 +447,8 @@ def create_comments_editor(container):
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbar2 = E.div(class_=TOOLBAR_CLASS)
-    toolbars.appendChild(toolbar1), toolbars.appendChild(toolbar2)
+    toolbar3 = E.div(class_=TOOLBAR_CLASS)
+    toolbars.appendChild(toolbar1), toolbars.appendChild(toolbar2), toolbars.appendChild(toolbar3)
     acmap = all_editor_actions()
 
     def add(toolbar, ac_name):
@@ -457,11 +458,14 @@ def create_comments_editor(container):
             else:
                 toolbar.appendChild(E.div(class_='sep'))
 
-    for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
+    for ac_name in 'undo redo select-all remove-format bold italic underline strikethrough'.split(' '):
         add(toolbar1, ac_name)
 
-    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full | insert-link insert-image fg bg'.split(' '):
+    for ac_name in 'hr superscript subscript format-block ul ol indent outdent'.split(' '):
         add(toolbar2, ac_name)
+
+    for ac_name in 'justify-left justify-center justify-right justify-full insert-link insert-image fg bg'.split(' '):
+        add(toolbar3, ac_name)
 
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
     container.appendChild(toolbars)
