@@ -157,6 +157,31 @@ def all_editor_actions():  # {{{
                 'execute': def (editor, activated):
                     editor.exec_command('outdent')
             },
+            'justify-left': {
+                'icon': 'justify-left',
+                'title': _('Align left'),
+                'execute': def (editor, activated):
+                    editor.exec_command('justifyLeft')
+            },
+            'justify-full': {
+                'icon': 'justify-full',
+                'title': _('Align justified'),
+                'execute': def (editor, activated):
+                    editor.exec_command('justifyFull')
+            },
+            'justify-center': {
+                'icon': 'justify-center',
+                'title': _('Align center'),
+                'execute': def (editor, activated):
+                    editor.exec_command('justifyCenter')
+            },
+            'justify-right': {
+                'icon': 'justify-right',
+                'title': _('Align right'),
+                'execute': def (editor, activated):
+                    editor.exec_command('justifyRight')
+            },
+
         }
     return all_editor_actions.ans
 # }}}
@@ -336,15 +361,16 @@ def create_comments_editor(container):
     acmap = all_editor_actions()
 
     def add(toolbar, ac_name):
-        if acmap[ac_name]:
-            add_action(toolbar, ac_name, acmap[ac_name], editor.id)
-        else:
-            toolbar.appendChild(E.div(class_='sep'))
+        if ac_name:
+            if acmap[ac_name]:
+                add_action(toolbar, ac_name, acmap[ac_name], editor.id)
+            else:
+                toolbar.appendChild(E.div(class_='sep'))
 
     for ac_name in 'undo redo select-all remove-format | bold italic underline strikethrough | hr superscript subscript format-block'.split(' '):
         add(toolbar1, ac_name)
 
-    for ac_name in 'ul ol indent outdent |'.split(' '):
+    for ac_name in 'ul ol indent outdent | justify-left justify-center justify-right justify-full |'.split(' '):
         add(toolbar2, ac_name)
 
     container.setAttribute('style', (container.getAttribute('style') or '') + ';display: flex; flex-direction: column; align-items: stretch')
