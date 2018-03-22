@@ -419,7 +419,7 @@ class Editor:
 
 
 def create_editor():
-    iframe = E.iframe(sandbox='allow-scripts', seamless=True, style='flex-grow: 10', id=self.id)
+    iframe = E.iframe(sandbox='allow-scripts', seamless=True, style='flex-grow: 10; border: solid 1px currentColor', id=self.id)
     editor = Editor(iframe)
     add_editor(editor)
     return iframe, editor
