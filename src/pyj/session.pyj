@@ -201,7 +201,7 @@ def update_interface_data(new_data):
 def get_translations(newval):
     if not get_translations.storage:
         get_translations.storage = SessionData('calibre-translations-')
-    if newval:
+    if newval?:
         get_translations.storage.set('current', newval)
     else:
         return get_translations.storage.get('current')
