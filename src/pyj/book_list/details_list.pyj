@@ -12,7 +12,9 @@ from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 
 DETAILS_LIST_CLASS = 'book-list-details-list'
 ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
-DESCRIPTION = _('A list with thumbnails and some book details')
+
+def description():
+    return _('A list with thumbnails and some book details')
 
 THUMBNAIL_MAX_WIDTH = 35 * 3
 THUMBNAIL_MAX_HEIGHT = 35 * 4

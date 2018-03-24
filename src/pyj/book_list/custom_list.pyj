@@ -15,7 +15,9 @@ from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 
 CUSTOM_LIST_CLASS = 'book-list-custom-list'
 ITEM_CLASS = CUSTOM_LIST_CLASS + '-item'
-DESCRIPTION = _('A customizable list (see Preferences->Sharing over the net->Book list template)')
+
+def description():
+    return _('A customizable list (see Preferences->Sharing over the net->Book list template)')
 
 def custom_list_css():
     ans = ''

@@ -9,16 +9,16 @@ from gettext import gettext as _
 from ajax import ajax_send
 from book_list.add import add_books_panel
 from book_list.cover_grid import (
-    DESCRIPTION as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
+    description as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
     cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid
 )
 from book_list.custom_list import (
-    DESCRIPTION as CUSTOM_LIST_DESCRIPTION, append_item as custom_list_append_item,
+    description as CUSTOM_LIST_DESCRIPTION, append_item as custom_list_append_item,
     create_item as create_custom_list_item, custom_list_css,
     init as init_custom_list
 )
 from book_list.details_list import (
-    DESCRIPTION as DETAILS_LIST_DESCRIPTION, append_item as details_list_append_item,
+    description as DETAILS_LIST_DESCRIPTION, append_item as details_list_append_item,
     create_item as create_details_list_item, details_list_css,
     init as init_details_list
 )
@@ -420,9 +420,9 @@ def create_mode_panel(container_id):
             back()
         ))
 
-    ci(_('Cover grid'), COVER_GRID_DESCRIPTION, 'cover_grid')
-    ci(_('Detailed list'), DETAILS_LIST_DESCRIPTION, 'details_list')
-    ci(_('Custom list'), CUSTOM_LIST_DESCRIPTION, 'custom_list')
+    ci(_('Cover grid'), COVER_GRID_DESCRIPTION(), 'cover_grid')
+    ci(_('Detailed list'), DETAILS_LIST_DESCRIPTION(), 'details_list')
+    ci(_('Custom list'), CUSTOM_LIST_DESCRIPTION(), 'custom_list')
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Choose a display mode for the list of books from below'))
 

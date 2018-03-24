@@ -13,7 +13,9 @@ THUMBNAIL_MAX_HEIGHT = 4 * 100
 THUMBNAIL_MIN_WIDTH = 3 * 35
 THUMBNAIL_MIN_HEIGHT = 4 * 35
 BORDER_RADIUS = 10
-DESCRIPTION = _('A grid of book covers')
+
+def description():
+    return _('A grid of book covers')
 
 def cover_grid_css():
     sel = '.' + COVER_GRID_CLASS
