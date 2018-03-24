@@ -154,12 +154,16 @@ def basic_interface_data(ctx, rd):
     return ans
 
 
-@endpoint('/interface-data/update', postprocess=json)
-def update_interface_data(ctx, rd):
+@endpoint('/interface-data/update/{translations_hash=None}', postprocess=json)
+def update_interface_data(ctx, rd, translations_hash):
     '''
     Return the interface data needed for the server UI
     '''
-    return basic_interface_data(ctx, rd)
+    ans = basic_interface_data(ctx, rd)
+    t = ans['translations']
+    if t and (t.get('hash') or translations_hash) and t.get('hash') == translations_hash:
+        del ans['translations']
+    return ans
 
 
 def get_field_list(db):

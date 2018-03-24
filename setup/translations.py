@@ -294,7 +294,8 @@ class Translations(POT):  # {{{
             base = os.path.dirname(dest)
             if not os.path.exists(base):
                 os.makedirs(base)
-            data, current_hash = self.hash_and_data(src)
+            data, h = self.hash_and_data(src)
+            current_hash = h.digest()
             saved_hash, saved_data = self.read_cache(src)
             if current_hash == saved_hash:
                 with open(dest, 'wb') as d:
@@ -384,7 +385,7 @@ class Translations(POT):  # {{{
             data = s.read()
         h = hashlib.sha1(data)
         h.update(f.encode('utf-8'))
-        return data, h.digest()
+        return data, h
 
     def compile_content_server_translations(self):
         self.info('Compiling content-server translations')
@@ -392,7 +393,8 @@ class Translations(POT):  # {{{
         from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo, ZIP_STORED
         with ZipFile(self.j(self.RESOURCES, 'content-server', 'locales.zip'), 'w', ZIP_DEFLATED) as zf:
             for src in glob.glob(os.path.join(self.TRANSLATIONS, 'content-server', '*.po')):
-                data, current_hash = self.hash_and_data(src)
+                data, h = self.hash_and_data(src)
+                current_hash = h.digest()
                 saved_hash, saved_data = self.read_cache(src)
                 if current_hash == saved_hash:
                     raw = saved_data
@@ -402,7 +404,8 @@ class Translations(POT):  # {{{
                     po_data = data.decode('utf-8')
                     data = json.loads(msgfmt(po_data))
                     translated_entries = {k:v for k, v in data['entries'].iteritems() if v and sum(map(len, v))}
-                    data['entries'] = translated_entries
+                    data[u'entries'] = translated_entries
+                    data[u'hash'] = h.hexdigest()
                     cdata = b'{}'
                     if translated_entries:
                         raw = json.dumps(data, ensure_ascii=False, sort_keys=True)

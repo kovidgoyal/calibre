@@ -122,7 +122,12 @@ def load_interface_data():
 
 
 def do_update_interface_data():
-    ajax('interface-data/update', def (end_type, xhr, ev):
+    t = get_translations()
+    thash = t?.hash
+    url = 'interface-data/update'
+    if thash:
+        url += '/' + thash
+    ajax(url, def (end_type, xhr, ev):
         if end_type is 'load':
             data = JSON.parse(xhr.responseText)
             update_interface_data(data)
