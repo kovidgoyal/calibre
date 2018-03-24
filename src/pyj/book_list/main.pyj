@@ -128,6 +128,9 @@ def do_update_interface_data():
         if end_type is 'load':
             data = JSON.parse(xhr.responseText)
             update_interface_data(data)
+            if data.translations:
+                get_translations(data.translations)
+                install(data.translations)
     ).send()
 
 
