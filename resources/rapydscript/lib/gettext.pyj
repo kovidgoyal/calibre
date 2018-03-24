@@ -531,29 +531,31 @@ def register_callback(func):
     register_callback.install_callbacks.push(func)
 register_callback.install_callbacks = v'[]'
 
+empty_translation_data = {'entries': {}}
+
 class Translations:
 
     def __init__(self, translation_data):
-        translation_data = translation_data or {}
-        func = _get_plural_forms_function(translation_data['plural_forms'])
+        translation_data = translation_data or empty_translation_data
+        func = _get_plural_forms_function(translation_data.plural_forms)
         self.translations = [[translation_data, func]]
         self.language = translation_data['language']
 
     def add_fallback(self, fallback):
-        fallback = fallback or {}
-        func = _get_plural_forms_function(fallback['plural_forms'])
+        fallback = fallback or empty_translation_data
+        func = _get_plural_forms_function(fallback.plural_forms)
         self.translations.push([fallback, func])
 
     def gettext(self, text):
         for t in self.translations:
-            m = t[0]['entries']
+            m = t[0].entries
             if has_prop(m, text):
                 return m[text][0]
         return text
 
     def ngettext(self, text, plural, n):
         for t in self.translations:
-            m = t[0]['entries']
+            m = t[0].entries
             if has_prop(m, text):
                 idx = t[1](n)
                 return m[text][idx] or (text if n is 1 else plural)
@@ -565,4 +567,3 @@ class Translations:
             return self.gettext.apply(self, arguments)
         _ngettext = def ():
             return self.ngettext.apply(self, arguments)
-

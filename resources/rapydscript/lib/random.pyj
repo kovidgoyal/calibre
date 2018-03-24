@@ -30,6 +30,7 @@
             ρσ_seed_state.key[ρσ_seed_state.key_j]) % 256]
 
 def seed(x=Date().getTime()):
+    ρσ_seed_state.key_i = ρσ_seed_state.key_j = 0
     if jstype(x) is 'number':
         x = x.toString()
     elif jstype(x) is not 'string':
