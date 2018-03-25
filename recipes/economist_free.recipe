@@ -22,9 +22,7 @@ class NoArticles(Exception):
     pass
 
 
-def process_url(url, print_version=True):
-    if print_version:
-        url += '/print'
+def process_url(url):
     if url.startswith('/'):
         url = 'https://www.economist.com' + url
     return url
