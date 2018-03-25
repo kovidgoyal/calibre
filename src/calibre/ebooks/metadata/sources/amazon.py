@@ -486,12 +486,16 @@ class Worker(Thread):  # Get details {{{
         return ans
 
     def parse_authors(self, root):
-        matches = tuple(self.selector('#byline .author .contributorNameID'))
-        if not matches:
-            matches = tuple(self.selector('#byline .author a.a-link-normal'))
-        if matches:
-            authors = [self.totext(x) for x in matches]
-            return [a for a in authors if a]
+        for sel in (
+                '#byline .author .contributorNameID',
+                '#byline .author a.a-link-normal',
+                '#bylineInfo .author .contributorNameID',
+                '#bylineInfo .author a.a-link-normal'
+        ):
+            matches = tuple(self.selector(sel))
+            if matches:
+                authors = [self.totext(x) for x in matches]
+                return [a for a in authors if a]
 
         x = '//h1[contains(@class, "parseasinTitle")]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
         aname = root.xpath(x)
@@ -835,7 +839,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 0)
+    version = (1, 2, 1)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
