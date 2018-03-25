@@ -7,6 +7,12 @@ www.hotair.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class hotair(BasicNewsRecipe):
     title = u'Hot Air'
     __author__ = 'Walt Anthony'
@@ -25,9 +31,12 @@ class hotair(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'page-post'})]
+    keep_only_tags = [
+            dict(name='h1'),
+            classes('byline article-image article-text'),
+    ]
 
-    remove_tags = [dict(name=['iframe', 'small', 'embed',
+    remove_tags = [dict(name=['iframe', 'small', 'embed', 'button',
                               'object', 'link', 'script', 'form'])]
 
     feeds = [
