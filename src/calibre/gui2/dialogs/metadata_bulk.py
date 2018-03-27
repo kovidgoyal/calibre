@@ -439,7 +439,8 @@ class MyBlockingBusy(QDialog):  # {{{
                 self.s_r_func(book_id)
                 self.progress_update.emit(1)
             if self.sr_calls:
-                self.progress_next_step_range.emit(len(self.ids))
+                self.progress_next_step_range.emit(len(self.sr_calls))
+                self.progress_update.emit(0)
                 for field, book_id_val_map in self.sr_calls.iteritems():
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
