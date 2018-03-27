@@ -19,7 +19,9 @@ class Article(object):
         from lxml import html
         self.downloaded = False
         self.id = id
-        title = force_unicode(title or _('Unknown'), 'utf-8')
+        if not title or not isinstance(title, basestring):
+            title = _('Unknown')
+        title = force_unicode(title, 'utf-8')
         self._title = clean_xml_chars(title).strip()
         try:
             self._title = re.sub(r'&(\S+?);',
