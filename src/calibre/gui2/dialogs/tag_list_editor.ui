@@ -46,7 +46,7 @@
      <item>
       <widget class="QPushButton" name="search_button">
        <property name="toolTip">
-        <string>Find the first/next matching item</string>
+        <string>Display items containing the search string</string>
        </property>
        <property name="text">
         <string>&amp;Find</string>
@@ -79,6 +79,9 @@
          <height>32</height>
         </size>
        </property>
+       <property name="shortcut">
+        <string>Ctrl+D</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -100,7 +103,30 @@
         </size>
        </property>
        <property name="shortcut">
-        <string>Ctrl+S</string>
+        <string>Ctrl+R</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="undo_button">
+       <property name="toolTip">
+        <string>Undo any deletes or edits on the selected lines</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+U</string>
        </property>
       </widget>
      </item>
