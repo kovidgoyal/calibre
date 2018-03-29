@@ -228,6 +228,7 @@ class NookInput(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+
 input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         SonyReader900Input, MSReaderInput, MobipocketInput, HanlinV3Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
@@ -741,6 +742,18 @@ class KindlePaperWhite3Output(KindleVoyageOutput):
     comic_screen_size = screen_size
 
 
+class KindleOasisOutput(KindlePaperWhite3Output):
+
+    name = 'Kindle Oasis'
+    short_name = 'kindle_oasis'
+    description = _('This profile is intended for the Amazon Kindle Oasis 2017 and above')
+    # Screen size is currently just the spec size, actual renderable area will
+    # depend on someone with the device doing tests.
+    screen_size               = (1264, 1680)
+    dpi                       = 300.0
+    comic_screen_size = screen_size
+
+
 class KindleFireOutput(KindleDXOutput):
 
     name = 'Kindle Fire'
@@ -844,6 +857,7 @@ class PocketBookPro912Output(OutputProfile):
     dpi                       = 155.0
     comic_screen_size         = screen_size
 
+
 output_profiles = [
     OutputProfile, SonyReaderOutput, SonyReader300Output, SonyReader900Output,
     SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
@@ -854,7 +868,7 @@ output_profiles = [
     NookColorOutput, PocketBook900Output,
     PocketBookPro912Output, GenericEink, GenericEinkLarge, GenericEinkHD,
     KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput,
-    KindlePaperWhite3Output
+    KindlePaperWhite3Output, KindleOasisOutput
 ]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
