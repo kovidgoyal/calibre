@@ -40,7 +40,7 @@ class TrimImage(QDialog):
         u.setShortcut(QKeySequence(QKeySequence.Undo))
         self.redo_action = r = c.redo_action
         r.setShortcut(QKeySequence(QKeySequence.Redo))
-        self.trim_action = ac = self.bar.addAction(QIcon(I('trim.png')), _('&Trim'), c.trim_image)
+        self.trim_action = ac = self.bar.addAction(QIcon(I('trim.png')), _('&Trim'), self.do_trim)
         ac.setShortcut(QKeySequence('Ctrl+T'))
         ac.setToolTip('%s [%s]' % (_('Trim image by removing borders outside the selected region'), ac.shortcut().toString(QKeySequence.NativeText)))
         ac.setEnabled(False)
@@ -60,16 +60,16 @@ class TrimImage(QDialog):
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
 
-        self.tok = b = bb.addButton(_('Trim and OK'), QDialogButtonBox.ActionRole)
-        b.clicked.connect(self.trim_and_accept)
-        b.setIcon(self.trim_action.icon())
-
         self.resize(QSize(900, 600))
         geom = gprefs.get('image-trim-dialog-geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
         self.setWindowIcon(self.trim_action.icon())
         self.image_data = None
+
+    def do_trim(self):
+        self.canvas.trim_image()
+        self.selection_changed(False)
 
     def selection_changed(self, has_selection):
         self.trim_action.setEnabled(has_selection)
@@ -83,6 +83,8 @@ class TrimImage(QDialog):
         gprefs.set('image-trim-dialog-geometry', bytearray(self.saveGeometry()))
 
     def accept(self):
+        if self.trim_action.isEnabled():
+            self.trim_action.trigger()
         if self.canvas.is_modified:
             self.image_data = self.canvas.get_image_data()
         self.cleanup()
@@ -91,10 +93,6 @@ class TrimImage(QDialog):
     def reject(self):
         self.cleanup()
         QDialog.reject(self)
-
-    def trim_and_accept(self):
-        if self.canvas.trim_image():
-            self.accept()
 
 
 if __name__ == '__main__':
