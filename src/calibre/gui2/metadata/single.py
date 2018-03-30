@@ -760,14 +760,14 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         tl.addWidget(self.swap_title_author_button, 0, 0, 1, 1)
         tl.addWidget(self.manage_authors_button, 1, 0, 1, 1)
 
+        sto(self.swap_title_author_button, self.title)
         create_row(0, self.title, self.deduce_title_sort_button, self.title_sort)
-        sto(self.title_sort, self.authors)
+        sto(self.title_sort, self.manage_authors_button)
+        sto(self.manage_authors_button, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
         sto(self.author_sort, self.series)
         create_row(2, self.series, self.clear_series_button,
                 self.series_index, icon='trash.png')
-        sto(self.series_index, self.swap_title_author_button)
-        sto(self.swap_title_author_button, self.manage_authors_button)
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
@@ -778,7 +778,6 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
         gb.l = l = QGridLayout()
         gb.setLayout(l)
-        sto(self.manage_authors_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
