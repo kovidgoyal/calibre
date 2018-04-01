@@ -418,6 +418,7 @@ class EbookViewer(MainWindow):
 
     def lookup(self, word):
         from urllib import quote
+        word = word.replace(u'\u00ad', '')
         word = quote(word.encode('utf-8'))
         lang = canonicalize_lang(self.view.current_language) or get_lang() or 'en'
         try:
