@@ -28,7 +28,7 @@ class TheAtlantic(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'article-header article-body article-magazine article-cover-content article-cover-extra lead-img '
+            'article-header lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
         {
             'name': ['img']
