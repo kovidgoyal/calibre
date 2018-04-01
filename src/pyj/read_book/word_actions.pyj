@@ -132,6 +132,7 @@ def populate_list(container):
 
 def create_word_actions_panel(container, word, close_panel_func):
     nonlocal current_data
+    word = str.replace(word, '\u00ad', '')
     current_data = word, close_panel_func
     container.appendChild(E.div(style='display:none'))
     populate_list(container)
