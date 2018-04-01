@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
-theatlantic.com
+Recipe for web and magazine versions of the The Atlantic
 '''
-import html5lib
-from lxml import html
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+web_version = False
 
 
 def classes(classes):
@@ -19,10 +20,15 @@ def classes(classes):
 
 class TheAtlantic(BasicNewsRecipe):
 
-    title = 'The Atlantic'
+    if web_version:
+        title = 'TheAtlantic.com'
+        description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
+    else:
+        title = 'The Atlantic'
+        description = 'Current affairs and politics focussed on the US'
+        INDEX = 'http://www.theatlantic.com/magazine/'
+
     __author__ = 'Kovid Goyal'
-    description = 'Current affairs and politics focussed on the US'
-    INDEX = 'http://www.theatlantic.com/magazine/'
     language = 'en'
     encoding = 'utf-8'
 
@@ -71,67 +77,85 @@ class TheAtlantic(BasicNewsRecipe):
         br.set_cookie('inEuropeanUnion', '0', '.theatlantic.com')
         return br
 
-    def preprocess_raw_html(self, raw, url):
-        return html.tostring(
-            html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False),
-            method='html',
-            encoding=unicode
-        )
-
-    def print_version(self, url):
-        return url + '?single_page=true'
-
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-srcset': True}):
             img['src'] = img['data-srcset'].split()[0]
         return soup
 
-    def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
-        figure = soup.find('figure', id='cover-image')
-        if figure is not None:
-            img = figure.find('img', src=True)
-            if img:
-                self.cover_url = img['src']
-        current_section, current_articles = 'Cover Story', []
-        feeds = []
-        for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
-            for h2 in div.findAll('h2', attrs={'class': True}):
-                if 'section-name' in h2['class'].split():
-                    if current_articles:
-                        feeds.append((current_section, current_articles))
-                    current_articles = []
-                    current_section = self.tag_to_string(h2)
-                    self.log('\nFound section:', current_section)
-                elif 'hed' in h2['class'].split():
-                    title = self.tag_to_string(h2)
-                    a = h2.findParent('a', href=True)
-                    url = a['href']
-                    if url.startswith('/'):
-                        url = 'http://www.theatlantic.com' + url
-                    li = a.findParent(
-                        'li',
-                        attrs={'class': lambda x: x and 'article' in x.split()}
-                    )
-                    desc = ''
-                    dek = li.find(
-                        attrs={'class': lambda x: x and 'dek' in x.split()}
-                    )
-                    if dek is not None:
-                        desc += self.tag_to_string(dek)
-                    byline = li.find(
-                        attrs={'class': lambda x: x and 'byline' in x.split()}
-                    )
-                    if byline is not None:
-                        desc += ' -- ' + self.tag_to_string(byline)
-                    self.log('\t', title, 'at', url)
-                    if desc:
-                        self.log('\t\t', desc)
-                    current_articles.append({
-                        'title': title,
-                        'url': url,
-                        'description': desc
-                    })
-        if current_articles:
-            feeds.append((current_section, current_articles))
-        return feeds
+    def print_version(self, url):
+        return url.partition('?')[0] + '?single_page=true'
+
+    if web_version:
+
+        use_embedded_content = False
+
+        feeds = [
+            ('The Atlantic', 'http://www.theatlantic.com/feed/all/'),
+            ('Best of The Atlantic', 'http://www.theatlantic.com/feed/best-of/'),
+            ('Politics | The Atlantic', 'http://www.theatlantic.com/feed/channel/politics/'),
+            ('Business | The Atlantic', 'http://www.theatlantic.com/feed/channel/business/'),
+            ('Culture | The Atlantic', 'http://www.theatlantic.com/feed/channel/entertainment/'),
+            ('Global | The Atlantic', 'http://www.theatlantic.com/feed/channel/international/'),
+            ('Technology | The Atlantic', 'http://www.theatlantic.com/feed/channel/technology/'),
+            ('U.S. | The Atlantic', 'http://www.theatlantic.com/feed/channel/national/'),
+            ('Health | The Atlantic', 'http://www.theatlantic.com/feed/channel/health/'),
+            ('Video | The Atlantic', 'http://www.theatlantic.com/feed/channel/video/'),
+            ('Sexes | The Atlantic', 'http://www.theatlantic.com/feed/channel/sexes/'),
+            ('Education | The Atlantic', 'http://www.theatlantic.com/feed/channel/education/'),
+            ('Science | The Atlantic', 'http://www.theatlantic.com/feed/channel/science/'),
+            ('News | The Atlantic', 'http://www.theatlantic.com/feed/channel/news/'),
+            ('Press Releases | The Atlantic', 'http://www.theatlantic.com/feed/channel/press-releases/'),
+            ('Newsletters | The Atlantic', 'http://www.theatlantic.com/feed/channel/newsletters/'),
+            ('The Atlantic Photo', 'http://feeds.feedburner.com/theatlantic/infocus'),
+            ('Notes | The Atlantic', 'http://feeds.feedburner.com/TheAtlanticNotes'),
+        ]
+    else:
+        def parse_index(self):
+            soup = self.index_to_soup(self.INDEX)
+            figure = soup.find('figure', id='cover-image')
+            if figure is not None:
+                img = figure.find('img', src=True)
+                if img:
+                    self.cover_url = img['src']
+            current_section, current_articles = 'Cover Story', []
+            feeds = []
+            for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
+                for h2 in div.findAll('h2', attrs={'class': True}):
+                    if 'section-name' in h2['class'].split():
+                        if current_articles:
+                            feeds.append((current_section, current_articles))
+                        current_articles = []
+                        current_section = self.tag_to_string(h2)
+                        self.log('\nFound section:', current_section)
+                    elif 'hed' in h2['class'].split():
+                        title = self.tag_to_string(h2)
+                        a = h2.findParent('a', href=True)
+                        url = a['href']
+                        if url.startswith('/'):
+                            url = 'http://www.theatlantic.com' + url
+                        li = a.findParent(
+                            'li',
+                            attrs={'class': lambda x: x and 'article' in x.split()}
+                        )
+                        desc = ''
+                        dek = li.find(
+                            attrs={'class': lambda x: x and 'dek' in x.split()}
+                        )
+                        if dek is not None:
+                            desc += self.tag_to_string(dek)
+                        byline = li.find(
+                            attrs={'class': lambda x: x and 'byline' in x.split()}
+                        )
+                        if byline is not None:
+                            desc += ' -- ' + self.tag_to_string(byline)
+                        self.log('\t', title, 'at', url)
+                        if desc:
+                            self.log('\t\t', desc)
+                        current_articles.append({
+                            'title': title,
+                            'url': url,
+                            'description': desc
+                        })
+            if current_articles:
+                feeds.append((current_section, current_articles))
+            return feeds
