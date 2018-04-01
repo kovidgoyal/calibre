@@ -1,5 +1,10 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from collections import OrderedDict
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Fortune(BasicNewsRecipe):
@@ -11,20 +16,24 @@ class Fortune(BasicNewsRecipe):
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
-    keep_only_tags = [dict(attrs={'id': ['storycontent']})]
-    remove_tags = [
-        dict(attrs={'class': ['hed_side', 'socialMediaToolbarContainer']})]
+    keep_only_tags = [
+            dict(name='h1', attrs={'class': lambda x: x and 'headline' in x}),
+            classes('lead-media author'),
+            dict(id='article-body'),
+    ]
+
     no_javascript = True
     no_stylesheets = True
-    needs_subscription = True
+    needs_subscription = 'optional'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://fortune.com')
-        br.select_form(id='sign-in-form')
-        br['username'] = self.username
-        br['password'] = self.password
-        br.submit()
+        if self.username and self.password:
+            br.open('http://fortune.com')
+            br.select_form(id='sign-in-form')
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
         return br
 
     def parse_index(self):
@@ -32,48 +41,19 @@ class Fortune(BasicNewsRecipe):
 
         # Go to the latestissue
         soup = self.index_to_soup('http://fortune.com/section/magazine/')
-
-        # Find cover & date
-        cover_item = soup.find('div', attrs={'id': 'cover-story'})
-        cover = cover_item.find('img', src=True)
-        self.cover_url = cover['src']
-        date = self.tag_to_string(cover_item.find(
-            'div', attrs={'class': 'tocDate'})).strip()
-        self.timefmt = u' [%s]' % date
-
-        feeds = OrderedDict()
-        section_title = ''
-
-        # checkout the cover story
         articles = []
-        coverstory = soup.find('div', attrs={'class': 'cnnHeadline'})
-        title = self.tag_to_string(coverstory.a).strip()
-        url = coverstory.a['href']
-        desc = self.tag_to_string(coverstory.findNext(
-            'p', attrs={'class': 'cnnBlurbTxt'}))
-        articles.append({'title': title, 'url': url,
-                         'description': desc, 'date': ''})
-        feeds['Cover Story'] = []
-        feeds['Cover Story'] += articles
 
-        for post in soup.findAll('div', attrs={'class': 'cnnheader'}):
-            section_title = self.tag_to_string(post).strip()
-            articles = []
-
-            ul = post.findNext('ul')
-            for link in ul.findAll('li'):
-                links = link.find('h2')
-                title = self.tag_to_string(links.a).strip()
-                url = links.a['href']
-                desc = self.tag_to_string(
-                    link.find('p', attrs={'class': 'cnnBlurbTxt'}))
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
-
-            if articles:
-                if section_title not in feeds:
-                    feeds[section_title] = []
-                feeds[section_title] += articles
-
-        ans = [(key, val) for key, val in feeds.iteritems()]
-        return ans
+        for i, article in enumerate(soup.findAll('article', attrs={'class': lambda x: x and 'type-article' in x.split()})):
+            div = article.find('div', attrs={'class': lambda x: x and 'article-info' in x.split()})
+            a = div.find('a', href=True)
+            url = a['href']
+            if url.startswith('/'):
+                url = 'http://fortune.com' + url
+            title = self.tag_to_string(a)
+            ai = div.find('div', attrs={'class': lambda x: x and 'article-info-extended' in x.split()})
+            desc = ''
+            if ai:
+                desc = self.tag_to_string(desc)
+            self.log('Article:', title, 'at', url)
+            articles.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', articles)]
