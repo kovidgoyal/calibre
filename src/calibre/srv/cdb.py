@@ -93,7 +93,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     ans = {'title': mi.title, 'authors': mi.authors, 'languages': mi.languages, 'filename': filename, 'id': job_id}
     if ids:
         ans['book_id'] = ids[0]
-        books_added(ids)
+        ctx.notify_changes(db.backend.library_path, books_added(ids))
     return ans
 
 
@@ -108,7 +108,7 @@ def cdb_delete_book(ctx, rd, book_ids, library_id):
     except Exception:
         raise HTTPBadRequest('invalid book_ids: {}'.format(book_ids))
     db.remove_books(ids)
-    books_deleted(ids)
+    ctx.notify_changes(db.backend.library_path, books_deleted(ids))
     return {}
 
 
@@ -120,6 +120,7 @@ def cdb_set_cover(ctx, rd, book_id, library_id):
         raise HTTPForbidden('Cannot use the add book interface with a user who has per library restrictions')
     rd.request_body_file.seek(0)
     dirtied = db.set_cover({book_id: rd.request_body_file})
+    ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     return tuple(dirtied)
 
 
@@ -160,5 +161,5 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
 
     for field, value in changes.iteritems():
         dirtied |= db.set_field(field, {book_id: value})
-    metadata(dirtied)
+    ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     return {bid: book_as_json(db, book_id) for bid in (dirtied & loaded_book_ids) | {book_id}}
