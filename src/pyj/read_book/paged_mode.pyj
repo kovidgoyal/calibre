@@ -56,13 +56,13 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
-col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
+col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = 0
 is_full_screen_layout = False
 
 def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
     scroll_viewport.reset_globals()
-    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
+    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = 0
     is_full_screen_layout = _in_paged_mode = False
 
 def column_at(xpos):
@@ -216,12 +216,14 @@ def layout(is_single_page):
     # themselves, unless the container width is an exact multiple, so we check
     # for that and manually set the container widths.
     def check_column_widths():
-        ncols = (scroll_viewport.paged_content_width() + gap) / col_and_gap
+        nonlocal number_of_cols
+        ncols = number_of_cols = (scroll_viewport.paged_content_width() + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
-            n = Math.floor(ncols)
+            n = number_of_cols = Math.floor(ncols)
             dw = n*col_width + (n-1)*gap
             data = {'col_width':col_width, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_width(), 'ncols':ncols, 'desired_width':dw}
             return data
+
     data = check_column_widths()
     if data:
         dw = data.desired_width
@@ -459,11 +461,19 @@ def onwheel(evt):
 def scroll_by_page(backward, by_screen):
     if by_screen:
         pos = previous_screen_location() if backward else next_screen_location()
+        pages = cols_per_screen
     else:
         pos = previous_col_location() if backward else next_col_location()
+        pages = 1
     if pos is -1:
+        get_boss().report_human_scroll()
         get_boss().send_message('next_spine_item', previous=backward)
     else:
+        if not backward:
+            scrolled_frac = (pages / number_of_cols) if number_of_cols > 0 else 0
+            get_boss().report_human_scroll(scrolled_frac, True)
+        else:
+            get_boss().report_human_scroll()
         scroll_to_xpos(pos)
 
 def onkeydown(evt):
@@ -472,21 +482,25 @@ def onkeydown(evt):
     if key is 'up' or key is 'down':
         handled = True
         if evt.ctrlKey:
+            get_boss().report_human_scroll()
             scroll_to_offset(0 if key is 'left' else document_width())
         else:
             scroll_by_page(key is 'up', True)
     elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
+            get_boss().report_human_scroll()
             scroll_to_offset(0 if key is 'left' else document_width())
         else:
             scroll_by_page(key is 'left', False)
     elif key is 'home' or key is 'end':
         handled = True
         if evt.ctrlKey:
+            get_boss().report_human_scroll()
             get_boss().send_message('goto_doc_boundary', start=key is 'home')
         else:
             if key is 'home':
+                get_boss().report_human_scroll()
                 scroll_to_offset(0)
             else:
                 scroll_to_offset(document_width())

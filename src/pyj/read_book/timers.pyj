@@ -1,0 +1,56 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+THRESHOLD = 5
+FILTER_THRESHOLD = 25
+MAX_SAMPLES = 256
+
+class Timers:
+
+    def __init__(self):
+        self.reset_read_timer()
+        self.rates = v'[]'
+        self.average = self.stddev = 0
+
+    def start_book(self, book):
+        self.reset_read_timer()
+        self.rates = v'[]'
+
+    def reset_read_timer(self):
+        self.last_scroll_at = None
+
+    def calculate(self):
+        rates = self.rates
+        rlen = rates.length
+        if rlen >= THRESHOLD:
+            avg = 0
+            for v'var i = 0; i < rlen; i++':
+                avg += rates[i]
+            avg /= rlen
+            self.average = avg
+            sq = 0
+            for v'var i = 0; i < rlen; i++':
+                x = rates[i]
+                sq += (x - avg) * (x - avg)
+            self.stddev = Math.sqrt(sq / (rlen - 1))
+        else:
+            self.average = self.stddev = 0
+
+    def on_human_scroll(self, amt_scrolled, is_large_scroll):
+        last_scroll_at = self.last_scroll_at
+        self.last_scroll_at = now = window.performance.now()
+        if last_scroll_at is None:
+            return
+        time_since_last_scroll = now - last_scroll_at
+        if time_since_last_scroll <= 0 or time_since_last_scroll >= 300:
+            return
+        if is_large_scroll and time_since_last_scroll < 2:
+            return
+        rate = amt_scrolled / time_since_last_scroll
+        if self.rates.length >= FILTER_THRESHOLD and Math.abs(rate - self.average) > 2 * self.stddev:
+            return
+        if self.rates.length >= MAX_SAMPLES:
+            self.rates.shift()
+        self.rates.push(rate)
+        self.calculate()

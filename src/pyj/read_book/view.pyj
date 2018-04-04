@@ -23,6 +23,7 @@ from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
+from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
@@ -116,6 +117,7 @@ class View:
 
     def __init__(self, container, ui):
         self.ui = ui
+        self.timers = Timers()
         self.loaded_resources = {}
         self.current_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
@@ -163,6 +165,7 @@ class View:
             'request_size': self.on_request_size,
             'show_footnote': self.on_show_footnote,
             'print': self.on_print,
+            'human_scroll': self.on_human_scroll,
         }
         self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), 'read_book.iframe', _('Bootstrapping book reader...'))
         self.search_overlay = SearchOverlay(self)
@@ -213,6 +216,16 @@ class View:
 
     def on_print(self, data):
         print(data.string)
+
+    def on_human_scroll(self, data):
+        if data.scrolled_by_frac is None:
+            self.timers.reset_read_timer()
+        else:
+            name = self.currently_showing.name
+            length = self.book.manifest.files[name]?.length
+            if length:
+                amt_scrolled = data.scrolled_by_frac * length
+                self.timers.on_human_scroll(amt_scrolled, data.is_large_scroll)
 
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
@@ -361,6 +374,7 @@ class View:
             self.content_popup_overlay.iframe_wrapper.reset()
             self.loaded_resources = {}
             self.content_popup_overlay.loaded_resources = {}
+            self.timers.start_book(book)
         self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         pos = {'replace_history':True}
