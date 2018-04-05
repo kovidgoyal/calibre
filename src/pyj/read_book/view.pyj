@@ -225,7 +225,7 @@ class View:
             length = self.book.manifest.files[name]?.length
             if length:
                 amt_scrolled = data.scrolled_by_frac * length
-                self.timers.on_human_scroll(amt_scrolled, data.is_large_scroll)
+                self.timers.on_human_scroll(amt_scrolled)
 
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)

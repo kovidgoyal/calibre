@@ -170,8 +170,8 @@ class IframeBoss:
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
 
-    def report_human_scroll(self, scrolled_by_frac, is_large_scroll):
-        self.send_message('human_scroll', scrolled_by_frac=scrolled_by_frac or None, is_large_scroll=v'!!is_large_scroll')
+    def report_human_scroll(self, scrolled_by_frac):
+        self.send_message('human_scroll', scrolled_by_frac=scrolled_by_frac or None)
 
     def on_scroll_to_anchor(self, data):
         frag = data.frag

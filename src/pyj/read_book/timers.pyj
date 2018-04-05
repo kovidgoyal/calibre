@@ -37,7 +37,7 @@ class Timers:
         else:
             self.average = self.stddev = 0
 
-    def on_human_scroll(self, amt_scrolled, is_large_scroll):
+    def on_human_scroll(self, amt_scrolled):
         last_scroll_at = self.last_scroll_at
         self.last_scroll_at = now = window.performance.now()
         if last_scroll_at is None:
@@ -45,7 +45,7 @@ class Timers:
         time_since_last_scroll = (now - last_scroll_at) / 1000
         if time_since_last_scroll <= 0 or time_since_last_scroll >= 300:
             return
-        if is_large_scroll and time_since_last_scroll < 2:
+        if time_since_last_scroll < 2:
             return
         rate = amt_scrolled / time_since_last_scroll
         if self.rates.length >= FILTER_THRESHOLD and Math.abs(rate - self.average) > 2 * self.stddev:

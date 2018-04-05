@@ -14,18 +14,71 @@ from utils import document_height, document_width, viewport_to_document
 def flow_to_scroll_fraction(frac):
     scroll_viewport.scroll_to(0, document_height() * frac)
 
+
+small_scroll_events = v'[]'
+
+
+def clear_small_scrolls():
+    nonlocal small_scroll_events
+    small_scroll_events = v'[]'
+
+
+def dispatch_small_scrolls():
+    if small_scroll_events.length:
+        now = window.performance.now()
+        if now - small_scroll_events[-1].time <= 2000:
+            window.setTimeout(dispatch_small_scrolls, 100)
+            return
+        amt = 0
+        for x in small_scroll_events:
+            amt += x.amt
+        clear_small_scrolls()
+        get_boss().report_human_scroll(amt / document_height())
+
+
+def add_small_scroll(amt):
+    small_scroll_events.push({'amt': amt, 'time': window.performance.now()})
+    window.setTimeout(dispatch_small_scrolls, 100)
+
+
+def report_human_scroll(amt):
+    if amt > 0:
+        h = scroll_viewport.height()
+        is_large_scroll = (amt / h) >= 0.5
+        if is_large_scroll:
+            clear_small_scrolls()
+            get_boss().report_human_scroll(amt / document_height())
+        else:
+            add_small_scroll(amt)
+    else:
+        clear_small_scrolls()
+
+
+def _check_for_scroll_end(func, obj, args, report):
+    before = window.pageYOffset
+    func.apply(obj, args)
+    if window.pageYOffset is before:
+        get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
+        return False
+    if report:
+        report_human_scroll(window.pageYOffset - before)
+    return True
+
+
 def check_for_scroll_end(func):
     return def ():
-        before = window.pageYOffset
-        func.apply(this, arguments)
-        if window.pageYOffset is before:
-            get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
-            return False
-        return True
+        return _check_for_scroll_end(func, this, arguments, False)
 
-@check_for_scroll_end
+
+def check_for_scroll_end_and_report(func):
+    return def ():
+        return _check_for_scroll_end(func, this, arguments, True)
+
+
+@check_for_scroll_end_and_report
 def scroll_by(y):
     window.scrollBy(0, y)
+
 
 def flow_onwheel(evt):
     dx = dy = 0
@@ -61,14 +114,18 @@ def smooth_y_scroll(up):
     smooth_y_data.up = up
     do_y_scroll()
 
+
 @check_for_scroll_end
 def goto_boundary(y):
     scroll_viewport.scroll_to(window.pageXOffset, 0)
+    get_boss().report_human_scroll()
 
-@check_for_scroll_end
+
+@check_for_scroll_end_and_report
 def scroll_by_page(backward):
     h = scroll_viewport.height() - 10
     window.scrollBy(0, -h if backward else h)
+
 
 def flow_onkeydown(evt):
     handled = False
@@ -87,6 +144,8 @@ def flow_onkeydown(evt):
             window.scrollBy(-15 if key is 'left' else 15, 0)
     elif key is 'home' or key is 'end':
         handled = True
+        get_boss().report_human_scroll()
+        clear_small_scrolls()
         if evt.ctrlKey:
             get_boss().send_message('goto_doc_boundary', start=key is 'home')
         else:
@@ -100,8 +159,10 @@ def flow_onkeydown(evt):
     if handled:
         evt.preventDefault()
 
+
 def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
+
 
 class FlickAnimator:
 

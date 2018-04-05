@@ -472,7 +472,7 @@ def scroll_by_page(backward, by_screen):
     else:
         if not backward:
             scrolled_frac = (pages / number_of_cols) if number_of_cols > 0 else 0
-            get_boss().report_human_scroll(scrolled_frac, True)
+            get_boss().report_human_scroll(scrolled_frac)
         else:
             get_boss().report_human_scroll()
         scroll_to_xpos(pos)
