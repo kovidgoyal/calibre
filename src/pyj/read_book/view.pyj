@@ -119,7 +119,7 @@ class View:
         self.ui = ui
         self.timers = Timers()
         self.loaded_resources = {}
-        self.current_progress_frac = 0
+        self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.clock_timer_id = 0
         sd = get_session_data()
@@ -504,6 +504,7 @@ class View:
         self.ui.db.update_last_read_time(self.book)
         lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
         self.current_progress_frac = data.progress_frac
+        self.current_file_progress_frac = data.file_progress_frac
         self.update_header_footer()
         key = self.book.key
         if username:
@@ -517,13 +518,24 @@ class View:
         sd = get_session_data()
         has_clock = False
 
+        if self.book?.manifest:
+            book_length = self.book.manifest.total_length or 0
+            name = self.currently_showing.name
+            chapter_length = self.book.manifest.files[name]?.length or 0
+        else:
+            book_length = chapter_length = 0
+        book_length *= max(0, 1 - self.current_progress_frac)
+        chapter_length *=  max(0, 1 - self.current_file_progress_frac)
+        book_time = self.timers.time_for(book_length)
+        chapter_time = self.timers.time_for(chapter_length)
+
         def render_template(div, sz_attr, name):
             nonlocal has_clock
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node)
+                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
+                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
+                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
                 has_clock = hca or hcb or hcc
                 if textc and not textb and not texta:
                     # Want right-aligned

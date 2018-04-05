@@ -31,8 +31,8 @@ class Timers:
             self.average = avg
             sq = 0
             for v'var i = 0; i < rlen; i++':
-                x = rates[i]
-                sq += (x - avg) * (x - avg)
+                x = rates[i] - avg
+                sq += x * x
             self.stddev = Math.sqrt(sq / (rlen - 1))
         else:
             self.average = self.stddev = 0
@@ -42,7 +42,7 @@ class Timers:
         self.last_scroll_at = now = window.performance.now()
         if last_scroll_at is None:
             return
-        time_since_last_scroll = now - last_scroll_at
+        time_since_last_scroll = (now - last_scroll_at) / 1000
         if time_since_last_scroll <= 0 or time_since_last_scroll >= 300:
             return
         if is_large_scroll and time_since_last_scroll < 2:
@@ -54,3 +54,8 @@ class Timers:
             self.rates.shift()
         self.rates.push(rate)
         self.calculate()
+
+    def time_for(self, length):
+        if length >= 0 and self.rates.length >= THRESHOLD and self.average > 0:
+            return length / self.average
+        return None

@@ -466,7 +466,8 @@ def scroll_by_page(backward, by_screen):
         pos = previous_col_location() if backward else next_col_location()
         pages = 1
     if pos is -1:
-        get_boss().report_human_scroll()
+        # dont report human scroll since we dont know if a full page was
+        # scrolled or not
         get_boss().send_message('next_spine_item', previous=backward)
     else:
         if not backward:

@@ -273,7 +273,7 @@ class IframeBoss:
                 if cfi != self.last_cfi:
                     self.last_cfi = cfi
                     self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                                      progress_frac=self.calculate_progress_frac(current_name, index))
+                                      progress_frac=self.calculate_progress_frac(current_name, index), file_progress_frac=progress_frac())
                     self.replace_history_on_next_cfi_update = True
 
     def update_toc_position(self):

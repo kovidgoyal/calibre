@@ -34,6 +34,9 @@ def create_item(region, label):
             opt(_('Current section'), 'section'),
             sep(),
             opt(_('Progress'), 'progress'),
+            opt(_('Time to read book'), 'time-book'),
+            opt(_('Time to read chapter'), 'time-chapter'),
+            opt(_('Time to read chapter and book'), 'time-chapter-book'),
             opt(_('Clock'), 'clock'),
         ))
     )
@@ -103,14 +106,26 @@ def commit_head_foot(onchange, container):
 
 
 if window.Intl?.DateTimeFormat:
-    date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
+    time_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
 else:
-    date_formatter = {'format': def(date):
+    time_formatter = {'format': def(date):
         return '{}:{}'.format(date.getHours(), date.getMinutes())
     }
 
 
-def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node):
+def format_time_left(seconds):
+    hours, minutes = divmod(int(seconds / 60), 60)
+    if hours <= 0:
+        if minutes < 1:
+            return _('almost done')
+        minutes = minutes
+        return _('{} mins').format(minutes)
+    if not minutes:
+        return _('{} hours').format(hours)
+    return _('{} h {} mins').format(hours, minutes)
+
+
+def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -128,7 +143,7 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
             text = _('{0} of {1}').format(ival, metadata.series)
     elif field is 'clock':
-        text = date_formatter.format(Date())
+        text = time_formatter.format(Date())
         has_clock = True
     elif field is 'section':
         text = current_toc_node.title if current_toc_node else ''
@@ -136,6 +151,16 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
         text = current_toc_toplevel_node.title if current_toc_toplevel_node else ''
         if not text:
             text = current_toc_node.title if current_toc_node else ''
+    elif field.startswith('time-'):
+        if book_time is None or chapter_time is None:
+            text = _('Calculating...')
+        else:
+            if field is 'time-book':
+                text = format_time_left(book_time)
+            elif field is 'time-chapter':
+                text = format_time_left(chapter_time)
+            else:
+                text = '{} ({})'.format(format_time_left(chapter_time), format_time_left(book_time))
     if text is not div.textContent:
         div.textContent = text
     div.style.display = 'block' if text else 'none'

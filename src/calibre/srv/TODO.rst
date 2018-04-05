@@ -14,8 +14,6 @@ New features for the in-browser viewer
 - Allow loading fonts from the computer running calibre and using them
   for reading.
 
-- Add a time left for chapter/book footer.
-
 
 New features for the server generally
 ---------------------------------------
