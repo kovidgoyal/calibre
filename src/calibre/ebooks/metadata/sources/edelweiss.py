@@ -193,7 +193,7 @@ def get_basic_data(browser, log, *skus):
 class Edelweiss(Source):
 
     name = 'Edelweiss'
-    version = (2, 0, 0)
+    version = (2, 0, 1)
     minimum_calibre_version = (3, 6, 0)
     description = _('Downloads metadata and covers from Edelweiss - A catalog updated by book publishers')
 
@@ -270,6 +270,8 @@ class Edelweiss(Source):
         if 'edelweiss' in identifiers:
             items = [identifiers['edelweiss']]
         else:
+            log.error('Currently Edelweiss returns random books for search queries')
+            return
             query = self.create_query(log, title=title, authors=authors,
                     identifiers=identifiers)
             if not query:
