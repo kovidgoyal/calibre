@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title:
 
+- version: 3.21.0
+  date: 2018-04-06
+
+  new features:
+    - title: "Browser viewer: Allow showing the time left in the current chapter/book in the header and footer areas of the book."
+      description: "To use go to the preferences of the browser viewer and customize the headers and footers to display the time left. Note that time left in chapter only works correctly if chapters are in separate HTML files in the book."
+
+    - title: "Manage tags dialog: Searching now shows all matching tags and there is an undo button to undo changes."
+      tickets: [1743896]
+
+    - title: "Add an output profile for the Kindle Oasis 2017"
+      tickets: [1759434]
+
+  bug fixes:
+    - title: "Content server: Fix adding/deleting books and editing metadata not updating the main calibre book list automatically."
+      tickets: [1761017]
+
+    - title: "Viewer: When doing a dictionary lookup, remove soft hyphens from the word, if any are present."
+      tickets: [1760292]
+
+    - title: "Edit metadata dialog: Fix tab order for buttons to the left of the title and author"
+
+    - title: "Trim cover dialog: Remove the redundant Trim & OK button, instead have the OK button trim automatically if there is a selection."
+      tickets: [1759671]
+
+    - title: "Update Amazon metadata plugin for a website change"
+
+    - title: "Content server: Fix translations not being updated without clearing the browser cache"
+
+    - title: "Content server: Fix switching from translations to no translations not working"
+
+    - title: "Content server: When updating interface data do not transmit translations if they have not been changed. Saves ~30-60KB bandwidth when using non-English interface language."
+
+  improved recipes:
+    - The Atlantic
+    - Fortune Magazine
+    - Telegraph UK
+    - Hot Air
+    - Reader's Digest
+    - The Economist
+
+
 - version: 3.20.0
   date: 2018-03-23
 
