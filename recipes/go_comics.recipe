@@ -10,6 +10,12 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 
 
+def absolutize(url):
+    if url.startswith('/'):
+        url = 'http://www.gocomics.com' + url
+    return url
+
+
 class GoComics(BasicNewsRecipe):
     title = 'Go Comics'
     __author__ = 'Kovid Goyal'
@@ -572,6 +578,10 @@ class GoComics(BasicNewsRecipe):
         return {'title':'Page %d of %s' % ((num + 1), title), 'url': ('file:' if iswindows else 'file://') + path.replace(os.sep, '/')}
 
     def make_links(self, title, url):
+        soup = self.index_to_soup(url)
+        div = soup.find(attrs={'class': lambda x: x and 'gc-deck' in x.split()})
+        a = div.find('a', href=True)
+        url = absolutize(a['href'])
         current_articles = []
         if self.test:
             self.num_comics_to_get = 2
