@@ -85,5 +85,6 @@ class TelegraphUK(BasicNewsRecipe):
         for img in soup.findAll('div', attrs={'data-js': 'LazyImage'}):
             img['style'] = ''
             img.name = 'img'
-            img['src'] = img['data-srcset'].split()[0]
+            srcs = [x.split(' ')[0].strip() for x in img['data-srcset'].split(',')]
+            img['src'] = srcs[1 if len(srcs) > 0 else 0]
         return soup
