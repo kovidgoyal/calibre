@@ -7,7 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    OPF, XPath, read_prefixes, read_refines, refdef, remove_element, set_refines
+    DC, OPF, XPath, ensure_id, read_prefixes, read_refines, refdef, remove_element,
+    set_refines
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -53,6 +54,37 @@ def upgrade_title(root, data):
         set_refines(first_title, data.refines, refdef('title-type', 'main'), *ts)
 
 
+def upgrade_languages(root, data):
+    langs = XPath('./opf:metadata/dc:language')(root)
+    if langs:
+        for lang in langs:
+            lang.attrib.clear()
+    else:
+        # EPUB spec says dc:language is required
+        metadata = XPath('./opf:metadata')(root)[0]
+        l = metadata.makeelement(DC('language'))
+        l.text = 'und'
+        metadata.append(l)
+
+
+def upgrade_authors(root, data):
+    for which in 'creator', 'contributor':
+        for elem in XPath('./opf:metadata/dc:' + which)(root):
+            role = elem.attrib.pop(OPF('role'), None)
+            sort = elem.attrib.pop(OPF('file-as'), None)
+            if role or sort:
+                aid = ensure_id(elem)
+                metadata = elem.getparent()
+                if role:
+                    m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+                    m.text = role
+                    metadata.append(m)
+                if sort:
+                    m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
+                    m.text = sort
+                    metadata.append(m)
+
+
 def upgrade_metadata(root):
     data = Data()
     data.prefixes = read_prefixes(root)
@@ -60,6 +92,9 @@ def upgrade_metadata(root):
 
     upgrade_identifiers(root, data)
     upgrade_title(root, data)
+    upgrade_languages(root, data)
+    upgrade_authors(root, data)
+
     pretty_print_opf(root)
 
 
