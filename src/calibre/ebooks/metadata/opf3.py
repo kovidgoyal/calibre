@@ -575,6 +575,14 @@ def read_timestamp(root, prefixes, refines):
                 continue
 
 
+def create_timestamp(m, val):
+    if not is_date_undefined(val):
+        val = isoformat(val)
+        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:timestamp', 'scheme':'dcterms:W3CDTF'})
+        d.text = val
+        m.append(d)
+
+
 def set_timestamp(root, prefixes, refines, val):
     ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
     ensure_prefix(root, prefixes, 'dcterms')
@@ -583,12 +591,7 @@ def set_timestamp(root, prefixes, refines, val):
         prop = expand_prefix(meta.get('property'), prefixes)
         if prop.lower() == pq or meta.get('name') == 'calibre:timestamp':
             remove_element(meta, refines)
-    if not is_date_undefined(val):
-        val = isoformat(val)
-        m = XPath('./opf:metadata')(root)[0]
-        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:timestamp', 'scheme':'dcterms:W3CDTF'})
-        d.text = val
-        m.append(d)
+    create_timestamp(XPath('./opf:metadata')(root)[0], val)
 
 
 def read_last_modified(root, prefixes, refines):

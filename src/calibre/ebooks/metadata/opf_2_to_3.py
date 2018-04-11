@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    DC, OPF, XPath, ensure_id, read_prefixes, read_refines, refdef, remove_element,
-    set_refines
+    DC, OPF, XPath, create_timestamp, ensure_id, parse_date, read_prefixes,
+    read_refines, refdef, remove_element, set_refines
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -85,6 +85,31 @@ def upgrade_authors(root, data):
                     metadata.append(m)
 
 
+def upgrade_timestamp(root, data):
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:timestamp"]')(root):
+        m = meta.getparent()
+        remove_element(meta, data.refines)
+        val = meta.get('content')
+        if val:
+            try:
+                val = parse_date(val, is_w3cdtf=True)
+            except Exception:
+                pass
+            else:
+                create_timestamp(m, val)
+
+
+def upgrade_date(root, data):
+    found = False
+    for date in XPath('./opf:metadata/dc:date')(root):
+        val = date.text
+        if val:
+            found = True
+            continue
+        if not val or found:  # only one dc:date allowed
+            remove_element(date, data.refines)
+
+
 def upgrade_metadata(root):
     data = Data()
     data.prefixes = read_prefixes(root)
@@ -94,6 +119,8 @@ def upgrade_metadata(root):
     upgrade_title(root, data)
     upgrade_languages(root, data)
     upgrade_authors(root, data)
+    upgrade_timestamp(root, data)
+    upgrade_date(root, data)
 
     pretty_print_opf(root)
 
