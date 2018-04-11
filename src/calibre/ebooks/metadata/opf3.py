@@ -701,6 +701,14 @@ def read_rating(root, prefixes, refines):
                 continue
 
 
+def create_rating(root, prefixes, val):
+    ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
+    m = XPath('./opf:metadata')(root)[0]
+    d = m.makeelement(OPF('meta'), attrib={'property':'calibre:rating'})
+    d.text = val
+    m.append(d)
+
+
 def set_rating(root, prefixes, refines, val):
     pq = '%s:rating' % CALIBRE_PREFIX
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
@@ -710,11 +718,7 @@ def set_rating(root, prefixes, refines, val):
         if prop.lower() == pq:
             remove_element(meta, refines)
     if val:
-        ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
-        m = XPath('./opf:metadata')(root)[0]
-        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:rating'})
-        d.text = '%.2g' % val
-        m.append(d)
+        create_rating(root, prefixes, '%.2g' % val)
 # }}}
 
 # Series {{{
@@ -745,17 +749,21 @@ def read_series(root, prefixes, refines):
     return None, series_index
 
 
+def create_series(root, refines, series, series_index):
+    m = XPath('./opf:metadata')(root)[0]
+    d = m.makeelement(OPF('meta'), attrib={'property':'belongs-to-collection'})
+    d.text = series
+    m.append(d)
+    set_refines(d, refines, refdef('collection-type', 'series'), refdef('group-position', series_index))
+
+
 def set_series(root, prefixes, refines, series, series_index):
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series" or @name="calibre:series_index"]')(root):
         remove_element(meta, refines)
     for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection"]')(root):
         remove_element(meta, refines)
-    m = XPath('./opf:metadata')(root)[0]
     if series:
-        d = m.makeelement(OPF('meta'), attrib={'property':'belongs-to-collection'})
-        d.text = series
-        m.append(d)
-        set_refines(d, refines, refdef('collection-type', 'series'), refdef('group-position', '%.2g' % series_index))
+        create_series(root, refines, series, '%.2g' % series_index)
 # }}}
 
 # User metadata {{{

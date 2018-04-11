@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    DC, OPF, XPath, create_timestamp, ensure_id, parse_date, read_prefixes,
-    read_refines, refdef, remove_element, set_refines
+    DC, OPF, XPath, create_rating, create_series, create_timestamp, ensure_id,
+    parse_date, read_prefixes, read_refines, refdef, remove_element, set_refines
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -110,6 +110,35 @@ def upgrade_date(root, data):
             remove_element(date, data.refines)
 
 
+def upgrade_rating(root, data):
+    rating = None
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
+        remove_element(meta, data.refines)
+        rating = meta.get('content')
+    if rating is not None:
+        create_rating(root, data.prefixes, rating)
+
+
+def upgrade_series(root, data):
+    series, series_index = None, '1.0'
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series"]')(root):
+        remove_element(meta, data.refines)
+        series = meta.get('content')
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series_index"]')(root):
+        remove_element(meta, data.refines)
+        series_index = meta.get('content')
+
+    if series:
+        create_series(root, data.refines, series, series_index)
+
+
+def remove_invalid_attrs_in_dc_metadata(root, data):
+    for tag in XPath('//*[namespace-uri() = "{}"]'.format(DC('')[1:-1]))(root):
+        for k in tuple(tag.attrib):
+            if k != 'id':
+                del tag.attrib[k]
+
+
 def upgrade_metadata(root):
     data = Data()
     data.prefixes = read_prefixes(root)
@@ -121,7 +150,10 @@ def upgrade_metadata(root):
     upgrade_authors(root, data)
     upgrade_timestamp(root, data)
     upgrade_date(root, data)
+    upgrade_rating(root, data)
+    upgrade_series(root, data)
 
+    remove_invalid_attrs_in_dc_metadata(root, data)
     pretty_print_opf(root)
 
 
