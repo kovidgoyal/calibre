@@ -391,7 +391,8 @@ class KINDLE2(KINDLE):
     # x330 on the PaperWhite
     # x262 on the Touch. Doesn't choke on x330, though.
     # x470 on the Voyage, checked that it works on PW, Touch checked by eschwartz.
-    THUMBNAIL_HEIGHT         = 470
+    # x500 on the Oasis 2017. checked that it works on the PW3
+    THUMBNAIL_HEIGHT         = 500
 
     @classmethod
     def migrate_extra_customization(cls, vals):
