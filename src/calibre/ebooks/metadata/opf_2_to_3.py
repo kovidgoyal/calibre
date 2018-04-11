@@ -7,8 +7,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    DC, OPF, XPath, create_rating, create_series, create_timestamp, ensure_id,
-    parse_date, read_prefixes, read_refines, refdef, remove_element, set_refines
+    DC, OPF, XPath, create_rating, create_series, create_timestamp,
+    encode_is_multiple, ensure_id, parse_date, read_prefixes, read_refines,
+    read_user_metadata2, refdef, remove_element, set_refines, set_user_metadata3
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -132,6 +133,35 @@ def upgrade_series(root, data):
         create_series(root, data.refines, series, series_index)
 
 
+def upgrade_custom(root, data):
+    m = read_user_metadata2(root, remove_tags=True)
+    if m:
+        for fm in m.itervalues():
+            encode_is_multiple(fm)
+        set_user_metadata3(root, data.prefixes, data.refines, m)
+
+
+def upgrade_meta(root, data):
+    for meta in XPath('./opf:metadata/opf:meta[@name]')(root):
+        name, content = meta.get('name'), meta.get('content') or ''
+        if name.startswith('rendition:'):
+            name = name.partition(':')[-1]
+        prop = None
+        if name in ('orientation', 'layout', 'spread'):
+            prop = 'rendition:' + name
+        elif name == 'fixed-layout':
+            prop = 'rendition:layout'
+            content = {'true': 'pre-paginated'}.get(content.lower(), 'reflowable')
+        elif name == 'orientation-lock':
+            prop = 'rendition:orientation'
+            content = {'portrait': 'portrait', 'landscape': 'landscape'}.get(content.lower(), 'auto')
+        if prop:
+            del meta.attrib['name']
+            del meta.attrib['content']
+            meta.set('property', prop)
+            meta.text = content
+
+
 def remove_invalid_attrs_in_dc_metadata(root, data):
     for tag in XPath('//*[namespace-uri() = "{}"]'.format(DC('')[1:-1]))(root):
         for k in tuple(tag.attrib):
@@ -152,6 +182,8 @@ def upgrade_metadata(root):
     upgrade_date(root, data)
     upgrade_rating(root, data)
     upgrade_series(root, data)
+    upgrade_custom(root, data)
+    upgrade_meta(root, data)
 
     remove_invalid_attrs_in_dc_metadata(root, data)
     pretty_print_opf(root)

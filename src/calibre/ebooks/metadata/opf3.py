@@ -837,7 +837,7 @@ def deserialize_user_metadata(val):
 read_user_metadata3 = dict_reader('user_metadata', load=deserialize_user_metadata, try2=False)
 
 
-def read_user_metadata2(root):
+def read_user_metadata2(root, remove_tags=False):
     ans = {}
     for meta in XPath('./opf:metadata/opf:meta[starts-with(@name, "calibre:user_metadata:")]')(root):
         name = meta.get('name')
@@ -845,6 +845,8 @@ def read_user_metadata2(root):
         if not name or not name.startswith('#'):
             continue
         fm = meta.get('content')
+        if remove_tags:
+            meta.getparent().remove(meta)
         try:
             fm = json.loads(fm, object_hook=from_json)
             decode_is_multiple(fm)
