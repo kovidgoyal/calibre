@@ -17,8 +17,8 @@ class FB2Input(InputFormatPlugin):
 
     name        = 'FB2 Input'
     author      = 'Anatoly Shipitsin'
-    description = 'Convert FB2 files to HTML'
-    file_types  = set(['fb2'])
+    description = 'Convert FB2 and FBZ files to HTML'
+    file_types  = {'fb2', 'fbz'}
 
     recommendations = set([
         ('level1_toc', '//h:h1', OptionRecommendation.MED),
@@ -37,14 +37,15 @@ class FB2Input(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from lxml import etree
-        from calibre.ebooks.metadata.fb2 import ensure_namespace
+        from calibre.ebooks.metadata.fb2 import ensure_namespace, get_fb2_data
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
         from calibre.ebooks.chardet import xml_to_unicode
         self.log = log
         log.debug('Parsing XML...')
-        raw = stream.read().replace('\0', '')
+        raw = get_fb2_data(stream)[0]
+        raw = raw.replace(b'\0', b'')
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
             assume_utf8=True, resolve_entities=True)[0]
         try:
@@ -173,5 +174,3 @@ class FB2Input(InputFormatPlugin):
                 else:
                     with open(fname, 'wb') as f:
                         f.write(data)
-
-

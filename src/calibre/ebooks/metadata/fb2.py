@@ -85,10 +85,27 @@ class Context(object):
                 self.create_tag(parent, 'empty-line', at_start=False)
 
 
+def get_fb2_data(stream):
+    from calibre.utils.zipfile import ZipFile, BadZipfile
+    pos = stream.tell()
+    try:
+        zf = ZipFile(stream)
+    except BadZipfile:
+        stream.seek(pos)
+        ans = stream.read()
+        zip_file_name = None
+    else:
+        names = zf.namelist()
+        names = [x for x in names if x.lower().endswith('.fb2')] or names
+        zip_file_name = names[0]
+        ans = zf.open(zip_file_name).read()
+    return ans, zip_file_name
+
+
 def get_metadata(stream):
     ''' Return fb2 metadata as a L{MetaInformation} object '''
 
-    root = _get_fbroot(stream)
+    root = _get_fbroot(get_fb2_data(stream)[0])
     ctx = Context(root)
     book_title = _parse_book_title(root, ctx)
     authors = _parse_authors(root, ctx) or [_('Unknown')]
@@ -294,9 +311,8 @@ def _parse_language(root, mi, ctx):
         mi.languages = [language]
 
 
-def _get_fbroot(stream):
+def _get_fbroot(raw):
     parser = etree.XMLParser(recover=True, no_network=True)
-    raw = stream.read()
     raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     root = etree.fromstring(raw, parser=parser)
     return ensure_namespace(root)
@@ -386,7 +402,8 @@ def _set_cover(title_info, mi, ctx):
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
-    root = _get_fbroot(stream)
+    raw, zip_file_name = get_fb2_data(stream)
+    root = _get_fbroot(raw)
     ctx = Context(root)
     desc = ctx.get_or_create(root, 'description')
     ti = ctx.get_or_create(desc, 'title-info')
@@ -403,14 +420,20 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     for child in ti:
         child.tail = indent
 
-    stream.seek(0)
-    stream.truncate()
     # Apparently there exists FB2 reading software that chokes on the use of
     # single quotes in xml declaration. Sigh. See
     # https://www.mobileread.com/forums/showthread.php?p=2273184#post2273184
-    stream.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
-    stream.write(etree.tostring(root, method='xml', encoding='utf-8',
-        xml_declaration=False))
+    raw = b'<?xml version="1.0" encoding="UTF-8"?>\n'
+    raw += etree.tostring(root, method='xml', encoding='utf-8', xml_declaration=False)
+
+    stream.seek(0)
+    stream.truncate()
+    if zip_file_name:
+        from calibre.utils.zipfile import ZipFile
+        with ZipFile(stream, 'w') as zf:
+            zf.writestr(zip_file_name, raw)
+    else:
+        stream.write(raw)
 
 
 def ensure_namespace(doc):
