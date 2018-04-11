@@ -928,7 +928,7 @@ class Application(QApplication):
         if iswindows or isosx:
             using_calibre_style = gprefs['ui_style'] != 'system'
         else:
-            using_calibre_style = 'CALIBRE_USE_SYSTEM_THEME' not in os.environ
+            using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
         if force_calibre_style:
             using_calibre_style = True
         self.using_calibre_style = using_calibre_style
