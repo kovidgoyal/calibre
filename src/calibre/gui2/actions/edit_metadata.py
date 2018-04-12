@@ -872,12 +872,15 @@ class EditMetadataAction(InterfaceAction):
                     'Cannot read cover as the %s file is missing from this book') % 'PDF', show=True)
             from calibre.gui2.metadata.pdf_covers import PDFCovers
             d = PDFCovers(pdfpath, parent=self.gui)
-            if d.exec_() == d.Accepted:
+            ret = d.exec_()
+            if ret == d.Accepted:
                 cpath = d.cover_path
                 if cpath:
                     with open(cpath, 'rb') as f:
                         cdata = f.read()
             d.cleanup()
+            if ret != d.Accepted:
+                return
         else:
             stream = BytesIO()
             try:
