@@ -10,6 +10,12 @@ calibre recipe for slate.com
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Slate(BasicNewsRecipe):
     title = 'Slate'
     description = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
@@ -20,23 +26,20 @@ class Slate(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
     remove_attributes = ['style']
-    INDEX = 'http://slate.com'
+    INDEX = 'https://slate.com'
     compress_news_images = True
 
     keep_only_tags = [
-        dict(name='header', attrs={'class': 'article-header'}),
-        dict(name='section', attrs={
-             'class': lambda x: x and 'content' == x.strip()}),
+        classes('article__header article__content'),
     ]
     remove_tags = [
-        dict(id='header_social'),
-        dict(attrs={'class': ['prop-name', 'prop-desc', 'authorbox',
-                              'twitter', 'email', 'facebook', 'follow-links', 'join-in']}),
-        dict(attrs={'class': lambda x: x and 'sharing-buttons' in x.split()}),
+        dict(name='ul', attrs={'class':"social-share"}),
     ]
 
-    def print_version(self, url):
-        return url.replace('.html', '.single.html')
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split()[0]
+        return soup
 
     def parse_index(self):
         ans = []
