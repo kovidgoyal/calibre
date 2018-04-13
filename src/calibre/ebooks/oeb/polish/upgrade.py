@@ -2,16 +2,44 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
+from calibre.ebooks.oeb.base import OEB_DOCS, xpath
+
+
+def add_properties(item, *props):
+    existing = set((item.get('properties') or '').split())
+    existing |= set(props)
+    item.set('properties', ' '.join(sorted(existing)))
+
+
+def collect_properties(container):
+    for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
+        mt = item.get('media-type') or ''
+        if mt.lower() not in OEB_DOCS:
+            continue
+        name = container.href_to_name(item.get('href'), container.opf_name)
+        root = container.parsed(name)
+        properties = set()
+        container.dirty(name)  # Ensure entities are converted
+        if xpath(root, '//svg:svg'):
+            properties.add('svg')
+        if xpath(root, '//h:script'):
+            properties.add('scripted')
+        if xpath(root, '//mathml:math'):
+            properties.add('mathml')
+        if xpath(root, '//epub:switch'):
+            properties.add('switch')
+        if properties:
+            add_properties(item, *tuple(properties))
 
 
 def epub_2_to_3(container, report):
     upgrade_metadata(container.opf)
-    container.dirty(container.opf_name)
+    collect_properties(container)
     container.opf.set('version', '3.0')
+    container.dirty(container.opf_name)
 
 
 def upgrade_book(container, report):
