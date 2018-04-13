@@ -15,12 +15,18 @@ def add_properties(item, *props):
     item.set('properties', ' '.join(sorted(existing)))
 
 
+def fix_font_mime_types(container):
+    for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
+        mt = item.get('media-type') or ''
+        if mt.lower() not in OEB_FONTS:
+            name = container.href_to_name(item.get('href'), container.opf_name)
+            item.set('media-type', container.guess_type(name))
+
+
 def collect_properties(container):
     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
         mt = item.get('media-type') or ''
         if mt.lower() not in OEB_DOCS:
-            if mt.lower() in OEB_FONTS and 'woff' not in mt.lower():
-                item.set('media-type', 'application/font-sfnt')
             continue
         name = container.href_to_name(item.get('href'), container.opf_name)
         root = container.parsed(name)
@@ -42,6 +48,7 @@ def epub_2_to_3(container, report):
     upgrade_metadata(container.opf)
     collect_properties(container)
     container.opf.set('version', '3.0')
+    fix_font_mime_types(container)
     container.dirty(container.opf_name)
 
 
