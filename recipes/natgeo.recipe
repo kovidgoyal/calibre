@@ -1,13 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import re
-from calibre.web.feeds.news import BasicNewsRecipe
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
 from calibre.ebooks.BeautifulSoup import Tag
-import html5lib
-from lxml.html import tostring
-from css_selectors import Select
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NatGeo(BasicNewsRecipe):
@@ -26,6 +29,16 @@ class NatGeo(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style']
+    remove_javascript = False
+
+    keep_only_tags = [
+            classes('mainArt byline'),
+            dict(id='article__body'),
+    ]
+    remove_tags = [
+            classes('hide-from-mobile ad-holder enlarge-button'),
+            dict(name='svg meta'.split()),
+    ]
 
     feeds = [
         (u'Daily News', u'http://feeds.nationalgeographic.com/ng/News/News_Main')
@@ -39,30 +52,13 @@ class NatGeo(BasicNewsRecipe):
                     feed.articles.remove(article)
         return feeds
 
-    def preprocess_raw_html(self, raw_html, url):
-        # BeautifulSoup does not parse the natgeo html correctly, so we use a
-        # custom cleanup routine
-
-        # NatGeo embeds huge inline svg images as interactive graphics, this
-        # breaks conversion because split points cannot be found
-        raw_html = re.sub(r'<svg.+?</svg>', '', raw_html, flags=re.DOTALL)
-        root = html5lib.parse(
-            raw_html, namespaceHTMLElements=False, treebuilder='lxml')
-        select = Select(root)
-        keep = tuple(select('.mainArt')) + tuple(select('.byline')
-                                                 ) + tuple(select('#article__body'))
-        body = root.xpath('//body')[0]
-        for elem in keep:
-            body.append(elem)
-        for child in tuple(body.iterchildren('*')):
-            if child not in keep:
-                body.remove(child)
-        for head in root.xpath('//head'):
-            for child in tuple(head.iterchildren('*')):
-                head.remove(child)
-        return tostring(root, encoding=unicode)
-
     def preprocess_html(self, soup):
+        for div in soup.findAll(attrs={'data-pestle-module': 'PictureFill'}):
+            script = div.find('script')
+            src = json.loads(self.tag_to_string(script))['src']
+            div.name = 'img'
+            div['src'] = src
+
         for div in soup.findAll(attrs={'data-src': True, 'class': 'delayed-image-load'}):
             url = div['data-src']
             idx = url.find('.jpg/{width')
@@ -71,4 +67,7 @@ class NatGeo(BasicNewsRecipe):
                 img = Tag(soup, "img")
                 img['src'] = url
                 div.append(img)
+
+        for script in soup.findAll('script'):
+            script.extract()
         return soup
