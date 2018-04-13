@@ -8,9 +8,9 @@ from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
     DC, OPF, XPath, create_rating, create_series, create_timestamp,
-    encode_is_multiple, ensure_id, parse_date, read_prefixes, read_refines,
-    read_user_metadata2, refdef, remove_element, set_last_modified, set_refines,
-    set_user_metadata3
+    encode_is_multiple, ensure_id, normalize_whitespace, parse_date, read_prefixes,
+    read_refines, read_user_metadata2, refdef, remove_element, set_last_modified,
+    set_refines, set_user_metadata3
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -163,6 +163,17 @@ def upgrade_meta(root, data):
             meta.text = content
 
 
+def upgrade_cover(root, data):
+    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
+        remove_element(item, data.refines)
+        item_id = item.get('content')
+        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
+            if item.get('id') == item_id:
+                mt = (item.get('media-type') or '').lower()
+                if mt and 'xml' not in mt and 'html' not in mt:
+                    item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
+
+
 def remove_invalid_attrs_in_dc_metadata(root, data):
     for tag in XPath('//*[namespace-uri() = "{}"]'.format(DC('')[1:-1]))(root):
         for k in tuple(tag.attrib):
@@ -185,6 +196,7 @@ def upgrade_metadata(root):
     upgrade_series(root, data)
     upgrade_custom(root, data)
     upgrade_meta(root, data)
+    upgrade_cover(root, data)
 
     remove_invalid_attrs_in_dc_metadata(root, data)
     set_last_modified(root, data.prefixes, data.refines)
