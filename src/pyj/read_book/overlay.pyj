@@ -137,7 +137,10 @@ class SyncBook:  # {{{
             return
         self.overlay.hide()
         if load_type is not 'load':
-            error_dialog(_('Failed to fetch sync data'), _('Failed to download last read data from server, click "Show details" for more information.'), xhr.error_html)
+            if xhr.responseText is 'login required for sync':
+                error_dialog(_('Failed to fetch sync data'), _('You must setup user accounts and login to use the sync functionality'))
+            else:
+                error_dialog(_('Failed to fetch sync data'), _('Failed to download last read data from server, click "Show details" for more information.'), xhr.error_html)
             return
         data = JSON.parse(xhr.responseText)
         book = self.overlay.view.book

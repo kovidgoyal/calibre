@@ -148,7 +148,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                     ans = jsonlib.load(f)
                 ans['metadata'] = book_as_json(db, book_id)
                 user = rd.username or None
-                ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user)
+                ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user) if user else []
                 return ans
             except EnvironmentError as e:
                 if e.errno != errno.ENOENT:
@@ -189,6 +189,8 @@ def get_last_read_position(ctx, rd, library_id, which):
     '''
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
+    if not user:
+        raise HTTPNotFound('login required for sync')
     ans = {}
     allowed_book_ids = ctx.allowed_book_ids(rd, db)
     for item in which.split('_'):
