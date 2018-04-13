@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
 from calibre.ebooks.oeb.base import OEB_DOCS, xpath
+from calibre.ebooks.oeb.polish.container import OEB_FONTS
 
 
 def add_properties(item, *props):
@@ -18,6 +19,8 @@ def collect_properties(container):
     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
         mt = item.get('media-type') or ''
         if mt.lower() not in OEB_DOCS:
+            if mt.lower() in OEB_FONTS and 'woff' not in mt.lower():
+                item.set('media-type', 'application/font-sfnt')
             continue
         name = container.href_to_name(item.get('href'), container.opf_name)
         root = container.parsed(name)
