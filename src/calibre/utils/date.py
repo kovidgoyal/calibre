@@ -193,6 +193,15 @@ def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     return unicode(date_time.isoformat(str(sep)))
 
 
+def w3cdtf(date_time, assume_utc=False):
+    if hasattr(date_time, 'tzinfo'):
+        if date_time.tzinfo is None:
+            date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
+                    _local_tz)
+        date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
+    return unicode(date_time.strftime('%Y-%M-%dT%H:%M:%SZ'))
+
+
 def as_local_time(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):
         return date_time

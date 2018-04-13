@@ -1294,7 +1294,14 @@ class EpubContainer(Container):
                 f.write(raw)
             self.obfuscated_fonts[font] = (alg, tkey)
 
+    def update_modified_timestamp(self):
+        from calibre.ebooks.metadata.opf3 import set_last_modified_in_opf
+        set_last_modified_in_opf(self.opf)
+        self.dirty(self.opf_name)
+
     def commit(self, outpath=None, keep_parsed=False):
+        if self.opf_version_parsed.major == 3:
+            self.update_modified_timestamp()
         super(EpubContainer, self).commit(keep_parsed=keep_parsed)
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
