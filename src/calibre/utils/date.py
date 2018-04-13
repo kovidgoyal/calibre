@@ -199,7 +199,7 @@ def w3cdtf(date_time, assume_utc=False):
             date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                     _local_tz)
         date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    return unicode(date_time.strftime('%Y-%M-%dT%H:%M:%SZ'))
+    return unicode(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 def as_local_time(date_time, assume_utc=True):
