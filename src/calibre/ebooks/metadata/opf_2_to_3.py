@@ -9,7 +9,8 @@ from lxml import etree
 from calibre.ebooks.metadata.opf3 import (
     DC, OPF, XPath, create_rating, create_series, create_timestamp,
     encode_is_multiple, ensure_id, parse_date, read_prefixes, read_refines,
-    read_user_metadata2, refdef, remove_element, set_refines, set_user_metadata3
+    read_user_metadata2, refdef, remove_element, set_last_modified, set_refines,
+    set_user_metadata3
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
@@ -97,7 +98,7 @@ def upgrade_timestamp(root, data):
             except Exception:
                 pass
             else:
-                create_timestamp(m, val)
+                create_timestamp(root, data.prefixes, m, val)
 
 
 def upgrade_date(root, data):
@@ -186,6 +187,7 @@ def upgrade_metadata(root):
     upgrade_meta(root, data)
 
     remove_invalid_attrs_in_dc_metadata(root, data)
+    set_last_modified(root, data.prefixes, data.refines)
     pretty_print_opf(root)
 
 
