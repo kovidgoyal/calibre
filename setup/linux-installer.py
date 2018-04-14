@@ -705,6 +705,7 @@ def check_umask():
             ' this can cause system breakage when running the installer because'
             ' of bugs in common system utilities.'
         )
+        sys.stdin = open('/dev/tty')  # stdin is a pipe from wget
         while True:
             q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
             if q in 'f i a'.split():
