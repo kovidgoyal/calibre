@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from book_list.globals import get_session_data
 from dom import unique_id
@@ -119,9 +119,9 @@ def format_time_left(seconds):
         if minutes < 1:
             return _('almost done')
         minutes = minutes
-        return _('{} mins').format(minutes)
+        return ngettext('{} min', '{} mins', minutes).format(minutes)
     if not minutes:
-        return _('{} hours').format(hours)
+        return ngettext('{} hour', '{} hours', hours).format(hours)
     return _('{} h {} mins').format(hours, minutes)
 
 
