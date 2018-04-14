@@ -1,63 +1,55 @@
-#!/usr/bin/env  python2
-__license__ = 'GPL v3'
-
-__copyright__ = '2010, Szing'
-__docformat__ = 'restructuredtext en'
-
-'''
-globeandmail.com
-'''
-
-import re
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1287083651(BasicNewsRecipe):
+def absolutize(href):
+    if href.startswith('/'):
+        href = 'https://www.theglobeandmail.com' + href
+    return href
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class GlobeMail(BasicNewsRecipe):
     title = u'Globe & Mail'
     __author__ = 'Kovid Goyal'
-    oldest_article = 2
-    no_stylesheets = True
-    max_articles_per_feed = 100
-    encoding = 'utf8'
+    encoding = 'utf-8'
     publisher = 'Globe & Mail'
     language = 'en_CA'
-    use_embedded_content = False
-
+    ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
-    auto_cleanup = True
-    extra_css = 'p.meta {font-size:75%}\n .redtext {color: red;}\n .byline {font-size: 70%}'
+    remove_attributes = ['style']
 
-    feeds = [
-        (u'Top National Stories',
-         u'http://www.theglobeandmail.com/news/national/?service=rss'),
-        (u'Business', u'http://www.theglobeandmail.com/report-on-business/?service=rss'),
-        (u'Commentary', u'http://www.theglobeandmail.com/report-on-business/commentary/?service=rss'),
-        (u'Blogs', u'http://www.theglobeandmail.com/blogs/?service=rss'),
-        (u'Facts & Arguments',
-            u'http://www.theglobeandmail.com/life/facts-and-arguments/?service=rss'),
-        (u'Technology', u'http://www.theglobeandmail.com/news/technology/?service=rss'),
-        (u'Investing', u'http://www.theglobeandmail.com/globe-investor/?service=rss'),
-        (u'Top Polical Stories',
-            u'http://www.theglobeandmail.com/news/politics/?service=rss'),
-        (u'Arts', u'http://www.theglobeandmail.com/news/arts/?service=rss'),
-        (u'Life', u'http://www.theglobeandmail.com/life/?service=rss'),
-        (u'Real Estate', u'http://www.theglobeandmail.com/real-estate/?service=rss'),
-        (u'Sports', u'http://www.theglobeandmail.com/sports/?service=rss'),
-        (u'Drive', u'http://www.theglobeandmail.com/auto/?service=rss')
+    keep_only_tags = [
+            dict(name='h1'),
+            dict(name='main', attrs={'class': lambda x: x and 'article-primary-content-chain' in x.split()}),
+    ]
+    remove_tags = [
+            classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions'),
     ]
 
-    preprocess_regexps = [
-        (re.compile(r'<head.*?</head>', re.DOTALL), lambda m: '<head></head>'),
-        (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
-    ]
+    def parse_index(self):
+        ans = []
+        for section in 'canada opinion politics sports life arts world'.split():
+            if self.test and len(ans) >= self.test[0]:
+                break
+            soup = self.index_to_soup('https://www.theglobeandmail.com/{}/'.format(section))
+            self.log('Processing section:', section)
+            articles = list(self.parse_gm_section(soup))
+            if articles:
+                ans.append((section.capitalize(), articles))
+        return ans
 
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            picdiv = soup.find('img')
-            if picdiv is not None:
-                self.add_toc_thumbnail(article, picdiv['src'])
-
-    # Use the mobile version rather than the web version
-    def print_version(self, url):
-        return url.rpartition('?')[0] + '?service=mobile'
+    def parse_gm_section(self, soup):
+        for a in soup.findAll('a', href=True, attrs={'data-lt-lid': lambda x: x and x.startswith('Headline.')}):
+            title = self.tag_to_string(a)
+            url = absolutize(a['href'])
+            self.log('  ', title, 'at', url)
+            yield {'title': title, 'url': url}
