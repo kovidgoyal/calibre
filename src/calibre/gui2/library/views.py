@@ -472,7 +472,8 @@ class BooksView(QTableView):  # {{{
             view.column_header_context_menu.addAction(
                 _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
                 partial(self.column_header_context_handler, action='split', column=col or 'title'))
-        view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
+        if hasattr(view, 'column_header_context_menu'):
+            view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
 
     # Sorting {{{
