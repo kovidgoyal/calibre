@@ -105,6 +105,8 @@ def create_nav(container, toc, landmarks):
     if landmarks:
         for entry in landmarks:
             entry['type'] = guide_epubtype_map.get(entry['type'].lower())
+            if entry['type'] == 'cover' and container.mime_map.get(entry['dest'], '').lower() in OEB_DOCS:
+                container.apply_unique_properties(entry['dest'], 'calibre:title-page')
     commit_nav_toc(container, toc, lang=lang, landmarks=landmarks)
 
 
