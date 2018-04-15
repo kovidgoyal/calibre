@@ -254,8 +254,8 @@ def mark_as_titlepage(container, name, move_to_start=True):
 def find_cover_page(container):
     'Find a document marked as a cover in the OPF'
     ver = container.opf_version_parsed
+    mm = container.mime_map
     if ver.major < 3:
-        mm = container.mime_map
         guide_type_map = container.guide_type_map
         for ref_type, name in guide_type_map.iteritems():
             if ref_type.lower() == 'cover' and mm.get(name, '').lower() in OEB_DOCS:
@@ -263,6 +263,10 @@ def find_cover_page(container):
     else:
         for name in container.manifest_items_with_property('calibre:title-page'):
             return name
+        from calibre.ebooks.oeb.polish.toc import get_landmarks
+        for landmark in get_landmarks(container):
+            if landmark['type'] == 'cover' and mm.get(landmark['dest'], '').lower() in OEB_DOCS:
+                return landmark['dest']
 
 
 def find_cover_image_in_page(container, cover_page):
