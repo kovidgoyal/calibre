@@ -4,9 +4,15 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
+
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
 from calibre.ebooks.oeb.base import OEB_DOCS, xpath
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.opf import get_book_language
+from calibre.ebooks.oeb.polish.toc import (
+    commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
+)
 
 
 def add_properties(item, *props):
@@ -44,9 +50,76 @@ def collect_properties(container):
             add_properties(item, *tuple(properties))
 
 
+guide_epubtype_map = {
+     'acknowledgements'   : 'acknowledgments',
+     'other.afterword'    : 'afterword',
+     'other.appendix'     : 'appendix',
+     'other.backmatter'   : 'backmatter',
+     'bibliography'       : 'bibliography',
+     'text'               : 'bodymatter',
+     'other.chapter'      : 'chapter',
+     'colophon'           : 'colophon',
+     'other.conclusion'   : 'conclusion',
+     'other.contributors' : 'contributors',
+     'copyright-page'     : 'copyright-page',
+     'cover'              : 'cover',
+     'dedication'         : 'dedication',
+     'other.division'     : 'division',
+     'epigraph'           : 'epigraph',
+     'other.epilogue'     : 'epilogue',
+     'other.errata'       : 'errata',
+     'other.footnotes'    : 'footnotes',
+     'foreword'           : 'foreword',
+     'other.frontmatter'  : 'frontmatter',
+     'glossary'           : 'glossary',
+     'other.halftitlepage': 'halftitlepage',
+     'other.imprint'      : 'imprint',
+     'other.imprimatur'   : 'imprimatur',
+     'index'              : 'index',
+     'other.introduction' : 'introduction',
+     'other.landmarks'    : 'landmarks',
+     'other.loa'          : 'loa',
+     'loi'                : 'loi',
+     'lot'                : 'lot',
+     'other.lov'          : 'lov',
+     'notes'              : '',
+     'other.notice'       : 'notice',
+     'other.other-credits': 'other-credits',
+     'other.part'         : 'part',
+     'other.preamble'     : 'preamble',
+     'preface'            : 'preface',
+     'other.prologue'     : 'prologue',
+     'other.rearnotes'    : 'rearnotes',
+     'other.subchapter'   : 'subchapter',
+     'title-page'         : 'titlepage',
+     'toc'                : 'toc',
+     'other.volume'       : 'volume',
+     'other.warning'      : 'warning'
+}
+
+
+def create_nav(container, toc, landmarks):
+    lang = get_book_language(container)
+    if lang == 'und':
+        lang = None
+    if landmarks:
+        for entry in landmarks:
+            entry['type'] = guide_epubtype_map.get(entry['type'].lower())
+    commit_nav_toc(container, toc, lang=lang, landmarks=landmarks)
+
+
 def epub_2_to_3(container, report):
     upgrade_metadata(container.opf)
     collect_properties(container)
+    toc = get_toc(container)
+    toc_name = find_existing_ncx_toc(container)
+    if toc_name:
+        container.remove_item(toc_name)
+    container.opf_xpath('./opf:spine')[0].attrib.pop('toc', None)
+    landmarks = get_landmarks(container)
+    for guide in container.opf_xpath('./opf:guide'):
+        guide.getparent().remove(guide)
+    create_nav(container, toc, landmarks)
     container.opf.set('version', '3.0')
     fix_font_mime_types(container)
     container.dirty(container.opf_name)
