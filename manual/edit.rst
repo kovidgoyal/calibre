@@ -482,6 +482,14 @@ attributes. After removing the style information, a summary of all the changes
 made is displayed so you can see exactly what was changed. The tool can be
 accessed via :guilabel:`Tools->Filter style information`.
 
+
+Upgrading the book's internals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This tool can be used to upgrade the book's internals, if possible. For
+instance it will upgrade EPUB 2 books to EPUB 3 books. The tool can be
+accessed via :guilabel:`Upgrade book internals`.
+
 .. _checkpoints:
 
 Checkpoints

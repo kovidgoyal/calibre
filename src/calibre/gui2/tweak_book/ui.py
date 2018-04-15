@@ -424,6 +424,9 @@ class Main(MainWindow):
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
+        self.action_remove_unused_css = treg(
+            'arrow-up.png', _('&Upgrade book internals'), partial(
+                self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
 
         # Preview actions
         group = _('Preview')
