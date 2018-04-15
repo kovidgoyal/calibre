@@ -363,11 +363,12 @@ def check_links(container):
     unreferenced = set()
 
     cover_name = container.guide_type_map.get('cover', None)
+    nav_items = frozenset(container.manifest_items_with_property('nav'))
 
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_STYLES and name not in spine_styles:
             a(UnreferencedResource(name))
-        elif mt in OEB_DOCS and name not in spine_docs:
+        elif mt in OEB_DOCS and name not in spine_docs and name not in nav_items:
             a(UnreferencedDoc(name))
         elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
             if mt.partition('/')[0] == 'image' and name == get_raster_cover_name(container):
