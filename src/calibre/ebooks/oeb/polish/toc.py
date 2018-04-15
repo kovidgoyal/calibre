@@ -43,6 +43,7 @@ class TOC(object):
             self.title = self.title.strip()
         self.parent = None
         self.children = []
+        self.page_list = []
 
     def add(self, title, dest, frag=None):
         c = TOC(title, dest, frag)
@@ -162,6 +163,15 @@ def parse_ncx(container, ncx_name):
         if uid:
             toc_root.uid = unicode(uid)
             break
+    for pl in root.xpath('//*[calibre:lower-case(local-name()) = "pagelist"]'):
+        for pt in pl.xpath('descendant::*[calibre:lower-case(local-name()) = "pagetarget"]'):
+            pagenum = pt.get('value')
+            if pagenum:
+                href = pt.xpath('descendant::*[calibre:lower-case(local-name()) = "content"]/@src')
+                if href:
+                    dest = container.href_to_name(href[0], base=ncx_name)
+                    frag = urlparse(href[0]).fragment or None
+                    toc_root.page_list.append({'dest': dest, 'pagenum': pagenum, 'frag': frag})
     return toc_root
 
 
@@ -698,6 +708,17 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None):
     collapse_li(nav)
     nav.tail = '\n'
 
+    def create_li(ol, entry):
+        li = ol.makeelement(XHTML('li'))
+        ol.append(li)
+        a = li.makeelement(XHTML('a'))
+        li.append(a)
+        href = container.name_to_href(entry['dest'], tocname)
+        if entry['frag']:
+            href += '#' + entry['frag']
+        a.set('href', href)
+        return a
+
     if landmarks is not None:
         nav = ensure_single_nav_of_type(root, 'landmarks')
         nav.set('hidden', '')
@@ -705,16 +726,21 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None):
         nav.append(ol)
         for entry in landmarks:
             if entry['type'] and container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
-                li = ol.makeelement(XHTML('li'))
-                ol.append(li)
-                a = li.makeelement(XHTML('a'))
-                li.append(a)
+                a = create_li(ol, entry)
                 a.set('{%s}type' % EPUB_NS, entry['type'])
-                href = container.name_to_href(entry['dest'], tocname)
-                if entry['frag']:
-                    href += '#' + entry['frag']
-                a.set('href', href)
                 a.text = entry['title'] or None
+        pretty_xml_tree(nav)
+        collapse_li(nav)
+
+    if toc.page_list:
+        nav = ensure_single_nav_of_type(root, 'page-list')
+        nav.set('hidden', '')
+        ol = nav.makeelement(XHTML('ol'))
+        nav.append(ol)
+        for entry in toc.page_list:
+            if container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
+                a = create_li(ol, entry)
+                a.text = str(entry['pagenum'])
         pretty_xml_tree(nav)
         collapse_li(nav)
     container.replace(tocname, root)
