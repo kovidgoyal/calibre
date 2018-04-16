@@ -19,7 +19,7 @@
      <item row="0" column="0" colspan="2">
       <widget class="QCheckBox" name="opt_new_version_notification">
        <property name="text">
-        <string>Show notification when &amp;new version is available</string>
+        <string>Notify when a &amp;new version is available</string>
        </property>
       </widget>
      </item>
