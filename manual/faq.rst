@@ -845,7 +845,8 @@ There are several possible things I know of, that can cause this:
       you are running any of these, close them before starting calibre, or
       uninstall them:
       *RoboForm*, *Logitech SetPoint Settings*, *Constant Guard Protection by
-      Xfinity*, *Spybot*, *Killer Network Manager*, *Nahimic UI Interface*.
+      Xfinity*, *Spybot*, *Killer Network Manager*, *Nahimic UI Interface*,
+      *Acronis True Image*.
 
     * You are using a Wacom branded USB mouse/tablet. There is an incompatibility between
       Wacom drivers and the graphics toolkit calibre uses. Try using a non-Wacom
