@@ -443,7 +443,7 @@ def read_authors(root, prefixes, refines):
         aus = None
         file_as = props.get('file-as')
         if file_as:
-            aus = authors_to_string([x[-1] for x in file_as])
+            aus = file_as[0][-1]
         else:
             aus = item.get(OPF('file-as')) or None
         return Author(normalize_whitespace(val), normalize_whitespace(aus))
