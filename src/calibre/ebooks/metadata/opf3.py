@@ -443,7 +443,7 @@ def read_authors(root, prefixes, refines):
         aus = None
         file_as = props.get('file-as')
         if file_as:
-            aus = file_as[-1][-1]
+            aus = authors_to_string([x[-1] for x in file_as])
         else:
             aus = item.get(OPF('file-as')) or None
         return Author(normalize_whitespace(val), normalize_whitespace(aus))
@@ -617,9 +617,9 @@ def read_last_modified(root, prefixes, refines):
                 except Exception:
                     continue
 
+
 def set_last_modified(root, prefixes, refines, val=None):
     pq = '%s:modified' % reserved_prefixes['dcterms']
-    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
     val = w3cdtf(val or utcnow())
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         prop = expand_prefix(meta.get('property'), prefixes)
