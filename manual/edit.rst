@@ -102,7 +102,10 @@ want to rename all the HTML files to have names Chapter-1.html, Chapter-2.html
 and so on. Select the files you want bulk renamed by holding down the Shift or
 Ctrl key and clicking the files. Then right click and select :guilabel:`Bulk
 rename`. Enter a prefix and what number you would like the automatic numbering
-to start at, click OK and you are done.
+to start at, click OK and you are done. The bulk rename dialog also lets you
+rename files by the order they appear int he book instead of the order you
+selected them in, useful, for instance to rename all images by the order
+they appear.
 
 Finally, you can bulk change the file extension for all selected files. Select
 multiple files, as above, and right click and choose :guilabel:`Change the file

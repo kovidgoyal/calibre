@@ -5,6 +5,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import posixpath
+import sys
+import textwrap
 from binascii import hexlify
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
@@ -24,7 +26,9 @@ from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image
 )
 from calibre.ebooks.oeb.polish.css import add_stylesheet_links
-from calibre.ebooks.oeb.polish.replace import get_recommended_folders
+from calibre.ebooks.oeb.polish.replace import (
+    get_recommended_folders, get_spine_order_for_all_files
+)
 from calibre.gui2 import (
     choose_dir, choose_files, choose_save_file, elided_text, error_dialog,
     question_dialog
@@ -69,7 +73,8 @@ def name_is_ok(name, show_error):
     return True
 
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True, prefix=None, category='text'):  # {{{
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode,
+        leading_zeros=True, prefix=None, category='text', allow_spine_order=False):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))
     d.l = l = QFormLayout(d)
@@ -87,6 +92,11 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     d.num = num = QSpinBox(d)
     num.setMinimum(0), num.setValue(1), num.setMaximum(1000)
     l.addRow(_('Starting &number:'), num)
+    if allow_spine_order:
+        d.spine_order = QCheckBox(_('Rename files according to their book order'))
+        d.spine_order.setToolTip(textwrap.fill(_(
+            'Rename the selected files according to the order they appear in the book, instead of the order they were selected in.')))
+        l.addRow(d.spine_order)
     d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     l.addRow(bb)
@@ -103,6 +113,8 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
             fmt = '%0{0}d'.format(len(str(largest)))
         ans['prefix'] = prefix + fmt
         ans['start'] = num
+        if allow_spine_order:
+            ans['spine_order'] = d.spine_order.isChecked()
     return ans
 # }}}
 
@@ -591,7 +603,7 @@ class FileList(QTreeWidget):
         names = self.request_rename_common()
         if names is not None:
             categories = Counter(unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems())
-            settings = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
+            settings = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0], allow_spine_order=True)
             fmt, num = settings['prefix'], settings['start']
             if fmt is not None:
                 def change_name(name, num):
@@ -599,7 +611,15 @@ class FileList(QTreeWidget):
                     base, ext = parts[-1].rpartition('.')[0::2]
                     parts[-1] = (fmt % num) + '.' + ext
                     return '/'.join(parts)
-                name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
+                if settings['spine_order']:
+                    order_map = get_spine_order_for_all_files(current_container())
+                    select_map = {n:i for i, n in enumerate(names)}
+
+                    def key(n):
+                        return order_map.get(n, (sys.maxsize, select_map[n]))
+                    name_map = {n: change_name(n, num + i) for i, n in enumerate(sorted(names, key=key))}
+                else:
+                    name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
                 self.bulk_rename_requested.emit(name_map)
 
     def request_change_ext(self):

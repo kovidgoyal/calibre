@@ -386,3 +386,19 @@ def remove_links_to(container, predicate):
             changed.add(name)
     tuple(map(container.dirty, changed))
     return changed
+
+
+def get_spine_order_for_all_files(container):
+    linear_names, non_linear_names = [], []
+    for name, is_linear in container.spine_names:
+        (linear_names if is_linear else non_linear_names).append(name)
+    all_names = linear_names + non_linear_names
+    spine_names = frozenset(all_names)
+    ans = {}
+    for spine_pos, name in enumerate(all_names):
+        ans.setdefault(name, (spine_pos, -1))
+        for i, href in enumerate(container.iterlinks(name, get_line_numbers=False)):
+            lname = container.href_to_name(href, name)
+            if lname not in spine_names:
+                ans.setdefault(lname, (spine_pos, i))
+    return ans
