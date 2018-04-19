@@ -73,6 +73,7 @@ def is_date_undefined(qt_or_dt):
             d.month == UNDEFINED_DATE.month and
             d.day == UNDEFINED_DATE.day)
 
+
 _iso_pat = None
 
 
@@ -145,6 +146,7 @@ def dt_factory(time_t, assume_utc=False, as_utc=True):
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
 
 safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
 
@@ -309,6 +311,7 @@ def fd_format_year(dt, ampm, yr):
         return '%02d'%(dt.year % 100)
     return '%04d'%dt.year
 
+
 fd_function_index = {
         'd': fd_format_day,
         'M': fd_format_month,
@@ -386,6 +389,7 @@ def cd_has_month(tt, dt):
 def cd_has_year(tt, dt):
     tt['year'] = dt.year
     return ''
+
 
 cd_function_index = {
         'd': cd_has_day,
