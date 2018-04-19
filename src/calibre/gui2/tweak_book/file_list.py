@@ -90,6 +90,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     l.addRow(bb)
+    ans = {'prefix': None, 'start': None}
 
     if d.exec_() == d.Accepted:
         prefix = sanitize(unicode(d.prefix.text()))
@@ -100,8 +101,9 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         if leading_zeros:
             largest = num + number - 1
             fmt = '%0{0}d'.format(len(str(largest)))
-        return prefix + fmt, num
-    return None, None
+        ans['prefix'] = prefix + fmt
+        ans['start'] = num
+    return ans
 # }}}
 
 
@@ -589,7 +591,8 @@ class FileList(QTreeWidget):
         names = self.request_rename_common()
         if names is not None:
             categories = Counter(unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems())
-            fmt, num = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
+            settings = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
+            fmt, num = settings['prefix'], settings['start']
             if fmt is not None:
                 def change_name(name, num):
                     parts = name.split('/')
