@@ -103,7 +103,7 @@ and so on. Select the files you want bulk renamed by holding down the Shift or
 Ctrl key and clicking the files. Then right click and select :guilabel:`Bulk
 rename`. Enter a prefix and what number you would like the automatic numbering
 to start at, click OK and you are done. The bulk rename dialog also lets you
-rename files by the order they appear int he book instead of the order you
+rename files by the order they appear in the book instead of the order you
 selected them in, useful, for instance to rename all images by the order
 they appear.
 
