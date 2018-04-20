@@ -155,7 +155,7 @@ lines. By default, (a line height of 0), no manipulation of line heights is perf
 you specify a non-default value, line heights will be set in all locations that don't specify their
 own line heights. However, this is something of a blunt weapon and should be used sparingly.
 If you want to adjust the line heights for some section of the input, it's better to use
-the :ref:`extra-css`.
+the :ref:`Extra CSS <extra-css>`.
 
 In this section you can also tell calibre to embed any referenced fonts into
 the book. This will allow the fonts to work on reader devices even if they are
@@ -199,7 +199,7 @@ it performs as advertised, irrespective of how messy the input file is. The one 
 when the input file uses hard line breaks to implement inter-paragraph spacing.
 
 If you want to remove the spacing between all paragraphs, except a select few, don't use these
-options. Instead add the following CSS code to :ref:`extra-css`::
+options. Instead add the following CSS code to :ref:`Extra CSS <extra-css>`::
 
     p, div { margin: 0pt; border: 0pt; text-indent: 1.5em }
     .spacious { margin-bottom: 1em; text-indent: 0pt; }
