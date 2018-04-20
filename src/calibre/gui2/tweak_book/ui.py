@@ -424,7 +424,7 @@ class Main(MainWindow):
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
-        self.action_remove_unused_css = treg(
+        self.action_upgrade_book_internals = treg(
             'arrow-up.png', _('&Upgrade book internals'), partial(
                 self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
 
@@ -575,6 +575,7 @@ class Main(MainWindow):
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
         e.addAction(self.action_reports)
+        e.addAction(self.action_upgrade_book_internals)
 
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
