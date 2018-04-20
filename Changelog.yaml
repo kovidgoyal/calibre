@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title:
 
+- version: 3.22.0
+  date: 2018-04-19
+
+  new features:
+    - title: "Edit book: Add a tool to upgrade books from EPUB 2 to EPUB 3 (Tools->Upgrade book internals)"
+      description: "Automatically upgrades metadata, converts the NCX table of contents and adds required manifest annotations"
+      type: major
+
+    - title: "Add support for the FBZ format (zipped FB2)"
+      tickets: [1762634]
+
+    - title: "Kindle driver: Change the height of generated thumbnails to 500px, needed for the Oasis 2017"
+
+    - title: "Edit book: When bulk renaming files add an option to rename by the order in which the files appear in the book."
+
+    - title: "Polishing: Recognize titlepages that are marked as covers in the EPUB 3 landmarks section"
+
+    - title: "Edit Book: Automatically updated the modified timestamp in the OPF when saving EPUB 3 books."
+
+    - title: "Remove the ISBNDB metadata plugin as ISBNDB no longer allows free lookups."
+      tickets: [1761906]
+
+  bug fixes:
+    - title: "EPUB 3 metadata: If the book defines more than one author sort value for an author use the first instead of the last"
+
+    - title: "Check Book: Dont warn for nav document not in spine in EPUB 3 books"
+
+    - title: "Linux installer: Fix umask question not working with the recommended install command because stdin is a pipe"
+
+    - title: "Browser viewer: Show an error message when trying to use the Sync function without being logged in"
+
+    - title: "When setting cover from a PDF file and the user clicks cancel, do not delete the existing cover"
+
+  improved recipes:
+    - Globe & Mail
+    - National Geographic
+    - Slate
+    - GoComics
+    - Oregonian
+
+  new recipes:
+    - title: Le Monde: subscriber paper edition
+      author: Remi Vanicat
+
 - version: 3.21.0
   date: 2018-04-06
 
