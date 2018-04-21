@@ -105,7 +105,10 @@ def upgrade_date(root, data):
     found = False
     for date in XPath('./opf:metadata/dc:date')(root):
         val = date.text
-        if val:
+        if not val:
+            remove_element(date, data.refines)
+            continue
+        if not found:
             found = True
             continue
         if not val or found:  # only one dc:date allowed
