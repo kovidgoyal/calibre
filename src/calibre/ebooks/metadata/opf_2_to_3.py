@@ -108,11 +108,11 @@ def upgrade_date(root, data):
         if not val:
             remove_element(date, data.refines)
             continue
-        if not found:
-            found = True
-            continue
-        if not val or found:  # only one dc:date allowed
+        if found:
+            # only one dc:date allowed
             remove_element(date, data.refines)
+        else:
+            found = True
 
 
 def upgrade_rating(root, data):
