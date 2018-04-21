@@ -123,9 +123,14 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
         m = QMenu(self)
         m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
                     self.clear_date)
+        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                    self.today_date)
         m.addSeparator()
         populate_standard_spinbox_context_menu(self, m)
         m.popup(ev.globalPos())
+
+    def today_date(self):
+        self.setDateTime(QDateTime.currentDateTime())
 
     def clear_date(self):
         self.setDateTime(UNDEFINED_QDATETIME)
@@ -135,8 +140,8 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
             ev.accept()
             self.clear_date()
         elif ev.key() == Qt.Key_Equal:
+            self.today_date()
             ev.accept()
-            self.setDateTime(QDateTime.currentDateTime())
         else:
             return QDateTimeEdit.keyPressEvent(self, ev)
 # }}}

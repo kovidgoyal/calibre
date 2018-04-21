@@ -164,6 +164,8 @@ def make_undoable(spinbox):
             if hasattr(self, 'setDateTime'):
                 m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
                             lambda : self.setDateTime(self.minimumDateTime()))
+                m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                            lambda : self.setDateTime(QDateTime.currentDateTime()))
             m.addAction(_('&Undo') + access_key(QKeySequence.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
             m.addAction(_('&Redo') + access_key(QKeySequence.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
@@ -255,13 +257,13 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
         self.languages_edit = languages_edit
 
         base = self.TOOLTIP
-        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
-                            _(' The green color indicates that the current '
-                              'title sort matches the current title'))
-        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
-                _(' The red color warns that the current '
-                  'title sort does not match the current title. '
-                  'No action is required if this is what you want.'))
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>' + _(
+            ' The green color indicates that the current '
+            'title sort matches the current title'))
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>' + _(
+            ' The red color warns that the current '
+            'title sort does not match the current title. '
+            'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
         self.title_edit.textChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
@@ -450,13 +452,13 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         self.db = db
 
         base = self.TOOLTIP
-        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
-                _(' The green color indicates that the current '
-                    'author sort matches the current author'))
-        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
-                _(' The red color indicates that the current '
-                    'author sort does not match the current author. '
-                    'No action is required if this is what you want.'))
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>' + _(
+            ' The green color indicates that the current '
+            'author sort matches the current author'))
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+ _(
+            ' The red color indicates that the current '
+            'author sort does not match the current author. '
+            'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
         self.authors_edit.editTextChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
@@ -898,10 +900,9 @@ class FormatsManager(QWidget):
         return
 
     def add_format(self, *args):
-        files = choose_files(self, 'add formats dialog',
-                             _("Choose formats for ") +
-                             self.dialog.title.current_val,
-                             [(_('Books'), BOOK_EXTENSIONS)])
+        files = choose_files(
+                self, 'add formats dialog', _("Choose formats for ") + self.dialog.title.current_val,
+                [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
 
     def restore_fmt(self, fmt):
@@ -1109,9 +1110,9 @@ class Cover(ImageView):  # {{{
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError as e:
-                d = error_dialog(self, _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") +
-                                 _file + "</b></p><br />"+str(e))
+                d = error_dialog(
+                        self, _('Error reading file'),
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 orig = self.current_val
