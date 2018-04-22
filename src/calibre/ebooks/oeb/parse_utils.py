@@ -146,6 +146,15 @@ def clean_word_doc(data, log):
     return data
 
 
+def ensure_namespace_prefixes(node, nsmap):
+    namespace_uris = frozenset(nsmap.itervalues())
+    fnsmap = {k:v for k, v in node.nsmap.iteritems() if v not in namespace_uris}
+    fnsmap.update(nsmap)
+    if fnsmap != dict(node.nsmap):
+        node = clone_element(node, nsmap=fnsmap, in_context=False)
+    return node
+
+
 class HTML5Doc(ValueError):
     pass
 
@@ -307,11 +316,8 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             nroot.append(elem)
         data = nroot
 
-    fnsmap = {k:v for k, v in data.nsmap.iteritems() if v != XHTML_NS}
-    fnsmap[None] = XHTML_NS
-    if fnsmap != dict(data.nsmap):
-        # Remove non default prefixes referring to the XHTML namespace
-        data = clone_element(data, nsmap=fnsmap, in_context=False)
+    # Remove non default prefixes referring to the XHTML namespace
+    data = ensure_namespace_prefixes(data, {None: XHTML_NS})
 
     data = merge_multiple_html_heads_and_bodies(data, log)
     # Ensure has a <head/>

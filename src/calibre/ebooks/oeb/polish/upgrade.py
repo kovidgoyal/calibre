@@ -7,7 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
-from calibre.ebooks.oeb.base import OEB_DOCS, xpath
+from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, xpath
+from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import (
@@ -36,8 +37,9 @@ def collect_properties(container):
             continue
         name = container.href_to_name(item.get('href'), container.opf_name)
         root = container.parsed(name)
+        root = ensure_namespace_prefixes(root, {'epub': EPUB_NS})
         properties = set()
-        container.dirty(name)  # Ensure entities are converted
+        container.replace(name, root)  # Ensure entities are converted
         if xpath(root, '//svg:svg'):
             properties.add('svg')
         if xpath(root, '//h:script'):
