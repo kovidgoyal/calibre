@@ -13,8 +13,8 @@ from glob import glob
 
 import sip
 from PyQt5.Qt import (
-    QDialog, QApplication, QLabel, QGridLayout, QDialogButtonBox, Qt,
-    pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate
+    QDialog, QApplication, QLabel, QStackedLayout, QVBoxLayout, QDialogButtonBox, Qt,
+    pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate, QWidget
 )
 
 from calibre import as_unicode
@@ -33,6 +33,9 @@ class CoverDelegate(QStyledItemDelegate):
             QPixmap(index.data(Qt.DecorationRole)))
 
 
+PAGES_PER_RENDER = 10
+
+
 class PDFCovers(QDialog):
     'Choose a cover from the first few pages of a PDF'
 
@@ -41,14 +44,16 @@ class PDFCovers(QDialog):
     def __init__(self, pdfpath, parent=None):
         QDialog.__init__(self, parent)
         self.pdfpath = pdfpath
-        self.l = l = QGridLayout()
-        self.setLayout(l)
+        self.stack = QStackedLayout(self)
+        self.loading = QLabel('<b>'+_('Rendering PDF pages, please wait...'))
+        self.stack.addWidget(self.loading)
+
+        self.container = QWidget(self)
+        self.stack.addWidget(self.container)
+        self.container.l = l = QVBoxLayout(self.container)
 
         self.la = la = QLabel(_('Choose a cover from the list of PDF pages below'))
         l.addWidget(la)
-        self.loading = la = QLabel('<b>'+_('Rendering PDF pages, please wait...'))
-        l.addWidget(la)
-
         self.covers = c = QListWidget(self)
         l.addWidget(c)
         self.item_delegate = CoverDelegate(self)
@@ -58,20 +63,27 @@ class PDFCovers(QDialog):
         c.setViewMode(c.IconMode)
         c.setUniformItemSizes(True)
         c.setResizeMode(c.Adjust)
-        c.itemDoubleClicked.connect(self.accept)
+        c.itemDoubleClicked.connect(self.accept, type=Qt.QueuedConnection)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.more_pages = b = bb.addButton(_('&More pages'), QDialogButtonBox.ActionRole)
+        b.clicked.connect(self.start_rendering)
         l.addWidget(bb)
         self.rendering_done.connect(self.show_pages, type=Qt.QueuedConnection)
-        self.tdir = PersistentTemporaryDirectory('_pdf_covers')
-        self.thread = Thread(target=self.render)
-        self.thread.daemon = True
-        self.thread.start()
+        self.first = 1
         self.setWindowTitle(_('Choose cover from PDF'))
         self.setWindowIcon(file_icon_provider().icon_from_ext('pdf'))
         self.resize(QSize(800, 600))
+        self.tdir = PersistentTemporaryDirectory('_pdf_covers')
+        self.start_rendering()
+
+    def start_rendering(self):
+        self.hide_pages()
+        self.thread = Thread(target=self.render)
+        self.thread.daemon = True
+        self.thread.start()
 
     @property
     def cover_path(self):
@@ -83,28 +95,36 @@ class PDFCovers(QDialog):
     def cleanup(self):
         try:
             shutil.rmtree(self.tdir)
-        except:
+        except EnvironmentError:
             pass
 
     def render(self):
+        self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:
-            page_images(self.pdfpath, self.tdir, last=10)
+            os.mkdir(self.current_tdir)
+            page_images(self.pdfpath, self.current_tdir, first=self.first, last=self.first + PAGES_PER_RENDER - 1)
         except Exception as e:
-            self.error = as_unicode(e)
+            if self.covers.count():
+                pass
+            else:
+                self.error = as_unicode(e)
         if not sip.isdeleted(self) and self.isVisible():
             self.rendering_done.emit()
 
+    def hide_pages(self):
+        self.stack.setCurrentIndex(0)
+        self.more_pages.setVisible(False)
+
     def show_pages(self):
-        self.loading.setVisible(False)
         if self.error is not None:
             error_dialog(self, _('Failed to render'),
-                _('Could not render this PDF file'), show=True)
+                _('Could not render this PDF file'), show=True, det_msg=self.error)
             self.reject()
             return
-        files = (glob(os.path.join(self.tdir, '*.jpg')) +
-                 glob(os.path.join(self.tdir, '*.jpeg')))
-        if not files:
+        self.stack.setCurrentIndex(1)
+        files = glob(os.path.join(self.current_tdir, '*.jpg')) + glob(os.path.join(self.current_tdir, '*.jpeg'))
+        if not files and not self.covers.count():
             error_dialog(self, _('Failed to render'),
                 _('This PDF has no pages'), show=True)
             self.reject()
@@ -118,14 +138,19 @@ class PDFCovers(QDialog):
         for i, f in enumerate(sorted(files)):
             p = QPixmap(f).scaled(self.covers.iconSize()*dpr, aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
             p.setDevicePixelRatio(dpr)
-            i = QListWidgetItem(_('page %d') % (i + 1))
+            i = QListWidgetItem(_('page %d') % (self.first + i))
             i.setData(Qt.DecorationRole, p)
             i.setData(Qt.UserRole, f)
             self.covers.addItem(i)
+        self.first += len(files)
+        if len(files) == PAGES_PER_RENDER:
+            self.more_pages.setVisible(True)
+
 
 if __name__ == '__main__':
-    app = QApplication([])
-    app
+    from calibre.gui2 import Application
+    app = Application([])
     d = PDFCovers(sys.argv[-1])
     d.exec_()
     print (d.cover_path)
+    del app
