@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 from PyQt5.Qt import (
     Qt, QWidget, QSizePolicy, QSize, QRect, QConicalGradient, QPen, QBrush,
-    QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget, QDialog
+    QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget, QDialog, QStackedLayout
 )
 
 
@@ -113,6 +113,7 @@ class ProgressSpinner(QWidget):
                 traceback.print_exc()
                 self.errored_out = True
 
+
 ProgressIndicator = ProgressSpinner
 
 
@@ -166,6 +167,35 @@ class WaitStack(QStackedWidget):
     @msg.setter
     def msg(self, val):
         self.wp.msg = val
+
+
+class WaitLayout(QStackedLayout):
+
+    def __init__(self, msg, after=None, parent=None, size=256, interval=10):
+        QStackedLayout.__init__(self, parent)
+        self.wp = WaitPanel(msg, parent, size, interval)
+        if after is None:
+            after = QWidget(parent)
+        self.after = after
+        self.addWidget(self.wp)
+        self.addWidget(after)
+
+    def start(self):
+        self.setCurrentWidget(self.wp)
+        self.wp.start()
+
+    def stop(self):
+        self.wp.stop()
+        self.setCurrentWidget(self.after)
+
+    @property
+    def msg(self):
+        return self.wp.msg
+
+    @msg.setter
+    def msg(self, val):
+        self.wp.msg = val
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

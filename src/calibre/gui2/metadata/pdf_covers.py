@@ -13,14 +13,15 @@ from glob import glob
 
 import sip
 from PyQt5.Qt import (
-    QDialog, QApplication, QLabel, QStackedLayout, QVBoxLayout, QDialogButtonBox, Qt,
-    pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate, QWidget
+    QDialog, QApplication, QLabel, QVBoxLayout, QDialogButtonBox, Qt,
+    pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate
 )
 
 from calibre import as_unicode
 from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.gui2.progress_indicator import WaitLayout
 
 
 class CoverDelegate(QStyledItemDelegate):
@@ -44,14 +45,10 @@ class PDFCovers(QDialog):
     def __init__(self, pdfpath, parent=None):
         QDialog.__init__(self, parent)
         self.pdfpath = pdfpath
-        self.stack = QStackedLayout(self)
-        self.loading = QLabel('<b>'+_('Rendering PDF pages, please wait...'))
-        self.stack.addWidget(self.loading)
+        self.stack = WaitLayout(_('Rendering PDF pages, please wait...'), parent=self)
+        self.container = self.stack.after
 
-        self.container = QWidget(self)
-        self.stack.addWidget(self.container)
         self.container.l = l = QVBoxLayout(self.container)
-
         self.la = la = QLabel(_('Choose a cover from the list of PDF pages below'))
         l.addWidget(la)
         self.covers = c = QListWidget(self)
@@ -113,7 +110,7 @@ class PDFCovers(QDialog):
             self.rendering_done.emit()
 
     def hide_pages(self):
-        self.stack.setCurrentIndex(0)
+        self.stack.start()
         self.more_pages.setVisible(False)
 
     def show_pages(self):
@@ -122,7 +119,7 @@ class PDFCovers(QDialog):
                 _('Could not render this PDF file'), show=True, det_msg=self.error)
             self.reject()
             return
-        self.stack.setCurrentIndex(1)
+        self.stack.stop()
         files = glob(os.path.join(self.current_tdir, '*.jpg')) + glob(os.path.join(self.current_tdir, '*.jpeg'))
         if not files and not self.covers.count():
             error_dialog(self, _('Failed to render'),
