@@ -137,27 +137,40 @@ def read_position(parent, dest, XPath, get):
 
 def read_font(parent, dest, XPath, get):
     ff = inherit
-    used_cs = False
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:asciiTheme')
         if val:
             val = '|%s|' % val
         else:
             val = get(col, 'w:ascii')
-        if not val:
-            val = get(col, 'w:cs')
-            used_cs = bool(val)
         if val:
             ff = val
     setattr(dest, 'font_family', ff)
-    sizes = ('szCs', 'sz') if used_cs else ('sz', 'szCs')
-    for q in sizes:
-        for col in XPath('./w:%s[@w:val]' % q)(parent):
-            val = simple_float(get(col, 'w:val'), 0.5)
-            if val is not None:
-                setattr(dest, 'font_size', val)
-                return
+    for col in XPath('./w:sz[@w:val]')(parent):
+        val = simple_float(get(col, 'w:val'), 0.5)
+        if val is not None:
+            setattr(dest, 'font_size', val)
+            return
     setattr(dest, 'font_size', inherit)
+
+
+def read_font_cs(parent, dest, XPath, get):
+    ff = inherit
+    for col in XPath('./w:rFonts')(parent):
+        val = get(col, 'w:csTheme')
+        if val:
+            val = '|%s|' % val
+        else:
+            val = get(col, 'w:cs')
+        if val:
+            ff = val
+    setattr(dest, 'cs_font_family', ff)
+    for col in XPath('./w:szCS[@w:val]')(parent):
+        val = simple_float(get(col, 'w:val'), 0.5)
+        if val is not None:
+            setattr(dest, 'font_size', val)
+            return
+    setattr(dest, 'cs_font_size', inherit)
 
 # }}}
 
@@ -170,6 +183,7 @@ class RunStyle(object):
 
         'border_color', 'border_style', 'border_width', 'padding', 'color', 'highlight', 'background_color',
         'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family', 'position',
+        'cs_font_size', 'cs_font_family'
     }
 
     toggle_properties = {
@@ -191,6 +205,7 @@ class RunStyle(object):
                 setattr(self, p, binary_property(rPr, p, X, g))
 
             read_font(rPr, self, X, g)
+            read_font_cs(rPr, self, X, g)
             read_text_border(rPr, self, X, g)
             read_color(rPr, self, X, g)
             read_highlight(rPr, self, X, g)

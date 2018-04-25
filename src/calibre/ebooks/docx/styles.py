@@ -339,7 +339,7 @@ class Styles(object):
             has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
-            for prop in ('font_family', 'font_size', 'color'):
+            for prop in ('font_family', 'font_size', 'cs_font_family', 'cs_font_size', 'color'):
                 if has_links and prop == 'color':
                     # We cannot promote color as browser rendering engines will
                     # override the link color setting it to blue, unless the

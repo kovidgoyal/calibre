@@ -11,6 +11,8 @@ from collections import OrderedDict
 
 class Inherit:
     pass
+
+
 inherit = Inherit()
 
 
@@ -332,6 +334,7 @@ class ParagraphStyle(object):
         # Misc.
         'text_indent', 'text_align', 'line_height', 'background_color',
         'numbering', 'font_family', 'font_size', 'color', 'frame',
+        'cs_font_size', 'cs_font_family',
     )
 
     def __init__(self, namespace, pPr=None):
@@ -356,7 +359,7 @@ class ParagraphStyle(object):
             for s in namespace.XPath('./w:pStyle[@w:val]')(pPr):
                 self.linked_style = namespace.get(s, 'w:val')
 
-            self.font_family = self.font_size = self.color = inherit
+            self.font_family = self.font_size = self.color = self.cs_font_size = self.cs_font_family = inherit
 
         self._css = None
         self._border_key = None
