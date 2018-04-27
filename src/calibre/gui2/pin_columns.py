@@ -136,11 +136,18 @@ class PinContainer(QSplitter):
         self.addWidget(books_view.pin_view)
         books_view.pin_view.splitter = self
 
+    @property
+    def splitter_state(self):
+        return bytearray(self.saveState())
+
+    @splitter_state.setter
+    def splitter_state(self, val):
+        if val is not None:
+            self.restoreState(val)
+
     def save_state(self):
-        state = bytearray(self.saveState())
-        gprefs['book_list_pin_splitter_state'] = state
+        gprefs['book_list_pin_splitter_state'] = self.splitter_state
 
     def restore_state(self):
         val = gprefs.get('book_list_pin_splitter_state', None)
-        if val is not None:
-            self.restoreState(val)
+        self.splitter_state = val
