@@ -114,6 +114,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['update_series'] = self.update_series
         p['modify_css'] = self.modify_css
+        p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
@@ -185,13 +186,28 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
                 device.get_pref('modify_css')
                 )
+        self.override_kobo_replace_existing_checkbox = create_checkbox(
+                _("Do not treat replacements as new books"),
+                _('When a new book is side-loaded, the Kobo firmware imports details of the book into the internal database. '
+                'Even if the book is a replacement for an existing book, the Kobo will remove the book from the database and then treat it as a new book. '
+                'This means that the reading status, bookmarks and collections for the book will be lost. '
+                'This option overrides firmware behavior and attempts to prevent a book that has been resent from being treated as a new book. '
+                'If you prefer to have replacements treated as new books, turn this option off.'
+                ),
+                device.get_pref('override_kobo_replace_existing')
+                )
 
         self.options_layout.addWidget(self.modify_css_checkbox, 0, 0, 1, 2)
-        self.options_layout.setRowStretch(1, 1)
+        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
+        self.options_layout.setRowStretch(2, 1)
 
     @property
     def modify_css(self):
         return self.modify_css_checkbox.isChecked()
+
+    @property
+    def override_kobo_replace_existing(self):
+        return self.override_kobo_replace_existing_checkbox.isChecked()
 
 
 class CollectionsGroupBox(DeviceOptionsGroupBox):
@@ -211,7 +227,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.collections_columns_label = QLabel(_('Collections columns:'))
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
-                ' These are created on the Kobo. ' +
+                ' These are created on the Kobo. '
                 'Specify a tags type column for automatic management.'))
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
 
@@ -228,8 +244,8 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
         self.ignore_collections_names_label = QLabel(_('Ignore collections:'))
         self.ignore_collections_names_edit = QLineEdit(self)
-        self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by ' +
-                'the collection management. The collections listed ' +
+        self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by '
+                'the collection management. The collections listed '
                 'will not be changed. Names are separated by commas.'))
         self.ignore_collections_names_edit.setText(device.get_pref('ignore_collections_names'))
 
