@@ -1,3 +1,24 @@
+# linux-installer.sh
+# Copyright (C) 2018 Kovid Goyal <kovid at kovidgoyal.net>
+
+PYTHON3=$(command -v python3)
+PYTHON2=$(command -v python2)
+
+if [ -x "$PYTHON3" ]
+then
+    PYTHON=python3
+else
+    if [ -x "$PYTHON2" ]
+    then
+        PYTHON=python2;
+    else
+        PYTHON=python;
+    fi
+fi
+
+$PYTHON -c "import sys; script_launch=lambda:sys.exit('Download of installer failed!'); exec(sys.stdin.read()); script_launch()" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
+# {{{
+# HEREDOC_START
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
@@ -777,3 +798,7 @@ if __name__ == '__main__' and from_file:
     main()
 elif __name__ == 'update_wrapper':
     update_intaller_wrapper()
+
+# HEREDOC_END
+# }}}
+CALIBRE_LINUX_INSTALLER_HEREDOC
