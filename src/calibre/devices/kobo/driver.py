@@ -69,7 +69,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 129
+    supported_dbversion = 146
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1316,7 +1316,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 143
+    supported_dbversion             = 146
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1328,7 +1328,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 7, 10413)
+    max_supported_fwversion         = (4, 8, 10956)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1337,8 +1337,9 @@ class KOBOTOUCH(KOBO):
     min_aurah2o_fwversion           = (3, 7, 0)
     min_reviews_fwversion           = (3, 12, 0)
     min_glohd_fwversion             = (3, 14, 0)
-    min_auraone_fwversion           = (3, 20, 7280)
-    min_fwversion_overdrive         = (4,  0, 7523)
+    min_auraone_fwversion           = (3, 20,  7280)
+    #min_clarahd_fwversion           = (4,  8, 10956) # It is coming, this is probably the firmware, but I don't have any ids for it.
+    min_fwversion_overdrive         = (4,  0,  7523)
 
     has_kepubs = True
 
@@ -2039,7 +2040,8 @@ class KOBOTOUCH(KOBO):
 #                        debug_print('KoboTouch:upload_books: Delete record left if deleted on Touch')
                         cursor.execute(cleanup_query, cleanup_values)
 
-                        self.set_filesize_in_device_database(connection, contentID, fname)
+                        if self.override_kobo_replace_existing:
+                            self.set_filesize_in_device_database(connection, contentID, fname)
 
                         if not self.upload_covers:
                             imageID = self.imageid_from_contentid(contentID)
@@ -2963,6 +2965,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('update_device_metadata', default=True)
 
         c.add_opt('modify_css', default=False)
+        c.add_opt('override_kobo_replace_existing', default=True) # Overriding the replace behaviour is how the driver has always worked.
 
         c.add_opt('support_newer_firmware', default=False)
         c.add_opt('debugging_title', default='')
@@ -3123,6 +3126,10 @@ class KOBOTOUCH(KOBO):
 
     def modifying_css(self):
         return self.get_pref('modify_css')
+
+    @property
+    def override_kobo_replace_existing(self):
+        return self.get_pref('override_kobo_replace_existing')
 
     @property
     def update_device_metadata(self):

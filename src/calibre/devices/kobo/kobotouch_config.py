@@ -114,6 +114,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['update_series'] = self.update_series
         p['modify_css'] = self.modify_css
+        p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
@@ -185,13 +186,29 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
                 device.get_pref('modify_css')
                 )
+        self.override_kobo_replace_existing_checkbox = create_checkbox(
+                _("Override Kobo's default book replacement behavior"),
+                _('When a new book is sideloaded, the Kobo firmware imports details of the book into the internal database. '
+                'If the book is replaced, the firmware will remove the book from the database and then treat it as a new book. '
+                'This will meant the reading status, bookmarks and collections for the book will be lost. '
+                'This option overrides firmware behavior and attempts to prevent a book that has been resent from being treated as a new books. '
+                'This has been doing this since driver version 2.0.0 but has not had the option to allow the default firmware behaviour.' 
+                ),
+                device.get_pref('override_kobo_replace_existing')
+                )
+
 
         self.options_layout.addWidget(self.modify_css_checkbox, 0, 0, 1, 2)
-        self.options_layout.setRowStretch(1, 1)
+        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
+        self.options_layout.setRowStretch(2, 1)
 
     @property
     def modify_css(self):
         return self.modify_css_checkbox.isChecked()
+
+    @property
+    def override_kobo_replace_existing(self):
+        return self.override_kobo_replace_existing_checkbox.isChecked()
 
 
 class CollectionsGroupBox(DeviceOptionsGroupBox):
