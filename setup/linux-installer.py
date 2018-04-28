@@ -190,18 +190,15 @@ class ProgressBar:
             self.cleared = 0
         n = int((self.width-10)*percent)
         msg = message.center(self.width)
-        msg = (self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
-            (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
-            self.term.CLEAR_EOL + msg).encode(enc)
+        msg = (self.term.BOL + self.term.UP + self.term.CLEAR_EOL + (
+            self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) + self.term.CLEAR_EOL + msg).encode(enc)
         out.write(msg)
         out.flush()
 
     def clear(self):
         out = (sys.stdout.buffer if py3 else sys.stdout)
         if not self.cleared:
-            out.write((self.term.BOL + self.term.CLEAR_EOL +
-            self.term.UP + self.term.CLEAR_EOL +
-            self.term.UP + self.term.CLEAR_EOL).encode(enc))
+            out.write((self.term.BOL + self.term.CLEAR_EOL + self.term.UP + self.term.CLEAR_EOL + self.term.UP + self.term.CLEAR_EOL).encode(enc))
             self.cleared = 1
             out.flush()
 # }}}
@@ -637,8 +634,8 @@ def extract_tarball(raw, destdir):
 def get_tarball_info():
     global signature, calibre_version
     print ('Downloading tarball signature securely...')
-    raw = get_https_resource_securely('https://code.calibre-ebook.com/tarball-info/' +
-                                      ('x86_64' if is64bit else 'i686'))
+    raw = get_https_resource_securely(
+            'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
     signature, calibre_version = raw.rpartition(b'@')[::2]
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
