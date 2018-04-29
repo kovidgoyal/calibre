@@ -16,7 +16,7 @@ else
     fi
 fi
 
-$PYTHON -c "import sys; script_launch=lambda:sys.exit('Download of installer failed!'); exec(sys.stdin.read()); script_launch()" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
+$PYTHON -c "import sys; script_launch=lambda:sys.exit('Download of installer failed!'); exec(sys.stdin.read()); script_launch()" "$@" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
 # {{{
 # HEREDOC_START
 #!/usr/bin/env python2
