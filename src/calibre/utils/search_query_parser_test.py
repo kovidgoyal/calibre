@@ -322,6 +322,7 @@ class Tester(SearchQueryParser):
              'author:S\\"calzi': {343},
              '"S\\"calzi"': {343},
              'M\\\\cMurtry': {427},
+             'author:Tolstoy (tag:txt OR tag:pdf)': set([55, 56]),
              }
     fields = {'title':0, 'author':1, 'publisher':2, 'tag':3}
 
