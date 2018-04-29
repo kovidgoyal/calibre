@@ -1,3 +1,4 @@
+#!/bin/sh
 # linux-installer.sh
 # Copyright (C) 2018 Kovid Goyal <kovid at kovidgoyal.net>
 
