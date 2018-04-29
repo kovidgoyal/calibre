@@ -133,6 +133,8 @@ class TestICU(unittest.TestCase):
         ' Test roundtripping '
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
+        self.ae(icu._icu.roundtrip('\ud8e81'), '\ufffd1')
+        self.ae(icu._icu.roundtrip('\udc01\ud8e8'), '\ufffd\ufffd')
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 1)]:
             self.ae(icu._icu.string_length(x), l)
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 2)]:
@@ -218,6 +220,6 @@ def test_build():
     if not result.wasSuccessful():
         raise SystemExit(1)
 
+
 if __name__ == '__main__':
     run(verbosity=4)
-
