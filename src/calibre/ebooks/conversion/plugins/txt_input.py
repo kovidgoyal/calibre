@@ -67,9 +67,39 @@ class TXTInput(InputFormatPlugin):
             help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
                    'of the standard markdown format. The extensions enabled by default: %default.\n'
                    'To learn more about markdown extensions, see https://pythonhosted.org/Markdown/extensions/index.html\n'
-                   'This should be a comma separated list of extensions to enable:\n') +
-                             '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
+                   'This should be a comma separated list of extensions to enable:\n'
+                   ) + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     ])
+
+    def shift_file(self, base_dir, fname, data):
+        name, ext = os.path.splitext(fname)
+        c = 1
+        while os.path.exists(os.path.join(base_dir, '{}-{}{}'.format(name, c, ext))):
+            c += 1
+        ans = os.path.join(base_dir, '{}-{}{}'.format(name, c, ext))
+        with open(ans, 'wb') as f:
+            f.write(data)
+        return f.name
+
+    def fix_resources(self, html, base_dir):
+        from html5_parser import parse
+        root = parse(html)
+        changed = False
+        for img in root.xpath('//img[@src]'):
+            src = img.get('src')
+            prefix = src.split(':', 1)[0].lower()
+            if prefix not in ('file', 'http', 'https', 'ftp') and not os.path.isabs(src):
+                src = os.path.join(base_dir, src)
+                if os.access(src, os.R_OK):
+                    with open(src, 'rb') as f:
+                        data = f.read()
+                    f = self.shift_file(base_dir, os.path.basename(src), data)
+                    changed = True
+                    img.set('src', os.path.basename(f))
+        if changed:
+            from lxml import etree
+            html = etree.tostring(root, encoding='unicode')
+        return html
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -87,6 +117,7 @@ class TXTInput(InputFormatPlugin):
         txt = ''
         log.debug('Reading text from file...')
         length = 0
+        base_dir = os.getcwdu()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -98,6 +129,8 @@ class TXTInput(InputFormatPlugin):
                     with open(x, 'rb') as tf:
                         txt += tf.read() + '\n\n'
         else:
+            if getattr(stream, 'name', None):
+                base_dir = os.path.dirname(stream.name)
             txt = stream.read()
             if file_ext in {'md', 'textile', 'markdown'}:
                 options.formatting_type = {'md': 'markdown'}.get(file_ext, file_ext)
@@ -194,47 +227,42 @@ class TXTInput(InputFormatPlugin):
             txt = preserve_spaces(txt)
 
         # Process the text using the appropriate text processor.
-        html = ''
-        input_mi = None
-        if options.formatting_type == 'markdown':
-            log.debug('Running text through markdown conversion...')
-            try:
-                input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
-            except RuntimeError:
-                raise ValueError('This txt file has malformed markup, it cannot be'
-                    ' converted by calibre. See https://daringfireball.net/projects/markdown/syntax')
-        elif options.formatting_type == 'textile':
-            log.debug('Running text through textile conversion...')
-            html = convert_textile(txt)
-        else:
-            log.debug('Running text through basic conversion...')
-            flow_size = getattr(options, 'flow_size', 0)
-            html = convert_basic(txt, epub_split_size_kb=flow_size)
+        self.shifted_files = []
+        try:
+            html = ''
+            input_mi = None
+            if options.formatting_type == 'markdown':
+                log.debug('Running text through markdown conversion...')
+                try:
+                    input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
+                except RuntimeError:
+                    raise ValueError('This txt file has malformed markup, it cannot be'
+                        ' converted by calibre. See https://daringfireball.net/projects/markdown/syntax')
+                html = self.fix_resources(html, base_dir)
+            elif options.formatting_type == 'textile':
+                log.debug('Running text through textile conversion...')
+                html = convert_textile(txt)
+                html = self.fix_resources(html, base_dir)
+            else:
+                log.debug('Running text through basic conversion...')
+                flow_size = getattr(options, 'flow_size', 0)
+                html = convert_basic(txt, epub_split_size_kb=flow_size)
 
-        # Run the HTMLized text through the html processing plugin.
-        from calibre.customize.ui import plugin_for_input_format
-        html_input = plugin_for_input_format('html')
-        for opt in html_input.options:
-            setattr(options, opt.option.name, opt.recommended_value)
-        options.input_encoding = 'utf-8'
-        base = os.getcwdu()
-        if file_ext != 'txtz' and hasattr(stream, 'name'):
-            base = os.path.dirname(stream.name)
-        fname = os.path.join(base, 'index.html')
-        c = 0
-        while os.path.exists(fname):
-            c += 1
-            fname = 'index%d.html'%c
-        htmlfile = open(fname, 'wb')
-        with htmlfile:
-            htmlfile.write(html.encode('utf-8'))
-        odi = options.debug_pipeline
-        options.debug_pipeline = None
-        # Generate oeb from html conversion.
-        oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
-                {})
-        options.debug_pipeline = odi
-        os.remove(htmlfile.name)
+            # Run the HTMLized text through the html processing plugin.
+            from calibre.customize.ui import plugin_for_input_format
+            html_input = plugin_for_input_format('html')
+            for opt in html_input.options:
+                setattr(options, opt.option.name, opt.recommended_value)
+            options.input_encoding = 'utf-8'
+            htmlfile = self.shift_file(base_dir, 'index.html', html.encode('utf-8'))
+            odi = options.debug_pipeline
+            options.debug_pipeline = None
+            # Generate oeb from html conversion.
+            oeb = html_input.convert(open(htmlfile, 'rb'), options, 'html', log, {})
+            options.debug_pipeline = odi
+        finally:
+            for x in self.shifted_files:
+                os.remove(x)
 
         # Set metadata from file.
         if input_mi is None:
