@@ -2,20 +2,47 @@
 # linux-installer.sh
 # Copyright (C) 2018 Kovid Goyal <kovid at kovidgoyal.net>
 
-PYTHON3=$(command -v python3)
-PYTHON2=$(command -v python2)
+search_for_python() {
+    # We have to search for python as Ubuntu, in its infinite wisdom decided
+    # to release 18.04 with no python symlink, making it impossible to run polyglot
+    # python scripts.
 
-if [ -x "$PYTHON3" ]
-then
-    PYTHON=python3
-else
-    if [ -x "$PYTHON2" ]
-    then
-        PYTHON=python2;
-    else
-        PYTHON=python;
+    # We cannot use command -v as it is not implemented in the posh shell shipped with
+    # Ubuntu/Debian. Similarly, there is no guarantee that which is installed.
+    # Shell scripting is a horrible joke, thank heavens for python.
+    local IFS=:
+    if [ $ZSH_VERSION ]; then
+        # zsh does not split by default
+        setopt sh_word_split
     fi
-fi
+    local candidate_path
+    local candidate_python
+    local pythons=python3:python2
+    # disable pathname expansion (globbing)
+    set -f
+    for candidate_path in $PATH
+    do
+        if [ ! -z $candidate_path ]
+        then
+            for candidate_python in $pythons
+            do
+                if [ ! -z "$candidate_path" ]
+                then
+                    if [ -x "$candidate_path/$candidate_python" ]
+                    then 
+                        printf "$candidate_path/$candidate_python"
+                        return
+                    fi
+                fi
+            done
+        fi
+    done
+    set +f
+    printf "python"
+}
+
+PYTHON=$(search_for_python)
+echo Using python executable: $PYTHON
 
 $PYTHON -c "import sys; script_launch=lambda:sys.exit('Download of installer failed!'); exec(sys.stdin.read()); script_launch()" "$@" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
 # {{{
