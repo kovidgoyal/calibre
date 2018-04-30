@@ -18,7 +18,7 @@ from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import XML, generate_anchor
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
-from calibre.ebooks.docx.fonts import Fonts
+from calibre.ebooks.docx.fonts import Fonts, is_symbol_font, map_symbol_text
 from calibre.ebooks.docx.images import Images
 from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.footnotes import Footnotes
@@ -37,10 +37,15 @@ class Text:
 
     def __init__(self, elem, attr, buf):
         self.elem, self.attr, self.buf = elem, attr, buf
+        self.elems = [self.elem]
 
     def add_elem(self, elem):
+        self.elems.append(elem)
         setattr(self.elem, self.attr, ''.join(self.buf))
         self.elem, self.attr, self.buf = elem, 'tail', []
+
+    def __iter__(self):
+        return iter(self.elems)
 
 
 def html_lang(docx_lang):
@@ -690,6 +695,13 @@ class Convert(object):
                 ans.set('lang', lang)
         if style.rtl is True:
             ans.set('dir', 'rtl')
+        if is_symbol_font(style.font_family):
+            for elem in text:
+                if elem.text:
+                    elem.text = map_symbol_text(elem.text, style.font_family)
+                if elem.tail:
+                    elem.tail = map_symbol_text(elem.tail, style.font_family)
+            style.font_family = 'sans-serif'
         return ans
 
     def add_frame(self, html_obj, style):
