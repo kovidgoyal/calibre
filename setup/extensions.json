@@ -13,6 +13,12 @@
         "linux_libraries": "rt"
     },
     {
+        "name": "unicode_names",
+        "headers": "unicode_names/names.h unicode_names/data-types.h",
+        "sources": "unicode_names/unicode_names.c",
+        "optimize_level": 3
+    },
+    {
         "name": "speedup",
         "sources": "calibre/utils/speedup.c",
         "libraries": "m",

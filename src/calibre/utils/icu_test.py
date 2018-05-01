@@ -145,7 +145,12 @@ class TestICU(unittest.TestCase):
 
     def test_character_name(self):
         ' Test character naming '
-        self.ae(icu.character_name('\U0001f431'), 'CAT FACE')
+        from calibre.utils.unicode_names import character_name_from_code
+        for q, e in {
+                '\U0001f431': 'CAT FACE'
+                }.items():
+            self.ae(icu.character_name(q), e)
+            self.ae(character_name_from_code(icu.ord_string(q)[0]), e)
 
     def test_contractions(self):
         ' Test contractions '

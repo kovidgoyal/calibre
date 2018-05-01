@@ -21,7 +21,8 @@ from calibre.constants import plugins, cache_dir
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
-from calibre.utils.icu import safe_chr as chr, icu_unicode_version, character_name_from_code
+from calibre.utils.icu import safe_chr as chr, icu_unicode_version
+from calibre.utils.unicode_names import character_name_from_code
 
 ROOT = QModelIndex()
 
@@ -469,7 +470,7 @@ class CategoryModel(QAbstractItemModel):
             category, subcategory = self.category_map[self.starts[ipos]]
         except IndexError:
             category = subcategory = _('Unknown')
-        return category, subcategory, (character_name_from_code(char_code) or _('Unknown'))
+        return category, subcategory, character_name_from_code(char_code)
 
 
 class CategoryDelegate(QStyledItemDelegate):

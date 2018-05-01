@@ -33,7 +33,8 @@ from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_u
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, numeric_sort_key, character_name_from_code
+from calibre.utils.icu import primary_contains, numeric_sort_key
+from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 # Utils {{{

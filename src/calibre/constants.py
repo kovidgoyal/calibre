@@ -169,6 +169,7 @@ class Plugins(collections.Mapping):
                 'icu',
                 'speedup',
                 'monotonic',
+                'unicode_names',
                 'zlib2',
                 'html',
                 'freetype',
