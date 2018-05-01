@@ -28,7 +28,7 @@ if _icu is None:
     raise RuntimeError('Failed to load icu with error: %s' % err)
 del err
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
-_nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
+_nmodes = {m:getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 
 # Ensure that the python internal filesystem and default encodings are not ASCII
 
@@ -38,6 +38,8 @@ def is_ascii(name):
         return codecs.lookup(name).name == b'ascii'
     except (TypeError, LookupError):
         return True
+
+
 try:
     if is_ascii(sys.getdefaultencoding()):
         _icu.set_default_encoding(b'utf-8')
@@ -118,6 +120,7 @@ def case_sensitive_collator():
 # Templates that will be used to generate various concrete
 # function implementations based on different collators, to allow lazy loading
 # of collators, with maximum runtime performance
+
 
 _sort_key_template = '''
 def {name}(obj):
@@ -222,6 +225,7 @@ def capitalize(x):
     except (IndexError, TypeError, AttributeError):
         return x
 
+
 try:
     swapcase = _icu.swap_case
 except AttributeError:  # For people running from source
@@ -300,6 +304,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
             ans[last_c] = [item]
     return ans
 
+
 # Return the number of unicode codepoints in a string
 string_length = _icu.string_length if is_narrow_build else len
 
@@ -311,4 +316,3 @@ utf16_length = len if is_narrow_build else _icu.utf16_length
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
     run(verbosity=4)
-

@@ -19,7 +19,7 @@
 #include <unicode/ustring.h>
 #include <unicode/usearch.h>
 #include <unicode/utrans.h>
-#include <unicode/unorm.h>
+#include <unicode/unorm2.h>
 #include <unicode/ubrk.h>
 
 #if PY_VERSION_HEX >= 0x03030000
