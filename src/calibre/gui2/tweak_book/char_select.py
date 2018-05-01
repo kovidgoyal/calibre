@@ -11,10 +11,10 @@ from bisect import bisect
 from functools import partial
 
 from PyQt5.Qt import (
-    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication,
+    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication, QHBoxLayout,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
-    QPushButton, QToolButton, QInputMethodEvent)
+    QPushButton, QToolButton, QInputMethodEvent, QCheckBox)
 
 from calibre.constants import plugins
 from calibre.gui2.widgets2 import HistoryLineEdit2
@@ -37,7 +37,7 @@ non_printing = {
 # Searching {{{
 def search_for_chars(query, and_tokens=False):
     ans = set()
-    for token in query.split():
+    for i, token in enumerate(query.split()):
         token = token.lower()
         m = re.match(r'(?:[u]\+)([a-f0-9]+)', token)
         if m is not None:
@@ -46,7 +46,7 @@ def search_for_chars(query, and_tokens=False):
             chars = points_for_word(token)
         if chars is not None:
             if and_tokens:
-                ans &= chars
+                ans = chars if i == 0 else (ans & chars)
             else:
                 ans |= chars
     return sorted(ans)
@@ -755,7 +755,14 @@ class CharSelect(Dialog):
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         la.setVisible(False)
         l.addWidget(la, 3, 0, 1, 3)
-        l.addWidget(self.bb, 4, 0, 1, 3)
+        self.h = h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        self.match_any = mm = QCheckBox(_('Match any word'))
+        mm.setToolTip(_('When searching return characters whose names match any of the specified words'))
+        mm.setChecked(tprefs.get('char_select_match_any', True))
+        mm.stateChanged.connect(lambda: tprefs.set('char_select_match_any', self.match_any.isChecked()))
+        h.addWidget(mm), h.addStretch(), h.addWidget(self.bb)
+        l.addLayout(h, 4, 0, 1, 3)
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
@@ -763,7 +770,7 @@ class CharSelect(Dialog):
         if not text:
             return self.clear_search()
         with BusyCursor():
-            chars = search_for_chars(text)
+            chars = search_for_chars(text, and_tokens=not self.match_any.isChecked())
         self.show_chars(_('Search'), chars)
 
     def clear_search(self):
