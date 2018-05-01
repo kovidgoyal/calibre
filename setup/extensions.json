@@ -15,8 +15,7 @@
     {
         "name": "unicode_names",
         "headers": "unicode_names/names.h unicode_names/data-types.h",
-        "sources": "unicode_names/unicode_names.c",
-        "optimize_level": 3
+        "sources": "unicode_names/unicode_names.c"
     },
     {
         "name": "speedup",
