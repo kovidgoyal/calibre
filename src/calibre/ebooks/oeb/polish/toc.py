@@ -310,12 +310,13 @@ def get_nav_landmarks(container):
                 for li in elem.iterdescendants(XHTML('li')):
                     for a in li.iterdescendants(XHTML('a')):
                         href, rtype = a.get('href'), a.get(et)
-                        title = etree.tostring(a, method='text', encoding=unicode, with_tail=False).strip()
-                        href, frag = href.partition('#')[::2]
-                        name = container.href_to_name(href, nav)
-                        if container.has_name(name):
-                            yield {'dest':name, 'frag':frag, 'title':title or '', 'type':rtype or ''}
-                        break
+                        if href:
+                            title = etree.tostring(a, method='text', encoding=unicode, with_tail=False).strip()
+                            href, frag = href.partition('#')[::2]
+                            name = container.href_to_name(href, nav)
+                            if container.has_name(name):
+                                yield {'dest':name, 'frag':frag, 'title':title or '', 'type':rtype or ''}
+                            break
 
 
 def get_landmarks(container):
