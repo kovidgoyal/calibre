@@ -41,6 +41,8 @@ class Extension(object):
                 self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" __attribute__ ((visibility ("default"))) void')
             else:
                 self.cflags.append('-DCALIBRE_MODINIT_FUNC=__attribute__ ((visibility ("default"))) void')
+                if kwargs.get('needs_c99'):
+                    self.cflags.insert(0, '-std=c99')
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
         of = kwargs.get('optimize_level', None)
@@ -231,8 +233,7 @@ class Build(Command):
     def add_options(self, parser):
         choices = [e['name'] for e in read_extensions() if is_ext_allowed(e)]+['all', 'headless']
         parser.add_option('-1', '--only', choices=choices, default='all',
-                help=('Build only the named extension. Available: '+
-                    ', '.join(choices)+'. Default:%default'))
+                help=('Build only the named extension. Available: '+ ', '.join(choices)+'. Default:%default'))
         parser.add_option('--no-compile', default=False, action='store_true',
                 help='Skip compiling all C/C++ extensions.')
         parser.add_option('--build-dir', default=None,
@@ -426,15 +427,14 @@ class Build(Command):
         sipf = sip_files[0]
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
         if self.newer(sbf, [sipf]+ext.headers):
-            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-b', sbf, '-I'+
-                    pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
+            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-b', sbf, '-I' + pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
             self.info(' '.join(cmd))
             self.check_call(cmd)
             self.info('')
         raw = open(sbf, 'rb').read().decode('utf-8')
 
         def read(x):
-            ans = re.search('^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
+            ans = re.search(r'^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
             if x != 'target':
                 ans = ans.split()
             return ans
