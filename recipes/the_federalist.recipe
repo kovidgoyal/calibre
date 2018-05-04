@@ -1,0 +1,39 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class Federalist(BasicNewsRecipe):
+    title = 'The Federalist'
+    __author__ = 'Kovid Goyal'
+    language = 'en'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+    remove_attributes = ['xmlns', 'lang', 'style', 'width', 'height']
+    extra_css = '''
+    .shortbio { margin: 1em; padding: 1em; font-style: italic }
+    '''
+
+    keep_only_tags = [
+        classes('entry-header'),
+        classes('wp-post-image post-categories entry-content shortbio'),
+    ]
+    remove_tags = [
+        dict(name=['meta', 'link']),
+    ]
+
+    feeds = [
+        ('All', 'http://thefederalist.com/feed/'),
+    ]
