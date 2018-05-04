@@ -44,14 +44,14 @@
     - title: "When upgrading EPUB 2 to EPUB 3 add the 'epub' namespace to all HTML files, for convenience."
       tickets: [1765944]
 
+    - title: "Kobo driver: Add an option to not maintain bookmarks/read status/etc. when resending a book already on the device."
+
   bug fixes:
     - title: "Edit Book: Fix an error caused by a landmark entry in EPUB 3 files that has an <a> tag without an href attribute."
 
     - title: "Edit Book: Fix names for some control characters not being displayed in the status bar"
 
     - title: "Searching: Fix A (B) not being treated as A AND (B)"
-
-    - title: "Kobo driver: Add an option to not maintain bookmarks/read status/etc. when resending a book already on the device."
 
     - title: "DOCX Input: Ignore complex script font styles. Fixes conversion of documents that specify only complex script styles and no simple script styles."
       tickets: [1766650]
