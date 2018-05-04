@@ -221,8 +221,7 @@ class Parser(object):
             return ['and', lhs, self.and_expression()]
 
         # Account for the optional 'and'
-        if ((self.token_type() in [self.WORD, self.QUOTED_WORD] or self.token() == '(')
-                    and self.lcase_token() != 'or'):
+        if ((self.token_type() in [self.WORD, self.QUOTED_WORD] or self.token() == '(') and self.lcase_token() != 'or'):
             return ['and', lhs, self.and_expression()]
         return lhs
 
