@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title:
 
+- version: 3.23.0
+  date: 2018-05-04
+
+  new features:
+    - title: "Kobo driver: Add support for new firmware"
+      tickets: [1767589]
+
+    - title: "Book polishing: Add an option to upgrade EPUB 2 to EPUB 3"
+
+    - title: "DOCX Input: Convert text written with dingbat fonts such as Wingding or Symbol correctly."
+
+    - title: "When choosing the page to use as a cover from a PDF file, add a button to render more pages, if needed"
+
+    - title: "TXT Input: Add support for embedded images that use relative URLs when converting markdown or textile. Note that this will only work if you are converting using the ebook-convert command line tool as the main calibre program moves files around, so relative references will not be valid."
+
+    - title: "Edit book: Insert special character: Add an option to select if searching should match all words or any of the words"
+
+    - title: 'Edit book: Insert special character: When searching by name match prefixes in addition to whole words. So you can now type "horiz" to match "horizontal".'
+
+    - title: "Linux installer: Simplify the command used to install calibre and add support for Ubuntu 18.04 which is missing a default python executable"
+
+    - title: "When upgrading EPUB 2 to EPUB 3 add the 'epub' namespace to all HTML files, for convenience."
+      tickets: [1765944]
+
+  bug fixes:
+    - title: "Edit Book: Fix an error caused by a landmark entry in EPUB 3 files that has an <a> tag without an href attribute."
+
+    - title: "Edit Book: Fix names for some control characters not being displayed in the status bar"
+
+    - title: "Searching: Fix A (B) not being treated as A AND (B)"
+
+    - title: "Kobo driver: Add an option to not maintain bookmarks/read status/etc. when resending a book already on the device."
+
+    - title: "DOCX Input: Ignore complex script font styles. Fixes conversion of documents that specify only complex script styles and no simple script styles."
+      tickets: [1766650]
+
+    - title: "When updating EPUB 2 to EPUB 3 ensure only a single dc:date element is present in the OPF"
+
+
 - version: 3.22.1
   date: 2018-04-19
 
