@@ -355,8 +355,7 @@ class ItemView(QFrame):  # {{{
 # }}}
 
 
-NODE_FLAGS = (Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
-                        Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
+NODE_FLAGS = (Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
 
 
 class TreeWidget(QTreeWidget):  # {{{
@@ -393,6 +392,10 @@ class TreeWidget(QTreeWidget):  # {{{
         if self.history:
             self.unserialize_tree(self.history.pop())
             self.history_state_changed.emit()
+
+    def commitData(self, editor):
+        self.push_history()
+        return QTreeWidget.commitData(self, editor)
 
     def iteritems(self, parent=None):
         if parent is None:
