@@ -269,8 +269,13 @@ def render_metadata(mi, table, book_id):  # {{{
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             s = safe_set_inner_html(E.span(), _('{0} of <a>{1}</a>').format(ival, val))
-            s.lastChild.setAttribute('href', href_for_search(field, val))
-            s.lastChild.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
+            a = s.getElementsByTagName('a')
+            if a and a.length:
+                a = a[0]
+                a.setAttribute('href', href_for_search(field, val))
+                a.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
+            else:
+                print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
             table.lastChild.lastChild.appendChild(s)
 
     def process_field(field, fm):
