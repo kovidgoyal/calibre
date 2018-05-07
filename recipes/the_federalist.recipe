@@ -28,12 +28,18 @@ class Federalist(BasicNewsRecipe):
 
     keep_only_tags = [
         classes('entry-header'),
-        classes('wp-post-image post-categories entry-content shortbio'),
+        classes('wp-post-image post-categories entry-content shortbio byline-month byline-standard alpha-byline'),
     ]
     remove_tags = [
         dict(name=['meta', 'link']),
+        classes('auth-ad attachment-post-thumbnail attachment-author-bio'),
     ]
 
     feeds = [
         ('All', 'http://thefederalist.com/feed/'),
     ]
+
+    # def parse_index(self):
+    #     return [('Articles', [
+    #         {'title':'xxx', 'url':'http://thefederalist.com/2018/05/04/fans-take-on-marvel-dc-and-the-comic-book-industrys-sjw-self-destruction/'}
+    #     ])]
