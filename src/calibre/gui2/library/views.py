@@ -346,9 +346,12 @@ class BooksView(QTableView):  # {{{
             dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
             ci = dest.currentIndex()
             nci = src.selectionModel().currentIndex()
+            # Save/restore horz scroll.  ci column may be scrolled out of view.
+            hpos = dest.horizontalScrollBar().value()
             if ci.isValid():
                 nci = dest.model().index(nci.row(), ci.column())
             dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
+            dest.horizontalScrollBar().setValue(hpos)
             self.allow_mirroring = True
 
     def mirror_vscroll(self, src, *a):
