@@ -39,7 +39,19 @@ class Federalist(BasicNewsRecipe):
         ('All', 'http://thefederalist.com/feed/'),
     ]
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
+            img['src'] = img['data-lazy-src']
+        seen = set()
+        for img in soup.findAll('img', src=True):
+            src = img['src']
+            if src in seen:
+                img.extract()
+            seen.add(src)
+        return soup
+
     # def parse_index(self):
     #     return [('Articles', [
-    #         {'title':'xxx', 'url':'http://thefederalist.com/2018/05/04/fans-take-on-marvel-dc-and-the-comic-book-industrys-sjw-self-destruction/'}
+    #         {'title':'img', 'url':'http://thefederalist.com/2018/05/09/venezuelas-economic-problems-caused-socialism-not-falling-oil-prices/'},
+    #         {'title':'xxx', 'url':'http://thefederalist.com/2018/05/04/fans-take-on-marvel-dc-and-the-comic-book-industrys-sjw-self-destruction/'},
     #     ])]
