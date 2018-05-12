@@ -101,6 +101,14 @@ class PageElement:
     """Contains the navigational information for some part of the page
     (either a tag or a piece of text)"""
 
+    XML_ENTITIES_TO_SPECIAL_CHARS = { "apos" : "'",
+                                      "quot" : '"',
+                                      "amp" : "&",
+                                      "lt" : "<",
+                                      "gt" : ">" }
+    XML_SPECIAL_CHARS_TO_ENTITIES = {v: k for k, v in XML_ENTITIES_TO_SPECIAL_CHARS.items()}
+
+
     def setup(self, parent=None, previous=None):
         """Sets up the initial relations between this element and
         other elements."""
@@ -338,31 +346,31 @@ class PageElement:
     #NavigableStrings and Tags.
     def nextGenerator(self):
         i = self
-        while i:
+        while i is not None:
             i = i.next
             yield i
 
     def nextSiblingGenerator(self):
         i = self
-        while i:
+        while i is not None:
             i = i.nextSibling
             yield i
 
     def previousGenerator(self):
         i = self
-        while i:
+        while i is not None:
             i = i.previous
             yield i
 
     def previousSiblingGenerator(self):
         i = self
-        while i:
+        while i is not None:
             i = i.previousSibling
             yield i
 
     def parentGenerator(self):
         i = self
-        while i:
+        while i is not None:
             i = i.parent
             yield i
 
@@ -389,6 +397,16 @@ class PageElement:
                 s = unicode(s)
         return s
 
+    BARE_AMPERSAND_OR_BRACKET = re.compile("([<>]|"
+                                           + "&(?!#\d+;|#x[0-9a-fA-F]+;|\w+;)"
+                                           + ")")
+
+    def _sub_entity(self, x):
+        """Used with a regular expression to substitute the
+        appropriate XML entity for an XML special character."""
+        return "&" + self.XML_SPECIAL_CHARS_TO_ENTITIES[x.group(0)[0]] + ";"
+
+
 class NavigableString(unicode, PageElement):
 
     def __getnewargs__(self):
@@ -407,10 +425,12 @@ class NavigableString(unicode, PageElement):
         return unicode(str(self), DEFAULT_OUTPUT_ENCODING) # Changed by Kovid
 
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
+        # Substitute outgoing XML entities.
+        data = self.BARE_AMPERSAND_OR_BRACKET.sub(self._sub_entity, self)
         if encoding:
-            return self.encode(encoding)
+            return data.encode(encoding)
         else:
-            return self
+            return data
 
 class CData(NavigableString):
 
@@ -595,15 +615,6 @@ class Tag(PageElement):
 
     def __unicode__(self):
         return self.__str__(None)
-
-    BARE_AMPERSAND_OR_BRACKET = re.compile("([<>]|"
-                                           + "&(?!#\d+;|#x[0-9a-fA-F]+;|\w+;)"
-                                           + ")")
-
-    def _sub_entity(self, x):
-        """Used with a regular expression to substitute the
-        appropriate XML entity for an XML special character."""
-        return "&" + self.XML_SPECIAL_CHARS_TO_ENTITIES[x.group(0)[0]] + ";"
 
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING,
                 prettyPrint=False, indentLevel=0):

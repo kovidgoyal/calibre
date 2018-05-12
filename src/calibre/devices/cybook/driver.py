@@ -79,9 +79,9 @@ class ORIZON(CYBOOK):
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Card A folder') + ':::<p>' +
-        _('Enter the folder where the books are to be stored when sent to the '
-          'memory card. This folder is prepended to any send to device template') + '</p>',
+        _('Card A folder') + ':::<p>' + _(
+            'Enter the folder where the books are to be stored when sent to the '
+            'memory card. This folder is prepended to any send to device template') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
@@ -136,5 +136,5 @@ class MUSE(CYBOOK):
     @classmethod
     def can_handle(cls, device_info, debug=False):
         if isunix:
-            return device_info[3] == 'Bookeen' and device_info[4] in ('Cybook', 'Lev', 'Nolimbook', 'Letto', 'Nolim')
+            return device_info[3] == 'Bookeen' and device_info[4] in ('Cybook', 'Lev', 'Nolimbook', 'Letto', 'Nolim', 'Saga')
         return True

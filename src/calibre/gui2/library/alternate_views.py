@@ -36,7 +36,9 @@ CACHE_FORMAT = 'PPM'
 
 
 def auto_height(widget):
-    return max(185, QApplication.instance().desktop().availableGeometry(widget).height() / 5.0)
+    # On some broken systems, availableGeometry() returns tiny values, we need
+    # a value of at least 1000 for 200 DPI systems.
+    return max(1000, QApplication.instance().desktop().availableGeometry(widget).height()) / 5.0
 
 
 class EncodeError(ValueError):
@@ -225,8 +227,7 @@ def paths_from_event(self, event):
     if md.hasFormat('text/uri-list') and not \
             md.hasFormat('application/calibre+from_library'):
         urls = [unicode(u.toLocalFile()) for u in md.urls()]
-        return [u for u in urls if os.path.splitext(u)[1] and
-                os.path.exists(u)]
+        return [u for u in urls if os.path.splitext(u)[1] and os.path.exists(u)]
 
 
 def setup_dnd_interface(cls_or_self):
@@ -788,13 +789,13 @@ class GridView(QListView):
 
     def refresh_settings(self):
         size_changed = (
-            gprefs['cover_grid_width'] != self.delegate.original_width or
-            gprefs['cover_grid_height'] != self.delegate.original_height
+            gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height
         )
-        if (size_changed or gprefs['cover_grid_show_title'] != self.delegate.original_show_title or
-                gprefs['show_emblems'] != self.delegate.original_show_emblems or
-                gprefs['emblem_size'] != self.delegate.orginal_emblem_size or
-                gprefs['emblem_position'] != self.delegate.orginal_emblem_position):
+        if (size_changed or gprefs[
+            'cover_grid_show_title'] != self.delegate.original_show_title or gprefs[
+                'show_emblems'] != self.delegate.original_show_emblems or gprefs[
+                    'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
+                        'emblem_position'] != self.delegate.orginal_emblem_position):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
             if size_changed:

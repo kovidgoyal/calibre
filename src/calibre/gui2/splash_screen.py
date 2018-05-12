@@ -46,7 +46,7 @@ class SplashScreen(QSplashScreen):
         self.pmap = self.pmap.scaled(int(self.dpr * self.LOGO_SIZE), int(self.dpr * self.LOGO_SIZE), transformMode=Qt.SmoothTransformation)
         self.light_brush = QBrush(QColor('#F6F3E9'))
         self.dark_brush = QBrush(QColor('#39322B'))
-        pmap = QPixmap(int(self.WIDTH * self.dpr), int(self.WIDTH * self.dpr))
+        pmap = QPixmap(int(self.WIDTH * self.dpr), int(self.total_height * self.dpr))
         pmap.setDevicePixelRatio(self.dpr)
         pmap.fill(Qt.transparent)
         QSplashScreen.__init__(self, pmap)

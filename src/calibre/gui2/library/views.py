@@ -121,8 +121,8 @@ class HeaderView(QHeaderView):  # {{{
 
         painter.save()
         if (
-                (opt.orientation == Qt.Horizontal and sm.currentIndex().column() == logical_index) or
-                (opt.orientation == Qt.Vertical and sm.currentIndex().row() == logical_index)):
+                (opt.orientation == Qt.Horizontal and sm.currentIndex().column() == logical_index) or (
+                    opt.orientation == Qt.Vertical and sm.currentIndex().row() == logical_index)):
             painter.setFont(self.current_font)
         self.style().drawControl(QStyle.CE_Header, opt, painter, self)
         painter.restore()
@@ -346,9 +346,12 @@ class BooksView(QTableView):  # {{{
             dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
             ci = dest.currentIndex()
             nci = src.selectionModel().currentIndex()
+            # Save/restore horz scroll.  ci column may be scrolled out of view.
+            hpos = dest.horizontalScrollBar().value()
             if ci.isValid():
                 nci = dest.model().index(nci.row(), ci.column())
             dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
+            dest.horizontalScrollBar().setValue(hpos)
             self.allow_mirroring = True
 
     def mirror_vscroll(self, src, *a):
@@ -424,9 +427,7 @@ class BooksView(QTableView):  # {{{
             ac.setCheckable(True)
             ac.setChecked(True)
         if col not in ('ondevice', 'inlibrary') and \
-                (not self.model().is_custom_column(col) or
-                self.model().custom_columns[col]['datatype'] not in ('bool',
-                    )):
+                (not self.model().is_custom_column(col) or self.model().custom_columns[col]['datatype'] not in ('bool',)):
             m = ans.addMenu(_('Change text alignment for %s') % name)
             al = self._model.alignment_map.get(col, 'left')
             for x, t in (('left', _('Left')), ('right', _('Right')), ('center', _('Center'))):
@@ -1255,8 +1256,7 @@ class DeviceBooksView(BooksView):  # {{{
         md.setUrls([QUrl.fromLocalFile(p) for p in paths])
         drag = QDrag(self)
         drag.setMimeData(md)
-        cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) >
-                1)
+        cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) > 1)
         drag.setHotSpot(QPoint(-15, -15))
         drag.setPixmap(cover)
         return drag

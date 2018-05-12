@@ -1134,8 +1134,8 @@ class Cover(ImageView):  # {{{
         img = image_from_data(cdata)
         nimg = remove_borders_from_image(img)
         if nimg is not img:
-            self.cdata_before_trim = cdata
             self.current_val = image_to_data(nimg, fmt='png')
+            self.cdata_before_trim = cdata
 
     def manual_trim_cover(self):
         cdata = self.current_val
