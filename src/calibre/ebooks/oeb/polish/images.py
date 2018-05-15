@@ -91,10 +91,13 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     [Worker(abort, 'CompressImage%d' % i, queue, results, container, jpeg_quality, pc) for i in xrange(min(detect_ncpus(), len(images)))]
     queue.join()
     before_total = after_total = 0
+    changed = False
     for name, (ok, res) in results.iteritems():
         name = force_unicode(name, filesystem_encoding)
         if ok:
             before, after = res
+            if before != after:
+                changed = True
             before_total += before
             after_total += after
             if report:
@@ -107,10 +110,10 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
             report(_('Failed to process {0} with error:').format(name))
             report(res)
     if report:
-        if before_total > 0:
+        if changed:
             report('')
             report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction]').format(
                 human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total))
         else:
             report(_('Images are already fully optimized'))
-    return before_total > 0, results
+    return changed, results
