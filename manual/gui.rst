@@ -315,7 +315,7 @@ The Search & Sort section allows you to perform several powerful actions on your
 
     * You can quickly and conveniently edit metadata by selecting the entry you want changed in the list and pressing the :kbd:`E` key.
 
-    * You can perform :ref:`actions` on sets to books. To select multiple books you can either:
+    * You can perform :ref:`actions` on sets of books. To select multiple books you can either:
 
         - Keep the :kbd:`Ctrl` key pressed and click on the books you want selected.
 
