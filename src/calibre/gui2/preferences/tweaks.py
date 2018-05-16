@@ -28,6 +28,27 @@ from PyQt5.Qt import (
 ROOT = QModelIndex()
 
 
+def format_doc(doc):
+    current_indent = default_indent = None
+    lines = ['']
+    for line in doc.splitlines():
+        if not line.strip():
+            lines.append('')
+            continue
+        line = line[1:]
+        indent = len(line) - len(line.lstrip())
+        if indent != current_indent:
+            lines.append('')
+        if default_indent is None:
+            default_indent = indent
+        current_indent = indent
+        if indent == default_indent:
+            lines[-1] += ' ' + line
+        else:
+            lines.append('    ' + line.strip())
+    return '\n'.join(lines).lstrip()
+
+
 class AdaptSQP(SearchQueryParser):
 
     def __init__(self, *args, **kwargs):
@@ -58,9 +79,10 @@ class Tweak(object):  # {{{
         self.doc = doc.strip()
         if self.doc:
             self.doc = translate(self.doc)
+        self.doc = ' ' + self.doc
         self.var_names = var_names
         if self.var_names:
-            self.doc = u"%s: %s\n\n%s"%(_('ID'), self.var_names[0], self.doc)
+            self.doc = u"%s: %s\n\n%s"%(_('ID'), self.var_names[0], format_doc(self.doc))
         self.default_values = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
@@ -181,7 +203,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             line = lines[pos]
             if not line.startswith('#'):
                 break
-            doc.append(line[1:].strip())
+            doc.append(line[1:].rstrip())
         doc = '\n'.join(doc)
         while True:
             try:
@@ -394,7 +416,6 @@ class ConfigWidget(ConfigWidgetBase):
         hb.l = l2 = QVBoxLayout(hb)
         self.help = h = QPlainTextEdit(self)
         l2.addWidget(h)
-        h.setLineWrapMode(QPlainTextEdit.NoWrap)
         h.setReadOnly(True)
         g.addWidget(hb, 1, 0, 1, 3)
 
