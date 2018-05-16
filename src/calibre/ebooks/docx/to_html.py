@@ -741,6 +741,17 @@ class Convert(object):
                 parent = ul.getparent()
                 idx = parent.index(ul)
                 frame = DIV(ul)
+            elif {p.tag for p in paras} & {'li'}:
+                def top_level_tag(x):
+                    while True:
+                        q = x.getparent()
+                        if q is parent or q is None:
+                            break
+                        x = q
+                    return x
+                paras = tuple(map(top_level_tag, paras))
+                idx = parent.index(paras[0])
+                frame = DIV(*paras)
             else:
                 idx = parent.index(paras[0])
                 frame = DIV(*paras)
