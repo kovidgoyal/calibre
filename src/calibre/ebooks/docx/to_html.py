@@ -735,13 +735,19 @@ class Convert(object):
         rmap = {v:k for k, v in self.object_map.iteritems()}
         for border_style, blocks in self.block_runs:
             paras = tuple(rmap[p] for p in blocks)
+            for p in paras:
+                if p.tag == 'li':
+                    has_li = True
+                    break
+            else:
+                has_li = False
             parent = paras[0].getparent()
             if parent.tag in ('ul', 'ol'):
                 ul = parent
                 parent = ul.getparent()
                 idx = parent.index(ul)
                 frame = DIV(ul)
-            elif {p.tag for p in paras} & {'li'}:
+            elif has_li:
                 def top_level_tag(x):
                     while True:
                         q = x.getparent()
