@@ -9,6 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, time, re
 from collections import defaultdict
 from future_builtins import map
+from contextlib import contextmanager
+from functools import partial
 
 from calibre import prints
 from calibre.constants import iswindows, isosx, filesystem_encoding
@@ -105,6 +107,27 @@ def allow_path(path, ext, compiled_rules):
     return ans
 
 
+import_ctx = None
+
+
+@contextmanager
+def run_import_plugins_before_metadata(tdir, group_id=0):
+    global import_ctx
+    import_ctx = {'tdir': tdir, 'group_id': group_id, 'format_map': {}}
+    yield import_ctx
+    import_ctx = None
+
+
+def run_import_plugins(formats):
+    from calibre.ebooks.metadata.worker import run_import_plugins
+    import_ctx['group_id'] += 1
+    ans = run_import_plugins(formats, import_ctx['group_id'], import_ctx['tdir'])
+    fm = import_ctx['format_map']
+    for old_path, new_path in zip(formats, ans):
+        fm[new_path] = old_path
+    return ans
+
+
 def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=listdir):
     dirpath = os.path.abspath(dirpath)
     if single_book_per_directory:
@@ -194,6 +217,18 @@ def recursive_import(db, root, single_book_per_directory=True,
             if callback(''):
                 break
     return duplicates
+
+
+def cdb_find_in_dir(dirpath, single_book_per_directory, compiled_rules):
+    return find_books_in_directory(dirpath, single_book_per_directory=single_book_per_directory,
+            compiled_rules=compiled_rules, listdir_impl=partial(listdir, sort_by_mtime=True))
+
+
+def cdb_recursive_find(root, single_book_per_directory=True, compiled_rules=()):
+    root = os.path.abspath(root)
+    for dirpath in os.walk(root):
+        for formats in cdb_find_in_dir(dirpath[0], single_book_per_directory, compiled_rules):
+            yield formats
 
 
 def add_catalog(cache, path, title, dbapi=None):
