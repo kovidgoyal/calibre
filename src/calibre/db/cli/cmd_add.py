@@ -45,7 +45,7 @@ def book(db, notify_changes, is_remote, args):
             path = data
         path = run_import_plugins([path])[0]
         fmt = os.path.splitext(path)[1]
-        fmt = fmt[1:] if fmt else None
+        fmt = (fmt[1:] if fmt else None) or 'unknown'
         with lopen(path, 'rb') as stream:
             mi = get_metadata(stream, stream_type=fmt, use_libprs_metadata=True)
         if not mi.title:
