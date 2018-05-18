@@ -340,9 +340,19 @@ def reread_metadata_plugins():
             for ft in plugin.file_types:
                 _metadata_writers[ft].append(plugin)
 
+    # Ensure custom metadata plugins are used in preference to builtin
+    # ones for a given filetype
+    def key(plugin):
+        return (1 if plugin.plugin_path is None else 0), plugin.name
+
+    for group in (_metadata_readers, _metadata_writers):
+        for plugins in group.itervalues():
+            if len(plugins) > 1:
+                plugins.sort(key=key)
+
 
 def metadata_readers():
-    ans = set([])
+    ans = set()
     for plugins in _metadata_readers.values():
         for plugin in plugins:
             ans.add(plugin)
