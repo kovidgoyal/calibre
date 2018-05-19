@@ -44,9 +44,32 @@ def strip_encoding_declarations(raw):
     return raw
 
 
+def handle_private_entities(data):
+    # Process private entities
+    pre = ''
+    idx = data.find('<html')
+    if idx == -1:
+        idx = data.find('<HTML')
+    if idx > -1:
+        pre = data[:idx]
+        data = data[idx:]
+        if '<!DOCTYPE' in pre:  # Handle user defined entities
+            user_entities = {}
+            for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
+                val = match.group(2)
+                if val.startswith('"') and val.endswith('"'):
+                    val = val[1:-1]
+                user_entities[match.group(1)] = val
+            if user_entities:
+                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                data = pat.sub(lambda m:user_entities[m.group(1)], data)
+    return data
+
+
 def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None, replace_entities=True, force_html5_parse=False):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    raw = handle_private_entities(raw)
     if replace_entities:
         raw = xml_replace_entities(raw).replace('\0', '')  # Handle &#0;
     raw = raw.replace('\r\n', '\n').replace('\r', '\n')

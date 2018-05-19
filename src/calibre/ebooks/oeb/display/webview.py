@@ -40,8 +40,11 @@ def cleanup_html(html):
     return html
 
 
+xml_detect_pat = re.compile(r'<!(?:\[CDATA\[|ENTITY)')
+
+
 def load_as_html(html):
-    return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and '<![CDATA[' not in html
+    return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and xml_detect_pat.search(html) is None
 
 
 def load_html(path, view, codec='utf-8', mime_type=None,

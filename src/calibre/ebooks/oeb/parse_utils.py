@@ -180,12 +180,6 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             data = xml_to_unicode(data)[0]
 
     data = strip_encoding_declarations(data)
-    if preprocessor is not None:
-        data = preprocessor(data)
-
-    # There could be null bytes in data if it had &#0; entities in it
-    data = data.replace('\0', '')
-
     # Remove DOCTYPE declaration as it messes up parsing
     # In particular, it causes tostring to insert xmlns
     # declarations, which messes up the coercing logic
@@ -198,10 +192,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         pre = data[:idx]
         data = data[idx:]
         if '<!DOCTYPE' in pre:  # Handle user defined entities
-            has_html4_doctype = re.search(r'<!DOCTYPE\s+[^>]+HTML\s+4.0[^.]+>', pre) is not None
             # kindlegen produces invalid xhtml with uppercase attribute names
             # if fed HTML 4 with uppercase attribute names, so try to detect
             # and compensate for that.
+            has_html4_doctype = re.search(r'<!DOCTYPE\s+[^>]+HTML\s+4.0[^.]+>', pre) is not None
+            # Process private entities
             user_entities = {}
             for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
                 val = match.group(2)
@@ -212,6 +207,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                 pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
+    if preprocessor is not None:
+        data = preprocessor(data)
+
+    # There could be null bytes in data if it had &#0; entities in it
+    data = data.replace('\0', '')
     data = raw = clean_word_doc(data, log)
 
     # Setting huge_tree=True causes crashes in windows with large files

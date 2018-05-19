@@ -953,8 +953,8 @@ class Container(ContainerBase):  # {{{
             for child in mdata:
                 child.tail = '\n    '
                 try:
-                    if (child.get('name', '').startswith('calibre:') and
-                        child.get('content', '').strip() in {'{}', ''}):
+                    if (child.get('name', '').startswith('calibre:'
+                        ) and child.get('content', '').strip() in {'{}', ''}):
                         remove.add(child)
                 except AttributeError:
                     continue  # Happens for XML comments

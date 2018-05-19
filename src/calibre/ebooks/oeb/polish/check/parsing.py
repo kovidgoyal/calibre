@@ -24,7 +24,7 @@ XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
-mismatch_pat = re.compile('tag mismatch:.+?line (\d+).+?line \d+')
+mismatch_pat = re.compile(r'tag mismatch:.+?line (\d+).+?line \d+')
 
 
 class EmptyFile(BaseError):
@@ -78,6 +78,13 @@ class HTMLParseError(XMLParseError):
              ' Most readers will automatically ignore such errors, but they may result in '
              ' incorrect display of content. These errors can usually be fixed automatically,'
              ' however, automatic fixing can sometimes "do the wrong thing".')
+
+
+class PrivateEntities(XMLParseError):
+
+    HELP = _('This HTML file uses private entities.'
+    ' These are not supported. You can try running "Fix HTML" from the Tools menu,'
+    ' which will try to automatically resolve the private entities.')
 
 
 class NamedEntities(BaseError):
@@ -255,9 +262,16 @@ def check_encoding_declarations(name, container):
     return errors
 
 
+def check_for_private_entities(name, raw):
+    if re.search(br'<!DOCTYPE\s+.+?<!ENTITY\s+.+?]>', raw, flags=re.DOTALL) is not None:
+        return True
+
+
 def check_xml_parsing(name, mt, raw):
     if not raw:
         return [EmptyFile(name)]
+    if check_for_private_entities(name, raw):
+        return [PrivateEntities(_('Private entities found'), name)]
     raw = raw.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
     # Get rid of entities as named entities trip up the XML parser
     eproc = EntitityProcessor(mt)
