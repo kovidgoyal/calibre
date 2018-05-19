@@ -516,7 +516,7 @@ class Quickview(QDialog, Ui_Quickview):
               'which also changes the selected book.'
               ) + '</p>')
         for row, b in enumerate(books):
-            mi = self.db.get_metadata(b, index_is_id=True, get_user_categories=False)
+            mi = self.db.new_api.get_proxy_metadata(b)
             for col in self.column_order:
                 try:
                     if col == 'title':
@@ -531,6 +531,13 @@ class Quickview(QDialog, Ui_Quickview):
                             a = TableItem('', '', 0)
                         else:
                             a = TableItem(series, mi.series, mi.series_index)
+                    elif col == 'size':
+                        v = mi.get('book_size')
+                        if v is not None:
+                            a = TableItem('{:n}'.format(v), v)
+                            a.setTextAlignment(Qt.AlignRight)
+                        else:
+                            a = TableItem(' ', None)
                     elif self.fm[col]['datatype'] == 'series':
                         v = mi.format_field(col)[1]
                         a = TableItem(v, mi.get(col), mi.get(col+'_index'))
