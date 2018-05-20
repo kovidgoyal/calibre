@@ -479,10 +479,10 @@ def read_css_block_borders(self, css, store_css_style=False):
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align css_text_indent text_indent line_height background_color'.split() +
-        ['margin_' + edge for edge in border_edges] +
-        ['css_margin_' + edge for edge in border_edges] +
-        [x%edge for edge in border_edges for x in border_props]
+        'text_align css_text_indent text_indent line_height background_color'.split(
+        ) + ['margin_' + edge for edge in border_edges
+        ] + ['css_margin_' + edge for edge in border_edges
+        ] + [x%edge for edge in border_edges for x in border_props]
     )
 
     def __init__(self, namespace, css, html_block, is_table_cell=False, parent_bg=None):
@@ -514,8 +514,16 @@ class BlockStyle(DOCXStyle):
             if not is_table_cell and self.background_color is None:
                 self.background_color = parent_bg
             try:
+                ws = css['white-space'].lower()
+                preserve_whitespace = ws in {'pre', 'pre-wrap'}
+            except Exception:
+                preserve_whitespace = False
+            try:
+                aval = css['text-align'].lower()
+                if preserve_whitespace:
+                    aval = 'start'
                 self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
-                    css['text-align'].lower(), 'left')
+                    aval, 'left')
             except AttributeError:
                 self.text_align = 'left'
 

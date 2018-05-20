@@ -168,19 +168,19 @@ class Block(object):
                 next_block.list_tag = self.list_tag
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None, lang=None):
-        ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         ws = style['white-space']
+        preserve_whitespace = ws in {'pre', 'pre-wrap'}
+        ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
             self.runs.append(run)
-        preserve_whitespace = ws in {'pre', 'pre-wrap'}
         if ignore_leading_whitespace and not preserve_whitespace:
             text = text.lstrip()
-        if ws == 'pre-line':
+        if preserve_whitespace or ws == 'pre-line':
             for text in text.splitlines():
-                run.add_text(text, False, bookmark=bookmark, link=link)
+                run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
                 bookmark = None
                 run.add_break()
         else:
