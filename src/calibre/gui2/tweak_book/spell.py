@@ -598,6 +598,7 @@ class ManageDictionaries(Dialog):  # {{{
 class WordsModel(QAbstractTableModel):
 
     word_ignored = pyqtSignal(object, object)
+    counts_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
@@ -700,8 +701,13 @@ class WordsModel(QAbstractTableModel):
         self.beginResetModel()
         self.do_filter()
         self.do_sort()
-        self.counts = (len([None for w, recognized in spell_map.iteritems() if not recognized]), len(self.words))
+        self.update_counts(emit_signal=False)
         self.endResetModel()
+
+    def update_counts(self, emit_signal=True):
+        self.counts = (len([None for w, recognized in self.spell_map.iteritems() if not recognized]), len(self.words))
+        if emit_signal:
+            self.counts_changed.emit()
 
     def filter_item(self, x):
         if self.show_only_misspelt and self.spell_map[x]:
@@ -722,6 +728,7 @@ class WordsModel(QAbstractTableModel):
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
             self.word_ignored.emit(*w)
+            self.update_counts()
 
     def ignore_words(self, rows):
         words = {self.word_for_row(r) for r in rows}
@@ -732,6 +739,7 @@ class WordsModel(QAbstractTableModel):
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
             self.word_ignored.emit(*w)
+            self.update_counts()
 
     def add_word(self, row, udname):
         w = self.word_for_row(row)
@@ -740,6 +748,7 @@ class WordsModel(QAbstractTableModel):
                 self.spell_map[w] = dictionaries.recognized(*w)
                 self.update_word(w)
                 self.word_ignored.emit(*w)
+                self.update_counts()
 
     def add_words(self, dicname, rows):
         words = {self.word_for_row(r) for r in rows}
@@ -750,6 +759,7 @@ class WordsModel(QAbstractTableModel):
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
             self.word_ignored.emit(*w)
+            self.update_counts()
 
     def remove_word(self, row):
         w = self.word_for_row(row)
@@ -757,6 +767,7 @@ class WordsModel(QAbstractTableModel):
             if dictionaries.remove_from_user_dictionaries(*w):
                 self.spell_map[w] = dictionaries.recognized(*w)
                 self.update_word(w)
+                self.update_counts()
 
     def replace_word(self, w, new_word):
         # Hack to deal with replacement words that are actually multiple words,
@@ -778,6 +789,7 @@ class WordsModel(QAbstractTableModel):
             self.words[new_key] = self.words[w]
             self.spell_map[new_key] = dictionaries.recognized(*new_key)
             self.update_word(new_key)
+            self.update_counts()
         row = self.row_for_word(w)
         if row > -1:
             self.beginRemoveRows(QModelIndex(), row, row)
@@ -960,6 +972,7 @@ class SpellCheck(Dialog):
         hh = self.words_view.horizontalHeader()
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
+        m.counts_changed.connect(self.update_summary)
         w.setModel(m)
         m.dataChanged.connect(self.current_word_changed)
         m.modelReset.connect(self.current_word_changed)
