@@ -96,7 +96,7 @@ class NewYorkTimes(BasicNewsRecipe):
     def preprocess_html(self, soup):
         article = soup.find(id='story')
         # The NYT is apparently A/B testing a new page layout
-        has_supplemental = article.find(**classes('story-body-supplemental')) is not None
+        has_supplemental = article is not None and article.find(**classes('story-body-supplemental')) is not None
         if has_supplemental:
             keep_only_tags = [
                 dict(id='story-header'),
