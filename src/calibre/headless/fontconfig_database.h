@@ -25,17 +25,17 @@ class QFontconfigDatabase : public QFreeTypeFontDatabase
 {
 public:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-    void populateFontDatabase() Q_DECL_OVERRIDE;
+    void populateFontDatabase() override;
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-	void invalidate() Q_DECL_OVERRIDE;
+	void invalidate() override;
 #endif
-    QFontEngineMulti *fontEngineMulti(QFontEngine *fontEngine, QChar::Script script) Q_DECL_OVERRIDE;
-    QFontEngine *fontEngine(const QFontDef &fontDef, void *handle) Q_DECL_OVERRIDE;
-    QFontEngine *fontEngine(const QByteArray &fontData, qreal pixelSize, QFont::HintingPreference hintingPreference) Q_DECL_OVERRIDE;
-    QStringList fallbacksForFamily(const QString &family, QFont::Style style, QFont::StyleHint styleHint, QChar::Script script) const Q_DECL_OVERRIDE;
-    QStringList addApplicationFont(const QByteArray &fontData, const QString &fileName) Q_DECL_OVERRIDE;
-    QString resolveFontFamilyAlias(const QString &family) const Q_DECL_OVERRIDE;
-    QFont defaultFont() const Q_DECL_OVERRIDE;
+    QFontEngineMulti *fontEngineMulti(QFontEngine *fontEngine, QChar::Script script) override;
+    QFontEngine *fontEngine(const QFontDef &fontDef, void *handle) override;
+    QFontEngine *fontEngine(const QByteArray &fontData, qreal pixelSize, QFont::HintingPreference hintingPreference) override;
+    QStringList fallbacksForFamily(const QString &family, QFont::Style style, QFont::StyleHint styleHint, QChar::Script script) const override;
+    QStringList addApplicationFont(const QByteArray &fontData, const QString &fileName) override;
+    QString resolveFontFamilyAlias(const QString &family) const override;
+    QFont defaultFont() const override;
 #else
     void populateFontDatabase();
     QFontEngineMulti *fontEngineMulti(QFontEngine *fontEngine, QChar::Script script);

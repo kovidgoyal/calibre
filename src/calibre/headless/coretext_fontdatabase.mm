@@ -382,7 +382,7 @@ QFontEngine *QCoreTextFontDatabase::fontEngine(const QByteArray &fontData, qreal
 
         if (!cgFont) {
             qWarning("QCoreTextFontDatabase::fontEngine: CGFontCreateWithDataProvider failed");
-            return Q_NULLPTR;
+            return nullptr;
         }
 
         QFontDef fontDef;
@@ -390,7 +390,7 @@ QFontEngine *QCoreTextFontDatabase::fontEngine(const QByteArray &fontData, qreal
         fontDef.pointSize = pixelSize * 72.0 / qt_defaultDpi();
         fontDef.hintingPreference = hintingPreference;
         CGAffineTransform transform = qt_transform_from_fontdef(fontDef);
-        QCFType<CTFontRef> ctFont(CTFontCreateWithGraphicsFont(cgFont, fontDef.pixelSize, &transform, Q_NULLPTR));
+        QCFType<CTFontRef> ctFont(CTFontCreateWithGraphicsFont(cgFont, fontDef.pixelSize, &transform, nullptr));
         QCFType<CFURLRef> url(static_cast<CFURLRef>(CTFontCopyAttribute(ctFont, kCTFontURLAttribute)));
         return freeTypeFontEngine(fontDef, filenameForCFUrl(url), fontData);
     }
@@ -937,7 +937,7 @@ QFontEngine *QCoreTextFontDatabase::freeTypeFontEngine(const QFontDef &fontDef, 
 
     if (!engine->init(faceId, antialias, format, fontData) || engine->invalid()) {
         qWarning() << "QCoreTextFontDatabase::freeTypefontEngine Failed to create engine";
-        return Q_NULLPTR;
+        return nullptr;
     }
     engine->setQtDefaultHintStyle(static_cast<QFont::HintingPreference>(fontDef.hintingPreference));
 
