@@ -12,6 +12,12 @@ http://www.ledevoir.com/
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class ledevoir(BasicNewsRecipe):
     author = 'Lorenzo Vigentini'
     description = 'Canadian Paper. A subscription is optional, with it you get more content'
@@ -40,7 +46,10 @@ class ledevoir(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'class': 'col-xs-14 col-sm-8 col-md-10'}),
+        dict(attrs={'class': 'col-xs-14 col-sm-7 col-md-9 col-lg-10'}),
+    ]
+    remove_tags = [
+            classes('category-nav social')
     ]
 
     feeds = [
