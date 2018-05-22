@@ -284,7 +284,21 @@ static const char specialLanguages[][6] = {
     "", // Hatran
     "", // Multani
     "", // OldHungarian
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    "", // SignWriting
+    "", // Adlam
+    "", // Bhaiksuki
+    "", // Marchen
+    "", // Newa
+    "", // Osage
+    "", // Tangut
+    "", // MasaramGondi
+    "", // Nushu
+    "", // Soyombo
+    "" // ZanabazarSquare
+#else
     ""  // SignWriting
+#endif // Qt >= 5.11
 #else
     "hoc"  // WarangCiti
 #endif  // Qt >= 5.6.0
@@ -541,7 +555,7 @@ static void populateFromPattern(FcPattern *pattern)
     QPlatformFontDatabase::registerFont(familyName,styleName,QLatin1String((const char *)foundry_value),weight,style,stretch,antialias,scalable,pixel_size,fixedPitch,writingSystems,fontFile);
 //        qDebug() << familyName << (const char *)foundry_value << weight << style << &writingSystems << scalable << true << pixel_size;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)) 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
     for (int k = 1; FcPatternGetString(pattern, FC_FAMILY, k, &value) == FcResultMatch; ++k) {
         const QString altFamilyName = QString::fromUtf8((const char *)value);
         // Extra family names can be aliases or subfamilies.
@@ -674,7 +688,7 @@ QFontEngine::HintStyle defaultHintStyleFromMatch(QFont::HintingPreference hintin
     }
 
     // Removed by Kovid for headless QPA
-	
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     if (QHighDpiScaling::isActive())
         return QFontEngine::HintNone;
