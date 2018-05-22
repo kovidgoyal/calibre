@@ -17,6 +17,18 @@ def rules(stylesheets):
                     yield r
 
 
+def simple_container_xml(opf_path, extra_entries=''):
+    return u'''\
+<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+   <rootfiles>
+      <rootfile full-path="{0}" media-type="application/oebps-package+xml"/>
+      {extra_entries}
+   </rootfiles>
+</container>
+    '''.format(opf_path, extra_entries=extra_entries)
+
+
 def initialize_container(path_to_container, opf_name='metadata.opf',
         extra_entries=[]):
     '''
@@ -26,15 +38,7 @@ def initialize_container(path_to_container, opf_name='metadata.opf',
     for path, mimetype, _ in extra_entries:
         rootfiles += u'<rootfile full-path="{0}" media-type="{1}"/>'.format(
                 path, mimetype)
-    CONTAINER = u'''\
-<?xml version="1.0"?>
-<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-   <rootfiles>
-      <rootfile full-path="{0}" media-type="application/oebps-package+xml"/>
-      {extra_entries}
-   </rootfiles>
-</container>
-    '''.format(opf_name, extra_entries=rootfiles).encode('utf-8')
+    CONTAINER = simple_container_xml(opf_name, rootfiles).encode('utf-8')
     zf = ZipFile(path_to_container, 'w')
     zf.writestr('mimetype', 'application/epub+zip', compression=ZIP_STORED)
     zf.writestr('META-INF/', '', 0755)
@@ -42,5 +46,3 @@ def initialize_container(path_to_container, opf_name='metadata.opf',
     for path, _, data in extra_entries:
         zf.writestr(path, data)
     return zf
-
-

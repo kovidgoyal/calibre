@@ -117,6 +117,12 @@ class EPUBOutput(OutputFormatPlugin):
             help=_('Title for any generated in-line table of contents.')
         ),
 
+        OptionRecommendation(name='epub_version', recommended_value='2', choices=('2', '3'),
+            help=_('The version of the EPUB file to generate. EPUB 2 is the'
+                ' most widely compatible, only use EPUB 3 if you know you'
+                ' actually need it.')
+        ),
+
         ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
@@ -168,6 +174,7 @@ class EPUBOutput(OutputFormatPlugin):
                         seen_names.add(name)
 
     # }}}
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
@@ -249,6 +256,8 @@ class EPUBOutput(OutputFormatPlugin):
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)
                     if x.endswith('.ncx')][0])
+            if self.opts.epub_version == '3':
+                self.upgrade_to_epub3(tdir, opf)
             encryption = None
             if encrypted_fonts:
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
@@ -273,6 +282,26 @@ class EPUBOutput(OutputFormatPlugin):
                 with ZipFile(output_path) as zf:
                     zf.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
+
+    def upgrade_to_epub3(self, tdir, opf):
+        self.log.info('Upgrading to EPUB 3...')
+        from calibre.ebooks.epub import simple_container_xml
+        try:
+            os.mkdir(os.path.join(tdir, 'META-INF'))
+        except EnvironmentError:
+            pass
+        with open(os.path.join(tdir, 'META-INF', 'container.xml'), 'wb') as f:
+            f.write(simple_container_xml(os.path.basename(opf)).encode('utf-8'))
+        from calibre.ebooks.oeb.polish.container import EpubContainer
+        container = EpubContainer(tdir, self.log)
+        from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
+        epub_2_to_3(container, self.log.info)
+        container.commit()
+        os.remove(f.name)
+        try:
+            os.rmdir(os.path.join(tdir, 'META-INF'))
+        except EnvironmentError:
+            pass
 
     def encrypt_fonts(self, uris, tdir, uuid):  # {{{
         from binascii import unhexlify
@@ -324,7 +353,7 @@ class EPUBOutput(OutputFormatPlugin):
                 return ans
     # }}}
 
-    def condense_ncx(self, ncx_path):
+    def condense_ncx(self, ncx_path):  # {{{
         from lxml import etree
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
@@ -335,6 +364,7 @@ class EPUBOutput(OutputFormatPlugin):
                     tag.tail = tag.tail.strip()
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             open(ncx_path, 'wb').write(compressed)
+    # }}}
 
     def workaround_ade_quirks(self):  # {{{
         '''
@@ -420,8 +450,7 @@ class EPUBOutput(OutputFormatPlugin):
                 if not tag.text:
                     tag.getparent().remove(tag)
             for tag in XPath('//h:script')(root):
-                if (not tag.text and not tag.get('src', False) and
-                        tag.get('type', None) != 'text/x-mathjax-config'):
+                if (not tag.text and not tag.get('src', False) and tag.get('type', None) != 'text/x-mathjax-config'):
                     tag.getparent().remove(tag)
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)

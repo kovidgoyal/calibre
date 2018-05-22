@@ -23,9 +23,11 @@ class PluginWidget(Widget, Ui_Form):
                 ['dont_split_on_page_breaks', 'flow_size',
                     'no_default_epub_cover', 'no_svg_cover',
                  'epub_inline_toc', 'epub_toc_at_end', 'toc_title',
-                    'preserve_cover_aspect_ratio', 'epub_flatten']
+                    'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version']
                 )
         for i in range(2):
             self.opt_no_svg_cover.toggle()
+        ev = get_option('epub_version')
+        self.opt_epub_version.addItems(list(ev.option.choices))
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
