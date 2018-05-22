@@ -79,7 +79,6 @@ class NewYorkTimes(BasicNewsRecipe):
     no_stylesheets = True
     compress_news_images = True
     compress_news_images_auto_size = 5
-    preprocess_regexps = [(re.compile(r'(?s)<!--.*?-->'), lambda m: '')]
 
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
