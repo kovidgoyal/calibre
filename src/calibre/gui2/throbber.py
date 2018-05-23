@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import (
-    QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty,
+    QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty, QSizePolicy,
     QWidget, QIcon, QPainter, QStyleOptionToolButton)
 
 from calibre.gui2 import config
@@ -27,6 +27,9 @@ class ThrobbingButton(QToolButton):
 
     def __init__(self, *args):
         QToolButton.__init__(self, *args)
+        # vertically size policy must be expanding for it to align inside a
+        # toolbar
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self._icon_size = -1
         QToolButton.setIcon(self, QIcon(I('donate.png')))
         self.setText('\xa0')
@@ -72,6 +75,7 @@ class ThrobbingButton(QToolButton):
         s = self.style()
         opt.iconSize = QSize(size, size)
         s.drawComplexControl(s.CC_ToolButton, opt, p, self)
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication, QHBoxLayout
