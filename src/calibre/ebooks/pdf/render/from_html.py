@@ -159,8 +159,7 @@ class PDFWriter(QObject):
         self.view = QWebView()
         self.page = Page(opts, self.log)
         self.view.setPage(self.page)
-        self.view.setRenderHints(QPainter.Antialiasing|
-                    QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
+        self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.view.loadFinished.connect(self.render_html,
                 type=Qt.QueuedConnection)
         for x in (Qt.Horizontal, Qt.Vertical):
@@ -316,6 +315,16 @@ class PDFWriter(QObject):
                 self.loop.processEvents(self.loop.ExcludeUserInputEvents)
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 
+    def load_header_footer_images(self):
+        from calibre.utils.monotonic import monotonic
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
+        st = monotonic()
+        while not evaljs('paged_display.header_footer_images_loaded()'):
+            self.loop.processEvents(self.loop.ExcludeUserInputEvents)
+            if monotonic() - st > 5:
+                self.log.warn('Header and footer images have not loaded in 5 seconds, ignoring')
+                break
+
     def get_sections(self, anchor_map, only_top_level=False):
         sections = defaultdict(list)
         ci = os.path.abspath(os.path.normcase(self.current_item))
@@ -395,7 +404,9 @@ class PDFWriter(QObject):
             set_section(col, tl_sections, 'current_tl_section')
             self.doc.init_page()
             if self.header or self.footer:
-                evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
+                if evaljs('paged_display.update_header_footer(%d)'%self.current_page_num) is True:
+                    self.load_header_footer_images()
+
             self.painter.save()
             mf.render(self.painter)
             self.painter.restore()
