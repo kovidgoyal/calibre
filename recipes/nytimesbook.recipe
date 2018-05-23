@@ -18,12 +18,12 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
-        dict(id=['headline', 'story-meta-footer']),
-        dict(itemprop=['associatedMedia', 'articleBody', 'reviewBody']),
-        classes('story-body'),
+        dict(itemprop=['headline', 'author', 'associatedMedia', 'articleBody', 'reviewBody']),
+        classes('story-body StoryBodyCompanionColumn'),
     ]
     remove_tags = [
         dict(id=['d-promo-realestate', 'books-update-email-promo']),
+        dict(style=lambda x: x and 'visibility: hidden' in x),
         classes('skip-to-text-link story-meta-footer-sharetools story-footer-links'),
     ]
 
