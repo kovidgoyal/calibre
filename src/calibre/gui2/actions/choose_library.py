@@ -187,8 +187,8 @@ class BackupStatus(QDialog):  # {{{
             dirty_text = '%s' % db.dirty_queue_length()
         except:
             dirty_text = _('none')
-        self.msg.setText('<p>' +
-                _('Book metadata files remaining to be written: %s') % dirty_text)
+        self.msg.setText('<p>' + _(
+            'Book metadata files remaining to be written: %s') % dirty_text)
         QTimer.singleShot(1000, self.update)
 
     def mark_all_dirty(self):
@@ -398,8 +398,9 @@ class ChooseLibraryAction(InterfaceAction):
         base = os.path.dirname(loc)
         old_name = name.replace('&&', '&')
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
-                '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
-                '<p>'+_('Note that the actual library folder will be renamed.'),
+                '<p>'+_(
+                    'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
+                    'Note that the actual library folder will be renamed.'),
                 text=old_name)
         newname = sanitize_file_name_unicode(unicode(newname))
         if not ok or not newname or newname == old_name:
@@ -409,8 +410,7 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Already exists'),
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
-        if (iswindows and len(newloc) >
-                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
+        if (iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
@@ -470,8 +470,7 @@ class ChooseLibraryAction(InterfaceAction):
         LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
-        if (iswindows and len(db.library_path) >
-                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
+        if (iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters. Move your library to a location with'
