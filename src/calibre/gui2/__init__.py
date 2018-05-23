@@ -167,6 +167,7 @@ def create_defs():
     defs['qv_follows_column'] = False
     defs['book_details_narrow_comments_layout'] = 'float'
     defs['book_list_split'] = False
+    defs['wrap_toolbar_text'] = False
 
 
 create_defs()
@@ -348,9 +349,9 @@ def extension(path):
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' +
-            title, msg, det_msg, parent=parent,
-            show_copy_button=show_copy_button)
+    d = MessageBox(MessageBox.WARNING, _('WARNING:'
+        )+ ' ' + title, msg, det_msg, parent=parent,
+        show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
@@ -359,9 +360,9 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.ERROR, _('ERROR:')+ ' ' +
-            title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button)
+    d = MessageBox(MessageBox.ERROR, _('ERROR:'
+        ) + ' ' + title, msg, det_msg, parent=parent,
+        show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d

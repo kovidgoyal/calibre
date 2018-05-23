@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 import sip
 from PyQt5.Qt import (
     Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal,
@@ -59,6 +60,60 @@ class RevealBar(QWidget):  # {{{
             painter.setClipRect(rect)
             painter.fillRect(self.rect(), col)
 # }}}
+
+
+MAX_TEXT_LENGTH = 10
+connected_pairs = set()
+
+
+def wrap_button_text(text, max_len=MAX_TEXT_LENGTH):
+    parts = text.split()
+    ans = ''
+    broken = False
+    for word in parts:
+        if broken:
+            ans += ' ' + word
+        else:
+            if len(ans) + len(word) < max_len:
+                if ans:
+                    ans += ' ' + word
+                else:
+                    ans = word
+            else:
+                if ans:
+                    ans += '\n' + word
+                    broken = True
+                else:
+                    ans = word
+    if not broken:
+        if ' ' in ans:
+            ans = '\n'.join(ans.split(' ', 1))
+        elif '/' in ans:
+            ans = '/\n'.join(ans.split('/', 1))
+        else:
+            ans += '\n\xa0'
+    return ans
+
+
+def rewrap_button(w):
+    if not sip.isdeleted(w):
+        w.setText(wrap_button_text(w.defaultAction().text()))
+
+
+def wrap_all_button_texts(all_buttons):
+    if not all_buttons:
+        return
+    for w in all_buttons:
+        if hasattr(w, 'defaultAction'):
+            ac = w.defaultAction()
+            text = ac.text()
+            key = id(w), id(ac)
+            if key not in connected_pairs:
+                ac.changed.connect(partial(rewrap_button, w))
+                connected_pairs.add(key)
+        else:
+            text = w.text()
+        w.setText(wrap_button_text(text))
 
 
 def create_donate_button(action):
@@ -134,30 +189,32 @@ class ToolBar(QToolBar):  # {{{
         self.clear()
         self.added_actions = []
         self.donate_button = None
-
-        bar = self
+        self.all_widgets = []
 
         for what in actions:
             if what is None:
-                bar.addSeparator()
+                self.addSeparator()
             elif what == 'Location Manager':
                 for ac in self.location_manager.all_actions:
-                    bar.addAction(ac)
-                    bar.added_actions.append(ac)
-                    bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
+                    self.addAction(ac)
+                    self.added_actions.append(ac)
+                    self.setup_tool_button(self, ac, QToolButton.MenuButtonPopup)
                     ac.setVisible(False)
             elif what == 'Donate':
                 self.donate_button = create_donate_button(self.donate_action)
-                bar.addWidget(self.donate_button)
-                self.donate_button.setIconSize(bar.iconSize())
+                self.addWidget(self.donate_button)
+                self.donate_button.setIconSize(self.iconSize())
                 self.donate_button.setToolButtonStyle(self.toolButtonStyle())
                 self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
-                bar.addAction(action.qaction)
+                self.addAction(action.qaction)
                 self.added_actions.append(action.qaction)
-                self.setup_tool_button(bar, action.qaction, action.popup_type)
+                self.setup_tool_button(self, action.qaction, action.popup_type)
         self.preferred_width = self.sizeHint().width()
+        if gprefs['wrap_toolbar_text']:
+            wrap_all_button_texts(self.all_widgets)
+        self.all_widgets = []
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         ch = bar.widgetForAction(ac)
@@ -165,6 +222,8 @@ class ToolBar(QToolBar):  # {{{
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
         ch.setAutoRaise(True)
+        if hasattr(ch, 'setText') and hasattr(ch, 'text'):
+            self.all_widgets.append(ch)
         m = ac.menu()
         if m is not None:
             if menu_mode is not None:

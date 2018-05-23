@@ -90,6 +90,13 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="opt_wrap_toolbar_text">
+            <property name="text">
+             <string>Use t&amp;wo lines for the text under the icons (needs restart)</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

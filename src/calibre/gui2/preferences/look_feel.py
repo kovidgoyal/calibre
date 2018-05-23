@@ -394,6 +394,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_hidpi.setVisible(False), self.label_hidpi.setVisible(False)
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
         r('book_list_tooltips', gprefs)
+        r('wrap_toolbar_text', gprefs, restart_required=True)
         r('show_layout_buttons', gprefs, restart_required=True)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs)
@@ -478,11 +479,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
         choices = set([k for k in db.field_metadata.all_field_keys()
-                if (db.field_metadata[k]['is_category'] and
-                   (db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']) and
-                    not db.field_metadata[k]['display'].get('is_names', False)) or
-                   (db.field_metadata[k]['datatype'] in ['composite'] and
-                    db.field_metadata[k]['display'].get('make_category', False))])
+                if (db.field_metadata[k]['is_category'] and (
+                    db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration'
+                    ]) and not db.field_metadata[k]['display'].get('is_names', False)) or (
+                    db.field_metadata[k]['datatype'] in ['composite'
+                    ] and db.field_metadata[k]['display'].get('make_category', False))])
         choices -= set(['authors', 'publisher', 'formats', 'news', 'identifiers'])
         choices |= set(['search'])
         self.opt_categories_using_hierarchy.update_items_cache(choices)
@@ -722,8 +723,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         name = unicode(fi.family())
 
         self.font_display.setFont(font)
-        self.font_display.setText(name +
-                ' [%dpt]'%fi.pointSize())
+        self.font_display.setText(name + ' [%dpt]'%fi.pointSize())
 
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)
