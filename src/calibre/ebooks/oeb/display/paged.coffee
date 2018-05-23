@@ -339,6 +339,7 @@ class PagedDisplay
         for img in this.header_footer_images
             if not img.complete
                 return false
+        this.header_footer_images = []
         return true
 
     fit_images: () ->
