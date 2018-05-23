@@ -180,9 +180,9 @@ class ToolBar(QToolBar):  # {{{
                     aa = iac.qaction
                     w = self.widgetForAction(aa)
                     m = aa.menu()
-                    if (((w is not None and w.geometry().contains(pos)) or
-                          (m is not None and m.isVisible() and m.geometry().contains(pos))) and
-                         getattr(iac, func)(event, md)):
+                    if (((w is not None and w.geometry().contains(pos)) or (
+                        m is not None and m.isVisible() and m.geometry().contains(pos))) and getattr(
+                            iac, func)(event, md)):
                         return True
         return False
 
@@ -206,8 +206,9 @@ class ToolBar(QToolBar):  # {{{
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
             if w is not None:
-                if (md.hasFormat("application/calibre+from_library") or
-                     md.hasFormat("application/calibre+from_device")) and \
+                if (md.hasFormat(
+                    "application/calibre+from_library") or md.hasFormat(
+                    "application/calibre+from_device")) and \
                         w.geometry().contains(event.pos()) and \
                         isinstance(w, QToolButton) and not w.isChecked():
                     allowed = True
@@ -549,12 +550,12 @@ class BarsManager(QObject):
                 return True
 
     def init_bars(self):
-        self.bar_actions = tuple(
-            [gprefs['action-layout-toolbar'+x] for x in ('', '-device')] +
-            [gprefs['action-layout-toolbar-child']] +
-            [gprefs['action-layout-menubar'] or self.menubar_fallback] +
-            [gprefs['action-layout-menubar-device'] or self.menubar_device_fallback]
-        )
+        self.bar_actions = tuple([
+            gprefs['action-layout-toolbar'+x] for x in ('', '-device')] + [
+            gprefs['action-layout-toolbar-child']] + [
+            gprefs['action-layout-menubar'] or self.menubar_fallback] + [
+            gprefs['action-layout-menubar-device'] or self.menubar_device_fallback
+        ])
 
         for bar, actions in zip(self.bars, self.bar_actions[:3]):
             bar.init_bar(actions)
