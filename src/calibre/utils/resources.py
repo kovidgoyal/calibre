@@ -64,6 +64,7 @@ class PathResolver(object):
 
         return ans
 
+
 _resolver = PathResolver()
 
 
@@ -116,6 +117,37 @@ def compiled_coffeescript(name, dynamic=False):
             return _compile_coffeescript(name)
         else:
             return zf.read(name+'.js')
+
+
+def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
+    from calibre.utils.localization import lang_as_iso639_1
+    import zipfile
+    if not lang:
+        lang = default_lang or 'en'
+
+    def lang_name(l):
+        l = l.lower()
+        l = lang_as_iso639_1(l)
+        if not l:
+            l = 'en'
+        l = {'en':'en-us', 'nb':'nb-no', 'el':'el-monoton'}.get(l, l)
+        return l.lower().replace('_', '-')
+
+    if not hp_cache:
+        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
+            allow_user_override=False), 'r') as zf:
+            for pat in zf.namelist():
+                raw = zf.read(pat).decode('utf-8')
+                hp_cache[pat.partition('.')[0]] = raw
+
+    if lang_name(lang) not in hp_cache:
+        lang = lang_name(default_lang)
+
+    lang = lang_name(lang)
+
+    js = '\n\n'.join(hp_cache.itervalues())
+    return js, lang
+
 
 __builtin__.__dict__['P'] = get_path
 __builtin__.__dict__['I'] = get_image_path
