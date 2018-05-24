@@ -269,6 +269,20 @@ def find_cover_page(container):
                 return landmark['dest']
 
 
+def fix_conversion_titlepage_links_in_nav(container):
+    from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc
+    cover_page_name = find_cover_page(container)
+    if not cover_page_name:
+        return
+    nav_page_name = find_existing_nav_toc(container)
+    if not nav_page_name:
+        return
+    for elem in container.parsed(nav_page_name).xpath('//*[@data-calibre-removed-titlepage]'):
+        elem.attrib.pop('data-calibre-removed-titlepage')
+        elem.set('href', container.name_to_href(cover_page_name, nav_page_name))
+    container.dirty(nav_page_name)
+
+
 def find_cover_image_in_page(container, cover_page):
     root = container.parsed(cover_page)
     body = XPath('//h:body')(root)

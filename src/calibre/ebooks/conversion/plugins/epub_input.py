@@ -287,10 +287,6 @@ class EPUBInput(InputFormatPlugin):
                 raise DRMError(os.path.basename(path))
         self.encrypted_fonts = self._encrypted_font_uris
 
-        epub3_nav = opf.epub3_nav
-        if epub3_nav is not None:
-            self.convert_epub3_nav(epub3_nav, opf, log, options)
-
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
 
@@ -304,6 +300,11 @@ class EPUBInput(InputFormatPlugin):
 
         f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover2
         self.removed_cover = f(opf, log)
+        if self.removed_cover:
+            self.removed_items_to_ignore = (self.removed_cover,)
+        epub3_nav = opf.epub3_nav
+        if epub3_nav is not None:
+            self.convert_epub3_nav(epub3_nav, opf, log, options)
 
         for x in opf.itermanifest():
             if x.get('media-type', '') == 'application/x-dtbook+xml':
@@ -350,7 +351,7 @@ class EPUBInput(InputFormatPlugin):
         from lxml import etree
         from calibre.ebooks.chardet import xml_to_unicode
         from calibre.ebooks.oeb.polish.parsing import parse
-        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize
+        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize, urlunquote, serialize
         from calibre.ebooks.oeb.polish.toc import first_child
         from tempfile import NamedTemporaryFile
         with lopen(nav_path, 'rb') as f:
@@ -401,9 +402,21 @@ class EPUBInput(InputFormatPlugin):
         ncx_id = opf.add_path_to_manifest(f.name, NCX_MIME)
         for spine in opf.root.xpath('//*[local-name()="spine"]'):
             spine.set('toc', ncx_id)
-        href = os.path.relpath(nav_path).replace(os.sep, '/')
-        opts.epub3_nav_href = urlnormalize(href)
+        opts.epub3_nav_href = urlnormalize(os.path.relpath(nav_path).replace(os.sep, '/'))
         opts.epub3_nav_parsed = root
+        if getattr(self, 'removed_cover', None):
+            changed = False
+            base_path = os.path.dirname(nav_path)
+            for elem in root.xpath('//*[@href]'):
+                href, frag = elem.get('href').partition('#')[::2]
+                link_path = os.path.relpath(os.path.join(base_path, urlunquote(href)), base_path)
+                abs_href = urlnormalize(link_path)
+                if abs_href == self.removed_cover:
+                    changed = True
+                    elem.set('data-calibre-removed-titlepage', '1')
+            if changed:
+                with open(nav_path, 'wb') as f:
+                    f.write(serialize(root, 'application/xhtml+xml'))
 
     def postprocess_book(self, oeb, opts, log):
         rc = getattr(self, 'removed_cover', None)

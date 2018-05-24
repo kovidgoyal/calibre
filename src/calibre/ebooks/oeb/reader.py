@@ -194,8 +194,7 @@ class OEBReader(object):
             new = set()
             for item in unchecked:
                 data = None
-                if (item.media_type in cdoc or
-                        item.media_type[-4:] in ('/xml', '+xml')):
+                if (item.media_type in cdoc or item.media_type[-4:] in ('/xml', '+xml')):
                     try:
                         data = item.data
                     except:
@@ -206,8 +205,7 @@ class OEBReader(object):
                 if data is None:
                     continue
 
-                if (item.media_type in OEB_DOCS or
-                        item.media_type[-4:] in ('/xml', '+xml')):
+                if (item.media_type in OEB_DOCS or item.media_type[-4:] in ('/xml', '+xml')):
                     hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
                         if isinstance(href, bytes):
@@ -320,7 +318,10 @@ class OEBReader(object):
             extras.update(new)
             unchecked = new
         version = int(self.oeb.version[0])
+        removed_items_to_ignore = getattr(self.oeb, 'removed_items_to_ignore', ())
         for item in sorted(extras):
+            if item.href in removed_items_to_ignore:
+                continue
             if version >= 2:
                 self.logger.warn(
                     'Spine-referenced file %r not in spine' % item.href)

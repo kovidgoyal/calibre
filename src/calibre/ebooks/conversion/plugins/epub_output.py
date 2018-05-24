@@ -286,6 +286,7 @@ class EPUBOutput(OutputFormatPlugin):
     def upgrade_to_epub3(self, tdir, opf):
         self.log.info('Upgrading to EPUB 3...')
         from calibre.ebooks.epub import simple_container_xml
+        from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
         try:
             os.mkdir(os.path.join(tdir, 'META-INF'))
         except EnvironmentError:
@@ -296,7 +297,9 @@ class EPUBOutput(OutputFormatPlugin):
         container = EpubContainer(tdir, self.log)
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
         existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
-        epub_2_to_3(container, self.log.info, previous_nav=existing_nav)
+        nav_href = getattr(self.opts, 'epub3_nav_href', None)
+        epub_2_to_3(container, self.log.info, previous_nav=(nav_href, existing_nav))
+        fix_conversion_titlepage_links_in_nav(container)
         container.commit()
         os.remove(f.name)
         try:

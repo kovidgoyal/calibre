@@ -131,8 +131,8 @@ OptionRecommendation(name='input_profile',
                    'conversion system information on how to interpret '
                    'various information in the input document. For '
                    'example resolution dependent lengths (i.e. lengths in '
-                   'pixels). Choices are:')+
-                        ', '.join([x.short_name for x in input_profiles()])
+                   'pixels). Choices are:')+ ', '.join([
+                       x.short_name for x in input_profiles()])
         ),
 
 OptionRecommendation(name='output_profile',
@@ -142,8 +142,8 @@ OptionRecommendation(name='output_profile',
                    'tells the conversion system how to optimize the '
                    'created document for the specified device (such as by resizing images for the device screen size). In some cases, '
                    'an output profile can be used to optimize the output for a particular device, but this is rarely necessary. '
-                   'Choices are:') +
-                           ', '.join([x.short_name for x in output_profiles()])
+                   'Choices are:') + ', '.join([
+                       x.short_name for x in output_profiles()])
         ),
 
 OptionRecommendation(name='base_font_size',
@@ -897,8 +897,7 @@ OptionRecommendation(name='search_replace',
                     try:
                         val = parse_date(val, assume_utc=x=='timestamp')
                     except:
-                        self.log.exception(_('Failed to parse date/time') + ' ' +
-                                unicode(val))
+                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode(val))
                         continue
                 setattr(mi, x, val)
 
@@ -1096,7 +1095,7 @@ OptionRecommendation(name='search_replace',
                 self.oeb = create_oebbook(
                     self.log, self.oeb, self.opts,
                     encoding=self.input_plugin.output_encoding,
-                    for_regex_wizard=self.for_regex_wizard)
+                    for_regex_wizard=self.for_regex_wizard, removed_items=getattr(self.input_plugin, 'removed_items_to_ignore', ()))
             if self.for_regex_wizard:
                 return
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
@@ -1190,8 +1189,8 @@ OptionRecommendation(name='search_replace',
             UnsmartenPunctuation()(self.oeb, self.opts)
 
         mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
-        needs_old_markup = (self.output_plugin.file_type == 'lit' or
-                    (self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
+        needs_old_markup = (self.output_plugin.file_type == 'lit' or (
+            self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
@@ -1269,7 +1268,7 @@ def set_regex_wizard_callback(f):
 
 
 def create_oebbook(log, path_or_stream, opts, reader=None,
-        encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None):
+        encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None, removed_items=()):
     '''
     Create an OEBBook.
     '''
@@ -1285,6 +1284,7 @@ def create_oebbook(log, path_or_stream, opts, reader=None,
         oeb = specialize(oeb) or oeb
     # Read OEB Book into OEBBook
     log('Parsing all content...')
+    oeb.removed_items_to_ignore = removed_items
     if reader is None:
         from calibre.ebooks.oeb.reader import OEBReader
         reader = OEBReader

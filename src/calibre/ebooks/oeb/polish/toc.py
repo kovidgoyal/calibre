@@ -658,12 +658,17 @@ def ensure_single_nav_of_type(root, ntype='toc'):
 def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
     from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
     tocname = find_existing_nav_toc(container)
+    if previous_nav is not None:
+        nav_name = container.href_to_name(previous_nav[0])
+        if nav_name and container.exists(nav_name):
+            tocname = nav_name
+            container.apply_unique_properties(tocname, 'nav')
     if tocname is None:
         item = container.generate_item('nav.xhtml', id_prefix='nav')
         item.set('properties', 'nav')
         tocname = container.href_to_name(item.get('href'), base=container.opf_name)
         if previous_nav is not None:
-            root = previous_nav
+            root = previous_nav[1]
         else:
             root = container.parse_xhtml(P('templates/new_nav.html', data=True).decode('utf-8'))
         container.replace(tocname, root)
