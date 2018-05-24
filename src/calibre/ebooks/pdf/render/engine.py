@@ -246,9 +246,12 @@ class PdfEngine(QPaintEngine):
                 text_item.font().family(), e))
         glyph_map = self.qt_hack.get_glyph_map(text_item)
         gm = {}
+        ans.ignore_glyphs = set()
         for uc, glyph_id in enumerate(glyph_map):
             if glyph_id not in gm:
                 gm[glyph_id] = unichr(uc)
+                if uc in (0xad, 0x200b):
+                    ans.ignore_glyphs.add(glyph_id)
         ans.full_glyph_map = gm
         return ans
 
@@ -273,20 +276,25 @@ class PdfEngine(QPaintEngine):
             except UnsupportedFont:
                 self.debug('Failed to load font: %s, drawing text as outlines...' % names)
                 return super(PdfEngine, self).drawTextItem(point, text_item)
-        for glyph_id in gi.indices:
+        indices, positions = [], []
+        ignore_glyphs = metrics.ignore_glyphs
+        for glyph_id, gpos in zip(gi.indices, gi.positions):
+            if glyph_id not in ignore_glyphs:
+                indices.append(glyph_id), positions.append(gpos)
+        for glyph_id in indices:
             try:
                 metrics.glyph_map[glyph_id] = metrics.full_glyph_map[glyph_id]
             except (KeyError, ValueError):
                 pass
         glyphs = []
         last_x = last_y = 0
-        for glyph_index, (x, y) in zip(gi.indices, gi.positions):
+        for glyph_index, (x, y) in zip(indices, positions):
             glyphs.append((x-last_x, last_y - y, glyph_index))
             last_x, last_y = x, y
 
         if not self.content_written_to_current_page:
             dy = self.graphics.current_state.transform.dy()
-            ypositions = [y + dy for x, y in gi.positions]
+            ypositions = [y + dy for x, y in positions]
             miny = min(ypositions or (0,))
             maxy = max(ypositions or (self.pixel_height,))
             page_top = self.header_height if self.has_headers else 0
