@@ -24,7 +24,7 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, [
-            'use_profile_size', 'paper_size', 'custom_size',
+            'use_profile_size', 'paper_size', 'custom_size', 'pdf_hyphenate',
             'preserve_cover_aspect_ratio', 'pdf_serif_family', 'unit',
             'pdf_sans_family', 'pdf_mono_family', 'pdf_standard_font',
             'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',

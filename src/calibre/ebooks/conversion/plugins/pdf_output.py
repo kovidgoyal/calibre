@@ -94,6 +94,8 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
+        OptionRecommendation(name='pdf_hyphenate', recommended_value=False,
+            help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
         OptionRecommendation(name='uncompressed_pdf',
@@ -184,8 +186,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def get_cover_data(self):
         oeb = self.oeb
-        if (oeb.metadata.cover and
-                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
+        if (oeb.metadata.cover and unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
             cover_id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
             self.cover_data = item.data

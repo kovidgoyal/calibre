@@ -91,14 +91,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="7" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_pdf_add_toc">
      <property name="text">
       <string>Add a printable &amp;Table of Contents at the end</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label_14">
      <property name="text">
       <string>&amp;Title for ToC:</string>
@@ -108,10 +108,10 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QLineEdit" name="opt_toc_title"/>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Serif famil&amp;y:</string>
@@ -121,10 +121,10 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="10" column="1">
     <widget class="QFontComboBox" name="opt_pdf_serif_family"/>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Sans fami&amp;ly:</string>
@@ -134,10 +134,10 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="11" column="1">
     <widget class="QFontComboBox" name="opt_pdf_sans_family"/>
    </item>
-   <item row="11" column="0">
+   <item row="12" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>&amp;Monospace family:</string>
@@ -147,10 +147,10 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
+   <item row="12" column="1">
     <widget class="QFontComboBox" name="opt_pdf_mono_family"/>
    </item>
-   <item row="12" column="0">
+   <item row="13" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>S&amp;tandard font:</string>
@@ -160,10 +160,10 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
+   <item row="13" column="1">
     <widget class="QComboBox" name="opt_pdf_standard_font"/>
    </item>
-   <item row="13" column="0">
+   <item row="14" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>Default font si&amp;ze:</string>
@@ -173,14 +173,14 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="1">
+   <item row="14" column="1">
     <widget class="QSpinBox" name="opt_pdf_default_font_size">
      <property name="suffix">
       <string> px</string>
      </property>
     </widget>
    </item>
-   <item row="14" column="0">
+   <item row="15" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
       <string>Monospace &amp;font size:</string>
@@ -190,21 +190,21 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="1">
+   <item row="15" column="1">
     <widget class="QSpinBox" name="opt_pdf_mono_font_size">
      <property name="suffix">
       <string> px</string>
      </property>
     </widget>
    </item>
-   <item row="15" column="0" colspan="2">
+   <item row="16" column="0" colspan="2">
     <widget class="QGroupBox" name="page_margins_box">
      <property name="title">
       <string>Page  margins</string>
      </property>
     </widget>
    </item>
-   <item row="16" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <widget class="QGroupBox" name="template_box">
      <property name="title">
       <string>Page headers and footers</string>
@@ -250,6 +250,13 @@
        <widget class="QLineEdit" name="opt_pdf_footer_template"/>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_pdf_hyphenate">
+     <property name="text">
+      <string>&amp;Break long words at the end of lines</string>
+     </property>
     </widget>
    </item>
   </layout>
