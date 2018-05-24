@@ -54,11 +54,7 @@ class Font(FontMetrics):
 class PdfEngine(QPaintEngine):
 
     FEATURES = QPaintEngine.AllFeatures & ~(
-        QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform |
-        QPaintEngine.ObjectBoundingModeGradients |
-        QPaintEngine.RadialGradientFill |
-        QPaintEngine.ConicalGradientFill
-    )
+        QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform | QPaintEngine.ObjectBoundingModeGradients | QPaintEngine.RadialGradientFill | QPaintEngine.ConicalGradientFill)  # noqa
 
     def __init__(self, file_object, page_width, page_height, left_margin,
                  top_margin, right_margin, bottom_margin, width, height,
@@ -79,10 +75,8 @@ class PdfEngine(QPaintEngine):
         # x-axis.
         dy = self.page_height - self.top_margin
         dx = self.left_margin
-        sx =  (self.page_width - self.left_margin -
-                            self.right_margin) / self.pixel_width
-        sy =  (self.page_height - self.top_margin -
-                            self.bottom_margin) / self.pixel_height
+        sx =  (self.page_width - self.left_margin - self.right_margin) / self.pixel_width
+        sy =  (self.page_height - self.top_margin - self.bottom_margin) / self.pixel_height
 
         self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
         self.graphics = Graphics(self.pixel_width, self.pixel_height)
