@@ -82,10 +82,12 @@ class NewYorkTimes(BasicNewsRecipe):
 
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
+        dict(attrs={'aria-hidden':'true'}),
         dict(attrs={'data-videoid':True}),
         dict(name='button meta link'.split()),
         dict(id=lambda x: x and x.startswith('story-ad-')),
         dict(name='head'),
+        dict(role='toolbar'),
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
@@ -106,19 +108,13 @@ class NewYorkTimes(BasicNewsRecipe):
             ]
         else:
             keep_only_tags = [
-                dict(id='story')
+                dict(id='story'),
             ]
         body = Tag(soup, 'body')
         for spec in keep_only_tags:
             for tag in soup.find('body').findAll(**spec):
                 body.insert(len(body.contents), tag)
         soup.find('body').replaceWith(body)
-
-        # Remove the header bar with New York Times as an SVG in it
-        for svg in soup.findAll('svg'):
-            h = svg.findParent('header')
-            if h is not None:
-                h.extract()
 
         # Add a space to the dateline
         t = soup.find(**classes('dateline'))
