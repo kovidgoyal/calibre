@@ -289,7 +289,7 @@ class EPUBInput(InputFormatPlugin):
 
         epub3_nav = opf.epub3_nav
         if epub3_nav is not None:
-            self.convert_epub3_nav(epub3_nav, opf, log)
+            self.convert_epub3_nav(epub3_nav, opf, log, options)
 
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
@@ -346,11 +346,11 @@ class EPUBInput(InputFormatPlugin):
 
         return os.path.abspath(u'content.opf')
 
-    def convert_epub3_nav(self, nav_path, opf, log):
+    def convert_epub3_nav(self, nav_path, opf, log, opts):
         from lxml import etree
         from calibre.ebooks.chardet import xml_to_unicode
         from calibre.ebooks.oeb.polish.parsing import parse
-        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX
+        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize
         from calibre.ebooks.oeb.polish.toc import first_child
         from tempfile import NamedTemporaryFile
         with lopen(nav_path, 'rb') as f:
@@ -401,6 +401,9 @@ class EPUBInput(InputFormatPlugin):
         ncx_id = opf.add_path_to_manifest(f.name, NCX_MIME)
         for spine in opf.root.xpath('//*[local-name()="spine"]'):
             spine.set('toc', ncx_id)
+        href = os.path.relpath(nav_path).replace(os.sep, '/')
+        opts.epub3_nav_href = urlnormalize(href)
+        opts.epub3_nav_parsed = root
 
     def postprocess_book(self, oeb, opts, log):
         rc = getattr(self, 'removed_cover', None)

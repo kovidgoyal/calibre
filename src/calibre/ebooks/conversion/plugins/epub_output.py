@@ -295,7 +295,8 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.polish.container import EpubContainer
         container = EpubContainer(tdir, self.log)
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
-        epub_2_to_3(container, self.log.info)
+        existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
+        epub_2_to_3(container, self.log.info, previous_nav=existing_nav)
         container.commit()
         os.remove(f.name)
         try:

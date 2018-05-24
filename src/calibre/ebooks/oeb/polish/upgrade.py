@@ -100,7 +100,7 @@ guide_epubtype_map = {
 }
 
 
-def create_nav(container, toc, landmarks):
+def create_nav(container, toc, landmarks, previous_nav=None):
     lang = get_book_language(container)
     if lang == 'und':
         lang = None
@@ -109,10 +109,10 @@ def create_nav(container, toc, landmarks):
             entry['type'] = guide_epubtype_map.get(entry['type'].lower())
             if entry['type'] == 'cover' and container.mime_map.get(entry['dest'], '').lower() in OEB_DOCS:
                 container.apply_unique_properties(entry['dest'], 'calibre:title-page')
-    commit_nav_toc(container, toc, lang=lang, landmarks=landmarks)
+    commit_nav_toc(container, toc, lang=lang, landmarks=landmarks, previous_nav=previous_nav)
 
 
-def epub_2_to_3(container, report):
+def epub_2_to_3(container, report, previous_nav=None):
     upgrade_metadata(container.opf)
     collect_properties(container)
     toc = get_toc(container)
@@ -123,7 +123,7 @@ def epub_2_to_3(container, report):
     landmarks = get_landmarks(container)
     for guide in container.opf_xpath('./opf:guide'):
         guide.getparent().remove(guide)
-    create_nav(container, toc, landmarks)
+    create_nav(container, toc, landmarks, previous_nav)
     container.opf.set('version', '3.0')
     fix_font_mime_types(container)
     container.dirty(container.opf_name)
