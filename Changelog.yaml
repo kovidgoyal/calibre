@@ -20,6 +20,82 @@
 #   new recipes:
 #     - title:
 
+- version: 3.24.0
+  date: 2018-05-25
+
+  new features:
+    - title: "Conversion: EPUB Output: Add an option to output EPUB 3 files."
+      type: major
+
+    - title: "PDF Output: Add an option to break long words at the ends of lines."
+      tickets: [1773111]
+
+    - title: "PDF Output: Allow using images in the header/footer templates"
+
+    - title: "Add an option to use two lines for the text under the toolbar button in Preferences->Look & feel"
+
+    - title: "Edit book: Spell check: Update the number of misspelled words/total words displayed when correcting/ignoring words."
+      tickets: [1772276]
+
+    - title: "Edit book: Fix HTML: Automatically resolve private entities"
+      tickets: [1772157]
+
+    - title: "Improve formatting of help in Preferences->Tweaks"
+
+    - title: "ToC Editor: Allow undo for renaming single items as well."
+      tickets: [1769442]
+
+  bug fixes:
+    - title: "PDF Output: Strip zero-width space characters from the text as their presence prevents searching from working"
+
+    - title: "DOCX Output: Fix <pre> tags not being converted correctly."
+      tickets: [1772219]
+
+    - title: "DOCX Input: Fix incorrect conversion of a framed block that contains a list."
+      tickets: [1771279]
+
+    - title: "Conversion: Fix private entities that use the same name as an HTML entity not being handled correctly"
+      tickets: [1772157]
+
+    - title: "Viewer: Fix HTML files with private entities displaying an artifact at the top"
+      tickets: [1772157]
+
+    - title: "Edit book: Check book: Show an error for HTML files with private entities"
+      tickets: [1772157]
+
+    - title: "EPUB3 Input: Fix titlepage being referred to in the nav causing two titlepage entries in the final book."
+
+    - title: "Fix throbber buttons not being perfectly aligned inside toolbars"
+
+    - title: "Quickview: Fix sizes not being displayed."
+      tickets: [1772151]
+
+    - title: "Edit book: Compress images tool: Do not mark the book as changed if no images could be further compressed."
+
+    - title: "Book list split-view: Fix horizontal scroll position of split view can change when changing the current column in one view."
+
+    - title: "Fix Bookeen Saga not being recognized on macOS/Linux."
+      tickets: [1769681]
+
+    - title: "Edit metadata dialog: Fix undo last trim not working for automatic trims."
+      tickets: [1769606]
+
+    - title: "Content server: Fix series field blank in Italian translation"
+
+    - title: "BeautifulSoup: Port fix from upstream for outputting bare ampersands in strings."
+      tickets: [1769481]
+
+    - title: "calibredb add: Run the input plugins before reading metadata instead of after."
+
+  improved recipes:
+    - The New York Times Book Review
+    - New York Times
+    - Le Devoir
+
+  new recipes:
+    - title: The Federalist
+      author: Kovid Goyal
+
 - version: 3.23.0
   date: 2018-05-04
 
