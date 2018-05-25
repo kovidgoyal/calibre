@@ -476,15 +476,12 @@ class CatalogPlugin(Plugin):  # {{{
 
     type = _('Catalog generator')
 
-    #: CLI parser options specific to this plugin, declared as namedtuple Option::
+    #: CLI parser options specific to this plugin, declared as namedtuple Option:
     #:
     #:   from collections import namedtuple
     #:   Option = namedtuple('Option', 'option, default, dest, help')
-    #:   cli_options = [Option('--catalog-title',
-    #:                       default = 'My Catalog',
-    #:                       dest = 'catalog_title',
-    #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
-    #:                       '%default' + "'"))]
+    #:   cli_options = [Option('--catalog-title', default = 'My Catalog',
+    #:   dest = 'catalog_title', help = (_('Title of generated catalog. \nDefault:') + " '" + '%default' + "'"))]
     #:   cli_options parsed in calibre.db.cli.cmd_catalog:option_parser()
     #:
     cli_options = []
