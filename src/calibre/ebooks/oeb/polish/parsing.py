@@ -52,7 +52,7 @@ def handle_private_entities(data):
         idx = data.find('<HTML')
     if idx > -1:
         pre = data[:idx]
-        data = data[idx:]
+        num_of_nl_in_pre = pre.count('\n')
         if '<!DOCTYPE' in pre:  # Handle user defined entities
             user_entities = {}
             for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
@@ -61,6 +61,7 @@ def handle_private_entities(data):
                     val = val[1:-1]
                 user_entities[match.group(1)] = val
             if user_entities:
+                data = ('\n' * num_of_nl_in_pre) + data[idx:]
                 pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
     return data
