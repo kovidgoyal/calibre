@@ -185,9 +185,6 @@ class ANDROID(USBMS):
             # Xperia
             0x13d3 : {0x3304 : [0x0001, 0x0002]},
 
-            # CREEL?? Also Nextbook and Wayteq
-            0x5e3 : {0x726 : [0x222]},
-
             # ZTE
             0x19d2 : {0x1353 : [0x226], 0x1351 : [0x227]},
 
@@ -435,10 +432,6 @@ class WEBOS(USBMS):
         cover2.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with lopen(os.path.join(path, 'coverCache', filename +
-            '-small.jpg'), 'wb') as coverfile:
+        with lopen(os.path.join(path, 'coverCache', filename + '-small.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)
-
-
-
