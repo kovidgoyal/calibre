@@ -399,7 +399,8 @@ class EPUBInput(InputFormatPlugin):
 
         with NamedTemporaryFile(suffix='.ncx', dir=os.path.dirname(nav_path), delete=False) as f:
             f.write(etree.tostring(ncx, encoding='utf-8'))
-        ncx_id = opf.add_path_to_manifest(f.name, NCX_MIME)
+        ncx_href = os.path.relpath(f.name, os.getcwdu()).replace(os.sep, '/')
+        ncx_id = opf.create_manifest_item(ncx_href, NCX_MIME, append=True).get('id')
         for spine in opf.root.xpath('//*[local-name()="spine"]'):
             spine.set('toc', ncx_id)
         opts.epub3_nav_href = urlnormalize(os.path.relpath(nav_path).replace(os.sep, '/'))

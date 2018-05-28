@@ -533,16 +533,16 @@ class OPF(object):  # {{{
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
-    isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+    isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
     pubdate_path    = XPath('descendant::*[re:match(name(), "date", "i")]')
-    raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and ' +
+    raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and '
             're:match(@name, "cover", "i") and @content]')
     guide_cover_path = XPath('descendant::*[local-name()="guide"]/*[local-name()="reference" and re:match(@type, "cover", "i")]/@href')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
-    application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+    application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
-    uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+    uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '
                             '(re:match(@opf:scheme, "uuid", "i") or re:match(@scheme, "uuid", "i"))]')
     languages_path  = XPath('descendant::*[local-name()="language"]')
 
@@ -705,7 +705,7 @@ class OPF(object):  # {{{
     def itermanifest(self):
         return self.manifest_path(self.root)
 
-    def create_manifest_item(self, href, media_type):
+    def create_manifest_item(self, href, media_type, append=False):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
         for c in xrange(1, sys.maxint):
@@ -717,6 +717,9 @@ class OPF(object):  # {{{
         ans = etree.Element('{%s}item'%self.NAMESPACES['opf'],
                              attrib={'id':id, 'href':href, 'media-type':media_type})
         ans.tail = '\n\t\t'
+        if append:
+            manifest = self.manifest_ppath(self.root)[0]
+            manifest.append(ans)
         return ans
 
     def replace_manifest_item(self, item, items):
@@ -727,19 +730,6 @@ class OPF(object):  # {{{
         index = manifest.index(item)
         manifest[index:index+1] = items
         return [i.get('id') for i in items]
-
-    def add_path_to_manifest(self, path, media_type):
-        path = os.path.abspath(path)
-        for i in self.itermanifest():
-            xpath = os.path.join(self.base_dir, *(i.get('href', '').split('/')))
-            if os.path.abspath(xpath) == path:
-                return i.get('id')
-        href = os.path.relpath(path, self.base_dir).replace(os.sep, '/')
-        item = self.create_manifest_item(href, media_type)
-        manifest = self.manifest_ppath(self.root)[0]
-        manifest.append(item)
-        self.manifest.append_from_opf_manifest_item(item, self.basedir)
-        return item.get('id')
 
     def iterspine(self):
         return self.spine_path(self.root)
