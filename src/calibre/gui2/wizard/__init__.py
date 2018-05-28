@@ -726,8 +726,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
         if x:
-            if (iswindows and len(x) >
-                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
+            if (iswindows and len(x) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
                 return error_dialog(self, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%(LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT),
@@ -852,7 +851,7 @@ class Wizard(QWizard):
 
     def __init__(self, parent):
         QWizard.__init__(self, parent)
-        self.setWindowTitle(__appname__+' '+_('welcome wizard'))
+        self.setWindowTitle(__appname__+' '+_('Welcome wizard'))
         self.setPixmap(self.LogoPixmap, QIcon(I('library.png')).pixmap(48, 48))
         self.setWizardStyle(self.ModernStyle)
         self.device_page = DevicePage()

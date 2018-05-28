@@ -239,7 +239,7 @@ class Preferences(QDialog):
         self.bb.button(self.bb.Discard).clicked.connect(self.reject)
         self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
-        self.wizard_button = self.bb.addButton(_('Run welcome &wizard'), self.bb.ActionRole)
+        self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
@@ -311,8 +311,7 @@ class Preferences(QDialog):
         self.scroll_area.setWidget(self.showing_widget)
         self.stack.setCurrentIndex(1)
         self.showing_widget.show()
-        self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' +
-                plugin.gui_name)
+        self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' + plugin.gui_name)
         self.showing_widget.restart_now.connect(self.restart_now)
         self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))
