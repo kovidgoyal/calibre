@@ -1334,7 +1334,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 8, 10956)
+    max_supported_fwversion         = (4, 8, 11073)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1344,8 +1344,8 @@ class KOBOTOUCH(KOBO):
     min_reviews_fwversion           = (3, 12, 0)
     min_glohd_fwversion             = (3, 14, 0)
     min_auraone_fwversion           = (3, 20,  7280)
-    # min_clarahd_fwversion           = (4,  8, 10956) # It is coming, this is probably the firmware, but I don't have any ids for it.
     min_fwversion_overdrive         = (4,  0,  7523)
+    min_clarahd_fwversion           = (4,  8, 11090)
 
     has_kepubs = True
 
@@ -1370,6 +1370,7 @@ class KOBOTOUCH(KOBO):
     AURA_H2O_PRODUCT_ID = [0x4213]
     AURA_H2O_EDITION2_PRODUCT_ID = [0x4227]
     AURA_ONE_PRODUCT_ID = [0x4225]
+    CLARA_HD_PRODUCT_ID = [0x4228]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
@@ -1379,7 +1380,7 @@ class KOBOTOUCH(KOBO):
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401]
 
@@ -1409,6 +1410,7 @@ class KOBOTOUCH(KOBO):
                           # Used for Details screen from FW2.8.1
                           ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],
                           }
+    # Glo HD and Clara HD share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
@@ -1579,7 +1581,7 @@ class KOBOTOUCH(KOBO):
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
                 lpath = lpath.replace('\\', '/')
-                # debug_print("LPATH: ", lpath, "  - Title:  " , title)
+#                 debug_print("KoboTouch:update_booklist - LPATH: ", lpath, "  - Title:  " , title)
 
                 playlist_map = {}
 
@@ -3000,6 +3002,9 @@ class KOBOTOUCH(KOBO):
     def isAuraOne(self):
         return self.detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
 
+    def isClaraHD(self):
+        return self.detected_device.idProduct in self.CLARA_HD_PRODUCT_ID
+
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
 
@@ -3028,6 +3033,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraOne():
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
+        elif self.isClaraHD():
+            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isGlo():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isGloHD():
@@ -3057,6 +3064,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Aura H2O Edition 2'
         elif self.isAuraOne():
             device_name = 'Kobo Aura ONE'
+        elif self.isClaraHD():
+            device_name = 'Clara HD'
         elif self.isGlo():
             device_name = 'Kobo Glo'
         elif self.isGloHD():
