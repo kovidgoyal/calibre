@@ -120,6 +120,11 @@ class NewYorkTimes(BasicNewsRecipe):
         t = soup.find(**classes('dateline'))
         if t is not None:
             t.insert(0, ' ')
+
+        # Remove empty li tags
+        for li in soup.findAll('li', attrs={'class': lambda x: x and x.startswith('css-')}):
+            if not li.contents and not li.string:
+                li.extract()
         return soup
 
     def read_nyt_metadata(self):
