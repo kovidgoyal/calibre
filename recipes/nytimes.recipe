@@ -12,7 +12,7 @@ from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
-is_web_edition = True
+is_web_edition = False
 oldest_web_edition_article = 7  # days
 
 # The sections to download when downloading the web edition, comment out
@@ -78,7 +78,8 @@ class NewYorkTimes(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     compress_news_images = True
-    compress_news_images_auto_size = 5
+    compress_news_images_max_size = 50 #limits pictures to 50kb
+    preprocess_regexps = [(re.compile(r'<li class="css.*?>(.*?)</li>', re.IGNORECASE), lambda match: match.group(1)) ]
 
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
