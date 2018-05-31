@@ -160,7 +160,7 @@ class ToolBar(QToolBar):  # {{{
             p = gprefs['toolbar_text']
             if p == 'never':
                 style = Qt.ToolButtonIconOnly
-            elif p == 'auto' and self.preferred_width > self.width()+35:
+            elif p == 'auto' and self.preferred_width > self.width()+15:
                 style = Qt.ToolButtonIconOnly
         return style
 
@@ -211,9 +211,9 @@ class ToolBar(QToolBar):  # {{{
                 self.addAction(action.qaction)
                 self.added_actions.append(action.qaction)
                 self.setup_tool_button(self, action.qaction, action.popup_type)
-        self.preferred_width = self.sizeHint().width()
         if gprefs['wrap_toolbar_text']:
             wrap_all_button_texts(self.all_widgets)
+        self.preferred_width = self.sizeHint().width()
         self.all_widgets = []
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
