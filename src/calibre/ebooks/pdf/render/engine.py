@@ -67,18 +67,7 @@ class PdfEngine(QPaintEngine):
         self.left_margin, self.top_margin = left_margin, top_margin
         self.right_margin, self.bottom_margin = right_margin, bottom_margin
         self.pixel_width, self.pixel_height = width, height
-        # Setup a co-ordinate transform that allows us to use co-ords
-        # from Qt's pixel based co-ordinate system with its origin at the top
-        # left corner. PDF's co-ordinate system is based on pts and has its
-        # origin in the bottom left corner. We also have to implement the page
-        # margins. Therefore, we need to translate, scale and reflect about the
-        # x-axis.
-        dy = self.page_height - self.top_margin
-        dx = self.left_margin
-        sx =  (self.page_width - self.left_margin - self.right_margin) / self.pixel_width
-        sy =  (self.page_height - self.top_margin - self.bottom_margin) / self.pixel_height
-
-        self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
+        self.pdf_system = self.create_transform()
         self.graphics = Graphics(self.pixel_width, self.pixel_height)
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
@@ -95,6 +84,23 @@ class PdfEngine(QPaintEngine):
         if err:
             raise RuntimeError('Failed to load qt_hack with err: %s'%err)
 
+    def create_transform(self, left_margin=None, top_margin=None, right_margin=None, bottom_margin=None):
+        # Setup a co-ordinate transform that allows us to use co-ords
+        # from Qt's pixel based co-ordinate system with its origin at the top
+        # left corner. PDF's co-ordinate system is based on pts and has its
+        # origin in the bottom left corner. We also have to implement the page
+        # margins. Therefore, we need to translate, scale and reflect about the
+        # x-axis.
+        left_margin = self.left_margin if left_margin is None else left_margin
+        top_margin = self.top_margin if top_margin is None else top_margin
+        right_margin = self.right_margin if right_margin is None else right_margin
+        bottom_margin = self.bottom_margin if bottom_margin is None else bottom_margin
+        dy = self.page_height - top_margin
+        dx = left_margin
+        sx =  (self.page_width - left_margin - right_margin) / self.pixel_width
+        sy =  (self.page_height - top_margin - bottom_margin) / self.pixel_height
+        return QTransform(sx, 0, 0, -sy, dx, dy)
+
     def apply_graphics_state(self):
         self.graphics(self.pdf_system, self.painter())
 
@@ -110,9 +116,12 @@ class PdfEngine(QPaintEngine):
     def do_stroke(self):
         return self.graphics.current_state.do_stroke
 
-    def init_page(self):
+    def init_page(self, custom_margins=None):
         self.content_written_to_current_page = False
-        self.pdf.transform(self.pdf_system)
+        if custom_margins is None:
+            self.pdf.transform(self.pdf_system)
+        else:
+            self.pdf.transform(self.create_transform(*custom_margins))
         self.pdf.apply_fill(color=(1, 1, 1))  # QPainter has a default background brush of white
         self.graphics.reset()
         self.pdf.save_stack()
@@ -391,8 +400,8 @@ class PdfDevice(QPaintDevice):  # {{{
     def end_page(self, *args, **kwargs):
         self.engine.end_page(*args, **kwargs)
 
-    def init_page(self):
-        self.engine.init_page()
+    def init_page(self, custom_margins=None):
+        self.engine.init_page(custom_margins=custom_margins)
 
     @property
     def full_page_rect(self):
@@ -413,6 +422,10 @@ class PdfDevice(QPaintDevice):  # {{{
     def to_px(self, pt, vertical=True):
         return pt * (self.height()/self.page_height if vertical else
                      self.width()/self.page_width)
+
+    def to_pt(self, px, vertical=True):
+        return px * (self.page_height / self.height() if vertical else
+                self.page_width / self.width())
 
     def set_metadata(self, *args, **kwargs):
         self.engine.set_metadata(*args, **kwargs)

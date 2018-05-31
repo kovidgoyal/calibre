@@ -5,7 +5,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QHBoxLayout, QFormLayout, QDoubleSpinBox
+from PyQt5.Qt import QHBoxLayout, QFormLayout, QDoubleSpinBox, QCheckBox, QVBoxLayout
 
 from calibre.gui2.convert.pdf_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -30,6 +30,7 @@ class PluginWidget(Widget, Ui_Form):
             'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
             'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc', 'toc_title',
             'pdf_page_margin_left', 'pdf_page_margin_top', 'pdf_page_margin_right', 'pdf_page_margin_bottom',
+            'pdf_use_document_margins',
         ])
         self.db, self.book_id = db, book_id
         try:
@@ -48,13 +49,24 @@ class PluginWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.layout().setFieldGrowthPolicy(self.layout().ExpandingFieldsGrow)
         self.template_box.layout().setFieldGrowthPolicy(self.layout().AllNonFixedFieldsGrow)
+        self.toggle_margins()
+
+    def toggle_margins(self):
+        enabled = not self.opt_pdf_use_document_margins.isChecked()
+        for which in 'left top right bottom'.split():
+            getattr(self, 'opt_pdf_page_margin_' + which).setEnabled(enabled)
 
     def setupUi(self, *a):
         Ui_Form.setupUi(self, *a)
-        h = self.page_margins_box.h = QHBoxLayout(self.page_margins_box)
+        v = self.page_margins_box.v = QVBoxLayout(self.page_margins_box)
+        self.opt_pdf_use_document_margins = c = QCheckBox(_('Use page margins from the &document being converted'))
+        v.addWidget(c)
+        c.stateChanged.connect(self.toggle_margins)
+        h = self.page_margins_box.h = QHBoxLayout()
         l = self.page_margins_box.l = QFormLayout()
         r = self.page_margins_box.r = QFormLayout()
         h.addLayout(l), h.addLayout(r)
+        v.addLayout(h)
 
         def margin(which):
             w = QDoubleSpinBox(self)

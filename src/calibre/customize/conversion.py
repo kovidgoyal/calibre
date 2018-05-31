@@ -80,9 +80,8 @@ class OptionRecommendation(object):
             raise ValueError('OpRec: %s: Recommended value not in choices'%
                              self.option.name)
         if not (isinstance(self.recommended_value, (int, float, str, unicode)) or self.recommended_value is None):
-            raise ValueError('OpRec: %s:'%self.option.name +
-                             repr(self.recommended_value) +
-                             ' is not a string or a number')
+            raise ValueError('OpRec: %s:'%self.option.name + repr(
+                self.recommended_value) + ' is not a string or a number')
 
 
 class DummyReporter(object):
@@ -341,6 +340,13 @@ class OutputFormatPlugin(Plugin):
     def is_periodical(self):
         return self.oeb.metadata.publication_type and \
             unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:')
+
+    def specialize_options(self, log, opts, input_fmt):
+        '''
+        Can be used to change the values of conversion options, as used by the
+        conversion pipeline.
+        '''
+        pass
 
     def specialize_css_for_output(self, log, opts, item, stylizer):
         '''

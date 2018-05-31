@@ -1081,6 +1081,7 @@ OptionRecommendation(name='search_replace',
         self.input_plugin.report_progress = ir
         if self.for_regex_wizard:
             self.input_plugin.for_viewer = True
+        self.output_plugin.specialize_options(self.log, self.opts, self.input_fmt)
         with self.input_plugin:
             self.oeb = self.input_plugin(stream, self.opts,
                                         self.input_fmt, self.log,

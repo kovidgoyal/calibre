@@ -15,6 +15,7 @@ import cssutils
 from cssutils.css import Property
 
 from calibre import guess_type
+from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -217,6 +218,19 @@ class CSSFlattener(object):
         self.flatten_spine()
         if epub3_nav is not None:
             self.opts.epub3_nav_parsed = epub3_nav.data
+
+        self.store_page_margins()
+
+    def store_page_margins(self):
+        self.opts._stored_page_margins = {}
+        for item, stylizer in self.stylizers.iteritems():
+            margins = self.opts._stored_page_margins[item.href] = {}
+            for prop, val in stylizer.page_rule.items():
+                p, w = prop.partition('-')[::2]
+                if p == 'margin':
+                    margins[w] = unit_convert(
+                            val, stylizer.profile.width_pts, stylizer.body_font_size,
+                            stylizer.profile.dpi, body_font_size=stylizer.body_font_size)
 
     def get_embed_font_info(self, family, failure_critical=True):
         efi = []

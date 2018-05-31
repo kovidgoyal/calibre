@@ -365,6 +365,19 @@ class PDFWriter(QObject):
         ''' % self.hyphenate_lang
         )
 
+    def convert_page_margins(self, doc_margins):
+        ans = [0, 0, 0, 0]
+
+        def convert(name, idx, vertical=True):
+            m = doc_margins.get(name)
+            if m is None:
+                ans[idx] = getattr(self.doc.engine, '{}_margin'.format(name))
+            else:
+                ans[idx] = m
+
+        convert('left', 0, False), convert('top', 1), convert('right', 2, False), convert('bottom', 3)
+        return ans
+
     def do_paged_render(self):
         if self.paged_js is None:
             import uuid
@@ -387,6 +400,20 @@ class PDFWriter(QObject):
         if self.opts.pdf_hyphenate:
             self.hyphenate(evaljs)
 
+        margin_top, margin_bottom = self.margin_top, self.margin_bottom
+        page_margins = None
+        if self.opts.pdf_use_document_margins:
+            doc_margins = evaljs('document.documentElement.getAttribute("data-calibre-pdf-output-page-margins")')
+            try:
+                doc_margins = json.loads(doc_margins)
+            except Exception:
+                doc_margins = None
+            if doc_margins and isinstance(doc_margins, dict):
+                doc_margins = {k:float(v) for k, v in doc_margins.iteritems() if isinstance(v, (float, int)) and k in {'right', 'top', 'left', 'bottom'}}
+                if doc_margins:
+                    margin_top = margin_bottom = 0
+                    page_margins = self.convert_page_margins(doc_margins)
+
         amap = json.loads(evaljs('''
         document.body.style.backgroundColor = "white";
         paged_display.set_geometry(1, %d, %d, %d);
@@ -395,7 +422,7 @@ class PDFWriter(QObject):
         ret = book_indexing.all_links_and_anchors();
         window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
         JSON.stringify(ret);
-        '''%(self.margin_top, 0, self.margin_bottom)))
+        '''%(margin_top, 0, margin_bottom)))
 
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
@@ -429,7 +456,7 @@ class PDFWriter(QObject):
         while True:
             set_section(col, sections, 'current_section')
             set_section(col, tl_sections, 'current_tl_section')
-            self.doc.init_page()
+            self.doc.init_page(page_margins)
             if self.header or self.footer:
                 if evaljs('paged_display.update_header_footer(%d)'%self.current_page_num) is True:
                     self.load_header_footer_images()
