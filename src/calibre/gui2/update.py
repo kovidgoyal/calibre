@@ -151,6 +151,12 @@ class UpdateNotification(QDialog):
         d = PluginUpdaterDialog(self.parent(),
                 initial_filter=FILTER_UPDATE_AVAILABLE)
         d.exec_()
+        if d.do_restart:
+            QDialog.accept(self)
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            if gui is not None:
+                gui.quit(restart=True)
 
     def show_future(self, *args):
         config.set('new_version_notification', bool(self.cb.isChecked()))
@@ -202,8 +208,8 @@ class UpdateMixin(object):
         self.status_bar.update_label.setVisible(True)
 
         if has_calibre_update:
-            if (force or (config.get('new_version_notification') and
-                    dynamic.get('update to version %s'%calibre_version, True))):
+            if (force or (config.get('new_version_notification') and dynamic.get(
+                'update to version %s'%calibre_version, True))):
                 if not no_show_popup:
                     self._update_notification__ = UpdateNotification(calibre_version,
                             number_of_plugin_updates, parent=self)
