@@ -158,9 +158,17 @@ class DoPrint(Thread):
 
 
 def do_print():
+    from calibre.customize.ui import plugin_for_input_format
     data = cPickle.loads(sys.stdin.read())
+    ext = data['input'].lower().rpartition('.')[-1]
+    input_plugin = plugin_for_input_format(ext)
     args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',
-            '--disable-remove-fake-margins', '--disable-font-rescaling', '--page-breaks-before', '/', '--chapter-mark', 'none', '-vv']
+            '--disable-remove-fake-margins', '--chapter-mark', 'none', '-vv']
+    if input_plugin.is_image_collection:
+        args.append('--no-process')
+    else:
+        args.append('--disable-font-rescaling')
+        args.append('--page-breaks-before=/')
     if data['page_numbers']:
         args.append('--pdf-page-numbers')
     for edge in 'left top right bottom'.split():
