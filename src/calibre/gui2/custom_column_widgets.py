@@ -712,6 +712,21 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         for c in range(0, len(w.widgets), 2):
             if not is_comments:
                 w.widgets[c].setWordWrap(True)
+                '''
+                It seems that there is something strange with wordwrapped labels
+                with some fonts. Apparently one part of QT thinks it is showing
+                a single line and sizes the line vertically accordingly. Another
+                part thinks there isn't enough space and wraps the label. The
+                result is two lines in a single line space, cutting off parts of
+                the lines. It doesn't happen with every font, nor with every
+                "long" label.
+
+                This change works around the problem by setting the maximum
+                display width and telling QT to respect that width.
+
+                While here I implemented an arbitrary minimum label length so
+                that there is a better chance that the field edit boxes line up.
+                '''
                 if minimum_label == 0:
                     minimum_label = w.widgets[c].fontMetrics().boundingRect('smallLabel').width()
                 label_width = w.widgets[c].fontMetrics().boundingRect(w.widgets[c].text()).width()
