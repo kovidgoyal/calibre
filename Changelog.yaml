@@ -20,6 +20,33 @@
 #   new recipes:
 #     - title:
 
+- version: 3.25.0
+  date: 2018-06-01
+
+  new features:
+    - title: "Kobo driver: Support the new Clara HD"
+
+    - title: "PDF Output: Add an option to use page margins from the input document, specified via @page CSS rules."
+      description: "Allows individual HTML files in the input document to have different page margins in the output PDF."
+      tickets: [1773319]
+
+  bug fixes:
+    - title: 'Fix option to "show text under buttons only if there is enough space" not working well with the option to use "two lines for the text under the buttons".'
+      tickets: [1773426]
+
+    - title: "Update notification: When both calibre and plugin updates are available and the user updates only the plugins, fix the restart calibre button not working."
+      tickets: [1774059]
+
+    - title: "E-book viewer: Fix printing of comics (cbz/cbr files) not working."
+      tickets: [1774163]
+
+    - title: "EPUB3 Input: Fix Table of Contents not being recognized for some EPUB 3 books that placed their nav document in-side a sub-folder."
+      tickets: [1773627]
+
+  improved recipes:
+    - Associated Press
+
+
 - version: 3.24.2
   date: 2018-05-25
 
