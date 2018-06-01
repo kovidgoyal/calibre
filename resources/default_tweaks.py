@@ -158,14 +158,13 @@ sort_columns_at_startup = None
 #  mm    the minutes with a leading 0 (00 to 59) '
 #  s     the seconds without a leading 0 (0 to 59) '
 #  ss    the seconds with a leading 0 (00 to 59) '
-#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap"
-#        replaced by the localized string for am or pm '
-#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP"
-#        replaced by the localized string for AM or PM '
+#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm
+#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM
 #  iso   the date with time and timezone. Must be the only format present
 #  For example, given the date of 9 Jan 2010, the following formats show
 #  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
 #  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
+#
 # publication default if not set: MMM yyyy
 # timestamp default if not set: dd MMM yyyy
 # last_modified_display_format if not set: dd MMM yyyy
