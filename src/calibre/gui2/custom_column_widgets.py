@@ -676,6 +676,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         turnover_point = count + 1000
     ans = []
     column = row = base_row = max_row = 0
+    minimum_label = 0
     for key in cols:
         if not fm[key]['is_editable']:
             continue  # this almost never happens
@@ -711,10 +712,18 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         for c in range(0, len(w.widgets), 2):
             if not is_comments:
                 w.widgets[c].setWordWrap(True)
+                if minimum_label == 0:
+                    minimum_label = w.widgets[c].fontMetrics().boundingRect('smallLabel').width()
+                label_width = w.widgets[c].fontMetrics().boundingRect(w.widgets[c].text()).width()
+                if c == 0:
+                    w.widgets[0].setMaximumWidth(label_width)
+                    w.widgets[0].setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+                    l.setColumnMinimumWidth(0, minimum_label)
+                else:
+                    w.widgets[0].setMaximumWidth(max(w.widgets[0].maximumWidth(), label_width))
                 w.widgets[c].setBuddy(w.widgets[c+1])
                 l.addWidget(w.widgets[c], c, 0)
                 l.addWidget(w.widgets[c+1], c, 1)
-                l.setColumnStretch(1, 10000)
             else:
                 l.addWidget(w.widgets[0], 0, 0, 1, 2)
         l.addItem(QSpacerItem(0, 0, vPolicy=QSizePolicy.Expanding), c, 0, 1, 1)
