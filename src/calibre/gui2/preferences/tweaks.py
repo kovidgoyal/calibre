@@ -77,8 +77,6 @@ class Tweak(object):  # {{{
         translate = _
         self.name = translate(name)
         self.doc = doc.strip()
-        if self.doc:
-            self.doc = translate(self.doc)
         self.doc = ' ' + self.doc
         self.var_names = var_names
         if self.var_names:
@@ -197,14 +195,22 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
     def read_tweak(self, lines, pos, defaults, custom):
         name = lines[pos][2:].strip()
-        doc, var_names = [], []
+        doc, stripped_doc, leading, var_names = [], [], [], []
         while True:
             pos += 1
             line = lines[pos]
             if not line.startswith('#'):
                 break
-            doc.append(line[1:].rstrip())
-        doc = '\n'.join(doc)
+            line = line[1:]
+            doc.append(line.rstrip())
+            stripped_doc.append(line.strip())
+            leading.append(line[:len(line) - len(line.lstrip())])
+        translate = _
+        stripped_doc = translate('\n'.join(stripped_doc).strip())
+        final_doc = []
+        for prefix, line in zip(leading, stripped_doc.splitlines()):
+            final_doc.append(prefix + line)
+        doc = '\n'.join(final_doc)
         while True:
             try:
                 line = lines[pos]
