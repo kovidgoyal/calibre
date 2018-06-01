@@ -26,6 +26,7 @@ class Cracked(BasicNewsRecipe):
     keep_only_tags = [
                     dict(name='div', attrs={'class': [
                                                 'content-content',
+                                                'contentWrapper',
                                                 'content-header',
                                                         ]}),
                     dict(name='article', attrs={'class': [
@@ -37,7 +38,9 @@ class Cracked(BasicNewsRecipe):
     remove_tags = [
         dict(name='section', attrs={'class': ['socialTools', 'quickFixModule', 'continue-reading']}),
         dict(attrs={'class':['socialShareAfterContent', 'socialShareModule', 'continue-reading', 'social-share-bottom list-inline']}),
-        dict(name='div', attrs={'id': ['relatedArticle']}),
+        dict(name='div', attrs={'id': ['relatedArticle', 'content-card-top', 'recommendedForYourPleasure', 'navbar']}),
+        dict(name='div', attrs={'class': ['comments-wrap', 'container continue-reading', 'row breadcrumbs-wrapper']}),
+        dict(name='h4', attrs={'class': ['mobile-ad-label']}),
         dict(name='ul', attrs={'id': [
                                 'breadcrumbs',
                                 'socialShare',
@@ -53,6 +56,8 @@ class Cracked(BasicNewsRecipe):
             img['src'] = img['data-img']
         for img in soup.findAll('img', attrs={'data-original':True}):
             img['src'] = img['data-original']
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
         return soup
 
     def postprocess_html(self, soup, first_fetch):
