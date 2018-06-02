@@ -5,6 +5,12 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheIndependentNew(BasicNewsRecipe):
 
     title = u'The Independent'
@@ -28,15 +34,11 @@ class TheIndependentNew(BasicNewsRecipe):
     compress_news_images = True
 
     keep_only_tags = [
-        dict(itemprop=['articleBody', 'headline', 'contentUrl']),
-        dict(attrs={'class': ['intro', 'author']}),
+        classes('headline sub-headline breadcrumb author publish-date hero-image body-content'),
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and 'show-all' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'context-sdl_editor_representation' in x.split()}),
-        dict(attrs={'data-scald-gallery': True}),
+        classes('inline-related inline-readmore ad-wrapper icon-gallery i-gallery')
     ]
-
     remove_attributes = ['style']
 
     def get_browser(self, *a, **kw):
@@ -51,6 +53,10 @@ class TheIndependentNew(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
+        for img in soup.findAll('amp-img'):
+            img.name = 'img'
+            img['srcset'] = ''
+
         for div in soup.findAll(attrs={'class': 'full-gallery'}):
             imgs = {}
             for li in div.findAll('li', attrs={'data-gallery-item': True, 'data-original': True}):
