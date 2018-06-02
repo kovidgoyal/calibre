@@ -19,7 +19,7 @@ def classes(classes):
 class NYTimesTechnology(BasicNewsRecipe):
     title = 'New York Times Technology Beat'
     language = 'en'
-    description = 'The latest in technology from David Pogue'
+    description = 'The latest in technology - Gadgetwise'
     publisher = 'The New York Times'
     category = 'Technology'
     oldest_article = 14
@@ -31,9 +31,41 @@ class NYTimesTechnology(BasicNewsRecipe):
              (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
     ]
     keep_only_tags = [
-        dict(name='h1'),
-        classes('extended-byline story-body'),
+        dict(id='story'),
     ]
     remove_tags = [
-        classes('visually-hidden newsletter-signup nocontent robots-nocontent hidden'),
+        dict(attrs={'aria-label':'tools'.split()}),
+        dict(attrs={'aria-label': lambda x: x and 'New York Times Logo' in x}),
+        dict(href='#site-content #site-index'.split()),
+        dict(attrs={'aria-hidden':'true'}),
+        dict(attrs={'data-videoid':True}),
+        dict(name='button meta link'.split()),
+        dict(id=lambda x: x and x.startswith('story-ad-')),
+        dict(name='head'),
+        dict(role='toolbar'),
+        dict(name='a', href=lambda x: x and '#story-continues-' in x),
+        dict(name='a', href=lambda x: x and '#whats-next' in x),
+        dict(id=lambda x: x and 'sharetools-' in x),
+        dict(id='newsletter-promo supported-by-ad bottom-wrapper'.split()),
+        classes('story-print-citation supported-by accessibility-ad-header visually-hidden bottom-of-article ad'),
+        dict(attrs={'class': lambda x: x and (
+            'SectionBar' in x or 'recirculation' in x or 'ResponsiveAd' in x or 'accessibility-visuallyHidden' in x or 'RelatedCoverage' in x)}),
     ]
+
+    def preprocess_html(self, soup):
+        # Add a space to the dateline
+        t = soup.find(**classes('dateline'))
+        if t is not None:
+            t.insert(0, ' ')
+
+        # Remove empty li tags
+        for li in soup.findAll('li', attrs={'class': lambda x: x and x.startswith('css-')}):
+            if not li.contents and not li.string:
+                li.extract()
+
+        # Ensure the headline is first
+        h1 = soup.find('h1', itemprop='headline')
+        if h1 is not None:
+            h1.extract()
+            soup.find('body').contents.insert(0, h1)
+        return soup
