@@ -79,9 +79,12 @@ class NewYorkTimes(BasicNewsRecipe):
     no_stylesheets = True
     compress_news_images = True
     compress_news_images_auto_size = 5
+    remove_attributes = ['style']
 
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
+        dict(attrs={'aria-label': lambda x: x and 'New York Times Logo' in x}),
+        dict(href='#site-content #site-index'.split()),
         dict(attrs={'aria-hidden':'true'}),
         dict(attrs={'data-videoid':True}),
         dict(name='button meta link'.split()),
@@ -125,6 +128,12 @@ class NewYorkTimes(BasicNewsRecipe):
         for li in soup.findAll('li', attrs={'class': lambda x: x and x.startswith('css-')}):
             if not li.contents and not li.string:
                 li.extract()
+
+        # Ensure the headline is first
+        h1 = soup.find('h1', itemprop='headline')
+        if h1 is not None:
+            h1.extract()
+            soup.find('body').contents.insert(0, h1)
         return soup
 
     def read_nyt_metadata(self):
@@ -240,6 +249,9 @@ class NewYorkTimes(BasicNewsRecipe):
         return feeds
 
     def parse_index(self):
+        # return [('All articles', [
+        #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2018/05/31/theater/best-25-plays-how-we-made-the-list.html'},
+        # ])]
         if is_web_edition:
             return self.parse_web_sections()
         return self.parse_todays_page()
