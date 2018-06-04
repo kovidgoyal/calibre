@@ -109,6 +109,9 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(br'<a\s+name=(\d+)', br'<a id="\1"', raw, flags=re.I)
                 raw = re.sub(br'<a id="(\d+)"', br'<a id="p\1"', raw, flags=re.I)
                 raw = re.sub(br'<a href="index.html#(\d+)"', br'<a href="#p\1"', raw, flags=re.I)
+                # pdftohtml adds link and background colors on <body>. The
+                # background color is incorrect
+                raw = re.sub(b'<body .+?>', b'<body>', raw)
 
                 i.write(raw)
 
