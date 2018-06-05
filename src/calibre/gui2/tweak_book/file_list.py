@@ -745,8 +745,11 @@ class FileList(QTreeWidget):
             ok = category in {'text', 'styles'}
             if ok:
                 ans[category][name] = syntax_from_mime(name, mime)
-            if not ok and category == 'misc':
-                ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
+            if not ok:
+                if category == 'misc':
+                    ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
+                elif category == 'images':
+                    ok = mime == guess_type('a.svg')
             if ok:
                 cats = []
                 if item.isSelected():
