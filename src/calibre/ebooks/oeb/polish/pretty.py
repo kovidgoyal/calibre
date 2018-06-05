@@ -89,8 +89,8 @@ def pretty_opf(root):
         for x in reversed(children):
             manifest.insert(0, x)
 
-SVG_TAG = SVG('svg')
 
+SVG_TAG = SVG('svg')
 BLOCK_TAGS = frozenset(map(XHTML, (
     'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'dd',
     'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
@@ -183,8 +183,8 @@ def pretty_html_tree(container, root):
         # Special case the handling of a body that contains a single block tag
         # with all content. In this case we prettify the containing block tag
         # even if it has non block children.
-        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and
-                not has_only_blocks(body[0]) and barename(body[0].tag) not in (
+        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and not has_only_blocks(
+            body[0]) and barename(body[0].tag) not in (
                     'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6') and len(body[0]) > 0):
             pretty_block(body[0], level=2)
 
@@ -232,6 +232,7 @@ def fix_all_html(container):
 
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
+    xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
     for name, mt in container.mime_map.iteritems():
         prettied = False
         if mt in OEB_DOCS:
@@ -245,10 +246,8 @@ def pretty_all(container):
             pretty_opf(root)
             pretty_xml_tree(root)
             prettied = True
-        elif mt in {guess_type('a.ncx'), guess_type('a.xml')}:
+        elif mt in xml_types:
             pretty_xml_tree(container.parsed(name))
             prettied = True
         if prettied:
             container.dirty(name)
-
-
