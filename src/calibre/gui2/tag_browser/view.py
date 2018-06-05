@@ -650,11 +650,12 @@ class TagsView(QTreeView):  # {{{
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
 
-                self.context_menu.addSeparator()
-                self.context_menu.addAction(_('Change category icon'),
-                        partial(self.context_menu_handler, action='set_icon', key=key))
-                self.context_menu.addAction(_('Restore default icon'),
-                        partial(self.context_menu_handler, action='clear_icon', key=key))
+                if tag is None:
+                    self.context_menu.addSeparator()
+                    self.context_menu.addAction(_('Change category icon'),
+                            partial(self.context_menu_handler, action='set_icon', key=key))
+                    self.context_menu.addAction(_('Restore default icon'),
+                            partial(self.context_menu_handler, action='clear_icon', key=key))
 
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
