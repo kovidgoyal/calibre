@@ -1516,7 +1516,8 @@ class Boss(QObject):
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
             actions['fix-html-current'].setEnabled(ed.syntax == 'html')
             name = editor_name(ed)
-            if name is not None and getattr(ed, 'syntax', None) == 'html':
+            mime = current_container().mime_map.get(name)
+            if name is not None and (getattr(ed, 'syntax', None) == 'html' or mime == 'image/svg+xml'):
                 if self.gui.preview.show(name):
                     # The file being displayed by the preview has changed.
                     # Set the preview's position to the current cursor
