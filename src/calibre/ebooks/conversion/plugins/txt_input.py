@@ -66,9 +66,9 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
             help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
                    'of the standard markdown format. The extensions enabled by default: %default.\n'
-                   'To learn more about markdown extensions, see https://pythonhosted.org/Markdown/extensions/index.html\n'
+                   'To learn more about markdown extensions, see {}\n'
                    'This should be a comma separated list of extensions to enable:\n'
-                   ) + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
+                   ).format('https://python-markdown.github.io/extensions/') + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     ])
 
     def shift_file(self, base_dir, fname, data):

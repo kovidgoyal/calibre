@@ -80,6 +80,13 @@ def build_pot(base):
     return base
 
 
+def build_linkcheck(base):
+    cmd = [SPHINX_BUILD, '-b', 'linkcheck', '-t', 'online', '-t', 'linkcheck', '.', base]
+    print (' '.join(cmd))
+    subprocess.check_call(cmd)
+    return base
+
+
 def build_man_pages(language, base):
     os.environ[b'CALIBRE_BUILD_MAN_PAGES'] = b'1'
     sphinx_build(language, base, builder='man', bdir=language, very_quiet=True)
@@ -108,6 +115,8 @@ if __name__ == '__main__':
         language, base = args.language, args.base
         if language == 'gettext':
             build_pot(base)
+        elif language == 'linkcheck':
+            build_linkcheck(base)
         elif args.man_pages:
             os.environ['CALIBRE_OVERRIDE_LANG'] = language
             build_man_pages(language, base)

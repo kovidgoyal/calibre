@@ -40,7 +40,7 @@ and then the :guilabel:`Add a custom news source` menu item and then the
 .. image:: images/custom_news.png
     :align: center
 
-First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds. 
+First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds.
 
 The next two fields (:guilabel:`Oldest article` and :guilabel:`Max. number of articles`) allow you some control over how many articles should be downloaded from each feed, and they are pretty self explanatory.
 
@@ -50,7 +50,7 @@ the :guilabel:`Add feed` button. Once you have added the feed, simply click the
 
 To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`calibre Blog`. After a couple of minutes, the newly downloaded e-book of blog posts will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
 
-The reason this worked so well, with so little effort is that the blog provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to e-books. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article. 
+The reason this worked so well, with so little effort is that the blog provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to e-books. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article.
 
 .. _bbc:
 
@@ -62,7 +62,7 @@ Lets try the following two feeds from *The BBC*:
     #. News Front Page: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
     #. Science/Nature: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml
 
-Follow the procedure outlined in :ref:`calibre_blog` above to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded e-book, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
+Follow the procedure outlined in :ref:`calibre_blog` above to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded e-book, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section.
 
 Customizing the fetch process
 --------------------------------
@@ -83,7 +83,7 @@ The first step is to look at the e-book we downloaded previously from :ref:`bbc`
         https://newsvote.bbc.co.uk/mpapps/pagetools/print/news.bbc.co.uk/2/hi/science/nature/7312016.stm
 
 So it looks like to get the print version, we need to prefix every article URL with:
-    
+
     newsvote.bbc.co.uk/mpapps/pagetools/print/
 
 Now in the :guilabel:`Advanced Mode` of the Custom  news sources dialog, you should see something like (remember to select *The BBC* recipe before switching to advanced mode):
@@ -126,7 +126,7 @@ The new version looks pretty good. If you're a perfectionist, you'll want to rea
 Slicing and dicing
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre contains very powerful and flexible abilities when it comes to manipulating downloaded content. To show off a couple of these, let's look at our old friend the :ref:`The BBC <bbc1>` recipe again. Looking at the source code (:term:`HTML`) of a couple of articles (print version), we see that they have a footer that contains no useful information, contained in 
+calibre contains very powerful and flexible abilities when it comes to manipulating downloaded content. To show off a couple of these, let's look at our old friend the :ref:`The BBC <bbc1>` recipe again. Looking at the source code (:term:`HTML`) of a couple of articles (print version), we see that they have a footer that contains no useful information, contained in
 
 .. code-block:: html
 
@@ -140,7 +140,7 @@ This can be removed by adding::
 
 to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled earlier, with our own :term:`CSS` that is suitable for conversion to an e-book::
 
-    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
+    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 
 With these additions, our recipe has become "production quality", indeed it is very close to the actual recipe used by calibre for the *BBC*, shown below:
 
@@ -161,7 +161,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
    from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
    class NYTimes(BasicNewsRecipe):
-    
+
        title       = 'The New York Times'
        __author__  = 'Kovid Goyal'
        description = 'Daily news from the New York Times'
@@ -169,13 +169,13 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
        needs_subscription = True
        remove_tags_before = dict(id='article')
        remove_tags_after  = dict(id='article')
-       remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}), 
-                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']), 
+       remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}),
+                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']),
                    dict(name=['script', 'noscript', 'style'])]
        encoding = 'cp1252'
        no_stylesheets = True
        extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
-    
+
        def get_browser(self):
            br = BasicNewsRecipe.get_browser()
            if self.username is not None and self.password is not None:
@@ -185,24 +185,24 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                br['PASSWORD'] = self.password
                br.submit()
            return br
-    
+
        def parse_index(self):
            soup = self.index_to_soup('https://www.nytimes.com/pages/todayspaper/index.html')
-        
+
            def feed_title(div):
                return ''.join(div.findAll(text=True, recursive=False)).strip()
-        
+
            articles = {}
            key = None
            ans = []
-           for div in soup.findAll(True, 
+           for div in soup.findAll(True,
                 attrs={'class':['section-headline', 'story', 'story headline']}):
-            
+
                 if div['class'] == 'section-headline':
                     key = string.capwords(feed_title(div))
                     articles[key] = []
                     ans.append(key)
-            
+
                 elif div['class'] in ['story', 'story headline']:
                     a = div.find('a', href=True)
                     if not a:
@@ -215,19 +215,19 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                     summary = div.find(True, attrs={'class':'summary'})
                     if summary:
                         description = self.tag_to_string(summary, use_alt=False)
-                
+
                     feed = key if key is not None else 'Uncategorized'
                     if not articles.has_key(feed):
                         articles[feed] = []
                     if not 'podcasts' in url:
                         articles[feed].append(
-                                  dict(title=title, url=url, date=pubdate, 
+                                  dict(title=title, url=url, date=pubdate,
                                        description=description,
                                        content=''))
            ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
            ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
            return ans
-    
+
        def preprocess_html(self, soup):
            refresh = soup.find('meta', {'http-equiv':'refresh'})
            if refresh is None:
@@ -235,7 +235,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
            content = refresh.get('content').partition('=')[2]
            raw = self.browser.open('https://www.nytimes.com'+content).read()
            return BeautifulSoup(raw.decode('cp1252', 'replace'))
- 
+
 
 We see several new features in this :term:`recipe`. First, we have::
 
@@ -259,7 +259,7 @@ The next interesting feature is::
     def get_browser(self):
         ...
 
-``needs_subscription = True`` tells calibre that this recipe needs a username and password in order to access the content. This causes, calibre to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, calibre will use the same, logged in, browser instance to fetch all content. See `mechanize <https://github.com/jjlee/mechanize>`_ to understand the code in ``get_browser``.
+``needs_subscription = True`` tells calibre that this recipe needs a username and password in order to access the content. This causes, calibre to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, calibre will use the same, logged in, browser instance to fetch all content. See `mechanize <https://mechanize.readthedocs.io/en/latest/>`_ to understand the code in ``get_browser``.
 
 The next new feature is the
 :meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is
@@ -267,13 +267,13 @@ to go to https://www.nytimes.com/pages/todayspaper/index.html and fetch the list
 of articles that appear in *todays* paper. While more complex than simply using
 :term:`RSS`, the recipe creates an e-book that corresponds very closely to the
 days paper. ``parse_index`` makes heavy use of `BeautifulSoup
-<https://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse
+<https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_ to parse
 the daily paper webpage. You can also use other, more modern parsers if you
 dislike BeatifulSoup. calibre comes with `lxml <http://lxml.de/>`_ and
 `html5lib <https://github.com/html5lib/html5lib-python>`_, which are the
 recommended parsers. To use them, replace the call to ``index_to_soup()`` with
 the following::
-    
+
     raw = self.index_to_soup(url, raw=True)
     # For html5lib
     import html5lib
@@ -297,7 +297,7 @@ ebook-convert spit out a lot of information about what it is doing. The
 :option:`ebook-convert-recipe-input --test` option makes it download only a couple of articles from at most two
 feeds. In addition, ebook-convert will put the downloaded HTML into the
 ``debug/input`` directory, where ``debug`` is the directory you specified in
-the :option:`ebook-convert --debug-pipeline` option. 
+the :option:`ebook-convert --debug-pipeline` option.
 
 Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate e-books in different formats as shown below::
 
@@ -308,7 +308,7 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
-.. note:: 
+.. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
     are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
@@ -341,5 +341,5 @@ API documentation
 --------------------
 
 .. toctree::
-    
+
     news_recipe

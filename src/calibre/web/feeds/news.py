@@ -483,7 +483,7 @@ class BasicNewsRecipe(Recipe):
     def get_browser(self, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
-        it returns a `mechanize <https://github.com/jjlee/mechanize>`_
+        it returns a `mechanize <https://mechanize.readthedocs.io/en/latest/>`_
         browser instance that supports cookies, ignores robots.txt, handles
         refreshes and has a mozilla firefox user agent.
 
@@ -890,8 +890,8 @@ class BasicNewsRecipe(Recipe):
         self.report_progress = progress_reporter
 
         if self.needs_subscription and (
-                self.username is None or self.password is None or
-                (not self.username and not self.password)):
+                self.username is None or self.password is None or (
+                    not self.username and not self.password)):
             if self.needs_subscription != 'optional':
                 raise ValueError(_('The "%s" recipe needs a username and password.')%self.title)
 
@@ -1432,8 +1432,8 @@ class BasicNewsRecipe(Recipe):
         desc = self.description
         if not isinstance(desc, unicode):
             desc = desc.decode('utf-8', 'replace')
-        mi.comments = (_('Articles in this issue:') + '\n\n' +
-                '\n\n'.join(article_titles)) + '\n\n' + desc
+        mi.comments = (_('Articles in this issue:'
+            ) + '\n\n' + '\n\n'.join(article_titles)) + '\n\n' + desc
 
         language = canonicalize_lang(self.language)
         if language is not None:
@@ -1633,8 +1633,7 @@ class BasicNewsRecipe(Recipe):
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
 
-        remove = [fl for fl in parsed_feeds if len(fl) == 0 and
-                self.remove_empty_feeds]
+        remove = [fl for fl in parsed_feeds if len(fl) == 0 and self.remove_empty_feeds]
         for f in remove:
             parsed_feeds.remove(f)
 
