@@ -14,8 +14,9 @@ from threading import Thread
 from Queue import Queue, Empty
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote, XHTML_MIME
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
@@ -388,7 +389,16 @@ def check_links(container):
     return errors
 
 
-def check_external_links(container, progress_callback=lambda num, total:None):
+def get_html_ids(raw_data):
+    ans = set()
+    root = parse_html5(raw_data, discard_namespaces=True, line_numbers=False, fix_newlines=False)
+    for body in root.xpath('//body'):
+        ans.update(set(body.xpath('descendant-or-self::*/@id')))
+        ans.update(set(body.xpath('descendant::a/@name')))
+    return ans
+
+
+def check_external_links(container, progress_callback=(lambda num, total:None), check_anchors=True):
     progress_callback(0, 0)
     external_links = defaultdict(list)
     for name, mt in container.mime_map.iteritems():
@@ -396,8 +406,7 @@ def check_external_links(container, progress_callback=lambda num, total:None):
             for href, lnum, col in container.iterlinks(name):
                 purl = urlparse(href)
                 if purl.scheme in ('http', 'https'):
-                    key = href.partition('#')[0]
-                    external_links[key].append((name, href, lnum, col))
+                    external_links[href].append((name, href, lnum, col))
     if not external_links:
         return []
     items = Queue()
@@ -405,18 +414,33 @@ def check_external_links(container, progress_callback=lambda num, total:None):
     tuple(map(items.put, external_links.iteritems()))
     progress_callback(0, len(external_links))
     done = []
+    downloaded_html_ids = {}
 
     def check_links():
         br = browser(honor_time=False, verify_ssl_certificates=False)
         while True:
             try:
-                href, locations = items.get_nowait()
+                full_href, locations = items.get_nowait()
             except Empty:
                 return
+            href, frag = full_href.partition('#')[::2]
             try:
-                br.open(href, timeout=10).close()
+                res = br.open(href, timeout=10)
             except Exception as e:
-                ans.append((locations, e, href))
+                ans.append((locations, e, full_href))
+            else:
+                if frag and check_anchors:
+                    ct = res.info().get('Content-Type')
+                    if ct and ct.split(';')[0].lower() in {'text/html', XHTML_MIME}:
+                        ids = downloaded_html_ids.get(href)
+                        if ids is None:
+                            try:
+                                ids = downloaded_html_ids[href] = get_html_ids(res.read())
+                            except Exception:
+                                ids = downloaded_html_ids[href] = frozenset()
+                        if frag not in ids:
+                            ans.append((locations, ValueError('HTML anchor {} not found on the page'.format(frag)), full_href))
+                res.close()
             finally:
                 done.append(None)
                 progress_callback(len(done), len(external_links))
