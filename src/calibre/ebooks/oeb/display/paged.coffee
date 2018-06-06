@@ -348,11 +348,16 @@ class PagedDisplay
         # force a relayout if the render tree is dirty.
         images = []
         vimages = []
+        bounding_rects = []
+        img_tags = document.getElementsByTagName('img')
+        for img in img_tags
+            bounding_rects.push(img.getBoundingClientRect())
         maxh = this.current_page_height
-        for img in document.getElementsByTagName('img')
+        for i in [0...img_tags.length]
+            img = img_tags[i]
             previously_limited = calibre_utils.retrieve(img, 'width-limited', false)
             data = calibre_utils.retrieve(img, 'img-data', null)
-            br = img.getBoundingClientRect()
+            br = bounding_rects[i]
             if data == null
                 data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
                 calibre_utils.store(img, 'img-data', data)
