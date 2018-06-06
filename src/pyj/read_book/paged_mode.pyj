@@ -78,11 +78,16 @@ def fit_images():
     # force a relayout if the render tree is dirty.
     images = []
     vimages = []
+    img_tags = document.getElementsByTagName('img')
+    bounding_rects = v'[]'
+    for img_tag in img_tags:
+        bounding_rects.push(img_tag.getBoundingClientRect())
     maxh = screen_height
-    for img in document.getElementsByTagName('img'):
+    for i in range(img_tags.length):
+        img = img_tags[i]
+        br = bounding_rects[i]
         previously_limited = get_elem_data(img, 'width-limited', False)
         data = get_elem_data(img, 'img-data', None)
-        br = img.getBoundingClientRect()
         if data is None:
             data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
             set_elem_data(img, 'img-data', data)
@@ -100,13 +105,13 @@ def fit_images():
             set_css(img, break_before='auto', display=data.display)
         set_css(img, break_inside='avoid')
 
-    for img, max_width in images:
-        img.style.setProperty('max-width', max_width+'px')
-        set_elem_data(img, 'width-limited', True)
+    for img_tag, max_width in images:
+        img_tag.style.setProperty('max-width', max_width+'px')
+        set_elem_data(img_tag, 'width-limited', True)
 
-    for img in vimages:
-        data = get_elem_data(img, 'img-data', None)
-        set_css(img, break_before='always', max_height=maxh+'px')
+    for img_tag in vimages:
+        data = get_elem_data(img_tag, 'img-data', None)
+        set_css(img_tag, break_before='always', max_height=maxh+'px')
         if data.height > maxh:
             # This is needed to force the image onto a new page, without
             # it, the webkit algorithm may still decide to split the image
