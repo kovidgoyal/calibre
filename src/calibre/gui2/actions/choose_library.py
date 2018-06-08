@@ -209,6 +209,7 @@ class ChooseLibraryAction(InterfaceAction):
     restore_view_state = pyqtSignal(object)
 
     def genesis(self):
+        self.prev_lname = self.last_lname = ''
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
         self.action_exim = ac = QAction(_('Export/import all calibre data'), self.gui)
@@ -318,6 +319,7 @@ class ChooseLibraryAction(InterfaceAction):
         a.setWhatsThis(tooltip)
 
     def library_changed(self, db):
+        self.prev_lname = self.last_lname
         lname = self.stats.library_used(db)
         self.last_lname = lname
         if len(lname) > 16:
@@ -350,10 +352,15 @@ class ChooseLibraryAction(InterfaceAction):
         self.delete_menu.clear()
         quick_actions, rename_actions, delete_actions = [], [], []
         for name, loc in locations:
+            is_prev_lib = name == self.prev_lname
             name = name.replace('&', '&&')
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
             ac.setStatusTip(_('Switch to: %s') % loc)
+            if is_prev_lib:
+                f = ac.font()
+                f.setBold(True)
+                ac.setFont(f)
             quick_actions.append(ac)
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
