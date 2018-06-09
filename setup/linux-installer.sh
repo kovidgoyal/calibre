@@ -804,7 +804,7 @@ def script_launch():
         return os.path.expanduser(x)
 
     def to_bool(x):
-        return x.lower() in {'y', 'yes', '1', 'true'}
+        return x.lower() in ('y', 'yes', '1', 'true')
 
     type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask'.split()}
     type_map['isolated'] = type_map['ignore_umask'] = to_bool
