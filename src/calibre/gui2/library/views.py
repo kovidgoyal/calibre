@@ -468,12 +468,13 @@ class BooksView(QTableView):  # {{{
             col = self.column_map[idx]
             name = unicode(self.model().headerData(idx, Qt.Horizontal, Qt.DisplayRole) or '')
             view.column_header_context_menu = self.create_context_menu(col, name, view)
-        if self.is_library_view:
+        has_context_menu = hasattr(view, 'column_header_context_menu')
+        if self.is_library_view and has_context_menu:
             view.column_header_context_menu.addSeparator()
             view.column_header_context_menu.addAction(
                 _('Un-split the book list') if self.pin_view.isVisible() else _('Split the book list'),
                 partial(self.column_header_context_handler, action='split', column=col or 'title'))
-        if hasattr(view, 'column_header_context_menu'):
+        if has_context_menu:
             view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
 
