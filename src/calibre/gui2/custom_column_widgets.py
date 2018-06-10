@@ -463,8 +463,7 @@ class Text(Base):
         return d.exec_()
 
     def edit(self):
-        if (self.getter() != self.initial_val and (self.getter() or
-            self.initial_val)):
+        if (self.getter() != self.initial_val and (self.getter() or self.initial_val)):
             d = self._save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '
                        'editor, you must either discard or apply these '
@@ -669,8 +668,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     count = len(cols)
     layout_rows_for_comments = 9
     if two_column:
-        turnover_point = ((count-comments_not_in_tweak+1) +
-                          comments_in_tweak*(layout_rows_for_comments-1))/2
+        turnover_point = ((count-comments_not_in_tweak+1) + comments_in_tweak*(layout_rows_for_comments-1))/2
     else:
         # Avoid problems with multi-line widgets
         turnover_point = count + 1000
@@ -1010,20 +1008,20 @@ class BulkSeries(BulkBase):
         layout.addWidget(self.remove_series)
         self.idx_widget = QCheckBox(parent)
         self.idx_widget.setText(_('Automatically number books'))
-        self.idx_widget.setToolTip('<p>' +
-                       _('If not checked, the series number for the books will be set to 1. '
-                         'If checked, selected books will be automatically numbered, '
-                         'in the order you selected them. So if you selected '
-                         'Book A and then Book B, Book A will have series number 1 '
-                         'and Book B series number 2.') + '</p>')
+        self.idx_widget.setToolTip('<p>' + _(
+            'If not checked, the series number for the books will be set to 1. '
+            'If checked, selected books will be automatically numbered, '
+            'in the order you selected them. So if you selected '
+            'Book A and then Book B, Book A will have series number 1 '
+            'and Book B series number 2.') + '</p>')
         layout.addWidget(self.idx_widget)
         self.force_number = QCheckBox(parent)
         self.force_number.setText(_('Force numbers to start with '))
-        self.force_number.setToolTip('<p>' +
-                         _('Series will normally be renumbered from the highest '
-                           'number in the database for that series. Checking this '
-                           'box will tell calibre to start numbering from the value '
-                           'in the box') + '</p>')
+        self.force_number.setToolTip('<p>' + _(
+            'Series will normally be renumbered from the highest '
+            'number in the database for that series. Checking this '
+            'box will tell calibre to start numbering from the value '
+            'in the box') + '</p>')
         layout.addWidget(self.force_number)
         self.series_start_number = QDoubleSpinBox(parent)
         self.series_start_number.setMinimum(0.0)
@@ -1034,10 +1032,10 @@ class BulkSeries(BulkBase):
         self.series_increment.setMinimum(0.00)
         self.series_increment.setMaximum(99999.0)
         self.series_increment.setProperty("value", 1.0)
-        self.series_increment.setToolTip('<p>' +
-                         _('The amount by which to increment the series number '
-                           'for successive books. Only applicable when using '
-                           'force series numbers.') + '</p>')
+        self.series_increment.setToolTip('<p>' + _(
+            'The amount by which to increment the series number '
+            'for successive books. Only applicable when using '
+            'force series numbers.') + '</p>')
         self.series_increment.setPrefix('+')
         layout.addWidget(self.series_increment)
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
@@ -1214,8 +1212,7 @@ class BulkText(BulkBase):
 
             if not self.col_metadata['display'].get('is_names', False):
                 w = RemoveTags(parent, values)
-                self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
-                                           _('tags to remove'), parent))
+                self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' + _('tags to remove'), parent))
                 self.widgets.append(w)
                 self.removing_widget = w
                 self.main_widget.set_separator(',')
