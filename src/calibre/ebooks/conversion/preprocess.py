@@ -664,6 +664,9 @@ class HTMLPreProcessor(object):
             preprocessor = HeuristicProcessor(self.extra_opts, self.log)
             html = preprocessor(html)
 
+        if is_pdftohtml:
+            html = html.replace('<!-- created by calibre\'s pdftohtml -->', '')
+
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = smarten_punctuation(html, self.log)
 

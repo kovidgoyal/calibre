@@ -100,7 +100,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
             with lopen(index, 'r+b') as i:
                 raw = i.read()
                 raw = flip_images(raw)
-                raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
+                raw = raw.replace('<head', '<!-- created by calibre\'s pdftohtml -->\n  <head', 1)
                 i.seek(0)
                 i.truncate()
                 # versions of pdftohtml >= 0.20 output self closing <br> tags, this
@@ -109,9 +109,6 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(br'<a\s+name=(\d+)', br'<a id="\1"', raw, flags=re.I)
                 raw = re.sub(br'<a id="(\d+)"', br'<a id="p\1"', raw, flags=re.I)
                 raw = re.sub(br'<a href="index.html#(\d+)"', br'<a href="#p\1"', raw, flags=re.I)
-                # pdftohtml adds link and background colors on <body>. The
-                # background color is incorrect
-                raw = re.sub(b'<body .+?>', b'<body>', raw)
 
                 i.write(raw)
 
