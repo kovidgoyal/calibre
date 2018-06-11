@@ -65,6 +65,8 @@ class Slate(BasicNewsRecipe):
     def slate_section_articles(self, soup):
         ans = []
         main = soup.find('article', attrs={'class': 'main'})
+        if main is None:
+            return ans
         for a in main.findAll('a', attrs={'class': 'primary'}):
             url = a['href']
             if url.endswith('/'):
