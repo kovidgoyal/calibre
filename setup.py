@@ -82,8 +82,8 @@ def main(args=sys.argv):
 
     parser = option_parser()
     command.add_all_options(parser)
-    parser.set_usage('Usage: python setup.py %s [options]\n\n' % args[1] +
-                     command.description)
+    parser.set_usage(
+        'Usage: python setup.py %s [options]\n\n' % args[1] + command.description)
 
     opts, args = parser.parse_args(args)
 
