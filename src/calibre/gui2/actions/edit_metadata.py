@@ -260,12 +260,12 @@ class EditMetadataAction(InterfaceAction):
             from calibre.utils.icu import lower
 
             modified = sorted(modified, key=lower)
-            if not question_dialog(self.gui, _('Some books changed'), '<p>'+
-                    _('The metadata for some books in your library has'
-                        ' changed since you started the download. If you'
-                        ' proceed, some of those changes may be overwritten. '
-                        'Click "Show details" to see the list of changed books. '
-                        'Do you want to proceed?'), det_msg='\n'.join(modified)):
+            if not question_dialog(self.gui, _('Some books changed'), '<p>' + _(
+                'The metadata for some books in your library has'
+                ' changed since you started the download. If you'
+                ' proceed, some of those changes may be overwritten. '
+                'Click "Show details" to see the list of changed books. '
+                'Do you want to proceed?'), det_msg='\n'.join(modified)):
                 return
 
         id_map = {}
@@ -496,9 +496,10 @@ class EditMetadataAction(InterfaceAction):
                         _('At least two books must be selected for merging'),
                         show=True)
         if len(rows) > 5:
-            if not confirm('<p>'+_('You are about to merge more than 5 books.  '
-                                    'Are you <b>sure</b> you want to proceed?') +
-                           '</p>', 'merge_too_many_books', self.gui):
+            if not confirm('<p>'+_(
+                'You are about to merge more than 5 books.  '
+                'Are you <b>sure</b> you want to proceed?') + '</p>',
+                'merge_too_many_books', self.gui):
                 return
 
         dest_id, src_ids = self.books_to_merge(rows)
@@ -511,8 +512,8 @@ class EditMetadataAction(InterfaceAction):
                 'will be added to the <b>first selected book</b> (%s).<br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
-                'Please confirm you want to proceed.')%title +
-                           '</p>', 'merge_books_safe', self.gui, mi):
+                'Please confirm you want to proceed.')%title + '</p>',
+                'merge_books_safe', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
@@ -527,8 +528,8 @@ class EditMetadataAction(InterfaceAction):
                 'All book formats of the first selected book will be kept '
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
-                'Are you <b>sure</b> you want to proceed?')%title +
-                           '</p>', 'merge_only_formats', self.gui, mi):
+                'Are you <b>sure</b> you want to proceed?')%title + '</p>',
+                'merge_only_formats', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.delete_books_after_merge(src_ids)
@@ -541,8 +542,8 @@ class EditMetadataAction(InterfaceAction):
                 'All book formats of the first selected book will be kept '
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
-                'Are you <b>sure</b> you want to proceed?')%title +
-                           '</p>', 'merge_books', self.gui, mi):
+                'Are you <b>sure</b> you want to proceed?')%title + '</p>',
+                'merge_books', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
@@ -613,11 +614,9 @@ class EditMetadataAction(InterfaceAction):
                     dest_mi.comments = src_mi.comments
                 else:
                     dest_mi.comments = unicode(dest_mi.comments) + u'\n\n' + unicode(src_mi.comments)
-            if src_mi.title and (not dest_mi.title or
-                    dest_mi.title == _('Unknown')):
+            if src_mi.title and (not dest_mi.title or dest_mi.title == _('Unknown')):
                 dest_mi.title = src_mi.title
-            if src_mi.title and (not dest_mi.authors or dest_mi.authors[0] ==
-                    _('Unknown')):
+            if src_mi.title and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
                 dest_mi.authors = src_mi.authors
                 dest_mi.author_sort = src_mi.author_sort
             if src_mi.tags:
