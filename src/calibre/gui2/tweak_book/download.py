@@ -49,11 +49,13 @@ class ChooseResources(QWidget):
         self.items.clear()
         self.original_resources = resources
         dc = 0
-        for url in resources:
+        for url, matches in resources.iteritems():
             text = url
+            num = len(matches)
             if text.startswith('data:'):
                 dc += 1
-                text = _('Data URL ({})').format(dc)
+                text = _('Data URL #{}').format(dc)
+            text += ' ({})'.format(ngettext('one instance', '{} instances', num).format(num))
             i = QListWidgetItem(text, self.items)
             i.setData(Qt.UserRole, url)
             i.setCheckState(Qt.Checked)

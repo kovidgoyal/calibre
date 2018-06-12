@@ -103,9 +103,10 @@ def sanitize_file_name(x):
     return make_filename_safe(x)
 
 
-def download_one(tdir, timeout, progress_report, url):
+def download_one(tdir, timeout, progress_report, data_uri_map, url):
     try:
         purl = urlparse(url)
+        data_url_key = None
         with NamedTemporaryFile(dir=tdir, delete=False) as df:
             if purl.scheme == 'file':
                 src = lopen(purl.path, 'rb')
@@ -117,6 +118,10 @@ def download_one(tdir, timeout, progress_report, url):
                 if parts and parts[-1].lower() == 'base64':
                     payload = re.sub(r'\s+', '', payload)
                     payload = standard_b64decode(payload)
+                    seen_before = data_uri_map.get(payload)
+                    if seen_before is not None:
+                        return True, (url, filename, seen_before, guess_type(seen_before))
+                    data_url_key = payload
                 else:
                     payload = payload.encode('utf-8')
                 src = BytesIO(payload)
@@ -137,6 +142,8 @@ def download_one(tdir, timeout, progress_report, url):
             dest = ProgressTracker(df, url, sz, progress_report)
             with closing(src):
                 shutil.copyfileobj(src, dest)
+            if data_url_key is not None:
+                data_uri_map[data_url_key] = dest.name
             filename = sanitize_file_name(filename)
             mt = guess_type(filename)
             if mt in OEB_DOCS:
@@ -151,10 +158,11 @@ def download_one(tdir, timeout, progress_report, url):
 def download_external_resources(container, urls, timeout=60, progress_report=lambda url, done, total: None):
     failures = {}
     replacements = {}
+    data_uri_map = {}
     with TemporaryDirectory('editor-download') as tdir:
         pool = Pool(10)
         with closing(pool):
-            for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout, progress_report), urls):
+            for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout, progress_report, data_uri_map), urls):
                 if ok:
                     url, suggested_filename, downloaded_file, mt = result
                     with lopen(downloaded_file, 'rb') as src:
