@@ -105,10 +105,10 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         ),
         comments,
     )
-    ans = E.a(img_div, right, href=href,
+    ans = E.div(E.a(img_div, right, href=href,
                 style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
                 class_=ITEM_CLASS,
-    )
+    ))
     ans.addEventListener('click', show_book_details, True)
     return ans
 
