@@ -485,9 +485,9 @@ class EditMetadataAction(InterfaceAction):
         Merge selected books in library.
         '''
         from calibre.gui2.dialogs.confirm_merge import confirm_merge
-        if self.gui.stack.currentIndex() != 0:
+        if self.gui.current_view() is not self.gui.library_view:
             return
-        rows = self.gui.library_view.selectionModel().selectedRows()
+        rows = self.gui.library_view.indices_for_merge()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot merge books'),
                                 _('No books selected'), show=True)

@@ -1017,6 +1017,9 @@ class GridView(QListView):
         else:
             return QListView.mousePressEvent(self, ev)
 
+    def indices_for_merge(self, resolved=True):
+        return self.selectionModel().selectedIndexes()
+
     def number_of_columns(self):
         # Number of columns currently visible in the grid
         if self._ncols is None:
