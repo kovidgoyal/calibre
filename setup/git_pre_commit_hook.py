@@ -1,14 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import importlib
 import json
 import re
 import socket
 import sys
-import urllib
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from lxml import html
 
@@ -41,14 +43,14 @@ class Bug:
         self.seen.add(bug)
 
         if int(bug) > 100000:  # Launchpad bug
-            raw = urllib.urlopen(LAUNCHPAD_BUG % bug).read()
+            raw = urllib.request.urlopen(LAUNCHPAD_BUG % bug).read()
             try:
                 h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
-                summary = html.tostring(h1, method='text', encoding=unicode).strip()
+                summary = html.tostring(h1, method='text', encoding=str).strip()
             except:
                 summary = 'Private bug'
         else:
-            summary = json.loads(urllib.urlopen(GITHUB_BUG % bug).read())['title']
+            summary = json.loads(urllib.request.urlopen(GITHUB_BUG % bug).read())['title']
         if summary:
             print('Working on bug:', summary)
             if int(bug) > 100000 and action != 'See':
