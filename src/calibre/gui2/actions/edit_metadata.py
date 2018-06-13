@@ -480,6 +480,33 @@ class EditMetadataAction(InterfaceAction):
             self.gui.library_view.select_rows(book_ids)
 
     # Merge books {{{
+
+    def confirm_large_merge(self, num):
+        if num < 5:
+            return True
+        return confirm('<p>'+_(
+            'You are about to merge very many ({}) books. '
+            'Are you <b>sure</b> you want to proceed?').format(num) + '</p>',
+            'merge_too_many_books', self.gui)
+
+    def books_dropped(self, merge_map):
+        for dest_id, src_ids in merge_map.iteritems():
+            if not self.confirm_large_merge(len(src_ids) + 1):
+                continue
+            from calibre.gui2.dialogs.confirm_merge import merge_drop
+            merge_metadata, merge_formats, delete_books = merge_drop(dest_id, src_ids, self.gui)
+            if merge_metadata is None:
+                return
+            if merge_formats:
+                self.add_formats(dest_id, self.formats_for_ids(list(src_ids)))
+            if merge_metadata:
+                self.merge_metadata(dest_id, src_ids)
+            if delete_books:
+                self.delete_books_after_merge(src_ids)
+            # leave the selection highlight on the target book
+            row = self.gui.library_view.ids_to_rows([dest_id])[dest_id]
+            self.gui.library_view.set_current_row(row)
+
     def merge_books(self, safe_merge=False, merge_only_formats=False):
         '''
         Merge selected books in library.
@@ -495,12 +522,8 @@ class EditMetadataAction(InterfaceAction):
             return error_dialog(self.gui, _('Cannot merge books'),
                         _('At least two books must be selected for merging'),
                         show=True)
-        if len(rows) > 5:
-            if not confirm('<p>'+_(
-                'You are about to merge more than 5 books.  '
-                'Are you <b>sure</b> you want to proceed?') + '</p>',
-                'merge_too_many_books', self.gui):
-                return
+        if not self.confirm_large_merge(len(rows)):
+            return
 
         dest_id, src_ids = self.books_to_merge(rows)
         mi = self.gui.current_db.new_api.get_proxy_metadata(dest_id)
@@ -566,10 +589,10 @@ class EditMetadataAction(InterfaceAction):
                     self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
-    def formats_for_books(self, rows):
+    def formats_for_ids(self, ids):
         m = self.gui.library_view.model()
         ans = []
-        for id_ in map(m.id, rows):
+        for id_ in ids:
             dbfmts = m.db.formats(id_, index_is_id=True)
             if dbfmts:
                 for fmt in dbfmts.split(','):
@@ -580,6 +603,10 @@ class EditMetadataAction(InterfaceAction):
                     except NoSuchFormat:
                         continue
         return ans
+
+    def formats_for_books(self, rows):
+        m = self.gui.library_view.model()
+        return self.formats_for_ids(map(m.id, rows))
 
     def books_to_merge(self, rows):
         src_ids = []

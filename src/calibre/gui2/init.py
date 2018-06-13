@@ -41,6 +41,7 @@ class LibraryViewMixin(object):  # {{{
 
     def init_library_view_mixin(self, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
+        self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.QueuedConnection)
         self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
             initial_plugin=('Interface', 'Custom Columns')),
                 type=Qt.QueuedConnection)

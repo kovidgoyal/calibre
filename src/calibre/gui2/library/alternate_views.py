@@ -206,12 +206,24 @@ def dragEnterEvent(self, event):
         int(event.possibleActions() & Qt.MoveAction) == 0:
         return
     paths = self.paths_from_event(event)
+    md = event.mimeData()
 
-    if paths:
+    if paths or md.hasFormat('application/calibre+from_library'):
         event.acceptProposedAction()
 
 
 def dropEvent(self, event):
+    md = event.mimeData()
+    if md.hasFormat('application/calibre+from_library'):
+        ids = set(map(int, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' ')))
+        row = self.indexAt(event.pos()).row()
+        if row > -1 and ids:
+            book_id = self.model().id(row)
+            if book_id:
+                self.books_dropped.emit({book_id: ids})
+                event.setDropAction(Qt.CopyAction)
+                event.accept()
+        return
     paths = self.paths_from_event(event)
     event.setDropAction(Qt.CopyAction)
     event.accept()
@@ -291,6 +303,7 @@ class AlternateViews(object):
         view.selectionModel().currentChanged.connect(self.slave_current_changed)
         view.selectionModel().selectionChanged.connect(self.slave_selection_changed)
         view.files_dropped.connect(self.main_view.files_dropped)
+        view.books_dropped.connect(self.main_view.books_dropped)
 
     def show_view(self, key=None):
         view = self.views[key]
@@ -663,6 +676,7 @@ class GridView(QListView):
 
     update_item = pyqtSignal(object)
     files_dropped = pyqtSignal(object)
+    books_dropped = pyqtSignal(object)
 
     def __init__(self, parent):
         QListView.__init__(self, parent)

@@ -204,6 +204,7 @@ class PreserveViewState(object):  # {{{
 class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
+    books_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
     is_library_view = True
 
