@@ -182,6 +182,7 @@ class EbookViewer(MainWindow):
         t.timeout.connect(self.autosave)
         self.pos.value_changed.connect(self.update_pos_label)
         self.pos.value_changed.connect(self.autosave_timer.start)
+        self.pos.value_changed.connect(self.update_window_title)
         self.pos.setMinimumWidth(150)
         self.setFocusPolicy(Qt.StrongFocus)
         self.view.set_manager(self)
@@ -253,7 +254,6 @@ class EbookViewer(MainWindow):
             self.toggle_toolbar_action.setText(self.toggle_toolbar_action.text() + '\t' + tts[0])
         self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
-        self.toolbar_hidden = None
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, b'size')
@@ -444,6 +444,7 @@ class EbookViewer(MainWindow):
             self.showNormal()
         else:
             self.showFullScreen()
+        self.update_window_title()
 
     def showFullScreen(self):
         self.view.document.page_position.save()
@@ -513,6 +514,34 @@ class EbookViewer(MainWindow):
             text = '%g/%g'%(value, maximum)
             self.pos_label.setText(text)
             self.pos_label.resize(self.pos_label.sizeHint())
+
+    def update_window_title(self):
+        try:
+            fmt = self.iterator.book_format
+        except Exception:
+            fmt = None
+        current_title = getattr(self, 'current_title', None)
+        try:
+            if current_title:
+                if not self.tool_bar2.isVisible():
+                    value, maximum = self.pos.value(), self.pos.maximum()
+                    text = '%g/%g'%(value, maximum)
+                    if fmt:
+                        title = '({}) {} [{}]'.format(text, self.current_title, fmt)
+                    else:
+                        title = '({}) {} - {}'.format(text, self.current_title, self.base_window_title)
+                else:
+                    if fmt:
+                        title = '{} [{}] - {}'.format(self.current_title, fmt, self.base_window_title)
+                    else:
+                        title = '{} - {}'.format(self.current_title, self.base_window_title)
+            else:
+                title = self.base_window_title
+        except Exception:
+            title = self.base_window_title
+            if current_title:
+                title = current_title + ' - ' + title
+        self.setWindowTitle(title)
 
     def showNormal(self):
         self.view.document.page_position.save()
@@ -1025,7 +1054,7 @@ class EbookViewer(MainWindow):
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
-            self.setWindowTitle(title + ' [%s]'%self.iterator.book_format + ' - ' + self.base_window_title)
+            self.update_window_title()
             self.pos.setMaximum(sum(self.iterator.pages))
             self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
             self.vertical_scrollbar.setMinimum(100)
@@ -1076,8 +1105,7 @@ class EbookViewer(MainWindow):
             self.update_indexing_state(ap)
 
     def next_document(self):
-        if (hasattr(self, 'current_index') and self.current_index <
-                len(self.iterator.spine) - 1):
+        if (hasattr(self, 'current_index') and self.current_index < len(self.iterator.spine) - 1):
             self.load_path(self.iterator.spine[self.current_index+1])
 
     def previous_document(self):
