@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.26.0
+- version: 3.26.1
   date: 2018-06-15
 
   new features:
@@ -58,6 +58,9 @@
 
     - title: "Edit metadata dialog: Fix distorted rendering of some labels in the custom metadata tab in rare circumstances."
       tickets: [1766762]
+
+    - title: "version 3.26.1 prevents dropping of a book onto itself from triggering the merge dialog, which should reduce accidental triggers"
+      tickets: [1777054]
 
   improved recipes:
     - Slate
