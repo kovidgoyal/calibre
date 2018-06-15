@@ -219,7 +219,7 @@ def dropEvent(self, event):
         row = self.indexAt(event.pos()).row()
         if row > -1 and ids:
             book_id = self.model().id(row)
-            if book_id:
+            if book_id and book_id not in ids:
                 self.books_dropped.emit({book_id: ids})
                 event.setDropAction(Qt.CopyAction)
                 event.accept()
