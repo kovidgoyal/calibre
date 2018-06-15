@@ -20,6 +20,57 @@
 #   new recipes:
 #     - title:
 
+- version: 3.26.0
+  date: 2018-06-15
+
+  new features:
+    - title: "Book list: Allow drag and drop of books onto other books to merge the book records."
+      tickets: [1775123]
+
+    - title: "Check Book: External link checker: Also check HTML anchors (the part after the # in the link). Can be turned off via a checkbox at the bottom of the link checker window."
+
+    - title: "Edit Book: Preview panel: Show previews when editing SVG files"
+
+    - title: "Edit book: When downloading external resources, also convert data URLs into files."
+      tickets: [1774945]
+
+    - title: "E-book viewer: When the controls are hidden show the progress in the window title."
+      tickets: [1776710]
+
+    - title: "Library Quick switch menu: Highlight the previously switched from library in bold."
+      tickets: [1775888]
+
+  bug fixes:
+    - title: "PDF Input: Fix a regression in 3.24 that caused conversion of PDF to be significantly worse."
+      tickets: [1775984]
+
+    - title: "E-book viewer: Fix very slow loading for HTML files with very many images on Linux."
+      tickets: [1774884]
+
+    - title: "Content server: Fix a regression in 3.14 that removed the separator between books in the detailed list view mode."
+      tickets: [1776294]
+
+    - title: "Edit book: Fix SVG files not being beautified by the Beautify all files tool"
+
+    - title: "Edit book: Fix searching in selected files not searching SVG files"
+
+    - title: "Fix Tweaks help string not being displayed translated"
+
+    - title: "Edit metadata dialog: Fix distorted rendering of some labels in the custom metadata tab in rare circumstances."
+      tickets: [1766762]
+
+  improved recipes:
+    - Slate
+    - New York Times Book Review
+    - The Independent UK
+    - NYTimes Tech Beat
+    - New York Times
+    - Cracked.com
+
+  new recipes:
+    - title: El Cronista
+      author: Darko Miletic
+
 - version: 3.25.0
   date: 2018-06-01
 
