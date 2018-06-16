@@ -196,6 +196,7 @@ class PagedDisplay
         bs.setProperty('-webkit-column-gap', 2*sm + 'px')
         bs.setProperty('-webkit-column-width', col_width + 'px')
         bs.setProperty('-webkit-column-rule', '0px inset blue')
+        bs.setProperty('column-fill', 'auto')
 
         # Without this, webkit bleeds the margin of the first block(s) of body
         # above the columns, which causes them to effectively be added to the
