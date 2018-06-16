@@ -527,7 +527,7 @@ class EbookViewer(MainWindow):
                     value, maximum = self.pos.value(), self.pos.maximum()
                     text = '%g/%g'%(value, maximum)
                     if fmt:
-                        title = '({}) {} [{}]'.format(text, self.current_title, fmt)
+                        title = '({}) {} [{}] - {}'.format(text, self.current_title, fmt, self.base_window_title)
                     else:
                         title = '({}) {} - {}'.format(text, self.current_title, self.base_window_title)
                 else:
