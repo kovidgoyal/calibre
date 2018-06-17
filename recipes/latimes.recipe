@@ -1,20 +1,55 @@
 #!/usr/bin/env python2
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import absolute_import, division, print_function, unicode_literals
 
+import re
 from collections import defaultdict
 from pprint import pformat
 
+from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+DT_EPOCH = strptime('1970-01-01', '%Y-%m-%d', assume_utc=True)
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={
-            'class': lambda x: x and frozenset(x.split()).intersection(q)
-        }
-    )
+DIR_COLLECTIONS = [['world'],
+                   ['nation'],
+                   ['politics'],
+                   ['opinion', 'op-ed', 'opinion-la', 'editorials',
+                       'readersreact', 'topoftheticket', 'endorsements'],
+                   ['local', 'lanow', 'california', 'crime',
+                       'abcarian', 'education', 'weather'],
+                   ['business', 'hollywood', 'technology'],
+                   ['sports'],
+                   ['entertainment', 'movies', 'music',
+                       'tv', 'arts', 'gossip', 'envelope'],
+                   ['books'],
+                   ['food', 'jonathon-gold', 'dailydish'],
+                   ['health'],
+                   ['style', 'laaffairs', 'pets'],
+                   ['science', 'sciencenow'],
+                   ['home'],
+                   ['travel'],
+                   ['fashion']]
+
+SECTIONS=['THE WORLD',
+          'THE NATION',
+          'POLITICS',
+          'OPINION',
+          'CALIFORNIA',
+          'OBITUARIES',
+          'BUSINESS',
+          'HOLLYWOOD',
+          'SPORTS',
+          'ENTERTAINMENT',
+          'MOVIES',
+          'TELEVISION',
+          'BOOKS',
+          'FOOD',
+          'HEALTH',
+          'SCIENCE AND TECHNOLOGY',
+          'HOME',
+          'TRAVEL',
+          'FASHION',
+          'NEWSLETTERS'
+          'OTHER']
 
 
 def absurl(url):
@@ -23,66 +58,146 @@ def absurl(url):
     return url
 
 
+def check_words(words):
+    return lambda x: x and frozenset(words.split()).intersection(x.split())
+
+
+def what_section(url):
+    if re.compile(r'^https?://www[.]latimes[.]com/local/obituaries').search(url):
+        return 'OBITUARIES'
+    elif re.compile(r'^https?://www[.]latimes[.]com/business/hollywood').search(url):
+        return 'HOLLYWOOD'
+    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment/movies').search(url):
+        return 'MOVIES'
+    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment/tv').search(url):
+        return 'TELEVISION'
+    elif re.compile(r'^https?://www[.]latimes[.]com/business/technology').search(url):
+        return 'SCIENCE AND TECHNOLOGY'
+    elif re.compile(r'^https?://www[.]latimes[.]com/world').search(url):
+        return 'THE WORLD'
+    elif re.compile(r'^https?://www[.]latimes[.]com/nation').search(url):
+        return 'THE NATION'
+    elif re.compile(r'^https?://www[.]latimes[.]com/politics').search(url):
+        return 'POLITICS'
+    elif re.compile(r'^https?://www[.]latimes[.]com/opinion').search(url):
+        return 'OPINION'
+    elif re.compile(r'^https?://www[.]latimes[.]com/(?:local|style)').search(url):
+        return 'CALIFORNIA'
+    elif re.compile(r'^https?://www[.]latimes[.]com/business').search(url):
+        return 'BUSINESS'
+    elif re.compile(r'^https?://www[.]latimes[.]com/sports').search(url):
+        return 'SPORTS'
+    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment').search(url):
+        return 'ENTERTAINMENT'
+    elif re.compile(r'^https?://www[.]latimes[.]com/books').search(url):
+        return 'BOOKS'
+    elif re.compile(r'^https?://www[.]latimes[.]com/food').search(url):
+        return 'FOOD'
+    elif re.compile(r'^https?://www[.]latimes[.]com/health').search(url):
+        return 'HEALTH'
+    elif re.compile(r'^https?://www[.]latimes[.]com/science').search(url):
+        return 'SCIENCE AND TECHNOLOGY'
+    elif re.compile(r'^https?://www[.]latimes[.]com/home').search(url):
+        return 'HOME'
+    elif re.compile(r'^https?://www[.]latimes[.]com/travel').search(url):
+        return 'TRAVEL'
+    elif re.compile(r'^https?://www[.]latimes[.]com/fashion').search(url):
+        return 'FASHION'
+    elif re.compile(r'^https?://www[.]latimes[.]com/newsletter').search(url):
+        return 'NEWSLETTERS'
+    else:
+        return 'OTHER'
+
+
 class LATimes(BasicNewsRecipe):
     title = 'Los Angeles Times'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Jose Ortiz'
     description = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
     category = 'news, politics, USA, Los Angeles, world'
-    oldest_article = 2
+    oldest_article = 1
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
     publication_type = 'newspaper'
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(attrs={
-            'class': 'trb_ar_main'
-        }),
+        dict(name='header', attrs={'id': 'top'}),
+        dict(name='article'),
+        dict(name='div', attrs={'id': 'liveblog-story-wrapper'})
+    ]
+
+    remove_tags= [
+        dict(name='div', attrs={'class': check_words(
+            'hidden-tablet hidden-mobile hidden-desktop pb-f-ads-dfp')})
     ]
 
     remove_tags_after = [
-        dict(itemprop='articleBody'),
-    ]
-
-    remove_tags = [
-        dict(attrs={
-            'data-content-type': 'blurb'
-        }),
-        classes('trb_ar_cont trb_gptAd trb_filmstrip trb_ar_sponsoredmod'),
+        dict(name='div', attrs={'class': check_words('pb-f-article-body')})
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.latimes.com')
+        index = 'http://www.latimes.com/'
+        pat = r'^(?:https?://www[.]latimes[.]com)?/[^#]+20[0-9]{6}-(?:html)?story[.]html'
+        articles = self.find_articles(index, pat)
+        for collection in DIR_COLLECTIONS:
+            topdir = collection.pop(0)
+            index = 'http://www.latimes.com/' + topdir + '/'
+            pat = r'^(?:https?://www[.]latimes[.]com)?/' + \
+                      topdir + '/[^#]+20[0-9]{6}-(?:html)?story[.]html'
+            articles += self.find_articles(index, pat)
+            for subdir in collection:
+                sub_index = index + subdir + '/'
+                articles += self.find_articles(sub_index, pat)
+
         feeds = defaultdict(list)
-        for x in soup.findAll(
-            attrs={
-                'data-content-type': 'story',
-                'data-content-section': True,
-                'data-content-slug': True,
-            }
-        ):
-            a = x.find(
-                'a', attrs={
-                    'class': lambda x: not x or 'SectionHeading' not in x
-                }
-            )
-            if a is not None:
-                url = absurl(a['href'])
-                section = x['data-content-section'].capitalize()
-                title = self.tag_to_string(a)
-                feeds[section].append({'title': title, 'url': url})
+        for article in articles:
+            section = what_section(article['url'])
+            feeds[section].append(article)
+
+        keys = []
+        for key in SECTIONS:
+            if key in feeds.keys():
+                keys.append(key)
         self.log(pformat(dict(feeds)))
-        return [(k, feeds[k]) for k in sorted(feeds)]
+        return [(k, feeds[k]) for k in keys]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-baseurl': True}):
-            img['src'] = img['data-baseurl'] + '/750'
-        for div in soup.findAll(itemprop='articleBody'):
-            div.extract()
-            soup.find('body').append(div)
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            if img.findParent('a', href='http://www.latimes.com/opinion/la-letter-to-the-editor-htmlstory.html') \
+               is img.parent and img['data-src'].endswith('/la-letter-to-the-editor'):
+                img.parent.extract()
+            else:
+                img['src'] = img['data-src']
         return soup
+
+    def find_articles(self, index, pattern):
+        self.log('Downloading and parsing index: ', index)
+        self.log('Pattern: ', pattern)
+        try:
+            soup = self.index_to_soup(index)
+        except:
+            self.log('Failed to download ', index)
+            return []
+        if soup.main is not None:
+            alinks = soup.main.findAll('a', {'href': re.compile(pattern)})
+        else:
+            alinks = soup.findAll('a', {'href': re.compile(pattern)})
+        alinks = [a for a in alinks if len(
+            a.contents) == 1 and a.find(text=True, recursive=False)]
+        articles = [
+            {'title': a.find(text=True), 'url': absurl(a['href'])} for a in alinks]
+        date_rx = re.compile(
+            r'^https?://www[.]latimes[.]com/[^#]+-(?P<date>20[0-9]{6})-(?:html)?story[.]html')
+        for article in articles:
+            mdate = date_rx.match(article['url'])
+            if mdate is not None:
+                article['timestamp'] = (strptime(mdate.group(
+                    'date'),'%Y%m%d') - DT_EPOCH).total_seconds()
+                article['url'] = mdate.group(0)
+        self.log('Found: ', len(articles), ' articles.\n')
+        return articles
