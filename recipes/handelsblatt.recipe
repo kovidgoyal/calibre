@@ -22,7 +22,7 @@ class Handelsblatt(BasicNewsRecipe):
     language = 'de'
 
     oldest_article = 2
-    max_articles_per_feed = 30
+    max_articles_per_feed = 15
     simultaneous_downloads = 10
     no_stylesheets = True
     remove_javascript = True
@@ -58,11 +58,15 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='aside', attrs={'class': ['vhb-article-element vhb-left',
                                             'vhb-article-element vhb-left vhb-teasergallery',
                                             'vhb-article-element vhb-left vhb-shorttexts']}),
+        dict(name='aside', attrs={'class': re.compile('vhb-club-events')}),
         dict(name='article', attrs={'class': ['vhb-imagegallery vhb-teaser',
                                               'vhb-teaser vhb-type-video']}),
         dict(name='small', attrs={'class': ['vhb-credit']}),
         dict(name='div', attrs={'class': ['white_content', 'fb-post',
-                                          'opinary-widget-wrapper']}),
+                                          'opinary-widget-wrapper',
+                                          'vhb-hollow-area vhb-hollow-area--col-1']}),
+        dict(name='div', attrs={'class': re.compile('vhb-imagegallery')}),
+        dict(name='div', attrs={'id': ['highcharts_infografik']}),
         dict(name='div', attrs={'id': re.compile('dax-sentiment')}),
         dict(name=['div', 'section'], attrs={'class': re.compile('slider')}),
         dict(name='a', attrs={'class': ['twitter-follow-button']}),
@@ -141,9 +145,9 @@ class Handelsblatt(BasicNewsRecipe):
         # make sure that all figure captions (including the source) are shown
         # without linebreaks by using the alternative text given within <img/>
         # instead of the original text (which is oddly formatted)
-        for fig in soup.findAll('figure', {'class': 'vhb-image'}):
-            fig.find('div', {'class': 'vhb-caption'}
-                     ).replaceWith(fig.find('img')['alt'])
+        for fig in soup.findAll('figcaption', {'class': 'vhb-inline-picture'}):
+            cap = fig.find('img')['alt']
+            fig.find('div', {'class': 'vhb-caption'}).replaceWith(cap)
         # clean up remainders of embedded content
         for div in soup.findAll('div', {'style': True}):
             if len(div.attrs) == 1:
