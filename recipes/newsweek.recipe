@@ -49,31 +49,44 @@ class Newsweek(BasicNewsRecipe):
         img = li.xpath('descendant::a[@href]/img[@src]')[0]
         self.cover_url = img.get('src')
         root = self.index_to_soup(url, as_tree=True)
-        div = root.xpath(
-            '//div[@id="block-nw-magazine-magazine-cover-story"]')[0]
-        a = div.xpath('descendant::a[@href]')[0]
-        index = [('Cover', [{'title': 'Cover story', 'url': href_to_url(a)}])]
-        sections = defaultdict(list)
-        div = root.xpath(
-            '//div[@id="block-nw-magazine-magazine-issue-story-list"]')[0]
-        for a in div.xpath('descendant::h3/a[@href and contains(@class, "article-link")]'):
+        div = root.xpath('//div[@id="block-nw-magazine-magazine-features"]')[0]
+        features = []
+        href_xpath = 'descendant::*[local-name()="h1" or local-name()="h2" or local-name()="h3" or local-name()="h4"]/a[@href]'
+        for a in div.xpath(href_xpath):
             title = self.tag_to_string(a)
             article = a.xpath('ancestor::article')[0]
             desc = ''
             s = article.xpath('descendant::div[@class="summary"]')
             if s:
                 desc = self.tag_to_string(s[0])
-            sec = article.xpath('descendant::div[@class="category"]')
-            if sec:
-                sec = self.tag_to_string(sec[0])
-            else:
-                sec = 'Articles'
-            sections[sec].append(
-                {'title': title, 'url': href_to_url(a), 'description': desc})
             self.log(title, url)
-            if desc:
-                self.log('\t' + desc)
-            self.log('')
+            features.append({'title': title, 'url': href_to_url(a), 'description': desc})
+
+        index = []
+        if features:
+            index.append(('Features', features))
+        sections = defaultdict(list)
+        for block in ('magazine-magazine-issue-story-list', 'editors-pick'):
+            div = root.xpath(
+                '//div[@id="block-nw-{}"]'.format(block))[0]
+            for a in div.xpath(href_xpath):
+                title = self.tag_to_string(a)
+                article = a.xpath('ancestor::article')[0]
+                desc = ''
+                s = article.xpath('descendant::div[@class="summary"]')
+                if s:
+                    desc = self.tag_to_string(s[0])
+                sec = article.xpath('descendant::div[@class="category"]')
+                if sec:
+                    sec = self.tag_to_string(sec[0])
+                else:
+                    sec = 'Articles'
+                sections[sec].append(
+                    {'title': title, 'url': href_to_url(a), 'description': desc})
+                self.log(title, url)
+                if desc:
+                    self.log('\t' + desc)
+                self.log('')
         for k in sorted(sections):
             index.append((k, sections[k]))
         return index
