@@ -43,8 +43,8 @@ class Bug:
         self.seen.add(bug)
 
         if int(bug) > 100000:  # Launchpad bug
-            raw = urllib.request.urlopen(LAUNCHPAD_BUG % bug).read()
             try:
+                raw = urllib.request.urlopen(LAUNCHPAD_BUG % bug).read()
                 h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
                 summary = html.tostring(h1, method='text', encoding=str).strip()
             except:
