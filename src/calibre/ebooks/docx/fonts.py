@@ -126,6 +126,8 @@ def do_map(m, points):
 
 def map_symbol_text(text, font):
     m = SYMBOL_MAPS[font]
+    if isinstance(text, bytes):
+        text = text.decode('utf-8')
     return ''.join(do_map(m, ord_string(text)))
 
 
