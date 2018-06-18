@@ -210,7 +210,7 @@ class CreateCustomColumn(QDialog):
             self.composite_box.setText(
                 {
                     'isbn': '{identifiers:select(isbn)}',
-                    'formats': "{:'approximate_formats()'}",
+                    'formats': "{:'re(approximate_formats(), ',', ', ')'}",
                     }[which])
             self.composite_sort_by.setCurrentIndex(0)
         if which == 'text':
@@ -372,19 +372,19 @@ class CreateCustomColumn(QDialog):
         cmc.setToolTip(_("If checked, this column will appear in the Tag browser as a category"))
         l.addWidget(cmc)
         self.composite_contains_html = cch = QCheckBox(_("Show as HTML in Book details"))
-        cch.setToolTip('<p>' +
-                _('If checked, this column will be displayed as HTML in '
-                  'Book details and the Content server. This can be used to '
-                  'construct links with the template language. For example, '
-                  'the template '
-                  '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
-                  '{series:| [|}{series_index:| [|]]}</pre>'
-                  'will create a field displaying the title in bold large '
-                  'characters, along with the series, for example <br>"<big><b>'
-                  'An Oblique Approach</b></big> [Belisarius [1]]". The template '
-                  '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
-                  ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam e-books site.') + '</p>')
+        cch.setToolTip('<p>' + _(
+            'If checked, this column will be displayed as HTML in '
+            'Book details and the Content server. This can be used to '
+            'construct links with the template language. For example, '
+            'the template '
+            '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
+            '{series:| [|}{series_index:| [|]]}</pre>'
+            'will create a field displaying the title in bold large '
+            'characters, along with the series, for example <br>"<big><b>'
+            'An Oblique Approach</b></big> [Belisarius [1]]". The template '
+            '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
+            ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
+            'will generate a link to the book on the Beam e-books site.') + '</p>')
         l.addWidget(cch)
         add_row(None, l)
 
@@ -414,13 +414,13 @@ class CreateCustomColumn(QDialog):
                     '<p>' + _('Default: Not formatted. For format language details see'
                     ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the Python documentation</a>'))
                 if col_type == 'int':
-                    self.format_box.setToolTip('<p>' +
-                        _('Examples: The format <code>{0:0>4d}</code> '
+                    self.format_box.setToolTip('<p>' + _(
+                        'Examples: The format <code>{0:0>4d}</code> '
                         'gives a 4-digit number with leading zeros. The format '
                         '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
                 else:
-                    self.format_box.setToolTip('<p>' +
-                        _('Examples: The format <code>{0:.1f}</code> gives a floating '
+                    self.format_box.setToolTip('<p>' + _(
+                        'Examples: The format <code>{0:.1f}</code> gives a floating '
                         'point number with 1 digit after the decimal point. The format '
                         '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
                         '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
@@ -447,7 +447,7 @@ class CreateCustomColumn(QDialog):
             return self.simple_error('', _('No lookup name was provided'))
         if col.startswith('#'):
             col = col[1:]
-        if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
+        if re.match(r'^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
             return self.simple_error('', _('The lookup name must contain only '
                     'lower case letters, digits and underscores, and start with a letter'))
         if col.endswith('_index'):
