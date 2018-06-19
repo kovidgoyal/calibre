@@ -264,10 +264,7 @@ def main(args=sys.argv):
         eml = message_from_string(msg)
         tos = eml.get_all('to', [])
         ccs = eml.get_all('cc', []) + eml.get_all('bcc', [])
-        all_tos = []
-        for x in tos + ccs:
-            all_tos.extend(y.strip() for y in x.split(','))
-        eto = list(map(extract_email_address, all_tos))
+        eto = [x[1] for x in getaddresses(tos + ccs) if x[1]]
         if not eto:
             raise ValueError('Email from STDIN does not specify any recipients')
         efrom = getaddresses(eml.get_all('from', []))
