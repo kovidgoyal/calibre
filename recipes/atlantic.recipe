@@ -33,16 +33,16 @@ class TheAtlantic(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
+        dict(id='rubric'),
+        dict(itemprop=['headline', 'image']),
         classes(
-            'article-header lead-img article-cover-extra article-body article-magazine article-cover-content'
+            'article-header c-article-meta lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
-        {
-            'name': ['img']
-        },
+        dict(itemprop='articleBody'),
     ]
     remove_tags = [
         classes(
-            'social-kit-top letter-writer-info callout secondary-byline embed-wrapper offset-wrapper boxtop-most-popular'
+            'c-ad social-kit-top letter-writer-info callout secondary-byline embed-wrapper offset-wrapper boxtop-most-popular'
         ),
         {
             'name': ['meta', 'link', 'noscript', 'aside', 'h3']
@@ -70,6 +70,10 @@ class TheAtlantic(BasicNewsRecipe):
         .figcaption { font-size: 75% }
         .caption { font-size: 75% }
         .lead-img { display: block }
+        p.dropcap:first-letter {
+        float: left; text-transform: uppercase; font-weight: bold; font-size: 5.55em; line-height: 0.83;
+        margin: 0; padding-right: 7px; margin-bottom: -2px; text-align: center;
+        }
     '''
 
     def get_browser(self):
@@ -83,7 +87,10 @@ class TheAtlantic(BasicNewsRecipe):
         return soup
 
     def print_version(self, url):
-        return url.partition('?')[0] + '?single_page=true'
+        ans = url.partition('?')[0] + '?single_page=true'
+        if '/video/' in ans:
+            ans = None
+        return ans
 
     if web_version:
 
