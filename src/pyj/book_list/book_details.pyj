@@ -470,6 +470,7 @@ def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
+        add_button(container, 'convert', action=convert_book, tooltip=_('Convert this book to another format'))
         add_button(container, 'edit', action=edit_metadata, tooltip=_('Edit the metadata for this book'))
         add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
         book_id = parse_url_params().book_id
@@ -598,6 +599,12 @@ def edit_metadata():
     q = parse_url_params()
     q.book_id = (read_book.book_id or q.book_id) + ''
     show_panel('edit_metadata', query=q, replace=False)
+
+
+def convert_book():
+    q = parse_url_params()
+    q.book_id = (read_book.book_id or q.book_id) + ''
+    show_panel('convert_book', query=q, replace=False)
 
 
 def create_more_actions_panel(container_id):
