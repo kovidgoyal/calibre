@@ -8,8 +8,7 @@ import shutil
 
 from PyQt5.Qt import QModelIndex, QDialog
 
-from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
-    GroupModel, gprefs, get_output_formats)
+from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
 from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
@@ -18,6 +17,7 @@ from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert import GuiRecommendations
 from calibre.ebooks.conversion.plumber import Plumber
+from calibre.ebooks.conversion.config import sort_formats_by_preference, get_output_formats
 from calibre.utils.config import prefs
 from calibre.utils.logging import Log
 

@@ -8,10 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, ast, json
 
-from calibre.utils.config import config_dir
+from calibre.utils.config import config_dir, prefs, tweaks
 from calibre.utils.lock import ExclusiveFile
 from calibre import sanitize_file_name
 from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.ui import available_output_formats
 
 
 config_dir = os.path.join(config_dir, 'conversion')
@@ -114,3 +115,78 @@ class GuiRecommendations(dict):
                 self.disabled_options.add(name)
             elif opt.level > level or name not in self:
                 self[name] = opt.recommended_value
+
+
+def get_available_formats_for_book(db, book_id):
+    available_formats = db.new_api.formats(book_id)
+    return {x.lower() for x in available_formats}
+
+
+class NoSupportedInputFormats(Exception):
+
+    def __init__(self, available_formats):
+        Exception.__init__(self)
+        self.available_formats = available_formats
+
+
+def get_supported_input_formats_for_book(db, book_id):
+    from calibre.ebooks.conversion.plumber import supported_input_formats
+    available_formats = get_available_formats_for_book(db, book_id)
+    input_formats = {x.lower() for x in supported_input_formats()}
+    input_formats = sorted(available_formats.intersection(input_formats))
+    if not input_formats:
+        raise NoSupportedInputFormats(tuple(x for x in available_formats if x))
+    return input_formats
+
+
+def get_preferred_input_format_for_book(db, book_id):
+    recs = load_specifics(db, book_id)
+    if recs:
+        return recs.get('gui_preferred_input_format', None)
+
+
+def sort_formats_by_preference(formats, prefs):
+    uprefs = [x.upper() for x in prefs]
+
+    def key(x):
+        try:
+            return uprefs.index(x.upper())
+        except ValueError:
+            pass
+        return len(prefs)
+    return sorted(formats, key=key)
+
+
+def get_input_format_for_book(db, book_id, pref=None):
+    '''
+    Return (preferred input format, list of available formats) for the book
+    identified by book_id. Raises an error if the book has no input formats.
+
+    :param pref: If None, the format used as input for the last conversion, if
+    any, on this book is used. If not None, should be a lowercase format like
+    'epub' or 'mobi'. If you do not want the last converted format to be used,
+    set pref=False.
+    '''
+    if pref is None:
+        pref = get_preferred_input_format_for_book(db, book_id)
+    if hasattr(pref, 'lower'):
+        pref = pref.lower()
+    input_formats = get_supported_input_formats_for_book(db, book_id)
+    input_format = pref if pref in input_formats else \
+        sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
+    return input_format, input_formats
+
+
+def get_output_formats(preferred_output_format):
+    all_formats = {x.upper() for x in available_output_formats()}
+    all_formats.discard('OEB')
+    pfo = preferred_output_format.upper() if preferred_output_format else ''
+    restrict = tweaks['restrict_output_formats']
+    if restrict:
+        fmts = [x.upper() for x in restrict]
+        if pfo and pfo not in fmts and pfo in all_formats:
+            fmts.append(pfo)
+    else:
+        fmts = list(sorted(all_formats,
+                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x)))
+    return fmts

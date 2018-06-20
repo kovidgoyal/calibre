@@ -11,8 +11,8 @@ import cPickle, shutil
 from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
 
 from calibre.gui2 import gprefs
-from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
-        load_specifics)
+from calibre.ebooks.conversion.config import (
+        GuiRecommendations, save_specifics, sort_formats_by_preference, get_input_format_for_book, get_output_formats)
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -24,47 +24,11 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert.debug import DebugWidget
 
 
-from calibre.ebooks.conversion.plumber import (Plumber,
-        supported_input_formats, ARCHIVE_FMTS)
+from calibre.ebooks.conversion.plumber import (Plumber, ARCHIVE_FMTS)
 from calibre.ebooks.conversion.config import delete_specifics
-from calibre.customize.ui import available_output_formats
 from calibre.customize.conversion import OptionRecommendation
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.logging import Log
-
-
-class NoSupportedInputFormats(Exception):
-
-    def __init__(self, available_formats):
-        Exception.__init__(self)
-        self.available_formats = available_formats
-
-
-def sort_formats_by_preference(formats, prefs):
-    uprefs = [x.upper() for x in prefs]
-
-    def key(x):
-        try:
-            return uprefs.index(x.upper())
-        except ValueError:
-            pass
-        return len(prefs)
-    return sorted(formats, key=key)
-
-
-def get_output_formats(preferred_output_format):
-    all_formats = {x.upper() for x in available_output_formats()}
-    all_formats.discard('OEB')
-    pfo = preferred_output_format.upper() if preferred_output_format else ''
-    restrict = tweaks['restrict_output_formats']
-    if restrict:
-        fmts = [x.upper() for x in restrict]
-        if pfo and pfo not in fmts and pfo in all_formats:
-            fmts.append(pfo)
-    else:
-        fmts = list(sorted(all_formats,
-                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x)))
-    return fmts
 
 
 class GroupModel(QAbstractListModel):
@@ -90,49 +54,6 @@ class GroupModel(QAbstractListModel):
             f.setBold(True)
             return (f)
         return None
-
-
-def get_preferred_input_format_for_book(db, book_id):
-    recs = load_specifics(db, book_id)
-    if recs:
-        return recs.get('gui_preferred_input_format', None)
-
-
-def get_available_formats_for_book(db, book_id):
-    available_formats = db.formats(book_id, index_is_id=True)
-    if not available_formats:
-        available_formats = ''
-    return set([x.lower() for x in
-        available_formats.split(',')])
-
-
-def get_supported_input_formats_for_book(db, book_id):
-    available_formats = get_available_formats_for_book(db, book_id)
-    input_formats = set([x.lower() for x in supported_input_formats()])
-    input_formats = sorted(available_formats.intersection(input_formats))
-    if not input_formats:
-        raise NoSupportedInputFormats(tuple(x for x in available_formats if x))
-    return input_formats
-
-
-def get_input_format_for_book(db, book_id, pref):
-    '''
-    Return (preferred input format, list of available formats) for the book
-    identified by book_id. Raises an error if the book has no input formats.
-
-    :param pref: If None, the format used as input for the last conversion, if
-    any, on this book is used. If not None, should be a lowercase format like
-    'epub' or 'mobi'. If you do not want the last converted format to be used,
-    set pref=False.
-    '''
-    if pref is None:
-        pref = get_preferred_input_format_for_book(db, book_id)
-    if hasattr(pref, 'lower'):
-        pref = pref.lower()
-    input_formats = get_supported_input_formats_for_book(db, book_id)
-    input_format = pref if pref in input_formats else \
-        sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
-    return input_format, input_formats
 
 
 class Config(QDialog, Ui_Dialog):

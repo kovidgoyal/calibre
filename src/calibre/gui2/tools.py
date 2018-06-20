@@ -13,15 +13,14 @@ from PyQt5.Qt import QDialog, QProgressDialog, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
-from calibre.gui2.convert.single import NoSupportedInputFormats
-from calibre.gui2.convert.single import Config as SingleConfig, \
-    get_input_format_for_book
+from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.gui2.convert.bulk import BulkConfig
 from calibre.gui2.convert.metadata import create_opf_file, create_cover_file
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
-from calibre.ebooks.conversion.config import GuiRecommendations, \
-    load_defaults, load_specifics, save_specifics
+from calibre.ebooks.conversion.config import (
+        GuiRecommendations, load_defaults, load_specifics, save_specifics,
+        get_input_format_for_book, NoSupportedInputFormats)
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
 
@@ -100,12 +99,12 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
     if bad and show_no_format_warning:
         if len(bad) == 1 and not bad[0][1]:
             title = db.title(bad[0][0], True)
-            warning_dialog(parent, _('Could not convert'), '<p>'+
-                _('Could not convert <b>%s</b> as it has no e-book files. If you '
-                  'think it should have files, but calibre is not finding '
-                  'them, that is most likely because you moved the book\'s '
-                  'files around outside of calibre. You will need to find those files '
-                  'and re-add them to calibre.')%title, show=True)
+            warning_dialog(parent, _('Could not convert'), '<p>'+ _(
+                'Could not convert <b>%s</b> as it has no e-book files. If you '
+                'think it should have files, but calibre is not finding '
+                'them, that is most likely because you moved the book\'s '
+                'files around outside of calibre. You will need to find those files '
+                'and re-add them to calibre.')%title, show=True)
         else:
             res = []
             for id, available_formats in bad:
