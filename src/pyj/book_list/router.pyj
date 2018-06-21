@@ -2,11 +2,17 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+from gettext import gettext as _
+
 from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.globals import get_current_query
 from book_list.library_data import current_library_id
 from modals import close_all_modals
-from utils import encode_query_with_path, parse_url_params, request_full_screen
+from utils import (
+    encode_query_with_path, parse_url_params, request_full_screen,
+    safe_set_inner_html
+)
 
 mode_handlers = {}
 default_mode_handler = None
@@ -89,5 +95,20 @@ def back():
             q = {}
         push_state(q, replace=True)
 
+
 def home(replace=False):
     push_state({})
+
+
+def report_a_load_failure(container, msg, error_html):
+    err = E.div()
+    safe_set_inner_html(err, error_html)
+    container.appendChild(E.div(
+        style='margin: 1ex 1em',
+        E.div(msg),
+        err,
+        E.div(
+            style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
+            E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+        ),
+    )

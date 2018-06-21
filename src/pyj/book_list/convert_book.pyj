@@ -1,0 +1,89 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from ajax import ajax
+from book_list.book_details import report_load_failure
+from book_list.library_data import load_status, url_books_query
+from book_list.router import back, report_a_load_failure
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler
+from dom import add_extra_css, build_rule, clear
+from utils import conditional_timeout, parse_url_params
+
+CLASS_NAME = 'convert-book-panel'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = build_rule(sel, placeholder='TODO: add this')
+    return style
+)
+
+
+conversion_data = None
+conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
+
+
+def on_data_loaded(end_type, xhr, ev):
+    nonlocal conversion_data
+    conversion_data_load_status.current_fetch = None
+
+    def bad_load(msg):
+        conversion_data_load_status.ok = False
+        conversion_data_load_status.loading = False
+        conversion_data_load_status.error_html = msg or xhr.error_html
+
+    if end_type is 'load':
+        conversion_data = JSON.parse(xhr.responseText)
+    elif end_type is 'abort':
+        pass
+    else:
+        bad_load()
+
+
+def fetch_conversion_data(book_id):
+    if conversion_data_load_status.current_fetch:
+        conversion_data_load_status.current_fetch.abort()
+    query = url_books_query()
+    conversion_data_load_status.loading = True
+    conversion_data_load_status.ok = False
+    conversion_data_load_status.error_html = None
+    conversion_data_load_status.current_fetch = ajax(f'conversion/books-data/{book_id}', on_data_loaded, query=query)
+    conversion_data_load_status.current_fetch.send()
+
+
+def on_close(container_id):
+    back()
+
+
+def check_for_data_loaded():
+    container = this
+    if load_status.loading or conversion_data_load_status.loading:
+        conditional_timeout(container.id, 5, check_for_data_loaded)
+        return
+    container = container.lastChild
+    clear(container)
+    if not load_status.ok:
+        report_load_failure(container)
+        return
+    if not conversion_data_load_status.ok:
+        report_a_load_failure(
+            container, _('Failed to load conversion data from calibre, with error:'),
+        conversion_data_load_status.error_html)
+    # create_convert_book(container)
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Convert book'), action=on_close.bind(None, container_id), icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME))
+    container.lastChild.appendChild(E.div(_('Loading conversion data, please wait...'), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_data_loaded)
+    q = parse_url_params()
+    fetch_conversion_data(q.book_id)
+
+
+set_panel_handler('convert_book', init)

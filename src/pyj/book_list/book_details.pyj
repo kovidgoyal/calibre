@@ -14,7 +14,7 @@ from book_list.library_data import (
     book_metadata, cover_url, current_library_id, current_virtual_library,
     download_url, library_data, load_status, set_book_metadata
 )
-from book_list.router import back, home, open_book
+from book_list.router import back, home, open_book, report_a_load_failure
 from book_list.theme import get_color, get_font_size
 from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
@@ -546,17 +546,10 @@ def create_book_details(container):
 
 
 def report_load_failure(container):
-    err = E.div()
-    safe_set_inner_html(err, load_status.error_html)
-    container.appendChild(E.div(
-        style='margin: 1ex 1em',
-        E.div(_('Failed to load books from calibre library, with error:')),
-        err,
-        E.div(
-            style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-            E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
-        ),
-    )
+    report_a_load_failure(
+        container, _('Failed to load books from calibre library, with error:'),
+        load_status.error_html)
+
 
 
 def check_for_books_loaded():

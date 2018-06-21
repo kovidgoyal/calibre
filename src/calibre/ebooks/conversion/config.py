@@ -45,6 +45,20 @@ def load_defaults(name):
     return r
 
 
+def load_all_defaults():
+    ans = {}
+    for x in os.listdir(config_dir):
+        if x.endswith('.py'):
+            path = os.path.join(config_dir, x)
+            with ExclusiveFile(path) as f:
+                raw = f.read()
+            r = GuiRecommendations()
+            if raw:
+                r.deserialize(raw)
+            ans[os.path.splitext(x)[0]] = r.copy()
+    return ans
+
+
 def save_specifics(db, book_id, recs):
     raw = recs.serialize()
     db.set_conversion_options(book_id, 'PIPE', raw)
@@ -146,14 +160,11 @@ def get_preferred_input_format_for_book(db, book_id):
 
 
 def sort_formats_by_preference(formats, prefs):
-    uprefs = [x.upper() for x in prefs]
+    uprefs = {x.upper():i for i, x in enumerate(prefs)}
 
     def key(x):
-        try:
-            return uprefs.index(x.upper())
-        except ValueError:
-            pass
-        return len(prefs)
+        return uprefs.get(x.upper(), len(prefs))
+
     return sorted(formats, key=key)
 
 
@@ -188,5 +199,16 @@ def get_output_formats(preferred_output_format):
             fmts.append(pfo)
     else:
         fmts = list(sorted(all_formats,
-                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x)))
+            key=lambda x:{'EPUB':'!A', 'AZW3':'!B', 'MOBI':'!C'}.get(x.upper(), x)))
+    return fmts
+
+
+def get_sorted_output_formats():
+    preferred_output_format = prefs['output_format'].upper()
+    fmts = get_output_formats(preferred_output_format)
+    try:
+        fmts.remove(preferred_output_format)
+    except Exception:
+        pass
+    fmts.insert(0, preferred_output_format)
     return fmts

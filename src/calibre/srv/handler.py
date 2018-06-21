@@ -179,7 +179,7 @@ class Context(object):
             return old[1]
 
 
-SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api')
+SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert')
 
 
 class Handler(object):
