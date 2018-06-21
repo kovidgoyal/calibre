@@ -27,6 +27,12 @@ conversion_data = None
 conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
 
 
+def create_convert_book(container):
+    conversion_data.container_id = container.getAttribute('id')
+
+
+# Initialization {{{
+
 def on_data_loaded(end_type, xhr, ev):
     nonlocal conversion_data
     conversion_data_load_status.current_fetch = None
@@ -73,7 +79,7 @@ def check_for_data_loaded():
         report_a_load_failure(
             container, _('Failed to load conversion data from calibre, with error:'),
         conversion_data_load_status.error_html)
-    # create_convert_book(container)
+    create_convert_book(container)
 
 
 def init(container_id):
@@ -87,3 +93,4 @@ def init(container_id):
 
 
 set_panel_handler('convert_book', init)
+# }}}
