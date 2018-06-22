@@ -29,6 +29,7 @@ from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
+from calibre.utils.icu import primary_sort_key
 
 
 def restrict_column_width(self, col, old_size, new_size):
@@ -449,8 +450,9 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            for hcol, hidx in hidden_cols.iteritems():
-                hname = unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')
+            hcols = [(hcol, unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in hidden_cols.iteritems()]
+            hcols.sort(key=lambda x: primary_sort_key(x[1]))
+            for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
         ans.addSeparator()
         ans.addAction(_('Shrink column if it is too wide to fit'),
