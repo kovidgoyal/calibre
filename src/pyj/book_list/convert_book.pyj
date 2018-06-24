@@ -9,7 +9,7 @@ from ajax import ajax
 from book_list.book_details import report_load_failure
 from book_list.library_data import load_status, url_books_query
 from book_list.router import back, report_a_load_failure
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler
 from dom import add_extra_css, build_rule, clear
 from utils import conditional_timeout, parse_url_params
@@ -29,6 +29,7 @@ conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'c
 
 def create_convert_book(container):
     conversion_data.container_id = container.getAttribute('id')
+    set_title(_('Convert: {}').format(conversion_data.title))
 
 
 # Initialization {{{
@@ -51,8 +52,10 @@ def on_data_loaded(end_type, xhr, ev):
 
 
 def fetch_conversion_data(book_id):
+    nonlocal conversion_data
     if conversion_data_load_status.current_fetch:
         conversion_data_load_status.current_fetch.abort()
+    conversion_data = None
     query = url_books_query()
     conversion_data_load_status.loading = True
     conversion_data_load_status.ok = False

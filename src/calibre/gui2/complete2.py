@@ -9,11 +9,14 @@ __docformat__ = 'restructuredtext en'
 
 import weakref
 
-import sip
 from PyQt5.Qt import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
     QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer)
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
@@ -155,8 +158,7 @@ class Completer(QListView):  # {{{
         if widget is None:
             return
         screen = QApplication.desktop().availableGeometry(widget)
-        h = (p.sizeHintForRow(0) * min(self.max_visible_items, m.rowCount()) +
-                3) + 3
+        h = (p.sizeHintForRow(0) * min(self.max_visible_items, m.rowCount()) + 3) + 3
         hsb = p.horizontalScrollBar()
         if hsb and hsb.isVisible():
             h += hsb.sizeHint().height()

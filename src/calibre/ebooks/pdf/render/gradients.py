@@ -11,8 +11,11 @@ import sys, copy
 from future_builtins import map
 from collections import namedtuple
 
-import sip
 from PyQt5.Qt import QLinearGradient, QPointF
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
 
@@ -151,4 +154,3 @@ class LinearGradientPattern(Dictionary):
                 stops[-1][0] = base_stops[-1][0]
 
         return start, stop, tuple(Stop(s[0], s[1]) for s in stops)
-

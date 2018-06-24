@@ -10,11 +10,14 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 from functools import partial
 
-import sip
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.utils.config import JSONConfig
 from calibre.constants import DEBUG
@@ -487,8 +490,8 @@ class Editor(QFrame):  # {{{
         dup_desc = self.dup_check(sequence)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode(sequence.toString(QKeySequence.NativeText)) + ' ' +
-                    _('already assigned to') + ' ' + dup_desc, show=True)
+                    unicode(sequence.toString(QKeySequence.NativeText)) + ' ' + _(
+                        'already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
     def dup_check(self, sequence):

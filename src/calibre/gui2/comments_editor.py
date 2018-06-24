@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re, os, json, weakref
 
 from lxml import html
-import sip
 
 from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
@@ -16,6 +15,10 @@ from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
     QCheckBox)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml

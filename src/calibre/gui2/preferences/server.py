@@ -8,13 +8,16 @@ import os
 import textwrap
 import time
 
-import sip
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
     QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit,
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
     QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre import as_unicode
 from calibre.gui2 import (

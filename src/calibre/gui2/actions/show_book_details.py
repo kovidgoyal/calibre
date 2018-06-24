@@ -6,6 +6,10 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import Qt
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo
@@ -45,6 +49,5 @@ class ShowBookDetailsAction(InterfaceAction):
         except ValueError:
             pass
         else:
-            import sip
             sip.delete(d)
             del d

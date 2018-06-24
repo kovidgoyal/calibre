@@ -8,10 +8,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
-import sip
 from PyQt5.Qt import (
     Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal,
     QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget)
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config

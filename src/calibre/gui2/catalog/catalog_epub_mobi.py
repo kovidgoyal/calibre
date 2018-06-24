@@ -21,6 +21,10 @@ from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
         QUrl, QVBoxLayout, QWidget)
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 
 class PluginWidget(QWidget,Ui_Form):
@@ -78,7 +82,7 @@ class PluginWidget(QWidget,Ui_Form):
                             ['radio_button' for i in RadioButtonControls])
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],['\[.+\]|^\+$'],['line_edit'])
+        option_fields += zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit'])
 
         # TextEditControls
         # option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
@@ -966,7 +970,6 @@ class GenericRulesTable(QTableWidget):
                 for i in reversed(range(child.count())):
                     if child.itemAt(i).widget() is not None:
                         child.itemAt(i).widget().setParent(None)
-                import sip
                 sip.delete(child)
 
             for i in reversed(range(old_layout.count())):

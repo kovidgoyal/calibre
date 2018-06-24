@@ -11,13 +11,16 @@ from binascii import hexlify
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 
-import sip
 from PyQt5.Qt import (
     QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout, QIcon,
     QInputDialog, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMenu, QPainter,
     QPixmap, QRadioButton, QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate,
     Qt, QTimer, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre import human_readable, plugins, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
