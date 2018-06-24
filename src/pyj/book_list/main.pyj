@@ -26,6 +26,7 @@ import book_list.views # noqa: unused-import
 import book_list.local_books # noqa: unused-import
 import book_list.book_details # noqa: unused-import
 import book_list.edit_metadata # noqa: unused-import
+import book_list.convert_book # noqa: unused-import
 
 
 def remove_initial_progress_bar():

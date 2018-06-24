@@ -28,8 +28,17 @@ conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'c
 
 
 def create_convert_book(container):
-    conversion_data.container_id = container.getAttribute('id')
-    set_title(_('Convert: {}').format(conversion_data.title))
+    conversion_data.container_id = container.id
+    set_title(container.parentNode, _('Convert: {}').format(conversion_data.title))
+    top = E.div(style="display: flex",
+        E.div(
+            _('Input format')
+        ),
+        E.div(
+            _('Output format')
+        )
+    )
+    container.appendChild(top)
 
 
 # Initialization {{{
@@ -37,6 +46,9 @@ def create_convert_book(container):
 def on_data_loaded(end_type, xhr, ev):
     nonlocal conversion_data
     conversion_data_load_status.current_fetch = None
+    conversion_data_load_status.loading = False
+    conversion_data_load_status.ok = True
+    conversion_data_load_status.error_html = None
 
     def bad_load(msg):
         conversion_data_load_status.ok = False
@@ -60,7 +72,7 @@ def fetch_conversion_data(book_id):
     conversion_data_load_status.loading = True
     conversion_data_load_status.ok = False
     conversion_data_load_status.error_html = None
-    conversion_data_load_status.current_fetch = ajax(f'conversion/books-data/{book_id}', on_data_loaded, query=query)
+    conversion_data_load_status.current_fetch = ajax(f'conversion/book-data/{book_id}', on_data_loaded, query=query)
     conversion_data_load_status.current_fetch.send()
 
 
@@ -82,6 +94,7 @@ def check_for_data_loaded():
         report_a_load_failure(
             container, _('Failed to load conversion data from calibre, with error:'),
         conversion_data_load_status.error_html)
+        return
     create_convert_book(container)
 
 
