@@ -4,9 +4,42 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from calibre.srv.errors import BookNotFound
+import os
+import shutil
+import tempfile
+from functools import partial
+from threading import Lock
+
+from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
+from calibre.utils.monotonic import monotonic
+
+receive_data_methods = {'GET', 'POST'}
+conversion_jobs = {}
+cache_lock = Lock()
+
+
+class JobStatus(object):
+
+    def __init__(self, job_id, tdir, library_id, pathtoebook, conversion_data):
+        self.job_id = job_id
+        self.tdir = tdir
+        self.library_id, self.pathtoebook = library_id, pathtoebook
+        self.conversion_data = conversion_data
+        self.running = self.ok = True
+        self.last_check_at = monotonic()
+
+    def cleanup(self):
+        safe_delete_tree(self.tdir)
+
+
+def expire_old_jobs():
+    now = monotonic()
+    with cache_lock:
+        remove = [job_id for job_id, job_status in conversion_jobs.iteritems() if now - job_status.last_check_at >= 360]
+        for job_id in remove:
+            conversion_jobs.pop(job_id)
 
 
 def conversion_defaults():
@@ -15,6 +48,75 @@ def conversion_defaults():
     if ans is None:
         ans = conversion_defaults.ans = load_all_defaults()
     return ans
+
+
+def safe_delete_file(path):
+    try:
+        os.remove(path)
+    except EnvironmentError:
+        pass
+
+
+def safe_delete_tree(path):
+    try:
+        shutil.rmtree(path, ignore_errors=True)
+    except EnvironmentError:
+        pass
+
+
+def job_done(job):
+    with cache_lock:
+        try:
+            job_status = conversion_jobs[job.job_id]
+        except KeyError:
+            return
+        job_status.running = False
+        if job.failed:
+            job_status.ok = False
+            job_status.was_aborted = job.was_aborted
+            job_status.traceback = job.traceback
+    safe_delete_file(job_status.pathtoebook)
+
+
+def queue_job(ctx, rd, library_id, copy_format_to, fmt, book_id, conversion_data):
+    tdir = tempfile.mkdtemp(dir=rd.tdir)
+    fd, pathtoebook = tempfile.mkstemp(prefix='', suffix=('.' + fmt.lower()), dir=tdir)
+    with os.fdopen(fd, 'wb') as f:
+        copy_format_to(f)
+    job_id = ctx.start_job(
+            'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert_book',
+            'convert_book', args=(pathtoebook, conversion_data),
+            job_done_callback=job_done
+    )
+    expire_old_jobs()
+    with cache_lock:
+        conversion_jobs[job_id] = JobStatus(job_id, tdir, library_id, pathtoebook, conversion_data)
+    return job_id
+
+
+@endpoint('/conversion/start/{book_id}', postprocess=json, needs_db_write=True, types={'book_id': int}, methods=receive_data_methods)
+def start_conversion(ctx, rd, book_id):
+    db, library_id = get_library_data(ctx, rd)[:2]
+    if not ctx.has_id(rd, db, book_id):
+        raise BookNotFound(book_id, db)
+    data = json.loads(rd.request_body_file.read())
+    input_fmt = data['input_fmt']
+    job_id = queue_job(ctx, rd, library_id, partial(db.copy_format_to, book_id, input_fmt), input_fmt, book_id, data)
+    return job_id
+
+
+@endpoint('/conversion/status/{job_id}', postprocess=json, needs_db_write=True, types={'job_id': int})
+def conversion_status(ctx, rd, job_id):
+    with cache_lock:
+        job_status = conversion_jobs.get(job_id)
+        if job_status is None:
+            raise HTTPNotFound('No job with id: {}'.format(job_id))
+        job_status.last_check_at = monotonic()
+        if job_status.running:
+            pass
+        else:
+            del conversion_jobs[job_id]
+            job_status.cleanup()
 
 
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})
@@ -40,5 +142,6 @@ def conversion_data(ctx, rd, book_id):
         'conversion_specifics': load_specifics(db, book_id),
         'title': db.field_for('title', book_id),
         'authors': db.field_for('authors', book_id),
+        'book_id': book_id
     }
     return ans

@@ -5,14 +5,15 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax
+from ajax import ajax, ajax_send
 from book_list.book_details import report_load_failure
 from book_list.library_data import load_status, url_books_query
 from book_list.router import back, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler
-from dom import add_extra_css, build_rule, clear
+from dom import add_extra_css, build_rule, clear, ensure_id
 from utils import conditional_timeout, parse_url_params
+from widgets import create_button
 
 CLASS_NAME = 'convert-book-panel'
 
@@ -24,21 +25,67 @@ add_extra_css(def():
 
 
 conversion_data = None
-conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
+conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch':None}
+
+
+def on_conversion_started(end_type, xhr, ev):
+    pass
+
+
+def get_conversion_options(container):
+    ans = {}
+    for k in Object.keys(conversion_data.conversion_defaults):
+        if Object.prototype.hasOwnProperty.call(conversion_data.conversion_specifics, k):
+            ans[k] = conversion_data.conversion_specifics[k]
+        else:
+            ans[k] = conversion_data.conversion_defaults[k]
+    return ans
+
+
+def start_conversion():
+    container = document.getElementById(conversion_data.container_id)
+    data = {
+        'input_fmt': container.querySelector('select[name="input_formats"]').value,
+        'output_fmt': container.querySelector('select[name="output_formats"]').value,
+        'options': get_conversion_options(container),
+        'book_id': conversion_data.book_id,
+    }
+    query = url_books_query()
+    ajax_send(f'/conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
 
 
 def create_convert_book(container):
-    conversion_data.container_id = container.id
+    conversion_data.container_id = ensure_id(container)
     set_title(container.parentNode, _('Convert: {}').format(conversion_data.title))
-    top = E.div(style="display: flex",
+    container.appendChild(E.div(class_='top'))
+
+    def generate_choice(name):
+        formats = conversion_data[name]
+        ans = E.select(name=name)
+        for fmt in formats:
+            ans.appendChild(E.option(fmt, value=fmt))
+        return ans
+    tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
+
+    start_conv = E.div(
         E.div(
-            _('Input format')
+            E.div(
+                style='display: table-row',
+                E.div(style=tcell, _('Input format:')),
+                E.div(generate_choice('input_formats'), style=tcell),
+            ),
+            E.div(
+                style='display: table-row',
+                E.div(style=tcell, _('Output format:')),
+                E.div(generate_choice('output_formats'), style=tcell),
+            )
         ),
         E.div(
-            _('Output format')
+            style='margin: 1em',
+            create_button(_('Start conversion'), action=start_conversion)
         )
     )
-    container.appendChild(top)
+    container.lastChild.appendChild(start_conv)
 
 
 # Initialization {{{
@@ -52,7 +99,6 @@ def on_data_loaded(end_type, xhr, ev):
 
     def bad_load(msg):
         conversion_data_load_status.ok = False
-        conversion_data_load_status.loading = False
         conversion_data_load_status.error_html = msg or xhr.error_html
 
     if end_type is 'load':
