@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2.convert.structure_detection_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class StructureDetectionWidget(Widget, Ui_Form):
@@ -20,11 +21,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
     COMMIT_NAME = 'structure_detection'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['chapter', 'chapter_mark', 'start_reading_at',
-                'remove_first_image', 'remove_fake_margins',
-                'insert_metadata', 'page_breaks_before']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['structure_detection'])
         self.db, self.book_id = db, book_id
         for x in ('pagebreak', 'rule', 'both', 'none'):
             self.opt_chapter_mark.addItem(x)

@@ -11,6 +11,7 @@ from PyQt5.Qt import Qt, QAbstractListModel, QModelIndex
 from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.customize.ui import input_profiles, output_profiles
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class ProfileModel(QAbstractListModel):
@@ -44,10 +45,7 @@ class PageSetupWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         self.__connections = []
-        Widget.__init__(self, parent,
-                ['margin_top', 'margin_left', 'margin_right', 'margin_bottom',
-                    'input_profile', 'output_profile']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['page_setup'])
 
         self.db, self.book_id = db, book_id
         self.input_model = ProfileModel(input_profiles())

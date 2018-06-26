@@ -20,6 +20,7 @@ from calibre.gui2.convert import Widget
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 def create_opf_file(db, book_id, opf_file=None):
@@ -55,7 +56,7 @@ class MetadataWidget(Widget, Ui_Form):
     COMMIT_NAME = 'metadata'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['prefer_metadata_cover'])
+        Widget.__init__(self, parent, OPTIONS['pipe']['metadata'])
         self.db, self.book_id = db, book_id
         self.cover_changed = False
         self.cover_data = None

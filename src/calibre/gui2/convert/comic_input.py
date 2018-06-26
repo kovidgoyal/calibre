@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.convert.comic_input_ui import Ui_Form
 from calibre.gui2.convert import Widget
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class PluginWidget(Widget, Ui_Form):
@@ -19,13 +20,7 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/png.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['colors', 'dont_normalize', 'keep_aspect_ratio', 'right2left',
-                    'despeckle', 'no_sort', 'no_process', 'landscape',
-                    'dont_sharpen', 'disable_trim', 'wide', 'output_format',
-                    'dont_grayscale', 'comic_image_size',
-                    'dont_add_comic_pages_to_toc']
-                )
+        Widget.__init__(self, parent, OPTIONS['input']['comic'])
         self.db, self.book_id = db, book_id
         for x in get_option('output_format').option.choices:
             self.opt_output_format.addItem(x)

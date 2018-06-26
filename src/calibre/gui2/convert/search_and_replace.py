@@ -15,6 +15,7 @@ from calibre.gui2 import (error_dialog, question_dialog, choose_files,
 from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
@@ -35,12 +36,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 setattr(self, 'opt_'+z, z)
         self.opt_search_replace = 'search_replace'
 
-        Widget.__init__(self, parent,
-                ['search_replace',
-                 'sr1_search', 'sr1_replace',
-                 'sr2_search', 'sr2_replace',
-                 'sr3_search', 'sr3_replace']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['search_and_replace'])
         self.db, self.book_id = db, book_id
 
         self.sr_search.set_msg(_('&Search regular expression:'))

@@ -12,6 +12,7 @@ from PyQt5.Qt import Qt
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class LookAndFeelWidget(Widget, Ui_Form):
@@ -32,19 +33,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
     }
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['change_justification', 'extra_css', 'base_font_size',
-                    'font_size_mapping', 'line_height', 'minimum_line_height',
-                    'embed_font_family', 'embed_all_fonts', 'subset_embedded_fonts',
-                    'smarten_punctuation', 'unsmarten_punctuation',
-                    'disable_font_rescaling', 'insert_blank_line',
-                    'remove_paragraph_spacing',
-                    'remove_paragraph_spacing_indent_size',
-                    'insert_blank_line_size',
-                    'input_encoding', 'filter_css', 'expand_css',
-                    'asciiize', 'keep_ligatures',
-                    'linearize_tables', 'transform_css_rules']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['look_and_feel'])
         for val, text in [
                 ('original', _('Original')),
                 ('left', _('Left align')),
@@ -59,11 +48,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_smarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and
-                self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
+                lambda state: state != Qt.Unchecked and self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
         self.opt_unsmarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and
-                self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
+                lambda state: state != Qt.Unchecked and self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:

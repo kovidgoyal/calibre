@@ -61,6 +61,7 @@ class Widget(QWidget):
     set_help_signal = pyqtSignal(object)
 
     def __init__(self, parent, options):
+        options = list(options)
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self._options = options
@@ -304,4 +305,3 @@ class Widget(QWidget):
 
     def config_icon(self):
         return self._icon
-

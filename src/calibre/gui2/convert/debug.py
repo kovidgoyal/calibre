@@ -11,6 +11,7 @@ import os
 from calibre.gui2.convert.debug_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog, choose_dir
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class DebugWidget(Widget, Ui_Form):
@@ -21,9 +22,7 @@ class DebugWidget(Widget, Ui_Form):
     COMMIT_NAME = 'debug'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['debug_pipeline']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['debug'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.button_debug_dir.clicked.connect(self.set_debug_dir)
@@ -53,9 +52,7 @@ class DebugWidget(Widget, Ui_Form):
             import traceback
             det_msg = traceback.format_exc()
             error_dialog(self, _('Invalid debug directory'),
-                    _('Failed to create debug directory')+': '+
-                        unicode(self.opt_debug_pipeline.text()),
+                    _('Failed to create debug directory')+': '+ unicode(self.opt_debug_pipeline.text()),
                         det_msg=det_msg, show=True)
             return False
         return True
-

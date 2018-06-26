@@ -10,6 +10,7 @@ from PyQt5.Qt import QHBoxLayout, QFormLayout, QDoubleSpinBox, QCheckBox, QVBoxL
 from calibre.gui2.convert.pdf_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
+from calibre.ebooks.conversion.config import OPTIONS
 
 paper_size_model = None
 orientation_model = None
@@ -23,15 +24,7 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/pdf.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, [
-            'use_profile_size', 'paper_size', 'custom_size', 'pdf_hyphenate',
-            'preserve_cover_aspect_ratio', 'pdf_serif_family', 'unit',
-            'pdf_sans_family', 'pdf_mono_family', 'pdf_standard_font',
-            'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
-            'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc', 'toc_title',
-            'pdf_page_margin_left', 'pdf_page_margin_top', 'pdf_page_margin_right', 'pdf_page_margin_bottom',
-            'pdf_use_document_margins',
-        ])
+        Widget.__init__(self, parent, OPTIONS['output']['pdf'])
         self.db, self.book_id = db, book_id
         try:
             self.hf_label.setText(self.hf_label.text() % localize_user_manual_link(

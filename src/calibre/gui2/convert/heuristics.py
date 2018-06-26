@@ -10,6 +10,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class HeuristicsWidget(Widget, Ui_Form):
@@ -20,14 +21,7 @@ class HeuristicsWidget(Widget, Ui_Form):
     ICON = I('heuristics.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['enable_heuristics', 'markup_chapter_headings',
-                 'italicize_common_cases', 'fix_indents',
-                 'html_unwrap_factor', 'unwrap_lines',
-                 'delete_blank_paragraphs',
-                 'format_scene_breaks', 'replace_scene_breaks',
-                 'dehyphenate', 'renumber_headings']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['heuristics'])
         self.db, self.book_id = db, book_id
         self.rssb_defaults = [u'', u'<hr />', u'∗ ∗ ∗', u'• • •', u'♦ ♦ ♦',
                 u'† †', u'‡ ‡ ‡', u'∞ ∞ ∞', u'¤ ¤ ¤', u'§']

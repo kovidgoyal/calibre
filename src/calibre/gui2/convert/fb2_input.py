@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.convert.fb2_input_ui import Ui_Form
 from calibre.gui2.convert import Widget
+from calibre.ebooks.conversion.config import OPTIONS
 
 
 class PluginWidget(Widget, Ui_Form):
@@ -16,7 +17,6 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/fb2.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-            ['no_inline_fb2_toc'])
+        Widget.__init__(self, parent, OPTIONS['input']['fb2'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

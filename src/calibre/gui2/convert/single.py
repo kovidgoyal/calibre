@@ -24,11 +24,10 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert.debug import DebugWidget
 
 
-from calibre.ebooks.conversion.plumber import (Plumber, ARCHIVE_FMTS)
+from calibre.ebooks.conversion.plumber import create_dummy_plumber
 from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
-from calibre.utils.logging import Log
 
 
 class GroupModel(QAbstractListModel):
@@ -125,13 +124,7 @@ class Config(QDialog, Ui_Dialog):
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
-        output_path = 'dummy.'+output_format
-        log = Log()
-        log.outputs = []
-        input_file = 'dummy.'+input_format
-        if input_format in ARCHIVE_FMTS:
-            input_file = 'dummy.html'
-        self.plumber = Plumber(input_file, output_path, log)
+        self.plumber = create_dummy_plumber(input_format, output_format)
 
         def widget_factory(cls):
             return cls(self.stack, self.plumber.get_option_by_name,
