@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import shutil
 import tempfile
-from functools import partial
 from threading import Lock
 
 from calibre.srv.errors import BookNotFound, HTTPNotFound
@@ -78,15 +77,40 @@ def job_done(job):
     safe_delete_file(job_status.pathtoebook)
 
 
-def queue_job(ctx, rd, library_id, copy_format_to, fmt, book_id, conversion_data):
+def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
+    pass
+
+
+def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
+    from calibre.ebooks.metadata.opf2 import metadata_to_opf
+    from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
+    from calibre.customize.conversion import OptionRecommendation
     tdir = tempfile.mkdtemp(dir=rd.tdir)
     fd, pathtoebook = tempfile.mkstemp(prefix='', suffix=('.' + fmt.lower()), dir=tdir)
     with os.fdopen(fd, 'wb') as f:
-        copy_format_to(f)
+        db.copy_format_to(book_id, fmt, f)
+    fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.jpg'), dir=tdir)
+    with os.fdopen(fd, 'wb') as f:
+        cover_copied = db.copy_cover_to(book_id, f)
+    cover_path = f.name if cover_copied else None
+    mi = db.get_metadata(book_id)
+    mi.application_id = mi.uuid
+    raw = metadata_to_opf(mi)
+    fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.opf'), dir=tdir)
+    with os.fdopen(fd, 'wb') as metadata_file:
+        metadata_file.write(raw)
+
+    recs = GuiRecommendations()
+    recs.update(conversion_data['options'])
+    recs['gui_preferred_input_format'] = conversion_data.input_fmt.lower()
+    save_specifics(db, book_id, recs)
+    recs = [(k, v, OptionRecommendation.HIGH) for k, v in recs.iteritems()]
+
     job_id = ctx.start_job(
-            'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert_book',
-            'convert_book', args=(pathtoebook, conversion_data),
-            job_done_callback=job_done
+        'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert_book',
+        'convert_book', args=(
+            pathtoebook, metadata_file.name, cover_path, conversion_data['output_fmt'], recs),
+        job_done_callback=job_done
     )
     expire_old_jobs()
     with cache_lock:
@@ -101,7 +125,7 @@ def start_conversion(ctx, rd, book_id):
         raise BookNotFound(book_id, db)
     data = json.loads(rd.request_body_file.read())
     input_fmt = data['input_fmt']
-    job_id = queue_job(ctx, rd, library_id, partial(db.copy_format_to, book_id, input_fmt), input_fmt, book_id, data)
+    job_id = queue_job(ctx, rd, library_id, db, input_fmt, book_id, data)
     return job_id
 
 
