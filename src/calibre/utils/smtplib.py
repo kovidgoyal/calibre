@@ -265,6 +265,7 @@ class SMTP:
         sys.stderr. You should pass in a print function of your own to control
         where debug output is written.
         """
+        self._host = host
         self.timeout = timeout
         self.debug = debug_to
         self.esmtp_features = {}
@@ -331,6 +332,7 @@ class SMTP:
             port = self.default_port
         if self.debuglevel > 0:
             self.debug('connect:', (host, port))
+        self._host = host
         self.sock = self._get_socket(host, port, self.timeout)
         (code, msg) = self.getreply()
         if self.debuglevel > 0:
@@ -385,8 +387,7 @@ class SMTP:
                 line = self.file.readline(_MAXLINE + 1)
             except socket.error as e:
                 self.close()
-                raise SMTPServerDisconnected("Connection unexpectedly closed: " +
-                                             str(e))
+                raise SMTPServerDisconnected("Connection unexpectedly closed: " + str(e))
             if line == '':
                 self.close()
                 raise SMTPServerDisconnected("Connection unexpectedly closed")
@@ -647,7 +648,7 @@ class SMTP:
             raise SMTPAuthenticationError(code, resp)
         return (code, resp)
 
-    def starttls(self, keyfile=None, certfile=None):
+    def starttls(self, context=None):
         """Puts the connection to the SMTP server into TLS mode.
 
         If there has been no previous EHLO or HELO command this session, this
@@ -671,7 +672,10 @@ class SMTP:
         if resp == 220:
             if not _have_ssl:
                 raise RuntimeError("No SSL support included in this Python")
-            self.sock = ssl.wrap_socket(self.sock, keyfile, certfile)
+            if context is None:
+                self.sock = ssl.wrap_socket(self.sock)
+            else:
+                self.sock = context.wrap_socket(self.sock, server_hostname=self._host)
             self.file = SSLFakeFile(self.sock)
             # RFC 3207:
             # The client MUST discard any knowledge obtained from

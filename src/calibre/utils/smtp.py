@@ -129,7 +129,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
 
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
-             port=-1, debug_output=None):
+             port=-1, debug_output=None, verify_server_cert=False, cafile=None):
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
@@ -146,7 +146,11 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         port = 25 if encryption != 'SSL' else 465
     s.connect(relay, port)
     if encryption == 'TLS':
-        s.starttls()
+        context = None
+        if verify_server_cert:
+            import ssl
+            context = ssl.create_default_context(cafile=cafile)
+        s.starttls(context=context)
         s.ehlo()
     if username is not None and password is not None:
         if encryption == 'SSL':
@@ -205,6 +209,14 @@ are only used in the SMTP negotiation, the message headers are not modified.
       choices=['TLS', 'SSL', 'NONE'],
       help=_('Encryption method to use when connecting to relay. Choices are '
       'TLS, SSL and NONE. Default is TLS. WARNING: Choosing NONE is highly insecure'))
+    r('--dont-verify-server-certificate', help=_(
+        'Do not verify the server certificate when connecting using TLS. This used'
+        ' to be the default behavior in calibre versions before 3.27. If you are using'
+        ' a relay with a self-signed or otherwise invalid certificate, you can use this option to restore'
+        ' the pre 3.27 behavior'))
+    r('--cafile', help=_(
+        'Path to a file of concatenated CA certificates in PEM format, used to verify the'
+        ' server certificate when using TLS. By default, the system CA certificates are used.'))
     parser.add_option('-o', '--outbox', help=_('Path to maildir folder to store '
                       'failed email messages in.'))
     parser.add_option('-f', '--fork', default=False, action='store_true',
@@ -285,7 +297,7 @@ def main(args=sys.argv):
         sendmail(msg, efrom, eto, localhost=opts.localhost, verbose=opts.verbose,
              timeout=opts.timeout, relay=opts.relay, username=opts.username,
              password=opts.password, port=opts.port,
-             encryption=opts.encryption_method)
+             encryption=opts.encryption_method, verify_server_cert=not opts.dont_verify_server_certificate, cafile=opts.cafile)
     except:
         if outbox is not None:
             outbox.add(msg)
