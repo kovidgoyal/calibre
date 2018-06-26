@@ -42,6 +42,7 @@ def c_parse(val):
     except (ValueError, TypeError):
         return UNDEFINED_DATE
 
+
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
 null = object()
@@ -700,4 +701,3 @@ class IdentifiersTable(ManyToManyTable):
 
     def all_identifier_types(self):
         return frozenset(k for k, v in self.col_book_map.iteritems() if v)
-
