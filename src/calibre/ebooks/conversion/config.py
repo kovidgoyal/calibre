@@ -196,8 +196,8 @@ def get_output_formats(preferred_output_format):
     return fmts
 
 
-def get_sorted_output_formats():
-    preferred_output_format = prefs['output_format'].upper()
+def get_sorted_output_formats(preferred_fmt=None):
+    preferred_output_format = (preferred_fmt or prefs['output_format']).upper()
     fmts = get_output_formats(preferred_output_format)
     try:
         fmts.remove(preferred_output_format)

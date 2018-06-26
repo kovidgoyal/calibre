@@ -33,13 +33,7 @@ def on_conversion_started(end_type, xhr, ev):
 
 
 def get_conversion_options(container):
-    ans = {}
-    for k in Object.keys(conversion_data.conversion_defaults):
-        if Object.prototype.hasOwnProperty.call(conversion_data.conversion_specifics, k):
-            ans[k] = conversion_data.conversion_specifics[k]
-        else:
-            ans[k] = conversion_data.conversion_defaults[k]
-    return ans
+    return conversion_data.conversion_options
 
 
 def start_conversion():

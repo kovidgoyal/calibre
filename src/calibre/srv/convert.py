@@ -41,14 +41,6 @@ def expire_old_jobs():
             conversion_jobs.pop(job_id)
 
 
-def conversion_defaults():
-    from calibre.ebooks.conversion.config import load_all_defaults
-    ans = getattr(conversion_defaults, 'ans', None)
-    if ans is None:
-        ans = conversion_defaults.ans = load_all_defaults()
-    return ans
-
-
 def safe_delete_file(path):
     try:
         os.remove(path)
@@ -143,11 +135,32 @@ def conversion_status(ctx, rd, job_id):
             job_status.cleanup()
 
 
+def get_conversion_options(input_fmt, output_fmt, book_id, db):
+    from calibre.ebooks.conversion.plumber import create_dummy_plumber
+    from calibre.ebooks.conversion.config import load_specifics, load_defaults, OPTIONS
+    from calibre.customize.conversion import OptionRecommendation
+    plumber = create_dummy_plumber(input_fmt, output_fmt)
+    specifics = load_specifics(db, book_id)
+    ans = {'options': {}, 'disabled': set()}
+    for group_name, option_names in OPTIONS['pipe'].iteritems():
+        if group_name == 'debug':
+            continue
+        defs = load_defaults(group_name)
+        defs.merge_recommendations(plumber.get_option, OptionRecommendation.LOW, option_names)
+        specifics.merge_recommendations(plumber.get_option, OptionRecommendation.HIGH, option_names, only_existing=True)
+        for k in defs:
+            if k in specifics:
+                defs[k] = specifics[k]
+        defs = defs.as_dict()
+        ans['options'].update(defs['options'])
+        ans['disabled'] |= defs['disabled']
+    return ans
+
+
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})
 def conversion_data(ctx, rd, book_id):
     from calibre.ebooks.conversion.config import (
-        NoSupportedInputFormats, get_input_format_for_book,
-        get_sorted_output_formats, load_specifics)
+        NoSupportedInputFormats, get_input_format_for_book, get_sorted_output_formats)
     db = get_library_data(ctx, rd)[0]
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
@@ -156,14 +169,17 @@ def conversion_data(ctx, rd, book_id):
     except NoSupportedInputFormats:
         input_formats = []
     else:
+        if rd.query.get('input_fmt') and rd.query.get('input_fmt').lower() in input_formats:
+            input_format = rd.query.get('input_fmt').lower()
         if input_format in input_formats:
             input_formats.remove(input_format)
             input_formats.insert(0, input_format)
+    input_fmt = input_formats[0] if input_formats else 'epub'
+    output_formats = get_sorted_output_formats(rd.query.get('output_fmt'))
     ans = {
         'input_formats': [x.upper() for x in input_formats],
-        'output_formats': get_sorted_output_formats(),
-        'conversion_defaults': conversion_defaults(),
-        'conversion_specifics': load_specifics(db, book_id),
+        'output_formats': output_formats,
+        'conversion_options': get_conversion_options(input_fmt, output_formats[0], book_id, db),
         'title': db.field_for('title', book_id),
         'authors': db.field_for('authors', book_id),
         'book_id': book_id
