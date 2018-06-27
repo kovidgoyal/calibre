@@ -137,23 +137,35 @@ def conversion_status(ctx, rd, job_id):
 
 def get_conversion_options(input_fmt, output_fmt, book_id, db):
     from calibre.ebooks.conversion.plumber import create_dummy_plumber
-    from calibre.ebooks.conversion.config import load_specifics, load_defaults, OPTIONS
+    from calibre.ebooks.conversion.config import (
+        load_specifics, load_defaults, OPTIONS, options_for_input_fmt, options_for_output_fmt)
     from calibre.customize.conversion import OptionRecommendation
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
     ans = {'options': {}, 'disabled': set()}
-    for group_name, option_names in OPTIONS['pipe'].iteritems():
-        if group_name == 'debug':
-            continue
+
+    def merge_group(group_name, option_names):
+        if not group_name or group_name == 'debug':
+            return
         defs = load_defaults(group_name)
-        defs.merge_recommendations(plumber.get_option, OptionRecommendation.LOW, option_names)
-        specifics.merge_recommendations(plumber.get_option, OptionRecommendation.HIGH, option_names, only_existing=True)
+        defs.merge_recommendations(plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
+        specifics.merge_recommendations(plumber.get_option_by_name, OptionRecommendation.HIGH, option_names, only_existing=True)
         for k in defs:
             if k in specifics:
                 defs[k] = specifics[k]
         defs = defs.as_dict()
         ans['options'].update(defs['options'])
-        ans['disabled'] |= defs['disabled']
+        ans['disabled'] |= set(defs['disabled'])
+
+    for group_name, option_names in OPTIONS['pipe'].iteritems():
+        merge_group(group_name, option_names)
+
+    group_name, option_names = options_for_input_fmt(input_fmt)
+    merge_group(group_name, option_names)
+    group_name, option_names = options_for_output_fmt(output_fmt)
+    merge_group(group_name, option_names)
+
+    ans['disabled'] = tuple(ans['disabled'])
     return ans
 
 

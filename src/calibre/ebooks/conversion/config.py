@@ -320,3 +320,25 @@ OPTIONS = {
     },
 }
 OPTIONS['output']['txtz'] = OPTIONS['output']['txt']
+
+
+def options_for_input_fmt(fmt):
+    from calibre.customize.ui import plugin_for_input_format
+    fmt = fmt.lower()
+    plugin = plugin_for_input_format(fmt)
+    if plugin is None:
+        return None, ()
+    full_name = plugin.name.lower().replace(' ', '_')
+    name = full_name.rpartition('_')[0]
+    return full_name, OPTIONS['input'].get(name, ())
+
+
+def options_for_output_fmt(fmt):
+    from calibre.customize.ui import plugin_for_output_format
+    fmt = fmt.lower()
+    plugin = plugin_for_output_format(fmt)
+    if plugin is None:
+        return None, ()
+    full_name = plugin.name.lower().replace(' ', '_')
+    name = full_name.rpartition('_')[0]
+    return full_name, OPTIONS['output'].get(name, ())

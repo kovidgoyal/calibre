@@ -11,11 +11,14 @@ from book_list.library_data import load_status, url_books_query
 from book_list.router import back, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler
-from dom import add_extra_css, build_rule, clear, ensure_id
+from dom import add_extra_css, build_rule
 from utils import conditional_timeout, parse_url_params
 from widgets import create_button
 
 CLASS_NAME = 'convert-book-panel'
+current_state = 'initializing'
+overall_container_id = None
+initializers = {}
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
@@ -28,12 +31,18 @@ conversion_data = None
 conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch':None}
 
 
+def container_for_current_state():
+    ans = document.getElementById(overall_container_id)
+    if ans:
+        return ans.querySelector(f'[data-state="{current_state}"]')
+
+
 def on_conversion_started(end_type, xhr, ev):
     pass
 
 
 def get_conversion_options(container):
-    return conversion_data.conversion_options
+    return conversion_data.conversion_options.options
 
 
 def start_conversion():
@@ -48,17 +57,13 @@ def start_conversion():
     ajax_send(f'/conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
 
 
-def create_convert_book(container):
-    conversion_data.container_id = ensure_id(container)
-    set_title(container.parentNode, _('Convert: {}').format(conversion_data.title))
-    container.appendChild(E.div(class_='top'))
+def create_configuring_markup():
+    ans = E.div(class_='top')
 
     def generate_choice(name):
-        formats = conversion_data[name]
         ans = E.select(name=name)
-        for fmt in formats:
-            ans.appendChild(E.option(fmt, value=fmt))
         return ans
+
     tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
 
     start_conv = E.div(
@@ -79,7 +84,16 @@ def create_convert_book(container):
             create_button(_('Start conversion'), action=start_conversion)
         )
     )
-    container.lastChild.appendChild(start_conv)
+    ans.appendChild(start_conv)
+
+    def initialize(container):
+        for name in 'input_formats', 'output_formats':
+            sel = container.querySelector(f'select[name="{name}"]')
+            formats = conversion_data[name]
+            for fmt in formats:
+                sel.appendChild(E.option(fmt, value=fmt))
+
+    return ans, initialize
 
 
 # Initialization {{{
@@ -121,28 +135,62 @@ def on_close(container_id):
 
 
 def check_for_data_loaded():
+    nonlocal current_state
     container = this
     if load_status.loading or conversion_data_load_status.loading:
         conditional_timeout(container.id, 5, check_for_data_loaded)
         return
     container = container.lastChild
-    clear(container)
     if not load_status.ok:
-        report_load_failure(container)
-        return
-    if not conversion_data_load_status.ok:
+        current_state = 'load-failure'
+        report_load_failure(container_for_current_state())
+    elif not conversion_data_load_status.ok:
+        current_state = 'load-failure'
         report_a_load_failure(
-            container, _('Failed to load conversion data from calibre, with error:'),
+            container_for_current_state(),
+            _('Failed to load conversion data from calibre, with error:'),
         conversion_data_load_status.error_html)
-        return
-    create_convert_book(container)
+    else:
+        set_title(container.parentNode, _('Convert: {}').format(conversion_data.title))
+        current_state = 'configuring'
+    apply_state_to_markup()
+
+
+def create_markup(container):
+    container.appendChild(E.div(
+        data_state='initializing', style='margin: 1ex 1em',
+        E.div(_('Loading conversion data, please wait...'))
+    ))
+    container.appendChild(E.div(
+        data_state='load-failure', style='margin: 1ex 1em',
+    ))
+
+    ccm, init = create_configuring_markup()
+    ccm.dataset.state = 'configuring'
+    container.appendChild(ccm)
+    initializers[ccm.dataset.state] = init
+
+
+def apply_state_to_markup():
+    container = document.getElementById(overall_container_id)
+    if container:
+        for node in container.lastChild.childNodes:
+            if node.dataset.state is current_state:
+                node.style.display = 'block'
+                if initializers[current_state]:
+                    initializers[current_state](node)
+            else:
+                node.style.display = 'none'
 
 
 def init(container_id):
+    nonlocal overall_container_id
     container = document.getElementById(container_id)
+    overall_container_id = container_id
     create_top_bar(container, title=_('Convert book'), action=on_close.bind(None, container_id), icon='close')
     container.appendChild(E.div(class_=CLASS_NAME))
-    container.lastChild.appendChild(E.div(_('Loading conversion data, please wait...'), style='margin: 1ex 1em'))
+    create_markup(container.lastChild)
+    apply_state_to_markup()
     conditional_timeout(container_id, 5, check_for_data_loaded)
     q = parse_url_params()
     fetch_conversion_data(q.book_id)
