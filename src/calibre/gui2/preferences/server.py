@@ -679,7 +679,7 @@ class User(QWidget):
             b = _('Change the blocked libraries')
         else:
             m = _('{} is currently allowed access to all libraries')
-            b = _('Restrict the &libraries {} can access'.format(self.username))
+            b = _('Restrict the &libraries {} can access').format(self.username)
         self.restrict_button.setText(b),
         self.access_label.setText(m.format(username))
 
