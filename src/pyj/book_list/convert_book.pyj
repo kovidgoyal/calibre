@@ -11,7 +11,7 @@ from book_list.library_data import load_status, url_books_query
 from book_list.router import back, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler
-from dom import add_extra_css, build_rule
+from dom import add_extra_css, build_rule, clear
 from utils import conditional_timeout, parse_url_params
 from widgets import create_button
 
@@ -58,10 +58,24 @@ def start_conversion():
 
 
 def create_configuring_markup():
+    ignore_changes = False
     ans = E.div(class_='top')
+
+    def on_format_change():
+        nonlocal ignore_changes, current_state
+        if ignore_changes:
+            return
+        input_fmt = container_for_current_state().querySelector('select[name="input_formats"').value
+        output_fmt = container_for_current_state().querySelector('select[name="output_formats"').value
+        current_state = 'initializing'
+        conditional_timeout(overall_container_id, 5, check_for_data_loaded)
+        q = parse_url_params()
+        fetch_conversion_data(q.book_id, input_fmt, output_fmt)
+        apply_state_to_markup()
 
     def generate_choice(name):
         ans = E.select(name=name)
+        ans.addEventListener('change', on_format_change)
         return ans
 
     tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
@@ -87,11 +101,15 @@ def create_configuring_markup():
     ans.appendChild(start_conv)
 
     def initialize(container):
+        nonlocal ignore_changes
+        ignore_changes = True
         for name in 'input_formats', 'output_formats':
             sel = container.querySelector(f'select[name="{name}"]')
+            clear(sel)
             formats = conversion_data[name]
             for fmt in formats:
                 sel.appendChild(E.option(fmt, value=fmt))
+        ignore_changes = False
 
     return ans, initialize
 
@@ -117,12 +135,16 @@ def on_data_loaded(end_type, xhr, ev):
         bad_load()
 
 
-def fetch_conversion_data(book_id):
+def fetch_conversion_data(book_id, input_fmt, output_fmt):
     nonlocal conversion_data
     if conversion_data_load_status.current_fetch:
         conversion_data_load_status.current_fetch.abort()
     conversion_data = None
     query = url_books_query()
+    if input_fmt:
+        query.input_fmt = input_fmt
+    if output_fmt:
+        query.output_fmt = output_fmt
     conversion_data_load_status.loading = True
     conversion_data_load_status.ok = False
     conversion_data_load_status.error_html = None

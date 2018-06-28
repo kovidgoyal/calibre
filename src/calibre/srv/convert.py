@@ -145,7 +145,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     ans = {'options': {}, 'disabled': set()}
 
     def merge_group(group_name, option_names):
-        if not group_name or group_name == 'debug':
+        if not group_name or group_name in ('debug', 'metadata'):
             return
         defs = load_defaults(group_name)
         defs.merge_recommendations(plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
