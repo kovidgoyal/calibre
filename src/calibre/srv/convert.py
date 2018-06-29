@@ -13,6 +13,7 @@ from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
 from calibre.utils.monotonic import monotonic
+from calibre.utils.shared_file import share_open
 
 receive_data_methods = {'GET', 'POST'}
 conversion_jobs = {}
@@ -21,8 +22,12 @@ cache_lock = Lock()
 
 class JobStatus(object):
 
-    def __init__(self, job_id, tdir, library_id, pathtoebook, conversion_data):
+    def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data):
         self.job_id = job_id
+        self.log = ''
+        self.book_id = book_id
+        self.output_path = os.path.join(
+            tdir, 'output.' + conversion_data['output_fmt'].lower())
         self.tdir = tdir
         self.library_id, self.pathtoebook = library_id, pathtoebook
         self.conversion_data = conversion_data
@@ -32,13 +37,30 @@ class JobStatus(object):
     def cleanup(self):
         safe_delete_tree(self.tdir)
 
+    @property
+    def current_status(self):
+        try:
+            with share_open(os.path.join(self.tdir, 'status'), 'rb') as f:
+                lines = f.read().decode('utf-8').splitlines()
+        except Exception:
+            lines = ()
+        for line in reversed(lines):
+            if line.endswith('|||'):
+                p, msg = line.partition(':')[::2]
+                percent = float(p)
+                msg = msg[:-3]
+                return percent, msg
+        return 0, ''
+
 
 def expire_old_jobs():
     now = monotonic()
     with cache_lock:
-        remove = [job_id for job_id, job_status in conversion_jobs.iteritems() if now - job_status.last_check_at >= 360]
+        remove = [job_id for job_id, job_status in conversion_jobs.iteritems(
+        ) if now - job_status.last_check_at >= 360]
         for job_id in remove:
-            conversion_jobs.pop(job_id)
+            job_status = conversion_jobs.pop(job_id)
+            job_status.cleanup()
 
 
 def safe_delete_file(path):
@@ -64,13 +86,34 @@ def job_done(job):
         job_status.running = False
         if job.failed:
             job_status.ok = False
+            job_status.log = job.read_log()
             job_status.was_aborted = job.was_aborted
             job_status.traceback = job.traceback
     safe_delete_file(job_status.pathtoebook)
 
 
 def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
-    pass
+    from calibre.customize.conversion import OptionRecommendation
+    from calibre.ebooks.conversion.plumber import Plumber
+    from calibre.utils.logging import Log
+    recs.append(('verbose', 2, OptionRecommendation.HIGH))
+    recs.append(('read_metadata_from_opf', opf_path,
+                OptionRecommendation.HIGH))
+    if cover_path:
+        recs.append(('cover', cover_path, OptionRecommendation.HIGH))
+    log = Log()
+    os.chdir(os.path.dirname(path_to_ebook))
+    status_file = share_open('status', 'wb')
+
+    def notification(percent, msg):
+        status_file.write('{}:{}|||\n'.format(percent, msg).encode('utf-8'))
+        status_file.flush()
+
+    output_path = os.path.abspath('output.' + output_fmt.lower())
+    plumber = Plumber(path_to_ebook, output_path, log,
+                      report_progress=notification, override_input_metadata=True)
+    plumber.merge_ui_recommendations(recs)
+    plumber.run()
 
 
 def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
@@ -78,7 +121,8 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
     from calibre.customize.conversion import OptionRecommendation
     tdir = tempfile.mkdtemp(dir=rd.tdir)
-    fd, pathtoebook = tempfile.mkstemp(prefix='', suffix=('.' + fmt.lower()), dir=tdir)
+    fd, pathtoebook = tempfile.mkstemp(
+        prefix='', suffix=('.' + fmt.lower()), dir=tdir)
     with os.fdopen(fd, 'wb') as f:
         db.copy_format_to(book_id, fmt, f)
     fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.jpg'), dir=tdir)
@@ -94,19 +138,20 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
 
     recs = GuiRecommendations()
     recs.update(conversion_data['options'])
-    recs['gui_preferred_input_format'] = conversion_data.input_fmt.lower()
+    recs['gui_preferred_input_format'] = conversion_data['input_fmt'].lower()
     save_specifics(db, book_id, recs)
     recs = [(k, v, OptionRecommendation.HIGH) for k, v in recs.iteritems()]
 
     job_id = ctx.start_job(
-        'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert_book',
+        'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert',
         'convert_book', args=(
             pathtoebook, metadata_file.name, cover_path, conversion_data['output_fmt'], recs),
         job_done_callback=job_done
     )
     expire_old_jobs()
     with cache_lock:
-        conversion_jobs[job_id] = JobStatus(job_id, tdir, library_id, pathtoebook, conversion_data)
+        conversion_jobs[job_id] = JobStatus(
+            job_id, book_id, tdir, library_id, pathtoebook, conversion_data)
     return job_id
 
 
@@ -129,10 +174,27 @@ def conversion_status(ctx, rd, job_id):
             raise HTTPNotFound('No job with id: {}'.format(job_id))
         job_status.last_check_at = monotonic()
         if job_status.running:
-            pass
-        else:
-            del conversion_jobs[job_id]
-            job_status.cleanup()
+            percent, msg = job_status.current_status
+            return {'running': True, 'percent': percent, 'msg': msg}
+
+        del conversion_jobs[job_id]
+
+    try:
+        ans = {'running': False, 'ok': job_status.ok, 'was_aborted': job_status.was_aborted,
+            'traceback': job_status.traceback, 'log': job_status.log}
+        if job_status.ok:
+            db, library_id = get_library_data(ctx, rd)[:2]
+            if library_id != job_status.library_id:
+                raise HTTPNotFound('job library_id does not match')
+            with db.safe_read_lock:
+                if not db.has_id(job_status.book_id):
+                    raise HTTPNotFound(
+                        'book_id {} not found in library'.format(job_status.book_id))
+                db.add_format(job_status.book_id, job_status.output_path.rpartition(
+                    '.')[-1], job_status.output_path)
+        return ans
+    finally:
+        job_status.cleanup()
 
 
 def get_conversion_options(input_fmt, output_fmt, book_id, db):
@@ -148,8 +210,10 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         if not group_name or group_name in ('debug', 'metadata'):
             return
         defs = load_defaults(group_name)
-        defs.merge_recommendations(plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
-        specifics.merge_recommendations(plumber.get_option_by_name, OptionRecommendation.HIGH, option_names, only_existing=True)
+        defs.merge_recommendations(
+            plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
+        specifics.merge_recommendations(
+            plumber.get_option_by_name, OptionRecommendation.HIGH, option_names, only_existing=True)
         for k in defs:
             if k in specifics:
                 defs[k] = specifics[k]

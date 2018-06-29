@@ -46,7 +46,7 @@ def get_conversion_options(container):
 
 
 def start_conversion():
-    container = document.getElementById(conversion_data.container_id)
+    container = document.getElementById(overall_container_id)
     data = {
         'input_fmt': container.querySelector('select[name="input_formats"]').value,
         'output_fmt': container.querySelector('select[name="output_formats"]').value,

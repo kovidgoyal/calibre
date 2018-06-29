@@ -47,7 +47,7 @@ def load_defaults(name):
 
 def save_specifics(db, book_id, recs):
     raw = recs.serialize()
-    db.set_conversion_options(book_id, 'PIPE', raw)
+    db.new_api.set_conversion_options({book_id: raw}, fmt='PIPE')
 
 
 def load_specifics(db, book_id):
