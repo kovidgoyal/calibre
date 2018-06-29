@@ -155,7 +155,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             ans.setBold(True)
             return ans
         if role == Qt.ToolTipRole:
-            tt = _('This tweak has it default value')
+            tt = _('This tweak has its default value')
             if tweak.is_customized:
                 tt = '<p>'+_('This tweak has been customized')
                 tt += '<pre>'
