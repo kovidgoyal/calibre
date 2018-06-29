@@ -9,6 +9,7 @@ import shutil
 import tempfile
 from threading import Lock
 
+from calibre.srv.changes import formats_added
 from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
@@ -166,7 +167,7 @@ def start_conversion(ctx, rd, book_id):
     return job_id
 
 
-@endpoint('/conversion/status/{job_id}', postprocess=json, needs_db_write=True, types={'job_id': int})
+@endpoint('/conversion/status/{job_id}', postprocess=json, needs_db_write=True, types={'job_id': int}, methods=receive_data_methods)
 def conversion_status(ctx, rd, job_id):
     with cache_lock:
         job_status = conversion_jobs.get(job_id)
@@ -190,8 +191,11 @@ def conversion_status(ctx, rd, job_id):
                 if not db.has_id(job_status.book_id):
                     raise HTTPNotFound(
                         'book_id {} not found in library'.format(job_status.book_id))
-                db.add_format(job_status.book_id, job_status.output_path.rpartition(
-                    '.')[-1], job_status.output_path)
+                fmt = job_status.output_path.rpartition('.')[-1]
+                db.add_format(job_status.book_id, fmt, job_status.output_path)
+                formats_added({job_status.book_id: (fmt,)})
+            ans['size'] = os.path.getsize(job_status.output_path)
+            ans['fmt'] = fmt
         return ans
     finally:
         job_status.cleanup()

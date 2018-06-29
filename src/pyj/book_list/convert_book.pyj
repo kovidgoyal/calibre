@@ -7,12 +7,13 @@ from gettext import gettext as _
 
 from ajax import ajax, ajax_send
 from book_list.book_details import report_load_failure
-from book_list.library_data import load_status, url_books_query
-from book_list.router import back, report_a_load_failure
+from book_list.library_data import download_url, load_status, url_books_query
+from book_list.router import back, open_book, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
 from book_list.ui import set_panel_handler
 from dom import add_extra_css, build_rule, clear
-from utils import conditional_timeout, parse_url_params
+from modals import error_dialog
+from utils import conditional_timeout, human_readable, parse_url_params
 from widgets import create_button
 
 CLASS_NAME = 'convert-book-panel'
@@ -22,7 +23,8 @@ initializers = {}
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
-    style = build_rule(sel, placeholder='TODO: add this')
+    style = build_rule(sel, padding='1ex 1rem')
+    style += build_rule(sel + 'h3', margin_bottom='1ex')
     return style
 )
 
@@ -37,15 +39,122 @@ def container_for_current_state():
         return ans.querySelector(f'[data-state="{current_state}"]')
 
 
+def create_converted_markup():
+
+    def init(container):
+        clear(container)
+        container.appendChild(E.h3('Conversion successful!'))
+        fmt = conversion_data.fmt.toUpperCase()
+        book_id = int(conversion_data.book_id)
+
+        def read_book():
+            open_book(book_id, fmt)
+
+        container.appendChild(E.div(
+            style='margin-top: 1rem',
+            create_button(_('Read {}').format(fmt), 'book', read_book),
+            '\xa0',
+            create_button(_('Download {}').format(fmt), 'cloud-download', download_url(book_id, fmt),
+                            _('File size: {}').format(human_readable(conversion_data.size)),
+                            download_filename=f'{conversion_data.title}.{fmt.toLowerCase()}')
+        ))
+
+    return E.div(), init
+
+
+def report_conversion_ajax_failure(xhr):
+    nonlocal current_state
+    current_state = 'configuring'
+    apply_state_to_markup()
+    error_dialog(_('Failed to start conversion'), _(
+        'Could not convert {}. Click "Show details" for more'
+        ' information').format(conversion_data.title),
+        xhr.error_html
+    )
+
+
+def show_failure(response):
+    nonlocal current_state
+    current_state = 'failed'
+    apply_state_to_markup()
+    c = container_for_current_state()
+    clear(c)
+    c.appendChild(E.h3(_('Conversion failed!')))
+    c.appendChild(E.div(_('Error details below...')))
+    c.appendChild(E.div('\xa0'))
+    c.appendChild(E.div())
+    c = c.lastChild
+    if response.was_aborted:
+        c.textContent = _(
+            'Conversion of {} was taking too long, and has been aborted').format(conversion_data.title)
+    else:
+        log = ''
+        if response.traceback:
+            log += response.traceback
+        if response.log:
+            log += '\n\n' + _('Conversion log')
+            log += response.log
+        c.appendChild(E.pre(log))
+
+
+def on_conversion_status(end_type, xhr, ev):
+    nonlocal current_state
+    if end_type is 'load':
+        response = JSON.parse(xhr.responseText)
+        if response.running:
+            c = container_for_current_state()
+            c.querySelector('progress').value = response.percent
+            c.querySelector('.progress-msg').textContent = response.msg
+            check_for_conversion_status()
+        else:
+            if response.ok:
+                current_state = 'converted'
+                apply_state_to_markup()
+                conversion_data.fmt = response.fmt
+                conversion_data.size = response.size
+            else:
+                show_failure(response)
+    else:
+        report_conversion_ajax_failure(xhr)
+
+
+def check_for_conversion_status():
+    query = url_books_query()
+    data = {}
+    ajax_send(f'/conversion/status/{conversion_data.job_id}', data, on_conversion_status, query=query)
+
+
 def on_conversion_started(end_type, xhr, ev):
-    pass
+    nonlocal current_state
+    if end_type is 'load':
+        conversion_data.job_id = JSON.parse(xhr.responseText)
+        check_for_conversion_status()
+    else:
+        report_conversion_ajax_failure(xhr)
 
 
 def get_conversion_options(container):
     return conversion_data.conversion_options.options
 
 
+def create_converting_markup():
+    ans = E.div(
+        E.div(
+            style='text-align: center; margin: auto',
+            _('Converting, please wait...'),
+            E.div(E.progress()),
+            E.div('\xa0', class_='progress-msg'),
+        )
+    )
+
+    def init(container):
+        container.querySelector('progress').removeAttribute('value')
+
+    return ans, init
+
+
 def start_conversion():
+    nonlocal current_state
     container = document.getElementById(overall_container_id)
     data = {
         'input_fmt': container.querySelector('select[name="input_formats"]').value,
@@ -55,18 +164,20 @@ def start_conversion():
     }
     query = url_books_query()
     ajax_send(f'/conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
+    current_state = 'converting'
+    apply_state_to_markup()
 
 
 def create_configuring_markup():
     ignore_changes = False
-    ans = E.div(class_='top')
+    ans = E.div()
 
     def on_format_change():
         nonlocal ignore_changes, current_state
         if ignore_changes:
             return
-        input_fmt = container_for_current_state().querySelector('select[name="input_formats"').value
-        output_fmt = container_for_current_state().querySelector('select[name="output_formats"').value
+        input_fmt = container_for_current_state().querySelector('select[name="input_formats"]').value
+        output_fmt = container_for_current_state().querySelector('select[name="output_formats"]').value
         current_state = 'initializing'
         conditional_timeout(overall_container_id, 5, check_for_data_loaded)
         q = parse_url_params()
@@ -180,17 +291,26 @@ def check_for_data_loaded():
 
 def create_markup(container):
     container.appendChild(E.div(
-        data_state='initializing', style='margin: 1ex 1em',
+        data_state='initializing',
         E.div(_('Loading conversion data, please wait...'))
     ))
-    container.appendChild(E.div(
-        data_state='load-failure', style='margin: 1ex 1em',
-    ))
+    container.appendChild(E.div(data_state='load-failure'))
+    container.appendChild(E.div(data_state='failed'))
 
     ccm, init = create_configuring_markup()
     ccm.dataset.state = 'configuring'
     container.appendChild(ccm)
     initializers[ccm.dataset.state] = init
+
+    conv, init = create_converting_markup()
+    conv.dataset.state = 'converting'
+    container.appendChild(conv)
+    initializers[conv.dataset.state] = init
+
+    conv, init = create_converted_markup()
+    conv.dataset.state = 'converted'
+    container.appendChild(conv)
+    initializers[conv.dataset.state] = init
 
 
 def apply_state_to_markup():
