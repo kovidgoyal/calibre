@@ -24,28 +24,32 @@ class Cracked(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-                    dict(name='div', attrs={'class': [
-                                                'content-content',
-                                                'contentWrapper',
-                                                'content-header',
-                                                        ]}),
-                    dict(name='article', attrs={'class': [
-                                                'module article dropShadowBottomCurved',
-                                                'module blog dropShadowBottomCurved',
-                                                            ]}),
-                      ]
+        dict(name='div', attrs={
+             'class': ['content-content', 'contentWrapper', 'content-header',]}),
+        dict(name='article', attrs={'class': [
+             'module article dropShadowBottomCurved', 'module blog dropShadowBottomCurved',]}),
+    ]
 
     remove_tags = [
-        dict(name='section', attrs={'class': ['socialTools', 'quickFixModule', 'continue-reading']}),
-        dict(attrs={'class':['socialShareAfterContent', 'socialShareModule', 'continue-reading', 'social-share-bottom list-inline']}),
-        dict(name='div', attrs={'id': ['relatedArticle', 'content-card-top', 'recommendedForYourPleasure', 'navbar']}),
-        dict(name='div', attrs={'class': ['comments-wrap', 'container continue-reading', 'row breadcrumbs-wrapper']}),
+        dict(name='section', attrs={
+             'class': ['socialTools', 'quickFixModule', 'continue-reading']}),
+        dict(attrs={'class':['socialShareAfterContent', 'socialShareModule',
+             'continue-reading', 'social-share-bottom list-inline']}),
+        dict(name='div', attrs={'id': ['relatedArticle', 'content-card-top',
+             'recommendedForYourPleasure', 'navbar', 'flashbackModuleWrap', 'moreRecommendedArticles']}),
+        dict(name='div', attrs={'class': [
+            'comments-wrap', 'container continue-reading', 'row breadcrumbs-wrapper', 'btn-social-favorites col',
+            'hidden-social col', 'ajax-loader comments-loader-bottom', 'flashback-module-new',
+            'card-md-list card-sm-list card-xs-list',
+            'popular-module card-md-list card-sm-list card-xs-list', 'col-md-12 list-title',
+            'content-cards d-flex flex-wrap',
+            'google-plus btn btn-social', 'twitter btn btn-social',
+            'facebook btn btn-social', 'row social-share-top-wrapper']}),
         dict(name='h4', attrs={'class': ['mobile-ad-label']}),
-        dict(name='ul', attrs={'id': [
-                                'breadcrumbs',
-                                'socialShare',
-                                ]}),
-        dict(name='div', attrs={'class': ['bannerAd hidden-sm hidden-md hidden-lg introAd']})
+        dict(name='ul', attrs={'id': ['breadcrumbs', 'socialShare']}),
+        dict(name='ul', attrs={'class': ['list-unstyled offcanvas-sections']}),
+        dict(name='div', attrs={
+             'class': ['bannerAd hidden-sm hidden-md hidden-lg introAd']})
     ]
 
     def is_link_wanted(self, url, a):
