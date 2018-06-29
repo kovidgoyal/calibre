@@ -87,6 +87,7 @@ class TimesOnline(BasicNewsRecipe):
         return br
 
     remove_tags = [
+        {'attrs': {'class': lambda x: x and 'is-hidden' in x}},
         {'attrs': {'class': lambda x: x and 'Toolbar' in x}},
         {'attrs': {'class': lambda x: x and 'Tooltip' in x}},
         {'attrs': {'class': lambda x: x and 'Topics' in x}},
