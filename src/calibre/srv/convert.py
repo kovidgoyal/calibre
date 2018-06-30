@@ -179,6 +179,8 @@ def conversion_status(ctx, rd, job_id):
         job_status.last_check_at = monotonic()
         if job_status.running:
             percent, msg = job_status.current_status
+            if rd.query.get('abort_job'):
+                ctx.abort_job(job_id)
             return {'running': True, 'percent': percent, 'msg': msg}
 
         del conversion_jobs[job_id]

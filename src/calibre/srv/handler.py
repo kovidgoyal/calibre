@@ -45,6 +45,9 @@ class Context(object):
     def job_status(self, job_id):
         return self.jobs_manager.job_status(job_id)
 
+    def abort_job(self, job_id):
+        return self.jobs_manager.abort_job(job_id)
+
     def is_field_displayable(self, field):
         if self.displayed_fields and field not in self.displayed_fields:
             return False

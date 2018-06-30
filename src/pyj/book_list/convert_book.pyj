@@ -99,6 +99,8 @@ def show_failure(response):
 
 def on_conversion_status(end_type, xhr, ev):
     nonlocal current_state
+    if current_state is not 'converting' or not container_for_current_state():
+        return  # user clicked the back button similar
     if end_type is 'load':
         response = JSON.parse(xhr.responseText)
         if response.running:
@@ -119,8 +121,10 @@ def on_conversion_status(end_type, xhr, ev):
         report_conversion_ajax_failure(xhr)
 
 
-def check_for_conversion_status():
+def check_for_conversion_status(abort_job):
     query = url_books_query()
+    if abort_job:
+        query.abort_job = '1'
     data = {}
     ajax_send(f'/conversion/status/{conversion_data.job_id}', data, on_conversion_status, query=query)
 
@@ -145,6 +149,8 @@ def create_converting_markup():
             _('Converting, please wait...'),
             E.div(E.progress()),
             E.div('\xa0', class_='progress-msg'),
+            E.div('\xa0'),
+            E.div(_('Click the close button in the top left corner to abort the conversion')),
         )
     )
 
@@ -265,6 +271,11 @@ def fetch_conversion_data(book_id, input_fmt, output_fmt):
 
 
 def on_close(container_id):
+    nonlocal current_state
+    if current_state is 'converting':
+        check_for_conversion_status(True)
+    current_state = 'initializing'
+    apply_state_to_markup()
     back()
 
 
