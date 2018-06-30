@@ -150,7 +150,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     expire_old_jobs()
     with cache_lock:
         conversion_jobs[job_id] = JobStatus(
-            job_id, book_id, tdir, library_id, src_file, conversion_data)
+            job_id, book_id, tdir, library_id, src_file.name, conversion_data)
     return job_id
 
 
