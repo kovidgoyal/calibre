@@ -125,21 +125,16 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
     from calibre.customize.conversion import OptionRecommendation
     tdir = tempfile.mkdtemp(dir=rd.tdir)
-    fd, pathtoebook = tempfile.mkstemp(
-        prefix='', suffix=('.' + fmt.lower()), dir=tdir)
-    with os.fdopen(fd, 'wb') as f:
-        db.copy_format_to(book_id, fmt, f)
-    fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.jpg'), dir=tdir)
-    with os.fdopen(fd, 'wb') as f:
-        cover_copied = db.copy_cover_to(book_id, f)
-    cover_path = pathtocover if cover_copied else None
+    with tempfile.NamedTemporaryFile(prefix='', suffix=('.' + fmt.lower()), dir=tdir, delete=False) as src_file:
+        db.copy_format_to(book_id, fmt, src_file)
+    with tempfile.NamedTemporaryFile(prefix='', suffix='.jpg', dir=tdir, delete=False) as cover_file:
+        cover_copied = db.copy_cover_to(book_id, cover_file)
+    cover_path = cover_file.name if cover_copied else None
     mi = db.get_metadata(book_id)
     mi.application_id = mi.uuid
     raw = metadata_to_opf(mi)
-    fd, opf_path = tempfile.mkstemp(prefix='', suffix=('.opf'), dir=tdir)
-    with os.fdopen(fd, 'wb') as metadata_file:
-        metadata_file.write(raw)
-
+    with tempfile.NamedTemporaryFile(prefix='', suffix='.opf', dir=tdir, delete=False) as opf_file:
+        opf_file.write(raw)
     recs = GuiRecommendations()
     recs.update(conversion_data['options'])
     recs['gui_preferred_input_format'] = conversion_data['input_fmt'].lower()
@@ -149,13 +144,13 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     job_id = ctx.start_job(
         'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert',
         'convert_book', args=(
-            pathtoebook, opf_path, cover_path, conversion_data['output_fmt'], recs),
+            src_file.name, opf_file.name, cover_path, conversion_data['output_fmt'], recs),
         job_done_callback=job_done
     )
     expire_old_jobs()
     with cache_lock:
         conversion_jobs[job_id] = JobStatus(
-            job_id, book_id, tdir, library_id, pathtoebook, conversion_data)
+            job_id, book_id, tdir, library_id, src_file, conversion_data)
     return job_id
 
 
@@ -214,7 +209,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     from calibre.customize.conversion import OptionRecommendation
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
-    ans = {'options': {}, 'disabled': set()}
+    ans = {'options': {}, 'disabled': set(), 'defaults': {}}
 
     def merge_group(group_name, option_names):
         if not group_name or group_name in ('debug', 'metadata'):
@@ -224,12 +219,14 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
             plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
         specifics.merge_recommendations(
             plumber.get_option_by_name, OptionRecommendation.HIGH, option_names, only_existing=True)
+        defaults = defs.as_dict()
         for k in defs:
             if k in specifics:
                 defs[k] = specifics[k]
         defs = defs.as_dict()
         ans['options'].update(defs['options'])
         ans['disabled'] |= set(defs['disabled'])
+        ans['defaults'].update(defaults)
 
     for group_name, option_names in OPTIONS['pipe'].iteritems():
         merge_group(group_name, option_names)
