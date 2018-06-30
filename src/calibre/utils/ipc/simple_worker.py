@@ -20,9 +20,10 @@ from calibre.utils.ipc.launch import Worker
 
 class WorkerError(Exception):
 
-    def __init__(self, msg, orig_tb=''):
+    def __init__(self, msg, orig_tb='', log_path=None):
         Exception.__init__(self, msg)
         self.orig_tb = orig_tb
+        self.log_path = log_path
 
 
 class ConnectedWorker(Thread):
@@ -225,6 +226,10 @@ def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300,  # seconds
         communicate(ans, w, listener, (mod_name, func_name, args, kwargs,
             module_is_source_code), timeout=timeout, heartbeat=heartbeat,
             abort=abort)
+    except WorkerError as e:
+        if not no_output:
+            e.log_path = w.log_path
+        raise
     finally:
         t = Thread(target=w.kill)
         t.daemon=True

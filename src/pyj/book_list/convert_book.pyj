@@ -92,7 +92,7 @@ def show_failure(response):
         if response.traceback:
             log += response.traceback
         if response.log:
-            log += '\n\n' + _('Conversion log')
+            log += '\n\n' + _('Conversion log') + '\n\n'
             log += response.log
         c.appendChild(E.pre(log))
 

@@ -45,6 +45,7 @@ class Job(Thread):
         except WorkerError as err:
             import traceback
             self.traceback = err.orig_tb or traceback.format_exc()
+            self.log_path = getattr(err, 'log_path', None)
         else:
             self.result, self.log_path = result['result'], result['stdout_stderr']
         self.done = True
