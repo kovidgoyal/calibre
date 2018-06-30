@@ -66,7 +66,7 @@ def report_conversion_ajax_failure(xhr):
     nonlocal current_state
     current_state = 'configuring'
     apply_state_to_markup()
-    error_dialog(_('Failed to start conversion'), _(
+    error_dialog(_('Failed to convert'), _(
         'Could not convert {}. Click "Show details" for more'
         ' information').format(conversion_data.title),
         xhr.error_html
@@ -104,14 +104,15 @@ def on_conversion_status(end_type, xhr, ev):
         if response.running:
             c = container_for_current_state()
             c.querySelector('progress').value = response.percent
-            c.querySelector('.progress-msg').textContent = response.msg
+            if response.msg:
+                c.querySelector('.progress-msg').textContent = response.msg
             check_for_conversion_status()
         else:
             if response.ok:
-                current_state = 'converted'
-                apply_state_to_markup()
                 conversion_data.fmt = response.fmt
                 conversion_data.size = response.size
+                current_state = 'converted'
+                apply_state_to_markup()
             else:
                 show_failure(response)
     else:

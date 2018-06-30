@@ -9,6 +9,7 @@ import shutil
 import tempfile
 from threading import Lock
 
+from calibre.db.errors import NoSuchBook
 from calibre.srv.changes import formats_added
 from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
@@ -25,7 +26,7 @@ class JobStatus(object):
 
     def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data):
         self.job_id = job_id
-        self.log = ''
+        self.log = self.traceback = ''
         self.book_id = book_id
         self.output_path = os.path.join(
             tdir, 'output.' + conversion_data['output_fmt'].lower())
@@ -34,9 +35,11 @@ class JobStatus(object):
         self.conversion_data = conversion_data
         self.running = self.ok = True
         self.last_check_at = monotonic()
+        self.was_aborted = False
 
     def cleanup(self):
         safe_delete_tree(self.tdir)
+        self.log = self.traceback = ''
 
     @property
     def current_status(self):
@@ -106,7 +109,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
     os.chdir(os.path.dirname(path_to_ebook))
     status_file = share_open('status', 'wb')
 
-    def notification(percent, msg):
+    def notification(percent, msg=''):
         status_file.write('{}:{}|||\n'.format(percent, msg).encode('utf-8'))
         status_file.flush()
 
@@ -129,11 +132,11 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.jpg'), dir=tdir)
     with os.fdopen(fd, 'wb') as f:
         cover_copied = db.copy_cover_to(book_id, f)
-    cover_path = f.name if cover_copied else None
+    cover_path = pathtocover if cover_copied else None
     mi = db.get_metadata(book_id)
     mi.application_id = mi.uuid
     raw = metadata_to_opf(mi)
-    fd, pathtocover = tempfile.mkstemp(prefix='', suffix=('.opf'), dir=tdir)
+    fd, opf_path = tempfile.mkstemp(prefix='', suffix=('.opf'), dir=tdir)
     with os.fdopen(fd, 'wb') as metadata_file:
         metadata_file.write(raw)
 
@@ -146,7 +149,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     job_id = ctx.start_job(
         'Convert book %s (%s)' % (book_id, fmt), 'calibre.srv.convert',
         'convert_book', args=(
-            pathtoebook, metadata_file.name, cover_path, conversion_data['output_fmt'], recs),
+            pathtoebook, opf_path, cover_path, conversion_data['output_fmt'], recs),
         job_done_callback=job_done
     )
     expire_old_jobs()
@@ -181,19 +184,20 @@ def conversion_status(ctx, rd, job_id):
         del conversion_jobs[job_id]
 
     try:
-        ans = {'running': False, 'ok': job_status.ok, 'was_aborted': job_status.was_aborted,
-            'traceback': job_status.traceback, 'log': job_status.log}
+        ans = {'running': False, 'ok': job_status.ok, 'was_aborted':
+               job_status.was_aborted, 'traceback': job_status.traceback,
+               'log': job_status.log}
         if job_status.ok:
             db, library_id = get_library_data(ctx, rd)[:2]
             if library_id != job_status.library_id:
                 raise HTTPNotFound('job library_id does not match')
-            with db.safe_read_lock:
-                if not db.has_id(job_status.book_id):
-                    raise HTTPNotFound(
-                        'book_id {} not found in library'.format(job_status.book_id))
-                fmt = job_status.output_path.rpartition('.')[-1]
+            fmt = job_status.output_path.rpartition('.')[-1]
+            try:
                 db.add_format(job_status.book_id, fmt, job_status.output_path)
-                formats_added({job_status.book_id: (fmt,)})
+            except NoSuchBook:
+                raise HTTPNotFound(
+                    'book_id {} not found in library'.format(job_status.book_id))
+            formats_added({job_status.book_id: (fmt,)})
             ans['size'] = os.path.getsize(job_status.output_path)
             ans['fmt'] = fmt
         return ans

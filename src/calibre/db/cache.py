@@ -20,7 +20,7 @@ from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimpor
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, DowngradeLockError, SafeReadLock
-from calibre.db.errors import NoSuchFormat
+from calibre.db.errors import NoSuchFormat, NoSuchBook
 from calibre.db.fields import create_field, IDENTITY, InvalidLinkTable
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
@@ -1340,10 +1340,9 @@ class Cache(object):
                 user_mi = mi.get_all_user_metadata(make_copy=False)
                 fm = self.field_metadata
                 for key in user_mi.iterkeys():
-                    if (key in fm and
-                            user_mi[key]['datatype'] == fm[key]['datatype'] and
-                            (user_mi[key]['datatype'] != 'text' or
-                            user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
+                    if (key in fm and user_mi[key]['datatype'] == fm[key]['datatype'] and (
+                        user_mi[key]['datatype'] != 'text' or (
+                            user_mi[key]['is_multiple'] == fm[key]['is_multiple']))):
                         val = mi.get(key, None)
                         if force_changes or val is not None:
                             protected_set_field(key, val)
@@ -1397,6 +1396,8 @@ class Cache(object):
             fmt = check_ebook_format(stream_or_path, fmt)
 
         with self.write_lock:
+            if not self._has_id(book_id):
+                raise NoSuchBook(book_id)
             fmt = (fmt or '').upper()
             self.format_metadata_cache[book_id].pop(fmt, None)
             try:
