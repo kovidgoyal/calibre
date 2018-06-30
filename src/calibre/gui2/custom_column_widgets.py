@@ -396,6 +396,13 @@ class MultipleWidget(QWidget):
         return self.tags_box.text()
 
 
+def _save_dialog(parent, title, msg, det_msg=''):
+    d = QMessageBox(parent)
+    d.setWindowTitle(title)
+    d.setText(msg)
+    d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+    return d.exec_()
+
 class Text(Base):
 
     def setup_ui(self, parent):
@@ -455,16 +462,9 @@ class Text(Base):
             val = None
         return val
 
-    def _save_dialog(self, parent, title, msg, det_msg=''):
-        d = QMessageBox(parent)
-        d.setWindowTitle(title)
-        d.setText(msg)
-        d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
-        return d.exec_()
-
     def edit(self):
         if (self.getter() != self.initial_val and (self.getter() or self.initial_val)):
-            d = self._save_dialog(self.parent, _('Values changed'),
+            d = _save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '
                        'editor, you must either discard or apply these '
                        'changes. Apply changes?'))
@@ -791,7 +791,8 @@ class BulkBase(Base):
         val = self.normalize_ui_val(val)
         self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
-    def make_widgets(self, parent, main_widget_class, extra_label_text=''):
+    def make_widgets(self, parent, main_widget_class, extra_label_text='',
+                     add_tags_edit_button=False):
         w = QWidget(parent)
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', w), w]
         l = QHBoxLayout()
@@ -800,6 +801,11 @@ class BulkBase(Base):
         self.main_widget = main_widget_class(w)
         l.addWidget(self.main_widget)
         l.setStretchFactor(self.main_widget, 10)
+        if add_tags_edit_button:
+            self.edit_tags_button = QToolButton(parent)
+            self.edit_tags_button.setToolTip(_('Open Item Editor'))
+            self.edit_tags_button.setIcon(QIcon(I('chapters.png')))
+            l.addWidget(self.edit_tags_button)
         self.a_c_checkbox = QCheckBox(_('Apply changes'), w)
         l.addWidget(self.a_c_checkbox)
         self.ignore_change_signals = True
@@ -1185,6 +1191,10 @@ class RemoveTags(QWidget):
         self.tags_box = EditWithComplete(parent)
         self.tags_box.update_items_cache(values)
         layout.addWidget(self.tags_box, stretch=3)
+        self.remove_tags_button = QToolButton(parent)
+        self.remove_tags_button.setToolTip(_('Open Item Editor'))
+        self.remove_tags_button.setIcon(QIcon(I('chapters.png')))
+        layout.addWidget(self.remove_tags_button)
         self.checkbox = QCheckBox(_('Remove all tags'), parent)
         layout.addWidget(self.checkbox)
         layout.addStretch(1)
@@ -1205,13 +1215,17 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
+            is_tags = not self.col_metadata['display'].get('is_names', False)
             self.make_widgets(parent, EditWithComplete,
-                              extra_label_text=_('tags to add'))
+                              extra_label_text=_('tags to add'),
+                              add_tags_edit_button = is_tags)
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.adding_widget = self.main_widget
 
-            if not self.col_metadata['display'].get('is_names', False):
+            if is_tags:
+                self.edit_tags_button.clicked.connect(self.edit_add)
                 w = RemoveTags(parent, values)
+                w.remove_tags_button.clicked.connect(self.edit_remove)
                 self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' + _('tags to remove'), parent))
                 self.widgets.append(w)
                 self.removing_widget = w
@@ -1230,6 +1244,7 @@ class BulkText(BulkBase):
                         self.main_widget.AdjustToMinimumContentsLengthWithIcon)
             self.main_widget.setMinimumContentsLength(25)
         self.ignore_change_signals = False
+        self.parent = parent
 
     def initialize(self, book_ids):
         self.main_widget.update_items_cache(self.all_values)
@@ -1284,6 +1299,27 @@ class BulkText(BulkBase):
             val = None
         return val
 
+    def edit_remove(self):
+        self.edit(widget=self.removing_widget.tags_box)
+
+    def edit_add(self):
+        self.edit(widget=self.main_widget)
+
+    def edit(self, widget):
+        if widget.text():
+            d = _save_dialog(self.parent, _('Values changed'),
+                    _('You have entered values. In order to use this '
+                       'editor you must first discard them. '
+                       'Discard the values?'))
+            if d == QMessageBox.Cancel or d == QMessageBox.No:
+                return
+            widget.setText('')
+        d = TagEditor(self.parent, self.db, key=('#'+self.col_metadata['label']))
+        if d.exec_() == TagEditor.Accepted:
+            val = d.tags
+            if not val:
+                val = []
+            widget.setText(self.col_metadata['multiple_seps']['list_to_ui'].join(val))
 
 bulk_widgets = {
         'bool' : BulkBool,
