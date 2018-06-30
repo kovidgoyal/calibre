@@ -146,11 +146,13 @@ def create_converting_markup():
     ans = E.div(
         E.div(
             style='text-align: center; margin: auto',
-            _('Converting, please wait...'),
+            _('Converting, please wait…'),
             E.div(E.progress()),
             E.div('\xa0', class_='progress-msg'),
             E.div('\xa0'),
-            E.div(_('Click the close button in the top left corner to abort the conversion')),
+            E.div(_('Conversion progress can sometimes stall for a few minutes when converting complex books, that is normal.')),
+            E.div('\xa0'),
+            E.div(_('Click the close button in the top left corner to abort the conversion.')),
         )
     )
 
