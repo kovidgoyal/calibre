@@ -102,8 +102,7 @@ class GN(BasicNewsRecipe):
         for r in soup.findAll(attrs={'class': 'pgr'}):
             r.extract()
         for r in soup.findAll(attrs={'class': 'cm-i-a'}):
-            r.replaceWith('<div style="clear:both"></div>' +
-                          r.prettify() + '<div style="clear:both"></div>')
+            r.replaceWith('<div style="clear:both"></div>' + r.prettify() + '<div style="clear:both"></div>')
         return soup
 
     keep_only_tags = [
