@@ -66,7 +66,7 @@ class GN(BasicNewsRecipe):
             not_assigned.extend(articles)
             page += 1
             pages = soup.find('span', attrs={'class': 'pgr_nrs'})
-            if str(page) not in [self.tag_to_string(x)[1] for x in pages.findAll('a')]:
+            if str(page) not in [self.tag_to_string(x) for x in pages.findAll('a')]:
                 break
 
         feeds.append((u'Nieprzypisane', not_assigned))
