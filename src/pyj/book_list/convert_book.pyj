@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from ajax import ajax, ajax_send
 from book_list.book_details import report_load_failure
+from book_list.conversion_widgets import create_option_group
 from book_list.library_data import download_url, load_status, url_books_query
 from book_list.router import back, open_book, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
@@ -25,6 +26,8 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = build_rule(sel, padding='1ex 1rem')
     style += build_rule(sel + 'h3', margin_bottom='1ex')
+    style += build_rule(sel + '.group-names', list_style='none', display='flex', flex_wrap='wrap')
+    style += build_rule(sel + '.group-names li', padding='1ex 1rem', font_weight='bold', white_space='nowrap')
     return style
 )
 
@@ -201,6 +204,7 @@ def create_configuring_markup():
     tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
 
     start_conv = E.div(
+        style='border-bottom: solid 1px currentColor; margin-bottom: 1em',
         E.div(
             E.div(
                 style='display: table-row',
@@ -219,6 +223,47 @@ def create_configuring_markup():
         )
     )
     ans.appendChild(start_conv)
+    ans.appendChild(E.div(style='margin-bottom: 1em',
+        _('To change the settings for this conversion, click on one of the option groups below:')))
+
+    def show_group(ev):
+        nonlocal current_state
+        li = ev.currentTarget.closest('li')
+        group_name = li.dataset.group
+        group_title = li.firstChild.textContent
+        conversion_data.configuring_group = group_name
+        conversion_data.configuring_group_title = group_title
+        current_state = 'configure-group'
+        apply_state_to_markup()
+
+    def category(name):
+        ans = E.li(E.a(class_='simple-link', href='javascript: void(0)'))
+        ans.dataset.group = name
+        ans.firstChild.addEventListener('click', show_group)
+        return ans
+
+    GROUP_TITLES = {
+        'heuristics': _('Heuristic processing'),
+        'look_and_feel': _('Look & feel'),
+        'page_setup': _('Page setup'),
+        'search_and_replace': _('Search & replace'),
+        'structure_detection': _('Structure detection'),
+        'toc': _('Table of Contents'),
+    }
+
+    ans.appendChild(
+        E.ul(
+            class_='group-names',
+            category('input_fmt'),
+            category('look_and_feel'),
+            category('page_setup'),
+            category('search_and_replace'),
+            category('structure_detection'),
+            category('toc'),
+            category('heuristics'),
+            category('output_fmt')
+        )
+    )
 
     def initialize(container):
         nonlocal ignore_changes
@@ -230,8 +275,34 @@ def create_configuring_markup():
             for fmt in formats:
                 sel.appendChild(E.option(fmt, value=fmt))
         ignore_changes = False
+        for li in container.querySelectorAll('.group-names > li'):
+            group_name = li.dataset.group
+            if GROUP_TITLES[group_name]:
+                title = GROUP_TITLES[group_name]
+            elif group_name is 'input_fmt':
+                title = container.querySelector('select[name="input_formats"]').value.toUpperCase()
+                title = _('{} input').format(title)
+            else:
+                title = container.querySelector('select[name="output_formats"]').value.toUpperCase()
+                title = _('{} output').format(title)
+            li.firstChild.textContent = title
 
     return ans, initialize
+
+
+def create_configure_group_markup():
+    ans = E.div()
+
+    def init(container):
+        clear(container)
+        container.appendChild(E.h3(
+            style='margin-bottom: 1ex',
+            _('Configuring {} settings').format(conversion_data.configuring_group_title)))
+        panel = E.div()
+        container.appendChild(panel)
+        create_option_group(conversion_data.configuring_group, container)
+
+    return ans, init
 
 
 # Initialization {{{
@@ -274,6 +345,10 @@ def fetch_conversion_data(book_id, input_fmt, output_fmt):
 
 def on_close(container_id):
     nonlocal current_state
+    if current_state is 'configure-group':
+        current_state = 'configuring'
+        apply_state_to_markup()
+        return
     if current_state is 'converting':
         check_for_conversion_status(True)
     current_state = 'initializing'
@@ -311,20 +386,16 @@ def create_markup(container):
     container.appendChild(E.div(data_state='load-failure'))
     container.appendChild(E.div(data_state='failed'))
 
-    ccm, init = create_configuring_markup()
-    ccm.dataset.state = 'configuring'
-    container.appendChild(ccm)
-    initializers[ccm.dataset.state] = init
+    def cm(name, func):
+        ccm, init = func()
+        ccm.dataset.state = name
+        container.appendChild(ccm)
+        initializers[name] = init
 
-    conv, init = create_converting_markup()
-    conv.dataset.state = 'converting'
-    container.appendChild(conv)
-    initializers[conv.dataset.state] = init
-
-    conv, init = create_converted_markup()
-    conv.dataset.state = 'converted'
-    container.appendChild(conv)
-    initializers[conv.dataset.state] = init
+    cm('configuring', create_configuring_markup)
+    cm('converting', create_converting_markup)
+    cm('converted', create_converted_markup)
+    cm('configure-group', create_configure_group_markup)
 
 
 def apply_state_to_markup():
