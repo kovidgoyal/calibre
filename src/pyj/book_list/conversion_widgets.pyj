@@ -48,28 +48,21 @@ def sanitize_accelerator(text):
     return text.replace('&', '')
 # }}}
 
-def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, reverse=False, suffix=None):  # {{{
+def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suffix):  # {{{
     if get_option_default_value(name) is undefined:
         raise KeyError(f'{name} is not a known option')
-    if not reverse and not text.endswith(':'):
+    if not text.endswith(':'):
         text = text + ':'
-    if reverse:
-        label = E.label(input_widget_, E.span(sanitize_accelerator(text)))
-    else:
-        if suffix:
-            label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_, '\xa0' + suffix))
-        else:
-            label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_))
+    label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_))
+    if suffix:
+        label.lastChild.appendChild(document.createTextNode('\xa0' + suffix))
     label.dataset.optionName = name
     label.setAttribute('title', tooltip or get_option_help(name))
 
     def straight_input_widget(container):
         return container.lastChild.firstChild
 
-    def reverse_input_widget(container):
-        return container.firstChild
-
-    input_widget = reverse_input_widget if reverse else straight_input_widget
+    input_widget = straight_input_widget
     input_widget(label).addEventListener('change', on_change.bind(None, name))
 
     ops = {
@@ -103,7 +96,6 @@ def checkbox(name, text, tooltip):  # {{{
         def setter(w, val):  # noqa: unused-local
             w.checked = bool(val)
         ,
-        True
     )
 # }}}
 
@@ -183,17 +175,17 @@ def look_and_feel(container):
         for dname in 'font_size_mapping', 'base_font_size':
             set_disabled(dname, disabled)
     )
-    container.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
     g = E.div(class_='simple-group')
     container.appendChild(g)
+    g.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
     g.appendChild(float_spin('base_font_size', _('Base font si&ze:'), max=50, unit='pt'))
     g.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
     g.appendChild(float_spin('minimum_line_height', _('Minim&um line height:'), max=900, unit='%'))
     g.appendChild(float_spin('line_height', _('Line hei&ght:'), unit='%'))
     g.appendChild(lineedit('embed_font_family', _('Embed font fami&ly:')))
-    container.appendChild(checkbox('embed_all_fonts', _('&Embed all fonts in document')))
-    container.appendChild(checkbox('subset_embedded_fonts', _('&Subset all embedded fonts')))
-    container.appendChild(checkbox('keep_ligatures', _('Keep &ligatures')))
+    g.appendChild(checkbox('embed_all_fonts', _('&Embed all fonts in document')))
+    g.appendChild(checkbox('subset_embedded_fonts', _('&Subset all embedded fonts')))
+    g.appendChild(checkbox('keep_ligatures', _('Keep &ligatures')))
 
     subhead(_('Te&xt'))
     g = E.div(class_='simple-group')
