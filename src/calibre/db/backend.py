@@ -1788,14 +1788,13 @@ class DB(object):
         self.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
 
     def backup_database(self, path):
-        # We have to open a new connection to self.dbpath, until this issue is fixed:
-        # https://github.com/rogerbinns/apsw/issues/199
         dest_db = apsw.Connection(path)
-        source = apsw.Connection(self.dbpath)
-        with dest_db.backup('main', source, 'main') as b:
+        with dest_db.backup('main', self.conn, 'main') as b:
             while not b.done:
-                b.step(100)
-        source.close()
+                try:
+                    b.step(100)
+                except apsw.BusyError:
+                    pass
         dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
         dest_db.close()
 
