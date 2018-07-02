@@ -357,8 +357,7 @@ class DB(object):
         if not exists:
             # Be more strict when creating new libraries as the old calculation
             # allowed for max path lengths of 265 chars.
-            if (iswindows and len(self.library_path) >
-                    self.WINDOWS_LIBRARY_PATH_LIMIT):
+            if (iswindows and len(self.library_path) > self.WINDOWS_LIBRARY_PATH_LIMIT):
                 raise ValueError(_(
                     'Path to library too long. Must be less than'
                     ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
@@ -445,8 +444,7 @@ class DB(object):
                     progress_callback(_('creating custom column ') + f['label'], i)
                     self.create_custom_column(f['label'], f['name'],
                             f['datatype'],
-                            (f['is_multiple'] is not None and
-                                len(f['is_multiple']) > 0),
+                            (f['is_multiple'] is not None and len(f['is_multiple']) > 0),
                             f['is_editable'], f['display'])
 
         defs = self.prefs.defaults
@@ -908,7 +906,7 @@ class DB(object):
         import re
         if not label:
             raise ValueError(_('No label was provided'))
-        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+        if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
