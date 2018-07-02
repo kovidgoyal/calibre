@@ -20,7 +20,7 @@ class DeviceDefaults(object):
                 ({'vendor':0x1949}, {
                     'format_map': ['azw3', 'mobi', 'azw',
                                     'azw1', 'azw4', 'kfx', 'pdf'],
-                    'send_to': ['documents', 'books', 'kindle'],
+                    'send_to': ['documents', 'kindle', 'books'],
                     }
                 ),
                 # B&N devices
