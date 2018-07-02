@@ -63,7 +63,6 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suf
         return container.lastChild.firstChild
 
     input_widget = straight_input_widget
-    input_widget(label).addEventListener('change', on_change.bind(None, name))
 
     ops = {
         'get': def (container):
@@ -85,6 +84,9 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suf
     ops.set(label, get_option_value(name))
     if is_option_disabled(name):
         ops.set_disabled(label, True)
+    input_widget(label).addEventListener('change', on_change.bind(None, name))
+    if listeners[name]:
+        window.setTimeout(on_change.bind(None, name), 0)
     return label
 # }}}
 
@@ -194,6 +196,23 @@ def look_and_feel(container):
     g.appendChild(choices('change_justification', _('Text &justification:'),
         {'original': _('Original'), 'left': _('Left align'), 'justify': _('Justify text')}
     ))
+    g.appendChild(checkbox('smarten_punctuation', _('Smarten &punctuation')))
+    g.appendChild(checkbox('unsmarten_punctuation', _('&UnSmarten punctuation')))
+    g.appendChild(checkbox('asciiize', _('&Transliterate unicode characters to ASCII')))
+
+    subhead(_('Lay&out'))
+    add_listener('remove_paragraph_spacing', def (name):
+        disabled = get('remove_paragraph_spacing')
+        set_disabled('remove_paragraph_spacing_indent_size', not disabled)
+    )
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    indent = '↳\xa0'
+    g.appendChild(checkbox('remove_paragraph_spacing', _('Remove &spacing between paragraphs')))
+    g.appendChild(float_spin('remove_paragraph_spacing_indent_size', indent + _('I&ndent size:'), min=-0.1, unit='em'))
+    g.appendChild(checkbox('insert_blank_line', _('Insert &blank line between paragraphs')))
+    g.appendChild(float_spin('insert_blank_line_size', indent + _('&Line size:'), unit='em'))
+    g.appendChild(checkbox('linearize_tables', _('&Linearize tables')))
 # }}}
 
 
