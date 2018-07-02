@@ -209,7 +209,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     from calibre.customize.conversion import OptionRecommendation
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
-    ans = {'options': {}, 'disabled': set(), 'defaults': {}}
+    ans = {'options': {}, 'disabled': set(), 'defaults': {}, 'help': {}}
 
     def merge_group(group_name, option_names):
         if not group_name or group_name in ('debug', 'metadata'):
@@ -227,6 +227,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         ans['options'].update(defs['options'])
         ans['disabled'] |= set(defs['disabled'])
         ans['defaults'].update(defaults)
+        ans['help'] = plumber.get_all_help()
 
     for group_name, option_names in OPTIONS['pipe'].iteritems():
         merge_group(group_name, option_names)

@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from ajax import ajax, ajax_send
 from book_list.book_details import report_load_failure
-from book_list.conversion_widgets import create_option_group
+from book_list.conversion_widgets import create_option_group, entry_points, commit_changes
 from book_list.library_data import download_url, load_status, url_books_query
 from book_list.router import back, open_book, report_a_load_failure
 from book_list.top_bar import create_top_bar, set_title
@@ -240,6 +240,8 @@ def create_configuring_markup():
         ans = E.li(E.a(class_='simple-link', href='javascript: void(0)'))
         ans.dataset.group = name
         ans.firstChild.addEventListener('click', show_group)
+        if not entry_points[name]:
+            ans.style.display = 'none'
         return ans
 
     GROUP_TITLES = {
@@ -290,6 +292,32 @@ def create_configuring_markup():
     return ans, initialize
 
 
+def get_option_value(name, defval):
+    ans = conversion_data.conversion_options.options[name]
+    if ans is undefined:
+        ans = defval
+    return ans
+
+
+def get_option_default_value(name, defval):
+    ans = conversion_data.conversion_options.defaults[name]
+    if ans is undefined:
+        ans = defval
+    return ans
+
+
+def set_option_value(name, val):
+    conversion_data.conversion_options.options[name] = val
+
+
+def is_option_disabled(name):
+    return conversion_data.disabled_map[name] is True
+
+
+def get_option_help(name):
+    return conversion_data.conversion_options.help[name] or ''
+
+
 def create_configure_group_markup():
     ans = E.div()
 
@@ -300,7 +328,7 @@ def create_configure_group_markup():
             _('Configuring {} settings').format(conversion_data.configuring_group_title)))
         panel = E.div()
         container.appendChild(panel)
-        create_option_group(conversion_data.configuring_group, container)
+        create_option_group(conversion_data.configuring_group, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help)
 
     return ans, init
 
@@ -320,6 +348,9 @@ def on_data_loaded(end_type, xhr, ev):
 
     if end_type is 'load':
         conversion_data = JSON.parse(xhr.responseText)
+        conversion_data.disabled_map = {}
+        for name in conversion_data.conversion_options.disabled:
+            conversion_data.disabled_map[name] = True
     elif end_type is 'abort':
         pass
     else:
@@ -346,6 +377,7 @@ def fetch_conversion_data(book_id, input_fmt, output_fmt):
 def on_close(container_id):
     nonlocal current_state
     if current_state is 'configure-group':
+        commit_changes(set_option_value)
         current_state = 'configuring'
         apply_state_to_markup()
         return

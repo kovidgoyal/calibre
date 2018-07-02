@@ -151,7 +151,7 @@ OptionRecommendation(name='base_font_size',
             help=_('The base font size in pts. All font sizes in the produced book '
                    'will be rescaled based on this size. By choosing a larger '
                    'size you can make the fonts in the output bigger and vice '
-                   'versa. By default, the base font size is chosen based on '
+                   'versa. By default, when the value is zero, the base font size is chosen based on '
                    'the output profile you chose.'
                    )
         ),
@@ -848,6 +848,16 @@ OptionRecommendation(name='search_replace',
         help = getattr(rec, 'help', None)
         if help is not None:
             return help.replace('%default', str(rec.recommended_value))
+
+    def get_all_help(self):
+        ans = {}
+        for group in (self.input_options, self.pipeline_options,
+                      self.output_options, self.all_format_options):
+            for rec in group:
+                help = getattr(rec, 'help', None)
+                if help is not None:
+                    ans[rec.option.name] = help
+        return ans
 
     def merge_plugin_recs(self, plugin):
         for name, val, level in plugin.recommendations:

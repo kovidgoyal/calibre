@@ -2,6 +2,178 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+from gettext import gettext as _
 
-def create_option_group(group_name, container):
-    pass
+from dom import ensure_id, add_extra_css, build_rule
+
+CLASS_NAME = 'conversion-option-group'
+
+add_extra_css(def():
+    style = ''
+    sel = '.' + CLASS_NAME + ' '
+    style += build_rule(sel + ' [data-option-name]', margin_bottom='1ex')
+    return style
+)
+
+
+# globals {{{
+container_id = None
+get_option_value = get_option_default_value = set_option_value = is_option_disabled = get_option_help = None
+entry_points = {}
+registry = {}
+listeners = {}
+
+
+def ep(func):
+    entry_points[func.name] = func
+    return func
+
+
+def add_listener(name, callback):
+    if not listeners[name]:
+        listeners[name] = v'[]'
+    listeners[name].push(callback)
+
+
+def on_change(name):
+    if listeners[name]:
+        for callback in listeners[name]:
+            callback(name)
+
+
+def sanitize_accelerator(text):
+    return text.replace('&', '')
+# }}}
+
+def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, reverse):  # {{{
+    if not text.endswith(':'):
+        text = text + ':'
+    div = E.div(
+        data_option_name=name,
+        title=tooltip or get_option_help(name),
+        (
+            E.label(input_widget_, '\xa0' + sanitize_accelerator(text)) if reverse else
+            E.label(sanitize_accelerator(text) + '\xa0', input_widget_)
+        )
+    )
+
+    def straight_input_widget(container):
+        return container.firstChild.lastChild
+
+    def reverse_input_widget(container):
+        return container.firstChild.firstChild
+
+    input_widget = reverse_input_widget if reverse else straight_input_widget
+    input_widget(div).addEventListener('change', on_change.bind(None, name))
+
+    ops = {
+        'get': def (container):
+            return getter(input_widget(container))
+        ,
+        'set': def (container, val):
+            setter(input_widget(container), val)
+        ,
+        'set_disabled': def (container, val):
+            if val:
+                container.classList.add('disabled')
+                input_widget(container).setAttribute('disabled', 'disabled')
+            else:
+                container.classList.remove('disabled')
+                input_widget(container).removeAttribute('disabled')
+    }
+    registry[name] = ops
+    ops.set(div, get_option_value(name))
+    ops.set(div, get_option_value(name))
+    if is_option_disabled(name):
+        ops.set_disabled(div, True)
+    return div
+# }}}
+
+def checkbox(name, text, tooltip):  # {{{
+    return create_simple_widget(name, text, tooltip, E.input(type='checkbox'),
+        def getter(w):  # noqa: unused-local
+            return bool(w.checked)
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.checked = bool(val)
+        ,
+        True
+    )
+# }}}
+
+def lineedit(name, text, tooltip):  # {{{
+    return create_simple_widget(name, text, tooltip, E.input(type='text'),
+            def getter(w):  # noqa: unused-local
+                ans = w.value
+                if ans and ans.strip():
+                    return ans.strip()
+            ,
+            def setter(w, val):  # noqa: unused-local
+                w.value = val or ''
+    )
+# }}}
+
+def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100):  # {{{
+    f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
+    defval = get_option_default_value(name)
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            try:
+                return float(w.value)
+            except:
+                return defval
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = str(float(val))
+    )
+# }}}
+
+def container_for_option(name):
+    return document.getElementById(container_id).querySelector(f'[data-option-name="{name}"]')
+
+
+def get(name):
+    return registry[name].get(container_for_option(name))
+
+
+def set(name, val):
+    registry[name].set(container_for_option(name), val)
+
+
+def set_disabled(name, val):
+    registry[name].set_disabled(container_for_option(name), val)
+
+
+# Look & feel {{{
+@ep
+def look_and_feel(container):
+    def subhead(text):
+        container.appendChild(E.div(
+            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex; max-width: 30em', E.b(sanitize_accelerator(text))))
+
+    subhead(_('&Fonts'))
+    add_listener('disable_font_rescaling', def (name):
+        disabled = get('disable_font_rescaling')
+        for dname in 'font_size_mapping', 'base_font_size':
+            set_disabled(dname, disabled)
+    )
+    container.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
+    container.appendChild(float_spin('base_font_size', _('Base font si&ze:'), step=0.1, min=0, max=50))
+    container.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
+# }}}
+
+
+def create_option_group(group_name, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
+    nonlocal get_option_value, get_option_default_value, set_option_value, is_option_disabled, container_id, registry, listeners, get_option_help
+    get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
+    registry = {}
+    listeners = {}
+    container_id = ensure_id(container)
+    container.classList.add(CLASS_NAME)
+    entry_points[group_name](container)
+
+
+def commit_changes(set_option_value):
+    for name in registry:
+        set_option_value(name, get(name))
