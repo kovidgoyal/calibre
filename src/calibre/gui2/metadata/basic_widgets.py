@@ -1455,7 +1455,7 @@ class Identifiers(Dialog):
 class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     LABEL = _('&Ids:')
     BASE_TT = _('Edit the identifiers for this book. '
-            'For example: \n\n%s')%(
+            'For example: \n\n%s\n\nIf an identifier value contains a comma, you can use the | character to represent it.')%(
             'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
     FIELD_NAME = 'identifiers'
 
