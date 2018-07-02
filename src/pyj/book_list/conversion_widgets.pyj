@@ -15,6 +15,8 @@ add_extra_css(def():
     style += build_rule(sel + '[data-option-name]', margin_bottom='1ex', display='block', padding_bottom='0.5ex')
     style += build_rule(sel + '.simple-group > label', display='table-row')
     style += build_rule(sel + '.simple-group > label > *', display='table-cell', padding_bottom='1ex', padding_right='1rem')
+    style += build_rule(sel + 'label.vertical', display='block')
+    style += build_rule(sel + 'label.vertical > *', display='block', padding_bottom='1ex', padding_right='1rem')
     return style
 )
 
@@ -101,8 +103,8 @@ def checkbox(name, text, tooltip):  # {{{
     )
 # }}}
 
-def lineedit(name, text, tooltip):  # {{{
-    return create_simple_widget(name, text, tooltip, E.input(type='text'),
+def lineedit(name, text, width, tooltip):  # {{{
+    return create_simple_widget(name, text, tooltip, E.input(type='text', size=str(width or 25)),
             def getter(w):  # noqa: unused-local
                 ans = w.value
                 if ans and ans.strip():
@@ -148,6 +150,20 @@ def choices(name, text, choices, tooltip):  # {{{
     )
 # }}}
 
+def textarea(name, text, tooltip):  # {{{
+    ans = create_simple_widget(name, text, tooltip, E.textarea(rows='30', cols='70'),
+            def getter(w):  # noqa: unused-local
+                ans = w.value
+                if ans and ans.strip():
+                    return ans.strip()
+            ,
+            def setter(w, val):  # noqa: unused-local
+                w.value = val or ''
+    )
+    ans.classList.add('vertical')
+    return ans
+# }}}
+
 def container_for_option(name):
     return document.getElementById(container_id).querySelector(f'[data-option-name="{name}"]')
 
@@ -169,7 +185,7 @@ def set_disabled(name, val):
 def look_and_feel(container):
     def subhead(text):
         container.appendChild(E.div(
-            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex; max-width: 30em', E.b(sanitize_accelerator(text))))
+            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex; max-width: 35em', E.b(sanitize_accelerator(text))))
 
     subhead(_('&Fonts'))
     add_listener('disable_font_rescaling', def (name):
@@ -213,6 +229,12 @@ def look_and_feel(container):
     g.appendChild(checkbox('insert_blank_line', _('Insert &blank line between paragraphs')))
     g.appendChild(float_spin('insert_blank_line_size', indent + _('&Line size:'), unit='em'))
     g.appendChild(checkbox('linearize_tables', _('&Linearize tables')))
+
+    subhead(_('St&yling'))
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('filter_css', _('Filter Style Information'), 40))
+    container.appendChild(textarea('extra_css', 'E&xtra CSS'))
 # }}}
 
 
