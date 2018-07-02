@@ -111,7 +111,7 @@ class IdLinksRuleEdit(Dialog):
     def __init__(self, key='', name='', template='', parent=None):
         title = _('Edit rule') if key else _('Create a new rule')
         Dialog.__init__(self, title=title, name='id-links-rule-editor', parent=parent)
-        self.key.setText(key), self.nw.setText(name), self.template.setText(template or 'http://example.com/{id}')
+        self.key.setText(key), self.nw.setText(name), self.template.setText(template or 'https://example.com/{id}')
 
     @property
     def rule(self):
