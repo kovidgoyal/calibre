@@ -19,7 +19,7 @@ add_extra_css(def():
 
 # globals {{{
 container_id = None
-get_option_value = get_option_default_value = set_option_value = is_option_disabled = get_option_help = None
+get_option_value = get_option_default_value = is_option_disabled = get_option_help = None
 entry_points = {}
 registry = {}
 listeners = {}
@@ -165,7 +165,7 @@ def look_and_feel(container):
 
 
 def create_option_group(group_name, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
-    nonlocal get_option_value, get_option_default_value, set_option_value, is_option_disabled, container_id, registry, listeners, get_option_help
+    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help
     get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
     registry = {}
     listeners = {}
