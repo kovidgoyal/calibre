@@ -574,7 +574,7 @@ class CompareMany(QDialog):
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
-            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.NoRole)
+            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.ActionRole)
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
