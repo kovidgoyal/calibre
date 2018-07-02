@@ -12,7 +12,9 @@ CLASS_NAME = 'conversion-option-group'
 add_extra_css(def():
     style = ''
     sel = '.' + CLASS_NAME + ' '
-    style += build_rule(sel + ' [data-option-name]', margin_bottom='1ex')
+    style += build_rule(sel + '[data-option-name]', margin_bottom='1ex', display='block', padding_bottom='0.5ex')
+    style += build_rule(sel + '.simple-group > label', display='table-row')
+    style += build_rule(sel + '.simple-group > label > *', display='table-cell', padding_bottom='1ex', padding_right='1rem')
     return style
 )
 
@@ -51,27 +53,24 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, rev
         raise KeyError(f'{name} is not a known option')
     if not reverse and not text.endswith(':'):
         text = text + ':'
-    div = E.div(
-        data_option_name=name,
-        title=tooltip or get_option_help(name),
-        (
-            E.label(input_widget_, '\xa0' + sanitize_accelerator(text)) if reverse else
-            E.label(sanitize_accelerator(text) + '\xa0', input_widget_)
-        )
-    )
-    if suffix:
-        div.firstChild.appendChild(document.createTextNode('\xa0' + suffix))
+    if reverse:
+        label = E.label(input_widget_, E.span(sanitize_accelerator(text)))
+    else:
+        if suffix:
+            label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_, '\xa0' + suffix))
+        else:
+            label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_))
+    label.dataset.optionName = name
+    label.setAttribute('title', tooltip or get_option_help(name))
 
     def straight_input_widget(container):
-        if suffix:
-            return container.firstChild.lastChild.previousSibling
-        return container.firstChild.lastChild
+        return container.lastChild.firstChild
 
     def reverse_input_widget(container):
-        return container.firstChild.firstChild
+        return container.firstChild
 
     input_widget = reverse_input_widget if reverse else straight_input_widget
-    input_widget(div).addEventListener('change', on_change.bind(None, name))
+    input_widget(label).addEventListener('change', on_change.bind(None, name))
 
     ops = {
         'get': def (container):
@@ -89,11 +88,11 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, rev
                 input_widget(container).removeAttribute('disabled')
     }
     registry[name] = ops
-    ops.set(div, get_option_value(name))
-    ops.set(div, get_option_value(name))
+    ops.set(label, get_option_value(name))
+    ops.set(label, get_option_value(name))
     if is_option_disabled(name):
-        ops.set_disabled(div, True)
-    return div
+        ops.set_disabled(label, True)
+    return label
 # }}}
 
 def checkbox(name, text, tooltip):  # {{{
@@ -137,6 +136,24 @@ def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  
     )
 # }}}
 
+def choices(name, text, choices, tooltip):  # {{{
+    f = E.select()
+    if Array.isArray(choices):
+        for key in choices:
+            f.appendChild(E.option(key, value=key))
+    else:
+        for key in choices:
+            f.appendChild(E.option(choices[key], value=key))
+
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            return w.value
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = val
+    )
+# }}}
+
 def container_for_option(name):
     return document.getElementById(container_id).querySelector(f'[data-option-name="{name}"]')
 
@@ -167,14 +184,24 @@ def look_and_feel(container):
             set_disabled(dname, disabled)
     )
     container.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
-    container.appendChild(float_spin('base_font_size', _('Base font si&ze:'), max=50, unit='pt'))
-    container.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
-    container.appendChild(float_spin('minimum_line_height', _('Minim&um line height:'), max=900, unit='%'))
-    container.appendChild(float_spin('line_height', _('Line hei&ght:'), unit='%'))
-    container.appendChild(lineedit('embed_font_family', _('Embed font fami&ly:')))
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('base_font_size', _('Base font si&ze:'), max=50, unit='pt'))
+    g.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
+    g.appendChild(float_spin('minimum_line_height', _('Minim&um line height:'), max=900, unit='%'))
+    g.appendChild(float_spin('line_height', _('Line hei&ght:'), unit='%'))
+    g.appendChild(lineedit('embed_font_family', _('Embed font fami&ly:')))
     container.appendChild(checkbox('embed_all_fonts', _('&Embed all fonts in document')))
     container.appendChild(checkbox('subset_embedded_fonts', _('&Subset all embedded fonts')))
     container.appendChild(checkbox('keep_ligatures', _('Keep &ligatures')))
+
+    subhead(_('Te&xt'))
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('input_encoding', _('I&nput character encoding:')))
+    g.appendChild(choices('change_justification', _('Text &justification:'),
+        {'original': _('Original'), 'left': _('Left align'), 'justify': _('Justify text')}
+    ))
 # }}}
 
 
