@@ -423,8 +423,7 @@ def identify(log, abort,  # {{{
         if not is_worker_alive(workers):
             break
 
-        if (first_result_at is not None and time.time() - first_result_at >
-                wait_time):
+        if (first_result_at is not None and time.time() - first_result_at > wait_time):
             log.warn('Not waiting any longer for more results. Still running'
                     ' sources:')
             for worker in workers:
@@ -486,8 +485,7 @@ def identify(log, abort,  # {{{
                     result.series_index = dummy.series_index
             result.relevance_in_source = i
             result.has_cached_cover_url = (
-                plugin.cached_cover_url_is_reliable and
-                plugin.get_cached_cover_url(result.identifiers) is not None)
+                plugin.cached_cover_url_is_reliable and plugin.get_cached_cover_url(result.identifiers) is not None)
             result.identify_plugin = plugin
             if msprefs['txt_comments']:
                 if plugin.has_html_comments and result.comments:
@@ -543,6 +541,7 @@ def urls_from_identifiers(identifiers):  # {{{
     if rules:
         formatter = EvalFormatter()
         for k, val in identifiers.iteritems():
+            val = val.replace('|', ',')
             vals = {'id':quote(val if isinstance(val, bytes) else val.encode('utf-8')).decode('ascii')}
             items = rules.get(k) or ()
             for name, template in items:
