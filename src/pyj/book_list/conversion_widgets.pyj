@@ -46,8 +46,10 @@ def sanitize_accelerator(text):
     return text.replace('&', '')
 # }}}
 
-def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, reverse):  # {{{
-    if not text.endswith(':'):
+def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, reverse=False, suffix=None):  # {{{
+    if get_option_default_value(name) is undefined:
+        raise KeyError(f'{name} is not a known option')
+    if not reverse and not text.endswith(':'):
         text = text + ':'
     div = E.div(
         data_option_name=name,
@@ -57,8 +59,12 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, rev
             E.label(sanitize_accelerator(text) + '\xa0', input_widget_)
         )
     )
+    if suffix:
+        div.firstChild.appendChild(document.createTextNode('\xa0' + suffix))
 
     def straight_input_widget(container):
+        if suffix:
+            return container.firstChild.lastChild.previousSibling
         return container.firstChild.lastChild
 
     def reverse_input_widget(container):
@@ -114,7 +120,7 @@ def lineedit(name, text, tooltip):  # {{{
     )
 # }}}
 
-def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100):  # {{{
+def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  # {{{
     f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
     defval = get_option_default_value(name)
     return create_simple_widget(name, text, tooltip, f,
@@ -126,6 +132,8 @@ def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100):  # {{{
         ,
         def setter(w, val):  # noqa: unused-local
             w.value = str(float(val))
+        ,
+        suffix=unit
     )
 # }}}
 
@@ -159,8 +167,14 @@ def look_and_feel(container):
             set_disabled(dname, disabled)
     )
     container.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
-    container.appendChild(float_spin('base_font_size', _('Base font si&ze:'), step=0.1, min=0, max=50))
+    container.appendChild(float_spin('base_font_size', _('Base font si&ze:'), max=50, unit='pt'))
     container.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
+    container.appendChild(float_spin('minimum_line_height', _('Minim&um line height:'), max=900, unit='%'))
+    container.appendChild(float_spin('line_height', _('Line hei&ght:'), unit='%'))
+    container.appendChild(lineedit('embed_font_family', _('Embed font fami&ly:')))
+    container.appendChild(checkbox('embed_all_fonts', _('&Embed all fonts in document')))
+    container.appendChild(checkbox('subset_embedded_fonts', _('&Subset all embedded fonts')))
+    container.appendChild(checkbox('keep_ligatures', _('Keep &ligatures')))
 # }}}
 
 

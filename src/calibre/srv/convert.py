@@ -219,7 +219,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
             plumber.get_option_by_name, OptionRecommendation.LOW, option_names)
         specifics.merge_recommendations(
             plumber.get_option_by_name, OptionRecommendation.HIGH, option_names, only_existing=True)
-        defaults = defs.as_dict()
+        defaults = defs.as_dict()['options']
         for k in defs:
             if k in specifics:
                 defs[k] = specifics[k]
