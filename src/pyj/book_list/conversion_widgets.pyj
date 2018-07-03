@@ -26,7 +26,7 @@ add_extra_css(def():
 
 # globals {{{
 container_id = None
-get_option_value = get_option_default_value = is_option_disabled = get_option_help = None
+get_option_value = get_option_default_value = is_option_disabled = get_option_help = profiles = None
 entry_points = {}
 registry = {}
 listeners = {}
@@ -277,9 +277,23 @@ def heuristics(container):
     add(checkbox, 'fix_indents', _('Replace entity indents with CSS indents'))
 # }}}
 
-def create_option_group(group_name, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
-    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help
+# Page setup {{{
+@ep
+def page_setup(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('margin_left', _('Left page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_top', _('Top page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_right', _('Right page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_bottom', _('Bottom page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(choices('input_profile', _('&Input profile:'), {name: profiles.input[name].name for name in profiles.input}))
+    g.appendChild(choices('output_profile', _('&Output profile:'), {name: profiles.output[name].name for name in profiles.output}))
+# }}}
+
+def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
+    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles
     get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
+    profiles = profiles_
     registry = {}
     listeners = {}
     container_id = ensure_id(container)

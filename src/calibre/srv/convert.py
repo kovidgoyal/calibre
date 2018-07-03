@@ -9,6 +9,7 @@ import shutil
 import tempfile
 from threading import Lock
 
+from calibre.customize.ui import input_profiles, output_profiles
 from calibre.db.errors import NoSuchBook
 from calibre.srv.changes import formats_added
 from calibre.srv.errors import BookNotFound, HTTPNotFound
@@ -241,6 +242,15 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     return ans
 
 
+def profiles():
+    ans = getattr(profiles, 'ans', None)
+    if ans is None:
+        ans = profiles.ans = {}
+        ans['input'] = {p.short_name: {'name': p.name} for p in input_profiles()}
+        ans['output'] = {p.short_name: {'name': p.name} for p in output_profiles()}
+    return ans
+
+
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})
 def conversion_data(ctx, rd, book_id):
     from calibre.ebooks.conversion.config import (
@@ -263,6 +273,7 @@ def conversion_data(ctx, rd, book_id):
     ans = {
         'input_formats': [x.upper() for x in input_formats],
         'output_formats': output_formats,
+        'profiles': profiles(),
         'conversion_options': get_conversion_options(input_fmt, output_formats[0], book_id, db),
         'title': db.field_for('title', book_id),
         'authors': db.field_for('authors', book_id),
