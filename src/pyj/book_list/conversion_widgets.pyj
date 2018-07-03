@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, ensure_id
 from utils import safe_set_inner_html
+from widgets import create_button
 
 CLASS_NAME = 'conversion-option-group'
 indent = '↳\xa0'
@@ -302,8 +303,22 @@ def page_setup(container):
     g.appendChild(E.div(data_profile='output'))
 # }}}
 
+# Structure detection {{{
+@ep
+def structure_detection(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('margin_left', _('Left page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_top', _('Top page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_right', _('Right page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_bottom', _('Bottom page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(choices('input_profile', _('&Input profile:'), {name: profiles.input[name].name for name in profiles.input}))
+    g.appendChild(E.div(data_profile='input'))
+    g.appendChild(choices('output_profile', _('&Output profile:'), {name: profiles.output[name].name for name in profiles.output}))
+    g.appendChild(E.div(data_profile='output'))
+# }}}
 
-def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
+def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
     nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles
     get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
     profiles = profiles_
@@ -312,6 +327,10 @@ def create_option_group(group_name, profiles_, container, get_option_value_, get
     container_id = ensure_id(container)
     container.classList.add(CLASS_NAME)
     entry_points[group_name](container)
+    container.appendChild(E.div(
+        style='margin-top: 2ex',
+        create_button(_('Back to conversion page'), action=on_close)
+    ))
 
 
 def commit_changes(set_option_value):

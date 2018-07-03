@@ -330,7 +330,7 @@ def create_configure_group_markup():
         container.appendChild(panel)
         create_option_group(
             conversion_data.configuring_group, conversion_data.profiles, container,
-            get_option_value, get_option_default_value, is_option_disabled, get_option_help)
+            get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
 
     return ans, init
 
