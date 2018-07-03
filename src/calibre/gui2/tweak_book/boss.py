@@ -1451,6 +1451,9 @@ class Boss(QObject):
                 _('Editing files of type %s is not supported' % mime), show=True)
         return self.edit_file(name, syntax)
 
+    def edit_next_file(self, backwards=False):
+        self.gui.file_list.edit_next_file(self.currently_editing, backwards)
+
     def quick_open(self):
         if not self.ensure_book(_('No book is currently open. You must first open a book to edit.')):
             return

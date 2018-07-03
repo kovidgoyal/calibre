@@ -734,6 +734,21 @@ class FileList(QTreeWidget):
             error_dialog(self, _('Cannot edit'),
                          _('No item with the name: %s was found') % name, show=True)
 
+    def edit_next_file(self, currently_editing=None, backwards=False):
+        category = self.categories['text']
+        seen_current = False
+        items = (category.child(i) for i in xrange(category.childCount()))
+        if backwards:
+            items = reversed(tuple(items))
+        for item in items:
+            name = unicode(item.data(0, NAME_ROLE) or '')
+            if seen_current:
+                self._request_edit(item)
+                return True
+            if currently_editing == name:
+                seen_current = True
+        return False
+
     @property
     def all_files(self):
         return (category.child(i) for category in self.categories.itervalues() for i in xrange(category.childCount()))
@@ -982,6 +997,7 @@ class FileListWidget(QWidget):
         for x in ('delete_done', 'select_name', 'select_names', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
         self.setFocusProxy(self.file_list)
+        self.edit_next_file = self.file_list.edit_next_file
 
     def build(self, container, preserve_state=True):
         self.file_list.build(container, preserve_state=preserve_state)
