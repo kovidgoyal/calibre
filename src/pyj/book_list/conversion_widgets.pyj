@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from dom import add_extra_css, build_rule, ensure_id
+from dom import add_extra_css, build_rule, clear, ensure_id
 from utils import safe_set_inner_html
 from widgets import create_button
 
@@ -87,7 +87,6 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suf
                 input_widget(container).removeAttribute('disabled')
     }
     registry[name] = ops
-    ops.set(label, get_option_value(name))
     ops.set(label, get_option_value(name))
     if is_option_disabled(name):
         ops.set_disabled(label, True)
@@ -354,7 +353,56 @@ def toc(container):
 # Search & replace {{{
 @ep
 def search_and_replace(container):
-    pass
+
+    def add(val):
+        c = container_for_option('search_replace')
+        c.appendChild(E.div(
+            class_='simple-group sr-instance',
+            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex',
+            E.label(
+                E.span(_('Search:')), E.input(type='text', name='search')
+            ),
+            E.label(
+                E.span(_('Replace:')), E.input(type='text', name='replace')
+            ),
+        ))
+        if val and val[0]:
+            c.lastChild.querySelector('input[name="search"]').value = val[0]
+            c.lastChild.querySelector('input[name="replace"]').value = val[1]
+        return c.lastChild
+
+    container.appendChild(E.div(data_option_name='search_replace'))
+
+    ops = {
+        'get': def get(container):  # noqa: unused-local
+            ans = v'[]'
+            for div in container.querySelectorAll('.sr-instance'):
+                search, replace = div.querySelectorAll('input')
+                if search.value:
+                    r = replace.value or ''  # noqa: unused-local
+                    ans.push(v'[search.value, r]')
+            return JSON.stringify(ans)
+        ,
+        'set': def set(container, encval):  # noqa: unused-local
+            try:
+                vals = JSON.parse(encval)
+            except:
+                vals = v'[]'
+            vals = vals or v'[]'
+            clear(container)
+            for val in vals:
+                add(val)
+            add()
+        ,
+        'set_disabled': def set_disabled(container, disabled):  # noqa: unused-local
+            pass
+    }
+    registry['search_replace'] = ops
+    ops.set(container.lastChild, get_option_value('search_replace'))
+
+    container.appendChild(E.div(
+        create_button(_('Add'), 'plus', action=def(): add();)
+    ))
 # }}}
 
 
