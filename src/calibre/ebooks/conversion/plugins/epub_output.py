@@ -298,7 +298,7 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
         existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
         nav_href = getattr(self.opts, 'epub3_nav_href', None)
-        previous_nav = (existing_nav, nav_href) if existing_nav and nav_href else None
+        previous_nav = (nav_href, existing_nav) if existing_nav and nav_href else None
         epub_2_to_3(container, self.log.info, previous_nav=previous_nav)
         fix_conversion_titlepage_links_in_nav(container)
         container.commit()
