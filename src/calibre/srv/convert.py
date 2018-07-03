@@ -245,9 +245,18 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
 def profiles():
     ans = getattr(profiles, 'ans', None)
     if ans is None:
+        def desc(profile):
+            w, h = profile.screen_size
+            if w >= 10000:
+                ss = _('unlimited')
+            else:
+                ss = _('%(width)d x %(height)d pixels') % dict(width=w, height=h)
+            ss = _('Screen size: %s') % ss
+            return {'name': profile.name, 'description': ('%s [%s]' % (profile.description, ss))}
+
         ans = profiles.ans = {}
-        ans['input'] = {p.short_name: {'name': p.name} for p in input_profiles()}
-        ans['output'] = {p.short_name: {'name': p.name} for p in output_profiles()}
+        ans['input'] = {p.short_name: desc(p) for p in input_profiles()}
+        ans['output'] = {p.short_name: desc(p) for p in output_profiles()}
     return ans
 
 
