@@ -301,7 +301,8 @@ class TopLevel(Feed):  # {{{
             categories]
         for x in subcatalogs:
             self.root.append(x)
-        for library_id, library_name in request_context.library_map.iteritems():
+        sorted_library_items_by_name = sorted(request_context.library_map.items(), key=lambda item:item[1])
+        for library_id, library_name in sorted_library_items_by_name:
             id_ = 'calibre-library:' + library_id
             self.root.append(E.entry(
                 TITLE(_('Library:') + ' ' + library_name),
