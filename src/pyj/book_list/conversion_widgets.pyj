@@ -5,13 +5,16 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from dom import ensure_id, add_extra_css, build_rule
+from dom import add_extra_css, build_rule, ensure_id
+from utils import safe_set_inner_html
 
 CLASS_NAME = 'conversion-option-group'
+indent = '↳\xa0'
 
 add_extra_css(def():
     style = ''
     sel = '.' + CLASS_NAME + ' '
+    style += build_rule(sel + 'input[type="checkbox"]', margin_left='0')
     style += build_rule(sel + '[data-option-name]', margin_bottom='1ex', display='block', padding_bottom='0.5ex')
     style += build_rule(sel + '.simple-group > label', display='table-row')
     style += build_rule(sel + '.simple-group > label > *', display='table-cell', padding_bottom='1ex', padding_right='1rem')
@@ -223,7 +226,6 @@ def look_and_feel(container):
     )
     g = E.div(class_='simple-group')
     container.appendChild(g)
-    indent = '↳\xa0'
     g.appendChild(checkbox('remove_paragraph_spacing', _('Remove &spacing between paragraphs')))
     g.appendChild(float_spin('remove_paragraph_spacing_indent_size', indent + _('I&ndent size:'), min=-0.1, unit='em'))
     g.appendChild(checkbox('insert_blank_line', _('Insert &blank line between paragraphs')))
@@ -237,6 +239,43 @@ def look_and_feel(container):
     container.appendChild(textarea('extra_css', 'E&xtra CSS'))
 # }}}
 
+# Heuristics {{{
+@ep
+def heuristics(container):
+    settings = v'[]'
+    def add(func, name, text, **kw):
+        g.appendChild(func(name, text, **kw))
+        settings.push(name)
+
+    add_listener('enable_heuristics', def (name):
+        disabled = not get('enable_heuristics')
+        for dname in settings:
+            set_disabled(dname, disabled)
+    )
+    blurb = _(
+    '<b>Heuristic processing</b> means that calibre will scan your book for common patterns and fix them.'
+    ' As the name implies, this involves guesswork, which means that it could end up worsening the result'
+    ' of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion'
+    ' does not turn out as you expect, turning on heuristics can improve matters. Read more about the various'
+    ' heuristic processing options in the <a href="%s">User Manual</a>.''').replace(
+        '%s', 'https://manual.calibre-ebook.com/conversion.html#heuristic-processing')
+    container.appendChild(E.div(style='margin-bottom: 1ex'))
+    safe_set_inner_html(container.lastChild, blurb)
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('enable_heuristics', _('Enable &heuristic processing')))
+    add(checkbox, 'unwrap_lines', _('Unwrap lines'))
+    add(float_spin, 'html_unwrap_factor', indent + _('Line &un-wrap factor:'), max=1, step=0.05)
+
+    add(checkbox, 'markup_chapter_headings', _('Detect and markup unformatted chapter headings and sub headings'))
+    add(checkbox, 'renumber_headings', _('Renumber sequences of <h1> or <h2> tags to prevent splitting'))
+    add(checkbox, 'delete_blank_paragraphs', _('Delete blank lines between paragraphs'))
+    add(checkbox, 'format_scene_breaks', _('Ensure scene breaks are consistently formatted'))
+    add(lineedit, 'replace_scene_breaks', _('Rep&lace soft scene breaks:'))
+    add(checkbox, 'dehyphenate', _('Remove unnecessary hyphens'))
+    add(checkbox, 'italicize_common_cases', _('Italicize common words and patterns'))
+    add(checkbox, 'fix_indents', _('Replace entity indents with CSS indents'))
+# }}}
 
 def create_option_group(group_name, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_):
     nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help
