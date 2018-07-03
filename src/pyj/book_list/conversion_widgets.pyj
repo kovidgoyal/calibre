@@ -138,6 +138,23 @@ def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  
     )
 # }}}
 
+def int_spin(name, text, tooltip=None, step=1, min=0, max=100, unit=None):  # {{{
+    f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
+    defval = get_option_default_value(name)
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            try:
+                return int(w.value)
+            except:
+                return defval
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = str(int(val))
+        ,
+        suffix=unit
+    )
+# }}}
+
 def choices(name, text, choices, tooltip):  # {{{
     f = E.select()
     if Array.isArray(choices):
@@ -316,6 +333,22 @@ def structure_detection(container):
     g.appendChild(checkbox('insert_metadata', _('Insert metadata at start of book')))
     g.appendChild(lineedit('page_breaks_before', _('Insert page breaks before'), 50))
     g.appendChild(lineedit('start_reading_at', _('Start reading at'), 50))
+# }}}
+
+# ToC {{{
+@ep
+def toc(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('use_auto_toc', _('&Force use of auto-generated Table of Contents')))
+    g.appendChild(checkbox('no_chapters_in_toc', _('Do not add &detected chapters to the Table of Contents')))
+    g.appendChild(checkbox('duplicate_links_in_toc', _('Allow &duplicate links when creating the Table of Contents')))
+    g.appendChild(int_spin('max_toc_links', _('Number of &links to add to Table of Contents:')))
+    g.appendChild(int_spin('toc_threshold', _('Chapter &threshold:')))
+    g.appendChild(lineedit('toc_filter', _('TOC &filter:')))
+    g.appendChild(lineedit('level1_toc', _('Level &1 TOC (XPath expression):')))
+    g.appendChild(lineedit('level2_toc', _('Level &2 TOC (XPath expression):')))
+    g.appendChild(lineedit('level3_toc', _('Level &3 TOC (XPath expression):')))
 # }}}
 
 def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
