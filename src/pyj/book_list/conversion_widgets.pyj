@@ -351,6 +351,18 @@ def toc(container):
     g.appendChild(lineedit('level3_toc', _('Level &3 TOC (XPath expression):')))
 # }}}
 
+# Search & replace {{{
+@ep
+def search_and_replace(container):
+    pass
+# }}}
+
+
+def restore_defaults():
+    for setting in registry:
+        set(setting, get_option_default_value(setting))
+
+
 def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
     nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles
     get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
@@ -361,8 +373,10 @@ def create_option_group(group_name, profiles_, container, get_option_value_, get
     container.classList.add(CLASS_NAME)
     entry_points[group_name](container)
     container.appendChild(E.div(
-        style='margin-top: 2ex',
-        create_button(_('Back to conversion page'), action=on_close)
+        style='margin-top: 2ex; padding-top: 2ex; border-top: solid 1px currentColor',
+        create_button(_('Done'), action=on_close),
+        '\xa0\xa0',
+        create_button(_('Restore defaults'), action=restore_defaults),
     ))
 
 
