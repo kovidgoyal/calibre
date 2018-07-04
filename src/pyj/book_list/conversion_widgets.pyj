@@ -627,6 +627,46 @@ def pdb_output(container):
     g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
 # }}}
 
+# PDF Output {{{
+@ep
+def pdf_output(container):
+    add_listener('use_profile_size', def (name):
+        disabled = get('use_profile_size')
+        for dname in 'paper_size', 'custom_size', 'unit':
+            set_disabled(dname, disabled)
+    )
+    add_listener('pdf_use_document_margins', def (name):
+        disabled = get('pdf_use_document_margins')
+        for dname in 'left', 'top', 'right', 'bottom':
+            set_disabled(f'pdf_page_margin_{dname}', disabled)
+    )
+
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('use_profile_size', _('&Use the paper size set in output profile')))
+    g.appendChild(choices('paper_size', indent + _('&Paper size:'), ui_data.paper_sizes))
+    g.appendChild(lineedit('custom_size', indent + _('&Custom size:')))
+    g.appendChild(choices('unit', indent + _('Custom size unit:'), ui_data.units))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve &aspect ratio of cover')))
+    g.appendChild(checkbox('pdf_page_numbers', _('Add page &numbers to the bottom of every page')))
+    g.appendChild(checkbox('pdf_hyphenate', _('&Break long words at the end of lines')))
+    g.appendChild(checkbox('pdf_add_toc', _('Add a printable &Table of Contents at the end')))
+    g.appendChild(lineedit('toc_title', indent + _('&Title for ToC:')))
+    g.appendChild(lineedit('pdf_serif_family', _('Serif famil&y:')))
+    g.appendChild(lineedit('pdf_sans_family', _('Sans fami&ly:')))
+    g.appendChild(lineedit('pdf_mono_family', _('&Monospace family:')))
+    g.appendChild(choices('pdf_standard_font', _('S&tandard font:'), ui_data.font_types))
+    g.appendChild(int_spin('pdf_default_font_size', _('Default font si&ze:'), unit='px'))
+    g.appendChild(int_spin('pdf_mono_font_size', _('Default font si&ze:'), unit='px'))
+    g.appendChild(checkbox('pdf_use_document_margins', _('Use page margins from the &document being converted')))
+    g.appendChild(float_spin('pdf_page_margin_left', indent + _('Left page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_top', indent + _('Top page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_right', indent + _('Right page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_bottom', indent + _('Bottom page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(lineedit('pdf_header_template', _('&Header template:')))
+    g.appendChild(lineedit('pdf_footer_template', _('&Footer template:')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))

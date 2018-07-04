@@ -51,8 +51,9 @@ class PDFOutput(OutputFormatPlugin):
     author = 'Kovid Goyal'
     file_type = 'pdf'
     commit_name = 'pdf_output'
+    ui_data = {'paper_sizes': PAPER_SIZES, 'units': UNITS, 'font_types': ['serif', 'sans', 'mono']}
 
-    options = set([
+    options = {
         OptionRecommendation(name='use_profile_size', recommended_value=False,
             help=_('Instead of using the paper size specified in the PDF Output options,'
                    ' use a paper size corresponding to the current output profile.'
@@ -85,8 +86,7 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_mono_family',
             recommended_value='Liberation Mono', help=_(
                 'The font family used to render monospace fonts')),
-        OptionRecommendation(name='pdf_standard_font', choices=['serif',
-            'sans', 'mono'],
+        OptionRecommendation(name='pdf_standard_font', choices=ui_data['font_types'],
             recommended_value='serif', help=_(
                 'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_default_font_size',
@@ -148,7 +148,7 @@ class PDFOutput(OutputFormatPlugin):
             ' This will cause the margins specified in the conversion settings to be ignored.'
             ' If the document does not specify page margins, the conversion settings will be used as a fallback.')
         ),
-    ])
+    }
 
     def specialize_options(self, log, opts, input_fmt):
         if opts.pdf_use_document_margins:

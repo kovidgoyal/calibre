@@ -43,6 +43,13 @@ class PluginWidget(Widget, Ui_Form):
         self.layout().setFieldGrowthPolicy(self.layout().ExpandingFieldsGrow)
         self.template_box.layout().setFieldGrowthPolicy(self.layout().AllNonFixedFieldsGrow)
         self.toggle_margins()
+        self.profile_size_toggled()
+
+    def profile_size_toggled(self):
+        enabled = not self.opt_use_profile_size.isChecked()
+        self.opt_paper_size.setEnabled(enabled)
+        self.opt_custom_size.setEnabled(enabled)
+        self.opt_unit.setEnabled(enabled)
 
     def toggle_margins(self):
         enabled = not self.opt_pdf_use_document_margins.isChecked()
@@ -71,3 +78,4 @@ class PluginWidget(Widget, Ui_Form):
         l.addRow(_('&Right:'), margin('right'))
         r.addRow(_('&Top:'), margin('top'))
         r.addRow(_('&Bottom:'), margin('bottom'))
+        self.opt_use_profile_size.toggled.connect(self.profile_size_toggled)
