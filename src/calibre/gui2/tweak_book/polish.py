@@ -6,13 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
 from threading import Thread
 
 from PyQt5.Qt import (
     QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
     QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
     QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen,
-    QProgressBar, pyqtSignal
+    QProgressBar, pyqtSignal, QApplication
 )
 
 from calibre import human_readable, fit_image, force_unicode
@@ -94,12 +95,23 @@ def show_report(changed, title, report, parent, show_current_diff):
         b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
         b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
         b.clicked.connect(lambda : show_current_diff(allow_revert=True), type=Qt.QueuedConnection)
+    b = d.bb.addButton(_('&Copy to clipboard'), d.bb.ActionRole)
+    b.setIcon(QIcon(I('edit-copy.png'))), b.setAutoDefault(False)
+
+    def copy_report():
+        text = re.sub(r'</.+?>', '\n', report)
+        text = re.sub(r'<.+?>', '', text)
+        cp = QApplication.instance().clipboard()
+        cp.setText(text)
+
+    b.clicked.connect(copy_report)
     d.bb.button(d.bb.Close).setDefault(True)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
     d.resize(600, 400)
     d.exec_()
+    b.clicked.disconnect()
 
 # CompressImages {{{
 
