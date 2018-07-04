@@ -76,7 +76,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 146
+    supported_dbversion = 147
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1201,13 +1201,13 @@ class KOBO(USBMS):
         spanTag = Tag(ka_soup, 'span')
         spanTag['style'] = 'font-weight:normal'
         if bookmark.book_format == 'epub':
-            spanTag.insert(0,NavigableString(
+            spanTag.insert(0,BeautifulSoup(
                 _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
                     pr=percent_read)))
         else:
-            spanTag.insert(0,NavigableString(
+            spanTag.insert(0,BeautifulSoup(
                 _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
@@ -1270,7 +1270,7 @@ class KOBO(USBMS):
                               annotation=user_notes[location]['annotation']))
 
             for annotation in annotations:
-                divTag.insert(dtc, annotation)
+                divTag.insert(dtc, BeautifulSoup(annotation))
                 dtc += 1
 
         ka_soup.insert(0,divTag)
@@ -1322,7 +1322,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 146
+    supported_dbversion             = 147
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1334,7 +1334,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 8, 11073)
+    max_supported_fwversion         = (4, 9, 11314)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
