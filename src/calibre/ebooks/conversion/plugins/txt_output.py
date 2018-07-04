@@ -21,6 +21,14 @@ class TXTOutput(OutputFormatPlugin):
     author = 'John Schember'
     file_type = 'txt'
     commit_name = 'txt_output'
+    ui_data = {
+            'newline_types': NEWLINE_TYPES,
+            'formatting_types': {
+                'plain': _('Plain text'),
+                'markdown': _('Markdown formatted text'),
+                'textile': _('TexTile formatted text')
+            },
+    }
 
     options = set([
         OptionRecommendation(name='newline', recommended_value='system',
@@ -50,11 +58,11 @@ class TXTOutput(OutputFormatPlugin):
             'is present. Also allows max-line-length to be below the minimum')),
         OptionRecommendation(name='txt_output_formatting',
              recommended_value='plain',
-             choices=['plain', 'markdown', 'textile'],
+             choices=list(ui_data['formatting_types']),
              help=_('Formatting used within the document.\n'
-                    '* plain: Produce plain text.\n'
-                    '* markdown: Produce Markdown formatted text.\n'
-                    '* textile: Produce Textile formatted text.')),
+                    '* plain: {plain}\n'
+                    '* markdown: {markdown}\n'
+                    '* textile: {textile}').format(**ui_data['formatting_types'])),
         OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove links within the document. This is only '

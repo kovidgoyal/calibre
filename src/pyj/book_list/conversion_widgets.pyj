@@ -677,6 +677,40 @@ def pml_output(container):
     g.appendChild(checkbox('full_image_depth', _('Do not &reduce image size and depth')))
 # }}}
 
+# RB Output {{{
+@ep
+def rb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+# }}}
+
+# TXT Output {{{
+@ep
+def txt_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('txt_output_encoding', _('O&utput encoding:')))
+    g.appendChild(choices('newline', _('&Line ending style:'), ui_data.newline_types))
+    g.appendChild(choices('txt_output_formatting', _('Forma&tting:'), ui_data.formatting_types))
+    g = E.div(E.div(_('Options for plain text output:')), E.div(class_='simple-group', style='margin-left: 1rem; margin-top: 1ex'))
+    container.appendChild(g)
+    g = g.lastChild
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+    g.appendChild(int_spin('max_line_length', _('&Maximum line length:'), max=1000))
+    g.appendChild(checkbox('force_max_line_length', _('Force maximum line &length')))
+    g = E.div(E.div(_('Options for Markdown and TexTile output:')), E.div(class_='simple-group', style='margin-left: 1rem; margin-top: 1ex'))
+    container.appendChild(g)
+    g = g.lastChild
+    g.appendChild(checkbox('keep_links', _('Do not remove links (<a> tags) before processing')))
+    g.appendChild(checkbox('keep_image_references', _('Do not remove image &references before processing')))
+    g.appendChild(checkbox('keep_color', _('Keep text &color, when possible')))
+
+@ep
+def txtz_output(container):
+    return txt_output(container)
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
