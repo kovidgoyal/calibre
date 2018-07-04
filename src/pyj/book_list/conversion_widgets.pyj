@@ -617,6 +617,16 @@ def azw3_output(container):
     g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
 # }}}
 
+# PDB Output {{{
+@ep
+def pdb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('format', _('Forma&t:'), ui_data.formats))
+    g.appendChild(lineedit('pdb_output_encoding', _('O&utput encoding:')))
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
