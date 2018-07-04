@@ -165,12 +165,20 @@ def create_converting_markup():
     return ans, init
 
 
+def current_input_format():
+    return document.getElementById(overall_container_id).querySelector('select[name="input_formats"]').value.toUpperCase()
+
+
+def current_output_format():
+    return document.getElementById(overall_container_id).querySelector('select[name="output_formats"]').value.toUpperCase()
+
+
 def start_conversion():
     nonlocal current_state
     container = document.getElementById(overall_container_id)
     data = {
-        'input_fmt': container.querySelector('select[name="input_formats"]').value,
-        'output_fmt': container.querySelector('select[name="output_formats"]').value,
+        'input_fmt': current_input_format(),
+        'output_fmt': current_output_format(),
         'options': get_conversion_options(container),
         'book_id': conversion_data.book_id,
     }
@@ -240,7 +248,7 @@ def create_configuring_markup():
         ans = E.li(E.a(class_='simple-link', href='javascript: void(0)'))
         ans.dataset.group = name
         ans.firstChild.addEventListener('click', show_group)
-        if not entry_points[name]:
+        if name is not 'input_fmt' and name is not 'output_fmt' and not entry_points[name]:
             ans.style.display = 'none'
         return ans
 
@@ -282,11 +290,9 @@ def create_configuring_markup():
             if GROUP_TITLES[group_name]:
                 title = GROUP_TITLES[group_name]
             elif group_name is 'input_fmt':
-                title = container.querySelector('select[name="input_formats"]').value.toUpperCase()
-                title = _('{} input').format(title)
+                title = _('{} input').format(current_input_format(), title)
             else:
-                title = container.querySelector('select[name="output_formats"]').value.toUpperCase()
-                title = _('{} output').format(title)
+                title = _('{} output').format(current_output_format(), title)
             li.firstChild.textContent = title
 
     return ans, initialize
@@ -328,9 +334,12 @@ def create_configure_group_markup():
             _('Configuring {} settings').format(conversion_data.configuring_group_title)))
         panel = E.div()
         container.appendChild(panel)
-        create_option_group(
-            conversion_data.configuring_group, conversion_data.profiles, container,
-            get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
+        g = conversion_data.configuring_group
+        if g is 'input_fmt':
+            g = conversion_data.conversion_options.input_plugin_name
+        elif g is 'output_fmt':
+            g = conversion_data.conversion_options.output_plugin_name
+        create_option_group(g, conversion_data.profiles, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
 
     return ans, init
 

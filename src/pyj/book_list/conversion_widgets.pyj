@@ -405,6 +405,26 @@ def search_and_replace(container):
     ))
 # }}}
 
+# Comic Input {{{
+@ep
+def comic_input(container):
+    settings = v'[]'
+    def add(func, name, text, **kw):
+        g.appendChild(func(name, text, **kw))
+        settings.push(name)
+
+    add_listener('no_process', def (name):
+        disabled = get('no_process')
+        for dname in settings:
+            set_disabled(dname, disabled)
+    )
+
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_process', _('&Disable comic processing')))
+    add(checkbox, 'dont_grayscale', _('Disable conversion of images to &black and white'))
+
+# }}}
 
 def restore_defaults():
     for setting in registry:

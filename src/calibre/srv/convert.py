@@ -211,6 +211,8 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
     ans = {'options': {}, 'disabled': set(), 'defaults': {}, 'help': {}}
+    ans['input_plugin_name'] = plumber.input_plugin.commit_name
+    ans['output_plugin_name'] = plumber.output_plugin.commit_name
 
     def merge_group(group_name, option_names):
         if not group_name or group_name in ('debug', 'metadata'):
