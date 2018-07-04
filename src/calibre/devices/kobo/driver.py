@@ -477,8 +477,8 @@ class KOBO(USBMS):
 
             cursor.close()
             if ImageID is None:
-                print "Error condition ImageID was not found"
-                print "You likely tried to delete a book that the kobo has not yet added to the database"
+                print("Error condition ImageID was not found")
+                print("You likely tried to delete a book that the kobo has not yet added to the database")
 
         # If all this succeeds we need to delete the images files via the ImageID
         return ImageID
@@ -1170,7 +1170,7 @@ class KOBO(USBMS):
 
     def generate_annotation_html(self, bookmark):
         import calendar
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
         # Returns <div class="user_annotations"> ... </div>
         # last_read_location = bookmark.last_read_location
         # timestamp = bookmark.timestamp
