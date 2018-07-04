@@ -335,11 +335,14 @@ def create_configure_group_markup():
         panel = E.div()
         container.appendChild(panel)
         g = conversion_data.configuring_group
+        ui_data = None
         if g is 'input_fmt':
             g = conversion_data.conversion_options.input_plugin_name
+            ui_data = conversion_data.conversion_options.input_ui_data
         elif g is 'output_fmt':
             g = conversion_data.conversion_options.output_plugin_name
-        create_option_group(g, conversion_data.profiles, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
+            ui_data = conversion_data.conversion_options.output_ui_data
+        create_option_group(g, ui_data, conversion_data.profiles, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
 
     return ans, init
 

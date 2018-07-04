@@ -22,13 +22,14 @@ add_extra_css(def():
     style += build_rule(sel + 'label.vertical', display='block')
     style += build_rule(sel + 'label.vertical > *', display='block', padding_bottom='1ex', padding_right='1rem')
     style += build_rule(sel + '[data-profile]', margin_left='2em', text_indent='-2em', font_size='smaller', margin_bottom='1ex')
+    style += build_rule(sel + '.subset-choice label', display='block', margin_bottom='1ex')
     return style
 )
 
 
 # globals {{{
 container_id = None
-get_option_value = get_option_default_value = is_option_disabled = get_option_help = profiles = None
+get_option_value = get_option_default_value = is_option_disabled = get_option_help = profiles = ui_data = None
 entry_points = {}
 registry = {}
 listeners = {}
@@ -53,6 +54,36 @@ def on_change(name):
 
 def sanitize_accelerator(text):
     return text.replace('&', '')
+# }}}
+
+def subset_choice(name, choices, tooltip=None):  # {{{
+    if get_option_default_value(name) is undefined:
+        raise KeyError(f'{name} is not a known option')
+    ans = E.div(data_option_name=name, class_='subset-choice')
+    if tooltip is not None:
+        ans.setAttribute('title', tooltip or get_option_help(name))
+    names = Object.keys(choices)
+    for cname in names:
+        ans.appendChild(E.label(E.input(type='checkbox', name=cname), '\xa0' + choices[cname]))
+    ops = {
+        'get': def (container):
+            ans = v'[]'
+            for w in container.querySelectorAll('input'):
+                if w.checked:
+                    ans.push(w.name)
+            return ','.join(ans)
+        ,
+        'set': def (container, val):
+            q = {x.strip():True for x in (val or '').split(',')}
+            for w in container.querySelectorAll('input'):
+                w.checked = bool(q[w.name])
+        ,
+        'set_disabled': def (container, val):
+            pass
+    }
+    registry[name] = ops
+    ops.set(ans, get_option_value(name))
+    return ans
 # }}}
 
 def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suffix):  # {{{
@@ -475,15 +506,35 @@ def docx_input(container):
     g.appendChild(checkbox('docx_inline_subsup', _('Render &superscripts and subscripts so that they do not affect the line height')))
 # }}}
 
+# TXT Input {{{
+@ep
+def txt_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('paragraph_type', _('Para&graph style:'), ui_data.paragraph_types))
+    g.appendChild(choices('formatting_type', _('Forma&tting style:'), ui_data.formatting_types))
+    g.appendChild(checkbox('preserve_spaces', _('Preserve &spaces')))
+    g.appendChild(checkbox('txt_in_remove_indents', _('Remove &indents at the beginning of lines')))
+
+    container.appendChild(E.div(
+        style='margin-top: 1ex',
+        _('Allowed Markdown extensions:'),
+        E.div(
+            style='margin-left: 1em; margin-top: 1ex',
+            subset_choice('markdown_extensions', ui_data.md_extensions)
+        )
+    ))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
 
 
-def create_option_group(group_name, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
-    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles
+def create_option_group(group_name, ui_data_, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
+    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles, ui_data
     get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
-    profiles = profiles_
+    profiles, ui_data = profiles_, ui_data_
     registry = {}
     listeners = {}
     container_id = ensure_id(container)
