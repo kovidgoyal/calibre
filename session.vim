@@ -23,6 +23,7 @@ set wildignore+=build/*
 set wildignore+=dist/*
 set wildignore+=manual/generated/*
 set wildignore+=manual/locale/*
+set wildignore+=imgsrc/*
 
 fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to
