@@ -214,12 +214,12 @@ def create_configuring_markup():
     start_conv = E.div(
         style='border-bottom: solid 1px currentColor; margin-bottom: 1em',
         E.div(
-            E.div(
+            E.label(
                 style='display: table-row',
                 E.div(style=tcell, _('Input format:')),
                 E.div(generate_choice('input_formats'), style=tcell),
             ),
-            E.div(
+            E.label(
                 style='display: table-row',
                 E.div(style=tcell, _('Output format:')),
                 E.div(generate_choice('output_formats'), style=tcell),
