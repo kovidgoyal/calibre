@@ -21,30 +21,41 @@ class HTMLZOutput(OutputFormatPlugin):
     author = 'John Schember'
     file_type = 'htmlz'
     commit_name = 'htmlz_output'
+    ui_data = {
+            'css_choices': {
+                'class': _('Use CSS classes'),
+                'inline': _('Use the style attribute'),
+                'tag': _('Use HTML tags wherever possible')
+            },
+            'sheet_choices': {
+                'external': _('Use an external CSS file'),
+                'inline': _('Use a <style> tag in the HTML file')
+            }
+    }
 
-    options = set([
+    options = {
         OptionRecommendation(name='htmlz_css_type', recommended_value='class',
             level=OptionRecommendation.LOW,
-            choices=['class', 'inline', 'tag'],
+            choices=list(ui_data['css_choices']),
             help=_('Specify the handling of CSS. Default is class.\n'
-                   'class: Use CSS classes and have elements reference them.\n'
-                   'inline: Write the CSS as an inline style attribute.\n'
-                   'tag: Turn as many CSS styles as possible into HTML tags.'
-            )),
+                   'class: {class}\n'
+                   'inline: {inline}\n'
+                   'tag: {tag}'
+            ).format(**ui_data['css_choices'])),
         OptionRecommendation(name='htmlz_class_style', recommended_value='external',
             level=OptionRecommendation.LOW,
-            choices=['external', 'inline'],
+            choices=list(ui_data['sheet_choices']),
             help=_('How to handle the CSS when using css-type = \'class\'.\n'
                    'Default is external.\n'
-                   'external: Use an external CSS file that is linked in the document.\n'
-                   'inline: Place the CSS in the head section of the document.'
-            )),
+                   'external: {external}\n'
+                   'inline: {inline}'
+            ).format(**ui_data['sheet_choices'])),
         OptionRecommendation(name='htmlz_title_filename',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('If set this option causes the file name of the HTML file'
                 ' inside the HTMLZ archive to be based on the book title.')
             ),
-    ])
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree

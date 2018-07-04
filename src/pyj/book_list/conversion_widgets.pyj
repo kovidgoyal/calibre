@@ -711,6 +711,16 @@ def txtz_output(container):
     return txt_output(container)
 # }}}
 
+# HTMLZ Output {{{
+@ep
+def htmlz_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('htmlz_css_type', _('How to handle &CSS'), ui_data.css_choices))
+    g.appendChild(choices('htmlz_class_style', _('How to handle &CSS'), ui_data.sheet_choices))
+    g.appendChild(checkbox('htmlz_title_filename', _('Use book title as the filename for the HTML file')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
