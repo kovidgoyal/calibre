@@ -949,8 +949,9 @@ class EbookViewer(MainWindow):
     def build_bookmarks_menu(self, bookmarks):
         self.bookmarks_menu.clear()
         sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Bookmark'))
-        self.bookmarks_menu.addAction(_("Bookmark this location [%s]") % sc, self.bookmark)
-        self.bookmarks_menu.addAction(_("Show/hide bookmarks"), self.bookmarks_dock.toggleViewAction().trigger)
+        tc = _(' or ').join(self.view.shortcuts.get_shortcuts('Toggle bookmarks'))
+        self.bookmarks_menu.addAction(_("Bookmark this location") + '\t' + sc, self.bookmark)
+        self.bookmarks_menu.addAction(_("Show/hide bookmarks") + '\t' + tc, self.bookmarks_dock.toggleViewAction().trigger)
         self.bookmarks_menu.addSeparator()
         current_page = None
         self.existing_bookmarks = []
@@ -1143,6 +1144,7 @@ class EbookViewer(MainWindow):
             'Lookup word': self.view.dictionary_action,
             'Next occurrence': self.view.search_action,
             'Bookmark': bac,
+            'Toggle bookmarks': self.bookmarks_dock.toggleViewAction(),
             'Reload': self.action_reload,
             'Table of Contents': self.action_table_of_contents,
             'Print': self.action_print,
