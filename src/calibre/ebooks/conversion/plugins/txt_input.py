@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -32,32 +33,48 @@ class TXTInput(InputFormatPlugin):
     description = 'Convert TXT files to HTML'
     file_types  = {'txt', 'txtz', 'text', 'md', 'textile', 'markdown'}
     commit_name = 'txt_input'
+    ui_data = {
+        'md_extensions': MD_EXTENSIONS,
+        'paragraph_types': {
+            'auto': _('Try to auto detect paragraph type'),
+            'block': _('Treat a blank line as a paragraph break'),
+            'single': _('Assume every line is a paragraph'),
+            'print': _('Assume every line starting with 2+ spaces or a tab starts a paragraph'),
+            'unformatted': _('Most lines have hard line breaks, few/no blank lines or indents'),
+            'off': _('Don\'t modify the paragraph structure'),
+        },
+        'formatting_types': {
+            'auto': _('Automatically decide which formatting processor to use'),
+            'plain': _('No formatting'),
+            'heuristic': _('Use heuristics to determine chapter headings, italics, etc.'),
+            'textile': _('Use the TexTile markup language'),
+            'markdown': _('Use the Markdown markup language')
+        },
+    }
 
     options = set([
-        OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'unformatted', 'off'],
-            help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\', \'off\']\n'
-                   '* auto: Try to auto detect paragraph type.\n'
-                   '* block: Treat a blank line as a paragraph break.\n'
-                   '* single: Assume every line is a paragraph.\n'
-                   '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.\n'
-                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents. '
-                   'Tries to determine structure and reformat the differentiate elements.\n'
-                   '* off: Don\'t modify the paragraph structure. This is useful when combined with '
-                   'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
+            choices=list(ui_data['formatting_types']),
             help=_('Formatting used within the document.\n'
-                   '* auto: Automatically decide which formatting processor to use.\n'
-                   '* plain: Do not process the document formatting. Everything is a '
-                   'paragraph and no styling is applied.\n'
-                   '* heuristic: Process using heuristics to determine formatting such '
-                   'as chapter headings and italic text.\n'
-                   '* textile: Processing using textile formatting.\n'
-                   '* markdown: Processing using markdown formatting. '
-                   'To learn more about markdown see')+' https://daringfireball.net/projects/markdown/'),
+                   '* auto: {auto}\n'
+                   '* plain: {plain}\n'
+                   '* heuristic: {heuristic}\n'
+                   '* textile: {textile}\n'
+                   '* markdown: {markdown}\n'
+                   'To learn more about markdown see {url}').format(
+                       url='https://daringfireball.net/projects/markdown/', **ui_data['formatting_types'])
+        ),
+        OptionRecommendation(name='paragraph_type', recommended_value='auto',
+            choices=list(ui_data['paragraph_types']),
+            help=_('Paragraph structure to assume. The value of "off" is useful for formatted documents such as Markdown or Textile. '
+                   'Choices are:\n'
+                   '* auto: {auto}\n'
+                   '* block: {block}\n'
+                   '* single: {single}\n'
+                   '* print:  {print}\n'
+                   '* unformatted: {unformatted}\n'
+                   '* off: {off}').format(**ui_data['paragraph_types'])
+        ),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),

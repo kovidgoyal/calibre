@@ -137,6 +137,7 @@ class InputFormatPlugin(Plugin):
     can_be_disabled = False
     supported_platforms = ['windows', 'osx', 'linux']
     commit_name = None  # unique name under which options for this plugin are saved
+    ui_data = None
 
     #: Set of file types for which this plugin should be run
     #: For example: ``set(['azw', 'mobi', 'prc'])``
@@ -287,6 +288,7 @@ class OutputFormatPlugin(Plugin):
     can_be_disabled = False
     supported_platforms = ['windows', 'osx', 'linux']
     commit_name = None  # unique name under which options for this plugin are saved
+    ui_data = None
 
     #: The file type (extension without leading period) that this
     #: plugin outputs
