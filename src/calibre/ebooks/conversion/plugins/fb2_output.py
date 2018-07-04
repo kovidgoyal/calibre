@@ -154,7 +154,7 @@ class FB2Output(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='sectionize',
             recommended_value='files', level=OptionRecommendation.LOW,
-            choices=ui_data['sectionize'],
+            choices=list(ui_data['sectionize']),
             help=_('Specify how sections are created:\n'
                 ' * nothing: {nothing}\n'
                 ' * files: {files}\n'
