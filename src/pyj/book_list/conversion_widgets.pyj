@@ -543,6 +543,22 @@ def epub_output(container):
     g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
 # }}}
 
+# DOCX Output {{{
+@ep
+def docx_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('docx_page_size', _('Paper si&ze:'), ui_data.page_sizes))
+    g.appendChild(lineedit('docx_custom_page_size', _('&Custom size:')))
+    g.appendChild(float_spin('docx_page_margin_left', _('Page &left margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_top', _('Page &top margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_right', _('Page &right margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_bottom', _('Page &bottom margin'), unit='pt', min=-100, max=500))
+    g.appendChild(checkbox('docx_no_toc', _('Do not insert the &Table of Contents as a page at the start of the document')))
+    g.appendChild(checkbox('docx_no_cover', _('Do not insert &cover as image at start of document')))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve the aspect ratio of the image inserted as cover')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
