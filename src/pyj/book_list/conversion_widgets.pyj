@@ -440,6 +440,41 @@ def comic_input(container):
 
 # }}}
 
+# FB2 Input {{{
+@ep
+def fb2_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_inline_fb2_toc', _('Do not insert a Table of Contents at the beginning of the book')))
+# }}}
+
+# PDF Input {{{
+@ep
+def pdf_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('unwrap_factor', _('Line &un-wrapping factor:'), max=1, step=0.01))
+    g.appendChild(checkbox('no_images', _('No &images')))
+# }}}
+
+# RTF Input {{{
+@ep
+def rtf_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('ignore_wmf', _('Ignore &WMF images in the RTF file')))
+# }}}
+
+# DOCX Input {{{
+@ep
+def docx_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('docx_no_cover', _('Do not try to autodetect a &cover from images in the document')))
+    g.appendChild(checkbox('docx_no_pagebreaks_between_notes', _('Do not add a page after every &endnote')))
+    g.appendChild(checkbox('docx_inline_subsup', _('Render &superscripts and subscripts so that they do not affect the line height')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
