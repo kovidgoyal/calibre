@@ -568,6 +568,25 @@ def fb2_output(container):
     g.appendChild(choices('fb2_genre', _('&Genre:'), ui_data.genres))
 # }}}
 
+# LRF Output {{{
+@ep
+def lrf_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('autorotation', _('Enable &auto-rotation of wide images')))
+    g.appendChild(float_spin('wordspace', _('&Wordspace:'), min=1, max=20, unit='pt'))
+    g.appendChild(float_spin('minimum_indent', _('Minim&um para. indent:'), unit='pt'))
+    g.appendChild(checkbox('render_tables_as_images', _('Render &tables as images')))
+    g.appendChild(float_spin(
+        'text_size_multiplier_for_rendered_tables', indent + _('Text size multiplier for text in rendered tables:'), step=0.01))
+    g.appendChild(checkbox('header', _('Add &header')))
+    g.appendChild(float_spin('header_separation', indent + _('Header &separation:'), unit='pt'))
+    g.appendChild(lineedit('header_format', indent + _('Header &format:')))
+    g.appendChild(lineedit('serif_family', _('Serif fon&t family:')))
+    g.appendChild(lineedit('sans_family', _('Sans-serif font fami&ly:')))
+    g.appendChild(lineedit('mono_family', _('&Monospace font family:')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
