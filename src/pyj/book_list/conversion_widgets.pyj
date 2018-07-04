@@ -559,6 +559,15 @@ def docx_output(container):
     g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve the aspect ratio of the image inserted as cover')))
 # }}}
 
+# FB2 Output {{{
+@ep
+def fb2_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('sectionize', _('Sec&tionize:'), ui_data.sectionize))
+    g.appendChild(choices('fb2_genre', _('&Genre:'), ui_data.genres))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
