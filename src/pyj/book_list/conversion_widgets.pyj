@@ -526,6 +526,23 @@ def txt_input(container):
     ))
 # }}}
 
+# EPUB Output {{{
+@ep
+def epub_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('dont_split_on_page_breaks', _('Do not &split on page breaks')))
+    g.appendChild(checkbox('no_default_epub_cover', _('No default &cover')))
+    g.appendChild(checkbox('epub_flatten', _('&Flatten EPUB file structure')))
+    g.appendChild(checkbox('no_svg_cover', _('No &SVG cover')))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve cover &aspect ratio')))
+    g.appendChild(checkbox('epub_inline_toc', _('Insert inline &Table of Contents')))
+    g.appendChild(checkbox('epub_toc_at_end', _('Put inserted Table of Contents at the &end of the book')))
+    g.appendChild(lineedit('toc_title', _('&Title for inserted ToC:')))
+    g.appendChild(int_spin('flow_size', _('Split files &larger than:'), unit='KB', max=1000000, step=20))
+    g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))

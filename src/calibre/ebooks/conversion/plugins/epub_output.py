@@ -49,6 +49,7 @@ class EPUBOutput(OutputFormatPlugin):
     author = 'Kovid Goyal'
     file_type = 'epub'
     commit_name = 'epub_output'
+    ui_data = {'versions': ('2', '3')}
 
     options = set([
         OptionRecommendation(name='extract_to',
@@ -118,7 +119,7 @@ class EPUBOutput(OutputFormatPlugin):
             help=_('Title for any generated in-line table of contents.')
         ),
 
-        OptionRecommendation(name='epub_version', recommended_value='2', choices=('2', '3'),
+        OptionRecommendation(name='epub_version', recommended_value='2', choices=ui_data['versions'],
             help=_('The version of the EPUB file to generate. EPUB 2 is the'
                 ' most widely compatible, only use EPUB 3 if you know you'
                 ' actually need it.')
