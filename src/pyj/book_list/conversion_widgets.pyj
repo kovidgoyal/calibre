@@ -423,6 +423,20 @@ def comic_input(container):
     container.appendChild(g)
     g.appendChild(checkbox('no_process', _('&Disable comic processing')))
     add(checkbox, 'dont_grayscale', _('Disable conversion of images to &black and white'))
+    add(checkbox, 'dont_add_comic_pages_to_toc', _('Don\'t add links to &pages to the Table of Contents for CBC files'))
+    add(int_spin, 'colors', _('&Number of colors:'), max=256, step=8)
+    add(lineedit, 'comic_image_size', _('Override image si&ze:'))
+    add(checkbox, 'dont_normalize', _('Disable &normalize'))
+    add(checkbox, 'keep_aspect_ratio', _('Keep &aspect ratio'))
+    add(checkbox, 'dont_sharpen', _('Disable &Sharpening'))
+    add(checkbox, 'disable_trim', _('Disable &Trimming'))
+    add(checkbox, 'wide', _('&Wide'))
+    add(checkbox, 'landscape', _('&Landscape'))
+    add(checkbox, 'right2left', _('&Right to left'))
+    add(checkbox, 'no_sort', _('Don\'t so&rt'))
+    add(checkbox, 'despeckle', _('De&speckle'))
+    g.appendChild(choices('output_format', _('O&utput format:'), v"['png', 'jpg']"))
+    settings.push('output_format')
 
 # }}}
 
