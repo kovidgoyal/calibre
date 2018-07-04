@@ -721,6 +721,17 @@ def htmlz_output(container):
     g.appendChild(checkbox('htmlz_title_filename', _('Use book title as the filename for the HTML file')))
 # }}}
 
+# SNB Output {{{
+@ep
+def snb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('snb_insert_empty_line', _('Insert &empty line between paragraphs')))
+    g.appendChild(checkbox('snb_dont_indent_first_line', _('Don\'t indent the &first line for each paragraph')))
+    g.appendChild(checkbox('snb_hide_chapter_name', _('Hide &chapter name')))
+    g.appendChild(checkbox('snb_full_screen', _('Optimize for full-&screen view ')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
