@@ -604,6 +604,19 @@ def mobi_output(container):
     g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
 # }}}
 
+# AZW3 Output {{{
+@ep
+def azw3_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_inline_toc', _('Do not add &Table of Contents to book')))
+    g.appendChild(lineedit('toc_title', indent + _('&Title for Table of Contents:')))
+    g.appendChild(checkbox('mobi_toc_at_start', _('Put generated Table of Contents at &start of book instead of end')))
+    g.appendChild(checkbox('prefer_author_sort', _('Use author &sort for author')))
+    g.appendChild(checkbox('dont_compress', _('Disable &compression of the file contents')))
+    g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))
