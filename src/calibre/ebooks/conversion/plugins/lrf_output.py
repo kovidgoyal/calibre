@@ -90,6 +90,7 @@ class LRFOutput(OutputFormatPlugin):
     name = 'LRF Output'
     author = 'Kovid Goyal'
     file_type = 'lrf'
+    commit_name = 'lrf_output'
 
     options = set([
         OptionRecommendation(name='enable_autorotation', recommended_value=False,

@@ -16,6 +16,7 @@ class PMLOutput(OutputFormatPlugin):
     name = 'PML Output'
     author = 'John Schember'
     file_type = 'pmlz'
+    commit_name = 'pml_output'
 
     options = set([
         OptionRecommendation(name='pml_output_encoding', recommended_value='cp1252',

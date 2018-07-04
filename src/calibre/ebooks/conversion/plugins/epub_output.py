@@ -48,6 +48,7 @@ class EPUBOutput(OutputFormatPlugin):
     name = 'EPUB Output'
     author = 'Kovid Goyal'
     file_type = 'epub'
+    commit_name = 'epub_output'
 
     options = set([
         OptionRecommendation(name='extract_to',

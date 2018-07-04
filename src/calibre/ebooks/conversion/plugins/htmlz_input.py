@@ -18,6 +18,7 @@ class HTMLZInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert HTML files to HTML'
     file_types  = set(['htmlz'])
+    commit_name = 'htmlz_input'
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):

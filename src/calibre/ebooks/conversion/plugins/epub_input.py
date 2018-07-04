@@ -34,6 +34,7 @@ class EPUBInput(InputFormatPlugin):
     description = 'Convert EPUB files (.epub) to HTML'
     file_types  = set(['epub'])
     output_encoding = None
+    commit_name = 'epub_input'
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 

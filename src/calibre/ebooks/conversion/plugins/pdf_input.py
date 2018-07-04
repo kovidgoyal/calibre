@@ -15,6 +15,7 @@ class PDFInput(InputFormatPlugin):
     author      = 'Kovid Goyal and John Schember'
     description = 'Convert PDF files to HTML'
     file_types  = set(['pdf'])
+    commit_name = 'pdf_input'
 
     options = set([
         OptionRecommendation(name='no_images', recommended_value=False,

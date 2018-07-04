@@ -21,6 +21,7 @@ class ComicInput(InputFormatPlugin):
     description = 'Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices'
     file_types  = set(['cbz', 'cbr', 'cbc'])
     is_image_collection = True
+    commit_name = 'comic_input'
     core_usage = -1
 
     options = set([

@@ -16,6 +16,7 @@ class SNBOutput(OutputFormatPlugin):
     name = 'SNB Output'
     author = 'Li Fanxi'
     file_type = 'snb'
+    commit_name = 'snb_output'
 
     options = set([
         OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',

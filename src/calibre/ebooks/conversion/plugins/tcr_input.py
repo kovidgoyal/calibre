@@ -15,6 +15,7 @@ class TCRInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert TCR files to HTML'
     file_types  = set(['tcr'])
+    commit_name = 'tcr_input'
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.compression.tcr import decompress

@@ -14,6 +14,7 @@ class DOCXInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = _('Convert DOCX files (.docx and .docm) to HTML')
     file_types  = {'docx', 'docm'}
+    commit_name = 'docx_input'
 
     options = {
         OptionRecommendation(name='docx_no_cover', recommended_value=False,

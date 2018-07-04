@@ -14,6 +14,7 @@ class FB2Output(OutputFormatPlugin):
     name = 'FB2 Output'
     author = 'John Schember'
     file_type = 'fb2'
+    commit_name = 'fb2_output'
 
     FB2_GENRES = [
         # Science Fiction & Fantasy

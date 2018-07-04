@@ -41,6 +41,7 @@ class MOBIOutput(OutputFormatPlugin):
     name = 'MOBI Output'
     author = 'Kovid Goyal'
     file_type = 'mobi'
+    commit_name = 'mobi_output'
 
     options = set([
         OptionRecommendation(name='prefer_author_sort',
@@ -271,6 +272,7 @@ class AZW3Output(OutputFormatPlugin):
     name = 'AZW3 Output'
     author = 'Kovid Goyal'
     file_type = 'azw3'
+    commit_name = 'azw3_output'
 
     options = set([
         OptionRecommendation(name='prefer_author_sort',

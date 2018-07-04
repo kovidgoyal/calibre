@@ -20,6 +20,7 @@ class HTMLOutput(OutputFormatPlugin):
     name = 'HTML Output'
     author = 'Fabian Grassl'
     file_type = 'zip'
+    commit_name = 'html_output'
 
     options = set([
         OptionRecommendation(name='template_css',

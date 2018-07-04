@@ -16,6 +16,7 @@ class OEBOutput(OutputFormatPlugin):
     name = 'OEB Output'
     author = 'Kovid Goyal'
     file_type = 'oeb'
+    commit_name = 'oeb_output'
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
@@ -119,4 +120,3 @@ class OEBOutput(OutputFormatPlugin):
             if clc:
                 lang.text = clc
     # }}}
-

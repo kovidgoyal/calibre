@@ -16,6 +16,7 @@ class CHMInput(InputFormatPlugin):
     author      = 'Kovid Goyal and Alex Bramley'
     description = 'Convert CHM files to OEB'
     file_types  = set(['chm'])
+    commit_name = 'chm_input'
 
     def _chmtohtml(self, output_dir, chm_path, no_images, log, debug_dump=False):
         from calibre.ebooks.chm.reader import CHMReader

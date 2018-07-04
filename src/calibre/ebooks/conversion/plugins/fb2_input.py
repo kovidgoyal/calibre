@@ -19,6 +19,7 @@ class FB2Input(InputFormatPlugin):
     author      = 'Anatoly Shipitsin'
     description = 'Convert FB2 and FBZ files to HTML'
     file_types  = {'fb2', 'fbz'}
+    commit_name = 'fb2_input'
 
     recommendations = set([
         ('level1_toc', '//h:h1', OptionRecommendation.MED),

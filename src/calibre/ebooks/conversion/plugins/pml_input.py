@@ -19,6 +19,7 @@ class PMLInput(InputFormatPlugin):
     description = 'Convert PML to OEB'
     # pmlz is a zip file containing pml files and png images.
     file_types  = set(['pml', 'pmlz'])
+    commit_name = 'pml_input'
 
     def process_pml(self, pml_path, html_path, close_all=False):
         from calibre.ebooks.pml.pmlconverter import PML_HTMLizer

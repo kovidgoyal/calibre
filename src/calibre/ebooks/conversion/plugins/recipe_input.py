@@ -23,6 +23,7 @@ class RecipeInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = _('Download periodical content from the internet')
     file_types  = set(['recipe', 'downloaded_recipe'])
+    commit_name = 'recipe_input'
 
     recommendations = set([
         ('chapter', None, OptionRecommendation.HIGH),
@@ -147,4 +148,3 @@ class RecipeInput(InputFormatPlugin):
         if isinstance(raw, unicode):
             raw = raw.encode('utf-8')
         zf.writestr('download.recipe', raw)
-

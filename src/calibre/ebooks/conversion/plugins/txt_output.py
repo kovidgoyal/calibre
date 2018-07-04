@@ -20,6 +20,7 @@ class TXTOutput(OutputFormatPlugin):
     name = 'TXT Output'
     author = 'John Schember'
     file_type = 'txt'
+    commit_name = 'txt_output'
 
     options = set([
         OptionRecommendation(name='newline', recommended_value='system',

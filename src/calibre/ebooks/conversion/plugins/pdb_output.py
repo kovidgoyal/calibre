@@ -16,6 +16,7 @@ class PDBOutput(OutputFormatPlugin):
     name = 'PDB Output'
     author = 'John Schember'
     file_type = 'pdb'
+    commit_name = 'pdb_output'
 
     options = set([
         OptionRecommendation(name='format', recommended_value='doc',
@@ -60,4 +61,3 @@ class PDBOutput(OutputFormatPlugin):
 
         if close:
             out_stream.close()
-

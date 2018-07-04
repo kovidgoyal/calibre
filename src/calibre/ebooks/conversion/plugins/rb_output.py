@@ -14,6 +14,7 @@ class RBOutput(OutputFormatPlugin):
     name = 'RB Output'
     author = 'John Schember'
     file_type = 'rb'
+    commit_name = 'rb_output'
 
     options = set([
         OptionRecommendation(name='inline_toc',

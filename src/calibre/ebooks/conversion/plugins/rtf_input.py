@@ -44,6 +44,7 @@ class RTFInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = 'Convert RTF files to HTML'
     file_types  = set(['rtf'])
+    commit_name = 'rtf_input'
 
     options = {
         OptionRecommendation(name='ignore_wmf', recommended_value=False,
@@ -317,4 +318,3 @@ class RTFInput(InputFormatPlugin):
                         p.text = (p.text or '') + img.tail
                     else:
                         p[idx-1].tail = (p[idx-1].tail or '') + img.tail
-

@@ -20,6 +20,7 @@ class HTMLZOutput(OutputFormatPlugin):
     name = 'HTMLZ Output'
     author = 'John Schember'
     file_type = 'htmlz'
+    commit_name = 'htmlz_output'
 
     options = set([
         OptionRecommendation(name='htmlz_css_type', recommended_value='class',

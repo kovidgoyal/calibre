@@ -50,6 +50,7 @@ class PDFOutput(OutputFormatPlugin):
     name = 'PDF Output'
     author = 'Kovid Goyal'
     file_type = 'pdf'
+    commit_name = 'pdf_output'
 
     options = set([
         OptionRecommendation(name='use_profile_size', recommended_value=False,

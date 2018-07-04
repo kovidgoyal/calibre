@@ -31,6 +31,7 @@ class TXTInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
     file_types  = {'txt', 'txtz', 'text', 'md', 'textile', 'markdown'}
+    commit_name = 'txt_input'
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',

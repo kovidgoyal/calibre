@@ -15,6 +15,7 @@ class TCROutput(OutputFormatPlugin):
     name = 'TCR Output'
     author = 'John Schember'
     file_type = 'tcr'
+    commit_name = 'tcr_output'
 
     options = set([
         OptionRecommendation(name='tcr_output_encoding', recommended_value='utf-8',

@@ -16,6 +16,7 @@ class LRFInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = 'Convert LRF files to HTML'
     file_types  = set(['lrf'])
+    commit_name = 'lrf_input'
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
