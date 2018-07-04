@@ -667,6 +667,16 @@ def pdf_output(container):
     g.appendChild(lineedit('pdf_footer_template', _('&Footer template:')))
 # }}}
 
+# PMLZ Output {{{
+@ep
+def pml_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('pml_output_encoding', _('O&utput encoding:')))
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+    g.appendChild(checkbox('full_image_depth', _('Do not &reduce image size and depth')))
+# }}}
+
 def restore_defaults():
     for setting in registry:
         set(setting, get_option_default_value(setting))

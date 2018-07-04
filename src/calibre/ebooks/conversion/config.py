@@ -305,7 +305,7 @@ OPTIONS = {
             'pdf_page_margin_right', 'pdf_page_margin_bottom',
             'pdf_use_document_margins',),
 
-        'pmlz': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),
+        'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),
 
         'rb': ('inline_toc',),
 
