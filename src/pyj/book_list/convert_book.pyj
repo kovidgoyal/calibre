@@ -244,12 +244,19 @@ def create_configuring_markup():
         current_state = 'configure-group'
         apply_state_to_markup()
 
+    def is_group_configurable(name):
+        if entry_points[name]:
+            return True
+        if name is 'input_fmt':
+            name = conversion_data.conversion_options.input_plugin_name
+        elif name is 'output_fmt':
+            name = conversion_data.conversion_options.output_plugin_name
+        return bool(entry_points[name])
+
     def category(name):
         ans = E.li(E.a(class_='simple-link', href='javascript: void(0)'))
         ans.dataset.group = name
         ans.firstChild.addEventListener('click', show_group)
-        if name is not 'input_fmt' and name is not 'output_fmt' and not entry_points[name]:
-            ans.style.display = 'none'
         return ans
 
     GROUP_TITLES = {
@@ -287,6 +294,7 @@ def create_configuring_markup():
         ignore_changes = False
         for li in container.querySelectorAll('.group-names > li'):
             group_name = li.dataset.group
+            li.style.display = 'block' if is_group_configurable(group_name) else 'none'
             if GROUP_TITLES[group_name]:
                 title = GROUP_TITLES[group_name]
             elif group_name is 'input_fmt':
