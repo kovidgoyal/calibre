@@ -43,7 +43,7 @@
     - title: "Edit book: Add a shortcut (Ctrl+Alt+Down) to edit the next file in the book spine."
       tickets: [1779616]
 
-    - title: "calibre-smtp: Verify relay server TLS certificates by default. New option --dont-verify-server-sertificate to restore old behavior."
+    - title: "calibre-smtp: Verify relay server TLS certificates by default. New option --dont-verify-server-certificate to restore old behavior."
 
   bug fixes:
     - title: "Conversion: Fix a regression in the previous release that caused conversion of EPUB 3 to EPUB 3 to fail."
