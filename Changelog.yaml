@@ -20,6 +20,69 @@
 #   new recipes:
 #     - title:
 
+- version: 3.27.0
+  date: 2018-07-06
+
+  new features:
+    - title: "Content server: Allow conversion of books"
+      type: major
+      description: "Click the convert icon in the top bar of the book details page to convert a book. Note that conversion only works for logged in users who have permission to make changes to the calibre library."
+
+    - title: "Kobo driver: Add support for new firmware"
+
+    - title: 'Bulk metadata edit dialog: Add an "edit tags" button for tags like custom columns.'
+      tickets: [1779299]
+
+    - title: "Add an option in Preferences->Look & feel to disable the new 'drag and drop to merge books feature'"
+
+    - title: "E-book viewer: Add a shortcut (Ctrl+Alt+B) to toggle the bookmarks panel."
+      tickets: [1780097]
+
+    - title: "Edit book: Add a copy to clipboard button on the various report dialogs"
+
+    - title: "Edit book: Add a shortcut (Ctrl+Alt+Down) to edit the next file in the book spine."
+      tickets: [1779616]
+
+    - title: "calibre-smtp: Verify relay server TLS certificates by default. New option --dont-verify-server-sertificate to restore old behavior."
+
+  bug fixes:
+    - title: "Conversion: Fix a regression in the previous release that caused conversion of EPUB 3 to EPUB 3 to fail."
+      tickets: [1779518]
+
+    - title: "Fix detection of the Bookeen NolimbookXL on macOS and Linux"
+      tickets: [1780302]
+
+    - title: "Fix a regression that broke the fetching of annotations from Kobo and Kindle devices."
+
+    - title: "DOCX Input: Fix failure to convert some DOCX files that use Symbol fonts."
+      tickets: [1777390]
+
+    - title: "When exporting very large libraries fix failures due to busy errors."
+      tickets: [1779664]
+
+    - title: "Fix commas not working in identifiers that are transformed to URLs via rules."
+      tickets: [1779602]
+
+    - title: "Review downloaded metadata: Fix cancel button on the confirm reject all dialog not working."
+      tickets: [1779576]
+
+    - title: 'Kindle Fire driver: Send books by default to the "kindle" folder instead of the "Books" folder to workaround a change in the Fire firmware that causes the Kindle to not recognize files in the Books folder.'
+
+    - title: "Linux installer: Also fix the execute bits in the umask if the user runs the installer with a umask that prevents files from being world executable."
+
+    - title: "Sort the entries in the show column menu alphabetically."
+      tickets: [1778155]
+
+  improved recipes:
+    - Gosc Niedzielny
+    - Cracked.com
+    - Psychology Today
+    - The Atlantic
+    - LA Times
+    - Handelsblatt
+    - Newsweek
+
+
 - version: 3.26.1
   date: 2018-06-15
 
