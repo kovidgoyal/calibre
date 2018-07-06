@@ -24,14 +24,18 @@ def ensure_unicode(obj, enc=preferred_encoding):
     return obj
 
 
+def serialize_cover(path):
+    with lopen(path, 'rb') as f:
+        cd = f.read()
+    return what(None, cd), cd
+
+
 def read_cover(mi):
     if mi.cover_data and mi.cover_data[1]:
         return mi
     if mi.cover:
         try:
-            with lopen(mi.cover, 'rb') as f:
-                cd = f.read()
-            mi.cover_data = what(None, cd), cd
+            mi.cover_data = serialize_cover(mi.cover)
         except EnvironmentError:
             pass
     return mi

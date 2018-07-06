@@ -15,7 +15,7 @@ from calibre.db.adding import (
     run_import_plugins, run_import_plugins_before_metadata
 )
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from calibre.ebooks.metadata.book.serialize import read_cover
+from calibre.ebooks.metadata.book.serialize import read_cover, serialize_cover
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added
@@ -160,7 +160,7 @@ def do_add(
                 continue
             ids, dups, book_title = dbctx.run(
                 'add', 'book', dbctx.path(book), os.path.basename(book), fmt, add_duplicates,
-                otitle, oauthors, oisbn, otags, oseries, oseries_index, read_cover(ocover) if ocover else None,
+                otitle, oauthors, oisbn, otags, oseries, oseries_index, serialize_cover(ocover) if ocover else None,
                 oidentifiers, olanguages
             )
             added_ids |= set(ids)
