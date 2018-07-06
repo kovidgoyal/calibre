@@ -168,6 +168,7 @@ def create_defs():
     defs['book_details_narrow_comments_layout'] = 'float'
     defs['book_list_split'] = False
     defs['wrap_toolbar_text'] = False
+    defs['dnd_merge'] = True
 
 
 create_defs()

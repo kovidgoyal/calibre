@@ -394,6 +394,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_hidpi.setVisible(False), self.label_hidpi.setVisible(False)
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
         r('book_list_tooltips', gprefs)
+        r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
         r('show_layout_buttons', gprefs, restart_required=True)
         r('row_numbers_in_book_list', gprefs)

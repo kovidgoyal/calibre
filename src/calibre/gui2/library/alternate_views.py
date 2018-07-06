@@ -201,6 +201,10 @@ def mouseMoveEvent(base_class, self, event):
     self.drag_start_pos = None
 
 
+def dnd_merge_ok(md):
+    return md.hasFormat('application/calibre+from_library') and gprefs['dnd_merge']
+
+
 def dragEnterEvent(self, event):
     if int(event.possibleActions() & Qt.CopyAction) + \
         int(event.possibleActions() & Qt.MoveAction) == 0:
@@ -208,13 +212,13 @@ def dragEnterEvent(self, event):
     paths = self.paths_from_event(event)
     md = event.mimeData()
 
-    if paths or md.hasFormat('application/calibre+from_library'):
+    if paths or dnd_merge_ok(md):
         event.acceptProposedAction()
 
 
 def dropEvent(self, event):
     md = event.mimeData()
-    if md.hasFormat('application/calibre+from_library'):
+    if dnd_merge_ok(md):
         ids = set(map(int, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' ')))
         row = self.indexAt(event.pos()).row()
         if row > -1 and ids:
