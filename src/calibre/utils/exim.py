@@ -385,8 +385,10 @@ def cli_report(*args, **kw):
         pass
 
 
-def run_exporter():
-    export_dir = raw_input('Enter path to an empty folder (all exported data will be saved inside it): ').decode(filesystem_encoding)
+def run_exporter(export_dir=None):
+    export_dir = export_dir or raw_input(
+            'Enter path to an empty folder (all exported data will be saved inside it): ').decode(
+                    filesystem_encoding).rstrip('\r')
     if not os.path.exists(export_dir):
         os.makedirs(export_dir)
     if not os.path.isdir(export_dir):
