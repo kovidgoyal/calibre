@@ -24,7 +24,6 @@ class Slate(BasicNewsRecipe):
     no_stylesheets = True
     language = 'en'
     encoding = 'utf-8'
-    masthead_url = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
     remove_attributes = ['style']
     INDEX = 'https://slate.com'
     compress_news_images = True
