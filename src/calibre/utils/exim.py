@@ -385,7 +385,20 @@ def cli_report(*args, **kw):
         pass
 
 
-def run_exporter(export_dir=None):
+def run_exporter(export_dir=None, args=None):
+    if args:
+        if len(args) < 2:
+            raise SystemExit('You must specify the export dir and libraries to export')
+        export_dir = args[0]
+        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in all_known_libraries().iteritems()}
+        libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
+        if libraries - set(all_libraries):
+            raise SystemExit('Unknown library: ' + tuple(libraries - all_libraries)[0])
+        libraries = {p: all_libraries[p] for p in libraries}
+        print('Exporting libraries:', ', '.join(sorted(libraries)), 'to:', export_dir)
+        export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=libraries)
+        return
+
     export_dir = export_dir or raw_input(
             'Enter path to an empty folder (all exported data will be saved inside it): ').decode(
                     filesystem_encoding).rstrip('\r')
@@ -397,7 +410,7 @@ def run_exporter(export_dir=None):
         raise SystemExit('%s is not empty' % export_dir)
     library_paths = {}
     for lpath, lus in all_known_libraries().iteritems():
-        if raw_input('Export the library %s [y/n]: ' % lpath) == b'y':
+        if raw_input('Export the library %s [y/n]: ' % lpath).strip().lower() == b'y':
             library_paths[lpath] = lus
     if library_paths:
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)

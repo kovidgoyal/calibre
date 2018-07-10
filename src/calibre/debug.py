@@ -94,7 +94,10 @@ Everything after the -- is passed to the script.
         ' been created by a previous call to --explode-book. Be sure to'
         ' specify the same file type as was used when exploding.'))
     parser.add_option('--export-all-calibre-data', default=False, action='store_true',
-        help=_('Export all calibre data (books/settings/plugins)'))
+        help=_('Export all calibre data (books/settings/plugins). Normally, you will'
+            ' be asked for the export dir and the libraries to export. You can also specify them'
+            ' as command line arguments to skip the questions.'
+            ' Use absolute paths for the export directory and libraries.'))
     parser.add_option('--import-calibre-data', default=False, action='store_true',
         help=_('Import previously exported calibre data'))
     parser.add_option('-s', '--shutdown-running-calibre', default=False,
@@ -321,8 +324,9 @@ def main(args=sys.argv):
         print 'Running', func.__name__, '...'
         func()
     elif opts.export_all_calibre_data:
+        args = args[1:]
         from calibre.utils.exim import run_exporter
-        run_exporter()
+        run_exporter(args=args)
     elif opts.import_calibre_data:
         from calibre.utils.exim import run_importer
         run_importer()
