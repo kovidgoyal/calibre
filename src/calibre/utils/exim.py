@@ -391,7 +391,10 @@ def run_exporter(export_dir=None, args=None):
             raise SystemExit('You must specify the export dir and libraries to export')
         export_dir = args[0]
         all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in all_known_libraries().iteritems()}
-        libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
+        if 'all' in args[1:]:
+            libraries = set(all_libraries)
+        else:
+            libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
         if libraries - set(all_libraries):
             raise SystemExit('Unknown library: ' + tuple(libraries - all_libraries)[0])
         libraries = {p: all_libraries[p] for p in libraries}

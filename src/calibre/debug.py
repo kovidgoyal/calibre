@@ -97,7 +97,8 @@ Everything after the -- is passed to the script.
         help=_('Export all calibre data (books/settings/plugins). Normally, you will'
             ' be asked for the export dir and the libraries to export. You can also specify them'
             ' as command line arguments to skip the questions.'
-            ' Use absolute paths for the export directory and libraries.'))
+            ' Use absolute paths for the export directory and libraries.'
+            ' The special keyword "all" can be used to export all libraries.'))
     parser.add_option('--import-calibre-data', default=False, action='store_true',
         help=_('Import previously exported calibre data'))
     parser.add_option('-s', '--shutdown-running-calibre', default=False,
