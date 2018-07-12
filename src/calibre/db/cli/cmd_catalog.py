@@ -108,7 +108,7 @@ def main(opts, args, dbctx):
         raise SystemExit(_('You must specify a catalog output file'))
     if opts.ids:
         opts.ids = list(integers_from_string(opts.ids))
-    fmt = args[0].rpartition('.')[-1]
+    fmt = args[0].rpartition('.')[-1].lower()
     if fmt not in available_catalog_formats():
         raise SystemExit(
             _('Cannot generate a catalog in the {} format').format(fmt.upper())
