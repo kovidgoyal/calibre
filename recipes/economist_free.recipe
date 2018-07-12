@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.cleantext import clean_ascii_chars
 
 
 def classes(classes):
@@ -145,6 +146,18 @@ class Economist(BasicNewsRecipe):
             x.getparent().remove(x)
         raw = etree.tostring(root, encoding=unicode)
         return raw
+
+    def populate_article_metadata(self, article, soup, first):
+        els = soup.findAll(name=['span', 'p'],
+                           attrs={'class': ['flytitle-and-title__title', 'blog-post__rubric']})
+        result = []
+        for el in els[0:2]:
+            if el is not None:
+                for descendant in el.contents:
+                    if isinstance(descendant, NavigableString):
+                        result.append(unicode(descendant))
+        article.summary = u'. '.join(result).encode('utf-8') + '.'
+        article.text_summary = clean_ascii_chars(article.summary)
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
