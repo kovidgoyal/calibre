@@ -23,6 +23,7 @@ except ImportError:
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
 from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING, secure_web_page
+from calibre.gui2.widgets import LineEditECM
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -71,7 +72,7 @@ class BlockStyleAction(QAction):  # {{{
 # }}}
 
 
-class EditorWidget(QWebView):  # {{{
+class EditorWidget(QWebView, LineEditECM):  # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
@@ -418,12 +419,21 @@ class EditorWidget(QWebView):  # {{{
             return False
         return QWebView.event(self, ev)
 
+    def text(self):
+        return self.page().selectedText()
+
+    def setText(self, text):
+        self.exec_command('insertText', text)
+
     def contextMenuEvent(self, ev):
         menu = self.page().createStandardContextMenu()
         paste = self.pageAction(QWebPage.Paste)
         for action in menu.actions():
             if action == paste:
                 menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
+        st = self.text()
+        if st and st.strip():
+            self.create_change_case_menu(menu)
         parent = self._parent()
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible

@@ -92,7 +92,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.re.lineEdit().setText(val)
 
         val_hist += gprefs.get('filename_pattern_history', [
-                               '(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
+                               '(?P<title>.+)', r'(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
         if val in val_hist:
             del val_hist[val_hist.index(val)]
         val_hist.insert(0, val)
@@ -460,11 +460,8 @@ class LineEditECM(object):  # {{{
     Extend the context menu of a QLineEdit to include more actions.
     '''
 
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        menu.addSeparator()
-
-        case_menu = QMenu(_('Change case'))
+    def create_change_case_menu(self, menu):
+        case_menu = QMenu(_('Change case'), menu)
         action_upper_case = case_menu.addAction(_('Upper case'))
         action_lower_case = case_menu.addAction(_('Lower case'))
         action_swap_case = case_menu.addAction(_('Swap case'))
@@ -476,8 +473,13 @@ class LineEditECM(object):  # {{{
         action_swap_case.triggered.connect(self.swap_case)
         action_title_case.triggered.connect(self.title_case)
         action_capitalize.triggered.connect(self.capitalize)
-
         menu.addMenu(case_menu)
+        return case_menu
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+        self.create_change_case_menu(menu)
         menu.exec_(event.globalPos())
 
     def upper_case(self):
