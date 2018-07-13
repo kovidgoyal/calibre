@@ -9,26 +9,24 @@ import re
 import time
 import urllib2
 from StringIO import StringIO
-from datetime import datetime, timedelta, date
+from datetime import datetime
 import traceback
 import sys
 from collections import OrderedDict
 
-from datetime import datetime, timedelta, date
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.web.feeds import Article
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.BeautifulSoup import NavigableString
-from calibre.utils.date import dt_factory, utcnow, local_tz
+from calibre.utils.date import dt_factory, local_tz
 from lxml import html
 from lxml import etree
 
-regex_date_only = re.compile("""(?:January|February|March|April|
+regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|
  {8}December)\s[0-9]{1,2},\s20[01][0-9]""")
-regex_time_only = re.compile("""[0-9]{1,2}:[0-9]{1,2} \w{2}""")
-sentence_regex = re.compile("(\S.+?[.!?])(?=\s+|$)")
-blog_regex = re.compile('post-\d+')
+regex_time_only = re.compile(r"""[0-9]{1,2}:[0-9]{1,2} \w{2}""")
+sentence_regex = re.compile(r"(\S.+?[.!?])(?=\s+|$)")
+blog_regex = re.compile(r'post-\d+')
 
 pages = OrderedDict([('news', ('/news/houston-texas/', ['business', 'sports'])),
                      ('business', ('/business/', ['sports'])),
@@ -40,7 +38,7 @@ base_url = "http://www.chron.com"
 xpath_general = """//div[contains(@class, 'centerpiece-tabs') or
                     contains(@class, 'wrapper') or
                     contains(@class, 'contentGroups') or
-                    contains(@class, 'headline-list') or 
+                    contains(@class, 'headline-list') or
                     contains(@class, 'core-package sports') or
                     contains(@class, 'news')]
                    //a[contains(@class, 'hdn-analytics')]"""
@@ -116,7 +114,7 @@ def get_all_links_from_sections():
     article_set = set()
     final_dict = OrderedDict()
     for item in pages.items():
-        print "getting links from {0}".format(item[0])
+        print("getting links from {0}".format(item[0]))
         all_sections.append(get_links_from_section_page(item))
     for section in all_sections:
         section_id = section[0]
@@ -200,8 +198,8 @@ class HoustonChronicle(BasicNewsRecipe):
             except ValueError:
                 return None
 
-        el = page_doc.findAll(lambda this_tag: this_tag.name == "time" and
-                              ('itemprop', 'datePublished') in this_tag.attrs)
+        el = page_doc.findAll(
+                lambda this_tag: this_tag.name == "time" and ('itemprop', 'datePublished') in this_tag.attrs)
         if len(el) == 1:
             return get_regular_timestamp(el[0].get('datetime'))
         else:
