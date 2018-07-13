@@ -9,6 +9,7 @@ www.elcohetealaluna.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class elcohetealaluna(BasicNewsRecipe):
     title                = 'El Cohete a la Luna'
     __author__           = 'Darko Miletic'
@@ -26,7 +27,7 @@ class elcohetealaluna(BasicNewsRecipe):
     resolve_internal_links = True
     compress_news_images = True
     masthead_url         = 'https://www.elcohetealaluna.com/wp-content/uploads/2018/06/logo-menu.png'
-    
+
     extra_css            = """
         body{font-family: Georgia, Times, "Times New Roman", serif}
         h1,h2,.post-author-name{font-family: Oswald, sans-serif}
@@ -46,8 +47,6 @@ class elcohetealaluna(BasicNewsRecipe):
     feeds = [(u'Articulos', u'https://www.elcohetealaluna.com/feed/')]
 
     def preprocess_html(self, soup):
-        for image in soup.findAll(name='img'):
-            if image.has_key('data-src'):
-               image['src'] = image['data-src'] 
+        for image in soup.findAll(name='img', attrs={'data-src': True}):
+            image['src'] = image['data-src']
         return soup
- 
