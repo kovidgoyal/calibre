@@ -41,7 +41,7 @@ from calibre.gui2.tweak_book import (
 )
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import numeric_sort_key
 
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
@@ -385,7 +385,7 @@ class FileList(QTreeWidget):
 
             seen[text] = item
             item.setText(0, text)
-            item.setText(1, hexlify(sort_key(text)))
+            item.setText(1, hexlify(numeric_sort_key(text)))
 
         def render_emblems(item, emblems):
             emblems = tuple(emblems)
