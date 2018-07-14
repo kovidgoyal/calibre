@@ -1,0 +1,35 @@
+#!/usr/bin/env python2
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe
+
+prefixes = {"Permalink to", "Commenta"}
+
+
+class IlPost(BasicNewsRecipe):
+    title = "Il Post"
+    language = "it"
+    __author__ = 'frafra'
+    tags = "news"
+    cover_url = "https://www.ilpost.it/wp-content/themes/ilpost/images/ilpost.svg"
+    ignore_duplicate_articles = {"url"}
+    no_stylesheets = True
+    keep_only_tags = [dict(id=["expanding", "singleBody"])]
+
+    def parse_index(self):
+        soup = self.index_to_soup("https://www.ilpost.it/")
+        entries = []
+        for link in soup.findAll('a', href=True, title=True):
+            if not link["href"].startswith("https://www.ilpost.it/20"):
+                continue
+            title = link["title"]
+            for prefix in prefixes:
+                if title.startswith(prefix):
+                    title = title.lstrip(prefix)
+                    break
+            title = title.strip()
+            entries.append({
+                "url": link["href"],
+                "title": title,
+            })
+        return [("Il Post", entries)]
