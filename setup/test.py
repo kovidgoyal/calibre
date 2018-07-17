@@ -64,6 +64,8 @@ def find_tests(which_tests=None):
     if ok('misc'):
         from calibre.ebooks.metadata.tag_mapper import find_tests
         a(find_tests())
+        from calibre.ebooks.metadata.author_mapper import find_tests
+        a(find_tests())
         from calibre.utils.shared_file import find_tests
         a(find_tests())
         from calibre.utils.test_lock import find_tests
