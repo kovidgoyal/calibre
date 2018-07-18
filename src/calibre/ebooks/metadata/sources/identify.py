@@ -17,7 +17,7 @@ from urlparse import urlparse
 from urllib import quote
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
-from calibre.ebooks.metadata import check_issn
+from calibre.ebooks.metadata import check_issn, authors_to_sort_string
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
@@ -503,6 +503,10 @@ def identify(log, abort,  # {{{
     tm_rules = msprefs['tag_map_rules']
     if tm_rules:
         from calibre.ebooks.metadata.tag_mapper import map_tags
+    am_rules = msprefs['author_map_rules']
+    if am_rules:
+        from calibre.ebooks.metadata.author_mapper import map_authors, compile_rules
+        am_rules = compile_rules(am_rules)
 
     max_tags = msprefs['max_tags']
     for r in results:
@@ -523,6 +527,13 @@ def identify(log, abort,  # {{{
                 surname = parts[-1]
                 return '%s, %s' % (surname, ' '.join(parts[:-1]))
             r.authors = [swap_to_ln_fn(a) for a in r.authors]
+
+    if am_rules:
+        for r in results:
+            new_authors = map_authors(r.authors, am_rules)
+            if new_authors != r.authors:
+                r.authors = new_authors
+                r.author_sort = authors_to_sort_string(r.authors)
 
     return results
 # }}}

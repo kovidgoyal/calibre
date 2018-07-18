@@ -323,8 +323,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
         self.select_default_button.clicked.connect(self.changed_signal)
         self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
-        self.tag_map_rules = None
+        self.tag_map_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
+        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():
@@ -358,12 +359,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.tag_map_rules = d.rules
             self.changed_signal.emit()
 
+    def change_author_map_rules(self):
+        from calibre.gui2.author_mapper import RulesDialog
+        d = RulesDialog(self)
+        if msprefs.get('author_map_rules'):
+            d.rules = msprefs['author_map_rules']
+        if d.exec_() == d.Accepted:
+            self.author_map_rules = d.rules
+            self.changed_signal.emit()
+
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.sources_model.initialize()
         self.sources_view.resizeColumnsToContents()
         self.fields_model.initialize()
-        self.tag_map_rules = None
+        self.tag_map_rules = self.author_map_rules = None
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -379,10 +389,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 msprefs['tag_map_rules'] = self.tag_map_rules
             else:
                 msprefs.pop('tag_map_rules', None)
+        if self.author_map_rules is not None:
+            if self.author_map_rules:
+                msprefs['author_map_rules'] = self.author_map_rules
+            else:
+                msprefs.pop('author_map_rules', None)
         return ConfigWidgetBase.commit(self)
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Sharing', 'Metadata download')
-

@@ -20,12 +20,10 @@ msprefs.defaults['fewer_tags'] = True
 msprefs.defaults['find_first_edition_date'] = False
 msprefs.defaults['append_comments'] = False
 msprefs.defaults['tag_map_rules'] = []
+msprefs.defaults['author_map_rules'] = []
 msprefs.defaults['id_link_rules'] = {}
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
 # are only used if no other covers are found.
 msprefs.defaults['cover_priorities'] = {'Google':2, 'Google Images':2, 'Big Book Search':2}
-
-
-
