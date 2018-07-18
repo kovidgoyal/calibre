@@ -20,6 +20,7 @@ from calibre.constants import DEBUG, iswindows, isosx, filesystem_encoding
 from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db.adding import find_books_in_directory, compile_rule
 from calibre.db.utils import find_identical_books
+from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, warning_dialog, gprefs
@@ -64,6 +65,10 @@ class Adder(QObject):
         if not validate_source(source, parent):
             return
         QObject.__init__(self, parent)
+        self.author_map_rules = None
+        if gprefs.get('author_map_on_add_rules'):
+            from calibre.ebooks.metadata.author_mapper import compile_rules as acr
+            self.author_map_rules = acr(gprefs['author_map_on_add_rules'])
         self.single_book_per_directory = single_book_per_directory
         self.ignore_opf = False
         self.list_of_archives = list_of_archives
@@ -331,6 +336,15 @@ class Adder(QObject):
         if gprefs.get('tag_map_on_add_rules'):
             from calibre.ebooks.metadata.tag_mapper import map_tags
             mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
+        if self.author_map_rules:
+            from calibre.ebooks.metadata.author_mapper import map_authors
+            new_authors = map_authors(mi.authors, self.author_map_rules)
+            if new_authors != mi.authors:
+                mi.authors = new_authors
+                if self.db is None:
+                    mi.author_sort = authors_to_sort_string(mi.authors)
+                else:
+                    mi.author_sort = self.db.author_sort_from_authors(mi.authors)
 
         self.pd.msg = mi.title
 

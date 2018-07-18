@@ -254,6 +254,12 @@ class AutoAdder(QObject):
             if gprefs.get('tag_map_on_add_rules'):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
                 mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
+            if gprefs.get('author_map_on_add_rules'):
+                from calibre.ebooks.metadata.author_mapper import map_authors, compile_rules
+                new_authors = map_authors(mi.authors, compile_rules(gprefs['author_map_on_add_rules']))
+                if new_authors != mi.authors:
+                    mi.authors = new_authors
+                    mi.author_sort = gui.current_db.new_api.author_sort_from_authors(mi.authors)
             mi = [mi]
             dups, ids = m.add_books(paths,
                     [os.path.splitext(fname)[1][1:].upper()], mi,
