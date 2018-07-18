@@ -907,6 +907,12 @@ class ActionTagMapper(InterfaceActionBase):
     description = _('Filter/transform the tags for books in the library')
 
 
+class ActionAuthorMapper(InterfaceActionBase):
+    name = 'Author Mapper'
+    actual_plugin = 'calibre.gui2.actions.author_mapper:AuthorMapAction'
+    description = _('Transform the authors for books in the library')
+
+
 class ActionTemplateTester(InterfaceActionBase):
     name = 'Template Tester'
     actual_plugin = 'calibre.gui2.actions.show_template_tester:ShowTemplateTesterAction'
@@ -1076,7 +1082,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper,
+        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary]
 
 # }}}
