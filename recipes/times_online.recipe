@@ -8,12 +8,10 @@ import html5lib
 from lxml import html
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
 
 class TimesOnline(BasicNewsRecipe):
     title = 'The Times & Sunday Times (UK)'
@@ -87,12 +85,9 @@ class TimesOnline(BasicNewsRecipe):
         return br
 
     remove_tags = [
-        {'attrs': {'class': lambda x: x and 'is-hidden' in x}},
-        {'attrs': {'class': lambda x: x and 'Toolbar' in x}},
-        {'attrs': {'class': lambda x: x and 'Tooltip' in x}},
-        {'attrs': {'class': lambda x: x and 'Topics' in x}},
+        classes('is-hidden Toolbar Tooltip Topics Comments u-hide RelatedLinks ArticlePager Media-caption'),
         {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']},
-        {'attrs': {'class': ['u-hide', 'RelatedLinks', 'Comments Article-container','ArticlePager','Media-caption']}}]
+    ]
 
     remove_attributes = ['lang']
     keep_only_tags = [{
