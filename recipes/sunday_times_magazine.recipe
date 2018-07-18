@@ -7,6 +7,12 @@ import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TimesOnline(BasicNewsRecipe):
     title = 'The Sunday Times Magazine UK'
     __author__ = 'Bobby Steel & Darko Miletic'
@@ -74,9 +80,9 @@ class TimesOnline(BasicNewsRecipe):
             cover = None
         return cover
 
-    remove_tags = [{
-        'attrs': {'class': lambda x: x and 'is-hidden' in x.split()},
-        'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
+    remove_tags = [
+        classes('Topics is-hidden Tooltip Toolbar Comments RelatedLinks'),
+        {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
             'attrs': {
                 'class': [
                     'tools comments-parent', 'u-hide', 'Tooltip',
