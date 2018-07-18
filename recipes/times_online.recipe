@@ -87,12 +87,9 @@ class TimesOnline(BasicNewsRecipe):
         return br
 
     remove_tags = [
-        {'attrs': {'class': lambda x: x and 'is-hidden' in x}},
-        {'attrs': {'class': lambda x: x and 'Toolbar' in x}},
-        {'attrs': {'class': lambda x: x and 'Tooltip' in x}},
-        {'attrs': {'class': lambda x: x and 'Topics' in x}},
+        classes('is-hidden Toolbar Tooltip Topics Comments u-hide RelatedLinks ArticlePager Media-caption'),
         {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']},
-        {'attrs': {'class': ['u-hide', 'RelatedLinks', 'Comments Article-container','ArticlePager','Media-caption']}}]
+    ]
 
     remove_attributes = ['lang']
     keep_only_tags = [{
