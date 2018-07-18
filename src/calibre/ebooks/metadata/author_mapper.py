@@ -2,9 +2,40 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import re
 from collections import deque
+
+from calibre.utils.icu import capitalize, lower, upper
+
+
+def cap_author_token(token):
+    lt = lower(token)
+    if lt in ('von', 'de', 'el', 'van', 'le'):
+        return lt
+    # no digits no spez. characters
+    if re.match(r'([^\d\W]\.){2,}$', lt, re.UNICODE) is not None:
+        # Normalize tokens of the form J.K. to J. K.
+        parts = token.split('.')
+        return '. '.join(map(capitalize, parts)).strip()
+    scots_name = None
+    for x in ('mc', 'mac'):
+        if (token.lower().startswith(x) and len(token) > len(x) and
+                (
+                    token[len(x)] == upper(token[len(x)]) or
+                    lt == token
+                )):
+            scots_name = len(x)
+            break
+    ans = capitalize(token)
+    if scots_name is not None:
+        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
+    for x in ('-', "'"):
+        idx = ans.find(x)
+        if idx > -1 and len(ans) > idx+2:
+            ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
+    return ans
 
 
 def compile_pat(pat):
@@ -74,7 +105,7 @@ def apply_rules(author, rules):
                         authors.appendleft(author)
                     break
                 if ac == 'capitalize':
-                    ans.append(author.capitalize())
+                    ans.append(' '.join(map(cap_author_token, author.split())))
                     break
                 if ac == 'lower':
                     ans.append(icu_lower(author))

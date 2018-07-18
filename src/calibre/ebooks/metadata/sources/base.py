@@ -12,8 +12,8 @@ from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
-from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata.author_mapper import cap_author_token
 from calibre.utils.localization import canonicalize_lang, get_lang
 
 
@@ -126,34 +126,6 @@ def load_caches(dump):
         cache = dump.get(p.name, None)
         if cache:
             p.load_caches(cache)
-
-
-def cap_author_token(token):
-    lt = lower(token)
-    if lt in ('von', 'de', 'el', 'van', 'le'):
-        return lt
-    # no digits no spez. characters
-    if re.match(r'([^\d\W]\.){2,}$', lt, re.UNICODE) is not None:
-        # Normalize tokens of the form J.K. to J. K.
-        parts = token.split('.')
-        return '. '.join(map(capitalize, parts)).strip()
-    scots_name = None
-    for x in ('mc', 'mac'):
-        if (token.lower().startswith(x) and len(token) > len(x) and
-                (
-                    token[len(x)] == upper(token[len(x)]) or
-                    lt == token
-                )):
-            scots_name = len(x)
-            break
-    ans = capitalize(token)
-    if scots_name is not None:
-        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
-    for x in ('-', "'"):
-        idx = ans.find(x)
-        if idx > -1 and len(ans) > idx+2:
-            ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
-    return ans
 
 
 def fixauthors(authors):
