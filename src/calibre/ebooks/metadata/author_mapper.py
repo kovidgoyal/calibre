@@ -134,7 +134,7 @@ def find_tests():
                     authors = [x.strip() for x in authors.split('&')]
                 if isinstance(expected, type('')):
                     expected = [x.strip() for x in expected.split('&')]
-                ans = map_authors(authors, rules)
+                ans = map_authors(authors, compile_rules(rules))
                 self.assertEqual(ans, expected)
 
             run(rule('capitalize', 't1&t2'), 't1&x1', 'T1&x1')
