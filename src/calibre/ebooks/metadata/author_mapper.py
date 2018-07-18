@@ -99,12 +99,15 @@ def uniq(vals, kmap=icu_lower):
     return list(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
 
+def compile_rules(rules):
+    return tuple((r, matcher(r)) for r in rules)
+
+
 def map_authors(authors, rules=()):
     if not authors:
         return []
     if not rules:
         return list(authors)
-    rules = [(r, matcher(r)) for r in rules]
     ans = []
     for a in authors:
         ans.extend(apply_rules(a, rules))

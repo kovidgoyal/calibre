@@ -52,8 +52,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_blocked_auto_formats, 'item'+signal)
             signal.connect(self.blocked_auto_formats_changed)
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
+        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
         self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
@@ -65,6 +66,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             d.rules = gprefs['tag_map_on_add_rules']
         if d.exec_() == d.Accepted:
             self.tag_map_rules = d.rules
+            self.changed_signal.emit()
+
+    def change_author_map_rules(self):
+        from calibre.gui2.author_mapper import RulesDialog
+        d = RulesDialog(self)
+        if gprefs.get('author_map_on_add_rules'):
+            d.rules = gprefs['author_map_on_add_rules']
+        if d.exec_() == d.Accepted:
+            self.author_map_rules = d.rules
             self.changed_signal.emit()
 
     def change_add_filter_rules(self):
@@ -89,7 +99,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.blockSignals(False)
         self.init_blocked_auto_formats()
         self.opt_automerge.setEnabled(self.opt_add_formats_to_existing.isChecked())
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
 
     # Blocked auto formats {{{
     def blocked_auto_formats_changed(self, *args):
@@ -130,6 +140,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
         self.tag_map_rules = []
+        self.author_map_rules = []
         self.add_filter_rules = []
 
     def commit(self):
@@ -171,6 +182,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 gprefs['tag_map_on_add_rules'] = self.tag_map_rules
             else:
                 gprefs.pop('tag_map_on_add_rules', None)
+        if self.author_map_rules is not None:
+            if self.author_map_rules:
+                gprefs['author_map_on_add_rules'] = self.author_map_rules
+            else:
+                gprefs.pop('author_map_on_add_rules', None)
         if self.add_filter_rules is not None:
             if self.add_filter_rules:
                 gprefs['add_filter_rules'] = self.add_filter_rules
