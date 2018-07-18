@@ -75,6 +75,7 @@ class TimesOnline(BasicNewsRecipe):
         return cover
 
     remove_tags = [{
+        'attrs': {'class': lambda x: x and 'is-hidden' in x.split()},
         'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
             'attrs': {
                 'class': [
