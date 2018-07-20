@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title:
 
+- version: 3.28.0
+  date: 2018-07-20
+
+  new features:
+    - title: "Allow creating rules to transform author names when adding books to calibre. Accessible via Preferences->Adding books->Adding actions"
+      tickets: [1780152]
+
+    - title: "Add a similar author mapper tool to manipulate author names in the existing library. Accessible via Preferences->Toolbars"
+
+    - title: "Add a similar author mapper tool for metadata downloading, accessible via Preferences->Metadata download"
+
+    - title: "Comments Editor: Add options to change the case of the selected text to the right click menu"
+      tickets: [1780469]
+
+    - title: "Edit book: When sorting non text files in the File list recognize numbers in the file names"
+      tickets: [1781721]
+
+  bug fixes:
+    - title: "calibredb catalog: Recognize file extensions even when they are not lowercase"
+
+  improved recipes:
+    - Sunday Times Magazine UK
+    - The Economist
+    - The Houston Chronicle
+    - El cohete a la luna
+    - CBC Canada
+
+  new recipes:
+    - title: Il Post
+      author: frafra
+
+    - title: Bloomberg Columnists
+      author: Dale Furrow
+
 - version: 3.27.1
   date: 2018-07-06
 
