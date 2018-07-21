@@ -525,6 +525,11 @@ class Container(ContainerBase):  # {{{
         ''' Return True iff a file with the same canonical name as that specified exists. Unlike :meth:`exists` this method is always case-sensitive. '''
         return name and name in self.name_path_map
 
+    def has_name_and_is_not_empty(self, name):
+        if not self.has_name(name):
+            return False
+        return os.path.getsize(self.name_path_map[name]) > 0
+
     def has_name_case_insensitive(self, name):
         if not name:
             return False

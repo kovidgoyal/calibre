@@ -176,11 +176,13 @@ class Container(ContainerBase):
         log = log or default_log
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
+        # We do not add zero byte sized files as the IndexedDB API in the
+        # browser has no good way to distinguish between zero byte files and
+        # load failures.
         excluded_names = {
             name for name, mt in self.mime_map.iteritems() if
             name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
-            name == 'mimetype'
-        }
+            name == 'mimetype' or not self.has_name_and_is_not_empty(name)}
         raster_cover_name, titlepage_name = self.create_cover_page(input_fmt.lower())
         toc = get_toc(self).to_dict(count())
         spine = [name for name, is_linear in self.spine_names]
@@ -319,7 +321,7 @@ class Container(ContainerBase):
             url, frag = purl.path, purl.fragment
             name = self.href_to_name(url, base)
             if name:
-                if self.has_name(name):
+                if self.has_name_and_is_not_empty(name):
                     frag = urlunquote(frag)
                     url = resource_template.format(encode_url(name, frag))
                 else:
