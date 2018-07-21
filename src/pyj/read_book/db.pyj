@@ -301,10 +301,10 @@ class DB:
                 # File was not found in the cache, this happens in Chrome if
                 # the Application Cache is full. IndexedDB put succeeds,
                 # but get fails. Browsers are a horrible travesty.
-                err += _(
+                bad = err + _(
                     ' This usually means the cache is close to full. Clear the browser'
                     ' cache from the browser settings.')
-                self.show_error(_('Cannot read file from book'), err)
+                self.show_error(_('Cannot read file from book'), bad)
                 return
             fdata = book.stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'
