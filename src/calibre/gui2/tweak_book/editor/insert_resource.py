@@ -27,7 +27,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.tweak_book.file_list import name_is_ok
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import get_lang, canonicalize_lang
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import numeric_sort_key
 
 
 class ChooseName(Dialog):  # {{{
@@ -155,7 +155,7 @@ class Images(QAbstractListModel):
         self.image_names = []
         self.image_cache = {}
         if c is not None:
-            for name in sorted(c.mime_map, key=sort_key):
+            for name in sorted(c.mime_map, key=numeric_sort_key):
                 if c.mime_map[name].startswith('image/'):
                     self.image_names.append(name)
 
@@ -369,7 +369,7 @@ class ChooseFolder(Dialog):  # {{{
 
         def process(node, parent):
             parent.setIcon(0, QIcon(I('mimetypes/dir.png')))
-            for child in sorted(node, key=sort_key):
+            for child in sorted(node, key=numeric_sort_key):
                 c = QTreeWidgetItem(parent, (child,))
                 process(node[child], c)
         process(create_folder_tree(current_container()), self.root)
