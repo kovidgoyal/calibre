@@ -428,6 +428,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
+        r('booklist_grid', gprefs)
         r('book_details_narrow_comments_layout', gprefs, choices=[(_('Float'), 'float'), (_('Columns'), 'columns')])
         self.opt_book_details_narrow_comments_layout.setToolTip(textwrap.fill(_(
             'Choose how the text is laid out when using the "Narrow" user interface layout.'
@@ -766,6 +767,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.tags_view.set_look_and_feel()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
+        gui.library_view.refresh_grid()
         gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])

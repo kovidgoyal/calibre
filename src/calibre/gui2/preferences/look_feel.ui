@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>843</width>
-    <height>546</height>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,16 @@
        <string>&amp;Main interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="opt_disable_animations">
+         <property name="toolTip">
+          <string>Disable all animations. Useful if you have a slow/old computer.</string>
+         </property>
+         <property name="text">
+          <string>Disable &amp;animations</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_widget_style">
          <property name="text">
@@ -150,7 +160,7 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
+       <item row="14" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -228,16 +238,6 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="opt_disable_animations">
-         <property name="toolTip">
-          <string>Disable all animations. Useful if you have a slow/old computer.</string>
-         </property>
-         <property name="text">
-          <string>Disable &amp;animations</string>
-         </property>
-        </widget>
-       </item>
        <item row="6" column="1">
         <widget class="QCheckBox" name="opt_show_splash_screen">
          <property name="text">
@@ -284,10 +284,17 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
+       <item row="13" column="0">
         <widget class="QCheckBox" name="opt_dnd_merge">
          <property name="text">
           <string>Allow using &amp;drag and drop to merge books</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_booklist_grid">
+         <property name="text">
+          <string>Draw a &amp;grid in the book list</string>
          </property>
         </widget>
        </item>

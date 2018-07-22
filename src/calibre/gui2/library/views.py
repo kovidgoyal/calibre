@@ -254,8 +254,8 @@ class BooksView(QTableView):  # {{{
         setup_dnd_interface(self)
         for wv in self, self.pin_view:
             wv.setAlternatingRowColors(True)
-            wv.setShowGrid(False)
             wv.setWordWrap(False)
+        self.refresh_grid()
 
         self.rating_delegate = RatingDelegate(self)
         self.half_rating_delegate = RatingDelegate(self, is_half_star=True)
@@ -785,6 +785,10 @@ class BooksView(QTableView):  # {{{
     def refresh_row_sizing(self):
         self.row_sizing_done = False
         self.do_row_sizing()
+
+    def refresh_grid(self):
+        for wv in self, self.pin_view:
+            wv.setShowGrid(bool(gprefs['booklist_grid']))
 
     def do_row_sizing(self):
         # Resize all rows to have the correct height

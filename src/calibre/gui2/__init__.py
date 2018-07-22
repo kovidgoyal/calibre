@@ -169,6 +169,7 @@ def create_defs():
     defs['book_list_split'] = False
     defs['wrap_toolbar_text'] = False
     defs['dnd_merge'] = True
+    defs['booklist_grid'] = False
 
 
 create_defs()
