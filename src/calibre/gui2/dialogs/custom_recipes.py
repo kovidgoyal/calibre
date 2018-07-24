@@ -561,7 +561,7 @@ class CustomRecipes(Dialog):
         d.l = QVBoxLayout()
         d.setLayout(d.l)
         d.list = QListWidget(d)
-        d.list.doubleClicked.connect(lambda x: d.accept())
+        connect_lambda(d.list.doubleClicked, d, lambda d: d.accept())
         d.l.addWidget(d.list)
         d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
                 Qt.Horizontal, d)

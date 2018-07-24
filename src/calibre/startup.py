@@ -153,6 +153,24 @@ if not _run_once:
     __builtin__.__dict__['icu_upper'] = icu_upper
     __builtin__.__dict__['icu_title'] = title_case
 
+    def connect_lambda(bound_signal, self, func, **kw):
+        import weakref
+        r = weakref.ref(self)
+        del self
+        num_args = func.__code__.co_argcount - 1
+        if num_args < 0:
+            raise TypeError('lambda must take at least one argument')
+
+        def slot(*args):
+            ctx = r()
+            if ctx is not None:
+                if len(args) != num_args:
+                    args = args[:num_args]
+                func(ctx, *args)
+
+        bound_signal.connect(slot, **kw)
+    __builtin__.__dict__['connect_lambda'] = connect_lambda
+
     if islinux:
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500

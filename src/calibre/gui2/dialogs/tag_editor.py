@@ -1,8 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from functools import partial
-
 from PyQt5.Qt import Qt, QDialog, QAbstractItemView
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
@@ -67,19 +65,18 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in q:
                 self.available_tags.addItem(tag)
 
-        self.apply_button.clicked.connect(lambda: self.apply_tags())
-        self.unapply_button.clicked.connect(lambda: self.unapply_tags())
+        connect_lambda(self.apply_button.clicked, self, lambda self: self.apply_tags())
+        connect_lambda(self.unapply_button.clicked, self, lambda self: self.unapply_tags())
         self.add_tag_button.clicked.connect(self.add_tag)
-        self.delete_button.clicked.connect(lambda: self.delete_tags())
+        connect_lambda(self.delete_button.clicked, self, lambda self: self.delete_tags())
         self.add_tag_input.returnPressed[()].connect(self.add_tag)
         # add the handlers for the filter input fields
-        self.available_filter_input.textChanged.connect(self.filter_tags)
-        self.applied_filter_input.textChanged.connect(partial(self.filter_tags, which='applied_tags'))
+        connect_lambda(self.available_filter_input.textChanged, self, lambda self, text: self.filter_tags(text))
+        connect_lambda(self.applied_filter_input.textChanged, self, lambda self, text: self.filter_tags(text, which='applied_tags'))
 
         # Restore the focus to the last input box used (typed into)
-        self.add_tag_input.textChanged.connect(partial(self.edit_box_changed, which="add_tag_input"))
-        self.available_filter_input.textChanged.connect(partial(self.edit_box_changed, which="available_filter_input"))
-        self.applied_filter_input.textChanged.connect(partial(self.edit_box_changed, which="applied_filter_input"))
+        for x in ('add_tag_input', 'available_filter_input', 'applied_filter_input'):
+            connect_lambda(getattr(self, x).textChanged, self, lambda self: self.edit_box_changed(x))
         getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
 
         if islinux:

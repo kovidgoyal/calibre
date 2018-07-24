@@ -494,7 +494,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initialize_combos()
 
         self.series.currentIndexChanged[int].connect(self.series_changed)
-        self.rating.currentIndexChanged.connect(lambda:self.apply_rating.setChecked(True))
+        connect_lambda(self.rating.currentIndexChanged, self, lambda self:self.apply_rating.setChecked(True))
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
@@ -525,7 +525,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         idx = max(0, self.casing_map.index(prevca))
         self.casing_algorithm.setCurrentIndex(idx)
         self.casing_algorithm.setEnabled(False)
-        self.change_title_to_title_case.toggled.connect(lambda : self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()))
+        connect_lambda(
+            self.change_title_to_title_case.toggled, self,
+            lambda self: self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()))
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)

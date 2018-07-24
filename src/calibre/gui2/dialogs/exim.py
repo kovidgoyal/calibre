@@ -177,10 +177,10 @@ class EximDialog(Dialog):
         l.addWidget(la)
         l.addSpacing(20)
         self.exp_button = b = QPushButton(_('&Export all your calibre data'))
-        b.clicked.connect(partial(self.show_panel, 'export'))
+        connect_lambda(b.clicked, self, lambda self: self.show_panel('export'))
         l.addWidget(b), l.addSpacing(20)
         self.imp_button = b = QPushButton(_('&Import previously exported data'))
-        b.clicked.connect(partial(self.show_panel, 'import'))
+        connect_lambda(b.clicked, self, lambda self: self.show_panel('import'))
         l.addWidget(b), l.addStretch(20)
 
         self.setup_export_panel()

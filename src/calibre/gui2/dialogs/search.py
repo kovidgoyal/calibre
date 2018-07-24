@@ -212,11 +212,11 @@ def create_date_tab(self, db):
     self.date_human = dh = a(QComboBox(w))
     for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
         dh.addItem(text, val)
-    self.date_year.valueChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_month.currentIndexChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_day.valueChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_daysago.valueChanged.connect(lambda : self.sel_daysago.setChecked(True))
-    self.date_human.currentIndexChanged.connect(lambda : self.sel_human.setChecked(True))
+    connect_lambda(self.date_year.valueChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_month.currentIndexChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_day.valueChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_daysago.valueChanged, self, lambda self: self.sel_daysago.setChecked(True))
+    connect_lambda(self.date_human.currentIndexChanged, self, lambda self: self.sel_human.setChecked(True))
     self.sel_date.setChecked(True)
     h.addStretch(10)
 
