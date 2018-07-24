@@ -224,8 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         opts = self.send_email_widget.smtp_opts
         self._email_accounts = EmailAccounts(opts.accounts, opts.subjects,
                 opts.aliases, opts.tags)
-        self._email_accounts.dataChanged.connect(lambda x,y:
-                self.changed_signal.emit())
+        connect_lambda(self._email_accounts.dataChanged, self, lambda self: self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
         self.email_view.sortByColumn(0, Qt.AscendingOrder)
         self.email_view.setSortingEnabled(True)

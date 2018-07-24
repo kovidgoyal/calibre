@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, textwrap, json
-from functools import partial
 
 from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
@@ -575,8 +574,8 @@ class RuleEditor(QDialog):  # {{{
         m = self.remove_button.menu()
         m.clear()
         for name in self.icon_file_names:
-            m.addAction(QIcon(os.path.join(self.icon_folder, name)), name).triggered.connect(partial(
-                self.remove_image, name))
+            ac = m.addAction(QIcon(os.path.join(self.icon_folder, name)), name)
+            connect_lambda(ac.triggered, self, lambda self: self.remove_image(name))
 
     def remove_image(self, name):
         try:

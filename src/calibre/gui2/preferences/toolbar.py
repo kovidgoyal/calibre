@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
-
 from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
         QItemSelectionModel
 
@@ -263,8 +261,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
-        self.action_up_button.clicked.connect(partial(self.move, -1))
-        self.action_down_button.clicked.connect(partial(self.move, 1))
+        connect_lambda(self.action_up_button.clicked, self, lambda self: self.move(-1))
+        connect_lambda(self.action_down_button.clicked, self, lambda self: self.move(1))
         self.all_actions.setMouseTracking(True)
         self.current_actions.setMouseTracking(True)
         self.all_actions.entered.connect(self.all_entered)

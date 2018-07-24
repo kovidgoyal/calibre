@@ -9,7 +9,6 @@ import json, textwrap
 
 from collections import defaultdict
 from threading import Thread
-from functools import partial
 
 from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
@@ -172,13 +171,13 @@ class IdLinksEditor(Dialog):
         l.addWidget(t)
         t.horizontalHeader().setSectionResizeMode(2, t.horizontalHeader().Stretch)
         self.cb = b = QPushButton(QIcon(I('plus.png')), _('&Add rule'), self)
-        b.clicked.connect(lambda : self.edit_rule())
+        connect_lambda(b.clicked, self, lambda self: self.edit_rule())
         self.bb.addButton(b, self.bb.ActionRole)
         self.rb = b = QPushButton(QIcon(I('minus.png')), _('&Remove rule'), self)
-        b.clicked.connect(lambda : self.remove_rule())
+        connect_lambda(b.clicked, self, lambda self: self.remove_rule())
         self.bb.addButton(b, self.bb.ActionRole)
         self.eb = b = QPushButton(QIcon(I('modified.png')), _('&Edit rule'), self)
-        b.clicked.connect(lambda : self.edit_rule(self.table.currentRow()))
+        connect_lambda(b.clicked, self, lambda self: self.edit_rule(self.table.currentRow()))
         self.bb.addButton(b, self.bb.ActionRole)
         l.addWidget(self.bb)
 
@@ -504,19 +503,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.field_display_order)
         self.display_model.dataChanged.connect(self.changed_signal)
         self.field_display_order.setModel(self.display_model)
-        self.df_up_button.clicked.connect(partial(move_field_up,
-                                  self.field_display_order, self.display_model))
-        self.df_down_button.clicked.connect(partial(move_field_down,
-                                  self.field_display_order, self.display_model))
+        connect_lambda(self.df_up_button.clicked, self,
+                lambda self: move_field_up(self.field_display_order, self.display_model))
+        connect_lambda(self.df_down_button.clicked, self,
+                lambda self: move_field_down(self.field_display_order, self.display_model))
 
         self.qv_display_model = QVDisplayedFields(self.gui.current_db,
                 self.qv_display_order)
         self.qv_display_model.dataChanged.connect(self.changed_signal)
         self.qv_display_order.setModel(self.qv_display_model)
-        self.qv_up_button.clicked.connect(partial(move_field_up,
-                                  self.qv_display_order, self.qv_display_model))
-        self.qv_down_button.clicked.connect(partial(move_field_down,
-                                  self.qv_display_order, self.qv_display_model))
+        connect_lambda(self.qv_up_button.clicked, self,
+                lambda self: move_field_up(self.qv_display_order, self.qv_display_model))
+        connect_lambda(self.qv_down_button.clicked, self,
+                lambda self: move_field_down(self.qv_display_order, self.qv_display_model))
 
         self.edit_rules = EditRules(self.tabWidget)
         self.edit_rules.changed.connect(self.changed_signal)
@@ -559,8 +558,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         b.clicked.connect(self.restore_cover_grid_appearance)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
         self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
-        self.cover_grid_smaller_cover.clicked.connect(partial(self.resize_cover, True))
-        self.cover_grid_larger_cover.clicked.connect(partial(self.resize_cover, False))
+        connect_lambda(self.cover_grid_smaller_cover.clicked, self, lambda self: self.resize_cover(True))
+        connect_lambda(self.cover_grid_larger_cover.clicked, self, lambda self: self.resize_cover(False))
         self.cover_grid_reset_size.clicked.connect(self.cg_reset_size)
         self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
