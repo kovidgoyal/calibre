@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-from functools import partial
 
 from PyQt5.Qt import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
@@ -243,7 +242,7 @@ class CoverSettingsWidget(QWidget):
             la.setWordWrap(True)
             b = QPushButton(button)
             b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            b.clicked.connect(partial(self.change_template, which))
+            connect_lambda(b.clicked, self, lambda self: self.change_template(which))
             setattr(self, attr + '_button', b)
             l.addWidget(b)
             if which != 'footer':
