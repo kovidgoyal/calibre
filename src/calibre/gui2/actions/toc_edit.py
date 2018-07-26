@@ -43,7 +43,7 @@ class ChooseFormat(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)
         self.resize(self.sizeHint())
-        self.finished.connect(lambda code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
+        connect_lambda(self.finished, self, lambda self, code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
 
     def do_all(self):
         for b in self.buttons:

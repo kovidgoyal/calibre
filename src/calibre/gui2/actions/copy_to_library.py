@@ -321,7 +321,7 @@ class ChooseLibrary(Dialog):  # {{{
         b.setIcon(QIcon(I('edit-copy.png')))
         b.setToolTip(_('Copy to the specified library'))
         b2 = bb.addButton(_('&Move'), bb.AcceptRole)
-        b2.clicked.connect(lambda: setattr(self, 'delete_after_copy', True))
+        connect_lambda(b2.clicked, self, lambda self: setattr(self, 'delete_after_copy', True))
         b2.setIcon(QIcon(I('edit-cut.png')))
         b2.setToolTip(_('Copy to the specified library and delete from the current library'))
         b.setDefault(True)
