@@ -6,7 +6,6 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 from collections import OrderedDict
-from functools import partial
 import textwrap
 
 from PyQt5.Qt import (
@@ -453,11 +452,15 @@ class SaveLoadMixin(object):
         self.load_menu.clear()
         if len(self.PREFS_OBJECT):
             for name, rules in self.PREFS_OBJECT.iteritems():
-                self.load_menu.addAction(name).triggered.connect(partial(self.load_ruleset, name))
+                ac = self.load_menu.addAction(name)
+                ac.setObjectName(name)
+                connect_lambda(ac.triggered, self, lambda self: self.load_ruleset(self.sender().objectName()))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
             for name, rules in self.PREFS_OBJECT.iteritems():
-                m.addAction(name).triggered.connect(partial(self.delete_ruleset, name))
+                ac = m.addAction(name)
+                ac.setObjectName(name)
+                connect_lambda(ac.triggered, self, lambda self: self.delete_ruleset(self.sender().objectName()))
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 

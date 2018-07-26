@@ -806,7 +806,7 @@ class DeviceMenu(QMenu):  # {{{
 
         mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
         mitem.setEnabled(False)
-        mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
+        connect_lambda(mitem.triggered, self, lambda self, x: self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
         self.addSeparator()
 
@@ -818,8 +818,7 @@ class DeviceMenu(QMenu):  # {{{
 
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
-        annot.triggered.connect(lambda x :
-                self.fetch_annotations.emit())
+        connect_lambda(annot.triggered, self, lambda self, x: self.fetch_annotations.emit())
         self.annotation_action = annot
         self.enable_device_actions(False)
 
@@ -1769,7 +1768,7 @@ class DeviceMixin(object):  # {{{
         except:
             return False
 
-        string_pat = re.compile('(?u)\W|[_]')
+        string_pat = re.compile(r'(?u)\W|[_]')
 
         def clean_string(x):
             x = x.lower() if x else ''

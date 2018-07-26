@@ -47,10 +47,10 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.button_font_key.clicked.connect(self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
-        self.opt_smarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
-        self.opt_unsmarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
+        connect_lambda(self.opt_smarten_punctuation.stateChanged, self, lambda self, state:
+                state != Qt.Unchecked and self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
+        connect_lambda(self.opt_unsmarten_punctuation.stateChanged, self, lambda self, state:
+                state != Qt.Unchecked and self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
