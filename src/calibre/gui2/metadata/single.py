@@ -609,8 +609,8 @@ class MetadataSingleDialogBase(QDialog):
             pm = ngettext('There is another book to edit in this set.',
                           'There are still {} more books to edit in this set.', num).format(num)
             if not question_dialog(
-                    self, _('Are you sure?'), pm + _(
-                      ' Are you sure you want to stop? Use the "Next" button'
+                    self, _('Are you sure?'), pm + ' ' + _(
+                      'Are you sure you want to stop? Use the "Next" button'
                       ' instead of the "OK" button to move through books in the set.'),
                     yes_text=_('&Stop editing'), no_text=_('&Continue editing'),
                     yes_icon='dot_red.png', no_icon='dot_green.png',
