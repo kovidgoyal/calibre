@@ -623,8 +623,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.search.initialize('jobs_search_history',
                 help_text=_('Search for a job by name'))
         self.search.search.connect(self.find)
-        self.search_button.clicked.connect(lambda :
-                self.find(self.search.current_text))
+        connect_lambda(self.search_button.clicked, self, lambda self: self.find(self.search.current_text))
         self.restore_state()
 
     def restore_state(self):

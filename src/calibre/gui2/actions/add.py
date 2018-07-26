@@ -65,10 +65,12 @@ class AddAction(InterfaceAction):
             'e-book file is a different book)')).triggered.connect(
                     self.add_recursive_multiple)
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add multiple books from archive (ZIP/RAR)'))
-        self.create_menu_action(arm, 'recursive-single-archive', _(
-            'One book per directory in the archive')).triggered.connect(partial(self.add_archive, True))
-        self.create_menu_action(arm, 'recursive-multiple-archive', _(
-            'Multiple books per directory in the archive')).triggered.connect(partial(self.add_archive, False))
+        connect_lambda(self.create_menu_action(
+            arm, 'recursive-single-archive', _('One book per directory in the archive')).triggered,
+            self, lambda self: self.add_archive(True))
+        connect_lambda(self.create_menu_action(
+            arm, 'recursive-multiple-archive', _('Multiple books per directory in the archive')).triggered,
+            self, lambda self: self.add_archive(False))
         self.add_menu.addSeparator()
         ma('add-empty', _('Add empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
@@ -79,9 +81,9 @@ class AddAction(InterfaceAction):
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add an empty file to selected book records'))
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
         for fmt in sorted(valid_empty_formats):
-            self.create_menu_action(arm, 'add-empty-' + fmt,
-                                    _('Add empty {}').format(fmt.upper())).triggered.connect(
-                                         partial(self.add_empty_format, fmt))
+            connect_lambda(self.create_menu_action(
+                arm, 'add-empty-' + fmt, _('Add empty {}').format(fmt.upper())).triggered,
+                self, lambda self: self.add_empty_format(fmt))
         self.add_menu.addSeparator()
         ma('add-config', _('Control the adding of books'),
                 triggered=self.add_config)

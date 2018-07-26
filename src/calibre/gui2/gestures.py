@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, os
-from functools import partial
 
 from PyQt5.Qt import (
     QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
@@ -156,9 +155,9 @@ class GestureManager(QObject):
         self.state = State()
         self.state.tapped.connect(self.handle_tap, type=Qt.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
         self.state.flicking.connect(self.handle_flicking)
-        self.state.tap_hold_started.connect(partial(self.handle_tap_hold, 'start'))
-        self.state.tap_hold_updated.connect(partial(self.handle_tap_hold, 'update'))
-        self.state.tap_hold_finished.connect(partial(self.handle_tap_hold, 'end'))
+        connect_lambda(self.state.tap_hold_started, self, lambda self, tp: self.handle_tap_hold('start', tp))
+        connect_lambda(self.state.tap_hold_updated, self, lambda self, tp: self.handle_tap_hold('update', tp))
+        connect_lambda(self.state.tap_hold_finished, self, lambda self, tp: self.handle_tap_hold('end', tp))
         self.evmap = {QEvent.TouchBegin: 'start', QEvent.TouchUpdate: 'update', QEvent.TouchEnd: 'end'}
         self.last_tap_at = 0
         if touch_supported:
