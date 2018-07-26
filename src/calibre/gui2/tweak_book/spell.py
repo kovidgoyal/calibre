@@ -934,7 +934,7 @@ class SpellCheck(Dialog):
         b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
         b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
         b.setIcon(QIcon(I('view-refresh.png')))
-        b.clicked.connect(partial(self.refresh, change_request=None))
+        connect_lambda(b.clicked, self, lambda self: self.refresh(change_request=None))
         b = self.bb.addButton(_('&Undo last change'), self.bb.ActionRole)
         b.setToolTip('<p>' + _('Undo the last spell check word replacement, if any'))
         b.setIcon(QIcon(I('edit-undo.png')))

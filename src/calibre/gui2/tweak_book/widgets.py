@@ -570,7 +570,7 @@ class NamesModel(QAbstractListModel):
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
     nl.m = m = model(names, parent=nl)
-    m.filtered.connect(lambda all_items: nl.scrollTo(m.index(0)))
+    connect_lambda(m.filtered, nl, lambda nl, all_items: nl.scrollTo(m.index(0)))
     nl.setModel(m)
     if model is NamesModel:
         nl.d = NamesDelegate(nl)

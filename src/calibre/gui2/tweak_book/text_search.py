@@ -4,7 +4,6 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from functools import partial
 
 from PyQt5.Qt import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QIcon,
@@ -127,10 +126,12 @@ class TextSearch(QWidget):
         h.addStretch(10)
         self.next_button = b = QPushButton(QIcon(I('arrow-down.png')), _('&Next'), self)
         b.setToolTip(_('Find next match'))
-        h.addWidget(b), b.clicked.connect(partial(self.do_search, 'down'))
+        h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search('down'))
         self.prev_button = b = QPushButton(QIcon(I('arrow-up.png')), _('&Previous'), self)
         b.setToolTip(_('Find previous match'))
-        h.addWidget(b), b.clicked.connect(partial(self.do_search, 'up'))
+        h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search('up'))
 
         state = tprefs.get('text_search_widget_state')
         self.state = state or {}

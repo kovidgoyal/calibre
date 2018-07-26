@@ -474,18 +474,24 @@ class Preview(QWidget):
         self.search = HistoryLineEdit2(self)
         self.search.initialize('tweak_book_preview_search')
         self.search.setPlaceholderText(_('Search in preview'))
-        self.search.returnPressed.connect(partial(self.find, 'next'))
+        connect_lambda(self.search.returnPressed, self, lambda self: self.find('next'))
         self.bar.addSeparator()
         self.bar.addWidget(self.search)
         for d in ('next', 'prev'):
             ac = actions['find-%s-preview' % d]
-            ac.triggered.connect(partial(self.find, d))
+            ac.triggered.connect(getattr(self, 'find_' + d))
             self.bar.addAction(ac)
 
     def find(self, direction):
         text = unicode(self.search.text())
         self.view.findText(text, QWebPage.FindWrapsAroundDocument | (
             QWebPage.FindBackward if direction == 'prev' else QWebPage.FindFlags(0)))
+
+    def find_next(self):
+        self.find('next')
+
+    def find_prev(self):
+        self.find('prev')
 
     def request_sync(self, tagname, href, lnum):
         if self.current_name:
