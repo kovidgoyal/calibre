@@ -925,16 +925,18 @@ class DiffView(QWidget):  # {{{
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_debounced)
-        for i, bar in enumerate((self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar())):
+        for bar in (self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()):
             self.bars.append(bar)
-            bar.valueChanged[int].connect(partial(self.scrolled, i))
+            bar.scroll_idx = len(self.bars) - 1
+            connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(self.sender().scroll_idx))
         self.view.left.resized.connect(self.resized)
-        for i, v in enumerate((self.view.left, self.view.right, self.view.handle(1))):
+        for v in (self.view.left, self.view.right, self.view.handle(1)):
             v.wheel_event.connect(self.scrollbar.wheelEvent)
-            if i < 2:
+            if v is self.view.left or v is self.view.right:
                 v.next_change.connect(self.next_change)
                 v.line_activated.connect(self.line_activated)
-                v.scrolled.connect(partial(self.scrolled, i + 1))
+                connect_lambda(v.scrolled, self,
+                        lambda self: self.scrolled(1 if self.sender() is self.view.left else 2))
 
     def next_change(self, delta):
         assert delta in (1, -1)
@@ -1093,4 +1095,3 @@ class DiffView(QWidget):  # {{{
             return True
         return False
 # }}}
-

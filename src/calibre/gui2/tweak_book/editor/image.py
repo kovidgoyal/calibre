@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from functools import partial
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout, QSize,
@@ -40,8 +39,8 @@ class ResizeDialog(QDialog):  # {{{
         h.setValue(height)
         h.setSuffix(' px')
         l.addRow(_('&Height:'), h)
-        w.valueChanged.connect(partial(self.keep_ar, 'width'))
-        h.valueChanged.connect(partial(self.keep_ar, 'height'))
+        connect_lambda(w.valueChanged, self, lambda self: self.keep_ar('width'))
+        connect_lambda(h.valueChanged, self, lambda self: self.keep_ar('height'))
 
         self.ar = ar = QCheckBox(_('Keep &aspect ratio'))
         ar.setChecked(True)
@@ -349,6 +348,7 @@ def launch_editor(path_to_edit, path_is_raw=False):
     t.data = raw
     t.show()
     app.exec_()
+
 
 if __name__ == '__main__':
     launch_editor(sys.argv[-1])

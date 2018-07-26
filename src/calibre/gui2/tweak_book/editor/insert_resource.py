@@ -259,13 +259,20 @@ class InsertImage(Dialog):
             self.preserve_aspect_ratio = a = QCheckBox(_('Preserve aspect ratio'))
             a.setToolTip(_('Preserve the aspect ratio of the inserted image when rendering it full paged'))
             a.setChecked(tprefs['preserve_aspect_ratio_when_inserting_image'])
-            f.toggled.connect(lambda : (tprefs.set('insert_full_screen_image', f.isChecked()), a.setVisible(f.isChecked())))
-            a.toggled.connect(lambda : tprefs.set('preserve_aspect_ratio_when_inserting_image', a.isChecked()))
+            f.toggled.connect(self.full_page_image_toggled)
+            a.toggled.connect(self.par_toggled)
             a.setVisible(f.isChecked())
             h = QHBoxLayout()
             l.addLayout(h, 3, 0, 1, -1)
             h.addWidget(f), h.addStretch(10), h.addWidget(a)
         l.addWidget(self.bb, 4, 0, 1, 2)
+
+    def full_page_image_toggled(self):
+        tprefs.set('insert_full_screen_image', self.fullpage.isChecked())
+        self.preserve_aspect_ratio.setVisible(self.fullpage.isChecked())
+
+    def par_toggled(self):
+        tprefs.set('preserve_aspect_ratio_when_inserting_image', self.preserve_aspect_ratio.isChecked())
 
     def refresh(self):
         self.d.cover_cache.clear()
@@ -439,9 +446,9 @@ class NewBook(Dialog):  # {{{
         bb.clear()
         bb.addButton(bb.Cancel)
         b = bb.addButton('&EPUB', bb.AcceptRole)
-        b.clicked.connect(partial(self.set_fmt, 'epub'))
+        connect_lambda(b.clicked, self, lambda self: self.set_fmt('epub'))
         b = bb.addButton('&AZW3', bb.AcceptRole)
-        b.clicked.connect(partial(self.set_fmt, 'azw3'))
+        connect_lambda(b.clicked, self, lambda self: self.set_fmt('azw3'))
 
     def set_fmt(self, fmt):
         self.fmt = fmt
