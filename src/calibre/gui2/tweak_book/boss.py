@@ -768,7 +768,8 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         k = {} if allow_revert else {'revert_msg': None}
         d = self.create_diff_dialog(**k)
-        d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
+        previous_container = self.global_undo.previous_container
+        connect_lambda(d.revert_requested, self, lambda self: self.revert_requested(previous_container))
         other = to_container or self.global_undo.previous_container
         d.container_diff(other, self.global_undo.current_container,
                          names=(self.global_undo.label_for_container(other), self.global_undo.label_for_container(self.global_undo.current_container)))
@@ -1608,14 +1609,14 @@ class Boss(QObject):
             d.l.addWidget(d.bb, 1, 0, 1, 2)
             d.do_save = None
 
-            def endit(x):
+            def endit(d, x):
                 d.do_save = x
                 d.accept()
             b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ActionRole)
             b.setIcon(QIcon(I('save.png')))
-            b.clicked.connect(lambda *args: endit(True))
+            connect_lambda(b.clicked, d, lambda d: endit(d, True))
             b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda *args: endit(False))
+            connect_lambda(b.clicked, d, lambda d: endit(d, False))
             d.resize(d.sizeHint())
             if d.exec_() != d.Accepted or d.do_save is None:
                 return False

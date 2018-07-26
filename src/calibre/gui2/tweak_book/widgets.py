@@ -1082,7 +1082,11 @@ class AddCover(Dialog):
                        ' to the image.')))
         p.setChecked(tprefs['add_cover_preserve_aspect_ratio'])
         p.setVisible(self.container.book_type != 'azw3')
-        p.stateChanged.connect(lambda s:tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked))
+
+        def on_state_change(s):
+            tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked)
+
+        p.stateChanged.connect(on_state_change)
         self.info_label = il = QLabel('\xa0')
         h.addWidget(p), h.addStretch(1), h.addWidget(il)
         l.addLayout(h)
