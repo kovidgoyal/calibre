@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
-
 from PyQt5.Qt import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
 
 from calibre.gui2 import info_dialog, question_dialog
@@ -34,20 +32,18 @@ class ShareConnMenu(QMenu):  # {{{
         self.ip_text = ''
         mitem = self.addAction(QIcon(I('devices/folder.png')), _('Connect to folder'))
         mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        connect_lambda(mitem.triggered, self, lambda self: self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
 
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
             _('Start Content server'))
-        self.toggle_server_action.triggered.connect(lambda x:
-                self.toggle_server.emit())
+        connect_lambda(self.toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
         self.control_smartdevice_action = \
             self.addAction(QIcon(I('dot_red.png')),
             self.DEVICE_MSGS[0])
-        self.control_smartdevice_action.triggered.connect(lambda x:
-                self.control_smartdevice.emit())
+        connect_lambda(self.control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -185,9 +181,8 @@ class ConnectShareAction(InterfaceAction):
         self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
-        self.share_conn_menu.config_email.connect(partial(
-            self.gui.iactions['Preferences'].do_config,
-            initial_plugin=('Sharing', 'Email')))
+        connect_lambda(self.share_conn_menu.config_email, self, lambda self:
+            self.gui.iactions['Preferences'].do_config(initial_plugin=('Sharing', 'Email'), close_after_initial=True))
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
 

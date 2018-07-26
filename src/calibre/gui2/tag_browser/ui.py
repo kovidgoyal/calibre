@@ -508,7 +508,7 @@ class TagBrowserWidget(QFrame):  # {{{
         parent.keyboard.register_shortcut('tag browser collapse all',
                 _('Collapse all'), default_keys=(),
                 action=ac, group=_('Tag browser'))
-        ac.triggered.connect(lambda : self.tags_view.collapseAll())
+        connect_lambda(ac.triggered, self, lambda self: self.tags_view.collapseAll())
 
         ac = QAction(parent)
         parent.addAction(ac)
