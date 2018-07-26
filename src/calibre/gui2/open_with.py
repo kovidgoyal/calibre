@@ -327,7 +327,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     return entry
 
 
-def populate_menu(menu, receiver, file_type):
+def populate_menu(menu, connect_action, file_type):
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
         icon, text = entry_to_icon_text(entry)
@@ -336,8 +336,7 @@ def populate_menu(menu, receiver, file_type):
         if sa is not None:
             text += '\t' + sa.shortcut().toString(QKeySequence.NativeText)
         ac = menu.addAction(icon, text)
-
-        ac.triggered.connect(partial(receiver, entry))
+        connect_action(ac, entry)
     return menu
 
 # }}}

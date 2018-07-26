@@ -240,7 +240,11 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 if not fmt.upper().startswith('ORIGINAL_'):
                     from calibre.gui2.open_with import populate_menu, edit_programs
                     m = QMenu(_('Open %s with...') % fmt.upper())
-                    populate_menu(m, partial(book_info.open_with, book_id, fmt), fmt)
+
+                    def connect_action(ac, entry):
+                        connect_lambda(ac.triggered, book_info, lambda book_info: book_info.open_with(book_id, fmt, entry))
+
+                    populate_menu(m, connect_action, fmt)
                     if len(m.actions()) == 0:
                         menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
                     else:
@@ -423,7 +427,11 @@ class CoverView(QWidget):  # {{{
         save.triggered.connect(self.save_cover)
 
         m = QMenu(_('Open cover with...'))
-        populate_menu(m, self.open_with, 'cover_image')
+
+        def connect_action(ac, entry):
+            connect_lambda(ac.triggered, self, lambda self: self.open_with(entry))
+
+        populate_menu(m, connect_action, 'cover_image')
         if len(m.actions()) == 0:
             cm.addAction(_('Open cover with...'), self.choose_open_with)
         else:
