@@ -227,7 +227,7 @@ class DownloadResources(Dialog):
             b = self.bb.button(self.bb.Ok)
             b.setText(_('See what &changed'))
             b.setIcon(QIcon(I('diff.png')))
-            b.clicked.connect(lambda : setattr(self, 'show_diff', True))
+            connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))
             self.bb.setVisible(True)
 
     def accept(self):

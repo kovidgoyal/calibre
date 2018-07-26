@@ -1474,10 +1474,13 @@ def run_search(
                     det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
                 d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False, det_msg=det_msg)
-                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
+                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
+                d.show_changes = False
                 b.setIcon(QIcon(I('diff.png'))), b.clicked.connect(d.accept)
-                b.clicked.connect(partial(show_current_diff, allow_revert=True), type=Qt.QueuedConnection)
+                connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
                 d.exec_()
+                if d.show_changes:
+                    show_current_diff(allow_revert=True)
             else:
                 info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True, det_msg=det_msg)
 

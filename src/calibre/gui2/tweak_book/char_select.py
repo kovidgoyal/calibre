@@ -760,7 +760,7 @@ class CharSelect(Dialog):
         self.match_any = mm = QCheckBox(_('Match any word'))
         mm.setToolTip(_('When searching return characters whose names match any of the specified words'))
         mm.setChecked(tprefs.get('char_select_match_any', True))
-        mm.stateChanged.connect(lambda: tprefs.set('char_select_match_any', self.match_any.isChecked()))
+        connect_lambda(mm.stateChanged, self, lambda self: tprefs.set('char_select_match_any', self.match_any.isChecked()))
         h.addWidget(mm), h.addStretch(), h.addWidget(self.bb)
         l.addLayout(h, 4, 0, 1, 3)
         self.char_view.setFocus(Qt.OtherFocusReason)
