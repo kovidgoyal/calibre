@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from functools import partial
 
 from PyQt5.Qt import QTimer, QDialog, QDialogButtonBox, QCheckBox, QVBoxLayout, QLabel, Qt
 
@@ -37,7 +36,8 @@ class Choose(QDialog):
         self.buts = buts = []
         for fmt in fmts:
             b = bb.addButton(fmt.upper(), bb.AcceptRole)
-            b.clicked.connect(partial(self.chosen, fmt))
+            b.setObjectName(fmt)
+            connect_lambda(b.clicked, self, lambda self: self.chosen(self.sender().objectName()))
             buts.append(b)
 
         self.fmt = None

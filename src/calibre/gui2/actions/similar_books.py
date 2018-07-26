@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
 
 from PyQt5.Qt import QToolButton
 
@@ -30,8 +29,9 @@ class SimilarBooksAction(InterfaceAction):
         (_('Books with the same tags'), 'tags.png', 'tags', 'Alt+T'),]:
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
+            ac.setObjectName(target)
             m.addAction(ac)
-            ac.triggered.connect(partial(self.show_similar_books, target))
+            connect_lambda(ac.triggered, self, lambda self: self.show_similar_books(self.gui.sender().objectName()))
         self.qaction.setMenu(m)
 
     def show_similar_books(self, typ, *args):
