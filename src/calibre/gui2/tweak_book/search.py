@@ -62,7 +62,7 @@ class PushButton(AnimatablePushButton):
 
     def __init__(self, text, action, parent):
         AnimatablePushButton.__init__(self, text, parent)
-        self.clicked.connect(lambda : parent.search_triggered.emit(action))
+        connect_lambda(self.clicked, parent, lambda parent: parent.search_triggered.emit(action))
 
 
 def expand_template(line_edit):
@@ -252,7 +252,7 @@ class SearchWidget(QWidget):
         ft.save_search.connect(self.save_search)
         ft.show_saved_searches.connect(self.show_saved_searches)
         ft.initialize('tweak_book_find_edit')
-        ft.lineEdit().returnPressed.connect(lambda : self.search_triggered.emit('find'))
+        connect_lambda(ft.lineEdit().returnPressed, self, lambda self: self.search_triggered.emit('find'))
         fl.setBuddy(ft)
         l.addWidget(fl, 0, 0)
         l.addWidget(ft, 0, 1)
@@ -914,9 +914,11 @@ class SavedSearches(QWidget):
         l.addLayout(h)
         stack.currentChanged.connect(self.stack_current_changed)
 
-        def pb(text, tooltip=None):
+        def pb(text, tooltip=None, action=None):
             b = AnimatablePushButton(text, self)
             b.setToolTip(tooltip or '')
+            if action:
+                b.setObjectName(action)
             b.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             return b
 
@@ -930,9 +932,9 @@ class SavedSearches(QWidget):
                 (_('Replace &all'), 'replace-all', _('Run Replace All for all selected entries in the order selected')),
                 (_('&Count all'), 'count', _('Run Count All for all selected entries')),
         ]:
-            self.action_button_map[action] = b = pb(text, tooltip)
+            self.action_button_map[action] = b = pb(text, tooltip, action)
             v.addWidget(b)
-            b.clicked.connect(partial(self.run_search, action))
+            connect_lambda(b.clicked, self, lambda self: self.run_search(self.sender().objectName()))
 
         self.d1 = d = QFrame(self)
         d.setFrameStyle(QFrame.HLine)
@@ -943,17 +945,17 @@ class SavedSearches(QWidget):
         self.move_up_action = a = QAction(self)
         a.setShortcut(QKeySequence('Alt+Up'))
         b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
-        a.triggered.connect(partial(self.move_entry, -1))
+        connect_lambda(a.triggered, self, lambda self: self.move_entry(-1))
         self.searches.addAction(a)
-        b.clicked.connect(partial(self.move_entry, -1))
+        connect_lambda(b.clicked, self, lambda self: self.move_entry(-1))
 
         self.dnb = b = QToolButton(self)
         self.move_down_action = a = QAction(self)
         a.setShortcut(QKeySequence('Alt+Down'))
         b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
-        a.triggered.connect(partial(self.move_entry, 1))
+        connect_lambda(a.triggered, self, lambda self: self.move_entry(1))
         self.searches.addAction(a)
-        b.clicked.connect(partial(self.move_entry, 1))
+        connect_lambda(b.clicked, self, lambda self: self.move_entry(1))
         h.addWidget(self.upb), h.addWidget(self.dnb)
         v.addLayout(h)
 
