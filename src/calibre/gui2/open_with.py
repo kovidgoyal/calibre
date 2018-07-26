@@ -434,7 +434,8 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
             name = _('Open {0} files with {1}').format(t, text)
             ac = QAction(gui)
             unique_name = application['uuid']
-            ac.triggered.connect(partial(gui.open_with_action_triggerred, filetype, application))
+            func = partial(gui.open_with_action_triggerred, filetype, application)
+            ac.triggered.connect(func)
             gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open With'))
             gui.addAction(ac)
             registered_shortcuts[unique_name] = ac

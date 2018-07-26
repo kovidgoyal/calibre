@@ -91,10 +91,11 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.l.addWidget(d.e)
     d.e.setHtml(report)
     d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+    d.show_changes = False
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
         b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
-        b.clicked.connect(lambda : show_current_diff(allow_revert=True), type=Qt.QueuedConnection)
+        connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
     b = d.bb.addButton(_('&Copy to clipboard'), d.bb.ActionRole)
     b.setIcon(QIcon(I('edit-copy.png'))), b.setAutoDefault(False)
 
@@ -112,6 +113,8 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.resize(600, 400)
     d.exec_()
     b.clicked.disconnect()
+    if d.show_changes:
+        show_current_diff(allow_revert=True)
 
 # CompressImages {{{
 
