@@ -214,7 +214,10 @@ class PDFWriter(QObject):
         self.margin_top, self.margin_bottom = map(lambda x:int(floor(x)), (mt, mb))
 
         self.painter = QPainter(self.doc)
-        self.book_language = pdf_metadata.mi.languages[0]
+        try:
+            self.book_language = pdf_metadata.mi.languages[0]
+        except Exception:
+            self.book_language = 'eng'
         self.doc.set_metadata(title=pdf_metadata.title,
                               author=pdf_metadata.author,
                               tags=pdf_metadata.tags, mi=pdf_metadata.mi)
