@@ -575,7 +575,7 @@ class RuleEditor(QDialog):  # {{{
         m.clear()
         for name in self.icon_file_names:
             ac = m.addAction(QIcon(os.path.join(self.icon_folder, name)), name)
-            connect_lambda(ac.triggered, self, lambda self: self.remove_image(name))
+            connect_lambda(ac.triggered, self, lambda self: self.remove_image(self.sender().text()))
 
     def remove_image(self, name):
         try:

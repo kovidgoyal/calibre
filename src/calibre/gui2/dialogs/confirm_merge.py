@@ -115,7 +115,7 @@ class ChooseMerge(Dialog):
             l.addWidget(ans)
             prefs_key = ans.prefs_key = 'choose-merge-cb-' + name
             ans.setChecked(gprefs.get(prefs_key, True))
-            connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(ans, state), type=Qt.QueuedConnection)
+            connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(getattr(self, name), state), type=Qt.QueuedConnection)
             if tt:
                 ans.setToolTip(tt)
             setattr(self, name, ans)

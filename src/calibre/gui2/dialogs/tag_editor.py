@@ -76,7 +76,9 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         # Restore the focus to the last input box used (typed into)
         for x in ('add_tag_input', 'available_filter_input', 'applied_filter_input'):
-            connect_lambda(getattr(self, x).textChanged, self, lambda self: self.edit_box_changed(x))
+            ibox = getattr(self, x)
+            ibox.setObjectName(x)
+            connect_lambda(ibox.textChanged, self, lambda self: self.edit_box_changed(self.sender().objectName()))
         getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
 
         if islinux:

@@ -81,9 +81,9 @@ class AddAction(InterfaceAction):
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add an empty file to selected book records'))
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
         for fmt in sorted(valid_empty_formats):
-            connect_lambda(self.create_menu_action(
-                arm, 'add-empty-' + fmt, _('Add empty {}').format(fmt.upper())).triggered,
-                self, lambda self: self.add_empty_format(fmt))
+            ac = self.create_menu_action(arm, 'add-empty-' + fmt, _('Add empty {}').format(fmt.upper()))
+            ac.setObjectName(fmt)
+            connect_lambda(ac.triggered, self, lambda self: self.add_empty_format(self.gui.sender().objectName()))
         self.add_menu.addSeparator()
         ma('add-config', _('Control the adding of books'),
                 triggered=self.add_config)
