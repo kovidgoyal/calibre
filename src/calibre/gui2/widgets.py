@@ -76,7 +76,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.test_button.clicked.connect(self.do_test)
         self.re.lineEdit().returnPressed[()].connect(self.do_test)
         self.filename.returnPressed[()].connect(self.do_test)
-        self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
+        connect_lambda(self.re.lineEdit().textChanged, self, lambda self, x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
         # Get all items in the combobox. If we are reseting
