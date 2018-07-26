@@ -298,7 +298,10 @@ class ChooseLibrary(Dialog):  # {{{
         v.addWidget(sa)
         sa.setChecked(bool(gprefs.get('copy_to_library_choose_library_sort_alphabetically', True)))
         sa.stateChanged.connect(self.resort)
-        sa.stateChanged.connect(lambda: gprefs.set('copy_to_library_choose_library_sort_alphabetically', bool(self.sort_alphabetically.isChecked())))
+
+        connect_lambda(sa.stateChanged, self, lambda self:
+                gprefs.set('copy_to_library_choose_library_sort_alphabetically',
+                bool(self.sort_alphabetically.isChecked())))
         la = self.la = QLabel(_('Library &path:'))
         v.addWidget(la)
         le = self.le = QLineEdit(self)
