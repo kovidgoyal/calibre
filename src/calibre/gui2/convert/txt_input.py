@@ -53,4 +53,4 @@ class PluginWidget(Widget, Ui_Form):
     def connect_gui_obj_handler(self, g, f):
         if g is not self.opt_markdown_extensions:
             raise NotImplementedError()
-        g.itemChanged.connect(lambda item: f())
+        g.itemChanged.connect(self.changed_signal)

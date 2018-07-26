@@ -266,13 +266,13 @@ class ItemView(QFrame):  # {{{
         # Add new item
         rs = l.rowCount()
         ip.b3 = b = QPushButton(QIcon(I('plus.png')), _('New entry &inside this entry'))
-        b.clicked.connect(partial(self.add_new, 'inside'))
+        connect_lambda(b.clicked, self, lambda self: self.add_new('inside'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
         ip.b4 = b = QPushButton(QIcon(I('plus.png')), _('New entry &above this entry'))
-        b.clicked.connect(partial(self.add_new, 'before'))
+        connect_lambda(b.clicked, self, lambda self: self.add_new('before'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         ip.b5 = b = QPushButton(QIcon(I('plus.png')), _('New entry &below this entry'))
-        b.clicked.connect(partial(self.add_new, 'after'))
+        connect_lambda(b.clicked, self, lambda self: self.add_new('after'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         # Flatten entry
         ip.b3 = b = QPushButton(QIcon(I('heuristics.png')), _('&Flatten this entry'))

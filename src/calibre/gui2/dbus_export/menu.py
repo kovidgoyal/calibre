@@ -130,7 +130,7 @@ class DBusMenu(QObject):
     def publish_new_menu(self, qmenu=None):
         self.init_maps(qmenu)
         if qmenu is not None:
-            qmenu.destroyed.connect(lambda obj=None:self.publish_new_menu())
+            connect_lambda(qmenu.destroyed, self, lambda self:self.publish_new_menu())
             ac = qmenu.menuAction()
             self.add_action(ac)
         self.dbus_api.LayoutUpdated(self.dbus_api.revision, 0)
