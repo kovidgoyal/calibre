@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # check if you can remove the restriction that prevents inspector dock from being undocked
 # check the context menu
 # check syncing of position back and forth
-# check all butotns and search functionality in preview panel
+# check all buttons in preview panel
 # rewrite JS from coffeescript to rapydscript
 # pass user stylesheet with css for split
 
@@ -484,7 +484,7 @@ class Preview(QWidget):
 
     def find(self, direction):
         text = unicode_type(self.search.text())
-        self.view.findText(text, QWebEnginePage.FindWrapsAroundDocument | (
+        self.view._page.findText(text, (
             QWebEnginePage.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
 
     def find_next(self):
