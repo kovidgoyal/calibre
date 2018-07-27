@@ -19,7 +19,7 @@ os.chdir(base)
 if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
 
-    subprocess.check_call(['python2', 'setup.py', 'gui', '--summary'])
+    subprocess.check_call(['./setup.py', 'gui', '--summary'])
 
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):
