@@ -403,7 +403,29 @@ class CreateCustomColumn(QDialog):
             if col_type == 'datetime':
                 l, dl = _('&Format for dates'), _('Default: dd MMM yyyy.')
                 self.format_box.setToolTip(_(
-                    "<p>Date format. Use 1-4 \'d\'s for day, 1-4 \'M\'s for month, and 2 or 4 \'y\'s for year.</p>\n"
+                    '<p>Date format.</p>'
+                    '<p>The formatting codes are:'
+                    '<ul>'
+                    '<li>d    : the day as number without a leading zero (1 to 31)</li>'
+                    '<li>dd   : the day as number with a leading zero (01 to 31)</li>'
+                    '<li>ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").</li>'
+                    '<li>dddd : the long localized day name (e.g. "Monday" to "Sunday").</li>'
+                    '<li>M    : the <b>month</b> as number without a leading zero (1 to 12).</li>'
+                    '<li>MM   : the <b>month</b> as number with a leading zero (01 to 12)</li>'
+                    '<li>MMM  : the abbreviated localized <b>month</b> name (e.g. "Jan" to "Dec").</li>'
+                    '<li>MMMM : the long localized <b>month</b> name (e.g. "January" to "December").</li>'
+                    '<li>yy   : the year as two digit number (00 to 99).</li>'
+                    '<li>yyyy : the year as four digit number.</li>'
+                    '<li>h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)</li>'
+                    '<li>hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)</li>'
+                    '<li>m    : the <b>minutes</b> without a leading 0 (0 to 59)</li>'
+                    '<li>mm   : the <b>minutes</b> with a leading 0 (00 to 59)</li>'
+                    '<li>s    : the seconds without a leading 0 (0 to 59)</li>'
+                    '<li>ss   : the seconds with a leading 0 (00 to 59)</li>'
+                    '<li>ap   : use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm</li>'
+                    '<li>AP   : use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM</li>'
+                    '<li>iso  : the date with time and timezone. Must be the only format present</li>'
+                    '</ul></p>'
                     "<p>For example:\n"
                     "<ul>\n"
                     "<li>ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
