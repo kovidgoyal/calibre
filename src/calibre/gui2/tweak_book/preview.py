@@ -17,8 +17,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QFile, QIcon, QMenu, QSize, QTimer, QToolBar, QObject,
-    QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QApplication, QBuffer, QByteArray, QFile, QIcon, QMenu, QObject, QSize, QTimer,
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
@@ -32,8 +32,9 @@ from calibre.constants import (
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url, secure_webengine
+from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
+from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.builtins import native_string_type, unicode_type
@@ -248,25 +249,6 @@ def uniq(vals):
     seen = set()
     seen_add = seen.add
     return tuple(x for x in vals if x not in seen and not seen_add(x))
-
-
-def insert_scripts(profile, *scripts):
-    sc = profile.scripts()
-    for script in scripts:
-        for existing in sc.findScripts(script.name()):
-            sc.remove(existing)
-    for script in scripts:
-        sc.insert(script)
-
-
-def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_point=QWebEngineScript.DocumentReady, on_subframes=True):
-    script = QWebEngineScript()
-    script.setSourceCode(src)
-    script.setName(name)
-    script.setWorldId(world)
-    script.setInjectionPoint(injection_point)
-    script.setRunsOnSubFrames(on_subframes)
-    return script
 
 
 def create_profile():
