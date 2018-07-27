@@ -39,7 +39,7 @@ is64bit = sys.maxsize > (1 << 32)
 isworker = hasenv('CALIBRE_WORKER') or hasenv('CALIBRE_SIMPLE_WORKER')
 if isworker:
     os.environ.pop(environ_item('CALIBRE_FORCE_ANSI'), None)
-FAKE_PROTOCOL, FAKE_HOST = 'https', 'calibre-internal.invalid'
+FAKE_PROTOCOL, FAKE_HOST = 'calibre', 'internal.invalid'
 VIEWER_APP_UID = 'com.calibre-ebook.viewer'
 EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
 MAIN_APP_UID = 'com.calibre-ebook.main-gui'

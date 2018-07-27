@@ -9,35 +9,44 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # check that clicking on both internal and external links works
 # check if you can remove the restriction that prevents inspector dock from being undocked
 # check the context menu
+# check syncing of position back and forth
+# check all butotns and search functionality in preview panel
 # rewrite JS from coffeescript to rapydscript
+# pass user stylesheet with css for split
 
 import json
 import textwrap
 import time
+from collections import defaultdict
 from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QIcon, QMenu, QNetworkAccessManager, QNetworkReply,
-    QNetworkRequest, QSize, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
-    pyqtSlot
+    QApplication, QBuffer, QByteArray, QIcon, QMenu, QSize, QTimer, QToolBar, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
+from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 
 from calibre import prints
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__
-from calibre.ebooks.oeb.base import OEB_DOCS, serialize
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url, secure_webengine
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
-from polyglot.binary import as_base64_unicode
 from polyglot.builtins import native_string_type, unicode_type
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
+
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
+
 
 shutdown = object()
 
@@ -161,87 +170,76 @@ parse_worker = ParseWorker()
 # Override network access to load data "live" from the editors {{{
 
 
-class NetworkReply(QNetworkReply):
+class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
-    def __init__(self, parent, request, mime_type, name):
-        QNetworkReply.__init__(self, parent)
-        self.setOpenMode(QNetworkReply.ReadOnly | QNetworkReply.Unbuffered)
-        self.setRequest(request)
-        self.setUrl(request.url())
-        self._aborted = False
-        if mime_type in OEB_DOCS:
-            self.resource_name = name
-            QTimer.singleShot(0, self.check_for_parse)
-        else:
-            data = get_data(name)
-            if isinstance(data, unicode_type):
-                data = data.encode('utf-8')
-                mime_type += '; charset=utf-8'
-            self.__data = data
-            mime_type = {
-                # Prevent warning in console about mimetype of fonts
-                'application/vnd.ms-opentype':'application/x-font-ttf',
-                'application/x-font-truetype':'application/x-font-ttf',
-                'application/font-sfnt': 'application/x-font-ttf',
-            }.get(mime_type, mime_type)
-            self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
-            self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
-            QTimer.singleShot(0, self.finalize_reply)
+    def __init__(self, parent=None):
+        QWebEngineUrlSchemeHandler.__init__(self, parent)
+        self.requests = defaultdict(list)
+
+    def requestStarted(self, rq):
+        if bytes(rq.requestMethod()) != b'GET':
+            rq.fail(rq.RequestDenied)
+            return
+        url = rq.requestUrl()
+        if url.host() != FAKE_HOST:
+            rq.fail(rq.UrlNotFound)
+            return
+        name = url.path()[1:]
+        try:
+            c = current_container()
+            if not c.has_name(name):
+                rq.fail(rq.UrlNotFound)
+                return
+            mime_type = c.mime_map.get(name, 'application/octet-stream')
+            if mime_type in OEB_DOCS:
+                mime_type = XHTML_MIME
+                self.requests[name].append((mime_type, rq))
+                QTimer.singleShot(0, self.check_for_parse)
+            else:
+                data = get_data(name)
+                if isinstance(data, type('')):
+                    data = data.encode('utf-8')
+                mime_type = {
+                    # Prevent warning in console about mimetype of fonts
+                    'application/vnd.ms-opentype':'application/x-font-ttf',
+                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/font-sfnt': 'application/x-font-ttf',
+                }.get(mime_type, mime_type)
+                self.send_reply(rq, mime_type, data)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            rq.fail(rq.RequestFailed)
+
+    def send_reply(self, rq, mime_type, data):
+        if sip.isdeleted(rq):
+            return
+        buf = QBuffer(parent=rq)
+        buf.open(QBuffer.WriteOnly)
+        # we have to copy data into buf as it will be garbage
+        # collected by python
+        buf.write(data)
+        buf.seek(0)
+        buf.close()
+        buf.aboutToClose.connect(buf.deleteLater)
+        rq.reply(mime_type.encode('ascii'), buf)
 
     def check_for_parse(self):
-        if self._aborted:
-            return
-        data = parse_worker.get_data(self.resource_name)
-        if data is None:
+        remove = []
+        for name, requests in self.requests.iteritems():
+            data = parse_worker.get_data(name)
+            if data is not None:
+                if not isinstance(data, bytes):
+                    data = data.encode('utf-8')
+                for mime_type, rq in requests:
+                    self.send_reply(rq, mime_type, data)
+                remove.append(name)
+        for name in remove:
+            del self.requests[name]
+
+        if self.requests:
             return QTimer.singleShot(10, self.check_for_parse)
-        self.__data = data
-        self.setHeader(QNetworkRequest.ContentTypeHeader, 'application/xhtml+xml; charset=utf-8')
-        self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
-        self.finalize_reply()
 
-    def bytesAvailable(self):
-        try:
-            return len(self.__data)
-        except AttributeError:
-            return 0
-
-    def isSequential(self):
-        return True
-
-    def abort(self):
-        self._aborted = True
-
-    def readData(self, maxlen):
-        ans, self.__data = self.__data[:maxlen], self.__data[maxlen:]
-        return ans
-    read = readData
-
-    def finalize_reply(self):
-        if self._aborted:
-            return
-        self.setFinished(True)
-        self.setAttribute(QNetworkRequest.HttpStatusCodeAttribute, 200)
-        self.setAttribute(QNetworkRequest.HttpReasonPhraseAttribute, "Ok")
-        self.metaDataChanged.emit()
-        self.downloadProgress.emit(len(self.__data), len(self.__data))
-        self.readyRead.emit()
-        self.finished.emit()
-
-
-class NetworkAccessManager(QNetworkAccessManager):
-
-    def createRequest(self, operation, request, data):
-        qurl = request.url()
-        if operation == self.GetOperation and qurl.host() == FAKE_HOST:
-            name = qurl.path()[1:]
-            c = current_container()
-            if c.has_name(name):
-                try:
-                    return NetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'), name)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-        return QNetworkAccessManager.createRequest(self, operation, request, data)
 
 # }}}
 
@@ -284,8 +282,8 @@ def create_profile():
         js += P('csscolorparser.js', data=True, allow_user_override=False)
         js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=False)
         insert_scripts(ans, create_script('editor-preview.js', js))
-        # ans.url_handler = UrlSchemeHandler(ans)
-        # ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), ans.url_handler)
+        url_handler = UrlSchemeHandler(ans)
+        ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
         s.setAttribute(s.FullScreenSupportEnabled, False)
@@ -302,9 +300,8 @@ class WebPage(QWebEnginePage):
     def __init__(self, parent):
         QWebEnginePage.__init__(self, create_profile(), parent)
         secure_webengine(self, for_viewer=True)
-        data = 'data:text/css;charset=utf-8;base64,'
-        css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-        data += as_base64_unicode(css)
+        # TOD: Implement this
+        # css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         prints('%s:%s: %s' % (source_id, linenumber, msg))
@@ -312,7 +309,7 @@ class WebPage(QWebEnginePage):
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
         if req_type == self.NavigationTypeReload:
             return True
-        if url.scheme() == FAKE_PROTOCOL:
+        if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
         open_url(url)
         return False
