@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # live css
 # check that clicking on both internal and external links works
 
-import json
 import textwrap
 import time
 from collections import defaultdict
@@ -35,7 +34,7 @@ from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tp
 from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
-from polyglot.builtins import native_string_type, unicode_type
+from polyglot.builtins import unicode_type
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
 
@@ -293,10 +292,11 @@ class Bridge(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
 
-    @pyqtSlot(native_string_type, native_string_type, native_string_type)
+    @pyqtSlot('QString', 'QString', 'QJsonArray')
     def request_sync(self, tag_name, href, sourceline_address):
+        address = [sourceline_address[0].toInt(), [x.toString() for x in sourceline_address[1].toArray()]]
         try:
-            self.sync_requested.emit(unicode_type(tag_name), unicode_type(href), json.loads(unicode_type(sourceline_address)))
+            self.sync_requested.emit(tag_name, href, address)
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 

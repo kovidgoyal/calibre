@@ -142,7 +142,7 @@ INHERITED_PROPS = {  # {{{
 
 
 def get_sourceline_address(node):
-    sourceline = parseInt(node.getAttribute('data-lnum'))
+    sourceline = parseInt(node.dataset.lnum)
     tags = v'[]'
     for elem in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
         tags.push(elem.tagName.toLowerCase())
@@ -340,7 +340,7 @@ class PreviewIntegration:
                 tn = e.tagName.toLowerCase() if e.tagName else ''
                 href = e.getAttribute('href')
                 e = e.parentNode
-            self.bridge.request_sync(tn, href, JSON.stringify(address))
+            self.bridge.request_sync(tn, href, address)
         return False
 
     def go_to_anchor(self, anchor):
