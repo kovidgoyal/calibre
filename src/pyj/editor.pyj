@@ -3,6 +3,8 @@
 # globals: CSSRule
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+
 def is_hidden(elem):
     while elem:
         if (elem.style and (elem.style.visibility is 'hidden' or elem.style.display is 'none')):
@@ -18,7 +20,8 @@ def is_block(elem):
 
 def in_table(elem):
     while elem:
-        if elem.tagName?.toLowerCase() is 'table':
+        tn = elem.tagName.toLowerCase() if elem.tagName else ''
+        if tn is 'table':
             return True
         elem = elem.parentNode
     return False
@@ -162,8 +165,12 @@ def get_style_properties(style, all_properties, node_style, is_ancestor):
     i = 0
     properties = v'[]'
     while i < style.length:
-        property = style.item(i)?.toLowerCase()
-        val = style.getPropertyValue(property)
+        property = style.item(i)
+        if property:
+            property = property.toLowerCase()
+            val = style.getPropertyValue(property)
+        else:
+            val = None
         if property and val and (not is_ancestor or INHERITED_PROPS[property]):
             properties.push(v'[property, val, style.getPropertyPriority(property), get_color(property, val)]')
             if not all_properties.hasOwnProperty(property):
@@ -248,7 +255,11 @@ class PreviewIntegration:
         self.in_split_mode = False
         if window is window.top:
             setTimeout(self.connect_channel, 10)
-        window.document.body.addEventListener('click', self.onclick, True)
+        document.body.addEventListener('click', self.onclick, True)
+        document.body.appendChild(E.style(
+            type='text/css',
+            '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+        ))
 
     def go_to_line(self, lnum):
         for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
@@ -326,7 +337,7 @@ class PreviewIntegration:
             # Find the closest containing link, if any
             href = tn = ''
             while e and e != document.body and e != document and (tn is not 'a' or not href):
-                tn = e.tagName?.toLowerCase()
+                tn = e.tagName.toLowerCase() if e.tagName else ''
                 href = e.getAttribute('href')
                 e = e.parentNode
             self.bridge.request_sync(tn, href, JSON.stringify(address))
@@ -345,7 +356,8 @@ class PreviewIntegration:
         target = None
         i = 0
         for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
-            if node.tagName?.toLowerCase() is not tags[i]:
+            tn = node.tagName.toLowerCase() if node.tagName else ''
+            if tn is not tags[i]:
                 return JSON.stringify(None)
             i += 1
             target = node
@@ -358,10 +370,11 @@ class PreviewIntegration:
             css = get_matched_css(target, is_ancestor, all_properties)
             # We want to show the Matched CSS rules header even if no rules matched
             if css.length > 0 or not is_ancestor:
+                tn = target.tagName.toLowerCase() if target.tagName else ''
                 ans.nodes.push({
-                    'name':target.tagName?.toLowerCase(),
-                    'css':css, 'is_ancestor':is_ancestor,
-                    'sourceline':target.getAttribute('data-lnum')
+                    'name': tn,
+                    'css': css, 'is_ancestor': is_ancestor,
+                    'sourceline': target.getAttribute('data-lnum')
                 })
             target = target.parentNode
             is_ancestor = True

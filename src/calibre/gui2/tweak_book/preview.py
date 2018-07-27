@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # live css
 # check that clicking on both internal and external links works
 # check all buttons in preview panel
-# pass user stylesheet with css for split
 
 import json
 import textwrap
@@ -321,8 +320,6 @@ class WebPage(QWebEnginePage):
         self.bridge = Bridge(self)
         self.setWebChannel(c, QWebEngineScript.ApplicationWorld)
         c.registerObject('bridge', self.bridge)
-        # TODO: Implement this
-        # css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         prints('%s:%s: %s' % (source_id, linenumber, msg))
