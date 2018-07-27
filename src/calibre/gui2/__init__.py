@@ -1361,12 +1361,13 @@ def secure_web_page(qwebpage_or_qwebsettings):
     return settings
 
 
-def secure_webengine(view_or_page_or_settings):
+def secure_webengine(view_or_page_or_settings, for_viewer=False):
     s = view_or_page_or_settings.settings() if hasattr(view_or_page_or_settings, 'settings') else view_or_page_or_settings
-    s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
     a = s.setAttribute
     a(s.PluginsEnabled, False)
-    a(s.JavascriptEnabled, False)
+    if not for_viewer:
+        a(s.JavascriptEnabled, False)
+        s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
     a(s.JavascriptCanOpenWindows, False)
     a(s.JavascriptCanAccessClipboard, False)
     a(s.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files

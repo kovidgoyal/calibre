@@ -472,6 +472,7 @@ class LiveCSS(QWidget):
             self.stack.setCurrentIndex(1)
 
     def read_data(self, sourceline, tags):
+        return None  # TODO: Implement this
         mf = self.preview.view.page().mainFrame()
         tags = [x.lower() for x in tags]
         result = unicode_type(mf.evaluateJavaScript(
