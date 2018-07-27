@@ -278,9 +278,17 @@ class RapydScript(Command):  # {{{
 
     description = 'Compile RapydScript to JavaScript'
 
+    def add_options(self, parser):
+        parser.add_option('--only-module', default=None,
+                help='Only compile the specified module')
+
     def run(self, opts):
-        from calibre.utils.rapydscript import compile_srv
-        compile_srv()
+        from calibre.utils.rapydscript import compile_srv, compile_editor
+        if opts.only_module:
+            locals()['compile_' + opts.only]()
+        else:
+            compile_editor()
+            compile_srv()
 # }}}
 
 

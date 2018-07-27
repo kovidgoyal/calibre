@@ -1,37 +1,34 @@
-#!/usr/bin/env coffee
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: CSSRule
+from __python__ import bound_methods, hash_literals
 
-###
- Copyright 2013, Kovid Goyal <kovid at kovidgoyal.net>
- Released under the GPLv3 License
-###
-
-
-if window?.calibre_utils
-    log = window.calibre_utils.log
-
-is_hidden = (elem) ->
-    while elem
-        if (elem.style && (elem.style.visibility == 'hidden' || elem.style.display == 'none'))
-            return true
+def is_hidden(elem):
+    while elem:
+        if (elem.style and (elem.style.visibility is 'hidden' or elem.style.display is 'none')):
+            return True
         elem = elem.parentNode
-    return false
+    return False
 
-is_block = (elem) ->
+
+def is_block(elem):
     style = window.getComputedStyle(elem)
-    return style.display in ['block', 'flex-box', 'box']
+    return style.display is 'block' or style.display is 'flex-box' or style.display is 'box'
 
-in_table = (elem) ->
-    while elem
-        if elem.tagName?.toLowerCase() == 'table'
-            return true
+
+def in_table(elem):
+    while elem:
+        if elem.tagName?.toLowerCase() is 'table':
+            return True
         elem = elem.parentNode
-    return false
+    return False
 
-find_containing_block = (elem) ->
-    while elem and elem.getAttribute('data-is-block') != '1'
+
+def find_containing_block(elem):
+    while elem and elem.getAttribute('data-is-block') != '1':
         elem = elem.parentNode
     return elem
+
 
 INHERITED_PROPS = {  # {{{
 		'azimuth':						'2',
@@ -140,158 +137,166 @@ INHERITED_PROPS = {  # {{{
 		'-ms-word-wrap':				'e'
 }  # }}}
 
-get_sourceline_address = (node) ->
-    sourceline = parseInt(node.getAttribute('data-lnum'))
-    tags = []
-    for elem in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
-        tags.push(elem.tagName.toLowerCase())
-        if elem is node
-            break
-    return [sourceline, tags]
 
-get_color = (property, val) ->
-    color = null
-    if property.indexOf('color') > -1
-        try
-            color = parseCSSColor(val)  # Use the csscolor library to get an rgba 4-tuple
-        catch error
-            color = null
+def get_sourceline_address(node):
+    sourceline = parseInt(node.getAttribute('data-lnum'))
+    tags = v'[]'
+    for elem in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
+        tags.push(elem.tagName.toLowerCase())
+        if elem is node:
+            break
+    return v'[sourceline, tags]'
+
+
+def get_color(property, val):
+    color = None
+    if property.indexOf('color') > -1:
+        try:
+            color = window.parseCSSColor(val)  # Use the csscolor library to get an rgba 4-tuple
+        except:
+            color = None
     return color
 
-get_style_properties = (style, all_properties, node_style, is_ancestor) ->
+
+def get_style_properties(style, all_properties, node_style, is_ancestor):
     i = 0
-    properties = []
-    while i < style.length
+    properties = v'[]'
+    while i < style.length:
         property = style.item(i)?.toLowerCase()
         val = style.getPropertyValue(property)
-        if property and val and (not is_ancestor or INHERITED_PROPS.hasOwnProperty(property))
-            properties.push([property, val, style.getPropertyPriority(property), get_color(property, val)])
-            if not all_properties.hasOwnProperty(property)
-                cval = node_style.getPropertyValue(property)
-                all_properties[property] = [cval, get_color(property, cval)]
+        if property and val and (not is_ancestor or INHERITED_PROPS[property]):
+            properties.push(v'[property, val, style.getPropertyPriority(property), get_color(property, val)]')
+            if not all_properties.hasOwnProperty(property):
+                all_properties[property] = v'[node_style.getPropertyValue(property), get_color(property, cval)]'
         i += 1
     return properties
 
-process_rules = (node, cssRules, address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans) ->
-    for rule, rule_index in cssRules
+
+def process_rules(node, cssRules, address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans):
+    for rule_index in range(cssRules.length):
+        rule = cssRules[rule_index]
         rule_address = address.concat([rule_index])
-        if rule.type == CSSRule.MEDIA_RULE
+        if rule.type is CSSRule.MEDIA_RULE:
             process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
             continue
-        if rule.type != CSSRule.STYLE_RULE
+        if rule.type is not CSSRule.STYLE_RULE:
             continue
         # As a performance improvement, instead of running the match on every
         # rule, we simply check if its selector is one of the matching
         # selectors returned by getMatchedCSSRules. However,
         # getMatchedCSSRules ignores rules in media queries that dont apply, so we check them manually
         st = rule.selectorText
-        if st and (matching_selectors.hasOwnProperty(st) or (rule_address.length > 1 and node.webkitMatchesSelector(st)))
+        if st and (matching_selectors.hasOwnProperty(st) or (rule_address.length > 1 and node.matches(st))):
             type = 'sheet'
             href = sheet.href
-            if href == null
+            if href is None:
                 href = get_sourceline_address(sheet.ownerNode)
                 type = 'elem'
             parts = st.split(',')  # We only want the first matching selector
-            if parts.length > 1
-                for q in parts
-                    if node.webkitMatchesSelector(q)
+            if parts.length > 1:
+                for q in parts:
+                    if node.matches(q):
                         st = q
                         break
             properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
-            if properties.length > 0
+            if properties.length > 0:
                 data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'rule_address':rule_address, 'sheet_index':sheet_index}
                 ans.push(data)
 
-get_matched_css = (node, is_ancestor, all_properties) ->
+def get_matched_css(node, is_ancestor, all_properties):
     # WebKit sets parentStyleSheet == null for rules returned by getMatchedCSSRules so we cannot use them directly
     rules = node.ownerDocument.defaultView.getMatchedCSSRules(node, '')
-    if not rules
-        rules = []
+    if not rules:
+        rules = v'[]'
     matching_selectors = {}
-    for rule in rules
-        matching_selectors[rule.selectorText] = true
-    ans = []
+    for rule in rules:
+        matching_selectors[rule.selectorText] = True
+    ans = v'[]'
     node_style = window.getComputedStyle(node)
 
-    for sheet, sheet_index in document.styleSheets
-        if sheet.disabled or not sheet.cssRules
+    sheets = document.styleSheets
+    for sheet_index in range(sheets.length):
+        sheet = sheets[sheet_index]
+        if sheet.disabled or not sheet.cssRules:
             continue
         process_rules(node, sheet.cssRules, [], sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
 
-    if node.getAttribute('style')
+    if node.getAttribute('style'):
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
-        if properties.length > 0
-            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'rule_address':null, 'sheet_index':null}
+        if properties.length > 0:
+            data = {'selector':None, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'rule_address':None, 'sheet_index':None}
             ans.push(data)
 
     return ans.reverse()
 
-scroll_to_node = (node) ->
-    if node is document.body
+def scroll_to_node(node):
+    if node is document.body:
         window.scrollTo(0, 0)
-    else
+    else:
         node.scrollIntoView()
 
-class PreviewIntegration
+
+class PreviewIntegration:
 
     ###
     # Namespace to expose all the functions used for integration with the Tweak
     # Book Preview Panel.
     ###
 
-    constructor: () ->
-        if not this instanceof arguments.callee
-            throw new Error('PreviewIntegration constructor called as function')
-        this.blocks_found = false
-        this.in_split_mode = false
+    def __init__(self):
+        self.blocks_found = False
+        self.in_split_mode = False
 
-    go_to_line: (lnum) =>
-        for node in document.querySelectorAll('[data-lnum="' + lnum + '"]')
-            if is_hidden(node)
+    def go_to_line(self, lnum):
+        for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
+            if is_hidden(node):
                 continue
             scroll_to_node(node)
+            break
 
-    go_to_sourceline_address: (sourceline, tags) =>
-        for node, index in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
-            if index >= tags.length or node.tagName.toLowerCase() != tags[index]
+    def go_to_sourceline_address(self, sourceline, tags):
+        nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
+        for index in range(nodes.length):
+            node = nodes[index]
+            if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
                 break
-            if index == tags.length - 1 and not is_hidden(node)
+            if index == tags.length - 1 and not is_hidden(node):
                 return scroll_to_node(node)
-        this.go_to_line(sourceline)
+        self.go_to_line(sourceline)
 
-    line_numbers: () =>
-        found_body = false
-        ans = []
-        for node in document.getElementsByTagName('*')
-            if not found_body and node.tagName.toLowerCase() == "body"
-                found_body = true
-            if found_body
-                ans.push(node.getAttribute("data-lnum"))
+    def line_numbers(self):
+        found_body = False
+        ans = v'[]'
+        for node in document.getElementsByTagName('*'):
+            if not found_body and node.tagName.toLowerCase() is "body":
+                found_body = True
+            if found_body:
+                ans.push(node.dataset.lnum)
         return ans
 
-    find_blocks: () =>
-        if this.blocks_found
+    def find_blocks(self):
+        if self.blocks_found:
             return
-        for elem in document.body.getElementsByTagName('*')
-            if is_block(elem) and not in_table(elem)
+        for elem in document.body.getElementsByTagName('*'):
+            if is_block(elem) and not in_table(elem):
                 elem.setAttribute('data-is-block', '1')
-        this.blocks_found = true
+        self.blocks_found = True
 
-    split_mode: (enabled) =>
-        this.in_split_mode = enabled
-        document.body.setAttribute('data-in-split-mode', if enabled then '1' else '0')
-        if enabled
-            this.find_blocks()
+    def split_mode(self, enabled):
+        self.in_split_mode = enabled
+        document.body.setAttribute('data-in-split-mode', '1' if enabled else '0')
+        if enabled:
+            self.find_blocks()
 
-    report_split: (node) =>
-        loc = []
-        totals = []
+    def report_split(self, node):
+        loc = v'[]'
+        totals = v'[]'
         parent = find_containing_block(node)
-        while parent and parent.tagName.toLowerCase() != 'body'
+        while parent and parent.tagName.toLowerCase() is not 'body':
             totals.push(parent.parentNode.children.length)
             num = 0
             sibling = parent.previousElementSibling
-            while sibling
+            while sibling:
                 num += 1
                 sibling = sibling.previousElementSibling
             loc.push(num)
@@ -300,57 +305,60 @@ class PreviewIntegration
         totals.reverse()
         window.py_bridge.request_split(JSON.stringify(loc), JSON.stringify(totals))
 
-    onload: () =>
-        window.document.body.addEventListener('click', this.onclick, true)
+    def onload(self):
+        window.document.body.addEventListener('click', this.onclick, True)
 
-    onclick: (event) =>
+    def onclick(self, event):
         event.preventDefault()
-        if this.in_split_mode
-            this.report_split(event.target)
-        else
+        if self.in_split_mode:
+            self.report_split(event.target)
+        else:
             e = event.target
             address = get_sourceline_address(e)
             # Find the closest containing link, if any
             href = tn = ''
-            while e and e != document.body and e != document and (tn != 'a' or not href)
+            while e and e != document.body and e != document and (tn is not 'a' or not href):
                 tn = e.tagName?.toLowerCase()
                 href = e.getAttribute('href')
                 e = e.parentNode
             window.py_bridge.request_sync(tn, href, JSON.stringify(address))
-        return false
+        return False
 
-    go_to_anchor: (anchor, lnum) =>
+    def go_to_anchor(self, anchor, lnum):
         elem = document.getElementById(anchor)
-        if not elem
-            elem = document.querySelector('[name="' + anchor + '"]')
-        if elem
+        if not elem:
+            elem = document.querySelector(f'[name="{anchor}"]')
+        if elem:
             elem.scrollIntoView()
             address = get_sourceline_address(elem)
         window.py_bridge.request_sync('', '', address)
 
-    live_css: (sourceline, tags) =>
-        target = null
+    def live_css(self, sourceline, tags):
+        target = None
         i = 0
-        for node in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
-            if node.tagName?.toLowerCase() != tags[i]
-                return JSON.stringify(null)
+        for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
+            if node.tagName?.toLowerCase() is not tags[i]:
+                return JSON.stringify(None)
             i += 1
             target = node
-            if i >= tags.length
+            if i >= tags.length:
                 break
         all_properties = {}
-        original_target = target
-        ans = {'nodes':[], 'computed_css':all_properties}
-        is_ancestor = false
-        while target and target.ownerDocument
+        ans = {'nodes':v'[]', 'computed_css':all_properties}
+        is_ancestor = False
+        while target and target.ownerDocument:
             css = get_matched_css(target, is_ancestor, all_properties)
             # We want to show the Matched CSS rules header even if no rules matched
-            if css.length > 0 or not is_ancestor
-                ans['nodes'].push({'name':target.tagName?.toLowerCase(), 'css':css, 'is_ancestor':is_ancestor, 'sourceline':target.getAttribute('data-lnum')})
+            if css.length > 0 or not is_ancestor:
+                ans.nodes.push({
+                    'name':target.tagName?.toLowerCase(),
+                    'css':css, 'is_ancestor':is_ancestor,
+                    'sourceline':target.getAttribute('data-lnum')
+                })
             target = target.parentNode
-            is_ancestor = true
+            is_ancestor = True
         return JSON.stringify(ans)
 
 
-window.calibre_preview_integration = new PreviewIntegration()
+window.calibre_preview_integration = PreviewIntegration()
 window.onload = window.calibre_preview_integration.onload

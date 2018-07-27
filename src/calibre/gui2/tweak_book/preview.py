@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # check if you can remove the restriction that prevents inspector dock from being undocked
 # check syncing of position back and forth
 # check all buttons in preview panel
-# rewrite JS from coffeescript to rapydscript
 # pass user stylesheet with css for split
 
 import json
@@ -30,7 +29,9 @@ from PyQt5.QtWebEngineWidgets import (
 )
 
 from calibre import prints
-from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__
+from calibre.constants import (
+    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
+)
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url, secure_webengine
@@ -276,11 +277,12 @@ def create_profile():
         ans = QWebEngineProfile(QApplication.instance())
         ua = 'calibre-editor-preview ' + __version__
         ans.setHttpUserAgent(ua)
-        from calibre.utils.resources import compiled_coffeescript
-        js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=False)
+        if is_running_from_develop:
+            from calibre.utils.rapydscript import compile_editor
+            compile_editor()
+        js = P('editor.js', data=True, allow_user_override=False)
         js += P('csscolorparser.js', data=True, allow_user_override=False)
-        js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=False)
-        insert_scripts(ans, create_script('editor-preview.js', js))
+        insert_scripts(ans, create_script('editor.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()

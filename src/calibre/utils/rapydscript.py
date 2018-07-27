@@ -98,7 +98,7 @@ def module_cache_dir():
     return _cache_dir
 
 
-def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
+def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False, js_version=5):
     if isinstance(data, bytes):
         data = data.decode('utf-8')
     c = compiler()
@@ -109,6 +109,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         'libdir': libdir or default_lib_dir(),
         'basedir': getcwd() if not filename or filename == '<stdin>' else os.path.dirname(filename),
         'filename': filename,
+        'js_version': js_version,
     }
     c.g.rs_source_code = data
     ok, result = c.eval(
@@ -156,12 +157,12 @@ def detect_external_compiler():
     return False
 
 
-def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=None, omit_baselib=False):
+def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=None, omit_baselib=False, js_version=None):
     global has_external_compiler
     if has_external_compiler is None:
         has_external_compiler = detect_external_compiler()
     if not has_external_compiler:
-        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib)
+        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6)
     args = ['--cache-dir', module_cache_dir(), '--import-path', libdir or default_lib_dir()]
     if not beautify:
         args.append('--uglify')
@@ -169,6 +170,8 @@ def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=
         args.append('--bare')
     if omit_baselib:
         args.append('--omit-baselib')
+    if js_version:
+        args.append('--js-version=' + str(js_version))
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     if filename:
@@ -199,6 +202,24 @@ def base_dir():
     return d(d(d(d(os.path.abspath(__file__)))))
 
 
+def atomic_write(base, name, content):
+    name = os.path.join(base, name)
+    tname = name + '.tmp'
+    with lopen(tname, 'wb') as f:
+        f.write(content)
+    atomic_rename(tname, name)
+
+
+def compile_editor():
+    base = base_dir()
+    rapydscript_dir = os.path.join(base, 'src', 'pyj')
+    fname = os.path.join(rapydscript_dir, 'editor.pyj')
+    with lopen(fname, 'rb') as f:
+        js = compile_fast(f.read(), fname, js_version=6)
+    base = os.path.join(base, 'resources')
+    atomic_write(base, 'editor.js', js)
+
+
 def compile_srv():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
@@ -223,16 +244,8 @@ def compile_srv():
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     manifest = create_manifest(html)
-
-    def atomic_write(name, content):
-        name = os.path.join(base, name)
-        tname = name + '.tmp'
-        with lopen(tname, 'wb') as f:
-            f.write(content)
-        atomic_rename(tname, name)
-
-    atomic_write('index-generated.html', html)
-    atomic_write('calibre.appcache', manifest)
+    atomic_write(base, 'index-generated.html', html)
+    atomic_write(base, 'calibre.appcache', manifest)
 
 # }}}
 
