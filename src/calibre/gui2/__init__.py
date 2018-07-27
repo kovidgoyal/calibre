@@ -1361,6 +1361,19 @@ def secure_web_page(qwebpage_or_qwebsettings):
     return settings
 
 
+def secure_webengine(view_or_page_or_settings):
+    s = view_or_page_or_settings.settings() if hasattr(view_or_page_or_settings, 'settings') else view_or_page_or_settings
+    s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
+    a = s.setAttribute
+    a(s.PluginsEnabled, False)
+    a(s.JavascriptEnabled, False)
+    a(s.JavascriptCanOpenWindows, False)
+    a(s.JavascriptCanAccessClipboard, False)
+    a(s.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
+    a(s.AllowWindowActivationFromJavaScript, False)
+    return s
+
+
 empty_model = QStringListModel([''])
 empty_index = empty_model.index(0)
 

@@ -20,14 +20,15 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QWebView)
+    QFontDatabase, QComboBox, QUrl)
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_web_page
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_webengine
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -576,7 +577,7 @@ class LinksModel(FileCollection):
                 pass
 
 
-class WebView(QWebView):
+class WebView(QWebEngineView):
 
     def sizeHint(self):
         return QSize(600, 200)
@@ -603,7 +604,7 @@ class LinksWidget(QWidget):
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
         self.view = WebView(self)
-        secure_web_page(self.view.page())
+        secure_webengine(self.view)
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.view.setContextMenuPolicy(Qt.NoContextMenu)
         s.addWidget(self.view)
