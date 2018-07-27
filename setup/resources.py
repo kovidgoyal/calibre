@@ -285,7 +285,7 @@ class RapydScript(Command):  # {{{
     def run(self, opts):
         from calibre.utils.rapydscript import compile_srv, compile_editor
         if opts.only_module:
-            locals()['compile_' + opts.only]()
+            locals()['compile_' + opts.only_module]()
         else:
             compile_editor()
             compile_srv()

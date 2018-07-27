@@ -246,6 +246,9 @@ class PreviewIntegration:
     def __init__(self):
         self.blocks_found = False
         self.in_split_mode = False
+        if window is window.top:
+            setTimeout(self.connect_channel, 10)
+        window.document.body.addEventListener('click', self.onclick, True)
 
     def go_to_line(self, lnum):
         for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
@@ -282,7 +285,7 @@ class PreviewIntegration:
                 elem.setAttribute('data-is-block', '1')
         self.blocks_found = True
 
-    def split_mode(self, enabled):
+    def set_split_mode(self, enabled):
         self.in_split_mode = enabled
         document.body.setAttribute('data-in-split-mode', '1' if enabled else '0')
         if enabled:
@@ -303,10 +306,15 @@ class PreviewIntegration:
             parent = parent.parentNode
         loc.reverse()
         totals.reverse()
-        window.py_bridge.request_split(JSON.stringify(loc), JSON.stringify(totals))
+        self.bridge.request_split(JSON.stringify(loc), JSON.stringify(totals))
 
-    def onload(self):
-        window.document.body.addEventListener('click', this.onclick, True)
+    def connect_channel(self):
+        self.qwebchannel = new window.QWebChannel(window.qt.webChannelTransport, def(channel):
+            self.bridge = channel.objects.bridge
+            self.bridge.go_to_sourceline_address.connect(self.go_to_sourceline_address)
+            self.bridge.go_to_anchor.connect(self.go_to_anchor)
+            self.bridge.set_split_mode.connect(self.set_split_mode)
+        )
 
     def onclick(self, event):
         event.preventDefault()
@@ -321,17 +329,17 @@ class PreviewIntegration:
                 tn = e.tagName?.toLowerCase()
                 href = e.getAttribute('href')
                 e = e.parentNode
-            window.py_bridge.request_sync(tn, href, JSON.stringify(address))
+            self.bridge.request_sync(tn, href, JSON.stringify(address))
         return False
 
-    def go_to_anchor(self, anchor, lnum):
+    def go_to_anchor(self, anchor):
         elem = document.getElementById(anchor)
         if not elem:
             elem = document.querySelector(f'[name="{anchor}"]')
         if elem:
             elem.scrollIntoView()
             address = get_sourceline_address(elem)
-        window.py_bridge.request_sync('', '', address)
+            self.bridge.request_sync('', '', address)
 
     def live_css(self, sourceline, tags):
         target = None
@@ -360,5 +368,4 @@ class PreviewIntegration:
         return JSON.stringify(ans)
 
 
-window.calibre_preview_integration = PreviewIntegration()
-window.onload = window.calibre_preview_integration.onload
+calibre_preview_integration = PreviewIntegration()
