@@ -28,7 +28,7 @@ def in_table(elem):
 
 
 def find_containing_block(elem):
-    while elem and elem.getAttribute('data-is-block') != '1':
+    while elem and elem.dataset.isBlock is not '1':
         elem = elem.parentNode
     return elem
 
@@ -256,7 +256,7 @@ class PreviewIntegration:
         if window is window.top:
             setTimeout(self.connect_channel, 10)
         document.body.addEventListener('click', self.onclick, True)
-        document.body.appendChild(E.style(
+        document.head.appendChild(E.style(
             type='text/css',
             '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
         ))
@@ -298,7 +298,7 @@ class PreviewIntegration:
 
     def set_split_mode(self, enabled):
         self.in_split_mode = enabled
-        document.body.setAttribute('data-in-split-mode', '1' if enabled else '0')
+        document.body.dataset.inSplitMode = '1' if enabled else '0'
         if enabled:
             self.find_blocks()
 
@@ -317,7 +317,7 @@ class PreviewIntegration:
             parent = parent.parentNode
         loc.reverse()
         totals.reverse()
-        self.bridge.request_split(JSON.stringify(loc), JSON.stringify(totals))
+        self.bridge.request_split(loc, totals)
 
     def connect_channel(self):
         self.qwebchannel = new window.QWebChannel(window.qt.webChannelTransport, def(channel):

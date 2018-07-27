@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # TODO:
 # live css
 # check that clicking on both internal and external links works
-# check all buttons in preview panel
 
 import json
 import textwrap
@@ -301,10 +300,10 @@ class Bridge(QObject):
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 
-    @pyqtSlot(native_string_type, native_string_type)
+    @pyqtSlot('QJsonArray', 'QJsonArray')
     def request_split(self, loc, totals):
         actions['split-in-preview'].setChecked(False)
-        loc, totals = json.loads(unicode_type(loc)), json.loads(unicode_type(totals))
+        loc, totals = [x.toInt() for x in loc], [x.toInt() for x in totals]
         if not loc or not totals:
             return error_dialog(self.view(), _('Invalid location'),
                                 _('Cannot split on the body tag'), show=True)
