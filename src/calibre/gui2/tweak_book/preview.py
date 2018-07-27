@@ -180,7 +180,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             rq.fail(rq.RequestDenied)
             return
         url = rq.requestUrl()
-        if url.host() != FAKE_HOST:
+        if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
             rq.fail(rq.UrlNotFound)
             return
         name = url.path()[1:]
