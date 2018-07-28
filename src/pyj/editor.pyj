@@ -256,7 +256,7 @@ class PreviewIntegration:
         if window is window.top:
             setTimeout(self.connect_channel, 10)
         document.body.addEventListener('click', self.onclick, True)
-        document.head.appendChild(E.style(
+        document.documentElement.appendChild(E.style(
             type='text/css',
             '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
         ))
