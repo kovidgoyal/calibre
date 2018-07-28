@@ -1260,7 +1260,9 @@ class Boss(QObject):
                     _('Editing files of type %s is not supported' % mt), show=True)
             editor = self.edit_file(name, syntax)
         if anchor and editor is not None:
-            if not editor.go_to_anchor(anchor) and show_anchor_not_found:
+            if editor.go_to_anchor(anchor):
+                self.gui.preview.go_to_anchor(anchor)
+            elif show_anchor_not_found:
                 error_dialog(self.gui, _('Not found'), _(
                     'The anchor %s was not found in this file') % anchor, show=True)
 

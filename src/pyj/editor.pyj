@@ -336,7 +336,7 @@ class PreviewIntegration:
             address = get_sourceline_address(e)
             # Find the closest containing link, if any
             href = tn = ''
-            while e and e != document.body and e != document and (tn is not 'a' or not href):
+            while e and e is not document.body and e is not document and e is not document.documentElement and (tn is not 'a' or not href):
                 tn = e.tagName.toLowerCase() if e.tagName else ''
                 href = e.getAttribute('href')
                 e = e.parentNode
