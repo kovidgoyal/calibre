@@ -14,8 +14,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QIcon, QMenu, QSize, QTimer,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QBuffer, QByteArray, QIcon, QMenu, QSize, QTimer, QToolBar, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -30,7 +30,10 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
-from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine, Bridge, from_js, to_js
+from calibre.gui2.webengine import (
+    Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
+    secure_webengine, to_js
+)
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.builtins import unicode_type
@@ -325,10 +328,10 @@ class WebPage(QWebEnginePage):
             self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
-class WebView(QWebEngineView):
+class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
-        QWebEngineView.__init__(self, parent)
+        RestartingWebEngineView.__init__(self, parent)
         self.inspector = QWebEngineView(self)
         w = QApplication.instance().desktop().availableGeometry(self).width()
         self._size_hint = QSize(int(w/3), int(w/2))
@@ -337,12 +340,13 @@ class WebView(QWebEngineView):
         self.setPage(self._page)
         self.clear()
         self.setAcceptDrops(False)
-        self.renderProcessTerminated.connect(self.render_process_terminated)
+        self.render_process_failed.connect(self.render_process_died)
 
-    def render_process_terminated(self):
+    def render_process_died(self):
         error_dialog(self, _('Render process crashed'), _(
-            'The Qt WebEngine Render process has crashed so Preview/Live css'
-            ' will not work. You should try restarting the editor.'), show=True)
+            'The Qt WebEngine Render process has crashed so Preview/Live css will not work.'
+            ' You should try restarting the editor.')
+, show=True)
 
     def sizeHint(self):
         return self._size_hint
@@ -393,6 +397,7 @@ class Preview(QWidget):
     link_clicked = pyqtSignal(object, object)
     refresh_starting = pyqtSignal()
     refreshed = pyqtSignal()
+    render_process_restarted = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -403,6 +408,7 @@ class Preview(QWidget):
         self.view._page.bridge.request_sync.connect(self.request_sync)
         self.view._page.bridge.request_split.connect(self.request_split)
         self.view._page.loadFinished.connect(self.load_finished)
+        self.view.render_process_restarted.connect(self.render_process_restarted)
         self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
         l.addWidget(self.view)

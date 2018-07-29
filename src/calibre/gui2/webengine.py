@@ -6,10 +6,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 
-from PyQt5.Qt import QObject, pyqtSignal
+from PyQt5.Qt import QObject, Qt, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineView
 
 from calibre import prints
+from calibre.utils.monotonic import monotonic
 from calibre.utils.rapydscript import special_title
 
 
@@ -123,6 +124,27 @@ class Bridge(QObject):
         except Exception:
             import traceback
             traceback.print_exc()
+
+
+class RestartingWebEngineView(QWebEngineView):
+
+    render_process_restarted = pyqtSignal()
+    render_process_failed = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWebEngineView.__init__(self, parent)
+        self._last_reload_at = None
+        self.renderProcessTerminated.connect(self.render_process_terminated)
+        self.render_process_restarted.connect(self.reload, type=Qt.QueuedConnection)
+
+    def render_process_terminated(self):
+        if self._last_reload_at is not None and monotonic() - self._last_reload_at < 2:
+            self.render_process_failed.emit()
+            print('The Qt WebEngine Render process crashed too often')
+        else:
+            self._last_reload_at = monotonic()
+            self.render_process_restarted.emit()
+            prints('The Qt WebEngine Render process crashed, restarting it')
 
 
 if __name__ == '__main__':

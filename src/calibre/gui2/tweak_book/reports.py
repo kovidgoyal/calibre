@@ -21,7 +21,6 @@ from PyQt5.Qt import (
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
     QFontDatabase, QComboBox, QUrl)
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
@@ -29,7 +28,7 @@ from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
 from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
-from calibre.gui2.webengine import secure_webengine
+from calibre.gui2.webengine import secure_webengine, RestartingWebEngineView
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -578,7 +577,7 @@ class LinksModel(FileCollection):
                 pass
 
 
-class WebView(QWebEngineView):
+class WebView(RestartingWebEngineView):
 
     def sizeHint(self):
         return QSize(600, 200)
@@ -604,11 +603,8 @@ class LinksWidget(QWidget):
         e.textChanged.connect(f.proxy.filter_text)
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
-        self.view = WebView(self)
-        secure_webengine(self.view)
+        self.view = None
         self.setContextMenuPolicy(Qt.NoContextMenu)
-        self.view.setContextMenuPolicy(Qt.NoContextMenu)
-        s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
         f.current_changed.connect(self.current_changed)
@@ -616,10 +612,16 @@ class LinksWidget(QWidget):
             s.restoreState(read_state('links-view-splitter'))
         except TypeError:
             pass
-        s.setCollapsible(0, False), s.setCollapsible(1, True)
+        s.setCollapsible(0, False)
         s.setStretchFactor(0, 10)
 
     def __call__(self, data):
+        if self.view is None:
+            self.view = WebView(self)
+            secure_webengine(self.view)
+            self.view.setContextMenuPolicy(Qt.NoContextMenu)
+            self.splitter.addWidget(self.view)
+            self.splitter.setCollapsible(1, True)
         self.ignore_current_change = True
         self.model(data)
         self.filter_edit.clear()
@@ -644,11 +646,13 @@ class LinksWidget(QWidget):
                 if link.anchor.id:
                     url.setFragment(link.anchor.id)
         if url is None:
-            self.view.setHtml('<p>' + _('No destination found for this link'))
+            if self.view:
+                self.view.setHtml('<p>' + _('No destination found for this link'))
             self.current_url = url
         elif url != self.current_url:
             self.current_url = url
-            self.view.setUrl(url)
+            if self.view:
+                self.view.setUrl(url)
 
     def double_clicked(self, index):
         link = index.data(Qt.UserRole)
