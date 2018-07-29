@@ -647,7 +647,8 @@ class Preview(QWidget):
                 self.stop_split()
 
     def request_live_css_data(self, editor_name, sourceline, tags):
-        self.view._page.bridge.live_css(editor_name, sourceline, tags)
+        if self.view._page.bridge.ready:
+            self.view._page.bridge.live_css(editor_name, sourceline, tags)
 
     def apply_settings(self):
         s = self.view.settings()
