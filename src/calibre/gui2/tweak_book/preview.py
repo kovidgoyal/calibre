@@ -403,6 +403,7 @@ class Preview(QWidget):
         self.view._page.bridge.request_sync.connect(self.request_sync)
         self.view._page.bridge.request_split.connect(self.request_split)
         self.view._page.loadFinished.connect(self.load_finished)
+        self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
         l.addWidget(self.view)
         self.bar = QToolBar(self)
@@ -603,6 +604,9 @@ class Preview(QWidget):
         actions['split-in-preview'].setChecked(False)
 
     def load_finished(self, ok):
+        if self.pending_go_to_anchor:
+            self.view._page.go_to_anchor(self.pending_go_to_anchor)
+            self.pending_go_to_anchor = None
         if actions['split-in-preview'].isChecked():
             if ok:
                 self.do_start_split()
