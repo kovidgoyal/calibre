@@ -14,8 +14,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QIcon, QMenu, QSize, QTimer, QToolBar, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QBuffer, QByteArray, QHBoxLayout, QIcon, QMenu, QSize, QTimer,
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -328,15 +328,37 @@ class WebPage(QWebEnginePage):
             self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
+class Inspector(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent=parent)
+        self.view_to_debug = parent
+        self.view = None
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        QTimer.singleShot(0, self.connect_to_dock)
+
+    def connect_to_dock(self):
+        ac = actions['inspector-dock']
+        ac.toggled.connect(self.visibility_changed)
+        if ac.isChecked():
+            self.visibility_changed(True)
+
+    def visibility_changed(self, visible):
+        if visible and self.view is None:
+            self.view = QWebEngineView(self.view_to_debug)
+            self.view_to_debug.page().setDevToolsPage(self.view.page())
+            self.layout.addWidget(self.view)
+
+
 class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         RestartingWebEngineView.__init__(self, parent)
-        self.inspector = QWebEngineView(self)
+        self.inspector = Inspector(self)
         w = QApplication.instance().desktop().availableGeometry(self).width()
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
-        self._page.setDevToolsPage(self.inspector.page())
         self.setPage(self._page)
         self.clear()
         self.setAcceptDrops(False)
