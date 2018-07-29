@@ -14,10 +14,9 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QFile, QIcon, QMenu, QObject, QSize, QTimer,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QApplication, QBuffer, QByteArray, QIcon, QMenu, QSize, QTimer,
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
@@ -31,7 +30,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
-from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
+from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine, Bridge, from_js, to_js
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.builtins import unicode_type
@@ -259,15 +258,8 @@ def create_profile():
             compile_editor()
         js = P('editor.js', data=True, allow_user_override=False)
         cparser = P('csscolorparser.js', data=True, allow_user_override=False)
-        qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
-        if not qwebchannel_js.open(QBuffer.ReadOnly):
-            raise RuntimeError(
-                    'Failed to load qwebchannel.js with error: %s' % qwebchannel_js.errorString())
-        qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8')
-        qwebchannel_js += 'window.QWebChannel = QWebChannel;'
 
         insert_scripts(ans,
-            create_script('qwebchannel.js', qwebchannel_js),
             create_script('csscolorparser.js', cparser),
             create_script('editor.js', js),
         )
@@ -281,33 +273,17 @@ def create_profile():
     return ans
 
 
-class Bridge(QObject):
+class PreviewBridge(Bridge):
 
-    sync_requested = pyqtSignal(object, object, object)
-    split_requested = pyqtSignal(object, object)
-    go_to_sourceline_address = pyqtSignal(int, 'QStringList')
-    go_to_anchor = pyqtSignal('QString')
-    set_split_mode = pyqtSignal(int)
+    request_sync = from_js(object, object, object)
+    request_split = from_js(object, object)
+
+    go_to_sourceline_address = to_js()
+    go_to_anchor = to_js()
+    set_split_mode = to_js()
 
     def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-
-    @pyqtSlot('QString', 'QString', 'QJsonArray')
-    def request_sync(self, tag_name, href, sourceline_address):
-        address = [sourceline_address[0].toInt(), [x.toString() for x in sourceline_address[1].toArray()]]
-        try:
-            self.sync_requested.emit(tag_name, href, address)
-        except (TypeError, ValueError, OverflowError, AttributeError):
-            pass
-
-    @pyqtSlot('QJsonArray', 'QJsonArray')
-    def request_split(self, loc, totals):
-        actions['split-in-preview'].setChecked(False)
-        loc, totals = [x.toInt() for x in loc], [x.toInt() for x in totals]
-        if not loc or not totals:
-            return error_dialog(self.view(), _('Invalid location'),
-                                _('Cannot split on the body tag'), show=True)
-        self.split_requested.emit(loc, totals)
+        Bridge.__init__(self, parent)
 
 
 class WebPage(QWebEnginePage):
@@ -315,10 +291,7 @@ class WebPage(QWebEnginePage):
     def __init__(self, parent):
         QWebEnginePage.__init__(self, create_profile(), parent)
         secure_webengine(self, for_viewer=True)
-        self.channel = c = QWebChannel(self)
-        self.bridge = Bridge(self)
-        self.setWebChannel(c, QWebEngineScript.ApplicationWorld)
-        c.registerObject('bridge', self.bridge)
+        self.bridge = PreviewBridge(self)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         prints('%s:%s: %s' % (source_id, linenumber, msg))
@@ -348,7 +321,8 @@ class WebPage(QWebEnginePage):
         self.bridge.go_to_sourceline_address.emit(lnum, tags)
 
     def split_mode(self, enabled):
-        self.bridge.set_split_mode.emit(1 if enabled else 0)
+        if self.bridge.ready:
+            self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
 class WebView(QWebEngineView):
@@ -426,8 +400,8 @@ class Preview(QWidget):
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.view = WebView(self)
-        self.view._page.bridge.sync_requested.connect(self.request_sync)
-        self.view._page.bridge.split_requested.connect(self.request_split)
+        self.view._page.bridge.request_sync.connect(self.request_sync)
+        self.view._page.bridge.request_split.connect(self.request_split)
         self.view._page.loadFinished.connect(self.load_finished)
         self.inspector = self.view.inspector
         l.addWidget(self.view)
@@ -510,6 +484,10 @@ class Preview(QWidget):
             self.sync_requested.emit(self.current_name, lnum)
 
     def request_split(self, loc, totals):
+        actions['split-in-preview'].setChecked(False)
+        if not loc or not totals:
+            return error_dialog(self, _('Invalid location'),
+                                _('Cannot split on the body tag'), show=True)
         if self.current_name:
             self.split_requested.emit(self.current_name, loc, totals)
 

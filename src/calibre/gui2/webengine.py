@@ -4,7 +4,13 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.QtWebEngineWidgets import QWebEngineScript
+import json
+
+from PyQt5.Qt import QObject, pyqtSignal
+from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineView
+
+from calibre import prints
+from calibre.utils.rapydscript import special_title
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):
@@ -40,3 +46,106 @@ def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_
     script.setInjectionPoint(injection_point)
     script.setRunsOnSubFrames(on_subframes)
     return script
+
+
+from_js = pyqtSignal
+
+
+class to_js(type('')):
+
+    def __call__(self, *a):
+        prints('WARNING: Calling {}() before the javascript bridge is ready'.format(self.name))
+    emit = __call__
+
+
+class to_js_bound(QObject):
+
+    def __init__(self, bridge, name):
+        QObject.__init__(self, bridge)
+        self.name = name
+
+    def __call__(self, *args):
+        self.parent().page.runJavaScript('if (window.python_comm) python_comm._from_python({}, {})'.format(
+            json.dumps(self.name), json.dumps(args)), QWebEngineScript.ApplicationWorld)
+    emit = __call__
+
+
+class Bridge(QObject):
+
+    def __init__(self, page):
+        QObject.__init__(self, page)
+        self._signals = json.dumps(tuple({k for k, v in self.__class__.__dict__.iteritems() if isinstance(v, pyqtSignal)}))
+        self._signals_registered = False
+        page.titleChanged.connect(self._title_changed)
+        for k, v in self.__class__.__dict__.iteritems():
+            if isinstance(v, to_js):
+                v.name = k
+
+    @property
+    def page(self):
+        return self.parent()
+
+    @property
+    def ready(self):
+        return self._signals_registered
+
+    def _title_changed(self, title):
+        if title.startswith(special_title):
+            self._poll_for_messages()
+
+    def _register_signals(self):
+        self._signals_registered = True
+        for k, v in self.__class__.__dict__.iteritems():
+            if isinstance(v, to_js):
+                setattr(self, k, to_js_bound(self, k))
+        self.page.runJavaScript('python_comm._register_signals(' + self._signals + ')', QWebEngineScript.ApplicationWorld)
+
+    def _poll_for_messages(self):
+        self.page.runJavaScript('python_comm._poll()', QWebEngineScript.ApplicationWorld, self._dispatch_messages)
+
+    def _dispatch_messages(self, messages):
+        try:
+            for msg in messages:
+                if isinstance(msg, dict):
+                    mt = msg.get('type')
+                    if mt == 'signal':
+                        signal = getattr(self, msg['name'], None)
+                        if signal is None:
+                            prints('WARNING: No js-to-python signal named: ' + msg['name'])
+                        else:
+                            args = msg['args']
+                            if args:
+                                signal.emit(*args)
+                            else:
+                                signal.emit()
+                    elif mt == 'qt-ready':
+                        self._register_signals()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.gui2.tweak_book.preview import WebPage
+    from PyQt5.Qt import QMainWindow
+    app = Application([])
+    view = QWebEngineView()
+    page = WebPage(view)
+    view.setPage(page)
+    w = QMainWindow()
+    w.setCentralWidget(view)
+
+    class Test(Bridge):
+        s1 = from_js(object)
+        j1 = to_js()
+    t = Test(view.page())
+    t.s1.connect(print)
+    w.show()
+    view.setHtml('''
+<p>hello</p>
+    ''')
+    app.exec_()
+    del t
+    del page
+    del app

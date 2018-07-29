@@ -26,6 +26,7 @@ from polyglot.builtins import itervalues, range, exec_path, raw_input, error_mes
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
+special_title = '__webengine_messages_pending__'
 
 
 def abspath(x):
@@ -215,7 +216,7 @@ def compile_editor():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'editor.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname, js_version=6)
+        js = compile_fast(f.read(), fname, js_version=6).replace('__SPECIAL_TITLE__', special_title, 1)
     base = os.path.join(base, 'resources')
     atomic_write(base, 'editor.js', js)
 

@@ -5,6 +5,9 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
+from qt import to_python, from_python
+
+
 def is_hidden(elem):
     while elem:
         if (elem.style and (elem.style.visibility is 'hidden' or elem.style.display is 'none')):
@@ -243,142 +246,126 @@ def scroll_to_node(node):
         node.scrollIntoView()
 
 
-class PreviewIntegration:
+state = {'blocks_found': False, 'in_split_mode': False}
 
-    ###
-    # Namespace to expose all the functions used for integration with the Tweak
-    # Book Preview Panel.
-    ###
 
-    def __init__(self):
-        self.blocks_found = False
-        self.in_split_mode = False
-        if window is window.top:
-            setTimeout(self.connect_channel, 10)
-        document.body.addEventListener('click', self.onclick, True)
-        document.documentElement.appendChild(E.style(
-            type='text/css',
-            '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-        ))
 
-    def go_to_line(self, lnum):
-        for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
-            if is_hidden(node):
-                continue
-            scroll_to_node(node)
+def go_to_line(lnum):
+    for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
+        if is_hidden(node):
+            continue
+        scroll_to_node(node)
+        break
+
+@from_python
+def go_to_sourceline_address(sourceline, tags):
+    nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
+    for index in range(nodes.length):
+        node = nodes[index]
+        if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
             break
+        if index == tags.length - 1 and not is_hidden(node):
+            return scroll_to_node(node)
+    go_to_line(sourceline)
 
-    def go_to_sourceline_address(self, sourceline, tags):
-        nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
-        for index in range(nodes.length):
-            node = nodes[index]
-            if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
-                break
-            if index == tags.length - 1 and not is_hidden(node):
-                return scroll_to_node(node)
-        self.go_to_line(sourceline)
+def line_numbers():
+    found_body = False
+    ans = v'[]'
+    for node in document.getElementsByTagName('*'):
+        if not found_body and node.tagName.toLowerCase() is "body":
+            found_body = True
+        if found_body:
+            ans.push(node.dataset.lnum)
+    return ans
 
-    def line_numbers(self):
-        found_body = False
-        ans = v'[]'
-        for node in document.getElementsByTagName('*'):
-            if not found_body and node.tagName.toLowerCase() is "body":
-                found_body = True
-            if found_body:
-                ans.push(node.dataset.lnum)
-        return ans
+def find_blocks():
+    if state.blocks_found:
+        return
+    for elem in document.body.getElementsByTagName('*'):
+        if is_block(elem) and not in_table(elem):
+            elem.setAttribute('data-is-block', '1')
+    state.blocks_found = True
 
-    def find_blocks(self):
-        if self.blocks_found:
-            return
-        for elem in document.body.getElementsByTagName('*'):
-            if is_block(elem) and not in_table(elem):
-                elem.setAttribute('data-is-block', '1')
-        self.blocks_found = True
+@from_python
+def set_split_mode(enabled):
+    state.in_split_mode = enabled
+    document.body.dataset.inSplitMode = '1' if enabled else '0'
+    if enabled:
+        find_blocks()
 
-    def set_split_mode(self, enabled):
-        self.in_split_mode = enabled
-        document.body.dataset.inSplitMode = '1' if enabled else '0'
-        if enabled:
-            self.find_blocks()
+def report_split(node):
+    loc = v'[]'
+    totals = v'[]'
+    parent = find_containing_block(node)
+    while parent and parent.tagName.toLowerCase() is not 'body':
+        totals.push(parent.parentNode.children.length)
+        num = 0
+        sibling = parent.previousElementSibling
+        while sibling:
+            num += 1
+            sibling = sibling.previousElementSibling
+        loc.push(num)
+        parent = parent.parentNode
+    loc.reverse()
+    totals.reverse()
+    to_python.request_split(loc, totals)
 
-    def report_split(self, node):
-        loc = v'[]'
-        totals = v'[]'
-        parent = find_containing_block(node)
-        while parent and parent.tagName.toLowerCase() is not 'body':
-            totals.push(parent.parentNode.children.length)
-            num = 0
-            sibling = parent.previousElementSibling
-            while sibling:
-                num += 1
-                sibling = sibling.previousElementSibling
-            loc.push(num)
-            parent = parent.parentNode
-        loc.reverse()
-        totals.reverse()
-        self.bridge.request_split(loc, totals)
+def onclick(event):
+    event.preventDefault()
+    if state.in_split_mode:
+        report_split(event.target)
+    else:
+        e = event.target
+        address = get_sourceline_address(e)
+        # Find the closest containing link, if any
+        href = tn = ''
+        while e and e is not document.body and e is not document and e is not document.documentElement and (tn is not 'a' or not href):
+            tn = e.tagName.toLowerCase() if e.tagName else ''
+            href = e.getAttribute('href')
+            e = e.parentNode
+        to_python.request_sync(tn, href, address)
+    return False
 
-    def connect_channel(self):
-        self.qwebchannel = new window.QWebChannel(window.qt.webChannelTransport, def(channel):
-            self.bridge = channel.objects.bridge
-            self.bridge.go_to_sourceline_address.connect(self.go_to_sourceline_address)
-            self.bridge.go_to_anchor.connect(self.go_to_anchor)
-            self.bridge.set_split_mode.connect(self.set_split_mode)
-        )
+@from_python
+def go_to_anchor(anchor):
+    elem = document.getElementById(anchor)
+    if not elem:
+        elem = document.querySelector(f'[name="{anchor}"]')
+    if elem:
+        elem.scrollIntoView()
+        address = get_sourceline_address(elem)
+        to_python.request_sync('', '', address)
 
-    def onclick(self, event):
-        event.preventDefault()
-        if self.in_split_mode:
-            self.report_split(event.target)
-        else:
-            e = event.target
-            address = get_sourceline_address(e)
-            # Find the closest containing link, if any
-            href = tn = ''
-            while e and e is not document.body and e is not document and e is not document.documentElement and (tn is not 'a' or not href):
-                tn = e.tagName.toLowerCase() if e.tagName else ''
-                href = e.getAttribute('href')
-                e = e.parentNode
-            self.bridge.request_sync(tn, href, address)
-        return False
+def live_css(sourceline, tags):
+    target = None
+    i = 0
+    for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
+        tn = node.tagName.toLowerCase() if node.tagName else ''
+        if tn is not tags[i]:
+            return JSON.stringify(None)
+        i += 1
+        target = node
+        if i >= tags.length:
+            break
+    all_properties = {}
+    ans = {'nodes':v'[]', 'computed_css':all_properties}
+    is_ancestor = False
+    while target and target.ownerDocument:
+        css = get_matched_css(target, is_ancestor, all_properties)
+        # We want to show the Matched CSS rules header even if no rules matched
+        if css.length > 0 or not is_ancestor:
+            tn = target.tagName.toLowerCase() if target.tagName else ''
+            ans.nodes.push({
+                'name': tn,
+                'css': css, 'is_ancestor': is_ancestor,
+                'sourceline': target.getAttribute('data-lnum')
+            })
+        target = target.parentNode
+        is_ancestor = True
+    return JSON.stringify(ans)
 
-    def go_to_anchor(self, anchor):
-        elem = document.getElementById(anchor)
-        if not elem:
-            elem = document.querySelector(f'[name="{anchor}"]')
-        if elem:
-            elem.scrollIntoView()
-            address = get_sourceline_address(elem)
-            self.bridge.request_sync('', '', address)
-
-    def live_css(self, sourceline, tags):
-        target = None
-        i = 0
-        for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
-            tn = node.tagName.toLowerCase() if node.tagName else ''
-            if tn is not tags[i]:
-                return JSON.stringify(None)
-            i += 1
-            target = node
-            if i >= tags.length:
-                break
-        all_properties = {}
-        ans = {'nodes':v'[]', 'computed_css':all_properties}
-        is_ancestor = False
-        while target and target.ownerDocument:
-            css = get_matched_css(target, is_ancestor, all_properties)
-            # We want to show the Matched CSS rules header even if no rules matched
-            if css.length > 0 or not is_ancestor:
-                tn = target.tagName.toLowerCase() if target.tagName else ''
-                ans.nodes.push({
-                    'name': tn,
-                    'css': css, 'is_ancestor': is_ancestor,
-                    'sourceline': target.getAttribute('data-lnum')
-                })
-            target = target.parentNode
-            is_ancestor = True
-        return JSON.stringify(ans)
-
-
-calibre_preview_integration = PreviewIntegration()
+document.body.addEventListener('click', onclick, True)
+document.documentElement.appendChild(E.style(
+    type='text/css',
+    '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+))
