@@ -21,6 +21,7 @@ resources/builtin_recipes.zip
 resources/template-functions.json
 resources/editor-functions.json
 resources/user-manual-translation-stats.json
+resources/editor.js
 resources/content-server/index-generated.html
 resources/content-server/calibre.appcache
 resources/content-server/locales.zip
