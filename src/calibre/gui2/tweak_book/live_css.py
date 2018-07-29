@@ -5,8 +5,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import json
-
 from PyQt5.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
@@ -382,6 +380,7 @@ class LiveCSS(QWidget):
     def __init__(self, preview, parent=None):
         QWidget.__init__(self, parent)
         self.preview = preview
+        preview.live_css_data.connect(self.got_live_css_data)
         self.preview_is_refreshing = False
         self.refresh_needed = False
         preview.refresh_starting.connect(self.preview_refresh_starting)
@@ -417,8 +416,6 @@ class LiveCSS(QWidget):
 
     def preview_refreshed(self):
         self.preview_is_refreshing = False
-        # We must let the event loop run otherwise the webview will return
-        # stale data in read_data()
         self.refresh_needed = True
         self.start_update_timer()
 
@@ -448,53 +445,46 @@ class LiveCSS(QWidget):
         if sourceline is None:
             self.clear()
         else:
+            self.preview.request_live_css_data(editor_name, sourceline, tags)
+
+    def got_live_css_data(self, result):
+        maximum_specificities = {}
+        for node in result['nodes']:
+            is_ancestor = node['is_ancestor']
+            for rule in node['css']:
+                self.process_rule(rule, is_ancestor, maximum_specificities)
+        for node in result['nodes']:
+            for rule in node['css']:
+                for prop in rule['properties']:
+                    if prop.specificity < maximum_specificities[prop.name]:
+                        prop.is_overriden = True
+        self.display_received_live_css_data(result)
+
+    def display_received_live_css_data(self, data):
+        editor_name = data['editor_name']
+        sourceline = data['sourceline']
+        tags = data['tags']
+        if data is None or len(data['computed_css']) < 1:
+            if editor_name == self.current_name and (editor_name, sourceline, tags) == self.now_showing:
+                # Try again in a little while in case there was a transient
+                # error in the web view
+                self.start_update_timer()
+                return
+            if self.now_showing == (None, None, None) or self.now_showing[0] != self.current_name:
+                self.clear()
+                return
+            # Try to refresh the data for the currently shown tag instead
+            # of clearing
+            editor_name, sourceline, tags = self.now_showing
             data = self.read_data(sourceline, tags)
             if data is None or len(data['computed_css']) < 1:
-                if editor_name == self.current_name and (editor_name, sourceline, tags) == self.now_showing:
-                    # Try again in a little while in case there was a transient
-                    # error in the web view
-                    self.start_update_timer()
-                    return
-                if self.now_showing == (None, None, None) or self.now_showing[0] != self.current_name:
-                    self.clear()
-                    return
-                # Try to refresh the data for the currently shown tag instead
-                # of clearing
-                editor_name, sourceline, tags = self.now_showing
-                data = self.read_data(sourceline, tags)
-                if data is None or len(data['computed_css']) < 1:
-                    self.clear()
-                    return
-            self.now_showing = (editor_name, sourceline, tags)
-            data['html_name'] = editor_name
-            self.box.show_data(data)
-            self.refresh_needed = False
-            self.stack.setCurrentIndex(1)
-
-    def read_data(self, sourceline, tags):
-        return None  # TODO: Implement this
-        mf = self.preview.view.page().mainFrame()
-        tags = [x.lower() for x in tags]
-        result = unicode_type(mf.evaluateJavaScript(
-            'window.calibre_preview_integration.live_css(%s, %s)' % (
-                json.dumps(sourceline), json.dumps(tags))) or '')
-        try:
-            result = json.loads(result)
-        except ValueError:
-            result = None
-        if result is not None:
-            maximum_specificities = {}
-            for node in result['nodes']:
-                is_ancestor = node['is_ancestor']
-                for rule in node['css']:
-                    self.process_rule(rule, is_ancestor, maximum_specificities)
-            for node in result['nodes']:
-                for rule in node['css']:
-                    for prop in rule['properties']:
-                        if prop.specificity < maximum_specificities[prop.name]:
-                            prop.is_overriden = True
-
-        return result
+                self.clear()
+                return
+        self.now_showing = (editor_name, sourceline, tags)
+        data['html_name'] = editor_name
+        self.box.show_data(data)
+        self.refresh_needed = False
+        self.stack.setCurrentIndex(1)
 
     def process_rule(self, rule, is_ancestor, maximum_specificities):
         selector = rule['selector']

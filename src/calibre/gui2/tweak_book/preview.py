@@ -280,13 +280,12 @@ class PreviewBridge(Bridge):
 
     request_sync = from_js(object, object, object)
     request_split = from_js(object, object)
+    live_css_data = from_js(object)
 
     go_to_sourceline_address = to_js()
     go_to_anchor = to_js()
     set_split_mode = to_js()
-
-    def __init__(self, parent=None):
-        Bridge.__init__(self, parent)
+    live_css = to_js()
 
 
 class WebPage(QWebEnginePage):
@@ -423,6 +422,7 @@ class Preview(QWidget):
     link_clicked = pyqtSignal(object, object)
     refresh_starting = pyqtSignal()
     refreshed = pyqtSignal()
+    live_css_data = pyqtSignal(object)
     render_process_restarted = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -433,6 +433,7 @@ class Preview(QWidget):
         self.view = WebView(self)
         self.view._page.bridge.request_sync.connect(self.request_sync)
         self.view._page.bridge.request_split.connect(self.request_split)
+        self.view._page.bridge.live_css_data.connect(self.live_css_data)
         self.view._page.loadFinished.connect(self.load_finished)
         self.view.render_process_restarted.connect(self.render_process_restarted)
         self.pending_go_to_anchor = None
@@ -644,6 +645,9 @@ class Preview(QWidget):
                 self.do_start_split()
             else:
                 self.stop_split()
+
+    def request_live_css_data(self, editor_name, sourceline, tags):
+        self.view._page.bridge.live_css(editor_name, sourceline, tags)
 
     def apply_settings(self):
         s = self.view.settings()

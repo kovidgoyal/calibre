@@ -336,19 +336,21 @@ def go_to_anchor(anchor):
         address = get_sourceline_address(elem)
         to_python.request_sync('', '', address)
 
-def live_css(sourceline, tags):
+@from_python
+def live_css(editor_name, sourceline, tags):
+    all_properties = {}
+    ans = {'nodes':v'[]', 'computed_css':all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
     target = None
     i = 0
     for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
         tn = node.tagName.toLowerCase() if node.tagName else ''
         if tn is not tags[i]:
-            return JSON.stringify(None)
+            to_python.live_css_data(ans)
+            return
         i += 1
         target = node
         if i >= tags.length:
             break
-    all_properties = {}
-    ans = {'nodes':v'[]', 'computed_css':all_properties}
     is_ancestor = False
     while target and target.ownerDocument:
         css = get_matched_css(target, is_ancestor, all_properties)
@@ -362,7 +364,8 @@ def live_css(sourceline, tags):
             })
         target = target.parentNode
         is_ancestor = True
-    return JSON.stringify(ans)
+    to_python.live_css_data(ans)
+
 
 document.body.addEventListener('click', onclick, True)
 document.documentElement.appendChild(E.style(
