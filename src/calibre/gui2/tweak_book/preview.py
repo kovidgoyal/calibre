@@ -362,9 +362,13 @@ class WebView(RestartingWebEngineView):
         self.setPage(self._page)
         self.clear()
         self.setAcceptDrops(False)
+        self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
 
     def render_process_died(self):
+        if self.dead_renderer_error_shown:
+            return
+        self.dead_renderer_error_shown = True
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed so Preview/Live css will not work.'
             ' You should try restarting the editor.')
