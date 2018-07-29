@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 
-from PyQt5.Qt import QObject, Qt, pyqtSignal
+from PyQt5.Qt import QObject, Qt, QWebEnginePage, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineView
 
 from calibre import prints
@@ -137,7 +137,9 @@ class RestartingWebEngineView(QWebEngineView):
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.render_process_restarted.connect(self.reload, type=Qt.QueuedConnection)
 
-    def render_process_terminated(self):
+    def render_process_terminated(self, termination_type, exit_code):
+        if termination_type == QWebEnginePage.NormalTerminationStatus:
+            return
         if self._last_reload_at is not None and monotonic() - self._last_reload_at < 2:
             self.render_process_failed.emit()
             print('The Qt WebEngine Render process crashed too often')
