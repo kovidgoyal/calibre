@@ -145,60 +145,62 @@ def get_style_properties(style, all_properties, node_style, is_ancestor):
             val = None
         if property and val and (not is_ancestor or INHERITED_PROPS[property]):
             properties.push(v'[property, val, style.getPropertyPriority(property), get_color(property, val)]')
-            if not all_properties.hasOwnProperty(property):
-                all_properties[property] = v'[node_style.getPropertyValue(property), get_color(property, cval)]'
+            if not all_properties[property]:
+                cval = node_style.getPropertyValue(property)
+                cval
+                all_properties[property] = v'[cval, get_color(property, cval)]'
         i += 1
     return properties
 
 
-def process_rules(node, cssRules, address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans):
-    for rule_index in range(cssRules.length):
-        rule = cssRules[rule_index]
-        rule_address = address.concat([rule_index])
+def get_sheet_rules(sheet):
+    if sheet.disabled or not sheet.cssRules:
+        return v'[]'
+    sheet_media = sheet.media and sheet.media.mediaText
+    if sheet_media and sheet_media.length and not window.matchMedia(sheet_media).matches:
+        return v'[]'
+    return sheet.cssRules
+
+
+def process_rules(node, rules, address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans):
+    for rule_index in range(rules.length):
+        rule = rules[rule_index]
+        rule_address = address.concat(v'[rule_index]')
         if rule.type is CSSRule.MEDIA_RULE:
-            process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
+            process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
             continue
         if rule.type is not CSSRule.STYLE_RULE:
             continue
-        # As a performance improvement, instead of running the match on every
-        # rule, we simply check if its selector is one of the matching
-        # selectors returned by getMatchedCSSRules. However,
-        # getMatchedCSSRules ignores rules in media queries that dont apply, so we check them manually
         st = rule.selectorText
-        if st and (matching_selectors.hasOwnProperty(st) or (rule_address.length > 1 and node.matches(st))):
-            type = 'sheet'
-            href = sheet.href
-            if href is None:
-                href = get_sourceline_address(sheet.ownerNode)
-                type = 'elem'
-            parts = st.split(',')  # We only want the first matching selector
-            if parts.length > 1:
-                for q in parts:
-                    if node.matches(q):
-                        st = q
-                        break
-            properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
-            if properties.length > 0:
-                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'rule_address':rule_address, 'sheet_index':sheet_index}
-                ans.push(data)
+        if not node.matches(st):
+            continue
+        type = 'sheet'
+        href = sheet.href
+        if not href:
+            href = get_sourceline_address(sheet.ownerNode)
+            type = 'elem'
+        # Technically, we should check for the highest specificity
+        # matching selector, but we cheat and use the first one
+        parts = st.split(',')
+        if parts.length > 1:
+            for q in parts:
+                if node.matches(q):
+                    st = q
+                    break
+        properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
+        if properties.length > 0:
+            data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'rule_address':rule_address, 'sheet_index':sheet_index}
+            ans.push(data)
+
 
 def get_matched_css(node, is_ancestor, all_properties):
-    # WebKit sets parentStyleSheet == null for rules returned by getMatchedCSSRules so we cannot use them directly
-    rules = node.ownerDocument.defaultView.getMatchedCSSRules(node, '')
-    if not rules:
-        rules = v'[]'
-    matching_selectors = {}
-    for rule in rules:
-        matching_selectors[rule.selectorText] = True
     ans = v'[]'
     node_style = window.getComputedStyle(node)
 
     sheets = document.styleSheets
     for sheet_index in range(sheets.length):
         sheet = sheets[sheet_index]
-        if sheet.disabled or not sheet.cssRules:
-            continue
-        process_rules(node, sheet.cssRules, [], sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
+        process_rules(node, get_sheet_rules(sheet), v'[]', sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
 
     if node.getAttribute('style'):
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
