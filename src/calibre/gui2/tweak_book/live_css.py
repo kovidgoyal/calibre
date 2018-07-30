@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import sys
 from PyQt5.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
@@ -16,6 +17,9 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from css_selectors import parse, SelectorError
 from polyglot.builtins import unicode_type
+
+
+lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
 
 
 class Heading(QWidget):  # {{{
@@ -280,7 +284,7 @@ class Box(QWidget):
         self.widgets = []
         for node in data['nodes']:
             node_name = node['name'] + ' @%s' % node['sourceline']
-            if node['is_ancestor']:
+            if node['ancestor_specificity'] != 0:
                 title = _('Inherited from %s') % node_name
             else:
                 title = _('Matched CSS rules for %s') % node_name
@@ -450,9 +454,8 @@ class LiveCSS(QWidget):
     def got_live_css_data(self, result):
         maximum_specificities = {}
         for node in result['nodes']:
-            is_ancestor = node['is_ancestor']
             for rule in node['css']:
-                self.process_rule(rule, is_ancestor, maximum_specificities)
+                self.process_rule(rule, node['ancestor_specificity'], maximum_specificities)
         for node in result['nodes']:
             for rule in node['css']:
                 for prop in rule['properties']:
@@ -486,7 +489,7 @@ class LiveCSS(QWidget):
         self.refresh_needed = False
         self.stack.setCurrentIndex(1)
 
-    def process_rule(self, rule, is_ancestor, maximum_specificities):
+    def process_rule(self, rule, ancestor_specificity, maximum_specificities):
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
@@ -498,13 +501,12 @@ class LiveCSS(QWidget):
         else:  # style attribute
             specificity = [1, 0, 0, 0]
         specificity.extend((sheet_index, tuple(rule_address)))
-        ancestor_specificity = 0 if is_ancestor else 1
         properties = []
         for prop in rule['properties']:
             important = 1 if prop[-1] == 'important' else 0
             p = Property(prop, [ancestor_specificity] + [important] + specificity)
             properties.append(p)
-            if p.specificity > maximum_specificities.get(p.name, (0,0,0,0,0,0)):
+            if p.specificity > maximum_specificities.get(p.name, lowest_specificity):
                 maximum_specificities[p.name] = p.specificity
         rule['properties'] = properties
 

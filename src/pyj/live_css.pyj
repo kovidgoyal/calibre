@@ -129,7 +129,7 @@ def get_color(property, val):
         try:
             color = window.parseCSSColor(val)  # Use the csscolor library to get an rgba 4-tuple
         except:
-            color = None
+            pass
     return color
 
 

@@ -147,19 +147,19 @@ def live_css(editor_name, sourceline, tags):
         target = node
         if i >= tags.length:
             break
-    is_ancestor = False
+    ancestor_specificity = 0
     while target and target.ownerDocument:
-        css = get_matched_css(target, is_ancestor, all_properties)
+        css = get_matched_css(target, ancestor_specificity is not 0, all_properties)
         # We want to show the Matched CSS rules header even if no rules matched
-        if css.length > 0 or not is_ancestor:
+        if css.length > 0 or ancestor_specificity is 0:
             tn = target.tagName.toLowerCase() if target.tagName else ''
             ans.nodes.push({
                 'name': tn,
-                'css': css, 'is_ancestor': is_ancestor,
+                'css': css, 'ancestor_specificity': -ancestor_specificity,
                 'sourceline': target.getAttribute('data-lnum')
             })
         target = target.parentNode
-        is_ancestor = True
+        ancestor_specificity += 1
     to_python.live_css_data(ans)
 
 
