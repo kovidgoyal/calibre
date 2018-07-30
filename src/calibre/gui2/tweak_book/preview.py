@@ -316,11 +316,12 @@ class WebPage(QWebEnginePage):
             self.runJavaScript(src, QWebEngineScript.ApplicationWorld, callback)
 
     def go_to_sourceline_address(self, sourceline_address):
-        lnum, tags = sourceline_address
-        if lnum is None:
-            return
-        tags = [x.lower() for x in tags]
-        self.bridge.go_to_sourceline_address.emit(lnum, tags)
+        if self.bridge.ready:
+            lnum, tags = sourceline_address
+            if lnum is None:
+                return
+            tags = [x.lower() for x in tags]
+            self.bridge.go_to_sourceline_address.emit(lnum, tags)
 
     def split_mode(self, enabled):
         if self.bridge.ready:
