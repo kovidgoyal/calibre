@@ -8,7 +8,6 @@ import socket
 import sys
 import time
 import traceback
-from functools import partial
 
 import apsw
 from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
@@ -244,18 +243,12 @@ class GuiRunner(QObject):
                 self.timed_print('splash screen hidden')
             self.splash_screen = None
         self.timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
-        add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         main.set_exception_handler()
         if len(self.args) > 1:
-            files = [os.path.abspath(p) for p in self.args[1:] if not
-                    os.path.isdir(p)]
-            if len(files) < len(sys.argv[1:]):
-                prints('Ignoring directories passed as command line arguments')
-            if files:
-                add_filesystem_book(files)
+            main.handle_cli_args(self.args[1:])
         for event in self.app.file_event_hook.events:
-            add_filesystem_book(event)
-        self.app.file_event_hook = add_filesystem_book
+            main.handle_cli_args(event)
+        self.app.file_event_hook = main.handle_cli_args
 
     def choose_dir(self, initial_dir):
         self.hide_splash_screen()
