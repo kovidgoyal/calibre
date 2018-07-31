@@ -219,9 +219,10 @@ class NewYorkTimes(BasicNewsRecipe):
 
         container = soup.find(itemtype='http://schema.org/CollectionPage')
         highlights = container.find('section', **classes('highlights'))
-        for article in self.parse_highlights(highlights):
-            log(article)
-            yield article
+        if highlights is not None:
+            for article in self.parse_highlights(highlights):
+                log(article)
+                yield article
         extra = container.find('section', attrs={'data-collection-type': True})
         if extra is not None:
             title = self.tag_to_string(extra.find('h2'))
