@@ -131,7 +131,10 @@ class LeMondeAbonne(BasicNewsRecipe):
             filename = os.path.join(path, "selection_%d.html" % (i + 1))
             tmp = open(filename, 'r')
             soup = BeautifulSoup(tmp, convertEntities=BeautifulSoup.HTML_ENTITIES)
-            title = soup.find('span').contents[0] or 'Unknown'
+            try:
+                title = soup.find('span').contents[0] or 'Unknown'
+            except IndexError:
+                title = 'Unknown'
             if title == "Une":
                 title = "À la une"
             if title == "Evenement":
