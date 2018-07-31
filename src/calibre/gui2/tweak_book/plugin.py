@@ -84,7 +84,7 @@ class Tool(object):
         '''
         short_text = short_text or unicode(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
         self.gui.keyboard.register_shortcut(
-            self.name + '_' + unique_name, short_text, default_keys=default_keys,
+            self.name + '_' + unique_name, short_text, default_keys=default_keys, action=qaction,
             description=description or '', group=_('Plugins'))
 
     def create_action(self, for_toolbar=True):
