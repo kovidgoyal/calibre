@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2011 - 2016, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2011 - 2018, Darko Miletic <darko.miletic at gmail.com>'
 '''
 ambito.com/diario
 '''
@@ -17,50 +17,59 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class Ambito_Financiero(BasicNewsRecipe):
-    title                = 'Ambito Financiero'
-    __author__           = 'Darko Miletic'
-    description          = 'Informacion Libre las 24 horas'
-    publisher            = 'Editorial Nefir S.A.'
-    category             = 'news, politics, economy, Argentina'
-    no_stylesheets       = True
-    encoding             = 'utf8'
-    publication_type     = 'newspaper'
-    needs_subscription   = True
+    title = 'Ambito Financiero'
+    __author__ = 'Darko Miletic'
+    description = 'Informacion Libre las 24 horas'
+    publisher = 'Editorial Nefir S.A.'
+    category = 'news, politics, economy, Argentina'
+    no_stylesheets = True
+    encoding = 'utf8'
+    publication_type = 'newspaper'
+    needs_subscription = True
     use_embedded_content = False
-    language             = 'es_AR'
-    delay                = 1
-    session_id           = None
-    PREFIX               = 'http://www.ambito.com'
-    PREFIXDIARIO         = PREFIX + '/diario'
-    INDEX                = PREFIX + '/diario/index.asp'
-    LOGIN                = PREFIX + '/login/login_cabezal.asp'
-    extra_css            = """
+    language = 'es_AR'
+    delay = 1
+    session_id = None
+    PREFIX = 'http://www.ambito.com'
+    PREFIXDIARIO = PREFIX + '/diario'
+    INDEX = PREFIX + '/diario/index.asp'
+    LOGIN = PREFIX + '/login/login_cabezal.asp'
+    extra_css = """
                                body{font-family: Roboto,sans-serif}
                            """
 
     conversion_options = {
-        'comment'  : description,
-        'tags'     : category,
+        'comment': description,
+        'tags': category,
         'publisher': publisher,
-        'language' : language
+        'language': language
     }
 
-    keep_only_tags    = [
-                          dict(name='h6', attrs={'class': lambda x: x and 'bajada' in x.split()})
-                          ,dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()})
-                          ,dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()})
-                          ,dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
-                        ]
-    remove_tags       = [dict(name=['object','link','embed','iframe','meta','link'])]
+    keep_only_tags = [
+        dict(name='h6', attrs={'class': lambda x: x and 'bajada' in x.split()}),
+        dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'foto-perfil-columnista' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
+    ]
+    remove_tags = [dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'txtUser':self.username, 'txtPassword':self.password})
-            response = br.open('http://www.ambito.com/diario/no-cache/login/x_login_cabezal.asp', data)
+            data = urllib.urlencode({
+                'txtUser': self.username,
+                'txtPassword': self.password
+            })
+            response = br.open(
+                'http://www.ambito.com/diario/no-cache/login/x_login_cabezal.asp',
+                data
+            )
             sessiondata = response.read()
-            prog = re.compile(r"^(?P<status>\d+?),(?P<session_id>.+?),(?P<username>.+?),.*?")
+            prog = re.compile(
+                r"^(?P<status>\d+?),(?P<session_id>.+?),(?P<username>.+?),.*?"
+            )
             m = prog.match(sessiondata)
             if m:
                 self.session_id = m.group('session_id')
@@ -70,7 +79,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         articles = []
         checker = []
-        rootitem = soup.find(attrs={'class':'ei-dropdown'})
+        rootitem = soup.find(attrs={'class': 'ei-dropdown'})
         for feed_link in rootitem.findAll('a', href=True):
             url = self.PREFIXDIARIO + feed_link['href']
             title = self.tag_to_string(feed_link)
@@ -78,7 +87,10 @@ class Ambito_Financiero(BasicNewsRecipe):
             if url not in checker:
                 checker.append(url)
                 articles.append({
-                    'title': title, 'date': date, 'url': url, 'description': u''
+                    'title': title,
+                    'date': date,
+                    'url': url,
+                    'description': u''
                 })
         return [(self.title, articles)]
 
@@ -86,17 +98,24 @@ class Ambito_Financiero(BasicNewsRecipe):
         if self.session_id:
             l, s, r = url.rpartition('/')
             artid, s1, r1 = r.partition('-')
-            data = urllib.urlencode({'id':artid, 'id_session':self.session_id})
-            response = self.browser.open('http://data.ambito.com/diario/cuerpo_noticia.asp', data)
+            data = urllib.urlencode({'id': artid, 'id_session': self.session_id})
+            response = self.browser.open(
+                'http://data.ambito.com/diario/cuerpo_noticia.asp', data
+            )
             soup = BeautifulSoup(raw_html)
             p = soup.find('p', id="cuerpo_noticia")
             if p:
-                p.append(response.read())
+                smallsoup = BeautifulSoup(response.read())
+                cfind = smallsoup.find('div', id="contenido_data")
+                if cfind:
+                    p.append(cfind)
                 return unicode(soup)
         return raw_html
 
     def cleanup(self):
         if self.session_id is not None:
-            data = urllib.urlencode({'session_id':self.session_id})
-            self.browser.open('http://www.ambito.com/diario/no-cache/login/x_logout.asp', data)
+            data = urllib.urlencode({'session_id': self.session_id})
+            self.browser.open(
+                'http://www.ambito.com/diario/no-cache/login/x_logout.asp', data
+            )
             self.session_id = None
