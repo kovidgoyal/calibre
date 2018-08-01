@@ -158,11 +158,13 @@ def main(args=sys.argv):
     app.setWindowIcon(QIcon(I('viewer.png')))
     main = EbookViewer()
     main.set_exception_handler()
+    if args:
+        acc.events.append(args[-1])
     acc.got_file.connect(main.handle_commandline_arg)
     main.show()
     main.msg_from_anotherinstance.connect(main.another_instance_wants_to_talk, type=Qt.QueuedConnection)
     if listener is not None:
-        t = Thread(name='ListenSI', target=listen, args=(listener, main.msg_from_anotherinstance))
+        t = Thread(name='ConnListener', target=listen, args=(listener, main.msg_from_anotherinstance))
         t.daemon = True
         t.start()
     QTimer.singleShot(0, acc.flush)
