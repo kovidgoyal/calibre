@@ -309,6 +309,7 @@ class Canvas(QWidget):
         self.current_image = i = self.original_image = (
             QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data))
         self.is_valid = not i.isNull()
+        self.current_scaled_pixmap = None
         self.update()
         self.image_changed.emit(self.current_image)
 
@@ -678,6 +679,7 @@ class Canvas(QWidget):
         finally:
             p.end()
     # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])
