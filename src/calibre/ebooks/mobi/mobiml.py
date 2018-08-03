@@ -22,6 +22,7 @@ MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name):
     return '{%s}%s' % (MBP_NS, name)
 
+
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
 INLINE_TAGS = {'span', 'a', 'code', 'u', 's', 'big', 'strike', 'tt', 'font', 'q', 'i', 'b', 'em', 'strong', 'sup', 'sub'}
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
