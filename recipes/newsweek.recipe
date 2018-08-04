@@ -40,7 +40,7 @@ class Newsweek(BasicNewsRecipe):
 
     def parse_index(self):
         root = self.index_to_soup(
-            'http://www.newsweek.com/archive', as_tree=True)
+            'https://www.newsweek.com/archive', as_tree=True)
         li = root.xpath(
             '//ul[contains(@class, "magazine-archive-items")]/li')[0]
         a = li.xpath('descendant::a[@href]')[0]
@@ -49,18 +49,22 @@ class Newsweek(BasicNewsRecipe):
         img = li.xpath('descendant::a[@href]/img[@src]')[0]
         self.cover_url = img.get('src')
         root = self.index_to_soup(url, as_tree=True)
-        div = root.xpath('//div[@id="block-nw-magazine-magazine-features"]')[0]
         features = []
         href_xpath = 'descendant::*[local-name()="h1" or local-name()="h2" or local-name()="h3" or local-name()="h4"]/a[@href]'
-        for a in div.xpath(href_xpath):
-            title = self.tag_to_string(a)
-            article = a.xpath('ancestor::article')[0]
-            desc = ''
-            s = article.xpath('descendant::div[@class="summary"]')
-            if s:
-                desc = self.tag_to_string(s[0])
-            self.log(title, url)
-            features.append({'title': title, 'url': href_to_url(a), 'description': desc})
+        try:
+            div = root.xpath('//div[@id="block-nw-magazine-magazine-features"]')[0]
+        except IndexError:
+            pass
+        else:
+            for a in div.xpath(href_xpath):
+                title = self.tag_to_string(a)
+                article = a.xpath('ancestor::article')[0]
+                desc = ''
+                s = article.xpath('descendant::div[@class="summary"]')
+                if s:
+                    desc = self.tag_to_string(s[0])
+                features.append({'title': title, 'url': href_to_url(a), 'description': desc})
+                self.log(title, href_to_url(a))
 
         index = []
         if features:
@@ -83,7 +87,7 @@ class Newsweek(BasicNewsRecipe):
                     sec = 'Articles'
                 sections[sec].append(
                     {'title': title, 'url': href_to_url(a), 'description': desc})
-                self.log(title, url)
+                self.log(title, href_to_url(a))
                 if desc:
                     self.log('\t' + desc)
                 self.log('')
