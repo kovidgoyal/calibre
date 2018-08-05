@@ -158,7 +158,7 @@ def render_metadata(mi, table, book_id):  # {{{
         fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     else:
         fields = filter(allowed_fields, fields)
-    comments = {}
+    comments = v'[]'
 
     def add_row(name, val, is_searchable=False, is_html=False, join=None):
         if val is undefined or val is None:
@@ -302,7 +302,7 @@ def render_metadata(mi, table, book_id):  # {{{
                 return
             if hp is 'above':
                 val = E.h3(name).outerHTML + val
-            comments[field] = val
+            comments.push(v'[field, val]')
             return
         func = None
         if datatype is 'composite':
@@ -352,10 +352,9 @@ def render_metadata(mi, table, book_id):  # {{{
             traceback.print_exc()
 
     all_html = ''
-    for i, field in enumerate(sorted(comments)):
-        fm = field_metadata[field]
-        comment = comments[field]
+    for field, comment in comments:
         if comment:
+            fm = field_metadata[field]
             if fm.display?.heading_position is 'above':
                 name = fm.name or field
                 all_html += f'<h3>{name}</h3>'
