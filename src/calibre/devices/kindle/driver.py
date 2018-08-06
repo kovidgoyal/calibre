@@ -463,18 +463,28 @@ class KINDLE2(KINDLE):
         self.upload_apnx(path, filename, metadata, filepath)
 
     def thumbpath_from_filepath(self, filepath):
+        from calibre.ebooks.metadata.kfx import (CONTAINER_MAGIC, read_book_key_kfx)
         from calibre.ebooks.mobi.reader.headers import MetadataHeader
         from calibre.utils.logging import default_log
         thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
         if not os.path.exists(thumb_dir):
             return
         with lopen(filepath, 'rb') as f:
-            mh = MetadataHeader(f, default_log)
-        if mh.exth is None or not mh.exth.uuid or not mh.exth.cdetype:
+            is_kfx = f.read(4) == CONTAINER_MAGIC
+            f.seek(0)
+            uuid = cdetype = None
+            if is_kfx:
+                uuid, cdetype = read_book_key_kfx(f)
+            else:
+                mh = MetadataHeader(f, default_log)
+                if mh.exth is not None:
+                    uuid = mh.exth.uuid
+                    cdetype = mh.exth.cdetype
+        if not uuid or not cdetype:
             return
         return os.path.join(thumb_dir,
                 'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
-                    uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
+                    uuid=uuid, cdetype=cdetype))
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)

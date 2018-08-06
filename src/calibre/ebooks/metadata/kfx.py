@@ -278,6 +278,17 @@ def dump_metadata(m):
     pprint(d)
 
 
+def read_book_key_kfx(stream, read_cover=True):
+    ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
+    c = Container(stream.read())
+    m = extract_metadata(c.decode())
+
+    def val(x):
+        return m[x][0] if x in m else ''
+
+    return (val('content_id') or val('ASIN')), val('cde_content_type')
+
+
 def read_metadata_kfx(stream, read_cover=True):
     ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
     c = Container(stream.read())
