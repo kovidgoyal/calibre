@@ -12,7 +12,7 @@ from urlparse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal)
+    QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal, QVBoxLayout)
 
 from calibre import prints, isbytestring
 from calibre.constants import cache_dir, iswindows
@@ -774,6 +774,21 @@ class Boss(QObject):
         d.container_diff(other, self.global_undo.current_container,
                          names=(self.global_undo.label_for_container(other), self.global_undo.label_for_container(self.global_undo.current_container)))
 
+    def ask_to_show_current_diff(self, title, msg, allow_revert=True, to_container=None):
+        d = QDialog(self.gui)
+        k = QVBoxLayout(d)
+        d.setWindowTitle(title)
+        k.addWidget(QLabel(msg))
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Close, d)
+        k.addWidget(bb)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        d.b = b = bb.addButton(_('See what &changed'), bb.AcceptRole)
+        b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
+        bb.button(bb.Close).setDefault(True)
+        if d.exec_() == d.Accepted:
+            self.show_current_diff(allow_revert=allow_revert, to_container=to_container)
+
     def compare_book(self):
         self.commit_all_editors_to_container()
         c = current_container()
@@ -827,6 +842,7 @@ class Boss(QObject):
                 fix_all_html(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
+            self.ask_to_show_current_diff(_('Fixing done'), _('All HTML files fixed'))
 
     def pretty_print(self, current):
         if current:
@@ -839,6 +855,7 @@ class Boss(QObject):
                 self.update_editors_from_container()
                 self.set_modified()
                 QApplication.alert(self.gui)
+            self.ask_to_show_current_diff(_('Beautified'), _('All files beautified'))
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
