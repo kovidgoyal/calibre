@@ -58,8 +58,10 @@ def new_color_scheme(ev):
     container = get_container()
     container.lastChild.style.display = 'block'
     for inp in container.lastChild.querySelectorAll('input'):
-        n = inp.getAttribute('name')
-        inp.value = {'name':'', 'bg':'#ffffff', 'fg':'#000000'}[n]
+        if inp.name is 'link_color_type':
+            inp.checked = inp.value is 'default'
+        else:
+            inp.value = {'name':'', 'bg':'#ffffff', 'fg':'#000000', 'link': '#0000ee'}[inp.name]
     container.lastChild.querySelector('input').focus()
     return container
 
@@ -68,10 +70,16 @@ def edit_color_scheme(ev):
     ccs = current_color_scheme(container)
     all_schemes = all_color_schemes()
     if all_schemes[ccs]:
+        scheme = all_schemes[ccs]
         container = document.getElementById(EDIT_SCHEME)
-        container.querySelector('input').value = all_schemes[ccs].name
-        container.querySelector('input[name=bg]').value = all_schemes[ccs].background
-        container.querySelector('input[name=fg]').value = all_schemes[ccs].foreground
+        container.querySelector('input').value = scheme.name
+        container.querySelector('input[name=bg]').value = scheme.background
+        container.querySelector('input[name=fg]').value = scheme.foreground
+        if scheme.link:
+            container.querySelector('input[value=custom]').checked = True
+            container.querySelector('input[name=link]').value = scheme.link
+        else:
+            container.querySelector('input[value=default]').checked = True
 
 def remove_color_scheme(ev):
     ccs = current_color_scheme()
@@ -110,17 +118,19 @@ def add_color_scheme(ev):
             error_dialog(_('Name not specified'), _(
                 'You must specify a name for the color scheme'))
             return
-        bg = div.querySelector('input[name=bg]').value
-        fg = div.querySelector('input[name=fg]').value
-        for col in (bg, fg):
-            if not /^#[0-9A-F]{6}$/i.test(bg):
+        colors = {}
+        for col in ('bg', 'fg', 'link'):
+            colors[col] = div.querySelector(f'input[name={col}]').value
+            if not /^#[0-9A-F]{6}$/i.test(colors[col]):
                 error_dialog(_('Invalid color'), _(
-                    'The color {} is not a valid color').format(col))
+                    'The color {} is not a valid color').format(colors[col]))
                 return
         key = '*' + name
         sd = get_session_data()
         ucs = sd.get('user_color_schemes')
-        ucs[key] = {'name':name, 'foreground':fg, 'background':bg}
+        ucs[key] = {'name':name, 'foreground':colors.fg, 'background':colors.bg}
+        if div.querySelector('input[name=link_color_type]:checked').value is 'custom':
+            ucs[key]['link'] = colors.link
         sd.set('user_color_schemes', ucs)
         create_color_buttons()
         set_current_color_scheme(key)
@@ -186,6 +196,13 @@ def create_colors_panel(container):
             E.tr(E.td(_('Name:')), E.td(E.input(name='name'))),
             E.tr(E.td(_('Background:')), E.td(E.input(name='bg', type='color', value='#ffffff'))),
             E.tr(E.td(_('Foreground:')), E.td(E.input(name='fg', type='color', value='#000000'))),
+            E.tr(E.td(_('Link:')), E.td(
+                E.label(E.input(type='radio', name='link_color_type', value='default'), _('Default')),
+                '\xa0\xa0',
+                E.label(E.input(type='radio', name='link_color_type', value='custom'), _('Custom')),
+                '\xa0',
+                E.input(name='link', type='color', value='#000000')
+            )),
         ),
         E.div(style="display:flex; justify-content: flex-end; margin: 1ex 1em",
             create_button(_('OK'), 'check', add_color_scheme), E.span('\xa0'), create_button(_('Cancel'), 'close', add_color_scheme.bind('cancel'))

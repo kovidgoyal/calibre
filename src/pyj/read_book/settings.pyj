@@ -26,6 +26,15 @@ def apply_colors():
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
         elem.style.backgroundColor = opts.color_scheme.background
+    ss = document.getElementById('calibre-color-scheme-style-overrides')
+    if not ss:
+        ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')
+        document.documentElement.appendChild(ss)
+    if opts.color_scheme.link:
+        c = opts.color_scheme.link
+        ss.textContent = f':link, :link * {{ color: {c} !important }} :visited, :visited * {{ color: {c} !important }}'
+    else:
+        ss.textContent = ''
 
 
 def apply_stylesheet():
