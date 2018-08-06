@@ -201,7 +201,9 @@ def create_colors_panel(container):
                 '\xa0\xa0',
                 E.label(E.input(type='radio', name='link_color_type', value='custom'), _('Custom')),
                 '\xa0',
-                E.input(name='link', type='color', value='#000000')
+                E.input(name='link', type='color', value='#000000', onclick=def (ev):
+                    ev.currentTarget.parentNode.querySelector('[name=link_color_type][value=custom]').checked = True
+                )
             )),
         ),
         E.div(style="display:flex; justify-content: flex-end; margin: 1ex 1em",
