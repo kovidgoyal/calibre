@@ -18,12 +18,13 @@ from calibre.constants import cache_dir
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.lock import ExclusiveFile
+from calibre.utils.short_uuid import uuid4
 
 DAY = 24 * 3600
 
 
 def book_cache_dir():
-    return os.path.join(cache_dir(), 'ev2')
+    return getattr(book_cache_dir, 'override', os.path.join(cache_dir(), 'ev2'))
 
 
 def cache_lock():
@@ -42,42 +43,44 @@ def safe_makedirs(path):
     except EnvironmentError as err:
         if err.errno != errno.EEXIST:
             raise
+    return path
 
 
 def clear_temp(temp_path):
     now = time.time()
     for x in os.listdir(temp_path):
         x = os.path.join(temp_path, x)
-        st = os.stat(x)
-        if now - st.st_mtime > DAY:
+        mtime = os.path.getmtime(x)
+        if now - mtime > DAY:
             try:
                 shutil.rmtree(x)
             except EnvironmentError:
                 pass
 
 
-def expire_cache(path, instances):
+def expire_cache(path, instances, max_age):
     now = time.time()
-    remove = [x for x in instances if now - instances['atime'] > 30 * DAY]
+    remove = [x for x in instances if now - x['atime'] > max_age]
     for instance in remove:
-        instances.remove(instance)
-        if instances['status'] == 'finished':
+        if instance['status'] == 'finished':
+            instances.remove(instance)
             try:
-                shutil.rmtree(os.path.join(path, instances['path']))
+                shutil.rmtree(os.path.join(path, instance['path']))
             except Exception:
                 pass
 
 
-def expire_cache_and_temp(temp_path, finished_path, metadata):
+def expire_cache_and_temp(temp_path, finished_path, metadata, max_age):
     now = time.time()
-    if now - metadata['last_clear_at'] < DAY:
+    if now - metadata['last_clear_at'] < DAY and max_age >= 0:
         return
     clear_temp(temp_path)
     entries = metadata['entries']
     for key, instances in tuple(entries.items()):
-        expire_cache(finished_path, instances)
-        if not instances:
-            del entries[key]
+        if instances:
+            expire_cache(finished_path, instances, max_age)
+            if not instances:
+                del entries[key]
     metadata['last_clear_at'] = now
 
 
@@ -86,6 +89,7 @@ def prepare_convert(temp_path, key, st):
     now = time.time()
     return {
         'path': os.path.basename(tdir),
+        'id': uuid4(),
         'status': 'working',
         'mtime': now,
         'atime': now,
@@ -108,7 +112,7 @@ def do_convert(path, temp_path, key, instance):
     instance['cache_size'] = size
 
 
-def prepare_book(path):
+def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
     st = os.stat(path)
     key = book_hash(path, st.st_size, st.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
@@ -117,7 +121,7 @@ def prepare_book(path):
         try:
             metadata = json.loads(f.read())
         except ValueError:
-            metadata = {'entries': [], 'last_clear_at': 0}
+            metadata = {'entries': {}, 'last_clear_at': 0}
         entries = metadata['entries']
         instances = entries.setdefault(key, [])
         for instance in instances:
@@ -127,8 +131,8 @@ def prepare_book(path):
                 return os.path.join(finished_path, instance['path'])
         instance = prepare_convert(temp_path, key, st)
         instances.append(instance)
-        f.seek(0), f.write(json.dumps(metadata))
-    do_convert(path, temp_path, key, instance)
+        f.seek(0), f.truncate(), f.write(json.dumps(metadata))
+    convert_func(path, temp_path, key, instance)
     src_path = os.path.join(temp_path, instance['path'])
     with cache_lock() as f:
         ans = tempfile.mkdtemp(dir=finished_path)
@@ -136,15 +140,59 @@ def prepare_book(path):
         try:
             metadata = json.loads(f.read())
         except ValueError:
-            metadata = {'entries': [], 'last_cleat_at': 0}
+            metadata = {'entries': {}, 'last_clear_at': 0}
         entries = metadata['entries']
         instances = entries.setdefault(key, [])
         os.rmdir(ans)
         os.rename(src_path, ans)
+        instance['status'] = 'finished'
         for q in instances:
             if q['id'] == instance['id']:
                 q.update(instance)
                 break
-        expire_cache_and_temp(temp_path, finished_path, metadata)
-        f.seek(0), f.write(json.dumps(metadata))
+        expire_cache_and_temp(temp_path, finished_path, metadata, max_age)
+        f.seek(0), f.truncate(), f.write(json.dumps(metadata))
     return ans
+
+
+def find_tests():
+    import unittest
+
+    class TestViewerCache(unittest.TestCase):
+        ae = unittest.TestCase.assertEqual
+
+        def setUp(self):
+            self.tdir = tempfile.mkdtemp()
+            book_cache_dir.override = os.path.join(self.tdir, 'ev2')
+
+        def tearDown(self):
+            shutil.rmtree(self.tdir)
+            del book_cache_dir.override
+
+        def test_viewer_cache(self):
+
+            def convert_mock(path, temp_path, key, instance):
+                self.ae(instance['status'], 'working')
+                self.ae(instance['key'], key)
+                open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb').write(b'test')
+
+            book_src = os.path.join(self.tdir, 'book.epub')
+            open(book_src, 'wb').write(b'a')
+            path = prepare_book(book_src, convert_func=convert_mock)
+            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'test')
+
+            # Test that opening the same book uses the cache
+            second_path = prepare_book(book_src, convert_func=convert_mock)
+            self.ae(path, second_path)
+
+            # Test that changing the book updates the cache
+            open(book_src, 'wb').write(b'bc')
+            third_path = prepare_book(book_src, convert_func=convert_mock)
+            self.assertNotEqual(path, third_path)
+
+            # Test cache expiry
+            open(book_src, 'wb').write(b'bcd')
+            prepare_book(book_src, convert_func=convert_mock, max_age=-1000)
+            self.ae([], os.listdir(os.path.join(book_cache_dir(), 'f')))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestViewerCache)
