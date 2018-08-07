@@ -16,7 +16,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     __author__ = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
     language = 'en'
-    INDEX = 'http://www.bostonglobe.com/todayspaper/%Y/%m/%d'
+    INDEX = 'https://www.bostonglobe.com/todayspaper/%Y/%m/%d'
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
@@ -107,9 +107,9 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             for story in stories:
                 h2 = story.find("h2", {"class": 'story-title'})
                 link = story.find("a", {'class': 'story-perm'})
-                for img in h2.findAll('img'):
-                    img.extract()
                 if h2 is not None and link is not None:
+                    for img in h2.findAll('img'):
+                        img.extract()
                     title = self.tag_to_string(h2)
                     url = self.absolutize_url(link["href"])
                     excerpt_div = story.find("div", {"class": "excerpt"})
