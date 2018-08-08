@@ -112,6 +112,9 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('code.png', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
     ac.setToolTip(_('<h3>Insert tag</h3>Insert a tag, if some text is selected the tag will be inserted around the selected text'))
 
+    ac = reg('trash.png', _('Remove &tag'), ('remove_tag',), 'remove-tag', ('Ctrl+>'), _('Remove tag'), syntaxes=('html', 'xml'))
+    ac.setToolTip(_('<h3>Remove tag</h3>Remove the currently highlighted tag'))
+
     editor_toolbar_actions['html']['fix-html-current'] = actions['fix-html-current']
     for s in ('xml', 'html', 'css'):
         editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']

@@ -877,6 +877,10 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         if hasattr(self.smarts, 'insert_tag'):
             self.smarts.insert_tag(self, tag)
 
+    def remove_tag(self):
+        if hasattr(self.smarts, 'remove_tag'):
+            self.smarts.remove_tag(self)
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
             if self.replace_possible_unicode_sequence():
