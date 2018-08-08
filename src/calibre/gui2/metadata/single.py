@@ -835,7 +835,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
         l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
 
-        self.tabs[0].gb2 = gb = QGroupBox(_('Comments'), self)
+        self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
         gb.setLayout(l)
         l.addWidget(self.comments)
