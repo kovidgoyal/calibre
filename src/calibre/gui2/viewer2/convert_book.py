@@ -50,9 +50,11 @@ def robust_rmtree(x):
     retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
-            return shutil.rmtree(x)
+            shutil.rmtree(x)
+            return True
         except EnvironmentError:
             time.sleep(0.1)
+    return False
 
 
 def clear_temp(temp_path):
@@ -66,11 +68,10 @@ def clear_temp(temp_path):
 
 def expire_cache(path, instances, max_age):
     now = time.time()
-    remove = [x for x in instances if now - x['atime'] > max_age]
+    remove = [x for x in instances if now - x['atime'] > max_age and x['status'] == 'finished']
     for instance in remove:
-        if instance['status'] == 'finished':
+        if robust_rmtree(os.path.join(path, instance['path'])):
             instances.remove(instance)
-            robust_rmtree(os.path.join(path, instance['path']))
 
 
 def expire_cache_and_temp(temp_path, finished_path, metadata, max_age):
@@ -120,6 +121,10 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
     key = book_hash(path, st.st_size, st.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
     temp_path = safe_makedirs(os.path.join(book_cache_dir(), 't'))
+
+    def save_metadata(metadata, f):
+        f.seek(0), f.truncate(), f.write(json.dumps(metadata, indent=2))
+
     with cache_lock() as f:
         try:
             metadata = json.loads(f.read())
@@ -130,11 +135,11 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
         for instance in instances:
             if instance['status'] == 'finished':
                 instance['atime'] = time.time()
-                f.seek(0), f.write(json.dumps(metadata))
+                save_metadata(metadata, f)
                 return os.path.join(finished_path, instance['path'])
         instance = prepare_convert(temp_path, key, st)
         instances.append(instance)
-        f.seek(0), f.truncate(), f.write(json.dumps(metadata))
+        save_metadata(metadata, f)
     convert_func(path, temp_path, key, instance)
     src_path = os.path.join(temp_path, instance['path'])
     with cache_lock() as f:
@@ -154,7 +159,7 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
                 q.update(instance)
                 break
         expire_cache_and_temp(temp_path, finished_path, metadata, max_age)
-        f.seek(0), f.truncate(), f.write(json.dumps(metadata))
+        save_metadata(metadata, f)
     return ans
 
 
