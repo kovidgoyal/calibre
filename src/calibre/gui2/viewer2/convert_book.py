@@ -14,7 +14,7 @@ from cPickle import dumps
 from hashlib import sha1
 
 from calibre import walk
-from calibre.constants import cache_dir
+from calibre.constants import cache_dir, iswindows
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.lock import ExclusiveFile
@@ -46,16 +46,22 @@ def safe_makedirs(path):
     return path
 
 
+def robust_rmtree(x):
+    retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
+    for i in range(retries):
+        try:
+            return shutil.rmtree(x)
+        except EnvironmentError:
+            time.sleep(0.1)
+
+
 def clear_temp(temp_path):
     now = time.time()
     for x in os.listdir(temp_path):
         x = os.path.join(temp_path, x)
         mtime = os.path.getmtime(x)
         if now - mtime > DAY:
-            try:
-                shutil.rmtree(x)
-            except EnvironmentError:
-                pass
+            robust_rmtree(x)
 
 
 def expire_cache(path, instances, max_age):
@@ -64,10 +70,7 @@ def expire_cache(path, instances, max_age):
     for instance in remove:
         if instance['status'] == 'finished':
             instances.remove(instance)
-            try:
-                shutil.rmtree(os.path.join(path, instance['path']))
-            except Exception:
-                pass
+            robust_rmtree(os.path.join(path, instance['path']))
 
 
 def expire_cache_and_temp(temp_path, finished_path, metadata, max_age):
