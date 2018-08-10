@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title:
 
+- version: 3.29.0
+  date: 2018-09-10
+
+  new features:
+    - title: "Add a option to draw a grid in the main book list (Preferences->Look & feel)"
+
+    - title: "Edit book: Allow removing the currently highlighted tag (while keeping its contents) by pressing Ctrl+>. You can also add a tool to do it via Preferences->Toolbars"
+
+    - title: "Content server: When defining a color scheme for the in browser viewer allow specifying the link color as well as the foreground and background."
+      tickets: [1735904]
+
+    - title: "Edit book: Show a popup after a fix all html/beautify all files so the user can easily see what was changed, if needed."
+      tickets: [1785482]
+
+    - title: "Kindle driver: Create cover thumbnails on the device when transferring KFX format books"
+
+    - title: "Edit Book: Recognize numbers in image names in the 'Insert image' dialog"
+      tickets: [1782981]
+
+  bug fixes:
+    - title: "Content server: Display custom comments field on the book details page in the same order as in the calibre GUI"
+
+    - title: "Edit book: Fix open image editors not being updated when image file is replaced"
+
+    - title: "Fix keyboard shortcuts for Edit book tools created from plugins not working"
+
+    - title: "PDF Output: Fix error when trying to convert books that do not specify a language in their metadata."
+      tickets: [1783563]
+
+    - title: "Browser viewer: Fix inability to open books that contain zero-byte stylesheets/images"
+
+  improved recipes:
+    - Boston Globe
+    - Newsweek
+    - Ambito and Ambito Financiero
+    - New York Times
+    - New England Journal of Medicine
+    - The Hindu Business Line
+    - Private Eye
+    - Le Temps
+
+  new recipes:
+    - title:
+
 - version: 3.28.0
   date: 2018-07-20
 
