@@ -21,7 +21,7 @@
 #     - title:
 
 - version: 3.29.0
-  date: 2018-09-10
+  date: 2018-08-10
 
   new features:
     - title: "Add a option to draw a grid in the main book list (Preferences->Look & feel)"
