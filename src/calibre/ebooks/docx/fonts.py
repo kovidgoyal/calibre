@@ -111,7 +111,10 @@ SYMBOL_FONT_NAMES = frozenset(n.lower() for n in SYMBOL_MAPS)
 
 
 def is_symbol_font(family):
-    return family.lower() in SYMBOL_FONT_NAMES
+    try:
+        return family.lower() in SYMBOL_FONT_NAMES
+    except AttributeError:
+        return False
 
 
 def do_map(m, points):
