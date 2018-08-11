@@ -431,7 +431,8 @@ class CompareSingle(QWidget):
             else:
                 continue
             neww = cls(field, True, self, m, extra)
-            connect_lambda(neww.changed, self, lambda self: self.changed(field))
+            neww.setObjectName(field)
+            connect_lambda(neww.changed, self, lambda self: self.changed(self.sender().objectName()))
             if isinstance(neww, EditWithComplete):
                 try:
                     neww.update_items_cache(db.new_api.all_field_names(field))
@@ -444,7 +445,8 @@ class CompareSingle(QWidget):
             newl.setBuddy(neww)
             button = RightClickButton(self)
             button.setIcon(QIcon(I('back.png')))
-            connect_lambda(button.clicked, self, lambda self: self.revert(field))
+            button.setObjectName(field)
+            connect_lambda(button.clicked, self, lambda self: self.revert(self.sender().objectName()))
             button.setToolTip(revert_tooltip % m['name'])
             if field == 'identifiers':
                 button.m = m = QMenu(button)
@@ -701,4 +703,4 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         for changed, mi in d.accepted.itervalues():
             if changed and mi is not None:
-                print (mi)
+                print(mi)
