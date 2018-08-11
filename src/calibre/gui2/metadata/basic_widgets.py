@@ -195,12 +195,14 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
     TITLE_ATTR = FIELD_NAME = 'title'
     TOOLTIP = _('Change the title of this book')
     LABEL = _('&Title:')
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         self.dialog = parent
         EnLineEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
+        self.textChanged.connect(self.data_changed)
 
     def get_default(self):
         return _('Unknown')
@@ -331,6 +333,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
     TOOLTIP = ''
     LABEL = _('&Author(s):')
     FIELD_NAME = 'authors'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent, manage_authors):
         self.dialog = parent
@@ -343,6 +346,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
         self.lineEdit().createStandardContextMenu = self.createStandardContextMenu
+        self.lineEdit().textChanged.connect(self.data_changed)
 
     def createStandardContextMenu(self):
         menu = QLineEdit.createStandardContextMenu(self.lineEdit())
@@ -444,6 +448,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
     FIELD_NAME = 'author_sort'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent, authors_edit, autogen_button, db,
             copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
@@ -463,6 +468,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
 
         self.authors_edit.editTextChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
         self.textChanged.connect(self.update_state)
+        self.textChanged.connect(self.data_changed)
 
         self.autogen_button = autogen_button
         self.copy_a_to_as_action = copy_a_to_as_action
@@ -591,6 +597,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
     FIELD_NAME = 'series'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -602,6 +609,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.books_to_refresh = set([])
+        self.lineEdit().textChanged.connect(self.data_changed)
 
     @dynamic_property
     def current_val(self):
@@ -645,9 +653,11 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
     TOOLTIP = ''
     LABEL = _('&Number:')
     FIELD_NAME = 'series_index'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent, series_edit):
         super(SeriesIndexEdit, self).__init__(parent)
+        self.valueChanged.connect(self.data_changed)
         self.dialog = parent
         self.db = self.original_series_name = None
         self.setMaximum(10000000)
@@ -795,11 +805,23 @@ class FormatList(_FormatList):
 
 class FormatsManager(QWidget):
 
+    data_changed = pyqtSignal()
+
+    @property
+    def changed(self):
+        return self._changed
+
+    @changed.setter
+    def changed(self, val):
+        self._changed = val
+        if val:
+            self.data_changed.emit()
+
     def __init__(self, parent, copy_fmt):
         QWidget.__init__(self, parent)
         self.dialog = parent
         self.copy_fmt = copy_fmt
-        self.changed = False
+        self._changed = False
 
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -1031,6 +1053,7 @@ class FormatsManager(QWidget):
 class Cover(ImageView):  # {{{
 
     download_cover = pyqtSignal()
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         ImageView.__init__(self, parent, show_size_pref_name='edit_metadata_cover_widget', default_show_size=True)
@@ -1202,6 +1225,7 @@ class Cover(ImageView):  # {{{
                 tt = _('Cover size: %(width)d x %(height)d pixels') % \
                 dict(width=pm.width(), height=pm.height())
             self.setToolTip(tt)
+            self.data_changed.emit()
 
         return property(fget=fget, fset=fset)
 
@@ -1245,6 +1269,7 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
                 val = comments_to_html(val)
             self.set_html(val, self.allow_undo)
             self.wyswyg_dirtied()
+            self.data_changed.emit()
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1265,11 +1290,13 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
     FIELD_NAME = 'rating'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         super(RatingEdit, self).__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
+        self.currentTextChanged.connect(self.data_changed)
 
     @dynamic_property
     def current_val(self):
@@ -1301,9 +1328,11 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
             'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
     FIELD_NAME = 'tags'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.currentTextChanged.connect(self.data_changed)
         self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
         self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
@@ -1366,9 +1395,11 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
     LABEL = _('&Languages:')
     TOOLTIP = _('A comma separated list of languages for this book')
     FIELD_NAME = 'languages'
+    data_changed = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         LE.__init__(self, *args, **kwargs)
+        self.textChanged.connect(self.data_changed)
         self.setToolTip(self.TOOLTIP)
 
     @dynamic_property
@@ -1458,11 +1489,13 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
             'For example: \n\n%s\n\nIf an identifier value contains a comma, you can use the | character to represent it.')%(
             'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
     FIELD_NAME = 'identifiers'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
         self.pat = re.compile(r'[^0-9a-zA-Z]')
         self.textChanged.connect(self.validate)
+        self.textChanged.connect(self.data_changed)
 
     def contextMenuEvent(self, ev):
         m = self.createStandardContextMenu()
@@ -1631,9 +1664,11 @@ class ISBNDialog(QDialog):  # {{{
 class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('&Publisher:')
     FIELD_NAME = 'publisher'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.currentTextChanged.connect(self.data_changed)
         self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
@@ -1694,11 +1729,13 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
     FMT = 'dd MMM yyyy hh:mm:ss'
     ATTR = FIELD_NAME = 'timestamp'
     TWEAK = 'gui_timestamp_display_format'
+    data_changed = pyqtSignal()
 
     def __init__(self, parent, create_clear_button=True):
         super(DateEdit, self).__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
+        self.dateTimeChanged.connect(self.data_changed)
         fmt = tweaks[self.TWEAK]
         if fmt is None:
             fmt = self.FMT

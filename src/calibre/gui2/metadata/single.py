@@ -17,6 +17,7 @@ from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
 
 from calibre.constants import isosx
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
 from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
@@ -56,6 +57,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def __init__(self, db, parent=None, editing_multiple=False):
         self.db = db
+        self.was_data_edited = False
         self.changed = set()
         self.books_to_refresh = set()
         self.rows_to_refresh = set()
@@ -292,6 +294,8 @@ class MetadataSingleDialogBase(QDialog):
         self.config_metadata_button.clicked.connect(self.configure_metadata)
         self.config_metadata_button.setToolTip(
             _('Change how calibre downloads metadata'))
+        for w in self.basic_metadata_widgets:
+            w.data_changed.connect(self.data_changed)
 
     # }}}
 
@@ -320,6 +324,7 @@ class MetadataSingleDialogBase(QDialog):
                 two_column=self.cc_two_column)
         self.__custom_col_layouts = [layout]
         for widget in self.custom_metadata_widgets:
+            widget.connect_data_changed(self.data_changed)
             if isinstance(widget, Comments):
                 self.comments_edit_state_at_apply[widget] = None
     # }}}
@@ -353,6 +358,9 @@ class MetadataSingleDialogBase(QDialog):
     def do_layout(self):
         raise NotImplementedError()
 
+    def data_changed(self):
+        self.was_data_edited = True
+
     def __call__(self, id_):
         self.book_id = id_
         self.books_to_refresh = set([])
@@ -363,6 +371,7 @@ class MetadataSingleDialogBase(QDialog):
             widget.initialize(id_)
         if callable(self.set_current_callback):
             self.set_current_callback(id_)
+        self.was_data_edited = False
         # Commented out as it doesn't play nice with Next, Prev buttons
         # self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
@@ -620,6 +629,10 @@ class MetadataSingleDialogBase(QDialog):
 
     def reject(self):
         self.save_state()
+        if self.was_data_edited and not confirm(
+                title=_('Are you sure?'), name='confirm-cancel-edit-single-metadata', msg=_(
+                    'You will lose all unsaved changes, are you sure?'), parent=self):
+            return
         QDialog.reject(self)
 
     def save_state(self):

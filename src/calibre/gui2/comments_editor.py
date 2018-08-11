@@ -13,7 +13,7 @@ from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
     QSyntaxHighlighter, QColor, QColorDialog, QMenu, QDialog, QLabel,
     QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
-    QCheckBox)
+    pyqtSignal, QCheckBox)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 try:
     from PyQt5 import sip
@@ -73,6 +73,8 @@ class BlockStyleAction(QAction):  # {{{
 
 
 class EditorWidget(QWebView, LineEditECM):  # {{{
+
+    data_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
@@ -184,6 +186,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
 
         self.setHtml('')
         self.set_readonly(False)
+        self.page().contentsChanged.connect(self.data_changed)
 
     def update_link_action(self):
         wac = self.pageAction(QWebPage.ToggleBold).isEnabled()
@@ -660,6 +663,7 @@ class Highlighter(QSyntaxHighlighter):
 class Editor(QWidget):  # {{{
 
     toolbar_prefs_name = None
+    data_changed = pyqtSignal()
 
     def __init__(self, parent=None, one_line_toolbar=False, toolbar_prefs_name=None):
         QWidget.__init__(self, parent)
@@ -671,6 +675,7 @@ class Editor(QWidget):  # {{{
             t = getattr(self, 'toolbar%d'%i)
             t.setIconSize(QSize(18, 18))
         self.editor = EditorWidget(self)
+        self.editor.data_changed.connect(self.data_changed)
         self.set_base_url = self.editor.set_base_url
         self.set_html = self.editor.set_html
         self.tabs = QTabWidget(self)

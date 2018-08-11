@@ -25,12 +25,20 @@ from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBo
 from calibre.gui2.widgets2 import RatingEditor
 
 
+def safe_disconnect(signal):
+    try:
+        signal.disconnect()
+    except Exception:
+        pass
+
+
 class Base(object):
 
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
         self.col_metadata = db.custom_column_num_map[col_id]
         self.initial_val = self.widgets = None
+        self.signals_to_disconnect = []
         self.setup_ui(parent)
 
     def initialize(self, book_id):
@@ -66,6 +74,12 @@ class Base(object):
 
     def break_cycles(self):
         self.db = self.widgets = self.initial_val = None
+        for signal in self.signals_to_disconnect:
+            safe_disconnect(signal)
+        self.signals_to_disconnect = []
+
+    def connect_data_changed(self, slot):
+        pass
 
 
 class SimpleText(Base):
@@ -78,6 +92,10 @@ class SimpleText(Base):
 
     def getter(self):
         return self.widgets[1].text().strip()
+
+    def connect_data_changed(self, slot):
+        self.widgets[1].textChanged.connect(slot)
+        self.signals_to_disconnect.append(self.widgets[1].textChanged)
 
 
 class LongText(Base):
@@ -97,6 +115,10 @@ class LongText(Base):
 
     def getter(self):
         return self._tb.toPlainText()
+
+    def connect_data_changed(self, slot):
+        self._tb.textChanged.connect(slot)
+        self.signals_to_disconnect.append(self._tb.textChanged)
 
 
 class Bool(Base):
@@ -165,6 +187,10 @@ class Bool(Base):
     def set_to_cleared(self):
         self.combobox.setCurrentIndex(2)
 
+    def connect_data_changed(self, slot):
+        self.combobox.currentTextChanged.connect(slot)
+        self.signals_to_disconnect.append(self.combobox.currentTextChanged)
+
 
 class Int(Base):
 
@@ -195,6 +221,10 @@ class Int(Base):
             self.setter(0)
         self.was_none = to_what == self.widgets[1].minimum()
 
+    def connect_data_changed(self, slot):
+        self.widgets[1].valueChanged.connect(slot)
+        self.signals_to_disconnect.append(self.widgets[1].valueChanged)
+
 
 class Float(Int):
 
@@ -222,6 +252,10 @@ class Rating(Base):
 
     def getter(self):
         return self.widgets[1].rating_value or None
+
+    def connect_data_changed(self, slot):
+        self.widgets[1].currentTextChanged.connect(slot)
+        self.signals_to_disconnect.append(self.widgets[1].currentTextChanged)
 
 
 class DateTimeEdit(QDateTimeEdit):
@@ -302,6 +336,10 @@ class DateTime(Base):
     def normalize_ui_val(self, val):
         return as_utc(val) if val is not None else None
 
+    def connect_data_changed(self, slot):
+        self.widgets[1].dateTimeChanged.connect(slot)
+        self.signals_to_disconnect.append(self.widgets[1].dateTimeChanged)
+
 
 class Comments(Base):
 
@@ -344,6 +382,10 @@ class Comments(Base):
         def fset(self, val):
             self._tb.tab = val
         return property(fget=fget, fset=fset)
+
+    def connect_data_changed(self, slot):
+        self._tb.data_changed.connect(slot)
+        self.signals_to_disconnect.append(self._tb.data_changed)
 
 
 class MultipleWidget(QWidget):
@@ -481,6 +523,14 @@ class Text(Base):
         if d.exec_() == TagEditor.Accepted:
             self.setter(d.tags)
 
+    def connect_data_changed(self, slot):
+        if self.col_metadata['is_multiple']:
+            s = self.widgets[1].tags_box.currentTextChanged
+        else:
+            s = self.widgets[1].currentTextChanged
+        s.connect(slot)
+        self.signals_to_disconnect.append(s)
+
 
 class Series(Base):
 
@@ -554,6 +604,11 @@ class Series(Base):
         val, s_index = self.current_val
         mi.set('#' + self.col_metadata['label'], val, extra=s_index)
 
+    def connect_data_changed(self, slot):
+        for s in self.widgets[1].editTextChanged, self.widgets[3].valueChanged:
+            s.connect(slot)
+            self.signals_to_disconnect.append(s)
+
 
 class Enumeration(Base):
 
@@ -597,6 +652,10 @@ class Enumeration(Base):
         if not val:
             val = None
         return val
+
+    def connect_data_changed(self, slot):
+        self.widgets[1].currentIndexChanged.connect(slot)
+        self.signals_to_disconnect.append(self.widgets[1].currentIndexChanged)
 
 
 def comments_factory(db, key, parent):
