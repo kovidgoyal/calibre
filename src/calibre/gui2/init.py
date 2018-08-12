@@ -24,6 +24,7 @@ from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.customize.ui import find_plugin
+from calibre.utils.localization import localize_website_link
 
 _keep_refs = []
 
@@ -227,7 +228,7 @@ class VersionLabel(QLabel):  # {{{
         self.setToolTip(_('See what\'s new in this calibre release'))
 
     def mouseReleaseEvent(self, ev):
-        open_url('https://calibre-ebook.com/whats-new')
+        open_url(localize_website_link('https://calibre-ebook.com/whats-new'))
         ev.accept()
         return QLabel.mouseReleaseEvent(self, ev)
 
