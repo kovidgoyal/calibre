@@ -854,7 +854,10 @@ class DocumentView(QWebView):  # {{{
             self.link_clicked(qurl)
             return
         path = qurl.toLocalFile()
-        self.link_clicked(self.as_url(path))
+        link = self.as_url(path)
+        if qurl.hasFragment():
+            link.setFragment(qurl.fragment(QUrl.FullyEncoded), QUrl.StrictMode)
+        self.link_clicked(link)
 
     def sizeHint(self):
         return self._size_hint
