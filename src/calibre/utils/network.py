@@ -7,6 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.constants import iswindows, islinux, isbsd
+from calibre.utils.config_base import tweaks
 
 
 class LinuxNetworkStatus(object):
@@ -49,10 +50,13 @@ class DummyNetworkStatus(object):
     def __call__(self):
         return True
 
+
 _network_status = WindowsNetworkStatus() if iswindows else \
         LinuxNetworkStatus() if (islinux or isbsd) else \
         DummyNetworkStatus()
 
 
 def internet_connected():
+    if tweaks['skip_network_check']:
+        return True
     return _network_status()

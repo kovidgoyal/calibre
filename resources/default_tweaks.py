@@ -567,3 +567,9 @@ show_saved_search_box = False
 # exclude_fields_on_paste = ['cover', 'timestamp', '#mycolumn']
 # to prevent pasting of the cover, Date and custom column, mycolumn.
 exclude_fields_on_paste = []
+
+#: Skip internet connected check
+# Skip checking whether the internet is available before downloading news.
+# Useful if for some reason your operating systems network checking
+# facilities are not reliable (for example NetworkManager on Linux).
+skip_network_check = False
