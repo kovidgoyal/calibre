@@ -99,7 +99,7 @@ def wrap_button_text(text, max_len=MAX_TEXT_LENGTH):
 
 
 def rewrap_button(w):
-    if not sip.isdeleted(w):
+    if not sip.isdeleted(w) and w.defaultAction() is not None:
         w.setText(wrap_button_text(w.defaultAction().text()))
 
 
