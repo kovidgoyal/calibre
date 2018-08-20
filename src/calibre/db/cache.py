@@ -728,7 +728,7 @@ class Cache(object):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
-        dest can also be a path, in which case the format is copied to it, iff
+        dest can also be a path (to a file), in which case the format is copied to it, iff
         the path is different from the current path (taking case sensitivity
         into account).
         '''
