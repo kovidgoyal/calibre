@@ -220,7 +220,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     bottom_name = container.href_to_name(manifest_item.get('href'), container.opf_name)
 
     # Fix links in the split trees
-    for r, rname, anchors in [(root1, bottom_name, anchors_in_bottom), (root2, name, anchors_in_top)]:
+    for r in (root1, root2):
         for a in r.xpath('//*[@href]'):
             url = a.get('href')
             if url.startswith('#'):
@@ -229,8 +229,16 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
                 fname = container.href_to_name(url, name)
             if fname == name:
                 purl = urlparse(url)
-                if purl.fragment in anchors:
-                    a.set('href', '%s#%s' % (container.name_to_href(rname, name), purl.fragment))
+                if purl.fragment in anchors_in_top:
+                    if r is root2:
+                        a.set('href', '%s#%s' % (container.name_to_href(name, bottom_name), purl.fragment))
+                    else:
+                        a.set('href', '#' + purl.fragment)
+                elif purl.fragment in anchors_in_bottom:
+                    if r is root1:
+                        a.set('href', '%s#%s' % (container.name_to_href(bottom_name, name), purl.fragment))
+                    else:
+                        a.set('href', '#' + purl.fragment)
 
     # Fix all links in the container that point to anchors in the bottom tree
     for fname, media_type in container.mime_map.iteritems():
