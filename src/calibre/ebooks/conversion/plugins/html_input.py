@@ -20,7 +20,9 @@ from calibre.utils.imghdr import what
 
 
 def sanitize_file_name(x):
-    return re.sub(r'[?&=;#]', '_', ascii_filename(x))
+    ans = re.sub(r'\s+', ' ', re.sub(r'[?&=;#]', '_', ascii_filename(x))).strip().rstrip('.')
+    ans, ext = ans.rpartition('.')[::2]
+    return ans.strip() + '.' + ext.strip()
 
 
 class HTMLInput(InputFormatPlugin):
