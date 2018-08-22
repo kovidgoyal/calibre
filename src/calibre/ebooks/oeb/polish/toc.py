@@ -468,7 +468,10 @@ def from_links(container):
             href = a.get('href')
             if not href or not href.strip():
                 continue
-            dest = container.href_to_name(href, base=name)
+            if href.startswith('#'):
+                dest = name
+            else:
+                dest = container.href_to_name(href, base=name)
             frag = href.rpartition('#')[-1] or None
             if (dest, frag) in seen_dests:
                 continue
