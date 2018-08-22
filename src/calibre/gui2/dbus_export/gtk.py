@@ -262,25 +262,24 @@ class MyApplication(Gtk.Application):
         self.object_path = props['_UNITY_OBJECT_PATH']
         self.bus_name = props['_GTK_UNIQUE_BUS_NAME']
 
-    def print(self, *args):
+    def write(self, *args):
         self.data.append(' '.join(map(str, args)))
 
     def print_menu_start(self, bus, group=0, seen=None):
         groups = set()
         seen = seen or set()
         seen.add(group)
-        print = self.print
-        print ('\nMenu description (Group %d)' % group)
+        self.write('\nMenu description (Group %d)' % group)
         for item in bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Menus', 'Start', 'au', ([group],)):
-            print ('Subscription group:', item[0])
-            print ('Menu number:', item[1])
+            self.write('Subscription group:', item[0])
+            self.write('Menu number:', item[1])
             for menu_item in item[2]:
                 menu_item = {unicode(k):convert(v) for k, v in menu_item.iteritems()}
                 if ':submenu' in menu_item:
                     groups.add(menu_item[':submenu'][0])
                 if ':section' in menu_item:
                     groups.add(menu_item[':section'][0])
-                print (pformat(menu_item))
+                self.write(pformat(menu_item))
         for other_group in sorted(groups - seen):
             self.print_menu_start(bus, other_group, seen)
 
@@ -294,15 +293,14 @@ class MyApplication(Gtk.Application):
         self.window.label.set_text('\n'.join(self.data))
 
     def get_actions_description(self, bus):
-        print = self.print
-        print('\nActions description')
+        self.write('\nActions description')
         self.actions_desc = d = {}
         adata = bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Actions', 'DescribeAll', '', ())
         for name in sorted(adata):
             data = adata[name]
             d[name] = {'enabled':convert(data[0]), 'param type': convert(data[1]), 'state':convert(data[2])}
-            print ('Name:', name)
-            print (pformat(d[name]))
+            self.write('Name:', name)
+            self.write(pformat(d[name]))
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
