@@ -763,13 +763,6 @@ class LibraryPage(QWizardPage, LibraryUI):
                 base = os.path.expanduser(u'~')
             except ValueError:
                 base = QDir.homePath().replace('/', os.sep)
-            if iswindows:
-                try:
-                    x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
-                except ValueError:
-                    x = QDir.homePath().replace('/', os.sep)
-                if x and os.access(x, os.W_OK):
-                    base = x
 
             lp = os.path.join(base, fname)
             self.default_library_name = lp
