@@ -146,14 +146,9 @@ def get_library_path(gui_runner):
     library_path = prefs['library_path']
     if library_path is None:  # Need to migrate to new database layout
         base = os.path.expanduser('~')
-        if iswindows:
-            try:
-                base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
-            except ValueError:
-                base = None
-            if not base or not os.path.exists(base):
-                from PyQt5.Qt import QDir
-                base = unicode(QDir.homePath()).replace('/', os.sep)
+        if not base or not os.path.exists(base):
+            from PyQt5.Qt import QDir
+            base = unicode(QDir.homePath()).replace('/', os.sep)
         candidate = gui_runner.choose_dir(base)
         if not candidate:
             candidate = os.path.join(base, 'Calibre Library')
