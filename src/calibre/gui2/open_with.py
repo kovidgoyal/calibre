@@ -37,7 +37,7 @@ def pixmap_to_data(pixmap):
 def run_program(entry, path, parent):
     import subprocess
     cmdline = entry_to_cmdline(entry, path)
-    print('Running Open With commandline:', repr(cmdline))
+    print(('Running Open With commandline:', repr(cmdline)))
     try:
         with sanitize_env_vars():
             process = subprocess.Popen(cmdline)
@@ -124,7 +124,7 @@ if iswindows:
 
     def run_program(entry, path, parent):  # noqa
         cmdline = entry_to_cmdline(entry, path)
-        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
+        print(('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline)))
         try:
             with sanitize_env_vars():
                 process_handle, thread_handle, process_id, thread_id = CreateProcess(

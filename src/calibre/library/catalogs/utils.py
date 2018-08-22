@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 __docformat__ = 'restructuredtext en'
@@ -186,7 +187,7 @@ class NumberToText(object):  # {{{
                 thousandsNumber = (number - (millionsNumber * 10**6))/10**3
                 hundredsNumber  = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
                 if self.verbose:
-                    print "Converting %s %s %s" % (millionsNumber, thousandsNumber, hundredsNumber)
+                    print("Converting %s %s %s" % (millionsNumber, thousandsNumber, hundredsNumber))
 
                 # Convert hundredsNumber
                 if hundredsNumber :

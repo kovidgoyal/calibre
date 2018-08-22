@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -259,7 +260,7 @@ class LrsParser(object):
             if os.access(f, os.R_OK):
                 settings['thumbnail'] = f
             else:
-                print _('Could not read from thumbnail file:'), f
+                print(_('Could not read from thumbnail file:'), f)
 
         self.book = Book(title=title, author=author, publisher=publisher,
                          category=category, classification=classification,

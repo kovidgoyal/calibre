@@ -3,6 +3,7 @@ Container-/OPF-based input OEBBook reader.
 """
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
@@ -715,9 +716,9 @@ def main(argv=sys.argv):
     for arg in argv[1:]:
         oeb = reader(OEBBook(), arg)
         for name, doc in oeb.to_opf1().values():
-            print etree.tostring(doc, pretty_print=True)
+            print(etree.tostring(doc, pretty_print=True))
         for name, doc in oeb.to_opf2(page_map=True).values():
-            print etree.tostring(doc, pretty_print=True)
+            print(etree.tostring(doc, pretty_print=True))
     return 0
 
 

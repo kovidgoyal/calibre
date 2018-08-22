@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -478,6 +479,6 @@ class JobError(QDialog):  # {{{
 if __name__ == '__main__':
     from calibre.gui2 import question_dialog, Application
     app = Application([])
-    print(question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
+    print((question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
             det_msg='det '*1000,
-            show_copy_button=True))
+            show_copy_button=True)))

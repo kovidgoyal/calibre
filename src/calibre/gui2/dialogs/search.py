@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -405,4 +406,4 @@ if __name__ == '__main__':
     app = Application([])
     d = SearchDialog(None, db)
     d.exec_()
-    print(d.search_string())
+    print((d.search_string()))

@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time
@@ -179,11 +180,11 @@ class Main(MainWindow, Ui_MainWindow):
                 import cProfile
                 lrf = self.renderer.lrf
                 cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
-                print 'Stats written to', self.renderer.lrf.metadata.title+'.stats'
+                print('Stats written to', self.renderer.lrf.metadata.title+'.stats')
             else:
                 start = time.time()
                 self.document.render(self.renderer.lrf)
-                print 'Layout time:', time.time()-start, 'seconds'
+                print('Layout time:', time.time()-start, 'seconds')
             self.renderer.lrf = None
 
             self.graphics_view.setScene(self.document)
@@ -196,9 +197,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.graphics_view.setFocus(Qt.OtherFocusReason)
         elif self.renderer.exception is not None:
             exception = self.renderer.exception
-            print >>sys.stderr, 'Error rendering document'
-            print >>sys.stderr, exception
-            print >>sys.stderr, self.renderer.formatted_traceback
+            print('Error rendering document', file=sys.stderr)
+            print(exception, file=sys.stderr)
+            print(self.renderer.formatted_traceback, file=sys.stderr)
             msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
             msg += u'<p>Failed to render document</p>'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'

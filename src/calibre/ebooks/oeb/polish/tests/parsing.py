@@ -219,4 +219,4 @@ def timing():
             f(raw)
             timings.append(monotonic() - st)
         avg = sum(timings)/len(timings)
-        print ('Average time for %s: %.2g' % (name, avg))
+        print(('Average time for %s: %.2g' % (name, avg)))

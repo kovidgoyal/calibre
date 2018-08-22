@@ -403,8 +403,8 @@ def test():
         while not p.results.empty():
             r = p.results.get()
             if not ignore_fail and r.is_terminal_failure:
-                print (r.result.err)
-                print (r.result.traceback)
+                print((r.result.err))
+                print((r.result.traceback))
                 raise SystemExit(1)
             ans[r.id] = r.result
         return ans

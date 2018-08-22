@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -119,7 +120,7 @@ class PluginWidget(QWidget,Ui_Form):
 
     def block_all_signals(self, bool):
         if self.DEBUG:
-            print("block_all_signals: %s" % bool)
+            print(("block_all_signals: %s" % bool))
         self.blocking_all_signals = bool
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
@@ -230,7 +231,7 @@ class PluginWidget(QWidget,Ui_Form):
                     results = _truncated_results(excluded_tags)
         finally:
             if False and self.DEBUG:
-                print("exclude_genre_changed(): %s" % results)
+                print(("exclude_genre_changed(): %s" % results))
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)
 
@@ -521,9 +522,9 @@ class PluginWidget(QWidget,Ui_Form):
             opts_dict['output_profile'] = ['default']
 
         if False and self.DEBUG:
-            print "opts_dict"
+            print("opts_dict")
             for opt in sorted(opts_dict.keys(), key=sort_key):
-                print " %s: %s" % (opt, repr(opts_dict[opt]))
+                print(" %s: %s" % (opt, repr(opts_dict[opt])))
         return opts_dict
 
     def populate_combo_boxes(self):
@@ -813,7 +814,7 @@ class PluginWidget(QWidget,Ui_Form):
         When anything changes, clear Preset combobox
         '''
         if self.DEBUG:
-            print("settings_changed: %s" % source)
+            print(("settings_changed: %s" % source))
         self.preset_field.setCurrentIndex(0)
 
     def show_help(self):
@@ -954,7 +955,7 @@ class GenericRulesTable(QTableWidget):
         self.setFocus()
         row = self.last_row_selected + 1
         if self.DEBUG:
-            print("%s:add_row(): at row: %d" % (self.objectName(), row))
+            print(("%s:add_row(): at row: %d" % (self.objectName(), row)))
         self.insertRow(row)
         self.populate_table_row(row, self.create_blank_row_data())
         self.select_and_scroll_to_row(row)
@@ -978,7 +979,7 @@ class GenericRulesTable(QTableWidget):
 
     def delete_row(self):
         if self.DEBUG:
-            print("%s:delete_row()" % self.objectName())
+            print(("%s:delete_row()" % self.objectName()))
 
         self.setFocus()
         rows = self.last_rows_selected
@@ -1007,12 +1008,12 @@ class GenericRulesTable(QTableWidget):
             self.select_and_scroll_to_row(row)
             self.settings_changed("enabled_state_changed")
             if self.DEBUG:
-                print("%s:enabled_state_changed(): row %d col %d" %
-                      (self.objectName(), row, col))
+                print(("%s:enabled_state_changed(): row %d col %d" %
+                      (self.objectName(), row, col)))
 
     def focusInEvent(self,e):
         if self.DEBUG:
-            print("%s:focusInEvent()" % self.objectName())
+            print(("%s:focusInEvent()" % self.objectName()))
 
     def focusOutEvent(self,e):
         # Override of QTableWidget method - clear selection when table loses focus
@@ -1020,7 +1021,7 @@ class GenericRulesTable(QTableWidget):
         self.last_rows_selected = self.selectionModel().selectedRows()
         self.clearSelection()
         if self.DEBUG:
-            print("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected))
+            print(("%s:focusOutEvent(): self.last_row_selected: %d" % (self.objectName(),self.last_row_selected)))
 
     def move_row_down(self):
         self.setFocus()
@@ -1036,7 +1037,7 @@ class GenericRulesTable(QTableWidget):
             dest_row = selrow.row() + 1
             src_row = selrow.row()
             if self.DEBUG:
-                print("%s:move_row_down() %d -> %d" % (self.objectName(),src_row, dest_row))
+                print(("%s:move_row_down() %d -> %d" % (self.objectName(),src_row, dest_row)))
 
             # Save the contents of the destination row
             saved_data = self.convert_row_to_data(dest_row)
@@ -1066,7 +1067,7 @@ class GenericRulesTable(QTableWidget):
 
         for selrow in rows:
             if self.DEBUG:
-                print("%s:move_row_up() %d -> %d" % (self.objectName(),selrow.row(), selrow.row()-1))
+                print(("%s:move_row_up() %d -> %d" % (self.objectName(),selrow.row(), selrow.row()-1)))
 
             # Save the row above
             saved_data = self.convert_row_to_data(selrow.row() - 1)
@@ -1103,7 +1104,7 @@ class GenericRulesTable(QTableWidget):
 
     def rule_name_edited(self):
         if self.DEBUG:
-            print("%s:rule_name_edited()" % self.objectName())
+            print(("%s:rule_name_edited()" % self.objectName()))
 
         current_row = self.currentRow()
         self.cellWidget(current_row,1).home(False)
@@ -1128,8 +1129,8 @@ class GenericRulesTable(QTableWidget):
                 break
 
         if self.DEBUG:
-            print("%s:_source_index_changed(): calling source_index_changed with row: %d " %
-                  (self.objectName(), row))
+            print(("%s:_source_index_changed(): calling source_index_changed with row: %d " %
+                  (self.objectName(), row)))
 
         self.source_index_changed(combo, row)
 
@@ -1169,8 +1170,8 @@ class GenericRulesTable(QTableWidget):
                 break
 
         if self.DEBUG:
-            print("%s:values_index_changed(): row %d " %
-                  (self.objectName(), row))
+            print(("%s:values_index_changed(): row %d " %
+                  (self.objectName(), row)))
 
 
 class ExclusionRules(GenericRulesTable):

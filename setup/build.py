@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -343,7 +344,7 @@ class Build(Command):
             subprocess.check_call(*args, **kwargs)
         except:
             cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
-            print "Error while executing: %s\n" % (cmdline)
+            print("Error while executing: %s\n" % (cmdline))
             raise
 
     def build_headless(self):

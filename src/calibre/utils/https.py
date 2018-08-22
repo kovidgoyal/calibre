@@ -221,4 +221,4 @@ def get_https_resource_securely(
 
 
 if __name__ == '__main__':
-    print (get_https_resource_securely('https://code.calibre-ebook.com/latest'))
+    print((get_https_resource_securely('https://code.calibre-ebook.com/latest')))

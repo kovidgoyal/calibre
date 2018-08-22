@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         b.clicked.connect(self.remove_menu), l.addWidget(b)
         self.sd = b = QPushButton('Show modal dialog')
         b.clicked.connect(self.show_dialog), l.addWidget(b)
-        print ('DBUS connection unique name:', f.bus.get_unique_name())
+        print(('DBUS connection unique name:', f.bus.get_unique_name()))
 
     def update_tooltip(self):
         self.systray.setToolTip(time.strftime('A dynamically updated tooltip [%H:%M:%S]'))

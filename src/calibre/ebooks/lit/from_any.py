@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -56,7 +57,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     if len(args) < 2:
         parser.print_help()
-        print 'No input file specified.'
+        print('No input file specified.')
         return 1
     any2lit(opts, args[1])
     return 0

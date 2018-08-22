@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -54,7 +55,7 @@ class CLI(object):
             try:
                 shutil.copyfileobj(infile, dest)
             except IOError:
-                print 'WARNING: First attempt to send file to device failed'
+                print('WARNING: First attempt to send file to device failed')
                 time.sleep(0.2)
                 infile.seek(0)
                 dest.seek(0)

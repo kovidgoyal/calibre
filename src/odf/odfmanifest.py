@@ -20,6 +20,7 @@
 #
 
 # This script lists the content of the manifest.xml file
+from __future__ import print_function
 import zipfile
 from xml.sax import make_parser,handler
 from xml.sax.xmlreader import InputSource
@@ -112,5 +113,5 @@ if __name__ == "__main__":
     import sys
     result = odfmanifest(sys.argv[1])
     for file in result.values():
-        print "%-40s %-40s" % (file['media-type'], file['full-path'])
+        print("%-40s %-40s" % (file['media-type'], file['full-path']))
 

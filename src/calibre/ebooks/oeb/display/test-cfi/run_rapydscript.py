@@ -29,7 +29,7 @@ def run_devel_server():
     PORT = 8000
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
     httpd = SocketServer.TCPServer(("", PORT), Handler)
-    print('Serving CFI test at http://localhost:%d' % PORT)
+    print(('Serving CFI test at http://localhost:%d' % PORT))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

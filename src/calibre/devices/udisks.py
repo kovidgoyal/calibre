@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -201,13 +202,13 @@ def umount(node_path):
 def test_udisks(ver=None):
     import sys
     dev = sys.argv[1]
-    print 'Testing with node', dev
+    print('Testing with node', dev)
     u = get_udisks(ver=ver)
-    print 'Using Udisks:', u.__class__.__name__
-    print 'Mounted at:', u.mount(dev)
-    print 'Unmounting'
+    print('Using Udisks:', u.__class__.__name__)
+    print('Mounted at:', u.mount(dev))
+    print('Unmounting')
     u.unmount(dev)
-    print 'Ejecting:'
+    print('Ejecting:')
     u.eject(dev)
 
 if __name__ == '__main__':

@@ -996,16 +996,16 @@ def develop():  # {{{
         connected, usbdev = dev.is_usb_connected(usb_devices, debug=True)
         if connected:
             print('\n')
-            print('Potentially connected device: %s at %s' % (dev.get_gui_name(), usbdev))
+            print(('Potentially connected device: %s at %s' % (dev.get_gui_name(), usbdev)))
             print()
             print('Drives for this device:')
             data = get_drive_letters_for_device(usbdev, debug=True)
             pprint(data)
             drive_letters |= set(data['drive_letters'])
             print()
-            print('Is device connected:', is_usb_device_connected(*usbdev[:2]))
+            print(('Is device connected:', is_usb_device_connected(*usbdev[:2])))
             print()
-            print('Device USB data:', get_usb_info(usbdev, debug=True))
+            print(('Device USB data:', get_usb_info(usbdev, debug=True)))
 
 
 def drives_for(vendor_id, product_id=None):
@@ -1013,9 +1013,9 @@ def drives_for(vendor_id, product_id=None):
     pprint(usb_devices)
     for usbdev in usb_devices:
         if usbdev.vendor_id == vendor_id and (product_id is None or usbdev.product_id == product_id):
-            print('Drives for: {}'.format(usbdev))
+            print(('Drives for: {}'.format(usbdev)))
             pprint(get_drive_letters_for_device(usbdev, debug=True))
-            print('USB info:', get_usb_info(usbdev, debug=True))
+            print(('USB info:', get_usb_info(usbdev, debug=True)))
 
 if __name__ == '__main__':
     develop()

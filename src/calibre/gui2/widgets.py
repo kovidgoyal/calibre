@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -1126,8 +1127,8 @@ class Splitter(QSplitter):
 
     def print_sizes(self):
         if self.count() > 1:
-            print self.save_name, 'side:', self.side_index_size, 'other:',
-            print list(self.sizes())[self.other_index]
+            print(self.save_name, 'side:', self.side_index_size, 'other:', end=' ')
+            print(list(self.sizes())[self.other_index])
 
     @dynamic_property
     def side_index_size(self):

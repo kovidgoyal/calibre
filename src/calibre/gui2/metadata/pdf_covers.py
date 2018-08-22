@@ -152,5 +152,5 @@ if __name__ == '__main__':
     app = Application([])
     d = PDFCovers(sys.argv[-1])
     d.exec_()
-    print (d.cover_path)
+    print((d.cover_path))
     del app

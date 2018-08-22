@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -55,7 +56,7 @@ class Coffee(Command):  # {{{
         from pygments.lexers import JavascriptLexer
         from pygments.formatters import TerminalFormatter
         from pygments import highlight
-        print highlight(raw, JavascriptLexer(), TerminalFormatter())
+        print(highlight(raw, JavascriptLexer(), TerminalFormatter()))
 
     def do_coffee_compile(self, opts, timestamp=False, ignore_errors=False):
         from calibre.utils.serve_coffee import compile_coffeescript
@@ -89,14 +90,14 @@ class Coffee(Command):  # {{{
         updated = {}
         for arcname in todo:
             name = arcname.rpartition('.')[0]
-            print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
-                        timestamp else '', name))
+            print(('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
+                        timestamp else '', name)))
             src, sig = src_files[arcname]
             js, errors = compile_coffeescript(open(src, 'rb').read(), filename=src)
             if errors:
-                print ('\n\tCompilation of %s failed'%name)
+                print(('\n\tCompilation of %s failed'%name))
                 for line in errors:
-                    print >>sys.stderr, line
+                    print(line, file=sys.stderr)
                 if ignore_errors:
                     js = u'# Compilation from coffeescript failed'
                 else:
@@ -104,8 +105,8 @@ class Coffee(Command):  # {{{
             else:
                 if opts.show_js:
                     self.show_js(js)
-                    print ('#'*80)
-                    print ('#'*80)
+                    print(('#'*80))
+                    print(('#'*80))
             zi = zipfile.ZipInfo()
             zi.filename = arcname
             zi.date_time = time.localtime()[:6]

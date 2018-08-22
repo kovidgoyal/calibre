@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from __future__ import print_function
 import importlib
 import json
 import re
@@ -52,7 +53,7 @@ class Bug:
         else:
             summary = json.loads(urllib.request.urlopen(GITHUB_BUG % bug).read())['title']
         if summary:
-            print('Working on bug:', summary)
+            print(('Working on bug:', summary))
             if int(bug) > 100000 and action != 'See':
                 self.close_bug(bug, action)
                 return match.group() + ' [%s](%s)' % (summary, LAUNCHPAD_BUG % bug)
@@ -60,7 +61,7 @@ class Bug:
         return match.group()
 
     def close_bug(self, bug, action):
-        print('Closing bug #%s' % bug)
+        print(('Closing bug #%s' % bug))
         suffix = (
             'The fix will be in the next release. '
             'calibre is usually released every alternate Friday.'

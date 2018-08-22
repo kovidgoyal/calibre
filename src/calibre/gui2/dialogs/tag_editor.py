@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -235,4 +236,4 @@ if __name__ == '__main__':
     app = Application([])
     d = TagEditor(None, db, current_tags='a b c'.split())
     if d.exec_() == d.Accepted:
-        print(d.tags)
+        print((d.tags))

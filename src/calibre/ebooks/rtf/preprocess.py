@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Gerendi Sandor Attila'
 __docformat__ = 'restructuredtext en'

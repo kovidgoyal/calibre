@@ -309,11 +309,11 @@ if __name__ == '__main__':
             with CurrentDir(path):
                 for x in os.listdir('.'):
                     if x[0] != '.':
-                        print ('Adding', x)
+                        print(('Adding', x))
                     zf.write(x)
                     if os.path.isdir(x):
                         for y in os.listdir(x):
                             zf.write(os.path.join(x, y))
         add_plugin(f.name)
-        print ('Added plugin from', sys.argv[-1])
+        print(('Added plugin from', sys.argv[-1]))
 

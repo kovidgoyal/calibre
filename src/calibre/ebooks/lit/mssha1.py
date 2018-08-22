@@ -4,6 +4,7 @@ Modified version of SHA-1 used in Microsoft LIT files.
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
@@ -325,7 +326,7 @@ if __name__ == '__main__':
         import sys
         file = None
         if len(sys.argv) > 2:
-            print "usage: %s [FILE]" % sys.argv[0]
+            print("usage: %s [FILE]" % sys.argv[0])
             return
         elif len(sys.argv) < 2:
             file = sys.stdin
@@ -339,6 +340,6 @@ if __name__ == '__main__':
         file.close()
         digest = context.hexdigest().upper()
         for i in xrange(0, 40, 8):
-            print digest[i:i+8],
-        print
+            print(digest[i:i+8], end=' ')
+        print()
     main()

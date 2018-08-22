@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -143,7 +144,7 @@ class TOC(list):
 
                     self.read_html_toc(toc)
                 except:
-                    print 'WARNING: Could not read Table of Contents. Continuing anyway.'
+                    print('WARNING: Could not read Table of Contents. Continuing anyway.')
             else:
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
@@ -151,7 +152,7 @@ class TOC(list):
                     try:
                         self.read_ncx_toc(path)
                     except Exception as err:
-                        print 'WARNING: Invalid NCX file:', err
+                        print('WARNING: Invalid NCX file:', err)
                     return
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))

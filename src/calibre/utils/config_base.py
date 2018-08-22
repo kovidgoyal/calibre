@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -202,8 +203,8 @@ class OptionSet(object):
                 src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
                 exec src in options
             except:
-                print 'Failed to parse options string:'
-                print repr(src)
+                print('Failed to parse options string:')
+                print(repr(src))
                 traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
@@ -282,7 +283,7 @@ class Config(ConfigInterface):
                 try:
                     src = f.read().decode('utf-8')
                 except ValueError:
-                    print "Failed to parse", self.config_file_path
+                    print("Failed to parse", self.config_file_path)
                     traceback.print_exc()
         return self.option_set.parse_string(src)
 
@@ -473,7 +474,7 @@ def read_tweaks():
         exec tweaks in g, l
     except:
         import traceback
-        print 'Failed to load custom tweaks file'
+        print('Failed to load custom tweaks file')
         traceback.print_exc()
     dl, dg = {}, {}
     exec default_tweaks in dg, dl

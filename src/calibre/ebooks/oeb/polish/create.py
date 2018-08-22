@@ -121,6 +121,6 @@ if __name__ == '__main__':
     path = sys.argv[-1]
     ext = path.rpartition('.')[-1].lower()
     if ext not in valid_empty_formats:
-        print ('Unsupported format:', ext)
+        print(('Unsupported format:', ext))
         raise SystemExit(1)
     create_book(mi, path, fmt=ext)

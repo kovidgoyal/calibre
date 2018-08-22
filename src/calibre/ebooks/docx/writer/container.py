@@ -278,4 +278,4 @@ class DOCX(object):
 
 if __name__ == '__main__':
     d = DOCX(None, None)
-    print (d.websettings)
+    print((d.websettings))

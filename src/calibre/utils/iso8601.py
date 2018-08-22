@@ -63,4 +63,4 @@ def parse_iso8601(date_string, assume_utc=False, as_utc=True):
 
 if __name__ == '__main__':
     import sys
-    print(parse_iso8601(sys.argv[-1]))
+    print((parse_iso8601(sys.argv[-1])))

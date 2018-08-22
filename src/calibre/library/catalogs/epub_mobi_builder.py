@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
@@ -710,9 +711,9 @@ class CatalogBuilder(object):
             print("     establish_equivalencies():")
             if key:
                 for idx, item in enumerate(item_list):
-                    print("      %s %s" % (cl_list[idx], item[sort_field]))
+                    print(("      %s %s" % (cl_list[idx], item[sort_field])))
             else:
-                print("      %s %s" % (cl_list[idx], item))
+                print(("      %s %s" % (cl_list[idx], item)))
 
         return cl_list
 
@@ -769,9 +770,9 @@ class CatalogBuilder(object):
             tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
             fs = '{:<6}{:<%d} {:<%d} {!s}' % (len(lt), len(las))
-            print(fs.format('', 'Title', 'Author', 'Series'))
+            print((fs.format('', 'Title', 'Author', 'Series')))
             for i in books_by_author:
-                print(fs.format('', i['title'], i['author_sort'], i['series']))
+                print((fs.format('', i['title'], i['author_sort'], i['series'])))
 
         # Build the unique_authors set from existing data
         authors = [(record['author'], capitalize(record['author_sort'])) for record in books_by_author]
@@ -4255,7 +4256,7 @@ class CatalogBuilder(object):
             else:
                 return _short_description(description, self.opts.description_clip)
         else:
-            print " returning description with unspecified destination '%s'" % description
+            print(" returning description with unspecified destination '%s'" % description)
             raise RuntimeError
 
     def generate_sort_title(self, title):

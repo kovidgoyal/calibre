@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -221,8 +222,8 @@ def load_c_extensions(conn, debug=DEBUG):
         return True
     except Exception as e:
         if debug:
-            print 'Failed to load high performance sqlite C extension'
-            print e
+            print('Failed to load high performance sqlite C extension')
+            print(e)
     return False
 
 
@@ -409,5 +410,5 @@ def connect(dbpath, row_factory=None):
 def test():
     c = sqlite.connect(':memory:')
     if load_c_extensions(c, True):
-        print 'Loaded C extension successfully'
+        print('Loaded C extension successfully')
 

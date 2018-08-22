@@ -598,8 +598,8 @@ class TextRecord(object):  # {{{
 
         for typ, val in self.trailing_data.iteritems():
             if isinstance(typ, int):
-                print ('Record %d has unknown trailing data of type: %d : %r'%
-                        (idx, typ, val))
+                print(('Record %d has unknown trailing data of type: %d : %r'%
+                        (idx, typ, val)))
 
         self.idx = idx
 

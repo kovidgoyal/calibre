@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections, itertools, glob
@@ -163,10 +164,10 @@ class _Canvas(QGraphicsRectItem):
             self.is_full = y > self.max_y-5
             ib.has_content = False
             if ib.block_id == 54:
-                print
-                print ib.block_id, ib.has_content, self.is_full
-                print self.current_y, self.max_y, y, br.height()
-                print
+                print()
+                print(ib.block_id, ib.has_content, self.is_full)
+                print(self.current_y, self.max_y, y, br.height())
+                print()
 
     def search(self, phrase):
         matches = []

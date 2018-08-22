@@ -641,5 +641,5 @@ if __name__ == '__main__':
     xmp_packet = get_xmp_metadata(sys.argv[-1])
     mi = metadata_from_xmp_packet(xmp_packet)
     np = metadata_to_xmp_packet(mi)
-    print (merge_xmp_packet(xmp_packet, np))
+    print((merge_xmp_packet(xmp_packet, np)))
 

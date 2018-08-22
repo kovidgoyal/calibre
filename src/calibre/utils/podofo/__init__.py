@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -149,7 +150,7 @@ def test_outline(src):
     out = '/tmp/outlined.pdf'
     with open(out, 'wb') as f:
         f.write(raw)
-    print 'Outlined PDF:', out
+    print('Outlined PDF:', out)
 
 
 def test_save_to(src, dest):
@@ -160,7 +161,7 @@ def test_save_to(src, dest):
     p.load(raw)
     with open(dest, 'wb') as out:
         p.save_to_fileobj(out)
-        print ('Wrote PDF of size:', out.tell())
+        print(('Wrote PDF of size:', out.tell()))
 
 
 def test_podofo():

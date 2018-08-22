@@ -12,6 +12,7 @@
 #########################################################################
 
 
+from __future__ import print_function
 class OverrideTable:
     """
     Parse a line of text to make the override table. Return a string
@@ -126,7 +127,7 @@ class OverrideTable:
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
             if action is None:
-                print self.__state
+                print(self.__state)
             action(line)
         self.__write_final_string()
         # self.__add_to_final_line()

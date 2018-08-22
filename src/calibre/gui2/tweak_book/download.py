@@ -266,5 +266,5 @@ if __name__ == '__main__':
     set_current_container(get_container(sys.argv[-1]))
     d = DownloadResources()
     d.exec_()
-    print(d.show_diff)
+    print((d.show_diff))
     del d, app

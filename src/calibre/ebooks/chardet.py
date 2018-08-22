@@ -80,8 +80,8 @@ def force_encoding(raw, verbose, assume_utf8=False):
     if chardet['confidence'] < 1 and assume_utf8:
         encoding = 'utf-8'
     if chardet['confidence'] < 1 and verbose:
-        print('WARNING: Encoding detection confidence for %s is %d%%'%(
-            chardet['encoding'], chardet['confidence']*100))
+        print(('WARNING: Encoding detection confidence for %s is %d%%'%(
+            chardet['encoding'], chardet['confidence']*100)))
     if not encoding:
         encoding = preferred_encoding
     encoding = encoding.lower()

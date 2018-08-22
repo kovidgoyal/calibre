@@ -61,4 +61,4 @@ if __name__ == '__main__':
     # /usr/lib/systemd/systemd-activate -l 8081 calibre-debug pre_activated.py
     # telnet localhost 8081
     s = pre_activated_socket()
-    print (s, s.getsockname())
+    print((s, s.getsockname()))

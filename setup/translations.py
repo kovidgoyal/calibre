@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -618,7 +619,7 @@ class GetTranslations(Translations):  # {{{
                 if changed:
                     f.save()
         for slug, languages in changes.iteritems():
-            print('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug))
+            print(('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug)))
             self.tx('push -r calibre.%s -t -l %s' % (slug, ','.join(languages)))
 
     def check_for_errors(self):
@@ -638,7 +639,7 @@ class GetTranslations(Translations):  # {{{
                 languages.add(os.path.basename(parts[-1]).partition('.')[0])
         if languages:
             pot = 'main' if group == 'calibre' else group.replace('-', '_')
-            print('Pushing fixes for %s.pot languages: %s' % (pot, ', '.join(languages)))
+            print(('Pushing fixes for %s.pot languages: %s' % (pot, ', '.join(languages))))
             self.tx('push -r calibre.{} -t -l '.format(pot) + ','.join(languages))
 
     def check_group(self, group):
@@ -673,7 +674,7 @@ class GetTranslations(Translations):  # {{{
                     raise SystemExit('Aborting as not all errors were fixed')
             errs = check_for_control_chars(f)
             if errs:
-                print(f, 'has ASCII control codes in it')
+                print((f, 'has ASCII control codes in it'))
                 print(errs)
                 raise SystemExit(1)
 

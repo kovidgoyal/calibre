@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from RB files'''
@@ -16,7 +17,7 @@ def get_metadata(stream):
     stream.seek(0)
     try:
         if not stream.read(14) == MAGIC:
-            print >>sys.stderr, u'Couldn\'t read RB header from file'
+            print(u'Couldn\'t read RB header from file', file=sys.stderr)
             return mi
         stream.read(10)
 
@@ -31,7 +32,7 @@ def get_metadata(stream):
             if flag == 2:
                 break
         else:
-            print >>sys.stderr, u'Couldn\'t find INFO from RB file'
+            print(u'Couldn\'t find INFO from RB file', file=sys.stderr)
             return mi
 
         stream.seek(offset)
@@ -47,7 +48,7 @@ def get_metadata(stream):
                 mi.authors = string_to_authors(value)
     except Exception as err:
         msg = u'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode(err))
-        print >>sys.stderr, msg.encode('utf8')
+        print(msg.encode('utf8'), file=sys.stderr)
         raise
     return mi
 

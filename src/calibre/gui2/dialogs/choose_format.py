@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -104,5 +105,5 @@ if __name__ == '__main__':
     app = Application([])
     d = ChooseFormatDialog(None, 'Testing choose format', ['epub', 'mobi', 'docx'], show_open_with=True)
     d.exec_()
-    print (d._format)
+    print((d._format))
     del app

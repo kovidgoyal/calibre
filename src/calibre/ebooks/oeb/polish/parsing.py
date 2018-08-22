@@ -106,5 +106,5 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
 if __name__ == '__main__':
     from lxml import etree
     root = parse_html5('\n<html><head><title>a\n</title><p b=1 c=2 a=0>&nbsp;\n<b>b<svg ass="wipe" viewbox="0">', discard_namespaces=False)
-    print (etree.tostring(root, encoding='utf-8'))
+    print((etree.tostring(root, encoding='utf-8')))
     print()

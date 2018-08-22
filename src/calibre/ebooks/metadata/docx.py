@@ -80,4 +80,4 @@ def set_metadata(stream, mi):
 if __name__ == '__main__':
     import sys
     with open(sys.argv[-1], 'rb') as stream:
-        print (get_metadata(stream))
+        print((get_metadata(stream)))

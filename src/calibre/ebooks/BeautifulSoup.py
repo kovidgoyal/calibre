@@ -78,6 +78,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE, DAMMIT.
 """
 from __future__ import generators
 
+from __future__ import print_function
 __author__ = "Leonard Richardson (leonardr@segfault.org)"
 __version__ = "3.0.5"
 __copyright__ = "Copyright (c) 2004-2007 Leonard Richardson"
@@ -1934,4 +1935,4 @@ class UnicodeDammit:
 if __name__ == '__main__':
     import sys
     soup = BeautifulSoup(sys.stdin.read())
-    print soup.prettify()
+    print(soup.prettify())

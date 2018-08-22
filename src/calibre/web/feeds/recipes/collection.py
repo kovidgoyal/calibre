@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -91,7 +92,7 @@ def serialize_builtin_recipes():
             try:
                 recipe_class = compile_recipe(stream.read())
             except:
-                print ('Failed to compile: %s'%f)
+                print(('Failed to compile: %s'%f))
                 raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class
@@ -117,7 +118,7 @@ def get_custom_recipe_collection(*args):
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class
         except:
-            print 'Failed to load recipe from: %r'%fname
+            print('Failed to load recipe from: %r'%fname)
             import traceback
             traceback.print_exc()
             continue
@@ -278,7 +279,7 @@ class SchedulerConfig(object):
                 try:
                     self.root = etree.fromstring(f.read())
                 except:
-                    print 'Failed to read recipe scheduler config'
+                    print('Failed to read recipe scheduler config')
                     import traceback
                     traceback.print_exc()
         elif os.path.exists(old_conf_path):

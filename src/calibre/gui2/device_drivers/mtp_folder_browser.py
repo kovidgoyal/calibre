@@ -245,5 +245,5 @@ def ignored_folders():
 
 
 if __name__ == '__main__':
-    print (browse())
+    print((browse()))
     # print ('Ignored:', ignored_folders())

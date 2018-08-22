@@ -502,10 +502,10 @@ def main():
     enc = sys.__stdout__.encoding or 'utf-8'
     if options.verbose:
         default_log.filter_level = default_log.DEBUG
-    print (Document(raw, default_log,
+    print((Document(raw, default_log,
             debug=options.verbose,
             keep_elements=options.keep_elements).summary().encode(enc,
-                'replace'))
+                'replace')))
 
 
 if __name__ == '__main__':

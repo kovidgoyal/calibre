@@ -180,16 +180,16 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
         app.quit()
 
     def on_menu_others(self, widget):
-        print("Menu item " + widget.get_name() + " was selected")
+        print(("Menu item " + widget.get_name() + " was selected"))
 
     def on_menu_choices_changed(self, widget, current):
-        print(current.get_name() + " was selected.")
+        print((current.get_name() + " was selected."))
 
     def on_menu_choices_toggled(self, widget):
         if widget.get_active():
-            print(widget.get_name() + " activated")
+            print((widget.get_name() + " activated"))
         else:
-            print(widget.get_name() + " deactivated")
+            print((widget.get_name() + " deactivated"))
 
     def on_button_press_event(self, widget, event):
         # Check if right mouse button was preseed

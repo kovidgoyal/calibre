@@ -149,7 +149,7 @@ def load_winfonts():
 def test_ttf_reading():
     for f in sys.argv[1:]:
         raw = open(f).read()
-        print (os.path.basename(f))
+        print((os.path.basename(f)))
         get_font_characteristics(raw)
         print()
 
@@ -165,7 +165,7 @@ def test():
     else:
         w = load_winfonts()
 
-    print (w.w)
+    print((w.w))
     families = w.font_families()
     print (families)
 

@@ -106,4 +106,4 @@ if __name__ == '__main__':
         fname = b + '-trimmed' + ext
         with open(fname, 'wb') as f:
             f.write(d.image_data)
-        print ('Trimmed image written to', fname)
+        print(('Trimmed image written to', fname))

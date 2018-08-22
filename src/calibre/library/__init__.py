@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
@@ -34,20 +35,20 @@ def generate_test_db(library_path,  # {{{
                 xrange(length))
 
     all_tags = [randstr(tag_length) for j in xrange(num_of_tags)]
-    print 'Generated', num_of_tags, 'tags'
+    print('Generated', num_of_tags, 'tags')
     all_authors = [randstr(author_length) for j in xrange(num_of_authors)]
-    print 'Generated', num_of_authors, 'authors'
+    print('Generated', num_of_authors, 'authors')
     all_titles = [randstr(title_length) for j in xrange(num_of_records)]
-    print 'Generated', num_of_records, 'titles'
+    print('Generated', num_of_records, 'titles')
 
     testdb = db(library_path)
 
-    print 'Creating', num_of_records, 'records...'
+    print('Creating', num_of_records, 'records...')
 
     start = time.time()
 
     for i, title in enumerate(all_titles):
-        print i+1,
+        print(i+1, end=' ')
         sys.stdout.flush()
         authors = random.randint(1, max_authors)
         authors = [random.choice(all_authors) for i in xrange(authors)]
@@ -59,8 +60,8 @@ def generate_test_db(library_path,  # {{{
         testdb.import_book(mi, [])
 
     t = time.time() - start
-    print '\nGenerated', num_of_records, 'records in:', t, 'seconds'
-    print 'Time per record:', t/float(num_of_records)
+    print('\nGenerated', num_of_records, 'records in:', t, 'seconds')
+    print('Time per record:', t/float(num_of_records))
 # }}}
 
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import print_function
 import re
 from collections import defaultdict, namedtuple
 from io import BytesIO
@@ -83,7 +84,7 @@ class MyBlockingBusy(QDialog):  # {{{
         ]
         self.selected_options = sum(options)
         if DEBUG:
-            print("Number of steps for bulk metadata: %d" % self.selected_options)
+            print(("Number of steps for bulk metadata: %d" % self.selected_options))
             print("Optionslist: ")
             print(options)
 
