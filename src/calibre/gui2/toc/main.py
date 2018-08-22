@@ -933,6 +933,7 @@ class TOCView(QWidget):  # {{{
         if len(toc) == 0:
             return error_dialog(self, _('No items found'),
                 _('No items were found that could be added to the Table of Contents.'), show=True)
+        toc.remove_duplicates()
         self.insert_toc_fragment(toc)
 
     def create_from_links(self):

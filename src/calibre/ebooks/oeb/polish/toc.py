@@ -78,6 +78,19 @@ class TOC(object):
             for gc in child.iterdescendants():
                 yield gc
 
+    def remove_duplicates(self, only_text=True):
+        seen = set()
+        remove = []
+        for child in self:
+            key = child.title if only_text else (child.title, child.dest, (child.frag or None))
+            if key in seen:
+                remove.append(child)
+            else:
+                seen.add(key)
+                child.remove_duplicates()
+        for child in remove:
+            self.remove(child)
+
     @property
     def depth(self):
         """The maximum depth of the navigation tree rooted at this node."""
