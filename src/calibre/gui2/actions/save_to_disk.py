@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
-from future_builtins import map
+from six.moves import map
 
 
 from calibre.utils.config import prefs

@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from future_builtins import zip
+from six.moves import zip
 from time import time
 
 from calibre import isbytestring, as_unicode

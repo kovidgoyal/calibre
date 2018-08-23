@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os, textwrap
 from threading import Thread
 from functools import partial
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,

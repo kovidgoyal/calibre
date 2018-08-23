@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, weakref
 from collections import OrderedDict, namedtuple
 from functools import partial
-from future_builtins import zip
+from six.moves import zip
 
 from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,

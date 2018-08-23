@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from future_builtins import map
+from six.moves import map
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict

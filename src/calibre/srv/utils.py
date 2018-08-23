@@ -13,7 +13,7 @@ from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from future_builtins import map
+from six.moves import map
 from urllib import quote as urlquote
 from binascii import hexlify, unhexlify
 

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import threading
 from functools import wraps
-from future_builtins import map
+from six.moves import map
 
 from calibre.constants import plugins
 

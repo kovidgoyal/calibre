@@ -9,7 +9,7 @@ from base64 import standard_b64encode, standard_b64decode
 from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
-from future_builtins import map
+from six.moves import map
 from urlparse import urlparse
 from urllib import quote
 

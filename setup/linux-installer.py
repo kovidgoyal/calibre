@@ -29,7 +29,7 @@ if py3:
     import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
-    from future_builtins import map
+    from six.moves import map
     from urlparse import urlparse
     import httplib
 

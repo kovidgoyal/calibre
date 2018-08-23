@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, time, re
 from collections import defaultdict
-from future_builtins import map
+from six.moves import map
 from contextlib import contextmanager
 from functools import partial
 

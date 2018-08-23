@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import re
 from collections import deque
-from future_builtins import map
+from six.moves import map
 
 from calibre.utils.icu import capitalize, lower, upper
 

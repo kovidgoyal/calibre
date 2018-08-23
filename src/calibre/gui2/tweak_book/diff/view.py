@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from future_builtins import zip
+from six.moves import zip
 
 import regex
 from PyQt5.Qt import (

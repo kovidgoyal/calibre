@@ -10,7 +10,7 @@ import os
 import posixpath
 from collections import namedtuple
 from functools import partial
-from future_builtins import map
+from six.moves import map
 
 from lxml import etree
 

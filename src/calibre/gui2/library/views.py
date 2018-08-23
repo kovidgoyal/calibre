@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import itertools, operator
 from functools import partial
-from future_builtins import map
+from six.moves import map
 from collections import OrderedDict
 
 from PyQt5.Qt import (

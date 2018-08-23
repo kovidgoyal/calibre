@@ -11,7 +11,7 @@ from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
 from io import BytesIO
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 

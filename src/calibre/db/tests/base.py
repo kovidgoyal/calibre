@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
-from future_builtins import map
+from six.moves import map
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 

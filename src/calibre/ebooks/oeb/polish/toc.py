@@ -11,7 +11,7 @@ import re
 from urlparse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
-from future_builtins import map
+from six.moves import map
 from operator import itemgetter
 
 from lxml import etree

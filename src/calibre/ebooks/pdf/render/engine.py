@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, traceback, math
 from collections import namedtuple
 from functools import wraps, partial
-from future_builtins import map, zip
+from six.moves import map, zip
 
 from PyQt5.Qt import (QPaintEngine, QPaintDevice, Qt, QTransform, QBrush)
 

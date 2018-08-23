@@ -12,7 +12,7 @@ from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
 from operator import itemgetter
 from functools import wraps
-from future_builtins import map
+from six.moves import map
 
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__, plugins

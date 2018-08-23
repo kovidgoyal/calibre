@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, textwrap, json
 from bisect import bisect_right
 from base64 import b64encode
-from future_builtins import map
+from six.moves import map
 from threading import Thread
 from Queue import Queue, Empty
 from functools import partial

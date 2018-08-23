@@ -8,7 +8,7 @@ import os
 import re
 import textwrap
 import unicodedata
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
-from future_builtins import zip
+from six.moves import zip
 
 from calibre.constants import preferred_encoding, ispy3
 from calibre.ebooks.metadata import author_to_author_sort, title_sort

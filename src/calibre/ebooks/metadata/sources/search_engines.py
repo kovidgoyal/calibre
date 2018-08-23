@@ -8,7 +8,7 @@ import json
 import re
 import time
 from collections import defaultdict, namedtuple
-from future_builtins import map
+from six.moves import map
 from urllib import quote_plus, urlencode
 from urlparse import parse_qs
 
