@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # sudo locale-gen -A && python3 lc_time.py
 
 import locale, os, pprint, sys
+
+from six.moves import map
+from six.moves import range
 
 def generate_data():
     def nl(code):

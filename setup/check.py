@@ -2,16 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import absolute_import
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, json, subprocess, errno, hashlib
 from setup import Command, build_cache_dir, edit_file
-try:
-    import six.moves.builtins as builtins
-except ImportError:
-    import builtins
+from six.moves import builtins
 
 def set_builtins(builtins_required):
     for x in builtins_required:

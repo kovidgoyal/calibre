@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tarfile
 import time
+from six.moves import range
 
 try:
     import six.moves.winreg as winreg
@@ -201,7 +202,7 @@ def sanitize_path():
 def vcenv():
     env = os.environ.copy()
     env.update(vcvars())
-    return {str(k): str(v) for k, v in env.items()}
+    return {str(k): str(v) for k, v in list(env.items())}
 
 
 def build():

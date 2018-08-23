@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, absolute_import, print_function
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os, six.moves.cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
 from zlib import compress
 from itertools import chain
+import six
+from six import unichr
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely
@@ -114,7 +115,7 @@ class Coffee(Command):  # {{{
         if updated:
             hashes = {}
             with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
-                for raw, zi, sig in sorted(chain(updated.itervalues(), existing.itervalues()), key=lambda x: x[1].filename):
+                for raw, zi, sig in sorted(chain(six.itervalues(updated), six.itervalues(existing)), key=lambda x: x[1].filename):
                     zf.writestr(zi, raw)
                     hashes[zi.filename] = sig
                 zf.comment = json.dumps(hashes)
@@ -217,7 +218,7 @@ class Kakasi(Command):  # {{{
     def kanwaout(self, out):
         with open(out, 'wb') as f:
             dic = {}
-            for k, v in self.records.iteritems():
+            for k, v in six.iteritems(self.records):
                 dic[k] = compress(marshal.dumps(v))
             six.moves.cPickle.dump(dic, f, -1)
 
@@ -379,7 +380,7 @@ class Resources(Command):  # {{{
                 src = ''.join(inspect.getsourcelines(func)[0][1:])
             except Exception:
                 continue
-            src = src.replace('def ' + func.func_name, 'def replace')
+            src = src.replace('def ' + func.__name__, 'def replace')
             imports = ['from %s import %s' % (x.__module__, x.__name__) for x in func.imports]
             if imports:
                 src = '\n'.join(imports) + '\n\n' + src
@@ -387,8 +388,8 @@ class Resources(Command):  # {{{
         json.dump(function_dict, open(dest, 'wb'), indent=4)
         self.info('\tCreating user-manual-translation-stats.json')
         d = {}
-        for lc, stats in json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'))).iteritems():
-            total = sum(stats.itervalues())
+        for lc, stats in six.iteritems(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json')))):
+            total = sum(six.itervalues(stats))
             d[lc] = stats['translated'] / float(total)
         json.dump(d, open(self.j(self.RESOURCES, 'user-manual-translation-stats.json'), 'wb'), indent=4)
 

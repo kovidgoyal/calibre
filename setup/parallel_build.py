@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -50,7 +51,7 @@ def run_worker(job, decorate=True):
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except Exception as err:
-        return False, human_text, unicode(err)
+        return False, human_text, six.text_type(err)
     stdout, stderr = p.communicate()
     if decorate:
         stdout = bytes(human_text) + b'\n' + (stdout or b'')

@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, absolute_import, print_function
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, StringIO, urllib2, six.moves.urllib.parse, base64, hashlib, six.moves.http_client, socket
+import os, six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse, six.moves.urllib.parse, base64, hashlib, six.moves.http_client, socket, six.moves.urllib.parse, six.moves.http_client
 from six.moves.configparser import ConfigParser
 
 from setup import Command, __appname__, __version__
@@ -117,7 +116,7 @@ class PyPIRegister(Command):
         self.send_metadata(config['username'], config['password'])
 
     def send_metadata(self, username, password):
-        auth = urllib2.HTTPPasswordMgr()
+        auth = six.moves.urllib.request.HTTPPasswordMgr()
         host = six.moves.urllib.parse.urlparse(self.repository)[1]
         auth.add_password(self.realm, host, username, password)
         # send the info to the server and report the result
@@ -175,7 +174,7 @@ class PyPIRegister(Command):
             if type(value) not in (type([]), type( () )):
                 value = [value]
             for value in value:
-                value = unicode(value).encode("utf-8")
+                value = six.text_type(value).encode("utf-8")
                 body.write(sep_boundary)
                 body.write('\nContent-Disposition: form-data; name="%s"'%key)
                 body.write("\n\n")
@@ -191,20 +190,20 @@ class PyPIRegister(Command):
             'Content-type': 'multipart/form-data; boundary=%s; charset=utf-8'%boundary,
             'Content-length': str(len(body))
         }
-        req = urllib2.Request(self.repository, body, headers)
+        req = six.moves.urllib.request.Request(self.repository, body, headers)
 
         # handle HTTP and include the Basic Auth handler
-        opener = urllib2.build_opener(
-            urllib2.HTTPBasicAuthHandler(password_mgr=auth)
+        opener = six.moves.urllib.request.build_opener(
+            six.moves.urllib.request.HTTPBasicAuthHandler(password_mgr=auth)
         )
         data = ''
         try:
             result = opener.open(req)
-        except urllib2.HTTPError as e:
+        except six.moves.urllib.error.HTTPError as e:
             if self.show_response:
                 data = e.fp.read()
             result = e.code, e.msg
-        except urllib2.URLError as e:
+        except six.moves.urllib.error.URLError as e:
             result = 500, str(e)
         else:
             if self.show_response:

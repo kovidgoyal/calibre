@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import absolute_import
 from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, subprocess, re, sys, sysconfig
 from distutils.spawn import find_executable
+import six
 
 from setup import isfreebsd, isosx, iswindows, is64bit, islinux, ishaiku
 is64bit
@@ -85,7 +87,7 @@ def readvar(name):
 pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
-qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
+qt = {x:readvar(y) for x, y in six.iteritems({'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'})}
 qmakespec = readvar('QMAKE_SPEC') if iswindows else None
 
 pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')

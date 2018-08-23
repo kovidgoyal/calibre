@@ -1,17 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, absolute_import, print_function
 
-from __future__ import print_function
-from six.moves import filter
-from six.moves import map
-from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
+from six.moves import filter, map, getcwd
+import six
 
 from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
@@ -76,7 +74,7 @@ def expand_file_list(items, is_paths=True):
     for item in items:
         if item.startswith('!'):
             item = lazy_load(item)
-            if isinstance(item, basestring):
+            if isinstance(item, six.string_types):
                 item = [item]
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:

@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from six.moves import zip
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -11,6 +9,13 @@ __docformat__ = 'restructuredtext en'
 import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
 import ssl, socket, stat
 from contextlib import closing
+
+from six.moves import map
+import six
+from six.moves import range
+from six.moves import zip
+from six.moves import input
+
 
 is64bit = platform.architecture()[0] == '64bit'
 DLURL = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
@@ -23,19 +28,16 @@ calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
+from six.moves import map
+from six.moves.urllib.parse import urlparse
+import six.moves.http_client
 if py3:
-    unicode = str
+    unicode = six.text_type
     raw_input = input
-    from urllib.parse import urlparse
-    import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
-    from six.moves import map
-    from six.moves.urllib.parse import urlparse
-    import six.moves.http_client
-
     def encode_for_subprocess(x):
-        if isinstance(x, unicode):
+        if isinstance(x, six.text_type):
             x = x.encode(enc)
         return x
 
@@ -115,14 +117,14 @@ class TerminalController:  # {{{
         if set_fg:
             if not isinstance(set_fg, bytes):
                 set_fg = set_fg.encode('utf-8')
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i,color in zip(list(range(len(self._COLORS))), self._COLORS):
                 setattr(self, color,
                         self._escape_code(curses.tparm((set_fg), i)))
         set_fg_ansi = self._tigetstr('setaf')
         if set_fg_ansi:
             if not isinstance(set_fg_ansi, bytes):
                 set_fg_ansi = set_fg_ansi.encode('utf-8')
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i,color in zip(list(range(len(self._ANSICOLORS))), self._ANSICOLORS):
                 setattr(self, color,
                         self._escape_code(curses.tparm((set_fg_ansi),
                             i)))
@@ -130,14 +132,14 @@ class TerminalController:  # {{{
         if set_bg:
             if not isinstance(set_bg, bytes):
                 set_bg = set_bg.encode('utf-8')
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i,color in zip(list(range(len(self._COLORS))), self._COLORS):
                 setattr(self, 'BG_'+color,
                         self._escape_code(curses.tparm((set_bg), i)))
         set_bg_ansi = self._tigetstr('setab')
         if set_bg_ansi:
             if not isinstance(set_bg_ansi, bytes):
                 set_bg_ansi = set_bg_ansi.encode('utf-8')
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i,color in zip(list(range(len(self._ANSICOLORS))), self._ANSICOLORS):
                 setattr(self, 'BG_'+color,
                         self._escape_code(curses.tparm((set_bg_ansi),
                             i)))
@@ -145,7 +147,7 @@ class TerminalController:  # {{{
     def _escape_code(self, raw):
         if not raw:
             raw = ''
-        if not isinstance(raw, unicode):
+        if not isinstance(raw, six.text_type):
             raw = raw.decode('ascii')
         return raw
 
@@ -210,10 +212,10 @@ def prints(*args, **kwargs):  # {{{
     end = kwargs.get('end', b'\n')
     enc = getattr(f, 'encoding', 'utf-8') or 'utf-8'
 
-    if isinstance(end, unicode):
+    if isinstance(end, six.text_type):
         end = end.encode(enc)
     for x in args:
-        if isinstance(x, unicode):
+        if isinstance(x, six.text_type):
             x = x.encode(enc)
         f.write(x)
         f.write(b' ')
@@ -267,7 +269,7 @@ def check_signature(dest, signature):
         return raw
 
 
-class URLOpener(urllib.FancyURLopener):
+class URLOpener(six.moves.urllib.request.FancyURLopener):
 
     def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
         ''' 206 means partial content, ignore it '''
@@ -283,7 +285,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urllib.urlopen(DLURL)
+    rq = six.moves.urllib.request.urlopen(DLURL)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
@@ -658,7 +660,7 @@ def download_and_extract(destdir):
 def check_version():
     global calibre_version
     if calibre_version == '%version':
-        calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
+        calibre_version = six.moves.urllib.request.urlopen('http://code.calibre-ebook.com/latest').read()
 
 
 def run_installer(install_dir, isolated, bin_dir, share_dir):
@@ -708,7 +710,7 @@ def check_umask():
         )
         sys.stdin = open('/dev/tty')  # stdin is a pipe from wget
         while True:
-            q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
+            q = input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
             if q in 'f i a'.split():
                 break
             prints('Response', q, 'not understood')
