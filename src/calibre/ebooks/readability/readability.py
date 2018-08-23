@@ -155,7 +155,7 @@ class Document:
                     continue  # try again
                 else:
                     return cleaned_article
-        except StandardError, e:
+        except StandardError as e:
             self.log.exception('error getting summary: ')
             raise Unparseable(str(e)), None, sys.exc_info()[2]
 

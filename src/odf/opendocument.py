@@ -601,7 +601,7 @@ def __loadxmlparts(z, manifest, doc, objectpath):
             parser.setFeature(handler.feature_external_ges, False)  # Changed by Kovid to ignore external DTDs
             parser.parse(inpsrc)
             del doc._parsing
-        except KeyError, v: pass
+        except KeyError as v: pass
 
 def load(odffile):
     """ Load an ODF file into memory

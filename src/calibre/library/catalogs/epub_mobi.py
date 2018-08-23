@@ -408,7 +408,7 @@ class EPUB_MOBI(CatalogPlugin):
             if opts.verbose:
                 log.info(" Completed catalog source generation (%s)\n"  %
                          str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
-        except (AuthorSortMismatchException, EmptyCatalogException), e:
+        except (AuthorSortMismatchException, EmptyCatalogException) as e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
             log.error(" unhandled exception in catalog generator")

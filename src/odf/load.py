@@ -72,7 +72,7 @@ class LoadParser(handler.ContentHandler):
         try:
             e = Element(qname = tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
-        except AttributeError, v:
+        except AttributeError as v:
             print("Error: %s" % v)
 
         if tag == (OFFICENS, 'automatic-styles'):

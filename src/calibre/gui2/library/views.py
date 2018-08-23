@@ -1123,7 +1123,7 @@ class BooksView(QTableView):  # {{{
         # Create a range based selector for each set of contiguous rows
         # as supplying selectors for each individual row causes very poor
         # performance if a large number of rows has to be selected.
-        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+        for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
             sel.merge(QItemSelection(m.index(min(group), 0),
                 m.index(max(group), max_col)), sm.Select)

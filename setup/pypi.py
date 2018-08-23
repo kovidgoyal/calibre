@@ -200,11 +200,11 @@ class PyPIRegister(Command):
         data = ''
         try:
             result = opener.open(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             if self.show_response:
                 data = e.fp.read()
             result = e.code, e.msg
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             result = 500, str(e)
         else:
             if self.show_response:
@@ -342,7 +342,7 @@ class PyPIUpload(PyPIRegister):
             http.putheader('Authorization', auth)
             http.endheaders()
             http.send(body)
-        except socket.error, e:
+        except socket.error as e:
             self.warn(str(e))
             raise SystemExit(1)
 

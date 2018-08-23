@@ -278,7 +278,7 @@ class ChooseLibrary(Dialog):  # {{{
 
     def resort(self):
         if self.sort_alphabetically.isChecked():
-            sorted_locations = sorted(self.locations, key=lambda (name, loc): numeric_sort_key(name))
+            sorted_locations = sorted(self.locations, key=lambda name_loc: numeric_sort_key(name_loc[0]))
         else:
             sorted_locations = self.locations
         self.items.clear()

@@ -175,7 +175,7 @@ def create_date_tab(self, db):
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
     vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
-    for k, v in sorted(vals, key=lambda (k, v): sort_key(v)):
+    for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
     self.dateop_date = dd = add(_("date column for books whose &date is "), QComboBox(w))

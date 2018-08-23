@@ -174,7 +174,8 @@ class Block(object):
         def fget(self):
             return self._position
 
-        def fset(self, (x, y)):
+        def fset(self, xxx_todo_changeme):
+            (x, y) = xxx_todo_changeme
             self._position = Point(x, y)
             if self.layouts:
                 self.layouts[0].setPosition(QPointF(x, y))

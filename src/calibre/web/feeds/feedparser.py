@@ -2758,7 +2758,7 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
 
         # declare xlink namespace, if needed
         if self.mathmlOK or self.svgOK:
-            if list(filter(lambda (n,v): n.startswith('xlink:'),attrs)):
+            if list(filter(lambda n_v: n_v[0].startswith('xlink:'),attrs)):
                 if not ('xmlns:xlink','http://www.w3.org/1999/xlink') in attrs:
                     attrs.append(('xmlns:xlink','http://www.w3.org/1999/xlink'))
 
@@ -3872,7 +3872,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
     try:
         f = _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, handlers, request_headers)
         data = f.read()
-    except Exception, e:
+    except Exception as e:
         result['bozo'] = 1
         result['bozo_exception'] = e
         data = None
@@ -3897,7 +3897,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
         if gzip and 'gzip' in http_headers.get('content-encoding', ''):
             try:
                 data = gzip.GzipFile(fileobj=_StringIO(data)).read()
-            except (IOError, struct.error), e:
+            except (IOError, struct.error) as e:
                 # IOError can occur if the gzip header is bad.
                 # struct.error can occur if the data is damaged.
                 result['bozo'] = 1
@@ -3910,11 +3910,11 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
         elif zlib and 'deflate' in http_headers.get('content-encoding', ''):
             try:
                 data = zlib.decompress(data)
-            except zlib.error, e:
+            except zlib.error as e:
                 try:
                     # The data may have no headers and no checksum.
                     data = zlib.decompress(data, -15)
-                except zlib.error, e:
+                except zlib.error as e:
                     result['bozo'] = 1
                     result['bozo_exception'] = e
 
@@ -3987,7 +3987,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
         source.setByteStream(_StringIO(data))
         try:
             saxparser.parse(source)
-        except xml.sax.SAXException, e:
+        except xml.sax.SAXException as e:
             result['bozo'] = 1
             result['bozo_exception'] = feedparser.exc or e
             use_strict_parser = 0

@@ -381,7 +381,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         PlainTextEdit.paintEvent(self, event)
         painter = QPainter(self.viewport())
         painter.setClipRect(event.rect())
-        for top, bottom, kind in sorted(lines, key=lambda (t, b, k):{'replace':0}.get(k, 1)):
+        for top, bottom, kind in sorted(lines, key=lambda t_b_k:{'replace':0}.get(t_b_k[2], 1)):
             painter.setPen(QPen(self.diff_foregrounds[kind], 1))
             painter.drawLine(0, top, w, top)
             painter.drawLine(0, bottom - 1, w, bottom - 1)

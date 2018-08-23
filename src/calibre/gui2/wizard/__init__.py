@@ -689,7 +689,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             import six.moves.builtins as builtins
         except ImportError:
             import builtins
-        builtins.__dict__['_'] = lambda(x): x
+        builtins.__dict__['_'] = lambda x: x
         from calibre.utils.localization import set_translators
         from calibre.gui2 import qt_app
         from calibre.ebooks.metadata.book.base import reset_field_metadata
