@@ -8,9 +8,9 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath, os, urllib, re
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
         QDialogButtonBox, QProgressBar, QTimer, QUrl, QImageReader

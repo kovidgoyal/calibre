@@ -8,10 +8,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from collections import defaultdict
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from six.moves import map
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote, XHTML_MIME

@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from hashlib import sha1
 from functools import partial
 from threading import RLock, Lock
-from cPickle import dumps
+from six.moves.cPickle import dumps
 from zipfile import ZipFile
 import errno, os, tempfile, shutil, time, json as jsonlib
 

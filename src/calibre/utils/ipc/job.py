@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 _count = 0
 
 import time, cStringIO
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre import prints
 from calibre.constants import DEBUG

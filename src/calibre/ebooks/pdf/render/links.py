@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from urllib2 import unquote
 
 from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log

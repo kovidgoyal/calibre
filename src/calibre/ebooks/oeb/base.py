@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, re, logging
 from collections import defaultdict
 from itertools import count
-from urlparse import urldefrag, urlparse, urlunparse, urljoin
+from six.moves.urllib.parse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote
 
 from lxml import etree, html

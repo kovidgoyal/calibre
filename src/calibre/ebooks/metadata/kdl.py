@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, urllib, urlparse, socket
+import re, urllib, six.moves.urllib.parse, socket
 
 from mechanize import URLError
 
@@ -63,7 +63,7 @@ def get_series(title, authors, timeout=60):
     if a is None:
         return mi
     href = a['href'].partition('?')[-1]
-    data = urlparse.parse_qs(href)
+    data = six.moves.urllib.parse.parse_qs(href)
     series = data.get('SeriesName', [])
     if not series:
         return mi

@@ -114,7 +114,7 @@ try:
     from html.entities import name2codepoint  # Python 3
     name2codepoint
 except ImportError:
-    from htmlentitydefs import name2codepoint
+    from six.moves.html_entities import name2codepoint
 import re
 
 handle_entities = re.compile("&(\w+);").sub

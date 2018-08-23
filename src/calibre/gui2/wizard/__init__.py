@@ -686,7 +686,7 @@ class LibraryPage(QWizardPage, LibraryUI):
     def change_language(self, idx):
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
         try:
-            import __builtin__ as builtins
+            import six.moves.builtins as builtins
         except ImportError:
             import builtins
         builtins.__dict__['_'] = lambda(x): x

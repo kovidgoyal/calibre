@@ -14,7 +14,7 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 # TODO:
 #   Support decoded entities with unifiable.
 
-import re, sys, urllib, htmlentitydefs, codecs
+import re, sys, urllib, six.moves.html_entities, codecs
 import sgmllib
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
 
@@ -43,9 +43,9 @@ def name2cp(k):
     if k == 'apos':
         return ord("'")
     if hasattr(htmlentitydefs, "name2codepoint"):  # requires Python 2.3
-        return htmlentitydefs.name2codepoint[k]
+        return six.moves.html_entities.name2codepoint[k]
     else:
-        k = htmlentitydefs.entitydefs[k]
+        k = six.moves.html_entities.entitydefs[k]
         if k.startswith("&#") and k.endswith(";"):
             return int(k[2:-1])  # not in latin-1
         return ord(codecs.latin_1_decode(k)[0])

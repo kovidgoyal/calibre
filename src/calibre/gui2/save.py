@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import traceback, errno, os, time, shutil
 from collections import namedtuple, defaultdict
 from tempfile import SpooledTemporaryFile
-from Queue import Empty
+from six.moves.queue import Empty
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 

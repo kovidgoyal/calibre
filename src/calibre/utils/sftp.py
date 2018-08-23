@@ -9,7 +9,7 @@ Create a file handle to a remote file over the sftp protocol.
 '''
 
 import sys, socket, getpass
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from binascii import hexlify
 
 import paramiko

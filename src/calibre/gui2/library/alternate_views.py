@@ -10,7 +10,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import itertools, operator, os, math
 from types import MethodType
 from threading import Event, Thread
-from Queue import LifoQueue
+from six.moves.queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 

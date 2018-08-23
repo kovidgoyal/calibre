@@ -9,7 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, uuid, copy, re, cStringIO
 from itertools import izip
-from urlparse import urldefrag, urlparse
+from six.moves.urllib.parse import urldefrag, urlparse
 from urllib import unquote as urlunquote
 from collections import defaultdict
 

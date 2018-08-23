@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
 from six.moves import map

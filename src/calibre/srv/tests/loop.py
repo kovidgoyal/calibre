@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, ssl, os, socket, time
+import six.moves.http_client, ssl, os, socket, time
 from collections import namedtuple
 from unittest import skipIf
 from glob import glob
@@ -91,7 +91,7 @@ class LoopTest(BaseTest):
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
                 res = conn.getresponse()
-                if str(res.status) == str(httplib.REQUEST_TIMEOUT):
+                if str(res.status) == str(six.moves.http_client.REQUEST_TIMEOUT):
                     raise socket.timeout('Timeout')
                 raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
                     res.status, res.reason, res.getheaders(), res.read()))
@@ -191,10 +191,10 @@ class LoopTest(BaseTest):
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
             ctx = ssl.create_default_context(cafile=ca_file)
             with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
-                conn = httplib.HTTPSConnection(address, server.address[1], strict=True, context=ctx)
+                conn = six.moves.http_client.HTTPSConnection(address, server.address[1], strict=True, context=ctx)
                 conn.request('GET', '/test', 'body')
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
+                self.ae(r.status, six.moves.http_client.OK)
                 self.ae(r.read(), b'testbody')
                 cert = conn.sock.getpeercert()
                 subject = dict(x[0] for x in cert['subject'])
@@ -214,7 +214,7 @@ class LoopTest(BaseTest):
             conn = server.connect()
             conn.request('GET', '/test', 'body')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(r.read(), b'testbody')
             self.ae(server.loop.bound_address[1], port)
 

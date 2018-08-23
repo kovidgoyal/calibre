@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy, os
+import traceback, six.moves.cPickle, copy, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
@@ -739,7 +739,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 data.append(d)
             else:
                 data.append(None)
-        raw = bytearray(cPickle.dumps(data, -1))
+        raw = bytearray(six.moves.cPickle.dumps(data, -1))
         ans = QMimeData()
         ans.setData('application/calibre+from_tag_browser', raw)
         return ans
@@ -764,7 +764,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not md.hasFormat('application/calibre+from_tag_browser'):
             return False
         data = str(md.data('application/calibre+from_tag_browser'))
-        src = cPickle.loads(data)
+        src = six.moves.cPickle.loads(data)
         for s in src:
             if s[0] != TagTreeItem.TAG:
                 return False

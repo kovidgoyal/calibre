@@ -7,9 +7,9 @@ import re
 import socket
 import time
 from functools import partial
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
 from threading import Thread
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn

@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, cPickle, sre_constants
+import datetime, re, six.moves.cPickle, sre_constants
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation
@@ -1091,7 +1091,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if data:
-            return cPickle.loads(str(data))
+            return six.moves.cPickle.loads(str(data))
         return None
 
     def has_conversion_options(self, ids, format='PIPE'):
@@ -1167,7 +1167,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_tags(id, val.split(','), append=False)
 
     def set_conversion_options(self, id, format, options):
-        data = sqlite.Binary(cPickle.dumps(options, -1))
+        data = sqlite.Binary(six.moves.cPickle.dumps(options, -1))
         oid = self.conn.get('SELECT id FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if oid:
             self.conn.execute('UPDATE conversion_options SET data=? WHERE id=?', (data, oid))

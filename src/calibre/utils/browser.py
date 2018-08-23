@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, httplib, ssl
-from cookielib import CookieJar, Cookie
+import copy, six.moves.http_client, ssl
+from six.moves.http_cookiejar import CookieJar, Cookie
 
 from mechanize import Browser as B, HTTPSHandler
 
@@ -24,7 +24,7 @@ class ModernHTTPSHandler(HTTPSHandler):
 
         def conn_factory(hostport, **kw):
             kw['context'] = self.ssl_context
-            return httplib.HTTPSConnection(hostport, **kw)
+            return six.moves.http_client.HTTPSConnection(hostport, **kw)
         return self.do_open(conn_factory, req)
 
 

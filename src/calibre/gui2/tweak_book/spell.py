@@ -7,7 +7,7 @@ from six.moves import filter
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, sys
+import six.moves.cPickle, os, sys
 from collections import defaultdict, OrderedDict
 from itertools import chain
 from threading import Thread
@@ -49,7 +49,7 @@ _country_map = None
 def country_map():
     global _country_map
     if _country_map is None:
-        _country_map = cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
+        _country_map = six.moves.cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
     return _country_map
 
 

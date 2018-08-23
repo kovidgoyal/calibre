@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re, uuid
 
 from lxml import etree
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename

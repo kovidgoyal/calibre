@@ -14,7 +14,7 @@ import subprocess
 import sys
 from functools import partial
 from io import BytesIO
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
 from threading import Thread, local
 
 from calibre import force_unicode

@@ -9,7 +9,7 @@ from itertools import count
 from collections import namedtuple, deque
 from functools import partial
 from threading import RLock, Thread, Event
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.monotonic import monotonic

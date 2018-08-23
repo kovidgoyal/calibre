@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, shlex, os, cPickle
+import re, shlex, os, six.moves.cPickle
 from collections import defaultdict
 
 from calibre import walk, guess_type, prints, force_unicode
@@ -112,7 +112,7 @@ def find_icons():
 
     try:
         with open(cache_file, 'rb') as f:
-            cache = cPickle.load(f)
+            cache = six.moves.cPickle.load(f)
             mtimes, cache = cache['mtimes'], cache['data']
     except Exception:
         mtimes, cache = defaultdict(int), defaultdict(dict)
@@ -151,7 +151,7 @@ def find_icons():
     if changed:
         try:
             with open(cache_file, 'wb') as f:
-                cPickle.dump({'data':cache, 'mtimes':mtimes}, f, -1)
+                six.moves.cPickle.dump({'data':cache, 'mtimes':mtimes}, f, -1)
         except Exception:
             import traceback
             traceback.print_exc()

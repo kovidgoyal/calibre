@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
-from Queue import Empty
+from six.moves.queue import Empty
 from io import BytesIO
 from six.moves import map
 

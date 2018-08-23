@@ -8,7 +8,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys, cStringIO
+import os, time, traceback, re, six.moves.urllib.parse, sys, cStringIO
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -652,7 +652,7 @@ class BasicNewsRecipe(Recipe):
                         download an article.
         '''
         try:
-            parts = urlparse.urlparse(url)
+            parts = six.moves.urllib.parse.urlparse(url)
         except Exception:
             self.log.error('Failed to parse url: %r, ignoring' % url)
             return frozenset()
@@ -1089,7 +1089,7 @@ class BasicNewsRecipe(Recipe):
             if feed.image_url in self.image_map:
                 feed.image_url = self.image_map[feed.image_url]
             else:
-                bn = urlparse.urlsplit(feed.image_url).path
+                bn = six.moves.urllib.parse.urlsplit(feed.image_url).path
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:

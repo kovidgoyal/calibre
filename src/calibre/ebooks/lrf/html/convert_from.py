@@ -11,7 +11,7 @@ and to Falstaff for pylrs.
 import os, re, sys, copy, glob, tempfile
 from collections import deque
 from urllib import unquote
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from math import ceil, floor
 from functools import partial
 

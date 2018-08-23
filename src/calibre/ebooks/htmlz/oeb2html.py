@@ -15,7 +15,7 @@ import re
 
 from functools import partial
 from lxml import html
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import (

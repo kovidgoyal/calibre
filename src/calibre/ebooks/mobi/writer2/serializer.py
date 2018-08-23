@@ -15,7 +15,7 @@ from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
 
 from collections import defaultdict
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 from cStringIO import StringIO
 
 

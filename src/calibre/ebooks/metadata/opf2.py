@@ -12,7 +12,7 @@ lxml based OPF parser.
 
 import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
 from urllib import unquote
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from lxml import etree
 

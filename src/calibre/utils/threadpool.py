@@ -48,7 +48,7 @@ __license__ = 'Python license'
 
 # standard library modules
 import threading
-import Queue
+import six.moves.queue
 
 # exceptions
 
@@ -174,8 +174,8 @@ class ThreadPool:
         more work requests in it (see putRequest method).
         """
 
-        self.requestsQueue = Queue.Queue(q_size)
-        self.resultsQueue = Queue.Queue()
+        self.requestsQueue = six.moves.queue.Queue(q_size)
+        self.resultsQueue = six.moves.queue.Queue()
         self.workers = []
         self.workRequests = {}
         self.createWorkers(num_workers)
@@ -223,7 +223,7 @@ class ThreadPool:
                   (request.exception and request.exc_callback):
                     request.callback(request, result)
                 del self.workRequests[request.requestID]
-            except Queue.Empty:
+            except six.moves.queue.Empty:
                 break
 
     def wait(self, sleep=0):

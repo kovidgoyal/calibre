@@ -7,7 +7,7 @@ from six.moves import map
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, cPickle
+import os, six.moves.cPickle
 from functools import partial
 from binascii import hexlify
 
@@ -79,7 +79,7 @@ def author_search_href(which, title=None, author=None):
 
 
 def item_data(field_name, value, book_id):
-    return hexlify(cPickle.dumps((field_name, value, book_id), -1))
+    return hexlify(six.moves.cPickle.dumps((field_name, value, book_id), -1))
 
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):

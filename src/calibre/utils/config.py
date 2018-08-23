@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, cPickle, base64, datetime, json, plistlib
+import os, six.moves.cPickle, base64, datetime, json, plistlib
 from copy import deepcopy
 import optparse
 
@@ -218,7 +218,7 @@ class DynamicConfig(dict):
             with ExclusiveFile(self.file_path) as f:
                 raw = f.read()
                 try:
-                    d = cPickle.loads(raw) if raw.strip() else {}
+                    d = six.moves.cPickle.loads(raw) if raw.strip() else {}
                 except SystemError:
                     pass
                 except:
@@ -255,7 +255,7 @@ class DynamicConfig(dict):
             if not os.path.exists(self.file_path):
                 make_config_dir()
             with ExclusiveFile(self.file_path) as f:
-                raw = cPickle.dumps(self, -1)
+                raw = six.moves.cPickle.dumps(self, -1)
                 f.seek(0)
                 f.truncate()
                 f.write(raw)

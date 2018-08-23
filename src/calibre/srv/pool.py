@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from Queue import Queue, Full
+from six.moves.queue import Queue, Full
 from threading import Thread
 
 from calibre.utils.monotonic import monotonic

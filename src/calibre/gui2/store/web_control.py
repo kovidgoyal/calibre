@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage

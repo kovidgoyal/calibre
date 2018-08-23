@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
+import os, six.moves.cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
 from zlib import compress
 from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -175,7 +175,7 @@ class Kakasi(Command):  # {{{
                 continue
             pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        six.moves.cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def mkkanadict(self, src, dst):
         dic = {}
@@ -187,7 +187,7 @@ class Kakasi(Command):  # {{{
                 continue
             (alpha, kana) = line.split(' ')
             dic[kana] = alpha
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        six.moves.cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def parsekdict(self, line):
         line = line.decode("utf-8").strip()
@@ -219,7 +219,7 @@ class Kakasi(Command):  # {{{
             dic = {}
             for k, v in self.records.iteritems():
                 dic[k] = compress(marshal.dumps(v))
-            cPickle.dump(dic, f, -1)
+            six.moves.cPickle.dump(dic, f, -1)
 
     def clean(self):
         kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')
@@ -296,7 +296,7 @@ class Resources(Command):  # {{{
         if self.newer(dest, self.j(self.SRC, 'calibre', 'linux.py')):
             self.info('\tCreating scripts.pickle')
             f = open(dest, 'wb')
-            cPickle.dump(scripts, f, -1)
+            six.moves.cPickle.dump(scripts, f, -1)
 
         from calibre.web.feeds.recipes.collection import \
                 serialize_builtin_recipes, iterate_over_builtin_recipe_files
@@ -351,7 +351,7 @@ class Resources(Command):  # {{{
                     complete[(inf, ouf)] = [x+' 'for x in
                             get_opts_from_parser(p)]
 
-            cPickle.dump(complete, open(dest, 'wb'), -1)
+            six.moves.cPickle.dump(complete, open(dest, 'wb'), -1)
 
         self.info('\tCreating template-functions.json')
         dest = self.j(self.RESOURCES, 'template-functions.json')

@@ -12,7 +12,7 @@ import tarfile
 import time
 
 try:
-    import _winreg as winreg
+    import six.moves.winreg as winreg
 except ImportError:
     import winreg
 is64bit = os.environ.get('PLATFORM') != 'x86'

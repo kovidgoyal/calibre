@@ -9,7 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import ssl, socket, select, os, traceback
 from io import BytesIO
-from Queue import Empty, Full
+from six.moves.queue import Empty, Full
 from functools import partial
 
 from calibre import as_unicode

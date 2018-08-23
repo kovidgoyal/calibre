@@ -153,10 +153,10 @@ import time
 import types
 import urllib
 import urllib2
-import urlparse
+import six.moves.urllib.parse
 import warnings
 
-from htmlentitydefs import name2codepoint, codepoint2name, entitydefs
+from six.moves.html_entities import name2codepoint, codepoint2name, entitydefs
 from six.moves import filter
 from six.moves import map
 
@@ -448,7 +448,7 @@ def _urljoin(base, uri):
     #try:
     if not isinstance(uri, unicode):
         uri = uri.decode('utf-8', 'ignore')
-    uri = urlparse.urljoin(base, uri)
+    uri = six.moves.urllib.parse.urljoin(base, uri)
     if not isinstance(uri, unicode):
         return uri.decode('utf-8', 'ignore')
     return uri
@@ -2451,7 +2451,7 @@ class _MicroformatsParser:
            (linktype.startswith('application/') and not linktype.endswith('xml')):
             return 1
         try:
-            path = urlparse.urlparse(attrsD['href'])[2]
+            path = six.moves.urllib.parse.urlparse(attrsD['href'])[2]
         except ValueError:
             return 0
         if path.find('.') == -1:
@@ -2466,7 +2466,7 @@ class _MicroformatsParser:
             if not href:
                 continue
             urlscheme, domain, path, params, query, fragment = \
-                       urlparse.urlparse(_urljoin(self.baseuri, href))
+                       six.moves.urllib.parse.urlparse(_urljoin(self.baseuri, href))
             segments = path.split('/')
             tag = segments.pop()
             if not tag:
@@ -2475,7 +2475,7 @@ class _MicroformatsParser:
                 else:
                     # there are no tags
                     continue
-            tagscheme = urlparse.urlunparse((urlscheme, domain, '/'.join(segments), '', '', ''))
+            tagscheme = six.moves.urllib.parse.urlunparse((urlscheme, domain, '/'.join(segments), '', '', ''))
             if not tagscheme.endswith('/'):
                 tagscheme += '/'
             self.tags.append(FeedParserDict({"term": tag, "scheme": tagscheme, "label": elm.string or ''}))
@@ -2570,7 +2570,7 @@ def _makeSafeAbsoluteURI(base, rel=None):
         return rel or u''
     if not rel:
         try:
-            scheme = urlparse.urlparse(base)[0]
+            scheme = six.moves.urllib.parse.urlparse(base)[0]
         except ValueError:
             return u''
         if not scheme or scheme in ACCEPTABLE_URI_SCHEMES:
@@ -2914,7 +2914,7 @@ class _FeedURLHandler(urllib2.HTTPDigestAuthHandler, urllib2.HTTPRedirectHandler
         # header the server sent back (for the realm) and retry
         # the request with the appropriate digest auth headers instead.
         # This evil genius hack has been brought to you by Aaron Swartz.
-        host = urlparse.urlparse(req.get_full_url())[1]
+        host = six.moves.urllib.parse.urlparse(req.get_full_url())[1]
         if base64 is None or 'Authorization' not in req.headers \
                           or 'WWW-Authenticate' not in headers:
             return self.http_error_default(req, fp, code, msg, headers)
@@ -2962,7 +2962,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
         return url_file_stream_or_string
 
     if isinstance(url_file_stream_or_string, basestring) \
-       and urlparse.urlparse(url_file_stream_or_string)[0] in ('http', 'https', 'ftp', 'file', 'feed'):
+       and six.moves.urllib.parse.urlparse(url_file_stream_or_string)[0] in ('http', 'https', 'ftp', 'file', 'feed'):
         # Deal with the feed URI scheme
         if url_file_stream_or_string.startswith('feed:http'):
             url_file_stream_or_string = url_file_stream_or_string[5:]
@@ -3017,7 +3017,7 @@ def _convert_to_idn(url):
     # this function should only be called with a unicode string
     # strategy: if the host cannot be encoded in ascii, then
     # it'll be necessary to encode it in idn form
-    parts = list(urlparse.urlsplit(url))
+    parts = list(six.moves.urllib.parse.urlsplit(url))
     try:
         parts[1].encode('ascii')
     except UnicodeEncodeError:
@@ -3032,7 +3032,7 @@ def _convert_to_idn(url):
         parts[1] = '.'.join(newhost)
         if port:
             parts[1] += ':' + port
-        return urlparse.urlunsplit(parts)
+        return six.moves.urllib.parse.urlunsplit(parts)
     else:
         return url
 

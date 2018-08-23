@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, time, tempfile, json
 from threading import Thread, RLock, Event
-from Queue import Queue
+from six.moves.queue import Queue
 
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog

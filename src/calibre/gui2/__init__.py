@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue, threading, glob, signal
+import os, sys, six.moves.queue, threading, glob, signal
 from contextlib import contextmanager
 from threading import RLock, Lock
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
@@ -488,7 +488,7 @@ class FunctionDispatcher(QObject):
         if not queued:
             typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
-        self.q = Queue.Queue()
+        self.q = six.moves.queue.Queue()
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):

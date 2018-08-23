@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, base64
 from contextlib import closing
 from threading import Thread
-from Queue import Queue
+from six.moves.queue import Queue
 
 from calibre import browser
 from calibre.constants import DEBUG

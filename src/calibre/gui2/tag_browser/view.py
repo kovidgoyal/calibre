@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, os, re
+import six.moves.cPickle, os, re
 from functools import partial
 from itertools import izip
 
@@ -741,7 +741,7 @@ class TagsView(QTreeView):  # {{{
                 if src_is_tb:
                     if event.dropAction() == Qt.MoveAction:
                         data = str(event.mimeData().data('application/calibre+from_tag_browser'))
-                        src = cPickle.loads(data)
+                        src = six.moves.cPickle.loads(data)
                         for s in src:
                             if s[0] == TagTreeItem.TAG and \
                                     (not s[1].startswith('@') or s[2]):

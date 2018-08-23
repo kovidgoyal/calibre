@@ -13,7 +13,7 @@ __docformat__ = 'restructuredtext en'
 # bitcoins to 1E6CRSLY1uNstcZjLYZBHRVs1CPKbdi4ep
 
 import re
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre import as_unicode, replace_entities
 from calibre.ebooks.metadata import check_isbn
@@ -115,7 +115,7 @@ class Ozon(Source):
     def identify(self, log, result_queue, abort, title=None, authors=None,
                  identifiers={}, timeout=90):  # {{{
         from calibre.ebooks.chardet import xml_to_unicode
-        from HTMLParser import HTMLParser
+        from six.moves.html_parser import HTMLParser
         from lxml import etree, html
         import json
 

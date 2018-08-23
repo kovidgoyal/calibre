@@ -105,9 +105,9 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
-            import cPickle, binascii
+            import six.moves.cPickle, binascii
             try:
-                td = cPickle.loads(binascii.unhexlify(td))
+                td = six.moves.cPickle.loads(binascii.unhexlify(td))
             except:
                 td = None
         if td and os.path.exists(td):

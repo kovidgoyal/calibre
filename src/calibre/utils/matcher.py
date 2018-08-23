@@ -11,7 +11,7 @@ import atexit, os, sys
 from math import ceil
 from unicodedata import normalize
 from threading import Thread, Lock
-from Queue import Queue
+from six.moves.queue import Queue
 from operator import itemgetter
 from collections import OrderedDict
 from itertools import islice

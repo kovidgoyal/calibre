@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import collections, os, sys, textwrap, time, gc, errno, re
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 from io import BytesIO

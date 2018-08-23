@@ -9,11 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from datetime import datetime
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from urllib import quote
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins

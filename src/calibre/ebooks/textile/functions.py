@@ -62,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from calibre.utils.smartypants import smartyPants
 

@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json, httplib
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json, six.moves.http_client
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -188,7 +188,7 @@ def upload_to_fosshub():
         })
     )
     resp = rq.read()
-    if rq.getcode() != httplib.OK:
+    if rq.getcode() != six.moves.http_client.OK:
         raise SystemExit(
             'Failed to upload to fosshub, with HTTP error code: %d and response: %s'
             % (rq.getcode(), resp)

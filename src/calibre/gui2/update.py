@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, binascii, cPickle, ssl, json
+import re, binascii, six.moves.cPickle, ssl, json
 from six.moves import map
 from threading import Thread, Event
 
@@ -194,7 +194,7 @@ class UpdateMixin(object):
         has_calibre_update = calibre_version != NO_CALIBRE_UPDATE
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
-        version_url = binascii.hexlify(cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
+        version_url = binascii.hexlify(six.moves.cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
         calibre_version = u'.'.join(map(unicode, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
@@ -248,7 +248,7 @@ class UpdateMixin(object):
     def update_link_clicked(self, url):
         url = unicode(url)
         if url.startswith('update:'):
-            calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
+            calibre_version, number_of_plugin_updates = six.moves.cPickle.loads(binascii.unhexlify(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)
 
 

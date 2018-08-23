@@ -7,10 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, socket, select, os, time
-from Cookie import SimpleCookie
+from six.moves.http_cookies import SimpleCookie
 from contextlib import closing
-from urlparse import parse_qs
-import repr as reprlib
+from six.moves.urllib.parse import parse_qs
+import six.moves.reprlib as reprlib
 from email.utils import formatdate
 from operator import itemgetter
 from six.moves import map

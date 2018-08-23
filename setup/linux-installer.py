@@ -31,8 +31,8 @@ if py3:
     encode_for_subprocess = lambda x:x
 else:
     from six.moves import map
-    from urlparse import urlparse
-    import httplib
+    from six.moves.urllib.parse import urlparse
+    import six.moves.http_client
 
     def encode_for_subprocess(x):
         if isinstance(x, unicode):
@@ -379,7 +379,7 @@ class HTTPError(ValueError):
 
     def __init__(self, url, code):
         msg = '%s returned an unsupported http response code: %d (%s)' % (
-                url, code, httplib.responses.get(code, None))
+                url, code, six.moves.http_client.responses.get(code, None))
         ValueError.__init__(self, msg)
         self.code = code
         self.url = url
@@ -492,16 +492,16 @@ def match_hostname(cert, hostname):
 
 
 if has_ssl_verify:
-    class HTTPSConnection(httplib.HTTPSConnection):
+    class HTTPSConnection(six.moves.http_client.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
             kwargs['context'] = ssl.create_default_context(cafile=kwargs.pop('cert_file'))
-            httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+            six.moves.http_client.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
-    class HTTPSConnection(httplib.HTTPSConnection):
+    class HTTPSConnection(six.moves.http_client.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
-            httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+            six.moves.http_client.HTTPSConnection.__init__(self, *args, **kwargs)
             self.calibre_ssl_version = ssl_version
 
         def connect(self):
@@ -604,7 +604,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
                 path += '?' + p.query
             c.request('GET', path)
             response = c.getresponse()
-            if response.status in (httplib.MOVED_PERMANENTLY, httplib.FOUND, httplib.SEE_OTHER):
+            if response.status in (six.moves.http_client.MOVED_PERMANENTLY, six.moves.http_client.FOUND, six.moves.http_client.SEE_OTHER):
                 if max_redirects <= 0:
                     raise ValueError('Too many redirects, giving up')
                 newurl = response.getheader('Location', None)
@@ -612,7 +612,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
                     raise ValueError('%s returned a redirect response with no Location header' % url)
                 return get_https_resource_securely(
                     newurl, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version)
-            if response.status != httplib.OK:
+            if response.status != six.moves.http_client.OK:
                 raise HTTPError(url, response.status)
             return response.read()
 # }}}

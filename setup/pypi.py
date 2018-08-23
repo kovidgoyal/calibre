@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, StringIO, urllib2, urlparse, base64, hashlib, httplib, socket
-from ConfigParser import ConfigParser
+import os, StringIO, urllib2, six.moves.urllib.parse, base64, hashlib, six.moves.http_client, socket
+from six.moves.configparser import ConfigParser
 
 from setup import Command, __appname__, __version__
 from setup.install import Sdist
@@ -118,7 +118,7 @@ class PyPIRegister(Command):
 
     def send_metadata(self, username, password):
         auth = urllib2.HTTPPasswordMgr()
-        host = urlparse.urlparse(self.repository)[1]
+        host = six.moves.urllib.parse.urlparse(self.repository)[1]
         auth.add_password(self.realm, host, username, password)
         # send the info to the server and report the result
         code, result = self.post_to_server(self.build_post_data('submit'),
@@ -323,12 +323,12 @@ class PyPIUpload(PyPIRegister):
         # We can't use urllib2 since we need to send the Basic
         # auth right with the first request
         schema, netloc, url, params, query, fragments = \
-            urlparse.urlparse(self.repository)
+            six.moves.urllib.parse.urlparse(self.repository)
         assert not params and not query and not fragments
         if schema == 'http':
-            http = httplib.HTTPConnection(netloc)
+            http = six.moves.http_client.HTTPConnection(netloc)
         elif schema == 'https':
-            http = httplib.HTTPSConnection(netloc)
+            http = six.moves.http_client.HTTPSConnection(netloc)
         else:
             raise AssertionError("unsupported schema "+schema)
 

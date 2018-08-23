@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
 from six.moves import map
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup

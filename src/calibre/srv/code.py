@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import cPickle
+import six.moves.cPickle
 import hashlib
 import random
 import shutil
@@ -382,7 +382,7 @@ def tag_browser(ctx, rd):
     db, library_id = get_library_data(ctx, rd)[:2]
     opts = categories_settings(rd.query, db)
     vl = rd.query.get('vl') or ''
-    etag = cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
+    etag = six.moves.cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
     etag = hashlib.sha1(etag).hexdigest()
 
     def generate():

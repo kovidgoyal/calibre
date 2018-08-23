@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cPickle, traceback
+import os, re, six.moves.cPickle, traceback
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
@@ -235,7 +235,7 @@ class OptionSet(object):
         if val is val is True or val is False or val is None or \
            isinstance(val, (int, float, long, basestring)):
             return repr(val)
-        pickle = cPickle.dumps(val, -1)
+        pickle = six.moves.cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)
 
     def serialize(self, opts):

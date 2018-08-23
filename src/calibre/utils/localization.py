@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, cStringIO, cPickle
+import os, locale, re, cStringIO, six.moves.cPickle
 from gettext import GNUTranslations, NullTranslations
 
 _available_translations = None
@@ -18,7 +18,7 @@ def available_translations():
     if _available_translations is None:
         stats = P('localization/stats.pickle', allow_user_override=False)
         if os.path.exists(stats):
-            stats = cPickle.load(open(stats, 'rb'))
+            stats = six.moves.cPickle.load(open(stats, 'rb'))
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
@@ -224,7 +224,7 @@ def set_translators():
                     pass  # No iso639 translations for this lang
                 if buf is not None:
                     try:
-                        lcdata = cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
+                        lcdata = six.moves.cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
                     except:
                         pass  # No lcdata
 
@@ -349,7 +349,7 @@ def _load_iso639():
     if _iso639 is None:
         ip = P('localization/iso639.pickle', allow_user_override=False)
         with open(ip, 'rb') as f:
-            _iso639 = cPickle.load(f)
+            _iso639 = six.moves.cPickle.load(f)
     return _iso639
 
 
@@ -497,7 +497,7 @@ def localize_user_manual_link(url):
     stats = user_manual_stats()
     if stats.get(lc, 0) < 0.3:
         return url
-    from urlparse import urlparse, urlunparse
+    from six.moves.urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', '/generated/%s/' % lc, parts.path or '')
     path = '/%s%s' % (lc, path)
@@ -522,7 +522,7 @@ def localize_website_link(url):
     langs = website_languages()
     if lc == 'en' or lc not in langs:
         return url
-    from urlparse import urlparse, urlunparse
+    from six.moves.urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = '/{}{}'.format(lc, parts.path)
     parts = list(parts)

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os
 try:
-    import __builtin__ as builtins
+    import six.moves.builtins as builtins
 except ImportError:
     import builtins
 

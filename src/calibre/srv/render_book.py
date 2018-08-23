@@ -10,7 +10,7 @@ from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
 from six.moves import map
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from urllib import quote
 
 from cssutils import replaceUrls

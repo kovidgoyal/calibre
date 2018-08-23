@@ -10,7 +10,7 @@ import time
 from collections import defaultdict, namedtuple
 from six.moves import map
 from urllib import quote_plus, urlencode
-from urlparse import parse_qs
+from six.moves.urllib.parse import parse_qs
 
 from lxml import etree
 

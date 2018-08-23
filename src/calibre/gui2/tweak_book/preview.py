@@ -11,9 +11,9 @@ from bisect import bisect_right
 from base64 import b64encode
 from six.moves import map
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from functools import partial
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,

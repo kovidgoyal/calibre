@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from collections import Counter
 from io import BytesIO
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins

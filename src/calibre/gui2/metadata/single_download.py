@@ -15,7 +15,7 @@ DEBUG_DIALOG = False
 import os, time
 from threading import Thread, Event
 from operator import attrgetter
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from io import BytesIO
 
 from PyQt5.Qt import (

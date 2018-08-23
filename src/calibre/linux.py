@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat, errno
+import sys, os, six.moves.cPickle, textwrap, stat, errno
 from subprocess import check_call, check_output
 from functools import partial
 
@@ -673,7 +673,7 @@ class PostInstall:
         self.opts.staging_etc = '/etc' if self.opts.staging_root == '/usr' else \
                 os.path.join(self.opts.staging_root, 'etc')
 
-        scripts = cPickle.loads(P('scripts.pickle', data=True))
+        scripts = six.moves.cPickle.loads(P('scripts.pickle', data=True))
         self.manifest = manifest or []
         if getattr(sys, 'frozen_path', False):
             if os.access(self.opts.staging_bindir, os.W_OK):

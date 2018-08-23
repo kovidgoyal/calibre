@@ -6,11 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, httplib, bz2, shutil, sys
+import os, errno, json, importlib, math, six.moves.http_client, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
 from six.moves import map
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
@@ -439,7 +439,7 @@ def download_cover(cover_url, etag=None, cached=b''):
         etag = response.getheader('ETag', None) or None
         return cached, etag
     except HTTPError as e:
-        if etag and e.code == httplib.NOT_MODIFIED:
+        if etag and e.code == six.moves.http_client.NOT_MODIFIED:
             return cached, etag
         raise
 

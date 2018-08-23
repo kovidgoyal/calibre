@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os, errno
 from functools import partial, wraps
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCheckBox,

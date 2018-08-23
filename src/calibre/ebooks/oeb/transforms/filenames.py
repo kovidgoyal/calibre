@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath
-from urlparse import urldefrag, urlparse
+from six.moves.urllib.parse import urldefrag, urlparse
 
 from lxml import etree
 

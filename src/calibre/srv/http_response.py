@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, struct, repr as reprlib
+import os, six.moves.http_client, hashlib, uuid, struct, six.moves.reprlib as reprlib
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -220,7 +220,7 @@ class RequestData(object):  # {{{
         self.remote_addr, self.remote_port, self.is_local_connection = remote_addr, remote_port, is_local_connection
         self.forwarded_for = forwarded_for
         self.opts = opts
-        self.status_code = httplib.OK
+        self.status_code = six.moves.http_client.OK
         self.outcookie = Cookie()
         self.lang_code = self.gettext_func = self.ngettext_func = None
         self.set_translator(self.get_preferred_language())
@@ -396,16 +396,16 @@ class HTTPConnection(HTTPRequest):
         if self.response_protocol is HTTP1:
             # HTTP/1.0 has no 413/414/303 codes
             status_code = {
-                httplib.REQUEST_ENTITY_TOO_LARGE:httplib.BAD_REQUEST,
-                httplib.REQUEST_URI_TOO_LONG:httplib.BAD_REQUEST,
-                httplib.SEE_OTHER:httplib.FOUND
+                six.moves.http_client.REQUEST_ENTITY_TOO_LARGE:six.moves.http_client.BAD_REQUEST,
+                six.moves.http_client.REQUEST_URI_TOO_LONG:six.moves.http_client.BAD_REQUEST,
+                six.moves.http_client.SEE_OTHER:six.moves.http_client.FOUND
             }.get(status_code, status_code)
 
         self.close_after_response = close_after_response
         msg = msg.encode('utf-8')
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
-            '%s %d %s' % (self.response_protocol, status_code, httplib.responses[status_code]),
+            '%s %d %s' % (self.response_protocol, status_code, six.moves.http_client.responses[status_code]),
             "Content-Length: %s" % len(msg),
             "Content-Type: text/%s; charset=UTF-8" % ct,
             "Date: " + http_date(),
@@ -426,7 +426,7 @@ class HTTPConnection(HTTPRequest):
     def prepare_response(self, inheaders, request_body_file):
         if self.method == 'TRACE':
             msg = force_unicode(self.request_line, 'utf-8') + '\n' + inheaders.pretty()
-            return self.simple_response(httplib.OK, msg, close_after_response=False)
+            return self.simple_response(six.moves.http_client.OK, msg, close_after_response=False)
         request_body_file.seek(0)
         outheaders = MultiDict()
         data = RequestData(
@@ -443,28 +443,28 @@ class HTTPConnection(HTTPRequest):
 
     def send_range_not_satisfiable(self, content_length):
         buf = [
-            '%s %d %s' % (self.response_protocol, httplib.REQUESTED_RANGE_NOT_SATISFIABLE, httplib.responses[httplib.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            '%s %d %s' % (self.response_protocol, six.moves.http_client.REQUESTED_RANGE_NOT_SATISFIABLE, six.moves.http_client.responses[six.moves.http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
             "Date: " + http_date(),
             "Content-Range: bytes */%d" % content_length,
         ]
         response_data = header_list_to_file(buf)
-        self.log_access(status_code=httplib.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
+        self.log_access(status_code=six.moves.http_client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
         self.response_ready(response_data)
 
     def send_not_modified(self, etag=None):
         buf = [
-            '%s %d %s' % (self.response_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
+            '%s %d %s' % (self.response_protocol, six.moves.http_client.NOT_MODIFIED, six.moves.http_client.responses[six.moves.http_client.NOT_MODIFIED]),
             "Content-Length: 0",
             "Date: " + http_date(),
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)
         response_data = header_list_to_file(buf)
-        self.log_access(status_code=httplib.NOT_MODIFIED, response_size=response_data.sz)
+        self.log_access(status_code=six.moves.http_client.NOT_MODIFIED, response_size=response_data.sz)
         self.response_ready(response_data)
 
     def report_busy(self):
-        self.simple_response(httplib.SERVICE_UNAVAILABLE)
+        self.simple_response(six.moves.http_client.SERVICE_UNAVAILABLE)
 
     def job_done(self, ok, result):
         if not ok:
@@ -503,7 +503,7 @@ class HTTPConnection(HTTPRequest):
         if ct.startswith('text/') and 'charset=' not in ct:
             outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
-        buf = [HTTP11 + (' %d ' % data.status_code) + httplib.responses[data.status_code]]
+        buf = [HTTP11 + (' %d ' % data.status_code) + six.moves.http_client.responses[data.status_code]]
         for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
         for morsel in data.outcookie.itervalues():
@@ -524,7 +524,7 @@ class HTTPConnection(HTTPRequest):
     def log_access(self, status_code, response_size=None, username=None):
         if self.access_log is None:
             return
-        if not self.opts.log_not_found and status_code == httplib.NOT_FOUND:
+        if not self.opts.log_not_found and status_code == six.moves.http_client.NOT_FOUND:
             return
         ff = self.forwarded_for
         if ff:
@@ -617,7 +617,7 @@ class HTTPConnection(HTTPRequest):
         self.ready = ready
 
     def report_unhandled_exception(self, e, formatted_traceback):
-        self.simple_response(httplib.INTERNAL_SERVER_ERROR)
+        self.simple_response(six.moves.http_client.INTERNAL_SERVER_ERROR)
 
     def finalize_output(self, output, request, is_http1):
         none_match = parse_if_none_match(request.inheaders.get('If-None-Match', ''))
@@ -627,7 +627,7 @@ class HTTPConnection(HTTPRequest):
                 if self.method in ('GET', 'HEAD'):
                     self.send_not_modified(output.etag)
                 else:
-                    self.simple_response(httplib.PRECONDITION_FAILED)
+                    self.simple_response(six.moves.http_client.PRECONDITION_FAILED)
                 return
 
         opts = self.opts
@@ -654,10 +654,10 @@ class HTTPConnection(HTTPRequest):
         ct = outheaders.get('Content-Type', '').partition(';')[0]
         compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
                         ct.partition(';')[0] in COMPRESSIBLE_TYPES)
-        compressible = (compressible and request.status_code == httplib.OK and
+        compressible = (compressible and request.status_code == six.moves.http_client.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)
-        accept_ranges = (not compressible and output.accept_ranges is not None and request.status_code == httplib.OK and
+        accept_ranges = (not compressible and output.accept_ranges is not None and request.status_code == six.moves.http_client.OK and
                         not is_http1)
         ranges = get_ranges(request.inheaders.get('Range'), output.content_length) if output.accept_ranges and self.method in ('GET', 'HEAD') else None
         if_range = (request.inheaders.get('If-Range') or '').strip()
@@ -674,7 +674,7 @@ class HTTPConnection(HTTPRequest):
             if self.method in ('GET', 'HEAD'):
                 self.send_not_modified(output.etag)
             else:
-                self.simple_response(httplib.PRECONDITION_FAILED)
+                self.simple_response(six.moves.http_client.PRECONDITION_FAILED)
             return
 
         output.ranges = None
@@ -706,7 +706,7 @@ class HTTPConnection(HTTPRequest):
                 outheaders.set('Content-Length', '%d' % size, replace_all=True)
                 outheaders.set('Content-Type', 'multipart/byteranges; boundary=' + MULTIPART_SEPARATOR, replace_all=True)
                 output.ranges = izip_longest(ranges, range_parts)
-            request.status_code = httplib.PARTIAL_CONTENT
+            request.status_code = six.moves.http_client.PARTIAL_CONTENT
         return output
 
 

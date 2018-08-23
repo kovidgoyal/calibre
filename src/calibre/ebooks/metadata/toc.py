@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, functools
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from urllib import unquote
 from collections import Counter
 

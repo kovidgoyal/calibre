@@ -9,7 +9,7 @@ Perform various initialization tasks.
 
 import locale, sys
 try:
-    import __builtin__ as builtins
+    import six.moves.builtins as builtins
 except ImportError:
     import builtins
 

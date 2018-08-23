@@ -8,7 +8,7 @@ Job management.
 '''
 
 import re, time
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
 
 from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,

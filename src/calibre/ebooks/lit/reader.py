@@ -9,7 +9,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
 import struct, os, functools, re
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 from cStringIO import StringIO
 from urllib import unquote as urlunquote
 

@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import os, string, _winreg as winreg, re, sys
+import os, string, six.moves.winreg as winreg, re, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (

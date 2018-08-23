@@ -9,7 +9,7 @@ from functools import partial
 import six
 from six.moves import map, getcwd
 try:
-    import __builtin__ as builtins
+    import six.moves.builtins as builtins
 except ImportError:
     import builtins
 
@@ -244,7 +244,7 @@ def prints(*args, **kwargs):
             file.write(arg)
             count += len(arg)
         except:
-            import repr as reprlib
+            import six.moves.reprlib as reprlib
             arg = reprlib.repr(arg)
             file.write(arg)
             count += len(arg)
@@ -388,10 +388,10 @@ def get_proxy_info(proxy_scheme, proxy_string):
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
     '''
-    import urlparse
+    import six.moves.urllib.parse
     try:
         proxy_url = u'%s://%s'%(proxy_scheme, proxy_string)
-        urlinfo = urlparse.urlparse(proxy_url)
+        urlinfo = six.moves.urllib.parse.urlparse(proxy_url)
         ans = {
             u'scheme': urlinfo.scheme,
             u'hostname': urlinfo.hostname,
@@ -618,7 +618,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         return check(html5_entities[ent])
     except KeyError:
         pass
-    from htmlentitydefs import name2codepoint
+    from six.moves.html_entities import name2codepoint
     try:
         return check(my_unichr(name2codepoint[ent]))
     except KeyError:

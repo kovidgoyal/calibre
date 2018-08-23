@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import struct, re, os
 from collections import namedtuple
 from itertools import repeat, izip
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 from uuid import uuid4
 
 from lxml import etree

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import codecs, shutil, os, posixpath
 from six.moves import map
 from functools import partial
-from urlparse import urlparse, urlunparse
+from six.moves.urllib.parse import urlparse, urlunparse
 from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name_unicode

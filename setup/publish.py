@@ -242,10 +242,10 @@ class Manual(Command):
 
     def serve_manual(self, root):
         os.chdir(root)
-        import BaseHTTPServer
-        from SimpleHTTPServer import SimpleHTTPRequestHandler
+        import six.moves.BaseHTTPServer
+        from six.moves.SimpleHTTPServer import SimpleHTTPRequestHandler
         HandlerClass = SimpleHTTPRequestHandler
-        ServerClass = BaseHTTPServer.HTTPServer
+        ServerClass = six.moves.BaseHTTPServer.HTTPServer
         Protocol = "HTTP/1.0"
         server_address = ('127.0.0.1', 8000)
 

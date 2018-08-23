@@ -9,7 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno, hashlib, sys
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, six.moves.cPickle, shlex, json, errno, hashlib, sys
 from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
@@ -342,7 +342,7 @@ class Translations(POT):  # {{{
                 ld = lcdata[ln]
                 lcdest = self.j(self.d(dest), 'lcdata.pickle')
                 with open(lcdest, 'wb') as lcf:
-                    lcf.write(cPickle.dumps(ld, -1))
+                    lcf.write(six.moves.cPickle.dumps(ld, -1))
 
         stats = {}
 
@@ -381,7 +381,7 @@ class Translations(POT):  # {{{
         except EnvironmentError as err:
             if err.errno != errno.EEXIST:
                 raise
-        cPickle.dump(stats, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(stats, open(dest, 'wb'), -1)
 
     def hash_and_data(self, f):
         with open(f, 'rb') as s:
@@ -765,7 +765,7 @@ class ISO639(Command):  # {{{
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
                 '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(x, open(dest, 'wb'), -1)
 
     def clean(self):
         if os.path.exists(self.DEST):
@@ -805,5 +805,5 @@ class ISO3166(ISO639):  # {{{
             if three:
                 three_map[three] = two
         x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(x, open(dest, 'wb'), -1)
 # }}}

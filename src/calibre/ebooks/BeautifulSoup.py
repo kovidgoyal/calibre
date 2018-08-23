@@ -90,7 +90,7 @@ import codecs
 import types
 import re
 import calibre.ebooks.sgmllib as sgmllib
-from htmlentitydefs import name2codepoint
+from six.moves.html_entities import name2codepoint
 
 #This hack makes Beautiful Soup able to parse XML with namespaces
 sgmllib.tagfind = re.compile('[a-zA-Z][-_.:a-zA-Z0-9]*')

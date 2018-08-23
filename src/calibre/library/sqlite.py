@@ -10,10 +10,10 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
-import repr as reprlib
+import six.moves.reprlib as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
-from Queue import Queue
+from six.moves.queue import Queue
 from threading import RLock
 from datetime import datetime
 from functools import partial

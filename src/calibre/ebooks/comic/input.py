@@ -9,7 +9,7 @@ Based on ideas from comiclrf created by FangornUK.
 '''
 
 import os, traceback, time
-from Queue import Empty
+from six.moves.queue import Empty
 
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding

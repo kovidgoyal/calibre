@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii, cPickle
+import subprocess, os, sys, time, binascii, six.moves.cPickle
 from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
@@ -105,7 +105,7 @@ class Worker(object):
             except:
                 pass
         env[b'CALIBRE_WORKER'] = b'1'
-        td = binascii.hexlify(cPickle.dumps(base_dir()))
+        td = binascii.hexlify(six.moves.cPickle.dumps(base_dir()))
         env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
         env.update(self._env)
         return env
@@ -176,11 +176,11 @@ class Worker(object):
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+            env[b'ORIGWD'] = binascii.hexlify(six.moves.cPickle.dumps(
                 cwd or os.path.abspath(getcwd())))
         except EnvironmentError:
             # cwd no longer exists
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+            env[b'ORIGWD'] = binascii.hexlify(six.moves.cPickle.dumps(
                 cwd or os.path.expanduser(u'~')))
 
         _cwd = cwd

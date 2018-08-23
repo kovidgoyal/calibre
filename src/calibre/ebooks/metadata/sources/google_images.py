@@ -95,7 +95,7 @@ class GoogleImages(Source):
 
 
 def test():
-    from Queue import Queue
+    from six.moves.queue import Queue
     from threading import Event
     from calibre.utils.logging import default_log
     p = GoogleImages(None)

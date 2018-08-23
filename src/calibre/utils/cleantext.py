@@ -2,7 +2,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, htmlentitydefs
+import re, six.moves.html_entities
 from six.moves import map
 from calibre.constants import plugins, preferred_encoding
 from six.moves import filter
@@ -80,7 +80,7 @@ def unescape(text, rm=False, rchar=u''):
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = unichr(six.moves.html_entities.name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

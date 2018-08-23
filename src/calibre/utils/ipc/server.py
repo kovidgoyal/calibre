@@ -7,10 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, time, tempfile, errno, itertools
+import sys, os, six.moves.cPickle, time, tempfile, errno, itertools
 from math import ceil
 from threading import Thread, RLock
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from multiprocessing.connection import Listener, arbitrary_address
 from collections import deque
 from binascii import hexlify
@@ -210,7 +210,7 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(cPickle.dumps(self.listener.address, -1)),
+                'CALIBRE_WORKER_ADDRESS' : hexlify(six.moves.cPickle.dumps(self.listener.address, -1)),
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
@@ -279,7 +279,7 @@ class Server(Thread):
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
-                        job.result = cPickle.load(open(worker.rfile, 'rb'))
+                        job.result = six.moves.cPickle.load(open(worker.rfile, 'rb'))
                         os.remove(worker.rfile)
                     except:
                         pass

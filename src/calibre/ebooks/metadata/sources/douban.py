@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from functools import partial
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 
 from calibre.ebooks.metadata import check_isbn

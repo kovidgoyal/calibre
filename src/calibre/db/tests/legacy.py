@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect, time
 from io import BytesIO
-from repr import repr
+from six.moves.reprlib import repr
 from functools import partial
 from operator import itemgetter
 

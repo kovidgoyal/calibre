@@ -11,7 +11,7 @@ Fetch metadata using Overdrive Content Reserve
 '''
 import re, random, copy, json
 from threading import RLock
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 
 from calibre.ebooks.metadata import check_isbn

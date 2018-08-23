@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os
 from functools import partial
 from threading import Thread, Event
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
 

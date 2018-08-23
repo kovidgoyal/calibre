@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, subprocess, signal, time, errno, socket, ssl
 from threading import Thread, Lock
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from calibre.constants import islinux, iswindows, isosx
 from calibre.srv.http_response import create_http_handler

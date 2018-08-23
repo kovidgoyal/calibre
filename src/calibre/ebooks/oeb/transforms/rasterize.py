@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 
 from PyQt5.Qt import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)

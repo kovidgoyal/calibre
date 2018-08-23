@@ -9,7 +9,7 @@ Provides abstraction for metadata reading.writing from a variety of ebook format
 """
 import os, sys, re
 
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 

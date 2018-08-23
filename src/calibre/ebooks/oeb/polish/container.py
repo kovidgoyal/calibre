@@ -17,7 +17,7 @@ from collections import defaultdict
 from six.moves import zip
 from io import BytesIO
 from itertools import count
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from cssutils import getUrls, replaceUrls
 from lxml import etree

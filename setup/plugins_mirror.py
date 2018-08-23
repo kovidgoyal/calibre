@@ -10,7 +10,7 @@ import bz2
 import errno
 import glob
 import gzip
-import HTMLParser
+import six.moves.html_parser
 import io
 import json
 import os
@@ -23,7 +23,7 @@ import sys
 import tempfile
 import time
 import urllib2
-import urlparse
+import six.moves.urllib.parse
 import zipfile
 import zlib
 from collections import namedtuple
@@ -46,7 +46,7 @@ INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 # INDEX = 'file:///t/raw.html'
 
 IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
-u = HTMLParser.HTMLParser().unescape
+u = six.moves.html_parser.HTMLParser().unescape
 
 socket.setdefaulttimeout(30)
 
@@ -84,7 +84,7 @@ def read(url, get_info=False):  # {{{
 
 
 def url_to_plugin_id(url, deprecated):
-    query = urlparse.parse_qs(urlparse.urlparse(url).query)
+    query = six.moves.urllib.parse.parse_qs(six.moves.urllib.parse.urlparse(url).query)
     ans = (query['t'] if 't' in query else query['p'])[0]
     if deprecated:
         ans += '-deprecated'
