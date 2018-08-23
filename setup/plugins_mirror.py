@@ -34,6 +34,7 @@ from functools import partial
 from six.moves import filter, map, zip
 from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
+from six.moves import getcwd
 # }}}
 
 USER_AGENT = 'calibre mirror'
@@ -381,7 +382,7 @@ def log(*args, **kwargs):
 
 
 def atomic_write(raw, name):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    with tempfile.NamedTemporaryFile(dir=getcwd(), delete=False) as f:
         f.write(raw)
         os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)

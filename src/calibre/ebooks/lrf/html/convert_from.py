@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -1921,7 +1922,7 @@ def process_file(path, options, logger):
     if not oname:
         suffix = '.lrs' if options.lrs else '.lrf'
         name = os.path.splitext(os.path.basename(path))[0] + suffix
-        oname = os.path.join(os.getcwdu(), name)
+        oname = os.path.join(getcwd(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     conv.cleanup()

@@ -5,6 +5,7 @@ from __future__ import with_statement
 from __future__ import print_function
 from six.moves import filter
 from six.moves import map
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -487,7 +488,7 @@ class Build(Command):
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
-        cwd = os.getcwdu()
+        cwd = getcwd()
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]

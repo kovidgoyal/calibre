@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -32,7 +33,7 @@ C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 class TOC(list):
 
     def __init__(self, href=None, fragment=None, text=None, parent=None,
-            play_order=0, base_path=os.getcwdu(), type='unknown', author=None,
+            play_order=0, base_path=getcwd(), type='unknown', author=None,
             description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment

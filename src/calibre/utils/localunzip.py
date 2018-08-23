@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -225,7 +226,7 @@ def extractall(path_or_stream, path=None):
         f = open(f, 'rb')
         close_at_end = True
     if path is None:
-        path = os.getcwdu()
+        path = getcwd()
     pos = f.tell()
     try:
         _extractall(f, path)
@@ -273,7 +274,7 @@ class LocalZipFile(object):
 
     def extractall(self, path=None):
         self.stream.seek(0)
-        _extractall(self.stream, path=(path or os.getcwdu()))
+        _extractall(self.stream, path=(path or getcwd()))
 
     def close(self):
         pass

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 from six.moves import filter
+from six.moves import getcwd
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -343,8 +344,8 @@ def main(basedir=None, query=None):
     from calibre.utils.terminal import ColoredStream
     if basedir is None:
         try:
-            basedir = raw_input('Enter directory to scan [%s]: ' % os.getcwdu()
-                                ).decode(sys.stdin.encoding).strip() or os.getcwdu()
+            basedir = raw_input('Enter directory to scan [%s]: ' % getcwd()
+                                ).decode(sys.stdin.encoding).strip() or getcwd()
         except (EOFError, KeyboardInterrupt):
             return
     m = FilesystemMatcher(basedir)

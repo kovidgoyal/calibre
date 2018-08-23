@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -83,7 +84,7 @@ def read_ncx(sections, index, codec):
 
 
 def build_toc(index_entries):
-    ans = TOC(base_path=os.getcwdu())
+    ans = TOC(base_path=getcwd())
     levels = {x['hlvl'] for x in index_entries}
     num_map = {-1: ans}
     level_map = {l:[x for x in index_entries if x['hlvl'] == l] for l in

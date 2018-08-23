@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -355,7 +356,7 @@ class Mobi8Reader(object):
             linktgt, idtext = self.get_id_tag_by_pos_fid(*pos_fid)
             if idtext:
                 linktgt += b'#' + idtext
-            g = Guide.Reference(linktgt, os.getcwdu())
+            g = Guide.Reference(linktgt, getcwd())
             g.title, g.type = ref_title, ref_type
             if g.title == 'start' or g.type == 'text':
                 has_start = True
@@ -369,7 +370,7 @@ class Mobi8Reader(object):
                 linktgt = fi.filename
                 if idtext:
                     linktgt += '#' + idtext
-                g = Guide.Reference('%s/%s'%(fi.type, linktgt), os.getcwdu())
+                g = Guide.Reference('%s/%s'%(fi.type, linktgt), getcwd())
                 g.title, g.type = 'start', 'text'
                 guide.append(g)
 
@@ -483,7 +484,7 @@ class Mobi8Reader(object):
                         except:
                             self.log.exception('Failed to read inline ToC')
 
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         opf.guide = guide
 
         def exclude(path):
@@ -503,7 +504,7 @@ class Mobi8Reader(object):
             except:
                 pass
 
-        opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
+        opf.create_manifest_from_files_in([getcwd()], exclude=exclude)
         for entry in opf.manifest:
             if entry.mime_type == 'text/html':
                 entry.mime_type = 'application/xhtml+xml'

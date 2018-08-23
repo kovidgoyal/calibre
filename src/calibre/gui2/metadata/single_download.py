@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import zip
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -424,7 +425,7 @@ class IdentifyWorker(Thread):  # {{{
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
                 self.results, covers, caches, log_dump = res['result']
-                self.results = [OPF(BytesIO(r), basedir=os.getcwdu(),
+                self.results = [OPF(BytesIO(r), basedir=getcwd(),
                     populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
                     r.has_cached_cover_url = cov

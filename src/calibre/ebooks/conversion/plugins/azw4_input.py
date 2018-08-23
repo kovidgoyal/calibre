@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
+from six.moves import getcwd
 
 
 class AZW4Input(InputFormatPlugin):
@@ -24,6 +25,6 @@ class AZW4Input(InputFormatPlugin):
 
         header = PdbHeaderReader(stream)
         reader = Reader(header, stream, log, options)
-        opf = reader.extract_content(os.getcwdu())
+        opf = reader.extract_content(getcwd())
 
         return opf

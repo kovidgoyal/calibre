@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
+from six.moves import getcwd
 
 
 class RBInput(InputFormatPlugin):
@@ -22,6 +23,6 @@ class RBInput(InputFormatPlugin):
         from calibre.ebooks.rb.reader import Reader
 
         reader = Reader(stream, log, options.input_encoding)
-        opf = reader.extract_content(os.getcwdu())
+        opf = reader.extract_content(getcwd())
 
         return opf

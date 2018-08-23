@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from six.moves import filter
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -302,7 +303,7 @@ class RTFInput(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         opf.create_manifest([(u'index.xhtml', None)])
         opf.create_spine([u'index.xhtml'])
         opf.render(open(u'metadata.opf', 'wb'))

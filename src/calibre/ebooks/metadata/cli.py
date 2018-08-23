@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -206,7 +207,7 @@ def main(args=sys.argv):
 
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         with open(opts.to_opf, 'wb') as f:
             opf.render(f)
         prints(_('OPF created in'), opts.to_opf)

@@ -2,6 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Anthon van der Neut <anthon@mnt.org>'
@@ -37,7 +38,7 @@ class DJVUInput(InputFormatPlugin):
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
-        base = os.getcwdu()
+        base = getcwd()
         fname = os.path.join(base, 'index.html')
         c = 0
         while os.path.exists(fname):

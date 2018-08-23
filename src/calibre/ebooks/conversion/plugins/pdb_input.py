@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
+from six.moves import getcwd
 
 
 class PDBInput(InputFormatPlugin):
@@ -32,6 +33,6 @@ class PDBInput(InputFormatPlugin):
         log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
 
         reader = Reader(header, stream, log, options)
-        opf = reader.extract_content(os.getcwdu())
+        opf = reader.extract_content(getcwd())
 
         return opf

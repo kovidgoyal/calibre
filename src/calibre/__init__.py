@@ -7,6 +7,7 @@ import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
 from six.moves import map
+from six.moves import getcwd
 try:
     import __builtin__ as builtins
 except ImportError:
@@ -19,7 +20,7 @@ builtins.__dict__['dynamic_property'] = lambda func: func(None)
 if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
-    os.getcwdu()
+    getcwd()
 except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
@@ -474,7 +475,7 @@ class CurrentDir(object):
         self.workaround_temp_folder_permissions = workaround_temp_folder_permissions
 
     def __enter__(self, *args):
-        self.cwd = os.getcwdu()
+        self.cwd = getcwd()
         try:
             os.chdir(self.path)
         except OSError:

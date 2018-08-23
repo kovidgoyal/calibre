@@ -3,6 +3,7 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import getcwd
 __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -220,7 +221,7 @@ class Manual(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = getcwd()
         try:
             os.chdir(self.j(tdir, 'en', 'html'))
             for x in os.listdir(tdir):
@@ -312,7 +313,7 @@ class ManPages(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = getcwd()
         os.chdir(dest)
         try:
             for x in tuple(os.listdir('.')):

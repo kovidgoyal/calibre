@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+from six.moves import getcwd
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -69,7 +70,7 @@ class Convert(object):
         self.notes_text = notes_text or _('Notes')
         self.notes_nopb = notes_nopb
         self.nosupsub = nosupsub
-        self.dest_dir = dest_dir or os.getcwdu()
+        self.dest_dir = dest_dir or getcwd()
         self.mi = self.docx.metadata
         self.body = BODY()
         self.theme = Theme(self.namespace)
@@ -827,7 +828,7 @@ if __name__ == '__main__':
     import shutil
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
-    dest_dir = os.path.join(os.getcwdu(), 'docx_input')
+    dest_dir = os.path.join(getcwd(), 'docx_input')
     if os.path.exists(dest_dir):
         shutil.rmtree(dest_dir)
     os.mkdir(dest_dir)

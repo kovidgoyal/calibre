@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -176,7 +177,7 @@ class Worker(object):
         env = self.env
         try:
             env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.abspath(os.getcwdu())))
+                cwd or os.path.abspath(getcwd())))
         except EnvironmentError:
             # cwd no longer exists
             env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(

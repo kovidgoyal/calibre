@@ -1,6 +1,7 @@
 #!/usr/bin/env  python2
 
 from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -173,7 +174,7 @@ def add_simple_plugin(path_to_plugin):
     tdir = tempfile.mkdtemp()
     open(os.path.join(tdir, 'custom_plugin.py'),
             'wb').write(open(path_to_plugin, 'rb').read())
-    odir = os.getcwdu()
+    odir = getcwd()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')
     zf.write('custom_plugin.py')

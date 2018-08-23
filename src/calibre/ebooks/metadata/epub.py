@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from __future__ import with_statement
 from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -145,7 +146,7 @@ class OCFZipReader(OCFReader):
             if name:
                 self.root = os.path.abspath(os.path.dirname(name))
             else:
-                self.root = os.getcwdu()
+                self.root = getcwd()
         super(OCFZipReader, self).__init__()
 
     def open(self, name, mode='r'):
@@ -281,7 +282,7 @@ def serialize_cover_data(new_cdata, cpath):
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     stream.seek(0)
-    reader = get_zip_reader(stream, root=os.getcwdu())
+    reader = get_zip_reader(stream, root=getcwd())
     new_cdata = None
     try:
         new_cdata = mi.cover_data[1]

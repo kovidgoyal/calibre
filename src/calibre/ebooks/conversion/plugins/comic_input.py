@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from six.moves import map
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -191,7 +192,7 @@ class ComicInput(InputFormatPlugin):
 
         mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
             [_('Unknown')])
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         entries = []
 
         def href(x):

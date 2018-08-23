@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -294,9 +295,9 @@ class Extract(ODF2XHTML):
                 f.write(html.encode('utf-8'))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
-            opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
+            opf = OPFCreator(os.path.abspath(getcwd()), mi)
             opf.create_manifest([(os.path.abspath(f2), None) for f2 in
-                walk(os.getcwdu())])
+                walk(getcwd())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)

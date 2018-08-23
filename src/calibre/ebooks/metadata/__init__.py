@@ -16,6 +16,7 @@ from calibre import relpath, guess_type, remove_bracketed_text, prints, force_un
 from calibre.utils.config_base import tweaks
 from six.moves import map
 from six.moves import zip
+from six.moves import getcwd
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
@@ -204,7 +205,7 @@ class Resource(object):
 
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
+    def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
         from urllib import unquote
         self._href = None
         self._basedir = basedir
@@ -248,7 +249,7 @@ class Resource(object):
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwdu()
+                basedir = getcwd()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment

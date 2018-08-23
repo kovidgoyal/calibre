@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -472,7 +473,7 @@ class QuickOpen(Dialog):
     def test(cls):
         import os
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(getcwd(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
         print((d.selected_result))

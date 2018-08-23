@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -868,7 +869,7 @@ class BasicNewsRecipe(Recipe):
             self.title = unicode(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(os.getcwdu())
+        self.output_dir = os.path.abspath(getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -1447,7 +1448,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
