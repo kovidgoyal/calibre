@@ -14,6 +14,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import sort_key
+from six.moves import map
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -520,7 +521,7 @@ class Metadata(object):
                 # Case-insensitive but case preserving merging
                 lotags = [t.lower() for t in other.tags]
                 lstags = [t.lower() for t in self.tags]
-                ot, st = map(frozenset, (lotags, lstags))
+                ot, st = list(map(frozenset, (lotags, lstags)))
                 for t in st.intersection(ot):
                     sidx = lstags.index(t)
                     oidx = lotags.index(t)
@@ -554,7 +555,7 @@ class Metadata(object):
                                 # on self
                                 lstags = []
                                 self_tags = []
-                            ot, st = map(frozenset, (lotags, lstags))
+                            ot, st = list(map(frozenset, (lotags, lstags)))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
                                 oidx = lotags.index(t)
@@ -695,7 +696,7 @@ class Metadata(object):
             elif datatype == 'text' and fmeta['is_multiple']:
                 if isinstance(res, dict):
                     res = [k + ':' + v for k,v in res.items()]
-                res = fmeta['is_multiple']['list_to_ui'].join(sorted(filter(None, res), key=sort_key))
+                res = fmeta['is_multiple']['list_to_ui'].join(sorted([_f for _f in res if _f], key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':

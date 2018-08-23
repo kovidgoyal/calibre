@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import map
 store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'

@@ -22,6 +22,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
+from six.moves import map
 
 
 class AdaptSQP(SearchQueryParser):

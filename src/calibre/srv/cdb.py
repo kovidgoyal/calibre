@@ -19,6 +19,7 @@ from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
+from six.moves import map
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -140,7 +141,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             data = json_loads(raw)
         else:
             raise HTTPBadRequest('Only JSON or msgpack requests are supported')
-        changes, loaded_book_ids = data['changes'], frozenset(map(int, data['loaded_book_ids']))
+        changes, loaded_book_ids = data['changes'], frozenset(list(map(int, data['loaded_book_ids'])))
     except Exception:
         raise HTTPBadRequest('Invalid encoded data')
     dirtied = set()

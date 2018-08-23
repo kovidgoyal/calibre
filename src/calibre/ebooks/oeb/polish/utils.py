@@ -146,7 +146,7 @@ def lead_text(top_elem, num_words=10):
     def get_text(x, attr='text'):
         ans = getattr(x, attr)
         if ans:
-            words.extend(filter(None, pat.split(ans)))
+            words.extend([_f for _f in pat.split(ans) if _f])
 
     stack = [(top_elem, 'text')]
     while stack and len(words) < num_words:

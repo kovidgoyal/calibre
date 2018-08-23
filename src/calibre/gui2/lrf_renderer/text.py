@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, collections, operator, copy, re
@@ -163,7 +164,7 @@ class TextBlock(object):
         pass
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
-    XML_ENTITIES = dict(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))
+    XML_ENTITIES = dict(list(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys())))
     XML_ENTITIES["quot"] = '"'
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,

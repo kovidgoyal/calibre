@@ -15,6 +15,7 @@ import operator
 import string
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
+from six.moves import map
 
 if sys.version_info[0] < 3:
     _unicode = unicode
@@ -32,7 +33,7 @@ def ascii_lower(string):
 
 def urepr(x):
     if isinstance(x, list):
-        return '[%s]' % ', '.join((map(urepr, x)))
+        return '[%s]' % ', '.join((list(map(urepr, x))))
     ans = repr(x)
     if ans.startswith("u'") or ans.startswith('u"'):
         ans = ans[1:]

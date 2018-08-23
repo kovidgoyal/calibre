@@ -337,7 +337,7 @@ def main(args=None):
     O = namedtuple('Options', ' '.join(popts.iterkeys()))
     popts = O(**popts)
     report = []
-    if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):
+    if not tuple([_f for _f in (getattr(popts, name) for name in ALL_OPTS) if _f]):
         parser.print_help()
         log.error(_('You must specify at least one action to perform'))
         raise SystemExit(1)

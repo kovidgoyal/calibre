@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
+from six.moves import map
 try:
     import __builtin__ as builtins
 except ImportError:
@@ -406,9 +407,9 @@ USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/
 def random_user_agent(choose=None, allow_ie=True):
     from calibre.utils.random_ua import common_user_agents
     ua_list = common_user_agents()
-    ua_list = filter(lambda x: 'Mobile/' not in x, ua_list)
+    ua_list = [x for x in ua_list if 'Mobile/' not in x]
     if not allow_ie:
-        ua_list = filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list)
+        ua_list = [x for x in ua_list if 'Trident/' not in x and 'Edge/' not in x]
     return random.choice(ua_list) if choose is None else ua_list[choose]
 
 

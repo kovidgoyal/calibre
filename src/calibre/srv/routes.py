@@ -113,7 +113,7 @@ class Route(object):
         del endpoint_
         if not self.endpoint.route.startswith('/'):
             raise RouteError('A route must start with /, %s does not' % self.endpoint.route)
-        parts = filter(None, self.endpoint.route.split('/'))
+        parts = [_f for _f in self.endpoint.route.split('/') if _f]
         matchers = self.matchers = []
         self.defaults = {}
         found_optional_part = False

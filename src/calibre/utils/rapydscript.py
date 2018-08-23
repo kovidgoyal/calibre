@@ -23,6 +23,8 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
+from six.moves import map
+from six.moves import zip
 
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -59,7 +61,7 @@ tls = local()
 
 
 def to_dict(obj):
-    return dict(zip(obj.keys(), obj.values()))
+    return dict(list(zip(obj.keys(), obj.values())))
 
 
 def compiler():
@@ -400,7 +402,7 @@ class Repl(Thread):
         def completer(text, num):
             if self.completions is None:
                 self.to_repl.put(('complete', text))
-                self.completions = filter(None, self.get_from_repl())
+                self.completions = [_f for _f in self.get_from_repl() if _f]
                 if self.completions is None:
                     return None
             try:

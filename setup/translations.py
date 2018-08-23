@@ -3,6 +3,8 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import map
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'

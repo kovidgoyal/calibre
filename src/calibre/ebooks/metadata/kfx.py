@@ -330,7 +330,7 @@ def read_metadata_kfx(stream, read_cover=True):
     elif has('content_id'):
         mi.set_identifier('mobi-asin', get('content_id'))
     if has('languages'):
-        langs = list(filter(None, (canonicalize_lang(x) for x in get('languages', False))))
+        langs = list([_f for _f in (canonicalize_lang(x) for x in get('languages', False)) if _f])
         if langs:
             mi.languages = langs
     if has('issue_date'):

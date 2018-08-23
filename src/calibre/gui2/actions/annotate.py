@@ -12,6 +12,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
+from six.moves import map
 
 
 class Updater(QThread):  # {{{
@@ -75,7 +76,7 @@ class FetchAnnotationsAction(InterfaceAction):
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) < 2:
                 rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
-            ids = map(self.gui.library_view.model().id, rows)
+            ids = list(map(self.gui.library_view.model().id, rows))
             return ids
 
         def get_formats(id):

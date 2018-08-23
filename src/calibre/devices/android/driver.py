@@ -10,6 +10,7 @@ import cStringIO
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
+from six.moves import map
 
 HTC_BCDS = [0x100, 0x0222, 0x0224, 0x0226, 0x227, 0x228, 0x229, 0x0231, 0x9999]
 

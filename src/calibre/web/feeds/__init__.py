@@ -1,6 +1,7 @@
 #!/usr/bin/env  python2
 
 from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -298,7 +299,7 @@ class FeedCollection(list):
             return None
 
         print('#feeds', len(self))
-        print(map(len, self))
+        print(list(map(len, self)))
         for f in self:
             dups = []
             for a in f:
@@ -313,7 +314,7 @@ class FeedCollection(list):
 
         self.duplicates = duplicates
         print(len(duplicates))
-        print(map(len, self))
+        print(list(map(len, self)))
         # raise
 
     def find_article(self, article):

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -53,11 +54,11 @@ def builtin_dictionaries():
     if _builtins is None:
         dics = []
         for lc in glob.glob(os.path.join(P('dictionaries', allow_user_override=False), '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = [_f for _f in open(lc, 'rb').read().decode('utf-8').splitlines() if _f]
             locale = locales[0]
             base = os.path.dirname(lc)
             dics.append(Dictionary(
-                parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
+                parse_lang_code(locale), frozenset(list(map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
@@ -68,7 +69,7 @@ def custom_dictionaries(reread=False):
     if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = [_f for _f in open(lc, 'rb').read().decode('utf-8').splitlines() if _f]
             try:
                 name, locale, locales = locales[0], locales[1], locales[1:]
             except IndexError:
@@ -78,7 +79,7 @@ def custom_dictionaries(reread=False):
             if ploc.countrycode is None:
                 continue
             dics.append(Dictionary(
-                ploc, frozenset(filter(lambda x:x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
+                ploc, frozenset([x for x in map(parse_lang_code, locales) if x.countrycode is not None]), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom

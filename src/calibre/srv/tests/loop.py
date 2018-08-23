@@ -187,7 +187,7 @@ class LoopTest(BaseTest):
         'Test serving over SSL'
         address = '127.0.0.1'
         with TemporaryDirectory('srv-test-ssl') as tdir:
-            cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
+            cert_file, key_file, ca_file = [os.path.join(tdir, x) for x in 'cka']
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
             ctx = ssl.create_default_context(cafile=ca_file)
             with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:

@@ -34,6 +34,8 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
+from six.moves import map
+from six.moves import zip
 
 
 # The search panel {{{
@@ -568,7 +570,7 @@ class SearchesModel(QAbstractListModel):
     def dropMimeData(self, data, action, row, column, parent):
         if parent.isValid() or action != Qt.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
             return False
-        rows = map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(','))
+        rows = list(map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(',')))
         rows.sort()
         moved_searches = [self.searches[self.filtered_searches[r]] for r in rows]
         moved_searches_q = {id(s) for s in moved_searches}
@@ -581,7 +583,7 @@ class SearchesModel(QAbstractListModel):
                 break
         insert_before = id(self.searches[self.filtered_searches[insert_at]]) if insert_at < len(self.filtered_searches) else None
         visible_searches = {id(self.searches[self.filtered_searches[r]]) for r in self.filtered_searches}
-        unmoved_searches = list(filter(lambda s:id(s) not in moved_searches_q, self.searches))
+        unmoved_searches = list([s for s in self.searches if id(s) not in moved_searches_q])
         if insert_before is None:
             searches = unmoved_searches + moved_searches
         else:

@@ -142,8 +142,7 @@ class CreateCustomColumn(QDialog):
             ct = '*' + ct
         self.orig_column_number = c['colnum']
         self.orig_column_name = col
-        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x),
-                                  self.column_types))
+        column_numbers = dict([(self.column_types[x]['datatype'], x) for x in self.column_types])
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':

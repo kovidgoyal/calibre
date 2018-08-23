@@ -65,7 +65,7 @@ def split_txt(txt, epub_split_size_kb=0):
         # Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024)) + 2))
         # if there are chunks with a superior size then go and break
-        if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
+        if (len([x for x in txt.split('\n\n') if len(x) > chunk_size])) :
             txt = '\n\n'.join([split_string_separator(line, chunk_size)
                 for line in txt.split('\n\n')])
     if isbytestring(txt):

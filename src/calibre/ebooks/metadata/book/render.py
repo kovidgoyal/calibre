@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -226,7 +227,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         elif field == 'languages':
             if not mi.languages:
                 continue
-            names = filter(None, map(calibre_langcode_to_name, mi.languages))
+            names = [_f for _f in map(calibre_langcode_to_name, mi.languages) if _f]
             names = ['<a href="%s" title="%s">%s</a>' % (search_href('languages', n), _(
                 'Search calibre for books with the language: {}').format(n), n) for n in names]
             ans.append((field, row % (name, u', '.join(names))))

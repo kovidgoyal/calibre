@@ -10,6 +10,7 @@ import re, os, traceback, fnmatch
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
+from six.moves import filter
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
@@ -177,7 +178,7 @@ class CheckLibrary(object):
                                if os.path.splitext(f)[1] not in self.ignore_ext or
                                f == 'cover.jpg'])
         book_id = int(book_id)
-        formats = frozenset(filter(self.is_ebook_file, filenames))
+        formats = frozenset(list(filter(self.is_ebook_file, filenames)))
         book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
                             self.db.format_files(book_id, index_is_id=True)])
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import filter
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -130,8 +131,8 @@ def font_priority(font):
     style_normal = font['font-style'] == 'normal'
     width_normal = font['font-stretch'] == 'normal'
     weight_normal = font['font-weight'] == 'normal'
-    num_normal = sum(filter(None, (style_normal, width_normal,
-        weight_normal)))
+    num_normal = sum([_f for _f in (style_normal, width_normal,
+        weight_normal) if _f])
     subfamily_name = (font['wws_subfamily_name'] or
             font['preferred_subfamily_name'] or font['subfamily_name'])
     if num_normal == 3 and subfamily_name == 'Regular':
@@ -280,7 +281,7 @@ class FontScanner(Thread):
             return False
 
         for family in self.find_font_families():
-            faces = filter(filter_faces, self.fonts_for_family(family))
+            faces = list(filter(filter_faces, self.fonts_for_family(family)))
             if not faces:
                 continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])

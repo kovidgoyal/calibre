@@ -411,7 +411,7 @@ def set_languages(root, prefixes, refines, languages):
         val = (lang.text or '').strip()
         if val:
             opf_languages.append(val)
-    languages = filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages))
+    languages = [x for x in normalize_languages(opf_languages, languages) if x and x != 'und']
     if not languages:
         # EPUB spec says dc:language is required
         languages = ['und']
@@ -688,7 +688,7 @@ def read_tags(root, prefixes, refines):
     for dc in XPath('./opf:metadata/dc:subject')(root):
         if dc.text:
             ans.extend(map(normalize_whitespace, dc.text.split(',')))
-    return uniq(filter(None, ans))
+    return uniq([_f for _f in ans if _f])
 
 
 def set_tags(root, prefixes, refines, val):
@@ -696,7 +696,7 @@ def set_tags(root, prefixes, refines, val):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
     if val:
-        val = uniq(filter(None, val))
+        val = uniq([_f for _f in val if _f])
         for x in val:
             c = m.makeelement(DC('subject'))
             c.text = normalize_whitespace(x)

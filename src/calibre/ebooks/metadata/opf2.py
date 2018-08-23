@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -146,7 +147,7 @@ class ResourceCollection(object):  # {{{
         return len(self._resources) > 0
 
     def __str__(self):
-        resources = map(repr, self)
+        resources = list(map(repr, self))
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
@@ -398,7 +399,7 @@ class Guide(ResourceCollection):  # {{{
         return coll
 
     def set_cover(self, path):
-        map(self.remove, [i for i in self if 'cover' in i.type.lower()])
+        list(map(self.remove, [i for i in self if 'cover' in i.type.lower()]))
         for type in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
             self.append(Guide.Reference(path, is_path=True))
             self[-1].type = type
@@ -1398,9 +1399,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
         '''
-        entries = map(lambda x: x if os.path.isabs(x[0]) else
-                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
-                      entries)
+        entries = [x if os.path.isabs(x[0]) else
+                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]) for x in entries]
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
@@ -1430,8 +1430,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of paths
         '''
-        entries = map(lambda x: x if os.path.isabs(x) else
-                      os.path.abspath(os.path.join(self.base_path, x)), entries)
+        entries = [x if os.path.isabs(x) else
+                      os.path.abspath(os.path.join(self.base_path, x)) for x in entries]
         self.spine = Spine.from_paths(entries, self.manifest)
 
     def set_toc(self, toc):

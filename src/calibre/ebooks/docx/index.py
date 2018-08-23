@@ -243,7 +243,7 @@ def polish_index_markup(index, blocks):
         if a:
             text = etree.tostring(a[0], method='text', with_tail=False, encoding=unicode).strip()
         if ':' in text:
-            path_map[block] = parts = filter(None, (x.strip() for x in text.split(':')))
+            path_map[block] = parts = [_f for _f in (x.strip() for x in text.split(':')) if _f]
             if len(parts) > 1:
                 split_up_block(block, a[0], text, parts, ldict)
         else:

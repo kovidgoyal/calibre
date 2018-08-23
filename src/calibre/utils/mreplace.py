@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from UserDict import UserDict
+from six.moves import map
 
 
 class MReplace(UserDict):

@@ -220,12 +220,12 @@ class OptionSet(object):
         prefs = [pref for pref in self.preferences if pref.group == name]
         lines = ['### Begin group: %s'%(name if name else 'DEFAULT')]
         if desc:
-            lines += map(lambda x: '# '+x, desc.split('\n'))
+            lines += ['# '+x for x in desc.split('\n')]
         lines.append(' ')
         for pref in prefs:
             lines.append('# '+pref.name.replace('_', ' '))
             if pref.help:
-                lines += map(lambda x: '# ' + x, pref.help.split('\n'))
+                lines += ['# ' + x for x in pref.help.split('\n')]
             lines.append('%s = %s'%(pref.name,
                             self.serialize_opt(getattr(opts, pref.name, pref.default))))
             lines.append(' ')

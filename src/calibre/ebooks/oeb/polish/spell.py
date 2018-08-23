@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import filter
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -85,7 +86,7 @@ def get_words(text, lang):
         ans = split_into_words(unicode(text), lang)
     except (TypeError, ValueError):
         return ()
-    return filter(filter_words, ans)
+    return list(filter(filter_words, ans))
 
 
 def add_words(text, node, words, file_name, locale, node_item):

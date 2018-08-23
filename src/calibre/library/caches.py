@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -128,7 +129,7 @@ def set_use_primary_find_in_search(toWhat):
     global pref_use_primary_find_in_search
     pref_use_primary_find_in_search = toWhat
 
-y, c, n, u = map(icu_lower, (_('yes'), _('checked'), _('no'), _('unchecked')))
+y, c, n, u = list(map(icu_lower, (_('yes'), _('checked'), _('no'), _('unchecked'))))
 yes_vals = {y, c, 'true'}
 no_vals = {n, u, 'false'}
 del y, c, n, u
@@ -996,7 +997,7 @@ class ResultCache(SearchQueryParser):  # {{{
             except IndexError:
                 return None
         try:
-            return map(self.row, ids)
+            return list(map(self.row, ids))
         except ValueError:
             pass
         return None

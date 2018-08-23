@@ -31,8 +31,8 @@ class Context(object):
         self.testing = testing
         self.lock = Lock()
         self.user_manager = UserManager(opts.userdb)
-        self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
-        self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
+        self.ignored_fields = frozenset([_f for _f in (x.strip() for x in (opts.ignored_fields or '').split(',')) if _f])
+        self.displayed_fields = frozenset([_f for _f in (x.strip() for x in (opts.displayed_fields or '').split(',')) if _f])
         self._notify_changes = notify_changes
 
     def notify_changes(self, library_path, change_event):

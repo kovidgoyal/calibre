@@ -12,6 +12,7 @@ from lxml.html import (fragment_fromstring, document_fromstring,
 
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
 from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
+from six.moves import map
 
 
 def tounicode(tree_or_node, **kwargs):

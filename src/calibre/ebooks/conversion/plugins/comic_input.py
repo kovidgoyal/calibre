@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -205,7 +206,7 @@ class ComicInput(InputFormatPlugin):
         opf.create_manifest(entries)
         spine = []
         for comic in comics:
-            spine.extend(map(href, comic[2]))
+            spine.extend(list(map(href, comic[2])))
         self._images = []
         for comic in comics:
             self._images.extend(comic[1])

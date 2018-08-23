@@ -43,7 +43,7 @@ class ContainerHeader(object):
 
     def add_hrefs(self, data):
         # kindlegen inserts a trailing | after the last href
-        self.hrefs = filter(None, data.decode('utf-8').split('|'))
+        self.hrefs = [_f for _f in data.decode('utf-8').split('|') if _f]
 
     def __str__(self):
         ans = [('*'*10) + ' Container Header ' + ('*'*10)]

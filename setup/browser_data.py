@@ -14,7 +14,7 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def filter_ans(ans):
-    return filter(None, (x.strip() for x in ans))
+    return [_f for _f in (x.strip() for x in ans) if _f]
 
 
 def common_user_agents():

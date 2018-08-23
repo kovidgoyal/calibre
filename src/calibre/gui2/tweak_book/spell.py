@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import filter
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -364,7 +365,7 @@ class ManageUserDictionaries(Dialog):
         if not lc:
             return error_dialog(self, _('Must specify language'), _(
                 'You must specify a language to import words'), show=True)
-        words = set(filter(None, [x.strip() for x in unicode(w.toPlainText()).splitlines()]))
+        words = set([_f for _f in [x.strip() for x in unicode(w.toPlainText()).splitlines()] if _f])
         lang = lc[0]
         words = {(w, lang) for w in words} - self.current_dictionary.words
         if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, DictionaryLocale(lang, None)):
@@ -718,7 +719,7 @@ class WordsModel(QAbstractTableModel):
         return True
 
     def do_filter(self):
-        self.items = filter(self.filter_item, self.words)
+        self.items = list(filter(self.filter_item, self.words))
 
     def toggle_ignored(self, row):
         w = self.word_for_row(row)

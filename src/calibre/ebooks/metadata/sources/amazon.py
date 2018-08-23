@@ -17,6 +17,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua, all_user_agents
+from six.moves import map
 
 
 class CaptchaError(Exception):

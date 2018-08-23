@@ -19,6 +19,7 @@ from calibre.constants import __appname__, __version__
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
+from six.moves import map
 
 
 class FB2MLizer(object):

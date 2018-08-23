@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -473,7 +474,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         try:
-            dname, ditem = map(decode_name, (encoded_category, encoded_item))
+            dname, ditem = list(map(decode_name, (encoded_category, encoded_item)))
         except:
             raise HTTPNotFound('Invalid encoded param: %r (%r)' % (encoded_category, encoded_item))
         num, offset = get_pagination(rd.query)

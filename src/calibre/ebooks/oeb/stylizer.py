@@ -403,7 +403,7 @@ class Style(object):
         if 'style' not in attrib:
             return
         css = attrib['style'].split(';')
-        css = filter(None, (x.strip() for x in css))
+        css = [_f for _f in (x.strip() for x in css) if _f]
         css = [y.strip() for y in css]
         css = [y for y in css if self.MS_PAT.match(y) is None]
         css = '; '.join(css)

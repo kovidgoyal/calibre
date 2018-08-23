@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from six.moves import map
+from six.moves import zip
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
@@ -156,8 +158,8 @@ class CatalogBuilder(object):
         self.html_filelist_1 = []
         self.html_filelist_2 = []
         self.individual_authors = None
-        self.merge_comments_rule = dict(zip(['field', 'position', 'hr'],
-                                            _opts.merge_comments_rule.split(':')))
+        self.merge_comments_rule = dict(list(zip(['field', 'position', 'hr'],
+                                            _opts.merge_comments_rule.split(':'))))
         self.ncx_soup = None
         self.output_profile = self.get_output_profile(_opts)
         self.play_order = 1
@@ -582,7 +584,7 @@ class CatalogBuilder(object):
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags':
-                if rule['pattern'].lower() in map(unicode.lower, record['tags']):
+                if rule['pattern'].lower() in list(map(unicode.lower, record['tags'])):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
                                (rule['prefix'], record['title'],
@@ -1266,7 +1268,7 @@ class CatalogBuilder(object):
             normalized_tags.append(_normalize_tag(tag, max_len))
             friendly_tags.append(tag)
 
-        genre_tags_dict = dict(zip(friendly_tags, normalized_tags))
+        genre_tags_dict = dict(list(zip(friendly_tags, normalized_tags)))
 
         # Test for multiple genres resolving to same normalized form
         normalized_set = set(normalized_tags)

@@ -17,6 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
 from calibre.utils.config import prefs, tweaks
+from six.moves import map
 
 
 class UnpackBook(QDialog):

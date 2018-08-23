@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -192,7 +193,7 @@ def read_color(col):
     if QColor.isValidColor(col):
         return QBrush(QColor(col))
     if col.startswith('rgb('):
-        r, g, b = map(int, (x.strip() for x in col[4:-1].split(',')))
+        r, g, b = list(map(int, (x.strip() for x in col[4:-1].split(','))))
         return QBrush(QColor(r, g, b))
     try:
         r, g, b = col[0:2], col[2:4], col[4:6]

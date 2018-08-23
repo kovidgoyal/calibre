@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -12,8 +13,8 @@ from StringIO import StringIO
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
-INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
-INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
+INVERSE_DAY_MAP = dict(list(zip(DAY_MAP.values(), DAY_MAP.keys())))
+INVERSE_MONTH_MAP = dict(list(zip(MONTH_MAP.values(), MONTH_MAP.keys())))
 
 
 def strptime(src):

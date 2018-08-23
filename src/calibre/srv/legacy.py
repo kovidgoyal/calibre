@@ -19,6 +19,8 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
+from six.moves import filter
+from six.moves import map
 
 # /mobile {{{
 

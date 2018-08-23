@@ -1,4 +1,6 @@
 from __future__ import with_statement
+from six.moves import map
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -309,7 +311,7 @@ class FlowSplitter(object):
         rest = text.replace('\r', '')
         parts = re.split('\n\n', rest)
         self.log.debug('\t\t\t\tFound %d parts'%len(parts))
-        if max(map(len, parts)) > size:
+        if max(list(map(len, parts))) > size:
             raise SplitError('Cannot split as file contains a <pre> tag '
                 'with a very large paragraph', root)
         ans = []
@@ -436,7 +438,7 @@ class FlowSplitter(object):
 
         spine_pos = self.item.spine_position
 
-        for current, tree in zip(*map(reversed, (self.files, self.trees))):
+        for current, tree in zip(*list(map(reversed, (self.files, self.trees)))):
             for a in tree.getroot().xpath('//h:a[@href]', namespaces=NAMESPACES):
                 href = a.get('href').strip()
                 if href.startswith('#'):

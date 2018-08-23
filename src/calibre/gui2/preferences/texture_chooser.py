@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -80,7 +81,7 @@ class TextureChooser(QDialog):
 
         images.sort(key=lambda x:sort_key(x['name']))
 
-        map(self.create_item, images)
+        list(map(self.create_item, images))
         self.update_remove_state()
 
         if initial:

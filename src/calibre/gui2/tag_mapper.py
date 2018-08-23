@@ -153,7 +153,7 @@ class RuleEdit(QWidget):
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
-        d = TagEditor(self, get_gui().current_db, current_tags=filter(None, [x.strip() for x in self.query.text().split(',')]))
+        d = TagEditor(self, get_gui().current_db, current_tags=[_f for _f in [x.strip() for x in self.query.text().split(',')] if _f])
         if d.exec_() == d.Accepted:
             self.query.setText(', '.join(d.tags))
 

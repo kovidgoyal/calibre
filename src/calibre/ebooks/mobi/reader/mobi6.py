@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (absolute_import, print_function)
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -229,7 +230,7 @@ class MobiReader(object):
             bodies, heads = root.xpath('//body'), root.xpath('//head')
             for x in root:
                 root.remove(x)
-            head, body = map(root.makeelement, ('head', 'body'))
+            head, body = list(map(root.makeelement, ('head', 'body')))
             for h in heads:
                 for x in h:
                     h.remove(x)

@@ -85,9 +85,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.setHorizontalHeaderItem(3, item)
 
         self.opt_columns.setRowCount(len(colmap))
-        self.column_desc = dict(map(lambda x:(CreateCustomColumn.column_types[x]['datatype'],
-                                         CreateCustomColumn.column_types[x]['text']),
-                                  CreateCustomColumn.column_types))
+        self.column_desc = dict([(CreateCustomColumn.column_types[x]['datatype'],
+                                         CreateCustomColumn.column_types[x]['text']) for x in CreateCustomColumn.column_types])
 
         for row, col in enumerate(colmap):
             self.setup_row(self.field_metadata, row, col)

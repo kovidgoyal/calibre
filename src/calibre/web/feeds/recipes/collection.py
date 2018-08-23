@@ -3,6 +3,7 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -392,7 +393,7 @@ class SchedulerConfig(object):
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
-            dw = ','.join(map(str, map(int, schedule[0])))
+            dw = ','.join(map(str, list(map(int, schedule[0]))))
             text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
         else:
             raise ValueError('Unknown schedule type: %r'%typ)

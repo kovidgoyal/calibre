@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+from six.moves import zip
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -124,7 +126,7 @@ def multiple_sequences(expr, root):
     ans = []
     for item in XPath(expr)(root):
         ans += list(read_sequence(item))
-    return filter(None, uniq(ans))
+    return [_f for _f in uniq(ans) if _f]
 
 
 def first_alt(expr, root):
@@ -298,7 +300,7 @@ def metadata_from_xmp_packet(raw_bytes):
 
     languages = multiple_sequences('//dc:language', root)
     if languages:
-        languages = filter(None, map(canonicalize_lang, languages))
+        languages = [_f for _f in map(canonicalize_lang, languages) if _f]
         if languages:
             mi.languages = languages
 
@@ -484,7 +486,7 @@ def metadata_to_xmp_packet(mi):
     if not mi.is_null('pubdate'):
         create_sequence_property(dc, 'dc:date', [isoformat(mi.pubdate, as_utc=False)])  # Adobe spec recommends local time
     if not mi.is_null('languages'):
-        langs = filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages))
+        langs = [_f for _f in [lang_as_iso639_1(x) or canonicalize_lang(x) for x in mi.languages] if _f]
         if langs:
             create_sequence_property(dc, 'dc:language', langs, ordered=False)
 

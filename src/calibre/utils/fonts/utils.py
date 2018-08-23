@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -417,7 +418,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
     if bmp_table is None:
         raise UnsupportedFont('Not a supported font, has no format 4 cmap table')
 
-    for glyph_id in get_bmp_glyph_ids(table, bmp_table, map(ord, text)):
+    for glyph_id in get_bmp_glyph_ids(table, bmp_table, list(map(ord, text))):
         yield glyph_id
 
 

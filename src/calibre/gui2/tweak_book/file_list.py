@@ -17,6 +17,8 @@ from PyQt5.Qt import (
     QPixmap, QRadioButton, QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate,
     Qt, QTimer, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
+from six.moves import map
+from six.moves import zip
 try:
     from PyQt5 import sip
 except ImportError:
@@ -245,7 +247,7 @@ class FileList(QTreeWidget):
     def mimeData(self, indices):
         ans = QTreeWidget.mimeData(self, indices)
         names = (idx.data(0, NAME_ROLE) for idx in indices if idx.data(0, MIME_ROLE))
-        ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join(filter(None, names)).encode('utf-8'))
+        ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join([_f for _f in names if _f]).encode('utf-8'))
         return ans
 
     @property
@@ -971,7 +973,7 @@ class MergeDialog(QDialog):  # {{{
 
         buttons = self.buttons = [QRadioButton(n) for n in names]
         buttons[0].setChecked(True)
-        map(w.l.addWidget, buttons)
+        list(map(w.l.addWidget, buttons))
         sa.setWidget(w)
 
         self.resize(self.sizeHint() + QSize(150, 20))

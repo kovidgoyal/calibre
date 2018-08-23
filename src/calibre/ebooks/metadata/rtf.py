@@ -129,7 +129,7 @@ def get_metadata(stream):
     tags_match = tags_pat.search(block)
     if tags_match is not None:
         tags = decode(tags_match.group(1).strip(), cpg)
-        mi.tags = list(filter(None, (x.strip() for x in tags.split(','))))
+        mi.tags = list([_f for _f in (x.strip() for x in tags.split(',')) if _f])
     publisher_match = publisher_pat.search(block)
     if publisher_match is not None:
         publisher = decode(publisher_match.group(1).strip(), cpg)

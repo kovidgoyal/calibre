@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -312,7 +313,7 @@ class MetadataSingleDialogBase(QDialog):
             self, _('Edit prefixes'), _('Enter prefixes, one on a line. The first prefix becomes the default.'),
             '\n'.join(list(map(type(u''), gprefs['paste_isbn_prefixes']))))
         if ok:
-            gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
+            gprefs['paste_isbn_prefixes'] = list([_f for _f in (x.strip() for x in prefixes.splitlines()) if _f]) or gprefs.defaults['paste_isbn_prefixes']
             self.update_paste_identifiers_menu()
 
     def create_custom_metadata_widgets(self):  # {{{

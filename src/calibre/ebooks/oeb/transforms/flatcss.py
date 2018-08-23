@@ -2,6 +2,7 @@
 CSS flattening transform.
 '''
 from __future__ import with_statement
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'

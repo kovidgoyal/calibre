@@ -23,6 +23,7 @@ from calibre.utils.icu import collation_order
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
+from six.moves import filter
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
 
@@ -303,7 +304,7 @@ categories_with_ratings = {'authors', 'series', 'publisher', 'tags'}
 
 
 def get_name_components(name):
-    components = filter(None, [t.strip() for t in name.split('.')])
+    components = [_f for _f in [t.strip() for t in name.split('.')] if _f]
     if not components or '.'.join(components) != name:
         components = [name]
     return components
@@ -532,9 +533,9 @@ def render_categories(opts, db, category_data):
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
-        root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
+        root['children'] = list(filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children']))
     if opts.hide_empty_categories:
-        root['children'] = filter((lambda child:items[child['id']]['count'] > 0), root['children'])
+        root['children'] = list(filter((lambda child:items[child['id']]['count'] > 0), root['children']))
     return {'root':root, 'item_map': items}
 
 

@@ -16,6 +16,7 @@ from PyQt5.Qt import QEventLoop
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, preferred_encoding, DEBUG
 from calibre.utils.config import dynamic
+from six.moves import map
 
 
 def dialog_name(name, title):

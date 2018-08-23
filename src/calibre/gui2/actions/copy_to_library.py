@@ -27,6 +27,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key, numeric_sort_key
+from six.moves import map
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -104,7 +105,7 @@ class TouchPoint(object):
     def swipe_type(self):
         x_movement = self.current_screen_position.x() - self.start_screen_position.x()
         y_movement = self.current_screen_position.y() - self.start_screen_position.y()
-        xabs, yabs = map(abs, (x_movement, y_movement))
+        xabs, yabs = list(map(abs, (x_movement, y_movement)))
         if max(xabs, yabs) < SWIPE_DISTANCE or min(xabs/max(yabs, 0.01), yabs/max(xabs, 0.01)) > 0.3:
             return
         d = x_movement if xabs > yabs else y_movement

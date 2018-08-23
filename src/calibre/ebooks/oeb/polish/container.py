@@ -55,6 +55,7 @@ from calibre.utils.filenames import hardlink_file, nlinks_file
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
+from six.moves import map
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
@@ -795,7 +796,7 @@ class Container(ContainerBase):  # {{{
         imap = {name:item_id for item_id, name in imap.iteritems()}
         items = [item for item, name, linear in self.spine_iter]
         tail, last_tail = (items[0].tail, items[-1].tail) if items else ('\n    ', '\n  ')
-        map(self.remove_from_xml, items)
+        list(map(self.remove_from_xml, items))
         spine = self.opf_xpath('//opf:spine')[0]
         spine.text = tail
         for name, linear in spine_items:

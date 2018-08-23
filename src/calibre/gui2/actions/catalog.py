@@ -14,6 +14,7 @@ from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 from calibre import sanitize_file_name_unicode
+from six.moves import map
 
 
 class GenerateCatalogAction(InterfaceAction):
@@ -34,7 +35,7 @@ class GenerateCatalogAction(InterfaceAction):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:
             rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
-        ids = map(self.gui.library_view.model().id, rows)
+        ids = list(map(self.gui.library_view.model().id, rows))
 
         if not ids:
             return error_dialog(self.gui, _('No books selected'),

@@ -362,7 +362,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map.iterkeys()))))
+    errors = tuple([_f for _f in pool.map(optimize, tuple(report.name_map.iterkeys())) if _f])
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return

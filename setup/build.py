@@ -3,6 +3,8 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import filter
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -91,7 +93,7 @@ def is_ext_allowed(ext):
     only = ext.get('only', '')
     if only:
         only = set(only.split())
-        q = set(filter(lambda x: globals()["is" + x], ["bsd", "freebsd", "haiku", "linux", "osx", "windows"]))
+        q = set([x for x in ["bsd", "freebsd", "haiku", "linux", "osx", "windows"] if globals()["is" + x]])
         return len(q.intersection(only)) > 0
     return True
 
@@ -247,7 +249,7 @@ class Build(Command):
             self.info('--no-compile specified, skipping compilation')
             return
         self.env = init_env()
-        extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
+        extensions = list(map(parse_extension, list(filter(is_ext_allowed, read_extensions()))))
         self.build_dir = os.path.abspath(opts.build_dir or self.DEFAULT_BUILDDIR)
         self.output_dir = os.path.abspath(opts.output_dir or self.DEFAULT_OUTPUTDIR)
         self.obj_dir = os.path.join(self.build_dir, 'objects')
@@ -505,7 +507,7 @@ class Build(Command):
 
     def clean(self):
         self.output_dir = self.DEFAULT_OUTPUTDIR
-        extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
+        extensions = list(map(parse_extension, list(filter(is_ext_allowed, read_extensions()))))
         for ext in extensions:
             dest = self.dest(ext)
             for x in (dest, dest+'.manifest'):

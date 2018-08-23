@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
+from six.moves import zip
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -321,7 +323,7 @@ class EPUBOutput(OutputFormatPlugin):
         paths = []
         with CurrentDir(tdir):
             paths = [os.path.join(*x.split('/')) for x in uris]
-            uris = dict(zip(uris, paths))
+            uris = dict(list(zip(uris, paths)))
             fonts = []
             for uri in list(uris.keys()):
                 path = uris[uri]
@@ -435,7 +437,7 @@ class EPUBOutput(OutputFormatPlugin):
                     br.tag = XHTML('p')
                     br.text = u'\u00a0'
                     style = br.get('style', '').split(';')
-                    style = filter(None, map(lambda x: x.strip(), style))
+                    style = [_f for _f in [x.strip() for x in style] if _f]
                     style.append('margin:0pt; border:0pt')
                     # If the prior tag is a block (including a <br> we replaced)
                     # then this <br> replacement should have a 1-line height.

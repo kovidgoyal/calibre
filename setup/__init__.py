@@ -3,6 +3,7 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -38,8 +39,8 @@ def newer(targets, sources):
     for f in targets:
         if not os.path.exists(f):
             return True
-    ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-    stimes = map(lambda x: os.stat(x).st_mtime, sources)
+    ttimes = [os.stat(x).st_mtime for x in targets]
+    stimes = [os.stat(x).st_mtime for x in sources]
     newest_source, oldest_target = max(stimes), min(ttimes)
     return newest_source > oldest_target
 

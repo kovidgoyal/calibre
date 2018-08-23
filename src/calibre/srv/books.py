@@ -19,6 +19,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_db
+from six.moves import map
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -136,7 +137,7 @@ def book_manifest(ctx, rd, book_id, fmt):
         fm = db.format_metadata(book_id, fmt)
         if not fm:
             raise HTTPNotFound('No %s format for the book (id:%s) in the library: %s' % (fmt, book_id, library_id))
-        size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
+        size, mtime = list(map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10)))
         bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
             mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))

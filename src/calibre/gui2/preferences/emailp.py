@@ -17,6 +17,7 @@ from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
 from calibre.gui2 import gprefs
 from calibre.utils.smtp import config as smtp_prefs
+from six.moves import map
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
@@ -30,12 +31,12 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.sorted_on = (0, True)
         self.account_order = self.accounts.keys()
         self.do_sort()
-        self.headers  = map(unicode, [_('Email'), _('Formats'), _('Subject'),
-            _('Auto send'), _('Alias'), _('Auto send only tags')])
+        self.headers  = list(map(unicode, [_('Email'), _('Formats'), _('Subject'),
+            _('Auto send'), _('Alias'), _('Auto send only tags')]))
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = (self.default_font)
-        self.tooltips =[None] + list(map(unicode, map(textwrap.fill,
+        self.tooltips =[None] + list(map(unicode, list(map(textwrap.fill,
             [_('Formats to email. The first matching format will be sent.'),
              _('Subject of the email to use when sending. When left blank '
                'the title will be used for the subject. Also, the same '
@@ -49,7 +50,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                ' this email address. All news downloads have their title as a'
                ' tag, so you can use this to easily control which news downloads'
                ' are sent to this email address.')
-             ])))
+             ]))))
 
     def do_sort(self):
         col = self.sorted_on[0]

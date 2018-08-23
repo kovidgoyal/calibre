@@ -22,6 +22,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import get_lang
 from calibre.utils.file_type_icons import EXT_MAP
+from six.moves import map
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -305,7 +306,7 @@ def default_author_link():
 
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
-    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount())))
+    return [x.height() for x in list(map(desktop.availableGeometry, range(desktop.screenCount())))]
 
 
 def available_height():
@@ -638,8 +639,8 @@ if not iswindows and not isosx and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.env
 if has_windows_file_dialog_helper:
     from calibre.gui2.win_file_dialogs import choose_files, choose_images, choose_dir, choose_save_file
 elif has_linux_file_dialog_helper:
-    choose_dir, choose_files, choose_save_file, choose_images = map(
-        linux_native_dialog, 'dir files save_file images'.split())
+    choose_dir, choose_files, choose_save_file, choose_images = list(map(
+        linux_native_dialog, 'dir files save_file images'.split()))
 else:
     from calibre.gui2.qt_file_dialogs import choose_files, choose_images, choose_dir, choose_save_file
     choose_files, choose_images, choose_dir, choose_save_file

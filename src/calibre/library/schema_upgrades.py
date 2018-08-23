@@ -3,6 +3,7 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -590,7 +591,7 @@ class SchemaUpgrade(object):
                     custom_recipe_filename
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                existing = frozenset(list(map(int, custom_recipes.iterkeys())))
                 if id_ in existing:
                     id_ = max(existing) + 1000
                 id_ = str(id_)

@@ -321,7 +321,7 @@ class WebPage(QWebPage):
                     ans = None
                 return ans
             val = self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.line_numbers()')
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, val))))
+            self._line_numbers = sorted(uniq([x for x in map(atoi, val) if x is not None]))
         return self._line_numbers
 
     def go_to_line(self, lnum):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -40,8 +41,8 @@ class Image(Element):
         self.opts, self.log = opts, log
         self.id = idc.next()
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
-          map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
-              'iheight')))
+          list(map(float, list(map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
+              'iheight')))))
         self.src = img.get('src')
         self.bottom = self.top + self.height
         self.right = self.left + self.width
@@ -62,8 +63,8 @@ class Text(Element):
         self.id = idc.next()
         self.opts, self.log = opts, log
         self.font_map = font_map
-        self.top, self.left, self.width, self.height = map(float, map(text.get,
-            ('top', 'left', 'width', 'height')))
+        self.top, self.left, self.width, self.height = list(map(float, list(map(text.get,
+            ('top', 'left', 'width', 'height')))))
         self.bottom  = self.top + self.height
         self.right = self.left + self.width
         self.font = self.font_map[text.get('font')]
@@ -356,7 +357,7 @@ class Region(object):
                         max_overlap = width
                         max_overlap_index = j
                 col_map[i] = max_overlap_index
-            lines = max(map(len, region.columns))
+            lines = max(list(map(len, region.columns)))
             if at == 'bottom':
                 lines = range(lines)
             else:
@@ -423,8 +424,8 @@ class Page(object):
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.number = int(page.get('number'))
-        self.width, self.height = map(float, map(page.get,
-            ('width', 'height')))
+        self.width, self.height = list(map(float, list(map(page.get,
+            ('width', 'height')))))
         self.id = 'page%d'%self.number
 
         self.texts = []

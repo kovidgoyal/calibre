@@ -160,7 +160,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max([w.width(str(x)) for x in xrange(10)])
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):

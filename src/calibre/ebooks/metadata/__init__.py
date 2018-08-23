@@ -14,6 +14,8 @@ from urlparse import urlparse
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 
 from calibre.utils.config_base import tweaks
+from six.moves import map
+from six.moves import zip
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
@@ -159,10 +161,10 @@ def title_sort(title, order=None, lang=None):
     return title.strip()
 
 
-coding = zip(
+coding = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
 ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
-)
+))
 
 
 def roman(num):
@@ -290,7 +292,7 @@ class ResourceCollection(object):
         return len(self._resources) > 0
 
     def __str__(self):
-        resources = map(repr, self)
+        resources = list(map(repr, self))
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
@@ -339,7 +341,7 @@ def MetaInformation(title, authors=(_('Unknown'),)):
 
 def check_isbn10(isbn):
     try:
-        digits = map(int, isbn[:9])
+        digits = list(map(int, isbn[:9]))
         products = [(i+1)*digits[i] for i in range(9)]
         check = sum(products)%11
         if (check == 10 and isbn[9] == 'X') or check == int(isbn[9]):
@@ -351,7 +353,7 @@ def check_isbn10(isbn):
 
 def check_isbn13(isbn):
     try:
-        digits = map(int, isbn[:12])
+        digits = list(map(int, isbn[:12]))
         products = [(1 if i%2 ==0 else 3)*digits[i] for i in range(12)]
         check = 10 - (sum(products)%10)
         if check == 10:
@@ -382,7 +384,7 @@ def check_issn(issn):
         return None
     issn = re.sub(r'[^0-9X]', '', issn.upper())
     try:
-        digits = map(int, issn[:7])
+        digits = list(map(int, issn[:7]))
         products = [(8 - i) * d for i, d in enumerate(digits)]
         check = 11 - sum(products) % 11
         if (check == 10 and issn[7] == 'X') or check == int(issn[7]):

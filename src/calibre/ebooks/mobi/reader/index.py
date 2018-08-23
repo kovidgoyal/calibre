@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -50,7 +51,7 @@ def parse_indx_header(data):
     words = INDEX_HEADER_FIELDS
     num = len(words)
     values = struct.unpack(bytes('>%dL' % num), data[4:4*(num+1)])
-    ans = dict(zip(words, values))
+    ans = dict(list(zip(words, values)))
     ordt1, ordt2 = ans['ordt1'], ans['ordt2']
     ans['ordt1_raw'], ans['ordt2_raw'] = [], []
     ans['ordt_map'] = ''

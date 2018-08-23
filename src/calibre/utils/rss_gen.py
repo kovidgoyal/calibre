@@ -7,6 +7,7 @@ __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
 import datetime
+from six.moves import map
 
 # Could make this the base class; will need to add 'publish'
 

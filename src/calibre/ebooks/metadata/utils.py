@@ -58,9 +58,9 @@ def normalize_languages(opf_languages, mi_languages):
             return parse_lang_code(x)
         except ValueError:
             return None
-    opf_languages = filter(None, map(parse, opf_languages))
+    opf_languages = [_f for _f in map(parse, opf_languages) if _f]
     cc_map = {c.langcode:c.countrycode for c in opf_languages}
-    mi_languages = filter(None, map(parse, mi_languages))
+    mi_languages = [_f for _f in map(parse, mi_languages) if _f]
 
     def norm(x):
         lc = x.langcode

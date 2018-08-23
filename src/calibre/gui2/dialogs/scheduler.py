@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -147,7 +148,7 @@ class DaysOfMonth(Base):
         if val is None:
             val = ((1,), 6, 0)
         days_of_month, hour, minute = val
-        self.days.setText(', '.join(map(str, map(int, days_of_month))))
+        self.days.setText(', '.join(map(str, list(map(int, days_of_month)))))
         self.time.setTime(QTime(hour, minute))
 
     @property
@@ -456,7 +457,7 @@ class SchedulerDialog(QDialog):
             return True
 
         if self.account.isVisible():
-            un, pw = map(unicode, (self.username.text(), self.password.text()))
+            un, pw = list(map(unicode, (self.username.text(), self.password.text())))
             un, pw = un.strip(), pw.strip()
             if not un and not pw and self.schedule.isChecked():
                 if not getattr(self, 'subscription_optional', False):

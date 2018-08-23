@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import deque
+from six.moves import zip
 
 
 def compile_pat(pat):
@@ -88,7 +89,7 @@ def apply_rules(tag, rules):
                     ans.append(icu_upper(tag))
                     break
                 if ac == 'split':
-                    stags = filter(None, [x.strip() for x in tag.split(rule['replace'])])
+                    stags = [_f for _f in [x.strip() for x in tag.split(rule['replace'])] if _f]
                     if stags:
                         if stags[0] == tag:
                             ans.append(tag)
@@ -121,7 +122,7 @@ def map_tags(tags, rules=()):
     ans = []
     for t in tags:
         ans.extend(apply_rules(t, rules))
-    return uniq(filter(None, ans))
+    return uniq([_f for _f in ans if _f])
 
 
 def find_tests():

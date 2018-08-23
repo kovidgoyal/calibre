@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -181,7 +182,7 @@ class Convert(object):
                         indent = float(style.text_indent[:-2]) + indent
                     style.text_indent = '%.3gpt' % indent
                     parent.text = tabs[-1].tail or ''
-                    map(parent.remove, tabs)
+                    list(map(parent.remove, tabs))
 
         self.images.rid_map = orig_rid_map
 
@@ -732,7 +733,7 @@ class Convert(object):
             last_run.append((html_obj, style))
 
     def apply_frames(self):
-        for run in filter(None, self.framed):
+        for run in [_f for _f in self.framed if _f]:
             style = run[0][1]
             paras = tuple(x[0] for x in run)
             parent = paras[0].getparent()

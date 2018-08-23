@@ -83,7 +83,7 @@ def find_identical_books(mi, data):
         if fuzzy_title(title) == titleq:
             ans.add(book_id)
 
-    langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
+    langq = tuple([x for x in map(canonicalize_lang, mi.languages or ()) if x and x != 'und'])
     if not langq:
         return ans
 

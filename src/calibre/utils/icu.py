@@ -278,7 +278,7 @@ def contractions(col=None):
     ans = _cmap.get(collator, None)
     if ans is None:
         ans = col.contractions()
-        ans = frozenset(filter(None, ans))
+        ans = frozenset([_f for _f in ans if _f])
         _cmap[col] = ans
     return ans
 

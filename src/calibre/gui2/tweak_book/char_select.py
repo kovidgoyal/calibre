@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -528,7 +529,7 @@ class CharModel(QAbstractListModel):
     def dropMimeData(self, md, action, row, column, parent):
         if action != Qt.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
-        indices = map(int, bytes(md.data('application/calibre_charcode_indices')).split(','))
+        indices = list(map(int, bytes(md.data('application/calibre_charcode_indices')).split(',')))
         codes = [self.chars[x] for x in indices]
         for x in indices:
             self.chars[x] = None

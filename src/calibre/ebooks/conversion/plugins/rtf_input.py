@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import filter
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -121,7 +122,7 @@ class RTFInput(InputFormatPlugin):
 
         with open(picts, 'rb') as f:
             raw = f.read()
-        picts = filter(len, re.findall(r'\{\\pict([^}]+)\}', raw))
+        picts = list(filter(len, re.findall(r'\{\\pict([^}]+)\}', raw)))
         hex = re.compile(r'[^a-fA-F0-9]')
         encs = [hex.sub('', pict) for pict in picts]
 

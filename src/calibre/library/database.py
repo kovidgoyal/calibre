@@ -1,4 +1,6 @@
 from __future__ import print_function
+from six.moves import map
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -864,7 +866,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def refresh_ids(self, ids):
-        indices = map(self.index, ids)
+        indices = list(map(self.index, ids))
         for id, idx in zip(ids, indices):
             row = self.conn.get('SELECT * from meta WHERE id=?', (id,), all=False)
             self.data[idx] = row
@@ -1068,8 +1070,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.get('SELECT id, name FROM authors')]
 
     def all_author_names(self):
-        return filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
-            'SELECT name FROM authors')])
+        return [_f for _f in [i[0].strip().replace('|', ',') for i in self.conn.get(
+            'SELECT name FROM authors')] if _f]
 
     def all_publishers(self):
         return [(i[0], i[1]) for i in

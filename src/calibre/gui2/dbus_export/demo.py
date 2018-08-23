@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+from six.moves import zip
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -45,13 +47,13 @@ class MainWindow(QMainWindow):
         q.triggered.connect(QApplication.quit)
         self.addAction(q)
         QApplication.instance().setWindowIcon(s.standardIcon(s.SP_ComputerIcon))
-        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
+        for i, icon in zip(xrange(3), list(map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp)))):
             ac = m.addAction('One - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_1 + i), Qt.SHIFT | (Qt.Key_1 + i)))
             ac.setIcon(icon)
         m.addSeparator()
         self.menu_two = m2 = m.addMenu('A &submenu')
-        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
+        for i, icon in zip(xrange(3), list(map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp)))):
             ac = m2.addAction('Two - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_A + i)))
             ac.setIcon(icon)

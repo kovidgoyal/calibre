@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -32,7 +33,7 @@ def xml2str(root, pretty_print=False, with_tail=False):
 def page_size(opts):
     width, height = PAPER_SIZES[opts.docx_page_size]
     if opts.docx_custom_page_size is not None:
-        width, height = map(float, opts.docx_custom_page_size.partition('x')[0::2])
+        width, height = list(map(float, opts.docx_custom_page_size.partition('x')[0::2]))
     return width, height
 
 
@@ -68,7 +69,7 @@ def create_skeleton(opts, namespaces=None):
         return w(which), str(int(val * 20))
     body.append(E.sectPr(
         E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
-        E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
+        E.pgMar(**dict(list(map(margin, 'left top right bottom'.split())))),
         E.cols(**{w('space'):'720'}),
         E.docGrid(**{w('linePitch'):"360"}),
     ))

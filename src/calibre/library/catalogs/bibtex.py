@@ -15,6 +15,7 @@ from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import format_isbn
+from six.moves import filter
 
 
 class BIBTEX(CatalogPlugin):
@@ -384,7 +385,7 @@ class BIBTEX(CatalogPlugin):
 
             # check in book strict if all is ok else throw a warning into log
             if bib_entry == 'book' :
-                nb_books = len(filter(check_entry_book_valid, data))
+                nb_books = len(list(filter(check_entry_book_valid, data)))
                 if nb_books < nb_entries :
                     log.warn("Only %d entries in %d are book compatible" % (nb_books, nb_entries))
                     nb_entries = nb_books

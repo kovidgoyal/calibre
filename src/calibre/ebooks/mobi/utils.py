@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -629,5 +630,5 @@ def convert_color_for_font_tag(val):
     if rgba is None or rgba == 'currentColor':
         return val
     clamp = lambda x: min(x, max(0, x), 1)
-    rgb = map(clamp, rgba[:3])
-    return '#' + ''.join(map(lambda x:'%02x' % int(x * 255), rgb))
+    rgb = list(map(clamp, rgba[:3]))
+    return '#' + ''.join(['%02x' % int(x * 255) for x in rgb])

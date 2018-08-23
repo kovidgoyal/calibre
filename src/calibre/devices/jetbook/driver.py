@@ -14,6 +14,7 @@ import sys
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
+from six.moves import map
 
 
 class JETBOOK(USBMS):
@@ -78,7 +79,7 @@ class JETBOOK(USBMS):
             if match is not None:
                 mi.title = check_unicode(match.group('title'))
                 authors = string_to_authors(match.group('authors'))
-                mi.authors = map(check_unicode, authors)
+                mi.authors = list(map(check_unicode, authors))
 
         return mi
 

@@ -185,7 +185,7 @@ class MyBlockingBusy(QDialog):  # {{{
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
-                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                paths = [_f for _f in [db.format_abspath(book_id, fmt) for fmt in fmts] if _f]
                 if paths:
                     ret = worker(
                         'calibre.ebooks.metadata.worker', 'read_metadata_bulk',

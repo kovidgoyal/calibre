@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 import re, htmlentitydefs
 from six.moves import map
 from calibre.constants import plugins, preferred_encoding
+from six.moves import filter
 
 try:
     _ncxc = plugins['speedup'][0].clean_xml_chars

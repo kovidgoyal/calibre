@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -132,8 +133,8 @@ class PageProcessor(list):  # {{{
 
             try:
                 if self.opts.comic_image_size:
-                    SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in
-                        self.opts.comic_image_size.split('x')])
+                    SCRWIDTH, SCRHEIGHT = list(map(int, [x.strip() for x in
+                        self.opts.comic_image_size.split('x')]))
             except:
                 pass  # Ignore
 

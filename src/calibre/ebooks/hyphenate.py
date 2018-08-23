@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 import re
+from six.moves import zip
 
 __version__ = '1.0.20070709'
 

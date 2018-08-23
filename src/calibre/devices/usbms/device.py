@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from six.moves import map
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -355,7 +357,7 @@ class Device(DeviceConfig, DevicePlugin):
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
-            return map(int, (g.get('m'), g.get('p')))
+            return list(map(int, (g.get('m'), g.get('p'))))
 
         def dcmp(x, y):
             '''
@@ -475,7 +477,7 @@ class Device(DeviceConfig, DevicePlugin):
                         usb_dir = None
                         continue
                 e = lambda q : raw2num(open(j(usb_dir, q)).read())
-                ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
+                ven, prod, bcd = list(map(e, ('idVendor', 'idProduct', 'bcdDevice')))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
                         test(bcd, 'bcdDevice')):
                     usb_dir = None

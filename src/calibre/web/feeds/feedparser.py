@@ -157,6 +157,8 @@ import urlparse
 import warnings
 
 from htmlentitydefs import name2codepoint, codepoint2name, entitydefs
+from six.moves import filter
+from six.moves import map
 
 try:
     from io import BytesIO as _StringIO
@@ -589,7 +591,7 @@ class _FeedParserMixin:
         self.depth += 1
 
         # normalize attrs
-        attrs = map(self._normalize_attributes, attrs)
+        attrs = list(map(self._normalize_attributes, attrs))
 
         # track xml:base and xml:lang
         attrsD = dict(attrs)
@@ -1026,12 +1028,11 @@ class _FeedParserMixin:
             return
 
         # all tags must be in a restricted subset of valid HTML tags
-        if filter(lambda t: t.lower() not in _HTMLSanitizer.acceptable_elements,
-            re.findall(r'</?(\w+)',s)):
+        if [t for t in re.findall(r'</?(\w+)',s) if t.lower() not in _HTMLSanitizer.acceptable_elements]:
             return
 
         # all entities must have been defined as valid HTML entities
-        if filter(lambda e: e not in entitydefs.keys(), re.findall(r'&(\w+);', s)):
+        if [e for e in re.findall(r'&(\w+);', s) if e not in entitydefs.keys()]:
             return
 
         return 1
@@ -2757,7 +2758,7 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
 
         # declare xlink namespace, if needed
         if self.mathmlOK or self.svgOK:
-            if filter(lambda (n,v): n.startswith('xlink:'),attrs):
+            if list(filter(lambda (n,v): n.startswith('xlink:'),attrs)):
                 if not ('xmlns:xlink','http://www.w3.org/1999/xlink') in attrs:
                     attrs.append(('xmlns:xlink','http://www.w3.org/1999/xlink'))
 
@@ -3836,7 +3837,7 @@ def replace_doctype(data):
     replacement = _s2bytes('')
     if len(doctype_results) == 1 and entity_results:
         match_safe_entities = lambda e: RE_SAFE_ENTITY_PATTERN.match(e)
-        safe_entities = filter(match_safe_entities, entity_results)
+        safe_entities = list(filter(match_safe_entities, entity_results))
         if safe_entities:
             replacement = _s2bytes('<!DOCTYPE feed [\n<!ENTITY') \
                         + _s2bytes('>\n<!ENTITY ').join(safe_entities) \

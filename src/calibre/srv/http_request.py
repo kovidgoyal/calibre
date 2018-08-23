@@ -91,7 +91,7 @@ def parse_uri(uri, parse_query=True):
         path = '%2F'.join(unquote(x).decode('utf-8') for x in quoted_slash.split(path))
     except ValueError as e:
         raise HTTPSimpleResponse(httplib.BAD_REQUEST, as_unicode(e))
-    path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
+    path = tuple([_f for _f in (x.replace('%2F', '/') for x in path.split('/')) if _f])
 
     return scheme, path, query
 # }}}
