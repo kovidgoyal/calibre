@@ -6,8 +6,8 @@ __docformat__ = 'restructuredtext en'
 import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
-from six.moves import map
-from six.moves import getcwd
+import six
+from six.moves import map, getcwd
 try:
     import __builtin__ as builtins
 except ImportError:
@@ -15,6 +15,10 @@ except ImportError:
 
 
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
+
+# Setup unicode built in for python2/3 compat
+if not six.PY2:
+    builtins.__dict__['unicode'] = str
 
 
 if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
