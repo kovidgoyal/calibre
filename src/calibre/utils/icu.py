@@ -187,7 +187,7 @@ def _make_func(template, name, **kwargs):
     l = globals()
     kwargs['name'] = name
     kwargs['func'] = kwargs.get('func', 'sort_key')
-    exec template.format(**kwargs) in l
+    exec(template.format(**kwargs), l)
     return l[name]
 
 

@@ -201,7 +201,7 @@ class OptionSet(object):
                 if not isinstance(src, unicode):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
-                exec src in options
+                exec(src, options)
             except:
                 print('Failed to parse options string:')
                 print(repr(src))
@@ -471,13 +471,13 @@ def read_tweaks():
     default_tweaks, tweaks = read_raw_tweaks()
     l, g = {}, {}
     try:
-        exec tweaks in g, l
+        exec(tweaks, g, l)
     except:
         import traceback
         print('Failed to load custom tweaks file')
         traceback.print_exc()
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     dl.update(l)
     return dl
 
@@ -496,7 +496,7 @@ def reset_tweaks_to_default():
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     tweaks.clear()
     tweaks.update(dl)
 

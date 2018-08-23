@@ -263,7 +263,7 @@ def compile_code(src):
     namespace = {
             'time':time, 're':re, 'os':os, 'io':io,
     }
-    exec src in namespace
+    exec(src, namespace)
     return namespace
 
 

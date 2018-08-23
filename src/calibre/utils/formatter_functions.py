@@ -1654,7 +1654,7 @@ class UserFunction(FormatterUserFunction):
     locals_ = {}
     if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print(prog)
-    exec prog in locals_
+    exec(prog, locals_)
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 

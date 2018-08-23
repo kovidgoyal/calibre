@@ -180,7 +180,7 @@ class PluginLoader(object):
             mod.__dict__['get_resources'] = partial(get_resources, zfp)
             mod.__dict__['get_icons'] = partial(get_icons, zfp)
             mod.__dict__['load_translations'] = partial(load_translations, mod.__dict__, zfp)
-            exec compiled in mod.__dict__
+            exec(compiled, mod.__dict__)
 
         return mod
 
