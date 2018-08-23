@@ -3,10 +3,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, time, random, __builtin__, warnings
-__builtin__.__dict__['dynamic_property'] = lambda func: func(None)
+import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
+
+
+builtins.__dict__['dynamic_property'] = lambda func: func(None)
+
 
 if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
     warnings.simplefilter('ignore', DeprecationWarning)

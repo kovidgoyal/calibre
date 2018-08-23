@@ -8,7 +8,11 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import __builtin__, sys, os
+import sys, os
+try:
+    import __builtin__ as builtins
+except ImportError:
+    import builtins
 
 from calibre import config_dir
 
@@ -150,5 +154,5 @@ def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
     return js, lang
 
 
-__builtin__.__dict__['P'] = get_path
-__builtin__.__dict__['I'] = get_image_path
+builtins.__dict__['P'] = get_path
+builtins.__dict__['I'] = get_image_path
