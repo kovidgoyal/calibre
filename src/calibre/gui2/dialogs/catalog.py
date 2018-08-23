@@ -21,7 +21,8 @@ class Catalog(QDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
 
     def __init__(self, parent, dbspec, ids, db):
-        import re, cStringIO
+        import re
+        from six.moves import cStringIO
         from calibre import prints as info
         from PyQt5.uic import compileUi
 
@@ -66,7 +67,7 @@ class Catalog(QDialog, Ui_Dialog):
                     # Compile the .ui form provided in plugin.zip
                     if not os.path.exists(compiled_form):
                         # info('\tCompiling form', form)
-                        buf = cStringIO.StringIO()
+                        buf = StringIO()
                         compileUi(form, buf)
                         dat = buf.getvalue()
                         dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)',

@@ -126,7 +126,7 @@ def _get_cover(soup, rdr):
                 ans = None
         if ans is not None:
             from PIL import Image
-            from cStringIO import StringIO
+            from six.moves import StringIO
             buf = StringIO()
             try:
                 Image.open(StringIO(ans)).convert('RGB').save(buf, 'JPEG')

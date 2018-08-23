@@ -10,7 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 
 import struct, os, functools, re
 from six.moves.urllib.parse import urldefrag
-from cStringIO import StringIO
+from six.moves import StringIO
 from urllib import unquote as urlunquote
 
 from lxml import etree

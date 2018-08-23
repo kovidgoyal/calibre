@@ -7,7 +7,7 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from cStringIO import StringIO
+from six.moves import StringIO
 from struct import pack
 from itertools import izip, count, chain
 import time

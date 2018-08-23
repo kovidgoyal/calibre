@@ -10,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
+import re, sys, unittest, functools, os, uuid, glob, json, copy
+from six.moves import StringIO
 from urllib import unquote
 from six.moves.urllib.parse import urlparse
 
@@ -1718,7 +1719,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
 def test_m2o():
     from calibre.utils.date import now as nowf
-    from cStringIO import StringIO
+    from six.moves import StringIO
     mi = MetaInformation('test & title', ['a"1', "a'2"])
     mi.title_sort = 'a\'"b'
     mi.author_sort = 'author sort'
@@ -1755,7 +1756,7 @@ def test_m2o():
 class OPFTest(unittest.TestCase):
 
     def setUp(self):
-        self.stream = cStringIO.StringIO(
+        self.stream = StringIO(
 '''\
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
@@ -1809,10 +1810,10 @@ class OPFTest(unittest.TestCase):
 
     def testCreator(self):
         opf = OPFCreator(getcwd(), self.opf)
-        buf = cStringIO.StringIO()
+        buf = StringIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), getcwd()))
+        self.testReading(opf=OPF(StringIO(raw), getcwd()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1828,7 +1829,7 @@ def test():
 
 
 def test_user_metadata():
-    from cStringIO import StringIO
+    from six.moves import StringIO
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
         '#myseries': {'#value#': u'test series\xe4', 'datatype':'text',

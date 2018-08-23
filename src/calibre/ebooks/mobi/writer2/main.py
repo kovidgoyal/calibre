@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import random, time
-from cStringIO import StringIO
+from six.moves import StringIO
 from struct import pack
 
 from calibre.ebooks import normalize

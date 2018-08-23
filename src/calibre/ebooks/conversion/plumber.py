@@ -923,7 +923,7 @@ OptionRecommendation(name='search_replace',
     def download_cover(self, url):
         from calibre import browser
         from PIL import Image
-        from cStringIO import StringIO
+        from six.moves import StringIO
         from calibre.ptempfile import PersistentTemporaryFile
         self.log('Downloading cover from %r'%url)
         br = browser()

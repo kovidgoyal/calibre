@@ -23,7 +23,7 @@ from __future__ import division
 
 import zipfile, re
 import xml.sax.saxutils
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from odf.namespaces import OFFICENS, DCNS, METANS
 from odf.opendocument import load as odLoad

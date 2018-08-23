@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
+import os, sys, shutil, glob, time, functools, traceback, re, \
         json, uuid, hashlib, copy, types
+from six.moves import StringIO
 from collections import defaultdict, namedtuple
 import threading, random
 from itertools import repeat
@@ -3694,7 +3695,7 @@ books_series_link      feeds
             for format in formats:
                 data = db.format(id, format, index_is_id=True)
                 if data:
-                    self.add_format(id, format, cStringIO.StringIO(data), index_is_id=True)
+                    self.add_format(id, format, StringIO(data), index_is_id=True)
             cover = db.cover(id, index_is_id=True)
             if cover:
                 self.set_cover(id, cover)

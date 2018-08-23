@@ -5,7 +5,7 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cStringIO import StringIO
+from six.moves import StringIO
 from struct import pack
 
 from calibre.constants import plugins

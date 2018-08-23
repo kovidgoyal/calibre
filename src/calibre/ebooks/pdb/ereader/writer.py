@@ -18,7 +18,7 @@ try:
 except ImportError:
     import Image
 
-import cStringIO
+from six.moves import StringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
@@ -140,10 +140,10 @@ class Writer(FormatWriter):
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 try:
-                    im = Image.open(cStringIO.StringIO(item.data)).convert('P')
+                    im = Image.open(StringIO(item.data)).convert('P')
                     im.thumbnail((300,300), Image.ANTIALIAS)
 
-                    data = cStringIO.StringIO()
+                    data = StringIO()
                     im.save(data, 'PNG')
                     data = data.getvalue()
 

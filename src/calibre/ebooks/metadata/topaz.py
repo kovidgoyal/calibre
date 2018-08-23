@@ -376,9 +376,9 @@ if __name__ == '__main__':
         print(get_metadata(open(sys.argv[1], 'rb')))
     else:
         # Test set_metadata()
-        import cStringIO
+        from six.moves import StringIO
         data = open(sys.argv[1], 'rb')
-        stream = cStringIO.StringIO()
+        stream = StringIO()
         stream.write(data.read())
         mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
         set_metadata(stream, mi)

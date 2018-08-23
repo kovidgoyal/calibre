@@ -7,7 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, cStringIO, six.moves.cPickle
+import os, locale, re
+from six.moves import StringIO, cPickle
 from gettext import GNUTranslations, NullTranslations
 
 _available_translations = None
@@ -18,7 +19,7 @@ def available_translations():
     if _available_translations is None:
         stats = P('localization/stats.pickle', allow_user_override=False)
         if os.path.exists(stats):
-            stats = six.moves.cPickle.load(open(stats, 'rb'))
+            stats = cPickle.load(open(stats, 'rb'))
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
@@ -127,14 +128,14 @@ def get_all_translators():
         for lang in available_translations():
             mpath = get_lc_messages_path(lang)
             if mpath is not None:
-                buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                buf = StringIO(zf.read(mpath + '/messages.mo'))
                 yield lang, GNUTranslations(buf)
 
 
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = cStringIO.StringIO(zf.read(mpath + '/%s.mo' % which))
+        buf = StringIO(zf.read(mpath + '/%s.mo' % which))
         return GNUTranslations(buf)
 
 
@@ -183,14 +184,14 @@ lcdata = {
 
 def load_po(path):
     from calibre.translations.msgfmt import make
-    buf = cStringIO.StringIO()
+    buf = StringIO()
     try:
         make(path, buf)
     except Exception:
         print((('Failed to compile translations file: %s, ignoring') % path))
         buf = None
     else:
-        buf = cStringIO.StringIO(buf.getvalue())
+        buf = StringIO(buf.getvalue())
     return buf
 
 
@@ -214,17 +215,17 @@ def set_translators():
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:
-                    buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                    buf = StringIO(zf.read(mpath + '/messages.mo'))
                 if mpath == 'nds':
                     mpath = 'de'
                 isof = mpath + '/iso639.mo'
                 try:
-                    iso639 = cStringIO.StringIO(zf.read(isof))
+                    iso639 = StringIO(zf.read(isof))
                 except:
                     pass  # No iso639 translations for this lang
                 if buf is not None:
                     try:
-                        lcdata = six.moves.cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
+                        lcdata = cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
                     except:
                         pass  # No lcdata
 
@@ -349,7 +350,7 @@ def _load_iso639():
     if _iso639 is None:
         ip = P('localization/iso639.pickle', allow_user_override=False)
         with open(ip, 'rb') as f:
-            _iso639 = six.moves.cPickle.load(f)
+            _iso639 = cPickle.load(f)
     return _iso639
 
 

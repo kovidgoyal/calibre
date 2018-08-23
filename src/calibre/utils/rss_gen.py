@@ -23,7 +23,7 @@ class WriteXmlMixin:
 
     def to_xml(self, encoding="iso-8859-1"):
         try:
-            import cStringIO as StringIO
+            from six.moves import StringIO as StringIO
             StringIO
         except ImportError:
             import StringIO

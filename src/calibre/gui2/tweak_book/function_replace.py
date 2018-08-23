@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, io, weakref, sys
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,

@@ -15,7 +15,7 @@ to get and set meta information. For example:
 
 import struct, zlib, sys, os
 from shutil import copyfileobj
-from cStringIO import StringIO
+from six.moves import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
 

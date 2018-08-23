@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Support for reading the metadata from a LIT file.
 '''
 
-import cStringIO, os
+from six.moves import StringIO, os
 
 from calibre.ebooks.metadata.opf2 import OPF
 from six.moves import getcwd
@@ -16,7 +16,7 @@ def get_metadata(stream):
     litfile = LitContainer(stream, Log())
     src = litfile.get_metadata().encode('utf-8')
     litfile = litfile._litfile
-    opf = OPF(cStringIO.StringIO(src), getcwd())
+    opf = OPF(StringIO(src), getcwd())
     mi = opf.to_book_metadata()
     covers = []
     for item in opf.iterguide():

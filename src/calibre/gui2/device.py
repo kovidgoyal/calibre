@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, six.moves.queue, time, cStringIO, re, sys, weakref
+import os, traceback, six.moves.queue, time, re, sys, weakref
 from threading import Thread, Event
+from six.moves import StringIO
 
 from PyQt5.Qt import (
     QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
@@ -114,7 +115,7 @@ class DeviceJob(BaseJob):  # {{{
 
     @property
     def log_file(self):
-        return cStringIO.StringIO(self._details.encode('utf-8'))
+        return StringIO(self._details.encode('utf-8'))
 
     # }}}
 

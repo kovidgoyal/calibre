@@ -7,7 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, re, struct, textwrap, cStringIO
+import shutil, os, re, struct, textwrap
+from six.moves import StringIO
 
 from lxml import html, etree
 
@@ -285,7 +286,7 @@ class MobiReader(object):
             pass
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
-        ncx = cStringIO.StringIO()
+        ncx = StringIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
         opf.render(open(self.created_opf_path, 'wb'), ncx,
@@ -304,7 +305,7 @@ class MobiReader(object):
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
-            ncx = cStringIO.StringIO()
+            ncx = StringIO()
             opf, ncx_manifest_entry  = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx,
                 ncx_manifest_entry)
@@ -315,7 +316,7 @@ class MobiReader(object):
     def read_embedded_metadata(self, root, elem, guide):
         raw = '<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
                 html.tostring(elem, encoding='utf-8') + '</package>'
-        stream = cStringIO.StringIO(raw)
+        stream = StringIO(raw)
         opf = OPF(stream)
         self.embedded_mi = opf.to_book_metadata()
         if guide is not None:
@@ -826,7 +827,7 @@ class MobiReader(object):
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        processed_html = cStringIO.StringIO()
+        processed_html = StringIO()
         end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:

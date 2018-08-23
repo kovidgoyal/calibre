@@ -25,7 +25,7 @@ import zipfile
 from xml.sax import make_parser,handler
 from xml.sax.xmlreader import InputSource
 import xml.sax.saxutils
-from cStringIO import StringIO
+from six.moves import StringIO
 
 MANIFESTNS="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 

@@ -8,7 +8,8 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, six.moves.urllib.parse, sys, cStringIO
+import os, time, traceback, re, six.moves.urllib.parse, sys
+from six.moves import StringIO
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -1302,7 +1303,7 @@ class BasicNewsRecipe(Recipe):
             ext = cu.split('/')[-1].rpartition('.')[-1].lower().strip()
             if ext == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
-                stream = cStringIO.StringIO(cdata)
+                stream = StringIO(cdata)
                 cdata = None
                 mi = get_metadata(stream)
                 if mi.cover_data and mi.cover_data[1]:
@@ -1804,7 +1805,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                         ' Either your subscription has expired or you have'
                         ' exceeded the maximum allowed downloads for today.'))
             raise
-        f = cStringIO.StringIO(raw)
+        f = StringIO(raw)
         from calibre.utils.zipfile import ZipFile
         zf = ZipFile(f)
         zf.extractall()

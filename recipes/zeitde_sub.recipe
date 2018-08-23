@@ -13,7 +13,7 @@ Die Zeit EPUB
 import os
 import zipfile
 import re
-import cStringIO
+from six.moves import StringIO
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import walk

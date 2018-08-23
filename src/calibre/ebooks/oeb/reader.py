@@ -7,7 +7,8 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy, re, cStringIO
+import sys, os, uuid, copy, re
+from six.moves import StringIO
 from itertools import izip
 from six.moves.urllib.parse import urldefrag, urlparse
 from urllib import unquote as urlunquote
@@ -137,7 +138,7 @@ class OEBReader(object):
     def _metadata_from_opf(self, opf):
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
-        stream = cStringIO.StringIO(etree.tostring(opf, xml_declaration=True, encoding='utf-8'))
+        stream = StringIO(etree.tostring(opf, xml_declaration=True, encoding='utf-8'))
         o = OPF(stream)
         pwm = o.primary_writing_mode
         if pwm:

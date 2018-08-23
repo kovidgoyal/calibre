@@ -21,7 +21,7 @@
 __doc__="""Use OpenDocument to generate your documents."""
 
 import zipfile, time, sys, mimetypes, copy
-from cStringIO import StringIO
+from six.moves import StringIO
 from namespaces import *
 import manifest, meta
 from office import *

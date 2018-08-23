@@ -11,7 +11,7 @@ Test the CLI of the calibre database management tool
 '''
 import csv
 import unittest
-from cStringIO import StringIO
+from six.moves import StringIO
 
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results

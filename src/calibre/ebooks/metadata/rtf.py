@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, codecs
+import re, codecs
+from six.moves import StringIO
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -42,7 +43,7 @@ def get_document_info(stream):
                 break
     if not found:
         return None, 0
-    data, count, = cStringIO.StringIO(), 0
+    data, count, = StringIO(), 0
     pos = stream.tell()
     while True:
         ch = stream.read(1)

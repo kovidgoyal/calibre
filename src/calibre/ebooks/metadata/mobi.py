@@ -12,7 +12,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from struct import pack, unpack
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from calibre.ebooks import normalize
 from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN

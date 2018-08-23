@@ -8,7 +8,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from epub files'''
 
 import os, re, posixpath
-from cStringIO import StringIO
+from six.moves import StringIO
 from contextlib import closing
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace

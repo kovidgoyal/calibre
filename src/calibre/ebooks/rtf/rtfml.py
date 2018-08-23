@@ -10,7 +10,7 @@ Transform OEB content into RTF markup
 
 import os
 import re
-import cStringIO
+from six.moves import StringIO
 
 from lxml import etree
 
@@ -78,7 +78,7 @@ def txt2rtf(text):
     if not isinstance(text, unicode):
         return text
 
-    buf = cStringIO.StringIO()
+    buf = StringIO()
     for x in text:
         val = ord(x)
         if val == 160:

@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import struct
 import zlib
 
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError

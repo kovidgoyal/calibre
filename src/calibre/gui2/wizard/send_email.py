@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cStringIO, sys
+from six.moves import StringIO, sys
 from binascii import hexlify, unhexlify
 from functools import partial
 from threading import Thread
@@ -192,7 +192,7 @@ class SendEmail(QWidget, Ui_Form):
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
         from calibre.utils.smtp import sendmail, create_mail
-        buf = cStringIO.StringIO()
+        buf = StringIO()
         debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf
