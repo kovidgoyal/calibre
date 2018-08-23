@@ -1683,7 +1683,7 @@ class BasicNewsRecipe(Recipe):
 
     @classmethod
     def soup(cls, raw):
-        entity_replace = [(re.compile(ur'&(\S+?);'), partial(entity_to_unicode,
+        entity_replace = [(re.compile(r'&(\S+?);'), partial(entity_to_unicode,
                                                            exceptions=[]))]
         nmassage = list(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(entity_replace)

@@ -295,7 +295,7 @@ class FlowSplitter(object):
         body = self.get_body(root)
         if body is None:
             return False
-        txt = re.sub(ur'\s+|\xa0', '',
+        txt = re.sub(r'\s+|\xa0', '',
                 etree.tostring(body, method='text', encoding=unicode))
         if len(txt) > 1:
             return False

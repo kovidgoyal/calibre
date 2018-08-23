@@ -174,7 +174,7 @@ class PMLMLizer(object):
 
     def prepare_text(self, text):
         # Replace empty paragraphs with \c pml codes used to denote emtpy lines.
-        text = re.sub(ur'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', '\\c\n\\c', text)
+        text = re.sub(r'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', '\\c\n\\c', text)
         return text
 
     def clean_text(self, text):
@@ -188,7 +188,7 @@ class PMLMLizer(object):
             text = text.replace('\\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(ur'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
+        text = re.sub(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
