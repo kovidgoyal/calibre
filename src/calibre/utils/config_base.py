@@ -380,7 +380,7 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('database_path',
               default=os.path.expanduser('~/library1.db'),
               help=_('Path to the database in which books are stored'))
-    c.add_opt('filename_pattern', default=ur'(?P<title>.+) - (?P<author>[^_]+)',
+    c.add_opt('filename_pattern', default=u'(?P<title>.+) - (?P<author>[^_]+)',
               help=_('Pattern to guess metadata from filenames'))
     c.add_opt('isbndb_com_key', default='',
               help=_('Access key for isbndb.com'))

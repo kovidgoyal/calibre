@@ -119,7 +119,7 @@ class RTFMLizer(object):
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub(ur'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
+            content = re.sub(u'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = etree.fromstring(content)

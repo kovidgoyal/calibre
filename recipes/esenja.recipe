@@ -44,8 +44,7 @@ class Esensja(BasicNewsRecipe):
                             '''
 
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                          (re.compile(u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
                           ]
 
     def parse_index(self):

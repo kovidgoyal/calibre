@@ -12,7 +12,7 @@ class tanuki(BasicNewsRecipe):
     max_articles_per_feed = 100
     encoding = 'utf-8'
     extra_css = 'ul {list-style: none; padding: 0; margin: 0;} .kadr{float: left;} .dwazdania {float: right;}'
-    preprocess_regexps = [(re.compile(ur'<h3><a class="screen".*?</h3>', re.DOTALL), lambda match: ''), (re.compile(
+    preprocess_regexps = [(re.compile(u'<h3><a class="screen".*?</h3>', re.DOTALL), lambda match: ''), (re.compile(
         ur'<div><a href="/strony/((manga)|(anime))/[0-9]+?/oceny(\-redakcji){0,1}">Zobacz jak ocenili</a></div>', re.DOTALL), lambda match: '')]
     remove_empty_feeds = True
     no_stylesheets = True

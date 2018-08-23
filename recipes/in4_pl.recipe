@@ -15,7 +15,7 @@ class in4(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     preprocess_regexps = [
-        (re.compile(ur'<a title="translate into.*?</a>', re.DOTALL), lambda match: '')]
+        (re.compile(u'<a title="translate into.*?</a>', re.DOTALL), lambda match: '')]
     keep_only_tags = [dict(name='div', attrs={'class': 'left_alone'})]
     remove_tags_after = dict(name='img', attrs={'title': 'komentarze'})
     remove_tags = [dict(name='img', attrs={'title': 'komentarze'})]

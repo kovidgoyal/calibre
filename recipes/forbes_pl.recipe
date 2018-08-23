@@ -17,8 +17,8 @@ class forbes_pl(BasicNewsRecipe):
     cover_url = 'http://www.forbes.pl/resources/front/images/logo.png'
     max_articles_per_feed = 100
     extra_css = '.Block-Photo {float:left; max-width: 300px; margin-right: 5px;}'
-    preprocess_regexps = [(re.compile(ur'<p>(<strong>)?(Czytaj|Zobacz) (też|także):.*?</p>', re.DOTALL),
-                           lambda match: ''), (re.compile(ur'<strong>Zobacz:.*?</strong>', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(u'<p>(<strong>)?(Czytaj|Zobacz) (też|także):.*?</p>', re.DOTALL),
+                           lambda match: ''), (re.compile(u'<strong>Zobacz:.*?</strong>', re.DOTALL), lambda match: '')]
     remove_javascript = True
     no_stylesheets = True
     now = datetime.datetime.now()
