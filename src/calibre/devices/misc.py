@@ -238,7 +238,7 @@ class TREKSTOR(USBMS):
             0x0067,  # This is for the Pyrus Mini
             0x006f,  # This is for the Pyrus Maxi
             0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x05cL,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
+            0x05c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
             0x006c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=218273
             0x006d,  # Another Pyrus? https://www.mobileread.com/forums/showthread.php?t=231982
             0x73,    # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018

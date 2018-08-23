@@ -232,7 +232,7 @@ if plugins is None:
 
 # config_dir {{{
 
-CONFIG_DIR_MODE = 0700
+CONFIG_DIR_MODE = 0o700
 
 if 'CALIBRE_CONFIG_DIRECTORY' in os.environ:
     config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
