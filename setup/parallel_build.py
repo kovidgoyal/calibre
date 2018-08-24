@@ -80,8 +80,8 @@ def parallel_check_output(jobs, log):
         for ok, stdout, stderr in p.imap(
                 partial(run_worker, decorate=False), ((j, '') for j in jobs)):
             if not ok:
-                log(stdout)
+                log(stdout.decode())
                 if stderr:
-                    log(stderr)
+                    log(stderr.decode())
                 raise SystemExit(1)
-            yield stdout
+            yield stdout.decode()

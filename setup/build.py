@@ -10,8 +10,6 @@ from collections import namedtuple
 from six.moves import filter, map, getcwd
 import six
 
-import six
-
 from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
 
@@ -19,7 +17,8 @@ py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2
 
 
 def absolutize(paths):
-    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
+    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep))
+                     for x in paths]))
 
 
 class Extension(object):
@@ -383,8 +382,7 @@ class Build(Command):
         # LIBS as that would put -lglib-2.0 before libQt5PlatformSupport. See
         # https://bugs.archlinux.org/task/38819
 
-        pro = textwrap.dedent(
-        '''\
+        pro = textwrap.dedent('''\
             TARGET = headless
             PLUGIN_TYPE = platforms
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin

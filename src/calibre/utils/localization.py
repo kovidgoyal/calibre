@@ -3,6 +3,9 @@
 from __future__ import absolute_import
 
 from __future__ import print_function
+
+import six
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -429,7 +432,7 @@ def lang_map():
     translate = _
     global _lang_map
     if _lang_map is None:
-        _lang_map = {k:translate(v) for k, v in iso639['by_3t'].iteritems()}
+        _lang_map = {k:translate(v) for k, v in six.iteritems(iso639['by_3t'])}
     return _lang_map
 
 
@@ -453,7 +456,7 @@ def langnames_to_langcodes(names):
     translate = _
     ans = {}
     names = set(names)
-    for k, v in iso639['by_3t'].iteritems():
+    for k, v in six.iteritems(iso639['by_3t']):
         tv = translate(v)
         if tv in names:
             names.remove(tv)
