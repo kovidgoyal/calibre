@@ -87,13 +87,13 @@ def require_clean_git():
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
-    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read()
+    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
     __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
     epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
-            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read()).group(1)
+            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read().decode('utf-8')).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})
 
     def e2b(ep):
@@ -118,48 +118,6 @@ def initialize_constants():
 
 
 initialize_constants()
-
-preferred_encoding = 'utf-8'
-
-
-def prints(*args, **kwargs):
-    '''
-    Print unicode arguments safely by encoding them to preferred_encoding
-    Has the same signature as the print function from Python 3, except for the
-    additional keyword argument safe_encode, which if set to True will cause the
-    function to use repr when encoding fails.
-    '''
-    file = kwargs.get('file', sys.stdout)
-    sep  = kwargs.get('sep', ' ')
-    end  = kwargs.get('end', '\n')
-    enc = preferred_encoding
-    safe_encode = kwargs.get('safe_encode', False)
-    for i, arg in enumerate(args):
-        if isinstance(arg, six.text_type):
-            try:
-                arg = arg.encode(enc)
-            except UnicodeEncodeError:
-                if not safe_encode:
-                    raise
-                arg = repr(arg)
-        if not isinstance(arg, str):
-            try:
-                arg = str(arg)
-            except ValueError:
-                arg = six.text_type(arg)
-            if isinstance(arg, six.text_type):
-                try:
-                    arg = arg.encode(enc)
-                except UnicodeEncodeError:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
-
-        file.write(arg)
-        if i != len(args)-1:
-            file.write(sep)
-    file.write(end)
-
 
 warnings = []
 
@@ -267,12 +225,12 @@ class Command(object):
         return newer(targets, sources)
 
     def info(self, *args, **kwargs):
-        prints(*args, **kwargs)
+        print(*args, **kwargs)
         sys.stdout.flush()
 
     def warn(self, *args, **kwargs):
         print('\n'+'_'*20, 'WARNING','_'*20)
-        prints(*args, **kwargs)
+        print(*args, **kwargs)
         print('_'*50)
         warnings.append((args, kwargs))
         sys.stdout.flush()

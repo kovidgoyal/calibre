@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement, absolute_import, print_function
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse, six.moves.urllib.parse, base64, hashlib, six.moves.http_client, socket, six.moves.urllib.parse, six.moves.http_client
+import os, base64, hashlib, socket
 from six.moves.configparser import ConfigParser
+from six.moves import StringIO, urllib, http_client
 
 from setup import Command, __appname__, __version__
 from setup.install import Sdist
@@ -116,8 +116,8 @@ class PyPIRegister(Command):
         self.send_metadata(config['username'], config['password'])
 
     def send_metadata(self, username, password):
-        auth = six.moves.urllib.request.HTTPPasswordMgr()
-        host = six.moves.urllib.parse.urlparse(self.repository)[1]
+        auth = urllib.request.HTTPPasswordMgr()
+        host = urllib.parse.urlparse(self.repository)[1]
         auth.add_password(self.realm, host, username, password)
         # send the info to the server and report the result
         code, result = self.post_to_server(self.build_post_data('submit'),
@@ -168,7 +168,7 @@ class PyPIRegister(Command):
         boundary = '--------------GHSKFJDLGDS7543FJKLFHRE75642756743254'
         sep_boundary = '\n--' + boundary
         end_boundary = sep_boundary + '--'
-        body = StringIO.StringIO()
+        body = StringIO()
         for key, value in data.items():
             # handle multiple entries for the same name
             if type(value) not in (type([]), type( () )):
@@ -190,20 +190,20 @@ class PyPIRegister(Command):
             'Content-type': 'multipart/form-data; boundary=%s; charset=utf-8'%boundary,
             'Content-length': str(len(body))
         }
-        req = six.moves.urllib.request.Request(self.repository, body, headers)
+        req = urllib.request.Request(self.repository, body, headers)
 
         # handle HTTP and include the Basic Auth handler
-        opener = six.moves.urllib.request.build_opener(
-            six.moves.urllib.request.HTTPBasicAuthHandler(password_mgr=auth)
+        opener = urllib.request.build_opener(
+            urllib.request.HTTPBasicAuthHandler(password_mgr=auth)
         )
         data = ''
         try:
             result = opener.open(req)
-        except six.moves.urllib.error.HTTPError as e:
+        except urllib.error.HTTPError as e:
             if self.show_response:
                 data = e.fp.read()
             result = e.code, e.msg
-        except six.moves.urllib.error.URLError as e:
+        except urllib.error.URLError as e:
             result = 500, str(e)
         else:
             if self.show_response:
@@ -293,7 +293,7 @@ class PyPIUpload(PyPIRegister):
         boundary = '--------------GHSKFJDLGDS7543FJKLFHRE75642756743254'
         sep_boundary = '\n--' + boundary
         end_boundary = sep_boundary + '--'
-        body = StringIO.StringIO()
+        body = StringIO()
         for key, value in data.items():
             # handle multiple entries for the same name
             if type(value) != type([]):
@@ -322,12 +322,12 @@ class PyPIUpload(PyPIRegister):
         # We can't use urllib2 since we need to send the Basic
         # auth right with the first request
         schema, netloc, url, params, query, fragments = \
-            six.moves.urllib.parse.urlparse(self.repository)
+            urllib.parse.urlparse(self.repository)
         assert not params and not query and not fragments
         if schema == 'http':
-            http = six.moves.http_client.HTTPConnection(netloc)
+            http = http_client.HTTPConnection(netloc)
         elif schema == 'https':
-            http = six.moves.http_client.HTTPSConnection(netloc)
+            http = http_client.HTTPSConnection(netloc)
         else:
             raise AssertionError("unsupported schema "+schema)
 

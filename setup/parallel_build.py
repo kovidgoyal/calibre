@@ -47,6 +47,7 @@ cpu_count = min(16, max(1, cpu_count))
 
 def run_worker(job, decorate=True):
     cmd, human_text = job
+    cmd = [param.encode('utf-8') for param in cmd]
     human_text = human_text or b' '.join(cmd)
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -66,9 +67,9 @@ def parallel_build(jobs, log, verbose=True):
     with closing(p):
         for ok, stdout, stderr in p.imap(run_worker, jobs):
             if verbose or not ok:
-                log(stdout)
+                log(stdout.decode('utf-8'))
                 if stderr:
-                    log(stderr)
+                    log(stderr.decode('utf-8'))
             if not ok:
                 return False
         return True

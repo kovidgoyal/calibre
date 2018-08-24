@@ -1,9 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import with_statement, absolute_import, print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -50,10 +47,10 @@ def run_pkgconfig(name, envvar, default, flag, prefix):
     if not ans:
         try:
             raw = subprocess.Popen([PKGCONFIG, flag, name],
-                stdout=subprocess.PIPE).stdout.read()
+                stdout=subprocess.PIPE).stdout.read().decode('utf-8')
             ans = [x.strip() for x in raw.split(prefix)]
             ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
-        except:
+        except subprocess.CalledProcessError:
             print('Failed to run pkg-config:', PKGCONFIG, 'for:', name)
 
     return ans or ([default] if default else [])
