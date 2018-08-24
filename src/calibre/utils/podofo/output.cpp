@@ -144,7 +144,7 @@ class OutputDevice : public PdfOutputDevice {
                 PyErr_SetString(PyExc_Exception, "tell() method did not return a number");
                 throw pyerr();
             }
-            ans = PyInt_AsUnsignedLongMask(ret);
+            ans = PyLong_AsUnsignedLongMask(ret);
             Py_DECREF(ret);
             if (PyErr_Occurred() != NULL) throw pyerr();
 
