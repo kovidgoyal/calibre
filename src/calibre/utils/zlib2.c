@@ -351,7 +351,7 @@ zlib_crc32(PyObject *self, PyObject *args)
     return PyLong_FromUnsignedLong(signed_val & 0xffffffffU);
 }   
 
-static PyMethodDef methods[] = {
+static PyMethodDef zlib2_methods[] = {
 	{"crc32", zlib_crc32, METH_VARARGS,
 		"crc32(data, [, state=0)\n\nCalculate crc32 for the given data starting from the given state."
 	},
@@ -361,44 +361,69 @@ static PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initzlib2(void) {
-    PyObject *m, *ver;
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef zlib2_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "zlib2",
+    .m_doc = ("Implementation of zlib compression with support for the buffer protocol, "
+              "which is missing in Python2. Code taken from the Python3 zlib module"),
+    .m_size = -1,
+    .m_methods = zlib2_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_zlib2(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initzlib2(void) {
+#endif
+
+    PyObject *ver;
     Comptype.tp_new = PyType_GenericNew;
     if (PyType_Ready(&Comptype) < 0)
-        return;
- 
-    m = Py_InitModule3("zlib2", methods,
-    "Implementation of zlib compression with support for the buffer protocol, which is missing in Python2. Code taken from the Python3 zlib module"
-    );
-    if (m == NULL) return;
-    PyModule_AddIntMacro(m, MAX_WBITS);
-    PyModule_AddIntMacro(m, DEFLATED);
-    PyModule_AddIntMacro(m, DEF_MEM_LEVEL);
-    PyModule_AddIntMacro(m, DEF_BUF_SIZE);
-    PyModule_AddIntMacro(m, Z_BEST_SPEED);
-    PyModule_AddIntMacro(m, Z_BEST_COMPRESSION);
-    PyModule_AddIntMacro(m, Z_DEFAULT_COMPRESSION);
-    PyModule_AddIntMacro(m, Z_FILTERED);
-    PyModule_AddIntMacro(m, Z_HUFFMAN_ONLY);
-    PyModule_AddIntMacro(m, Z_DEFAULT_STRATEGY);
+        INITERROR;
 
-    PyModule_AddIntMacro(m, Z_FINISH);
-    PyModule_AddIntMacro(m, Z_NO_FLUSH);
-    PyModule_AddIntMacro(m, Z_SYNC_FLUSH);
-    PyModule_AddIntMacro(m, Z_FULL_FLUSH);
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&zlib2_module);
+#else
+    PyObject *mod = Py_InitModule3("zlib2", zlib2_methods,
+        "Implementation of zlib compression with support for the buffer protocol, "
+        "which is missing in Python2. Code taken from the Python3 zlib module");
+#endif
+
+    if (mod == NULL) INITERROR;
+    PyModule_AddIntMacro(mod, MAX_WBITS);
+    PyModule_AddIntMacro(mod, DEFLATED);
+    PyModule_AddIntMacro(mod, DEF_MEM_LEVEL);
+    PyModule_AddIntMacro(mod, DEF_BUF_SIZE);
+    PyModule_AddIntMacro(mod, Z_BEST_SPEED);
+    PyModule_AddIntMacro(mod, Z_BEST_COMPRESSION);
+    PyModule_AddIntMacro(mod, Z_DEFAULT_COMPRESSION);
+    PyModule_AddIntMacro(mod, Z_FILTERED);
+    PyModule_AddIntMacro(mod, Z_HUFFMAN_ONLY);
+    PyModule_AddIntMacro(mod, Z_DEFAULT_STRATEGY);
+
+    PyModule_AddIntMacro(mod, Z_FINISH);
+    PyModule_AddIntMacro(mod, Z_NO_FLUSH);
+    PyModule_AddIntMacro(mod, Z_SYNC_FLUSH);
+    PyModule_AddIntMacro(mod, Z_FULL_FLUSH);
 
     ver = PyUnicode_FromString(ZLIB_VERSION);
     if (ver != NULL)
-        PyModule_AddObject(m, "ZLIB_VERSION", ver);
+        PyModule_AddObject(mod, "ZLIB_VERSION", ver);
 
     ver = PyUnicode_FromString(zlibVersion());
     if (ver != NULL)
-        PyModule_AddObject(m, "ZLIB_RUNTIME_VERSION", ver);
+        PyModule_AddObject(mod, "ZLIB_RUNTIME_VERSION", ver);
 
     ZlibError = PyErr_NewException("zlib2.error", NULL, NULL);
     if (ZlibError != NULL) {
         Py_INCREF(ZlibError);
-        PyModule_AddObject(m, "error", ZlibError);
-    }   
+        PyModule_AddObject(mod, "error", ZlibError);
+    }
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
