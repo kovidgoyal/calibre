@@ -473,19 +473,38 @@ static PyMethodDef matcher_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initmatcher(void) {
-    PyObject *m;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef matcher_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "matcher",
+    .m_doc = "Find subsequence matches",
+    .m_size = -1,
+    .m_methods = matcher_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_matcher(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initmatcher(void) {
+#endif
+
     MatcherType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&MatcherType) < 0)
-        return;
-    m = Py_InitModule3("matcher", matcher_methods, "Find subsequence matches");
-    if (m == NULL) return;
+        INITERROR;
 
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&matcher_module);
+#else
+    PyObject *mod = Py_InitModule3("matcher", matcher_methods, "Find subsequence matches");
+#endif
+
+    if (mod == NULL) INITERROR;
     Py_INCREF(&MatcherType);
-    PyModule_AddObject(m, "Matcher", (PyObject *)&MatcherType);
+    PyModule_AddObject(mod, "Matcher", (PyObject *)&MatcherType);
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
-
-
 
