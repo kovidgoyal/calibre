@@ -349,7 +349,7 @@ static void
 Matcher_dealloc(Matcher* self)
 {
     free_matcher(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 #define alloc_uchar(x) (x * 3 + 1)

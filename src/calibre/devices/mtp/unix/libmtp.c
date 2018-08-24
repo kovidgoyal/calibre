@@ -184,7 +184,7 @@ Device_dealloc(Device* self)
     Py_XDECREF(self->serial_number); self->serial_number = NULL;
     Py_XDECREF(self->device_version); self->device_version = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int

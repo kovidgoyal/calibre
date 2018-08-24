@@ -47,7 +47,7 @@ Face_dealloc(Face* self)
     Py_XDECREF(self->data);
     self->data = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -160,7 +160,7 @@ dealloc(FreeType* self)
     }
     self->library = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int

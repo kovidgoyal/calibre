@@ -328,7 +328,7 @@ SWIG_newvarlink(void) {
   swig_varlinkobject *result = 0;
   result = PyMem_NEW(swig_varlinkobject,1);
   varlinktype.ob_type = &PyType_Type;    /* Patch varlinktype into a PyType */
-  result->ob_type = &varlinktype;
+  Py_TYPE(result) = &varlinktype;
   result->vars = 0;
   result->ob_refcnt = 0;
   Py_XINCREF((PyObject *) result);
