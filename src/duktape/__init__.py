@@ -11,6 +11,7 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
+import six
 
 import dukpy
 
@@ -157,7 +158,7 @@ class Function(object):
             self.reraise(e)
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        six.reraise(JSError, JSError(e), sys.exc_info()[2])
 
 def to_python(x):
     try:
@@ -332,7 +333,7 @@ class Context(object):
         '<init>')
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        six.reraise(JSError, JSError(e), sys.exc_info()[2])
 
     def eval(self, code='', fname='<eval>', noreturn=False):
         try:
@@ -351,7 +352,7 @@ def test_build():
 
     def load_tests(loader, suite, pattern):
         from duktape import tests
-        for x in vars(tests).itervalues():
+        for x in six.itervalues(vars(tests)):
             if isinstance(x, type) and issubclass(x, unittest.TestCase):
                 tests = loader.loadTestsFromTestCase(x)
                 suite.addTests(tests)

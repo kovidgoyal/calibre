@@ -7,7 +7,7 @@ import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
 import six
-from six.moves import map, getcwd
+from six.moves import map, getcwd, range
 try:
     import six.moves.builtins as builtins
 except ImportError:
@@ -119,7 +119,7 @@ def confirm_config_name(name):
 
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
-    u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))
+    u'"', u':', u'>', u'+', u'/'] + list(map(six.unichr, range(32))))
 
 
 def sanitize_file_name(name, substitute='_', as_unicode=False):
