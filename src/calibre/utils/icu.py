@@ -42,10 +42,9 @@ def is_ascii(name):
 
 try:
     if is_ascii(sys.getdefaultencoding()):
-        _icu.set_default_encoding(b'utf-8')
-except:
-    import traceback
-    traceback.print_exc()
+        sys.setdefaultencoding("utf-8")
+except AttributeError:
+    pass
 
 try:
     if is_ascii(sys.getfilesystemencoding()):

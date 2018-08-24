@@ -22,10 +22,6 @@
 #include <unicode/unorm2.h>
 #include <unicode/ubrk.h>
 
-#if PY_VERSION_HEX >= 0x03030000
-#error Not implemented for python >= 3.3
-#endif
-
 #define MIN(x, y) ((x)<(y)) ? (x) : (y)
 #define IS_HIGH_SURROGATE(x) (0xd800 <= x && x <= 0xdbff)
 #define IS_LOW_SURROGATE(x) (0xdc00 <= x && x <= 0xdfff)

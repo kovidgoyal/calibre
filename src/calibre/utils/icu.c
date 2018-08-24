@@ -37,7 +37,7 @@ icu_Collator_dealloc(icu_Collator* self)
     if (self->collator != NULL) ucol_close(self->collator);
     if (self->contractions != NULL) uset_close(self->contractions);
     self->collator = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -92,11 +92,11 @@ icu_Collator_get_strength(icu_Collator *self, void *closure) {
 
 static int
 icu_Collator_set_strength(icu_Collator *self, PyObject *val, void *closure) {
-    if (!PyInt_Check(val)) {
+    if (!PyLong_Check(val)) {
         PyErr_SetString(PyExc_TypeError, "Strength must be an integer.");
         return -1;
     }
-    ucol_setStrength(self->collator, (int)PyInt_AS_LONG(val));
+    ucol_setStrength(self->collator, (int)PyLong_AsLong(val));
     return 0;
 }
 // }}}
@@ -191,9 +191,6 @@ end:
 // Collator.find {{{
 static PyObject *
 icu_Collator_find(icu_Collator *self, PyObject *args) {
-#if PY_VERSION_HEX >= 0x03030000
-#error Not implemented for python >= 3.3
-#endif
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -454,45 +451,15 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
 };
 
 static PyTypeObject icu_CollatorType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "icu.Collator",            /*tp_name*/
-    sizeof(icu_Collator),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)icu_Collator_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Collator",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    icu_Collator_methods,             /* tp_methods */
-    0,             /* tp_members */
-    icu_Collator_getsetters,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    icu_Collator_new,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "icu.Collator",
+    .tp_basicsize = sizeof(icu_Collator),
+    .tp_dealloc = (destructor)icu_Collator_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    .tp_doc = "Collator",
+    .tp_methods = icu_Collator_methods,
+    .tp_getset = icu_Collator_getsetters,
+    .tp_new = icu_Collator_new,
 }; // }}}
 
 // }}
@@ -542,7 +509,7 @@ icu_BreakIterator_dealloc(icu_BreakIterator* self)
     if (self->break_iterator != NULL) ubrk_close(self->break_iterator);
     if (self->text != NULL) free(self->text);
     self->break_iterator = NULL; self->text = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 
@@ -595,9 +562,6 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
 // BreakIterator.index {{{
 static PyObject *
 icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
-#if PY_VERSION_HEX >= 0x03030000
-#error Not implemented for python >= 3.3
-#endif
 
     UChar *buf = NULL, *needle = NULL;
     int32_t word_start = 0, p = 0, sz = 0, ans = -1, leading_hyphen = 0, trailing_hyphen = 0;
@@ -655,9 +619,6 @@ end:
 // BreakIterator.split2 {{{
 static PyObject *
 icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
-#if PY_VERSION_HEX >= 0x03030000
-#error Not implemented for python >= 3.3
-#endif
 
     int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0;
     int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0;
@@ -695,7 +656,7 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
             if (is_hyphen_sep && PyList_GET_SIZE(ans) > 0) {
                 sz = last_sz + sz + trailing_hyphen;
                 last_sz = sz;
-                t = PyInt_FromLong((long)sz);
+                t = PyLong_FromLong((long)sz);
                 if (t == NULL) { Py_DECREF(ans); ans = NULL; break; }
                 temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
                 Py_DECREF(PyTuple_GET_ITEM(temp, 1));
@@ -737,45 +698,14 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
 
 static PyTypeObject icu_BreakIteratorType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "icu.BreakIterator",            /*tp_name*/
-    sizeof(icu_BreakIterator),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)icu_BreakIterator_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Break Iterator",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    icu_BreakIterator_methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    icu_BreakIterator_new,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "icu.BreakIterator",
+    .tp_basicsize = sizeof(icu_BreakIterator),
+    .tp_dealloc = (destructor)icu_BreakIterator_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    .tp_doc = "Break Iterator",
+    .tp_methods = icu_BreakIterator_methods,
+    .tp_new = icu_BreakIterator_new,
 }; // }}}
 
 // }}}
@@ -852,20 +782,6 @@ end:
     return result;
 
 } // }}}
-
-// set_default_encoding {{{
-static PyObject *
-icu_set_default_encoding(PyObject *self, PyObject *args) {
-    char *encoding;
-    if (!PyArg_ParseTuple(args, "s:setdefaultencoding", &encoding))
-        return NULL;
-    if (PyUnicode_SetDefaultEncoding(encoding))
-        return NULL;
-    Py_INCREF(Py_None);
-    return Py_None;
-
-}
-// }}}
 
 // set_filesystem_encoding {{{
 static PyObject *
@@ -989,7 +905,7 @@ icu_ord_string(PyObject *self, PyObject *input) {
     ans = PyTuple_New(sz);
     if (ans == NULL) goto end;
     for (i = 0; i < sz; i++) {
-        temp = PyInt_FromLong((long)input_buf[i]);
+        temp = PyLong_FromLong((long)input_buf[i]);
         if (temp == NULL) { Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); goto end; }
         PyTuple_SET_ITEM(ans, i, temp);
     }
@@ -1115,9 +1031,6 @@ icu_string_length(PyObject *self, PyObject *src) {
 // utf16_length {{{
 static PyObject *
 icu_utf16_length(PyObject *self, PyObject *src) {
-#if PY_VERSION_HEX >= 0x03030000
-#error Not implemented for python >= 3.3
-#endif
 
     int32_t sz = 0;
 #ifdef Py_UNICODE_WIDE
@@ -1145,10 +1058,6 @@ static PyMethodDef icu_methods[] = {
 
     {"swap_case", icu_swap_case, METH_O,
         "swap_case(unicode object) -> swaps the case using the simple, locale independent unicode algorithm"
-    },
-
-    {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
-        "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation."
     },
 
     {"set_filesystem_encoding", icu_set_filesystem_encoding, METH_VARARGS,
@@ -1198,25 +1107,37 @@ static PyMethodDef icu_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#define ADDUCONST(x) PyModule_AddIntConstant(m, #x, x)
+#define ADDUCONST(x) PyModule_AddIntConstant(mod, #x, x)
 
-CALIBRE_MODINIT_FUNC
-initicu(void)
-{
-    PyObject* m;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef icu_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "icu",
+    .m_doc = "Wrapper for the ICU internationalization library",
+    .m_size = -1,
+    .m_methods = icu_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_icu(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initicu(void) {
+#endif
+
     UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
     char version[U_MAX_VERSION_STRING_LENGTH+1] = {0}, uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
 
     if (sizeof(Py_UNICODE) != 2 && sizeof(Py_UNICODE) != 4) {
         PyErr_SetString(PyExc_RuntimeError, "This module only works on python versions <= 3.2");
-        return;
+        INITERROR;
     }
 
     u_init(&status);
     if (U_FAILURE(status)) {
         PyErr_SetString(PyExc_RuntimeError, u_errorName(status));
-        return;
+        INITERROR;
     }
     u_getVersion(ver);
     u_versionToString(ver, version);
@@ -1224,20 +1145,25 @@ initicu(void)
     u_versionToString(uver, uversion);
 
     if (PyType_Ready(&icu_CollatorType) < 0)
-        return;
+        INITERROR;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
-        return;
+        INITERROR;
 
-    m = Py_InitModule3("icu", icu_methods,
-                       "Wrapper for the ICU internationalization library");
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&icu_module);
+#else
+    PyObject *mod = Py_InitModule3("icu", icu_methods,
+        "Wrapper for the ICU internationalization library");
+#endif
 
+    if (mod == NULL) INITERROR;
     Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType);
-    PyModule_AddObject(m, "Collator", (PyObject *)&icu_CollatorType);
-    PyModule_AddObject(m, "BreakIterator", (PyObject *)&icu_BreakIteratorType);
+    PyModule_AddObject(mod, "Collator", (PyObject *)&icu_CollatorType);
+    PyModule_AddObject(mod, "BreakIterator", (PyObject *)&icu_BreakIteratorType);
     // uint8_t must be the same size as char
-    PyModule_AddIntConstant(m, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
-    PyModule_AddStringConstant(m, "icu_version", version);
-    PyModule_AddStringConstant(m, "unicode_version", uversion);
+    PyModule_AddIntConstant(mod, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
+    PyModule_AddStringConstant(mod, "icu_version", version);
+    PyModule_AddStringConstant(mod, "unicode_version", uversion);
 
     ADDUCONST(USET_SPAN_NOT_CONTAINED);
     ADDUCONST(USET_SPAN_CONTAINED);
@@ -1270,5 +1196,8 @@ initicu(void)
     ADDUCONST(UBRK_LINE);
     ADDUCONST(UBRK_SENTENCE);
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
 // }}}
