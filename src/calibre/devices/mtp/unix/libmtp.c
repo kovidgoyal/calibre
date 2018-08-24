@@ -682,20 +682,37 @@ static PyMethodDef libmtp_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initlibmtp(void) {
-    PyObject *m;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef libmtp_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "libmtp",
+    .m_doc = "Interface to libmtp.",
+    .m_size = -1,
+    .m_methods = libmtp_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_libmtp(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initlibmtp(void) {
+#endif
 
     DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&DeviceType) < 0)
-        return;
-    
-    m = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.");
-    if (m == NULL) return;
+        INITERROR;
+
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&libmtp_module);
+#else
+    PyObject *mod = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.";
+#endif
+
+    if (mod == NULL) INITERROR;
 
     MTPError = PyErr_NewException("libmtp.MTPError", NULL, NULL);
-    if (MTPError == NULL) return;
-    PyModule_AddObject(m, "MTPError", MTPError);
+    if (MTPError == NULL) INITERROR;
+    PyModule_AddObject(mod, "MTPError", MTPError);
 
     // Redirect stdout to get rid of the annoying message about mtpz. Really,
     // who designs a library without anyway to control/redirect the debugging
@@ -715,13 +732,16 @@ initlibmtp(void) {
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
 
     Py_INCREF(&DeviceType);
-    PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
+    PyModule_AddObject(mod, "Device", (PyObject *)&DeviceType);
 
-    PyModule_AddStringMacro(m, LIBMTP_VERSION_STRING);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_NONE);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_PTP);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_PLST);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_USB);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_DATA);
-    PyModule_AddIntMacro(m, LIBMTP_DEBUG_ALL);
+    PyModule_AddStringMacro(mod, LIBMTP_VERSION_STRING);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_NONE);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_PTP);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_PLST);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_USB);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_DATA);
+    PyModule_AddIntMacro(mod, LIBMTP_DEBUG_ALL);
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
