@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title:
 
+- version: 3.30.0
+  date: 2018-08-24
+
+  new features:
+    - title: "ToC Editor: When generating ToCs using headings/XPath ignore duplicate entries at the same level that have the same text."
+      tickets: [1735799]
+
+    - title: "Windows: The default calibre library location is now not in My Documents but instead in the user home folder, to avoid issues with OneDrive auto-syncing calibre libraries"
+      tickets: [1787488]
+
+    - title: "Kobo driver: Support for new firmware version"
+
+    - title: "Add a tweak (in Preferences->Tweaks) to allow skipping network check on news download"
+
+    - title: "Edit metadata dialog: Show a confirmation dialog on cancel if some changes have been made."
+      tickets: [1786544]
+
+  bug fixes:
+    - title: "Downloaded metadata review dialog: Fix a regression in the last release that broke the revert buttons"
+
+    - title: "E-book viewer: Fix clicking links in the footnote popup ignoring the anchor part of the link."
+      tickets: [1786577]
+
+    - title: "ToC editor: Fix generating toc entries from links not working for links that start with #"
+
+    - title: "HTML Input: Collapse multiple spaces in filenames when sanitizing them."
+      tickets: [1788187]
+
+    - title: "Edit book: Remove matching tag: Fix incorrect removal if the remove matching function is triggered in rapid succession"
+
+    - title: "Edit book: Fix some links in the file being split not being adjusted when splitting HTML files."
+      tickets: [1787892]
+
+    - title: 'Fix a crash when using some third party plugins and enabling the "two lines for text under icons" option'
+      tickets: [1787700]
+
+    - title: "Make the create catalog dialog freely resizable"
+      tickets: [1787523]
+
+    - title: "DOCX Input: Fix an error when converting some DOCX files with inherited fonts."
+      tickets: [1786414]
+
+
 - version: 3.29.0
   date: 2018-08-10
 
