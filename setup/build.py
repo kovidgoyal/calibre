@@ -10,6 +10,8 @@ from collections import namedtuple
 from six.moves import filter, map, getcwd
 import six
 
+import six
+
 from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
 
@@ -38,10 +40,13 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
+            modinit_return_type = 'PyObject*' if six.PY3 else 'void'
             if self.needs_cxx:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" __attribute__ ((visibility ("default"))) void')
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" '
+                                   '__attribute__ ((visibility ("default"))) ' + modinit_return_type)
             else:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=__attribute__ ((visibility ("default"))) void')
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC='
+                                   '__attribute__ ((visibility ("default"))) void' + modinit_return_type)
                 if kwargs.get('needs_c99'):
                     self.cflags.insert(0, '-std=c99')
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
@@ -162,20 +167,18 @@ def init_env():
     if islinux:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if isbsd:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if ishaiku:
         cflags.append('-lpthread')
         ldflags.append('-shared')
+
+    if islinux or isbsd or ishaiku:
         cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
+        ldflags.extend(shlex.split(sysconfig.get_config_var('BLDLIBRARY')))
 
     if isosx:
         cflags.append('-D_OSX')

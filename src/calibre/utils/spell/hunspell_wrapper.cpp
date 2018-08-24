@@ -53,7 +53,7 @@ dealloc(Dictionary *self) {
     if (self->handle != NULL) delete self->handle;
     /* We do not free encoding, since it is managed by hunspell */
     self->encoding = NULL; self->handle = NULL;
-	self->ob_type->tp_free((PyObject *)self);
+	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
@@ -112,9 +112,15 @@ remove_word(Dictionary *self, PyObject *args) {
 
 static PyMethodDef HunSpell_methods[] = {
 	{"recognized", (PyCFunction)recognized, METH_VARARGS,
-	 "Checks the spelling of the given word. The word must be a unicode object. If encoding of the word to the encoding of the dictionary fails, a UnicodeEncodeError is raised. Returns False if the input word is not recognized."},
+	 "Checks the spelling of the given word. The word must be a unicode object. "
+	 "If encoding of the word to the encoding of the dictionary fails, a "
+	 "UnicodeEncodeError is raised. Returns False if the input word is not"
+	 "recognized."},
 	{"suggest", (PyCFunction)suggest, METH_VARARGS,
-	 "Provide suggestions for the given word. The input word must be a unicode object. If encoding of the word to the encoding of the dictionary fails, a UnicodeEncodeError is raised. Returns the list of suggested words as unicode objects."},
+	 "Provide suggestions for the given word. The input word must be a unicode "
+	 "object. If encoding of the word to the encoding of the dictionary fails, "
+	 "a UnicodeEncodeError is raised. Returns the list of suggested words as "
+	 "unicode objects."},
 	{"add", (PyCFunction)add, METH_VARARGS,
 	 "Adds the given word into the runtime dictionary"},
 	{"remove", (PyCFunction)remove_word, METH_VARARGS,
@@ -123,8 +129,7 @@ static PyMethodDef HunSpell_methods[] = {
 };
 
 static PyTypeObject DictionaryType = {
-	PyObject_HEAD_INIT(NULL)
-	0,		/* ob_size */
+	PyVarObject_HEAD_INIT(NULL, 0)
 	"Dictionary",		/* tp_name */
 	sizeof(Dictionary),	/* tp_basicsize */
 	0,			/* tp_itemsize */
@@ -164,24 +169,38 @@ static PyTypeObject DictionaryType = {
 	0,			/* tp_new */
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef hunspell_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "hunspell",
+    .m_doc = "A wrapper for the hunspell spell checking library",
+    .m_size = -1,
+    .m_methods = NULL,
+};
 
-CALIBRE_MODINIT_FUNC
-inithunspell(void) {
-    PyObject *mod;
-
-    // Create the module
-    mod = Py_InitModule3("hunspell", NULL,
-                "A wrapper for the hunspell spell checking library");
-    if (mod == NULL) return;
+CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
+    PyObject *mod = PyModule_Create(&hunspell_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC inithunspell(void) {
+    PyObject *mod = Py_InitModule3("hunspell", NULL,
+        "A wrapper for the hunspell spell checking library");
+#endif
+    if (mod == NULL) INITERROR;
 
     HunspellError = PyErr_NewException((char*)"hunspell.HunspellError", NULL, NULL);
-    if (HunspellError == NULL) return;
+    if (HunspellError == NULL) INITERROR;
     PyModule_AddObject(mod, "HunspellError", HunspellError);
 
     // Fill in some slots in the type, and make it ready
     DictionaryType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&DictionaryType) < 0) return;
+    if (PyType_Ready(&DictionaryType) < 0) INITERROR;
     // Add the type to the module.
     Py_INCREF(&DictionaryType);
     PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType);
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
