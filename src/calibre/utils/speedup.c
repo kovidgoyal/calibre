@@ -128,23 +128,25 @@ speedup_detach(PyObject *self, PyObject *args) {
 
 static PyObject*
 speedup_fdopen(PyObject *self, PyObject *args) {
-    PyObject *ans = NULL, *name = NULL;
-    PyFileObject *t = NULL;
+    PyObject *ans = NULL;
+    char *name;
+#if PY_MAJOR_VERSION == 2
     FILE *fp = NULL;
+#endif
     int fd = -1, bufsize = -1;
     char *mode = NULL;
 
-    if (!PyArg_ParseTuple(args, "iOs|i", &fd, &name, &mode, &bufsize)) return NULL;
+    if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
+#if PY_MAJOR_VERSION >= 3
+    ans = PyFile_FromFd(fd, name, mode, bufsize, NULL, NULL, NULL, 1);
+#else
+    ans = PyFile_FromFile(fp, name, mode, fclose);
     fp = fdopen(fd, mode);
     if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);
-    ans = PyFile_FromFile(fp, "<fdopen>", mode, fclose);
     if (ans != NULL) {
-        t = (PyFileObject*)ans;
-        Py_XDECREF(t->f_name);
-        t->f_name = name;
-        Py_INCREF(name);
         PyFile_SetBufSize(ans, bufsize);
     }
+#endif
     return ans;
 }
 
@@ -317,11 +319,10 @@ error:
 	return Py_BuildValue("NII", ans, state, codep);
 }
 
+// This digs into python internals and can't be implemented easily in python3
+#if PY_MAJOR_VERSION == 2
 static PyObject*
 clean_xml_chars(PyObject *self, PyObject *text) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     Py_UNICODE *buf = NULL, ch;
     PyUnicodeObject *ans = NULL;
     Py_ssize_t i = 0, j = 0;
@@ -353,6 +354,7 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     ans->length = j;
     return (PyObject*)ans;
 }
+#endif
 
 static PyObject *
 speedup_iso_8601(PyObject *self, PyObject *args) {
@@ -475,23 +477,42 @@ static PyMethodDef speedup_methods[] = {
 		"utf8_decode(data, [, state=0, codep=0)\n\nDecode an UTF-8 bytestring, using a strict UTF-8 decoder, that unlike python does not allow orphaned surrogates. Returns a unicode object and the state."
 	},
 
+#if PY_MAJOR_VERSION == 2
     {"clean_xml_chars", clean_xml_chars, METH_O,
         "clean_xml_chars(unicode_object)\n\nRemove codepoints in unicode_object that are not allowed in XML"
     },
+#endif
 
     {NULL, NULL, 0, NULL}
 };
 
 
-CALIBRE_MODINIT_FUNC
-initspeedup(void) {
-    PyObject *m;
-    m = Py_InitModule3("speedup", speedup_methods,
-    "Implementation of methods in C for speed."
-    );
-    if (m == NULL) return;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef speedup_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "speedup",
+    .m_doc = "Implementation of methods in C for speed.",
+    .m_size = -1,
+    .m_methods = speedup_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_speedup(void) {
+    PyObject *mod = PyModule_Create(&speedup_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initspeedup(void) {
+    PyObject *mod = Py_InitModule3("speedup", speedup_methods,
+        "Implementation of methods in C for speed.");
+#endif
+
+    if (mod == NULL) INITERROR;
     PyDateTime_IMPORT;
 #ifdef O_CLOEXEC
-    PyModule_AddIntConstant(m, "O_CLOEXEC", O_CLOEXEC);
+    PyModule_AddIntConstant(mod, "O_CLOEXEC", O_CLOEXEC);
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
 #endif
 }
