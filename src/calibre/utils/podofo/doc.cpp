@@ -339,7 +339,7 @@ error:
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
     int pages = self->doc->GetPageCount();
-    PyObject *ans = PyInt_FromLong(static_cast<long>(pages));
+    PyObject *ans = PyLong_FromLong(static_cast<long>(pages));
     if (ans != NULL) Py_INCREF(ans);
     return ans;
 }
@@ -591,7 +591,7 @@ static PyMethodDef PDFDoc_methods[] = {
 
 // Type definition {{{
 PyTypeObject pdf::PDFDocType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "podofo.PDFDoc",             /*tp_name*/
     sizeof(PDFDoc), /*tp_basicsize*/

@@ -97,7 +97,7 @@ class OutputDevice : public PdfOutputDevice {
             char *buf = NULL;
             Py_ssize_t len = 0;
 
-            if ((temp = PyInt_FromSize_t(lLen)) == NULL) throw pyerr();
+            if ((temp = PyLong_FromSize_t(lLen)) == NULL) throw pyerr();
             ret = PyObject_CallFunctionObjArgs(read_func, temp, NULL);
             NUKE(temp);
             if (ret != NULL) {
@@ -118,7 +118,7 @@ class OutputDevice : public PdfOutputDevice {
 
         void Seek(size_t offset) {
             PyObject *ret, *temp;
-            if ((temp = PyInt_FromSize_t(offset)) == NULL) throw pyerr();
+            if ((temp = PyLong_FromSize_t(offset)) == NULL) throw pyerr();
             ret = PyObject_CallFunctionObjArgs(seek_func, temp, NULL);
             NUKE(temp);
             if (ret == NULL) {

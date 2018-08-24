@@ -96,7 +96,7 @@ static PyMethodDef methods[] = {
 
 // Type definition {{{
 PyTypeObject pdf::PDFOutlineItemType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "podofo.PDFOutlineItem",   /*tp_name*/
     sizeof(PDFOutlineItem),    /*tp_basicsize*/

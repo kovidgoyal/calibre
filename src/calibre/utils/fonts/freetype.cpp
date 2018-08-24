@@ -181,7 +181,7 @@ init(FreeType *self, PyObject *args, PyObject *kwds)
 // }}}
 
 static PyTypeObject FaceType = { // {{{
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "freetype.Face",            /*tp_name*/
     sizeof(Face),      /*tp_basicsize*/
@@ -247,7 +247,7 @@ static PyMethodDef FreeType_methods[] = {
 
 
 static PyTypeObject FreeTypeType = { // {{{
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "freetype.FreeType",            /*tp_name*/
     sizeof(FreeType),      /*tp_basicsize*/

@@ -91,8 +91,8 @@ initmsdes(void)
     MsDesError = PyErr_NewException("msdes.MsDesError", NULL, NULL);
     Py_INCREF(MsDesError);
     PyModule_AddObject(m, "MsDesError", MsDesError);
-    PyModule_AddObject(m, "EN0", PyInt_FromLong(EN0));
-    PyModule_AddObject(m, "DE1", PyInt_FromLong(DE1));
+    PyModule_AddObject(m, "EN0", PyLong_FromLong(EN0));
+    PyModule_AddObject(m, "DE1", PyLong_FromLong(DE1));
     
     return;
 }

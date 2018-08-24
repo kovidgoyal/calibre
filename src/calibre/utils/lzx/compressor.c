@@ -333,7 +333,7 @@ static PyMethodDef Compressor_methods[] = {
 };
 
 PyTypeObject CompressorType = {
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                                 /*ob_size*/
     "lzx.Compressor",                  /*tp_name*/
     sizeof(Compressor),                /*tp_basicsize*/

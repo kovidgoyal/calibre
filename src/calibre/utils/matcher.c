@@ -155,10 +155,6 @@ static double calc_score_for_char(MatchInfo *m, UChar32 last, UChar32 current, i
 }
 
 static void convert_positions(int32_t *positions, int32_t *final_positions, UChar *string, int32_t char_len, int32_t byte_len, double score) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
-
     // The positions array stores character positions as byte offsets in string, convert them into character offsets
     int32_t i, *end;
 
@@ -435,7 +431,7 @@ Matcher_calculate_scores(Matcher *self, PyObject *args) {
             PyTuple_SET_ITEM(items, (Py_ssize_t)i, score);
             p = final_positions + (i * needle_char_len);
             for (j = 0; j < needle_char_len; j++) {
-                score = PyInt_FromLong((long)p[j]);
+                score = PyLong_FromLong((long)p[j]);
                 if (score == NULL) { PyErr_NoMemory(); goto end; }
                 PyTuple_SET_ITEM(PyTuple_GET_ITEM(positions, (Py_ssize_t)i), (Py_ssize_t)j, score);
             }
@@ -462,7 +458,7 @@ static PyMethodDef Matcher_methods[] = {
 // }}}
 
 static PyTypeObject MatcherType = { // {{{
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "matcher.Matcher",            /*tp_name*/
     sizeof(Matcher),      /*tp_basicsize*/

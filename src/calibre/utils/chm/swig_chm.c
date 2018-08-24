@@ -306,7 +306,7 @@ swig_varlink_setattr(swig_varlinkobject *v, char *n, PyObject *p) {
 }
 
 statichere PyTypeObject varlinktype = {
-  PyObject_HEAD_INIT(0)              
+  PyVarObject_HEAD_INIT(NULL, 0)              
   0,
   (char *)"swigvarlink",                      /* Type name    */
   sizeof(swig_varlinkobject),         /* Basic size   */
@@ -422,7 +422,7 @@ cobject:
   }
 
   if ((pyobj) && (flags & SWIG_POINTER_DISOWN)) {
-      PyObject *zero = PyInt_FromLong(0);
+      PyObject *zero = PyLong_FromLong(0);
       PyObject_SetAttrString(pyobj,(char*)"thisown",zero);
       Py_DECREF(zero);
   }
@@ -471,7 +471,7 @@ SWIG_NewPointerObj(void *ptr, swig_type_info *type, int own) {
     Py_DECREF(args);
     if (inst) {
       if (own) {
-	PyObject *n = PyInt_FromLong(1);
+	PyObject *n = PyLong_FromLong(1);
 	PyObject_SetAttrString(inst,(char*)"thisown",n);
 	Py_DECREF(n);
       }
@@ -500,7 +500,7 @@ SWIG_InstallConstants(PyObject *d, swig_const_info constants[]) {
   for (i = 0; constants[i].type; i++) {
     switch(constants[i].type) {
     case SWIG_PY_INT:
-      obj = PyInt_FromLong(constants[i].lvalue);
+      obj = PyLong_FromLong(constants[i].lvalue);
       break;
     case SWIG_PY_FLOAT:
       obj = PyFloat_FromDouble(constants[i].dvalue);
@@ -758,7 +758,7 @@ static PyObject *_wrap_chmUnitInfo_space_get(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj0,(void **) &arg1, SWIGTYPE_p_chmUnitInfo,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     result = (int) ((arg1)->space);
     
-    resultobj = PyInt_FromLong((long)result);
+    resultobj = PyLong_FromLong((long)result);
     return resultobj;
     fail:
     return NULL;
@@ -903,7 +903,7 @@ static PyObject *_wrap_chm_resolve_object(PyObject *self, PyObject *args) {
     if ((SWIG_ConvertPtr(obj0,(void **) &arg1, SWIGTYPE_p_chmFile,SWIG_POINTER_EXCEPTION | 0 )) == -1) SWIG_fail;
     result = (int)chm_resolve_object(arg1,(char const *)arg2,arg3);
     
-    resultobj = PyInt_FromLong((long)result);
+    resultobj = PyLong_FromLong((long)result);
     {
         PyObject *o, *o2, *o3;
         o = SWIG_NewPointerObj((void *) arg3, SWIGTYPE_p_chmUnitInfo, 1);
@@ -1001,7 +1001,7 @@ static PyObject *_wrap_chm_enumerate(PyObject *self, PyObject *args) {
     }
     result = (int)chm_enumerate(arg1,arg2,arg3,arg4);
     
-    resultobj = PyInt_FromLong((long)result);
+    resultobj = PyLong_FromLong((long)result);
     return resultobj;
     fail:
     return NULL;
@@ -1031,7 +1031,7 @@ static PyObject *_wrap_chm_enumerate_dir(PyObject *self, PyObject *args) {
     }
     result = (int)chm_enumerate_dir(arg1,(char const *)arg2,arg3,arg4,arg5);
     
-    resultobj = PyInt_FromLong((long)result);
+    resultobj = PyLong_FromLong((long)result);
     return resultobj;
     fail:
     return NULL;

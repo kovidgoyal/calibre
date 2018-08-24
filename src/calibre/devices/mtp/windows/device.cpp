@@ -204,7 +204,7 @@ static PyGetSetDef Device_getsetters[] = {
 
 
 PyTypeObject wpd::DeviceType = { // {{{
-    PyObject_HEAD_INIT(NULL)
+    PyVarObject_HEAD_INIT(NULL, 0)
     0,                         /*ob_size*/
     "wpd.Device",            /*tp_name*/
     sizeof(Device),      /*tp_basicsize*/
