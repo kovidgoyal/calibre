@@ -242,7 +242,12 @@ def set_translators():
         set_translators.lang = t.info().get('language')
     except Exception:
         pass
-    t.install(unicode=True, names=('ngettext',))
+    try:
+        t.install(unicode=True, names=('ngettext',))
+    except TypeError:
+        # install defaults to unicode in py3
+        t.install(names=('ngettext',))
+
     # Now that we have installed a translator, we have to retranslate the help
     # for the global prefs object as it was instantiated in get_lang(), before
     # the translator was installed.

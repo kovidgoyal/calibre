@@ -2,14 +2,17 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, six.moves.cPickle, traceback
+import os, re, traceback
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
+import six
+from six.moves import cPickle
 
 from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE
@@ -233,9 +236,9 @@ class OptionSet(object):
 
     def serialize_opt(self, val):
         if val is val is True or val is False or val is None or \
-           isinstance(val, (int, float, long, basestring)):
+           isinstance(val, six.integer_types + six.string_types + (float,)):
             return repr(val)
-        pickle = six.moves.cPickle.dumps(val, -1)
+        pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)
 
     def serialize(self, opts):
@@ -299,7 +302,7 @@ class Config(ConfigInterface):
         if not os.path.exists(config_dir):
             make_config_dir()
         with ExclusiveFile(self.config_file_path) as f:
-            src = f.read()
+            src = f.read().decode()
             opts = self.option_set.parse_string(src)
             setattr(opts, name, val)
             footer = self.option_set.get_override_section(src)
