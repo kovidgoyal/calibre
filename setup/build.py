@@ -46,7 +46,7 @@ class Extension(object):
                                    '__attribute__ ((visibility ("default"))) ' + modinit_return_type)
             else:
                 self.cflags.append('-DCALIBRE_MODINIT_FUNC='
-                                   '__attribute__ ((visibility ("default"))) void' + modinit_return_type)
+                                   '__attribute__ ((visibility ("default"))) ' + modinit_return_type)
                 if kwargs.get('needs_c99'):
                     self.cflags.insert(0, '-std=c99')
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])

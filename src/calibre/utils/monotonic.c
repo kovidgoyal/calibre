@@ -71,18 +71,30 @@ static PyMethodDef monotonic_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initmonotonic(void) {
-    PyObject *m;
-#ifdef _MSC_VER
-	/* if(!QueryPerformanceFrequency(&frequency)) { PyErr_SetFromWindowsErr(0); return; } */
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef monotonic_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "monotonic",
+    .m_doc = "Implementation of time.monotonic() in C for speed",
+    .m_size = -1,
+    .m_methods = monotonic_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_monotonic(void) {
+    PyObject *mod = PyModule_Create(&monotonic_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initmonotonic(void) {
+    PyObject *mod = Py_InitModule3("monotonic", monotonic_methods,
+        "Implementation of time.monotonic() in C for speed");
 #endif
+
 #ifdef __APPLE__
 	mach_timebase_info(&timebase);
 #endif
-    m = Py_InitModule3("monotonic", monotonic_methods,
-    "Implementation of time.monotonic() in C for speed"
-    );
-    if (m == NULL) return;
-}
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
+}
