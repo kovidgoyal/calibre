@@ -379,15 +379,32 @@ static PyMethodDef certgen_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initcertgen(void) {
-    PyObject *m;
-    m = Py_InitModule3("certgen", certgen_methods,
-    "OpenSSL bindings to easily create certificates/certificate authorities"
-    );
-    if (m == NULL) return;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef certgen_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "certgen",
+    .m_doc = "OpenSSL bindings to easily create certificates/certificate authorities",
+    .m_size = -1,
+    .m_methods = certgen_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_certgen(void) {
+    PyObject *mod = PyModule_Create(&certgen_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initcertgen(void) {
+    PyObject *mod = Py_InitModule3("certgen", certgen_methods,
+        "OpenSSL bindings to easily create certificates/certificate authorities");
+#endif
+
+    if (mod == NULL) INITERROR;
+
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     ERR_load_BIO_strings();
-}
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
+}
