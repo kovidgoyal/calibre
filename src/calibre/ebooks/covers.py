@@ -276,7 +276,7 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, basestring):
+    if isinstance(fields, six.string_types):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}

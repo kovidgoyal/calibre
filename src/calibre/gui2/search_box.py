@@ -182,7 +182,7 @@ class SearchBox2(QComboBox):  # {{{
         self.setFocus(Qt.OtherFocusReason)
 
     def search_done(self, ok):
-        if isinstance(ok, basestring):
+        if isinstance(ok, six.string_types):
             self.setToolTip(ok)
             ok = False
         if not unicode(self.currentText()).strip():

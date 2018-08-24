@@ -791,7 +791,7 @@ class ResultCache(SearchQueryParser):  # {{{
                         continue
 
                     if q == 'true' and matchkind == CONTAINS_MATCH:
-                        if isinstance(item[loc], basestring):
+                        if isinstance(item[loc], six.string_types):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])

@@ -201,7 +201,7 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
 
 
 def convert(v):
-    if isinstance(v, basestring):
+    if isinstance(v, six.string_types):
         return unicode(v)
     if isinstance(v, dbus.Struct):
         return tuple(convert(val) for val in v)

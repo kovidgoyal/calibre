@@ -941,7 +941,7 @@ class Device(DeviceConfig, DevicePlugin):
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
-            if isinstance(candidates, basestring):
+            if isinstance(candidates, six.string_types):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']

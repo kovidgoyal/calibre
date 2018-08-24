@@ -808,7 +808,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         "pass", "print", "raise", "return", "try", "while", "with",
         "yield"]
 
-    BUILTINS = ["abs", "all", "any", "basestring", "bool", "callable", "chr",
+    BUILTINS = ["abs", "all", "any", "six.string_types", "bool", "callable", "chr",
         "classmethod", "cmp", "compile", "complex", "delattr", "dict",
         "dir", "divmod", "enumerate", "eval", "execfile", "exit", "file",
         "filter", "float", "frozenset", "getattr", "globals", "hasattr",

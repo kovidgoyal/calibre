@@ -527,7 +527,7 @@ class Convert(object):
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
             for child in html_tag.iterchildren():
-                if isinstance(getattr(child, 'tag', None), basestring):
+                if isinstance(getattr(child, 'tag', None), six.string_types):
                     self.process_tag(child, stylizer, float_spec=float_spec)
                 else:  # Comment/PI/etc.
                     tail = getattr(child, 'tail', None)

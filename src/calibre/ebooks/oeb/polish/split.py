@@ -396,9 +396,9 @@ def merge_html(container, names, master):
 
         first_child = ''
         for first_child in children:
-            if not isinstance(first_child, basestring):
+            if not isinstance(first_child, six.string_types):
                 break
-        if isinstance(first_child, basestring):
+        if isinstance(first_child, six.string_types):
             # body contained only text, no tags
             first_child = body.makeelement(XHTML('p'))
             first_child.text, children[0] = children[0], first_child
@@ -430,7 +430,7 @@ def merge_html(container, names, master):
                 a.set('href', '#' + amap[q])
 
         for child in children:
-            if isinstance(child, basestring):
+            if isinstance(child, six.string_types):
                 add_text(master_body, child)
             else:
                 master_body.append(copy.deepcopy(child))

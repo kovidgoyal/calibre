@@ -163,7 +163,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
         args['close_fds'] = True
 
     exe = w.executable
-    cmd = [exe] if isinstance(exe, basestring) else exe
+    cmd = [exe] if isinstance(exe, six.string_types) else exe
     p = subprocess.Popen(cmd + ['--pipe-worker', command], **args)
     return p
 

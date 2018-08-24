@@ -287,7 +287,7 @@ class ANDROID(USBMS):
             opts = [self.EBOOK_DIR_MAIN, '']
 
         def strtolist(x):
-            if isinstance(x, basestring):
+            if isinstance(x, six.string_types):
                 x = [y.strip() for y in x.split(',')]
             return x or []
 

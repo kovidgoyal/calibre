@@ -1610,7 +1610,7 @@ class BasicNewsRecipe(Recipe):
         feeds = self.get_feeds()
         parsed_feeds = []
         for obj in feeds:
-            if isinstance(obj, basestring):
+            if isinstance(obj, six.string_types):
                 title, url = None, obj
             else:
                 title, url = obj
@@ -1657,7 +1657,7 @@ class BasicNewsRecipe(Recipe):
         '''
         if tag is None:
             return ''
-        if isinstance(tag, basestring):
+        if isinstance(tag, six.string_types):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring

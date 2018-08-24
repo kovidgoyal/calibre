@@ -35,7 +35,7 @@ def get_resources(zfp, name_or_list_of_names):
                 be just the bytes of the resource or None if it wasn't found.
     '''
     names = name_or_list_of_names
-    if isinstance(names, basestring):
+    if isinstance(names, six.string_types):
         names = [names]
     ans = {}
     with zipfile.ZipFile(zfp) as zf:
@@ -66,11 +66,11 @@ def get_icons(zfp, name_or_list_of_names):
     from PyQt5.Qt import QIcon, QPixmap
     names = name_or_list_of_names
     ans = get_resources(zfp, names)
-    if isinstance(names, basestring):
+    if isinstance(names, six.string_types):
         names = [names]
     if ans is None:
         ans = {}
-    if isinstance(ans, basestring):
+    if isinstance(ans, six.string_types):
         ans = dict([(names[0], ans)])
 
     ians = {}

@@ -143,7 +143,7 @@ class MobiMLizer(object):
         return self.fnums[self.fmap[ptsize]]
 
     def mobimlize_measure(self, ptsize):
-        if isinstance(ptsize, basestring):
+        if isinstance(ptsize, six.string_types):
             return ptsize
         embase = self.profile.fbase
         if round(ptsize) < embase:
@@ -186,7 +186,7 @@ class MobiMLizer(object):
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
             left = istate.left
-            if isinstance(indent, basestring):
+            if isinstance(indent, six.string_types):
                 indent = 0
             if indent < 0 and abs(indent) < left:
                 left += indent
@@ -305,7 +305,7 @@ class MobiMLizer(object):
         inline = bstate.inline
         content = self.preize_text(text, pre_wrap=istate.pre_wrap) if istate.preserve or istate.pre_wrap else [text]
         for item in content:
-            if isinstance(item, basestring):
+            if isinstance(item, six.string_types):
                 if len(inline) == 0:
                     inline.text = (inline.text or '') + item
                 else:
@@ -316,7 +316,7 @@ class MobiMLizer(object):
 
     def mobimlize_elem(self, elem, stylizer, bstate, istates,
             ignore_valign=False):
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, six.string_types) \
            or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)

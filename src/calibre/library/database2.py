@@ -1117,7 +1117,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def find_identical_books(self, mi):
         fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, six.string_types) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),
@@ -1400,7 +1400,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, six.string_types):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if dest:
@@ -1456,7 +1456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, six.string_types):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
@@ -2334,7 +2334,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
-        elif isinstance(mi.cover, basestring) and mi.cover:
+        elif isinstance(mi.cover, six.string_types) and mi.cover:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     raw = f.read()
@@ -2641,7 +2641,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_pubdate(self, id, dt, notify=True, commit=True):
         if not dt:
             dt = UNDEFINED_DATE
-        if isinstance(dt, basestring):
+        if isinstance(dt, six.string_types):
             dt = parse_only_date(dt)
         self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
         self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)

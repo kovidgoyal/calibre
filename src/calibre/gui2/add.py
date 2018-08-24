@@ -34,7 +34,7 @@ from calibre.utils.ipc.pool import Pool, Failure
 
 
 def validate_source(source, parent=None):  # {{{
-    if isinstance(source, basestring):
+    if isinstance(source, six.string_types):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
@@ -174,7 +174,7 @@ class Adder(QObject):
             return tdir
 
         try:
-            if isinstance(self.source, basestring):
+            if isinstance(self.source, six.string_types):
                 find_files(self.source)
                 self.ignore_opf = True
             else:

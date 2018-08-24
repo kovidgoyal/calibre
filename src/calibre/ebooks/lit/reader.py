@@ -280,7 +280,7 @@ class UnBinary(object):
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
-                    if not attr or not isinstance(attr, basestring):
+                    if not attr or not isinstance(attr, six.string_types):
                         raise LitError(
                             'Unknown attribute %d in tag %s' % (oc, tag_name))
                     if attr.startswith('%'):

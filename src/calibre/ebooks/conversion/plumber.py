@@ -1022,7 +1022,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, basestring):
+        if isinstance(ret, six.string_types):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1214,7 +1214,7 @@ OptionRecommendation(name='search_replace',
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, basestring):
+            if isinstance(transform_css_rules, six.string_types):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

@@ -244,7 +244,7 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-        if isinstance(ebook_dirs, basestring):
+        if isinstance(ebook_dirs, six.string_types):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)

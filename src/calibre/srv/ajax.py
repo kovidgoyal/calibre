@@ -109,7 +109,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, basestring):
+                    if isinstance(categories, six.string_types):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:

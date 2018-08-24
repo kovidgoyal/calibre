@@ -1098,7 +1098,7 @@ def open_url(qurl):
     # Qt 5 requires QApplication to be constructed before trying to use
     # QDesktopServices::openUrl()
     ensure_app()
-    if isinstance(qurl, basestring):
+    if isinstance(qurl, six.string_types):
         qurl = QUrl(qurl)
     with sanitize_env_vars():
         QDesktopServices.openUrl(qurl)

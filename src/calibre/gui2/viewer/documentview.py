@@ -1170,12 +1170,12 @@ class DocumentView(QWebView):  # {{{
         old_pos = (self.document.xpos if self.document.in_paged_mode else
                 self.document.ypos)
         if self.document.in_paged_mode:
-            if isinstance(pos, basestring):
+            if isinstance(pos, six.string_types):
                 self.document.jump_to_anchor(pos)
             else:
                 self.document.scroll_fraction = pos
         else:
-            if isinstance(pos, basestring):
+            if isinstance(pos, six.string_types):
                 self.document.jump_to_anchor(pos)
             else:
                 if pos >= 1:

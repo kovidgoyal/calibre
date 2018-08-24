@@ -95,7 +95,7 @@ class LrsParser(object):
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
             for item in contents:
-                if isinstance(item, basestring):
+                if isinstance(item, six.string_types):
                     p.append(item)
                 elif isinstance(item, NavigableString):
                     p.append(item.string)

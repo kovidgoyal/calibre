@@ -28,7 +28,7 @@ class StreamAsPath(object):
 
     def __enter__(self):
         self.temppath = None
-        if isinstance(self.stream, basestring):
+        if isinstance(self.stream, six.string_types):
             return as_unicode(self.stream)
         name = getattr(self.stream, 'name', None)
         if name and os.access(name, os.R_OK):

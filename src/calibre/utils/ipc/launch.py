@@ -187,7 +187,7 @@ class Worker(object):
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, basestring) else exe
+        cmd = [exe] if isinstance(exe, six.string_types) else exe
         args = {
                 'env' : env,
                 'cwd' : _cwd,

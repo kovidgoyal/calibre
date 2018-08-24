@@ -615,7 +615,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
-        if isinstance(args, basestring):
+        if isinstance(args, six.string_types):
             args = [args]
         files = [os.path.abspath(p) for p in args if not os.path.isdir(p) and os.access(p, os.R_OK)]
         if files:

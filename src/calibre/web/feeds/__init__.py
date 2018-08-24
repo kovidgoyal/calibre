@@ -21,7 +21,7 @@ class Article(object):
         from lxml import html
         self.downloaded = False
         self.id = id
-        if not title or not isinstance(title, basestring):
+        if not title or not isinstance(title, six.string_types):
             title = _('Unknown')
         title = force_unicode(title, 'utf-8')
         self._title = clean_xml_chars(title).strip()

@@ -28,7 +28,7 @@ from calibre.utils.icu import utf16_length
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
-    if isinstance(fill, basestring):
+    if isinstance(fill, six.string_types):
         fill = QColor(fill)
     sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:

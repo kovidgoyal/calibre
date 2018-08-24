@@ -198,7 +198,7 @@ def find_programs(extensions):
                     data['Icon'] = icon
                 else:
                     data.pop('Icon')
-            if not isinstance(data.get('Icon'), basestring):
+            if not isinstance(data.get('Icon'), six.string_types):
                 data.pop('Icon', None)
             for k in ('Name', 'GenericName', 'Comment'):
                 val = data.get(k)

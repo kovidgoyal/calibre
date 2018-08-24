@@ -749,7 +749,7 @@ class ZipFile:
         self.comment = ''
 
         # Check if we were passed a file-like object
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             self._filePassed = 0
             self.filename = file
             modeDict = {'r' : 'rb', 'w': 'wb', 'a' : 'r+b'}

@@ -27,7 +27,7 @@ import six
 
 
 def clean(x):
-    if isinstance(x, basestring):
+    if isinstance(x, six.string_types):
         x = clean_xml_chars(x)
     return x
 

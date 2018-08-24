@@ -22,7 +22,7 @@ class ElementWriter(object):
 
     def _writeAttribute(self, f, name, value):
         f.write(u' %s="' % unicode(name))
-        if not isinstance(value, basestring):
+        if not isinstance(value, six.string_types):
             value = unicode(value)
         value = self._encodeCdata(value)
         value = value.replace('"', '&quot;')

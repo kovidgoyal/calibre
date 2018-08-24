@@ -130,10 +130,10 @@ def normalize_font(cssvalue, font_family_as_list=False):
         ans = {k:DEFAULTS[k] for k in composition}
         ans.update(parse_font(val))
     if font_family_as_list:
-        if isinstance(ans['font-family'], basestring):
+        if isinstance(ans['font-family'], six.string_types):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
     else:
-        if not isinstance(ans['font-family'], basestring):
+        if not isinstance(ans['font-family'], six.string_types):
             ans['font-family'] = serialize_font_family(ans['font-family'])
     return ans
 

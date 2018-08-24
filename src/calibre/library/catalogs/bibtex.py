@@ -213,11 +213,11 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(u'year = "%s"' % item.year)
                     bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
 
-                elif field.startswith('#') and isinstance(item, basestring):
+                elif field.startswith('#') and isinstance(item, six.string_types):
                     bibtex_entry.append(u'custom_%s = "%s"' % (field[1:],
                         bibtexdict.utf8ToBibtex(item)))
 
-                elif isinstance(item, basestring):
+                elif isinstance(item, six.string_types):
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
                         # 'author_sort', 'series', 'title_sort'] :
                     bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))

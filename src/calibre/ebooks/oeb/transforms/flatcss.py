@@ -368,7 +368,7 @@ class CSSFlattener(object):
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
     def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
-        if not isinstance(node.tag, basestring) \
+        if not isinstance(node.tag, six.string_types) \
            or namespace(node.tag) != XHTML_NS:
             return
         tag = barename(node.tag)

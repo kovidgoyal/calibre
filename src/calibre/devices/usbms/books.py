@@ -291,7 +291,7 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, basestring) and isinstance(y, basestring):
+            if isinstance(x, six.string_types) and isinstance(y, six.string_types):
                 x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
             try:
                 c = cmp(x, y)

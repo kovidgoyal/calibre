@@ -1078,7 +1078,7 @@ class Cache(object):
             bimap, simap = {}, {}
             sfield = self.fields[name + '_index']
             for k, v in six.iteritems(book_id_to_val_map):
-                if isinstance(v, basestring):
+                if isinstance(v, six.string_types):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
@@ -1300,7 +1300,7 @@ class Cache(object):
         # force_changes has no effect on cover manipulation
         try:
             cdata = mi.cover_data[1]
-            if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+            if cdata is None and isinstance(mi.cover, six.string_types) and mi.cover and os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:

@@ -44,7 +44,7 @@ def fuzzy_title_patterns():
     if _fuzzy_title_patterns is None:
         from calibre.ebooks.metadata import get_title_sort_pat
         _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, six.string_types) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),

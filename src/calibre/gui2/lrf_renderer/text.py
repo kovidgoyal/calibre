@@ -223,7 +223,7 @@ class TextBlock(object):
         open_containers = collections.deque()
         self.in_para = False
         for i in tb.content:
-            if isinstance(i, basestring):
+            if isinstance(i, six.string_types):
                 self.process_text(i)
             elif i is None:
                 if len(open_containers) > 0:

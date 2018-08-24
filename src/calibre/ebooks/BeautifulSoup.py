@@ -178,7 +178,7 @@ class PageElement:
         return lastChild
 
     def insert(self, position, newChild):
-        if (isinstance(newChild, basestring)
+        if (isinstance(newChild, six.string_types)
             or isinstance(newChild, unicode)) \
             and not isinstance(newChild, NavigableString):
             newChild = NavigableString(newChild)
@@ -938,7 +938,7 @@ def isString(s):
     """Convenience method that works with all 2.x versions of Python
     to determine whether or not something is stringlike."""
     try:
-        return isinstance(s, unicode) or isinstance(s, basestring)
+        return isinstance(s, unicode) or isinstance(s, six.string_types)
     except NameError:
         return isinstance(s, str)
 

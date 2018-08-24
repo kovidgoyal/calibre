@@ -1030,7 +1030,7 @@ class Manifest(object):
                     mt = self.media_type.lower()
                 except Exception:
                     mt = 'application/octet-stream'
-                if not isinstance(data, basestring):
+                if not isinstance(data, six.string_types):
                     pass  # already parsed
                 elif mt in OEB_DOCS:
                     data = self._parse_xhtml(data)
@@ -1285,7 +1285,7 @@ class Spine(object):
         self.page_progression_direction = None
 
     def _linear(self, linear):
-        if isinstance(linear, basestring):
+        if isinstance(linear, six.string_types):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True

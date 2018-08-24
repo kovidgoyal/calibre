@@ -76,7 +76,7 @@ def serialize_file_types(file_types):
         buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
-        if isinstance(extensions, basestring):
+        if isinstance(extensions, six.string_types):
             extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)

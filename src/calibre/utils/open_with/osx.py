@@ -240,7 +240,7 @@ def get_extensions_from_utis(utis, plist):
         for decl in plist.get(key, ()):
             if isinstance(decl, dict):
                 uti = decl.get('UTTypeIdentifier')
-                if isinstance(uti, basestring):
+                if isinstance(uti, six.string_types):
                     spec = decl.get('UTTypeTagSpecification')
                     if isinstance(spec, dict):
                         ext = spec.get('public.filename-extension')
@@ -287,10 +287,10 @@ def get_bundle_data(path):
             extensions |= get_extensions_from_utis(utis, plist)
         else:
             for ext in dtype.get('CFBundleTypeExtensions', ()):
-                if isinstance(ext, basestring):
+                if isinstance(ext, six.string_types):
                     extensions.add(ext.lower())
             for mt in dtype.get('CFBundleTypeMIMETypes', ()):
-                if isinstance(mt, basestring):
+                if isinstance(mt, six.string_types):
                     for ext in mimetypes.guess_all_extensions(mt, strict=False):
                         extensions.add(ext.lower())
     return ans

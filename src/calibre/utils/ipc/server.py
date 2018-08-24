@@ -215,7 +215,7 @@ class Server(Thread):
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
-        if isinstance(cw, basestring):
+        if isinstance(cw, six.string_types):
             raise CriticalError('Failed to launch worker process:\n'+cw)
         if DEBUG:
             print('Worker Launch took:', time.time() - start)

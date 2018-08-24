@@ -95,7 +95,7 @@ class CaseMangler(object):
                 last = child
 
     def mangle_elem(self, elem, stylizer):
-        if not isinstance(elem.tag, basestring) or \
+        if not isinstance(elem.tag, six.string_types) or \
            namespace(elem.tag) != XHTML_NS:
             return
         children = list(elem)

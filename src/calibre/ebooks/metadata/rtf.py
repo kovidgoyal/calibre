@@ -146,7 +146,7 @@ def create_metadata(stream, options):
         md.append(r'{\title %s}'%(title,))
     if options.authors:
         au = options.authors
-        if not isinstance(au, basestring):
+        if not isinstance(au, six.string_types):
             au = u', '.join(au)
         author = encode(au)
         md.append(r'{\author %s}'%(author,))

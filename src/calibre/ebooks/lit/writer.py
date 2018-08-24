@@ -172,7 +172,7 @@ class ReBinary(object):
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, basestring):
+        if not isinstance(elem.tag, six.string_types):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)

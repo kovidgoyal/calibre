@@ -70,7 +70,7 @@ class FileDialog(QObject):
         else:
             initial_dir = dynamic.get(self.dialog_name,
                     expanduser(default_dir))
-        if not isinstance(initial_dir, basestring):
+        if not isinstance(initial_dir, six.string_types):
             initial_dir = expanduser(default_dir)
         if not initial_dir or (not os.path.exists(initial_dir) and not (
                 mode == QFileDialog.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
