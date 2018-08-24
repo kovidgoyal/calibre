@@ -228,34 +228,51 @@ static PyTypeObject FreeTypeType = { // {{{
 }; // }}}
 
 static 
-PyMethodDef methods[] = {
+PyMethodDef freetype_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initfreetype(void) {
-    PyObject *m;
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef freetype_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "freetype",
+    .m_doc = "FreeType API",
+    .m_size = -1,
+    .m_methods = freetype_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initfreetype(void) {
+#endif
 
     FreeTypeType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&FreeTypeType) < 0)
-        return;
+        INITERROR;
 
     FaceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&FaceType) < 0)
-        return;
+        INITERROR;
 
-    m = Py_InitModule3(
-            "freetype", methods,
-            "FreeType API"
-    );
-    if (m == NULL) return;
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&freetype_module);
+#else
+    PyObject *mod = Py_InitModule3("freetype", freetype_methods, "FreeType API");
+#endif
 
+    if (mod == NULL) INITERROR;
     FreeTypeError = PyErr_NewException((char*)"freetype.FreeTypeError", NULL, NULL);
-    if (FreeTypeError == NULL) return;
-    PyModule_AddObject(m, "FreeTypeError", FreeTypeError);
+    if (FreeTypeError == NULL) INITERROR;
+    PyModule_AddObject(mod, "FreeTypeError", FreeTypeError);
 
     Py_INCREF(&FreeTypeType);
-    PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
-    PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
-}
+    PyModule_AddObject(mod, "FreeType", (PyObject *)&FreeTypeType);
+    PyModule_AddObject(mod, "Face", (PyObject *)&FaceType);
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
+}
