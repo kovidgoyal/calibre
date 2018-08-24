@@ -306,20 +306,13 @@ swig_varlink_setattr(swig_varlinkobject *v, char *n, PyObject *p) {
 }
 
 statichere PyTypeObject varlinktype = {
-  PyVarObject_HEAD_INIT(NULL, 0)              
-  0,
-  (char *)"swigvarlink",                      /* Type name    */
-  sizeof(swig_varlinkobject),         /* Basic size   */
-  0,                                  /* Itemsize     */
-  0,                                  /* Deallocator  */ 
-  (printfunc) swig_varlink_print,     /* Print        */
-  (getattrfunc) swig_varlink_getattr, /* get attr     */
-  (setattrfunc) swig_varlink_setattr, /* Set attr     */
-  0,                                  /* tp_compare   */
-  (reprfunc) swig_varlink_repr,       /* tp_repr      */    
-  0,                                  /* tp_as_number */
-  0,                                  /* tp_as_mapping*/
-  0,                                  /* tp_hash      */
+  PyVarObject_HEAD_INIT(NULL, 0)
+  .tp_name = (char *)"swigvarlink",
+  .tp_basicsize = sizeof(swig_varlinkobject),
+  .tp_print = (printfunc) swig_varlink_print,
+  .tp_getattr = (getattrfunc) swig_varlink_getattr,
+  .tp_setattr = (setattrfunc) swig_varlink_setattr,
+  .tp_repr = (reprfunc) swig_varlink_repr,
 };
 
 /* Create a variable linking object for use later */
