@@ -7,10 +7,12 @@
 
 #pragma once
 
+// Python must be included before QT, otherwise QT overwrites the "slots" in "PyType
+// *slots" using the "#define slots Q_SLOTS" definition
+#include <Python.h>
 #include <QGlyphRun>
 #include <QTextItem>
 #include <QPointF>
-#include <Python.h>
 
 PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item);
 
