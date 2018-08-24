@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -30,7 +31,7 @@ class TestFonts3(BaseTest):
 
     def test_parse_font_family(self):
         ' Test parsing of font-family values '
-        for raw, q in {
+        for raw, q in six.iteritems({
                 '"1as"': ['1as'],
                 'A B C, serif': ['A B C', 'serif'],
                 r'Red\/Black': ['Red/Black'],
@@ -43,14 +44,14 @@ class TestFonts3(BaseTest):
                 'A B, C D, "E", serif': ['A B', 'C D', 'E', 'serif'],
                 '': [],
                 '"", a': ['a'],
-        }.iteritems():
+        }):
             self.ae(q, parse_font_family(raw))
         for single in ('serif', 'sans-serif', 'A B C'):
             self.ae([single], parse_font_family(single))
 
     def test_parse_font(self):
         def t(raw, **kw):
-            q = {('line' if k == 'height' else 'font') + '-' + k:v for k, v in kw.iteritems()}
+            q = {('line' if k == 'height' else 'font') + '-' + k:v for k, v in six.iteritems(kw)}
             self.ae(q, parse_font(raw))
             self.ae(q, parse_font(serialize_font(q)))
         t('caption', family=['sans-serif'])

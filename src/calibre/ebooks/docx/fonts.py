@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -171,7 +172,7 @@ class Fonts(object):
                         d['font-weight'] = 'bold'
                     if 'Italic' in variant:
                         d['font-style'] = 'italic'
-                    d = ['%s: %s' % (k, v) for k, v in d.iteritems()]
+                    d = ['%s: %s' % (k, v) for k, v in six.iteritems(d)]
                     d = ';\n\t'.join(d)
                     defs.append('@font-face {\n\t%s\n}\n' % d)
         return '\n'.join(defs)

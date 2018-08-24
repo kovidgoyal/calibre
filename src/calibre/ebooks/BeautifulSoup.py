@@ -108,7 +108,7 @@ class PageElement:
                                       "amp" : "&",
                                       "lt" : "<",
                                       "gt" : ">" }
-    XML_SPECIAL_CHARS_TO_ENTITIES = {v: k for k, v in XML_ENTITIES_TO_SPECIAL_CHARS.items()}
+    XML_SPECIAL_CHARS_TO_ENTITIES = {v: k for k, v in list(XML_ENTITIES_TO_SPECIAL_CHARS.items())}
 
 
     def setup(self, parent=None, previous=None):

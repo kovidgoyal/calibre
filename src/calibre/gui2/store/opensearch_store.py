@@ -67,7 +67,7 @@ def open_search(url, query, max_results=10, timeout=60):
                             if ext:
                                 ext = ext[1:].upper().strip()
                                 s.downloads[ext] = href
-            s.formats = ', '.join(s.downloads.keys()).strip()
+            s.formats = ', '.join(list(s.downloads.keys())).strip()
 
             s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
             s.author = ', '.join(data.xpath('./*[local-name() = "author"]//*[local-name() = "name"]//text()')).strip()

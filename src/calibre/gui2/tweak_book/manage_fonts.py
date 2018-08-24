@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -102,7 +103,7 @@ class AllFonts(QAbstractTableModel):
 
     def do_sort(self):
         reverse = not self.sorted_on[1]
-        self.items = sorted(self.font_data.iterkeys(), key=sort_key, reverse=reverse)
+        self.items = sorted(six.iterkeys(self.font_data), key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.get, reverse=reverse)
 
@@ -314,7 +315,7 @@ class ManageFonts(Dialog):
         fonts = self.get_selected_data()
         if not fonts:
             return
-        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.iteritems() if embedded}, self)
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in six.iteritems(self.model.font_data) if embedded}, self)
         if d.exec_() != d.Accepted:
             return
         changed = False

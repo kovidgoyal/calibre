@@ -20,6 +20,7 @@ from calibre.utils.tdir_in_cache import (
     unlock_file
 )
 from six.moves import getcwd
+import six
 
 
 def FastFailEF(name):
@@ -54,7 +55,7 @@ def run_worker(mod, func, **kw):
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
     kw['env'] = {str(k): str(v)
-                 for k, v in env.iteritems()}  # windows needs bytes in env
+                 for k, v in six.iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 

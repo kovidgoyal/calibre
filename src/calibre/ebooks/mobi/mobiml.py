@@ -122,8 +122,8 @@ class MobiMLizer(object):
         self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
-        self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
-        self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
+        self.fnums = fnums = dict((v, k) for k, v in list(profile.fnums.items()))
+        self.fmap = KeyMapper(profile.fbase, profile.fbase, list(fnums.keys()))
         self.mobimlize_spine()
 
     def mobimlize_spine(self):

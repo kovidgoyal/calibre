@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -124,7 +125,7 @@ class Styles(object):
         self.default_paragraph_style = self.default_character_style = None
 
     def __iter__(self):
-        for s in self.id_map.itervalues():
+        for s in six.itervalues(self.id_map):
             yield s
 
     def __getitem__(self, key):
@@ -335,7 +336,7 @@ class Styles(object):
                     setattr(s, prop, inherit)
                 setattr(block_style, prop, next(iter(vals)))
 
-        for p, runs in layers.iteritems():
+        for p, runs in six.iteritems(layers):
             has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
@@ -415,7 +416,7 @@ class Styles(object):
             ps.pageBreakBefore = True
 
     def register(self, css, prefix):
-        h = hash(frozenset(css.iteritems()))
+        h = hash(frozenset(six.iteritems(css)))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -424,17 +425,17 @@ class Styles(object):
         return ans
 
     def generate_classes(self):
-        for bs in self.para_cache.itervalues():
+        for bs in six.itervalues(self.para_cache):
             css = bs.css
             if css:
                 self.register(css, 'block')
-        for bs in self.run_cache.itervalues():
+        for bs in six.itervalues(self.run_cache):
             css = bs.css
             if css:
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(frozenset(css.iteritems()))
+        h = hash(frozenset(six.iteritems(css)))
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):
@@ -488,8 +489,8 @@ class Styles(object):
             prefix = ef + '\n' + prefix
 
         ans = []
-        for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):
-            b = ('\t%s: %s;' % (k, v) for k, v in css.iteritems())
+        for (cls, css) in sorted(six.itervalues(self.classes), key=lambda x:x[0]):
+            b = ('\t%s: %s;' % (k, v) for k, v in six.iteritems(css))
             b = '\n'.join(b)
             ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)

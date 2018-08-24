@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -83,7 +84,7 @@ class PygmentsHighlighter(object):
 
     def __init__(self, text, lexer):
         theme, cache = get_theme(tprefs['editor_theme']), {}
-        theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
+        theme = {k:highlight_to_char_format(v) for k, v in six.iteritems(theme)}
         theme[None] = NULL_FMT
 
         def fmt(token):

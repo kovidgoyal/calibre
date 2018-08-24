@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 from six.moves import filter
 from six.moves import getcwd
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -312,7 +313,7 @@ def test(return_tests=False):
         def test_non_bmp(self):
             raw = '_\U0001f431-'
             m = Matcher([raw], scorer=CScorer)
-            positions = next(m(raw).itervalues())
+            positions = next(six.itervalues(m(raw)))
             self.assertEqual(
                 positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3))
             )
@@ -358,7 +359,7 @@ def main(basedir=None, query=None):
                 break
             if not query:
                 break
-        for path, positions in islice(m(query).iteritems(), 0, 10):
+        for path, positions in islice(six.iteritems(m(query)), 0, 10):
             positions = list(positions)
             p = 0
             while positions:

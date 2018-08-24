@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 from six.moves import zip
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -70,7 +71,7 @@ def import_from_libreoffice_source_tree(source_path):
     base = P('dictionaries', allow_user_override=False)
     want_locales = set(BUILTIN_LOCALES)
 
-    for (dic, aff), locales in dictionaries.iteritems():
+    for (dic, aff), locales in six.iteritems(dictionaries):
         c = set(locales) & want_locales
         if c:
             locale = tuple(c)[0]
@@ -128,7 +129,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
         xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
             '{%s}full-path' % NS_MAP['manifest'])
-        for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems():
+        for (dic, aff), locales in six.iteritems(parse_xcu(zf.open(xcu).read(), origin='')):
             dic, aff = dic.lstrip('/'), aff.lstrip('/')
             d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
             locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])

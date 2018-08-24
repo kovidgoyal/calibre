@@ -16,6 +16,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, editors, set_current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
+import six
 
 
 def get_data(name):
@@ -149,7 +150,7 @@ class CheckExternalLinks(Dialog):
             for name, href in {(l[0], l[1]) for l in err[0]}:
                 nmap[name].add(href)
 
-            for name, hrefs in nmap.iteritems():
+            for name, hrefs in six.iteritems(nmap):
                 raw = oraw = get_data(name)
                 for href in hrefs:
                     raw = raw.replace(href, newurl)

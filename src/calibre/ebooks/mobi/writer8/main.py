@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -132,7 +133,7 @@ class KF8Writer(object):
             if item.media_type in XML_DOCS:
                 root = self.data(item)
                 for tag in XPath('//h:img|//svg:image')(root):
-                    for attr, ref in tag.attrib.iteritems():
+                    for attr, ref in six.iteritems(tag.attrib):
                         if attr.split('}')[-1].lower() in {'src', 'href'}:
                             tag.attrib[attr] = pointer(item, ref)
 
@@ -205,7 +206,7 @@ class KF8Writer(object):
                 extract(tag)
                 inlines[raw].append(repl)
 
-        for raw, elems in inlines.iteritems():
+        for raw, elems in six.iteritems(inlines):
             idx = to_ref(len(self.flows))
             self.flows.append(raw)
             for link in elems:
@@ -319,7 +320,7 @@ class KF8Writer(object):
 
     def chunk_it_up(self):
         placeholder_map = {}
-        for placeholder, x in self.link_map.iteritems():
+        for placeholder, x in six.iteritems(self.link_map):
             href, frag = x
             aid = self.id_map.get(x, None)
             if aid is None:

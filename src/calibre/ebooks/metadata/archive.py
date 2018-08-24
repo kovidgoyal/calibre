@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import filter
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -168,7 +169,7 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
         import json
         m = json.loads(comment)
         if hasattr(m, 'iterkeys'):
-            for cat in m.iterkeys():
+            for cat in six.iterkeys(m):
                 if cat.startswith('ComicBookInfo'):
                     get_comic_book_info(m[cat], mi, series_index=series_index)
                     break

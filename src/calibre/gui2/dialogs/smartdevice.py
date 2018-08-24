@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -29,7 +30,7 @@ def _cmp_ipaddr(l, r):
 
 def get_all_ip_addresses():
     ipaddrs = list()
-    for iface in get_all_ips().itervalues():
+    for iface in six.itervalues(get_all_ips()):
         for addrs in iface:
             if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
                 ipaddrs.append(addrs['addr'])

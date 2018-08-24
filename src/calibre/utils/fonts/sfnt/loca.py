@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -39,7 +40,7 @@ class LocaTable(UnknownTable):
         '''
         self.offset_map = [0 for i in self.offset_map]
         glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in
-                    resolved_glyph_map.iteritems()]
+                    six.iteritems(resolved_glyph_map)]
         glyphs.sort(key=itemgetter(1))
         for glyph_id, offset, sz in glyphs:
             self.offset_map[glyph_id] = offset

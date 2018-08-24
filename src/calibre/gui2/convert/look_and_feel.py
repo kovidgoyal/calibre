@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -58,7 +59,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return ans
         if g is self.opt_filter_css:
             ans = set()
-            for key, item in self.FILTER_CSS.iteritems():
+            for key, item in six.iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if w.isChecked():
                     ans = ans.union(item)
@@ -85,7 +86,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             if not val:
                 val = ''
             items = frozenset([x.strip().lower() for x in val.split(',')])
-            for key, vals in self.FILTER_CSS.iteritems():
+            for key, vals in six.iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if not vals - items:
                     items = items - vals

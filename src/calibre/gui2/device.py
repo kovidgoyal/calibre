@@ -1248,7 +1248,7 @@ class DeviceMixin(object):  # {{{
                         else:
                             format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
-                if f in format_count.keys():
+                if f in list(format_count.keys()):
                     formats.append((f, _('%(num)i of %(total)i books') % dict(
                         num=format_count[f], total=len(rows)),
                         True if f in aval_out_formats else False))
@@ -1362,7 +1362,7 @@ class DeviceMixin(object):  # {{{
                 space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
                     self.location_manager.free[2] : 'cardb'}
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(sorted(list(space.keys()), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
@@ -1443,7 +1443,7 @@ class DeviceMixin(object):  # {{{
                 space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
                     self.location_manager.free[2] : 'cardb'}
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(sorted(list(space.keys()), reverse=True)[0], None)
                 try:
                     total_size = sum([os.stat(f).st_size for f in files])
                 except:

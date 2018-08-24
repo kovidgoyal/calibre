@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -56,7 +57,7 @@ def create_skeleton(opts, namespaces=None):
 
     def w(x):
         return '{%s}%s' % (namespaces['w'], x)
-    dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
+    dn = {k:v for k, v in six.iteritems(namespaces) if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     doc = E.document()
     body = E.body()
@@ -74,7 +75,7 @@ def create_skeleton(opts, namespaces=None):
         E.docGrid(**{w('linePitch'):"360"}),
     ))
 
-    dn = {k:v for k, v in namespaces.iteritems() if k in tuple('wra') + ('wp',)}
+    dn = {k:v for k, v in six.iteritems(namespaces) if k in tuple('wra') + ('wp',)}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     styles = E.styles(
         E.docDefaults(
@@ -121,12 +122,12 @@ class DocumentRelationships(object):
     def __init__(self, namespace):
         self.rmap = {}
         self.namespace = namespace
-        for typ, target in {
+        for typ, target in six.iteritems({
                 namespace.names['STYLES']: 'styles.xml',
                 namespace.names['NUMBERING']: 'numbering.xml',
                 namespace.names['WEB_SETTINGS']: 'webSettings.xml',
                 namespace.names['FONTS']: 'fontTable.xml',
-        }.iteritems():
+        }):
             self.add_relationship(target, typ)
 
     def get_relationship_id(self, target, rtype, target_mode=None):
@@ -146,7 +147,7 @@ class DocumentRelationships(object):
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
         relationships = E.Relationships()
-        for (target, rtype, target_mode), rid in self.rmap.iteritems():
+        for (target, rtype, target_mode), rid in six.iteritems(self.rmap):
             r = E.Relationship(Id=rid, Type=rtype, Target=target)
             if target_mode is not None:
                 r.set('TargetMode', target_mode)
@@ -173,7 +174,7 @@ class DOCX(object):
     def contenttypes(self):
         E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None:self.namespace.namespaces['ct']})
         types = E.Types()
-        for partname, mt in {
+        for partname, mt in six.iteritems({
             "/word/footnotes.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml",
             "/word/document.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
             "/word/numbering.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml",
@@ -185,15 +186,15 @@ class DOCX(object):
             "/word/webSettings.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml",
             "/docProps/core.xml": "application/vnd.openxmlformats-package.core-properties+xml",
             "/docProps/app.xml": "application/vnd.openxmlformats-officedocument.extended-properties+xml",
-        }.iteritems():
+        }):
             types.append(E.Override(PartName=partname, ContentType=mt))
         added = {'png', 'gif', 'jpeg', 'jpg', 'svg', 'xml'}
         for ext in added:
             types.append(E.Default(Extension=ext, ContentType=guess_type('a.'+ext)[0]))
-        for ext, mt in {
+        for ext, mt in six.iteritems({
             "rels": "application/vnd.openxmlformats-package.relationships+xml",
             "odttf": "application/vnd.openxmlformats-officedocument.obfuscatedFont",
-        }.iteritems():
+        }):
             added.add(ext)
             types.append(E.Default(Extension=ext, ContentType=mt))
         for fname in self.images:
@@ -271,9 +272,9 @@ class DOCX(object):
             zf.writestr('word/fontTable.xml', xml2str(self.font_table))
             zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
             zf.writestr('word/_rels/fontTable.xml.rels', xml2str(self.embedded_fonts))
-            for fname, data_getter in self.images.iteritems():
+            for fname, data_getter in six.iteritems(self.images):
                 zf.writestr(fname, data_getter())
-            for fname, data in self.fonts.iteritems():
+            for fname, data in six.iteritems(self.fonts):
                 zf.writestr(fname, data)
 
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -412,7 +413,7 @@ class PDFWriter(QObject):
             except Exception:
                 doc_margins = None
             if doc_margins and isinstance(doc_margins, dict):
-                doc_margins = {k:float(v) for k, v in doc_margins.iteritems() if isinstance(v, (float, int)) and k in {'right', 'top', 'left', 'bottom'}}
+                doc_margins = {k:float(v) for k, v in six.iteritems(doc_margins) if isinstance(v, (float, int)) and k in {'right', 'top', 'left', 'bottom'}}
                 if doc_margins:
                     margin_top = margin_bottom = 0
                     page_margins = self.convert_page_margins(doc_margins)
@@ -429,7 +430,7 @@ class PDFWriter(QObject):
 
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
-        for val in amap['anchors'].itervalues():
+        for val in six.itervalues(amap['anchors']):
             if isinstance(val, dict) and 'column' in val:
                 val['column'] = int(val['column'])
         for href, val in amap['links']:

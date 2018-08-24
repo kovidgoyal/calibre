@@ -23,6 +23,7 @@
 
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 import re
+import six
 
 
 class J2H (object):
@@ -65,7 +66,7 @@ class J2H (object):
         table = self.kanwa.load_jisyo(text[0])
         if table is None:
             return ("", 0)
-        for (k,v) in table.iteritems():
+        for (k,v) in six.iteritems(table):
             length = len(k)
             if len(text) >= length:
                 if text.startswith(k):

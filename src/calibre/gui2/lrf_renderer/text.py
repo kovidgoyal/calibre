@@ -164,7 +164,7 @@ class TextBlock(object):
         pass
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
-    XML_ENTITIES = dict(list(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys())))
+    XML_ENTITIES = dict(list(zip(list(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values()), list(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))))
     XML_ENTITIES["quot"] = '"'
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,

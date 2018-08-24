@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -156,7 +157,7 @@ class CascadeTest(BaseTest):
             files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
-                for k, v in font.iteritems():
+                for k, v in six.iteritems(font):
                     if k == 'src':
                         files[v] = b'xxx'
                         v = 'url(%s)' % v
@@ -187,7 +188,7 @@ class CascadeTest(BaseTest):
         def fkey(*args, **kw):
             f = font(*args, **kw)
             f['font-family'] = icu_lower(f['font-family'][0])
-            return frozenset((k, v) for k, v in f.iteritems() if k in font_keys)
+            return frozenset((k, v) for k, v in six.iteritems(f) if k in font_keys)
 
         def fu(text, *args, **kw):
             key = fkey(*args, **kw)

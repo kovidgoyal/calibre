@@ -565,7 +565,7 @@ class Book(Delegator):
             print('WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.')
             return
 
-        old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])
+        old_base_font_size = float(max(list(fonts.items()), key=operator.itemgetter(1))[0])
         factor = base_font_size / old_base_font_size
 
         def rescale(old):
@@ -1160,7 +1160,7 @@ class TextStyle(LrsStyle):
                  "rubyadjust", "rubyalign", "rubyoverhang",
                  "empdotsposition", 'emplinetype', 'emplineposition']
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults.keys()) + alsoAllow
 
     defaults = baseDefaults.copy()
 
@@ -1191,7 +1191,7 @@ class BlockStyle(LrsStyle):
             framewidth="0", framecolor="0x00000000", topskip="0",
             sidemargin="0", footskip="0", bgcolor="0xFF000000")
 
-    validSettings = baseDefaults.keys()
+    validSettings = list(baseDefaults.keys())
     defaults = baseDefaults.copy()
 
     def __init__(self, **overrides):
@@ -1221,7 +1221,7 @@ class PageStyle(LrsStyle):
     alsoAllow = ["header", "evenheader", "oddheader",
                  "footer", "evenfooter", "oddfooter"]
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults.keys()) + alsoAllow
     defaults = baseDefaults.copy()
 
     @classmethod
@@ -1678,8 +1678,8 @@ class Plot(LrsSimpleChar1, LrsContainer):
             raise LrsError('Sizes must be positive semi-definite')
         self.xsize = int(xsize)
         self.ysize = int(ysize)
-        if adjustment and adjustment not in Plot.ADJUSTMENT_VALUES.keys():
-            raise LrsError('adjustment must be one of' + Plot.ADJUSTMENT_VALUES.keys())
+        if adjustment and adjustment not in list(Plot.ADJUSTMENT_VALUES.keys()):
+            raise LrsError('adjustment must be one of' + list(Plot.ADJUSTMENT_VALUES.keys()))
         self.adjustment = adjustment
 
     def setObj(self, obj):

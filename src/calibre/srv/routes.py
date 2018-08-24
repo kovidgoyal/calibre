@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -187,7 +188,7 @@ class Route(object):
                 return tc(val)
             except Exception:
                 raise HTTPNotFound('Argument of incorrect type')
-        for name, tc in self.type_checkers.iteritems():
+        for name, tc in six.iteritems(self.type_checkers):
             args_map[name] = check(tc, args_map[name])
         return (args_map[name] for name in self.names)
 
@@ -208,7 +209,7 @@ class Route(object):
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
-        args = {k:quoted(v) for k, v in args.iteritems()}
+        args = {k:quoted(v) for k, v in six.iteritems(args)}
         route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
@@ -251,7 +252,7 @@ class Router(object):
                 self.add(item)
 
     def __iter__(self):
-        return self.routes.itervalues()
+        return six.itervalues(self.routes)
 
     def finalize(self):
         try:

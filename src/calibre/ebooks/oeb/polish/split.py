@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -241,7 +242,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
                         a.set('href', '#' + purl.fragment)
 
     # Fix all links in the container that point to anchors in the bottom tree
-    for fname, media_type in container.mime_map.iteritems():
+    for fname, media_type in six.iteritems(container.mime_map):
         if fname not in {name, bottom_name}:
             repl = SplitLinkReplacer(fname, anchors_in_bottom, name, bottom_name, container)
             container.replace_links(fname, repl)
@@ -437,7 +438,7 @@ def merge_html(container, names, master):
         container.remove_item(name, remove_from_guide=False)
 
     # Fix all links in the container that point to merged files
-    for fname, media_type in container.mime_map.iteritems():
+    for fname, media_type in six.iteritems(container.mime_map):
         repl = MergeLinkReplacer(fname, anchor_map, master, container)
         container.replace_links(fname, repl)
 
@@ -468,7 +469,7 @@ def merge_css(container, names, master):
 
     # Remove links to merged stylesheets in the html files, replacing with a
     # link to the master sheet
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_DOCS:
             removed = False
             root = p(name)

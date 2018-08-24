@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -43,7 +44,7 @@ def android2(ctx, data):
 
 def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
-    return Router(globals().itervalues(), auth_controller=AuthController(
+    return Router(six.itervalues(globals()), auth_controller=AuthController(
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
         ban_time_in_minutes=ban_for, ban_after=ban_after,
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
@@ -139,7 +140,7 @@ class TestAuth(BaseTest):
 
             def library_info(username=None):
                 lmap, defaultlib = ctx.library_info(Data(username))
-                lmap = {k:os.path.basename(v) for k, v in lmap.iteritems()}
+                lmap = {k:os.path.basename(v) for k, v in six.iteritems(lmap)}
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')

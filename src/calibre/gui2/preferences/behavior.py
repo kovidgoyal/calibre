@@ -18,6 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
+import six
 
 
 class OutputFormatSetting(Setting):
@@ -49,7 +50,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
-        restrictions = sorted(db.prefs['virtual_libraries'].iterkeys(), key=sort_key)
+        restrictions = sorted(six.iterkeys(db.prefs['virtual_libraries']), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
         # check that the virtual library still exists
         vls = db.prefs['virtual_lib_on_startup']

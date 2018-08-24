@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -35,7 +36,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 
 def iter_subsettable_fonts(container):
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
             yield name, mt
 
@@ -75,8 +76,8 @@ def subset_all_fonts(container, font_stats, report):
 
             for w in warnings:
                 container.log.warn(w)
-            olen = sum(old_sizes.itervalues())
-            nlen = sum(new_sizes.itervalues())
+            olen = sum(six.itervalues(old_sizes))
+            nlen = sum(six.itervalues(new_sizes))
             total_new += len(nraw)
             if nlen == olen:
                 report(_('The font %s was already subset')%font_name)
@@ -91,7 +92,7 @@ def subset_all_fonts(container, font_stats, report):
         changed = True
 
     if remove:
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in six.iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if remove_font_face_rules(container, sheet, remove, name):

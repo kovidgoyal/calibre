@@ -66,7 +66,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         for k,v in data:
             self.all_tags[v] = k
             self.original_names[k] = v
-        for tag in sorted(self.all_tags.keys(), key=key):
+        for tag in sorted(list(self.all_tags.keys()), key=key):
             item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
             item.setFlags(item.flags() | Qt.ItemIsEditable)

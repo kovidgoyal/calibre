@@ -167,7 +167,7 @@ class AumSortedConcatenate(object):
             self.ans[ndx] = ':::'.join((author, sort, link))
 
     def finalize(self):
-        keys = self.ans.keys()
+        keys = list(self.ans.keys())
         l = len(keys)
         if l == 0:
             return None

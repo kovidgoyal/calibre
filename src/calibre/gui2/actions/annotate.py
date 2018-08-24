@@ -13,6 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
 from six.moves import map
+import six
 
 
 class Updater(QThread):  # {{{
@@ -55,7 +56,7 @@ class Updater(QThread):  # {{{
                 self.errors[id_] = traceback.format_exc()
             self.update_progress.emit(i)
         self.update_done.emit()
-        self.done_callback(self.annotation_map.keys(), self.errors)
+        self.done_callback(list(self.annotation_map.keys()), self.errors)
 
 # }}}
 
@@ -152,7 +153,7 @@ class FetchAnnotationsAction(InterfaceAction):
         if errors:
             db = self.gui.library_view.model().db
             entries = []
-            for id_, tb in errors.iteritems():
+            for id_, tb in six.iteritems(errors):
                 title = id_
                 if isinstance(id_, type(1)):
                     title = db.title(id_, index_is_id=True)

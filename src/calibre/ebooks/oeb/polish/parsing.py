@@ -62,7 +62,7 @@ def handle_private_entities(data):
                 user_entities[match.group(1)] = val
             if user_entities:
                 data = ('\n' * num_of_nl_in_pre) + data[idx:]
-                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
     return data
 

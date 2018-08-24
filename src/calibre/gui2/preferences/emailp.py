@@ -29,7 +29,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.aliases = aliases
         self.tags = tags
         self.sorted_on = (0, True)
-        self.account_order = self.accounts.keys()
+        self.account_order = list(self.accounts.keys())
         self.do_sort()
         self.headers  = list(map(unicode, [_('Email'), _('Formats'), _('Subject'),
             _('Auto send'), _('Alias'), _('Auto send only tags')]))
@@ -185,7 +185,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.beginResetModel()
         self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
-        self.account_order = self.accounts.keys()
+        self.account_order = list(self.accounts.keys())
         self.do_sort()
         self.endResetModel()
         return self.index(self.account_order.index(y), 0)

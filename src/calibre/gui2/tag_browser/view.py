@@ -548,7 +548,7 @@ class TagsView(QTreeView):  # {{{
 
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
-                            for k in sorted(tree_dict.keys(), key=sort_key):
+                            for k in sorted(list(tree_dict.keys()), key=sort_key):
                                 p.append(k)
                                 n = k[1:] if k.startswith('@') else k
                                 m.addAction(self.user_category_icon, n,
@@ -657,7 +657,7 @@ class TagsView(QTreeView):  # {{{
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
-                        key[1:] in self.db.prefs.get('user_categories', {}).keys():
+                        key[1:] in list(self.db.prefs.get('user_categories', {}).keys()):
                     self.context_menu.addAction(_('Manage User categories'),
                             partial(self.context_menu_handler, action='manage_categories',
                                     category=key[1:]))

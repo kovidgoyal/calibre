@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,7 +22,7 @@ class EntityDeclarationProcessor(object):  # {{{
             if len(tokens) > 1:
                 self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
         self.processed_html = html
-        for key, val in self.declared_entities.iteritems():
+        for key, val in six.iteritems(self.declared_entities):
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
 # }}}
 

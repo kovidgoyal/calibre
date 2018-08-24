@@ -49,8 +49,8 @@ ALL_MS_COVER_TYPES = [
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
     tags = dict((tags[i], i) for i in xrange(len(tags)))
-    dattrs = dict((v, k) for k, v in dattrs.items())
-    tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
+    dattrs = dict((v, k) for k, v in list(dattrs.items()))
+    tattrs = [dict((v, k) for k, v in list((map or {}).items())) for map in tattrs]
     for map in tattrs:
         if map:
             map.update(dattrs)

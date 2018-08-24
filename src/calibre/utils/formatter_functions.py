@@ -8,6 +8,7 @@ Created on 13 Jan 2011
 '''
 
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -63,7 +64,7 @@ class FormatterFunctions(object):
         self._register_functions()
 
     def _register_functions(self):
-        for compiled_funcs in self._functions_from_library.itervalues():
+        for compiled_funcs in six.itervalues(self._functions_from_library):
             for cls in compiled_funcs:
                 f = self._functions.get(cls.name, None)
                 replace = False
@@ -93,7 +94,7 @@ class FormatterFunctions(object):
 
     def get_builtins_and_aliases(self):
         res = {}
-        for f in self._builtins.itervalues():
+        for f in six.itervalues(self._builtins):
             res[f.name] = f
             for a in f.aliases:
                 res[a] = f
@@ -815,7 +816,7 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
         try:
-            data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
+            data = sorted(list(fmt_data.items()), key=lambda x:x[1]['mtime'], reverse=True)
             return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
                         for k,v in data)
         except:
@@ -837,7 +838,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+            return ','.join(k.upper()+':'+str(v['size']) for k,v in six.iteritems(fmt_data))
         except:
             return ''
 
@@ -856,7 +857,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+            return ','.join(k.upper()+':'+str(v['path']) for k,v in six.iteritems(fmt_data))
         except:
             return ''
 
@@ -1533,7 +1534,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals_):
         if hasattr(mi, '_proxy_metadata'):
-            cats = set(k for k, v in mi._proxy_metadata.user_categories.iteritems() if v)
+            cats = set(k for k, v in six.iteritems(mi._proxy_metadata.user_categories) if v)
             cats = sorted(cats, key=sort_key)
             return ', '.join(cats)
         return _('This function can be used only in the GUI')
@@ -1575,7 +1576,7 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
             link_data = mi._proxy_metadata.author_link_map
             if not link_data:
                 return ''
-            names = sorted(link_data.keys(), key=sort_key)
+            names = sorted(list(link_data.keys()), key=sort_key)
             return pair_sep.join(n + val_sep + link_data[n] for n in names)
         return _('This function can be used only in the GUI')
 
@@ -1684,7 +1685,7 @@ def load_user_template_functions(library_uuid, funcs, precompiled_user_functions
         compiled_funcs = precompiled_user_functions
     else:
         compiled_funcs = compile_user_template_functions(funcs)
-    formatter_functions().register_functions(library_uuid, compiled_funcs.values())
+    formatter_functions().register_functions(library_uuid, list(compiled_funcs.values()))
 
 
 def unload_user_template_functions(library_uuid):

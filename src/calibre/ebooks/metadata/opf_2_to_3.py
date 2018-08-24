@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.opf3 import (
     set_refines, set_user_metadata3
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
+import six
 
 
 class Data(object):
@@ -140,7 +141,7 @@ def upgrade_series(root, data):
 def upgrade_custom(root, data):
     m = read_user_metadata2(root, remove_tags=True)
     if m:
-        for fm in m.itervalues():
+        for fm in six.itervalues(m):
             encode_is_multiple(fm)
         set_user_metadata3(root, data.prefixes, data.refines, m)
 

@@ -648,7 +648,7 @@ class HTMLConverter(object):
             if not isinstance(path, unicode):
                 path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
-                if path+fragment in self.targets.keys():
+                if path+fragment in list(self.targets.keys()):
                     tb = get_target_block(path+fragment, self.targets)
                 else:
                     tb = self.tops[path]
@@ -1045,12 +1045,12 @@ class HTMLConverter(object):
                             left, 0)
 
     def process_page_breaks(self, tag, tagname, tag_css):
-        if 'page-break-before' in tag_css.keys():
+        if 'page-break-before' in list(tag_css.keys()):
             if tag_css['page-break-before'].lower() != 'avoid':
                 self.end_page()
             tag_css.pop('page-break-before')
         end_page = False
-        if 'page-break-after' in tag_css.keys():
+        if 'page-break-after' in list(tag_css.keys()):
             if tag_css['page-break-after'].lower() == 'avoid':
                 self.avoid_page_break = True
             else:
@@ -1806,7 +1806,7 @@ class HTMLConverter(object):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
     def cleanup(self):
-        for _file in self.scaled_images.values() + self.rotated_images.values():
+        for _file in list(self.scaled_images.values()) + list(self.rotated_images.values()):
             _file.__del__()
 
 

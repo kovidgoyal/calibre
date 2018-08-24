@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -596,7 +597,7 @@ class TextRecord(object):  # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
         self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
-        for typ, val in self.trailing_data.iteritems():
+        for typ, val in six.iteritems(self.trailing_data):
             if isinstance(typ, int):
                 print(('Record %d has unknown trailing data of type: %d : %r'%
                         (idx, typ, val)))
@@ -608,7 +609,7 @@ class TextRecord(object):  # {{{
         with open(os.path.join(folder, name+'.txt'), 'wb') as f:
             f.write(self.raw)
         with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:
-            for k, v in self.trailing_data.iteritems():
+            for k, v in six.iteritems(self.trailing_data):
                 raw = '%s : %r\n\n'%(k, v)
                 f.write(raw.encode('utf-8'))
 

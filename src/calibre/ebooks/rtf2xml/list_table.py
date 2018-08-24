@@ -384,7 +384,7 @@ class ListTable:
             self.__list_table_final += 'mi<tg<open-att__<list-in-table'
             # self.__list_table_final += '<list-id>%s' % (str(id))
             the_dict = list[0]
-            the_keys = the_dict.keys()
+            the_keys = list(the_dict.keys())
             for the_key in the_keys:
                 if the_key in not_allow:
                     continue
@@ -399,7 +399,7 @@ class ListTable:
                 self.__list_table_final += 'mi<tg<empty-att_<level-in-table'
                 self.__list_table_final += '<level>%s' % (str(level_num))
                 the_dict2 = level[0]
-                the_keys2 = the_dict2.keys()
+                the_keys2 = list(the_dict2.keys())
                 is_bullet = 0
                 bullet_text = ''
                 for the_key2 in the_keys2:

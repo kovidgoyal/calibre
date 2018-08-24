@@ -306,7 +306,7 @@ class CollectionsBookList(BookList):
                 return 0
 
         for category, lpaths in collections.items():
-            books = lpaths.values()
+            books = list(lpaths.values())
             books.sort(cmp=none_cmp)
             result[category] = [x[0] for x in books]
         return result

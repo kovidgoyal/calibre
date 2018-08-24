@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __docformat__ = 'restructuredtext en'
@@ -20,7 +21,7 @@ from calibre.db.cli.cmd_check_library import _print_check_library_results
 class Checker(object):
 
     def __init__(self, kw):
-        for k, v in kw.iteritems():
+        for k, v in six.iteritems(kw):
             setattr(self, k, v)
 
 

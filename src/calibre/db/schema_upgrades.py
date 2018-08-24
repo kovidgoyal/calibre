@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -299,7 +300,7 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in six.itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -375,7 +376,7 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in six.itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -596,7 +597,7 @@ class SchemaUpgrade(object):
                     custom_recipe_filename)
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(list(map(int, custom_recipes.iterkeys())))
+                existing = frozenset(list(map(int, six.iterkeys(custom_recipes))))
                 if id_ in existing:
                     id_ = max(existing) + 1000
                 id_ = str(id_)

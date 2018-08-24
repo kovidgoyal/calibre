@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -29,7 +30,7 @@ def run_checks(container):
 
     # Check parsing
     xml_items, html_items, raster_images, stylesheets = [], [], [], []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         items = None
         if mt in XML_TYPES:
             items = xml_items

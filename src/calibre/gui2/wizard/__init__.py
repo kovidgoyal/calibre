@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -492,7 +493,7 @@ class KindlePage(QWizardPage, KindleUI):
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
-        for x, ac in opts.accounts.iteritems():
+        for x, ac in six.iteritems(opts.accounts):
             default = ac[2]
             if x.strip().endswith('@kindle.com'):
                 accs.append((x, default))
@@ -869,7 +870,7 @@ class Wizard(QWizard):
         self.resize(600, 520)
 
     def set_button_texts(self):
-        for but, text in self.BUTTON_TEXTS.iteritems():
+        for but, text in six.iteritems(self.BUTTON_TEXTS):
             self.setButtonText(getattr(self, but+'Button'), _(text))
 
     def retranslate(self):

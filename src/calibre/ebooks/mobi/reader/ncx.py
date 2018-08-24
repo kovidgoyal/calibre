@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import getcwd
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -57,13 +58,13 @@ def read_ncx(sections, index, codec):
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
-        for num, x in enumerate(table.iteritems()):
+        for num, x in enumerate(six.iteritems(table)):
             text, tag_map = x
             entry = default_entry.copy()
             entry['name'] = text
             entry['num'] = num
 
-            for tag in tag_fieldname_map.iterkeys():
+            for tag in six.iterkeys(tag_fieldname_map):
                 fieldname, i = tag_fieldname_map[tag]
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]
@@ -72,9 +73,9 @@ def read_ncx(sections, index, codec):
                         # offset
                         fieldvalue = tuple(tag_map[tag])
                     entry[fieldname] = fieldvalue
-                    for which, name in {3:'text', 5:'kind', 70:'description',
+                    for which, name in six.iteritems({3:'text', 5:'kind', 70:'description',
                             71:'author', 72:'image_caption',
-                            73:'image_attribution'}.iteritems():
+                            73:'image_attribution'}):
                         if tag == which:
                             entry[name] = cncx.get(fieldvalue,
                                     default_entry[name])

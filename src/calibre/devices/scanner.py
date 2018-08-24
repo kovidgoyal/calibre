@@ -1,4 +1,5 @@
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -76,7 +77,7 @@ class LibUSBScanner(object):
             dev = USBDevice(*dev)
             dev.busnum, dev.devnum = fingerprint[:2]
             ans.add(dev)
-        extra = set(self.libusb.cache.iterkeys()) - seen
+        extra = set(six.iterkeys(self.libusb.cache)) - seen
         for x in extra:
             self.libusb.cache.pop(x, None)
         return ans

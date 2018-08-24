@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -1542,7 +1543,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                     v = check_isbn(k)
                     if v is not None:
                         val[k] = v
-            ids = sorted(val.iteritems(), key=keygen)
+            ids = sorted(six.iteritems(val), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
             # Use selectAll + insert instead of setText so that undo works
             self.selectAll(), self.insert(txt.strip())

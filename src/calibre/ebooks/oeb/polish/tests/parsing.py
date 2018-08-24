@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -184,7 +185,7 @@ class ParsingTests(BaseTest):
         for ds in (False, True):
             src = '\n<html>\n<p>\n<svg><image />\n<b></svg>&nbsp'
             root = parse(src, discard_namespaces=ds)
-            for tag, lnum in {'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}.iteritems():
+            for tag, lnum in six.iteritems({'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}):
                 elem = root.xpath('//*[local-name()="%s"]' % tag)[0]
                 self.assertEqual(lnum, elem.sourceline, 'Line number incorrect for %s, source: %s:' % (tag, src))
 

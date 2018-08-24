@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -75,7 +76,7 @@ if islinux:
 
         def loop(self):
             while True:
-                r = select.select([self.srv_sock] + list(self.fd_map.iterkeys()), [], [])[0]
+                r = select.select([self.srv_sock] + list(six.iterkeys(self.fd_map)), [], [])[0]
                 modified = set()
                 for fd in r:
                     if fd is self.srv_sock:
@@ -345,14 +346,14 @@ class ReloadHandler(DummyHandler):
 
     def notify_reload(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in six.itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('reload')
 
     def ping(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in six.itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('ping')

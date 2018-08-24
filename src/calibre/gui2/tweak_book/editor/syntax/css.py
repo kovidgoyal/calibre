@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -294,10 +295,10 @@ def create_formats(highlighter):
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
     }
-    for name, msg in {
+    for name, msg in six.iteritems({
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
-    }.iteritems():
+    }):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     formats['link'] = syntax_text_char_format(theme['Link'])

@@ -194,7 +194,7 @@ class Document:
         return output.find('body')
 
     def select_best_candidate(self, candidates):
-        sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)
+        sorted_candidates = sorted(list(candidates.values()), key=lambda x: x['content_score'], reverse=True)
         for candidate in sorted_candidates[:5]:
             elem = candidate['elem']
             self.debug("Top 5 : %6.3f %s" % (candidate['content_score'], describe(elem)))

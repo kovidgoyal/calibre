@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import zip
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -81,7 +82,7 @@ class LegacyTest(BaseTest):
                 # We ignore the key rec_index, since it is not stable for
                 # custom columns (it is created by iterating over a dict)
                 return {k.decode('utf-8') if isinstance(k, bytes) else k:to_unicode(v)
-                        for k, v in x.iteritems() if k != 'rec_index'}
+                        for k, v in six.iteritems(x) if k != 'rec_index'}
             return x
 
         def get_props(db):
@@ -108,7 +109,7 @@ class LegacyTest(BaseTest):
         'Test the get_property interface for reading data'
         def get_values(db):
             ans = {}
-            for label, loc in db.FIELD_MAP.iteritems():
+            for label, loc in six.iteritems(db.FIELD_MAP):
                 if isinstance(label, int):
                     label = '#'+db.custom_column_num_map[label]['label']
                 label = type('')(label)
@@ -186,7 +187,7 @@ class LegacyTest(BaseTest):
 
         self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
-        for meth, args in {
+        for meth, args in six.iteritems({
             'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
             'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
@@ -251,7 +252,7 @@ class LegacyTest(BaseTest):
             'book_on_device_string':[(1,), (2,), (3,)],
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
-        }.iteritems():
+        }):
             fmt = lambda x: x
             if meth[0] in {'!', '@'}:
                 fmt = {'!':dict, '@':frozenset}[meth[0]]
@@ -277,8 +278,8 @@ class LegacyTest(BaseTest):
         old = db.get_data_as_dict(prefix='test-prefix')
         new = ndb.get_data_as_dict(prefix='test-prefix')
         for o, n in zip(old, new):
-            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in o.iteritems()}
-            n = {k:set(v) if isinstance(v, list) else v for k, v in n.iteritems()}
+            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in six.iteritems(o)}
+            n = {k:set(v) if isinstance(v, list) else v for k, v in six.iteritems(n)}
             self.assertEqual(o, n)
 
         ndb.search('title:Unknown')
@@ -316,9 +317,9 @@ class LegacyTest(BaseTest):
         db = self.init_old()
         cache = ndb.new_api
         tmap = cache.get_id_map('tags')
-        t = next(tmap.iterkeys())
+        t = next(six.iterkeys(tmap))
         pmap = cache.get_id_map('publisher')
-        p = next(pmap.iterkeys())
+        p = next(six.iterkeys(pmap))
         run_funcs(self, db, ndb, (
             ('delete_tag_using_id', t),
             ('delete_publisher_using_id', p),
@@ -647,10 +648,10 @@ class LegacyTest(BaseTest):
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
-        a = {v:k for k, v in ndb.new_api.get_id_map('authors').iteritems()}['Author One']
-        t = {v:k for k, v in ndb.new_api.get_id_map('tags').iteritems()}['Tag One']
-        s = {v:k for k, v in ndb.new_api.get_id_map('series').iteritems()}['A Series One']
-        p = {v:k for k, v in ndb.new_api.get_id_map('publisher').iteritems()}['Publisher One']
+        a = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('authors'))}['Author One']
+        t = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('tags'))}['Tag One']
+        s = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('series'))}['A Series One']
+        p = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('publisher'))}['Publisher One']
         run_funcs(self, db, ndb, (
             ('rename_author', a, 'Author Two'),
             ('rename_tag', t, 'News'),
@@ -688,11 +689,11 @@ class LegacyTest(BaseTest):
                 run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
 
         # Test renaming/deleting
-        t = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag One']
-        t2 = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag Two']
-        a = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['My Author Two']
-        a2 = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['Custom One']
-        s = {v:k for k, v in ndb.new_api.get_id_map('#series').iteritems()}['My Series One']
+        t = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag One']
+        t2 = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag Two']
+        a = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('#authors'))}['My Author Two']
+        a2 = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('#authors'))}['Custom One']
+        s = {v:k for k, v in six.iteritems(ndb.new_api.get_id_map('#series'))}['My Series One']
         run_funcs(self, db, ndb, (
             ('delete_custom_item_using_id', t, 'tags'),
             ('delete_custom_item_using_id', a, 'authors'),

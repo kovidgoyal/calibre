@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -54,7 +55,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.devices.blockSignals(True)
         self.devices.clear()
         for dev in self.gui.device_manager.devices:
-            for d, name in dev.get_user_blacklisted_devices().iteritems():
+            for d, name in six.iteritems(dev.get_user_blacklisted_devices()):
                 item = QListWidgetItem('%s [%s]'%(name, d), self.devices)
                 item.setData(Qt.UserRole, (dev, d))
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
@@ -86,7 +87,7 @@ class ConfigWidget(ConfigWidgetBase):
             if e.checkState() == Qt.Checked:
                 devs[dev].append(uid)
 
-        for dev, bl in devs.iteritems():
+        for dev, bl in six.iteritems(devs):
             dev.set_user_blacklisted_devices(bl)
 
         for i in xrange(self.device_plugins.count()):

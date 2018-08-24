@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -58,7 +59,7 @@ class FontAliasing(BaseError):
 
     def __call__(self, container):
         changed = False
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in six.iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if fix_sheet(sheet, self.css_name, self.font_name):
@@ -85,7 +86,7 @@ class FontAliasing(BaseError):
 def check_fonts(container):
     font_map = {}
     errors = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_FONTS:
             raw = container.raw_data(name)
             try:
@@ -102,7 +103,7 @@ def check_fonts(container):
                 errors.append(NotEmbeddable(name, fs_type))
 
     sheets = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_STYLES:
             try:
                 sheets.append((name, container.parsed(name), None))

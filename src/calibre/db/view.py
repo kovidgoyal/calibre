@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -72,7 +73,7 @@ def format_is_multiple(x, sep=',', repl=None):
 def format_identifiers(x):
     if not x:
         return None
-    return ','.join('%s:%s'%(k, v) for k, v in x.iteritems())
+    return ','.join('%s:%s'%(k, v) for k, v in six.iteritems(x))
 
 
 class View(object):
@@ -89,7 +90,7 @@ class View(object):
         self.search_restriction_name = self.base_restriction_name = ''
         self._field_getters = {}
         self.column_count = len(cache.backend.FIELD_MAP)
-        for col, idx in cache.backend.FIELD_MAP.iteritems():
+        for col, idx in six.iteritems(cache.backend.FIELD_MAP):
             label, fmt = col, lambda x:x
             func = {
                     'id': self._get_id,
@@ -374,14 +375,14 @@ class View(object):
             self.marked_ids = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
-                id_dict.itervalues())))
+            self.marked_ids = dict(izip(six.iterkeys(id_dict), imap(unicode,
+                six.itervalues(id_dict))))
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)
         self.cache.clear_search_caches(old_marked_ids | cmids)
         if old_marked_ids != cmids:
-            for funcref in self.marked_listeners.itervalues():
+            for funcref in six.itervalues(self.marked_listeners):
                 func = funcref()
                 if func is not None:
                     func(old_marked_ids, cmids)

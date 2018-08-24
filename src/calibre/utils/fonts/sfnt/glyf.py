@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -81,7 +82,7 @@ class GlyfTable(UnknownTable):
         ans = OrderedDict()
         offset = 0
         block = []
-        for glyph_id, glyph in sorted_glyph_map.iteritems():
+        for glyph_id, glyph in six.iteritems(sorted_glyph_map):
             raw = glyph()
             ans[glyph_id] = (offset, len(raw))
             offset += len(raw)

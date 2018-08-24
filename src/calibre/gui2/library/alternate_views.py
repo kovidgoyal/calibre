@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -327,7 +328,7 @@ class AlternateViews(object):
             view.setFocus(Qt.OtherFocusReason)
 
     def set_database(self, db, stage=0):
-        for view in self.views.itervalues():
+        for view in six.itervalues(self.views):
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
 
@@ -356,7 +357,7 @@ class AlternateViews(object):
         self.current_view.select_rows(rows)
 
     def set_context_menu(self, menu):
-        for view in self.views.itervalues():
+        for view in six.itervalues(self.views):
             if view is not self.main_view:
                 view.set_context_menu(menu)
 

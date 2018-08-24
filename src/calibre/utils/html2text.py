@@ -71,14 +71,14 @@ def charref(name):
     else:
         c = int(name)
 
-    if not UNICODE_SNOB and c in unifiable_n.keys():
+    if not UNICODE_SNOB and c in list(unifiable_n.keys()):
         return unifiable_n[c]
     else:
         return unichr(c)
 
 
 def entityref(c):
-    if not UNICODE_SNOB and c in unifiable.keys():
+    if not UNICODE_SNOB and c in list(unifiable.keys()):
         return unifiable[c]
     else:
         try:

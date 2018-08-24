@@ -712,7 +712,7 @@ def remove_bracketed_text(src,
     counts = Counter()
     buf = []
     src = force_unicode(src)
-    rmap = dict([(v, k) for k, v in brackets.iteritems()])
+    rmap = dict([(v, k) for k, v in six.iteritems(brackets)])
     for char in src:
         if char in brackets:
             counts[char] += 1
@@ -720,7 +720,7 @@ def remove_bracketed_text(src,
             idx = rmap[char]
             if counts[idx] > 0:
                 counts[idx] -= 1
-        elif sum(counts.itervalues()) < 1:
+        elif sum(six.itervalues(counts)) < 1:
             buf.append(char)
     return u''.join(buf)
 

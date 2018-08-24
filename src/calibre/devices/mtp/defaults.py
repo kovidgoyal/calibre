@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -47,7 +48,7 @@ class DeviceDefaults(object):
         for rule in self.rules:
             tests = rule[0]
             matches = True
-            for k, v in tests.iteritems():
+            for k, v in six.iteritems(tests):
                 if k == 'vendor' and v != vid:
                     matches = False
                     break

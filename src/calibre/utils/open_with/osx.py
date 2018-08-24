@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -204,7 +205,7 @@ PUBLIC_UTI_MAP = {
     'zip':          'com.pkware.zip-archive',
 }
 PUBLIC_UTI_RMAP = defaultdict(set)
-for ext, uti in PUBLIC_UTI_MAP.iteritems():
+for ext, uti in six.iteritems(PUBLIC_UTI_MAP):
     PUBLIC_UTI_RMAP[uti].add(ext)
 PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 

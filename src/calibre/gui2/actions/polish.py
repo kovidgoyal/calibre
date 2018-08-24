@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -92,7 +93,7 @@ class Polish(QDialog):  # {{{
             ('upgrade_book', _('&Upgrade book internals')),
         ])
         prefs = gprefs.get('polishing_settings', {})
-        for name, text in self.all_actions.iteritems():
+        for name, text in six.iteritems(self.all_actions):
             count += 1
             x = QCheckBox(text, self)
             x.setChecked(prefs.get(name, False))
@@ -241,7 +242,7 @@ class Polish(QDialog):  # {{{
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
         self.jobs = []
         if len(self.book_id_map) <= 5:
-            for i, (book_id, formats) in enumerate(self.book_id_map.iteritems()):
+            for i, (book_id, formats) in enumerate(six.iteritems(self.book_id_map)):
                 self.do_book(i+1, book_id, formats)
         else:
             self.queue = [(i+1, id_) for i, id_ in enumerate(self.book_id_map)]
@@ -447,7 +448,7 @@ class PolishAction(InterfaceAction):
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
         ans = self.get_supported_books(ans)
-        for fmts in ans.itervalues():
+        for fmts in six.itervalues(ans):
             for x in fmts:
                 if x.startswith('ORIGINAL_'):
                     from calibre.gui2.dialogs.confirm_delete import confirm
@@ -476,7 +477,7 @@ class PolishAction(InterfaceAction):
                   ' formats. Convert to one of those formats before polishing.')
                          %_(' or ').join(sorted(SUPPORTED)), show=True)
         ans = OrderedDict(ans)
-        for fmts in ans.itervalues():
+        for fmts in six.itervalues(ans):
             for x in SUPPORTED:
                 if ('ORIGINAL_'+x) in fmts:
                     fmts.discard(x)

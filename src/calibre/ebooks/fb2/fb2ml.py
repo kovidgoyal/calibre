@@ -243,9 +243,9 @@ class FB2MLizer(object):
 
         if cover_href:
             # Only write the image tag if it is in the manifest.
-            if cover_href in self.oeb_book.manifest.hrefs.keys():
-                if cover_href not in self.image_hrefs.keys():
-                    self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
+            if cover_href in list(self.oeb_book.manifest.hrefs.keys()):
+                if cover_href not in list(self.image_hrefs.keys()):
+                    self.image_hrefs[cover_href] = '_%s.jpg' % len(list(self.image_hrefs.keys()))
             return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
 
         return u''

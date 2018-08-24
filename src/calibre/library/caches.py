@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -771,7 +772,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     q = canonicalize_lang(query)
                     if q is None:
                         lm = lang_map()
-                        rm = {v.lower():k for k,v in lm.iteritems()}
+                        rm = {v.lower():k for k,v in six.iteritems(lm)}
                         q = rm.get(query, query)
                 else:
                     q = query
@@ -914,15 +915,15 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode,
-                id_dict.itervalues())))
+            self.marked_ids_dict = dict(izip(six.iterkeys(id_dict), imap(unicode,
+                six.itervalues(id_dict))))
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']
         for r in self.iterall():
             r[marked_col] = None
 
-        for id_, val in self.marked_ids_dict.iteritems():
+        for id_, val in six.iteritems(self.marked_ids_dict):
             try:
                 self._data[id_][marked_col] = val
             except:
@@ -1049,7 +1050,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 item.extend((None, None))
 
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in self.marked_ids_dict.iteritems():
+        for id_,val in six.iteritems(self.marked_ids_dict):
             try:
                 self._data[id_][marked_col] = val
             except:

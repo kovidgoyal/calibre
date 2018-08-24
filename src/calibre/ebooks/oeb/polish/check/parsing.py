@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -103,7 +104,7 @@ class NamedEntities(BaseError):
         changed = False
         from calibre.ebooks.oeb.polish.check.main import XML_TYPES
         check_types = XML_TYPES | OEB_DOCS
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in six.iteritems(container.mime_map):
             if mt in check_types:
                 raw = container.raw_data(name)
                 nraw = replace_pat.sub(lambda m:html5_entities[m.group(1)], raw)
@@ -496,7 +497,7 @@ valid_id = re.compile(r'^[a-zA-Z][a-zA-Z0-9_:.-]*$')
 def check_ids(container):
     errors = []
     mts = set(OEB_DOCS) | {guess_type('a.opf'), guess_type('a.ncx')}
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in mts:
             root = container.parsed(name)
             seen_ids = {}
@@ -511,13 +512,13 @@ def check_ids(container):
                     seen_ids[eid] = elem.sourceline
                 if eid and valid_id.match(eid) is None:
                     errors.append(InvalidId(name, elem.sourceline, eid))
-            errors.extend(DuplicateId(name, eid, locs) for eid, locs in dups.iteritems())
+            errors.extend(DuplicateId(name, eid, locs) for eid, locs in six.iteritems(dups))
     return errors
 
 
 def check_markup(container):
     errors = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_DOCS:
             lines = []
             root = container.parsed(name)

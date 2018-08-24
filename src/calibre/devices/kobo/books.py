@@ -267,7 +267,7 @@ class KTCollectionsBookList(CollectionsBookList):
             return cmp(xx[2], yy[2])
 
         for category, lpaths in collections.items():
-            books = lpaths.values()
+            books = list(lpaths.values())
             books.sort(cmp=none_cmp)
             result[category] = [x[0] for x in books]
         # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())

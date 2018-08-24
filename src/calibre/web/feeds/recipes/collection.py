@@ -4,6 +4,7 @@ from __future__ import with_statement
 
 from __future__ import print_function
 from six.moves import map
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -69,7 +70,7 @@ def serialize_collection(mapping_of_recipe_classes):
         if isinstance(x.title, str):
             x.title.decode('ascii')
     '''
-    for urn in sorted(mapping_of_recipe_classes.keys(),
+    for urn in sorted(list(mapping_of_recipe_classes.keys()),
             key=lambda key: force_unicode(
                 getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
                 'utf-8')):
@@ -110,7 +111,7 @@ def get_custom_recipe_collection(*args):
             custom_recipes
     bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
-    for id_, x in custom_recipes.iteritems():
+    for id_, x in six.iteritems(custom_recipes):
         title, fname = x
         recipe = os.path.join(bdir, fname)
         try:
@@ -164,12 +165,12 @@ def add_custom_recipes(script_map):
     from calibre.web.feeds.recipes import custom_recipes, \
             custom_recipe_filename
     id_ = 1000
-    keys = tuple(map(int, custom_recipes.iterkeys()))
+    keys = tuple(map(int, six.iterkeys(custom_recipes)))
     if keys:
         id_ = max(keys)+1
     bdir = os.path.dirname(custom_recipes.file_path)
     with custom_recipes:
-        for title, script in script_map.iteritems():
+        for title, script in six.iteritems(script_map):
             fid = str(id_)
 
             fname = custom_recipe_filename(fid, title)

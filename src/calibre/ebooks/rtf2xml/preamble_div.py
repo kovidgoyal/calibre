@@ -431,14 +431,14 @@ cw<ci<font-style<nu<0
         Check if there is any section info. If so, print it out.
         If not, print out an empty tag to satisfy the dtd.
         """
-        if len(self.__section.keys()) == 0:
+        if len(list(self.__section.keys())) == 0:
             self.__write_obj.write(
             'mi<tg<open______<section-definition\n'
                     )
         else:
             self.__write_obj.write(
             'mi<tg<open-att__<section-definition')
-            keys = self.__section.keys()
+            keys = list(self.__section.keys())
             for key in keys:
                 self.__write_obj.write(
                 '<%s>%s' %  (key, self.__section[key])

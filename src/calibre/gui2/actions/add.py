@@ -26,6 +26,7 @@ from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 from six.moves import map
+import six
 
 
 def get_filters():
@@ -143,7 +144,7 @@ class AddAction(InterfaceAction):
         fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in books}
 
         for id_ in ids:
-            for fmt, fpath in fmt_map.iteritems():
+            for fmt, fpath in six.iteritems(fmt_map):
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)

@@ -23,6 +23,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
 from six.moves import map
+import six
 
 
 class AdaptSQP(SearchQueryParser):
@@ -438,12 +439,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if previously_installed:
             return
         # If already installed in a GUI container, do nothing
-        for action_names in installed_actions.itervalues():
+        for action_names in six.itervalues(installed_actions):
             if plugin_action.name in action_names:
                 return
 
         allowed_locations = [(key, text) for key, text in
-                all_locations.iteritems() if key
+                six.iteritems(all_locations) if key
                 not in plugin_action.dont_add_to]
         if not allowed_locations:
             return  # This plugin doesn't want to live in the GUI

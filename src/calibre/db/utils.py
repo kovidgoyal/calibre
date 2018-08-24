@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -206,7 +207,7 @@ class ThumbnailCache(object):
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in self.items.iteritems() if size != entry.thumbnail_size)
+            remove = (key for key, entry in six.iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
@@ -360,7 +361,7 @@ class ThumbnailCache(object):
                 pass
             if not hasattr(self, 'total_size'):
                 self._load_index()
-            for entry in self.items.itervalues():
+            for entry in six.itervalues(self.items):
                 self._do_delete(entry.path)
             self.total_size = 0
             self.items = OrderedDict()

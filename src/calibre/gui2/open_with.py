@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -422,12 +423,12 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         gui = get_gui()
     if gui is None:
         return
-    for unique_name, action in registered_shortcuts.iteritems():
+    for unique_name, action in six.iteritems(registered_shortcuts):
         gui.keyboard.unregister_shortcut(unique_name)
         gui.removeAction(action)
     registered_shortcuts.clear()
 
-    for filetype, applications in oprefs['entries'].iteritems():
+    for filetype, applications in six.iteritems(oprefs['entries']):
         for application in applications:
             text = entry_to_icon_text(application, only_text=True)
             t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()

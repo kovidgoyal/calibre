@@ -185,7 +185,7 @@ class OverrideTable:
         'mi<mk<overbeg__\n' + self.__override_table_final
         for the_dict in self.__override_list:
             self.__override_table_final += 'mi<tg<empty-att_<override-list'
-            the_keys = the_dict.keys()
+            the_keys = list(the_dict.keys())
             for the_key in the_keys:
                 self.__override_table_final += \
                     '<%s>%s' % (the_key, the_dict[the_key])

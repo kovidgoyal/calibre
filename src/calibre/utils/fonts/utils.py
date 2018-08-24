@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -165,7 +166,7 @@ def decode_name_record(recs):
         return mac_names[0]
 
     # Use unicode names
-    for val in unicode_names.itervalues():
+    for val in six.itervalues(unicode_names):
         return val
 
     return None
@@ -226,9 +227,9 @@ def get_all_font_names(raw, raw_is_table=False):
     records = _get_font_names(raw, raw_is_table)
     ans = {}
 
-    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+    for name, num in six.iteritems({'family_name':1, 'subfamily_name':2, 'full_name':4,
             'preferred_family_name':16, 'preferred_subfamily_name':17,
-            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+            'wws_family_name':21, 'wws_subfamily_name':22}):
         try:
             ans[name] = decode_name_record(records[num])
         except (IndexError, KeyError, ValueError):

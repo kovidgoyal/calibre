@@ -680,7 +680,7 @@ class LitFile(object):
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
-        mlist = self.manifest.values()
+        mlist = list(self.manifest.values())
         # Remove any common path elements
         if len(mlist) > 1:
             shared = mlist[0].path
@@ -888,7 +888,7 @@ class LitContainer(object):
         self.log = log
 
     def namelist(self):
-        return self._litfile.paths.keys()
+        return list(self._litfile.paths.keys())
 
     def exists(self, name):
         return urlunquote(name) in self._litfile.paths

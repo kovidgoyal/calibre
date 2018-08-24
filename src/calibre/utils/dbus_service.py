@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import
 from six.moves import zip
+import six
 
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'
@@ -519,7 +520,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("Name %s on object interface %s is not a property" % (property_name, interface_name))
             return prop
         else:
-            for interface in interfaces.itervalues():
+            for interface in six.itervalues(interfaces):
                 prop = interface.get(property_name)
                 if prop and isinstance(prop, dbus_property):
                     return prop
@@ -559,7 +560,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("No interface %s on object" % interface_name)
             ifaces = [iface]
         else:
-            ifaces = interfaces.values()
+            ifaces = list(interfaces.values())
         properties = {}
         for iface in ifaces:
             for name, prop in iface.items():

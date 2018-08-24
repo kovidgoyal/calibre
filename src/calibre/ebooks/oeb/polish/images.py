@@ -10,6 +10,7 @@ from threading import Thread, Event
 from six.moves.queue import Queue, Empty
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
+import six
 
 
 class Worker(Thread):
@@ -92,7 +93,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     queue.join()
     before_total = after_total = 0
     changed = False
-    for name, (ok, res) in results.iteritems():
+    for name, (ok, res) in six.iteritems(results):
         name = force_unicode(name, filesystem_encoding)
         if ok:
             before, after = res

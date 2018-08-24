@@ -25,6 +25,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
+import six
 
 
 def is_external(url):
@@ -44,7 +45,7 @@ def iterhtmllinks(container, name):
 
 def get_external_resources(container):
     ans = defaultdict(list)
-    for name, media_type in container.mime_map.iteritems():
+    for name, media_type in six.iteritems(container.mime_map):
         if container.has_name(name) and container.exists(name):
             if media_type in OEB_DOCS:
                 for el, attr, link in iterhtmllinks(container, name):
@@ -186,12 +187,12 @@ def replacer(url_map):
 def replace_resources(container, urls, replacements):
     url_maps = defaultdict(dict)
     changed = False
-    for url, names in urls.iteritems():
+    for url, names in six.iteritems(urls):
         replacement = replacements.get(url)
         if replacement is not None:
             for name in names:
                 url_maps[name][url] = container.name_to_href(replacement, name)
-    for name, url_map in url_maps.iteritems():
+    for name, url_map in six.iteritems(url_maps):
         r = replacer(url_map)
         container.replace_links(name, r)
         changed |= r.replaced

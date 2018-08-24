@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
+import six
 
 
 class CreateCustomColumn(QDialog):
@@ -85,7 +86,7 @@ class CreateCustomColumn(QDialog):
             'is_multiple':True
         },
     )))
-    column_types_map = {k['datatype']:idx for idx, k in column_types.iteritems()}
+    column_types_map = {k['datatype']:idx for idx, k in six.iteritems(column_types)}
 
     def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)

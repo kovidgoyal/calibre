@@ -73,7 +73,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 s.author = author
                 s.price = price
                 s.detail_item = 'http://wolnelektury.pl' + id
-                s.formats = ', '.join(s.downloads.keys())
+                s.formats = ', '.join(list(s.downloads.keys()))
                 s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s

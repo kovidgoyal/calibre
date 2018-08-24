@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -106,7 +107,7 @@ class CMap(Stream):
             maps.append(current_map)
         mapping = []
         for m in maps:
-            meat = '\n'.join('%s %s'%(k, v) for k, v in m.iteritems())
+            meat = '\n'.join('%s %s'%(k, v) for k, v in six.iteritems(m))
             mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
         self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
 
@@ -190,14 +191,14 @@ class Font(object):
         widths = {g:self.metrics.pdf_scale(w) for g, w in izip(glyphs,
                                         self.metrics.glyph_widths(glyphs))}
         counter = Counter()
-        for g, w in widths.iteritems():
+        for g, w in six.iteritems(widths):
             counter[w] += 1
         most_common = counter.most_common(1)[0][0]
         self.descendant_font['DW'] = most_common
-        widths = {g:w for g, w in widths.iteritems() if w != most_common}
+        widths = {g:w for g, w in six.iteritems(widths) if w != most_common}
 
         groups = Array()
-        for k, g in groupby(enumerate(widths.iterkeys()), lambda i_x:i_x[0]-i_x[1]):
+        for k, g in groupby(enumerate(six.iterkeys(widths)), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(itemgetter(1), g))
             gwidths = [widths[g] for g in group]
             if len(set(gwidths)) == 1 and len(group) > 1:

@@ -147,8 +147,8 @@ class PMLMLizer(object):
 
     def get_anchor_id(self, href, aid):
         aid = '%s#%s' % (href, aid)
-        if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        if aid not in list(self.link_hrefs.keys()):
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
         aid = self.link_hrefs[aid]
         return aid
 
@@ -250,12 +250,12 @@ class PMLMLizer(object):
         # text. Usually these require an argument.
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
-                if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
-                    if len(self.image_hrefs.keys()) == 0:
+                if page.abshref(elem.attrib['src']) not in list(self.image_hrefs.keys()):
+                    if len(list(self.image_hrefs.keys())) == 0:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(
-                            '%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                            '%s.png' % len(list(self.image_hrefs.keys())), list(self.image_hrefs.keys())).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         elif tag == 'hr':
             w = '\\w'
@@ -307,8 +307,8 @@ class PMLMLizer(object):
                 if '://' not in href:
                     if '#' not in href:
                         href += '#'
-                    if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    if href not in list(self.link_hrefs.keys()):
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
                     href = '#%s' % self.link_hrefs[href]
                     text.append('\\q="%s"' % href)
                     tags.append('q')

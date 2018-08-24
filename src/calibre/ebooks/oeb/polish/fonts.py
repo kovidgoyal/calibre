@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -45,7 +46,7 @@ def font_family_data_from_sheet(sheet, families):
 
 def font_family_data(container):
     families = {}
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
             font_family_data_from_sheet(sheet, families)
@@ -128,7 +129,7 @@ def change_font(container, old_name, new_name=None):
     new_name to None to remove the font family instead of changing it.
     '''
     changed = False
-    for name, mt in tuple(container.mime_map.iteritems()):
+    for name, mt in tuple(six.iteritems(container.mime_map)):
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
             if change_font_in_sheet(container, sheet, old_name, new_name, name):

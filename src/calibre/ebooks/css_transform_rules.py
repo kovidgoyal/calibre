@@ -13,6 +13,7 @@ from cssutils.css import Property, CSSRule
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
+import six
 
 
 def compile_pat(pat):
@@ -44,7 +45,7 @@ class StyleDeclaration(object):
                 yield p, None
             else:
                 if p not in self.expanded_properties:
-                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).iteritems()]
+                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in six.iteritems(n(p.name, p.propertyValue))]
                 for ep in self.expanded_properties[p]:
                     yield ep, p
 
@@ -338,7 +339,7 @@ def export_rules(serialized_rules):
     lines = []
     for rule in serialized_rules:
         lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
-        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in rule.iteritems() if k in allowed_keys)
+        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in six.iteritems(rule) if k in allowed_keys)
         lines.append('')
     return '\n'.join(lines).encode('utf-8')
 

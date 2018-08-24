@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -304,7 +305,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.node_map = {}
         self.category_nodes = []
         self.category_custom_icons = {}
-        for k, v in self.prefs['tags_browser_category_icons'].iteritems():
+        for k, v in six.iteritems(self.prefs['tags_browser_category_icons']):
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
@@ -384,7 +385,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
-        for node in self.node_map.itervalues():
+        for node in six.itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
@@ -1099,7 +1100,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.use_position_based_index_on_next_recount = True
                 return True
 
-            for c in sorted(user_cats.keys(), key=sort_key):
+            for c in sorted(list(user_cats.keys()), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \

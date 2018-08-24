@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -148,7 +149,7 @@ class Resources(object):
 
     def serialize(self, records, used_images):
         used_image_indices = self.used_image_indices | {
-                v-1 for k, v in self.item_map.iteritems() if k in used_images}
+                v-1 for k, v in six.iteritems(self.item_map) if k in used_images}
         for i in self.image_indices-used_image_indices:
             self.records[i] = PLACEHOLDER_GIF
         records.extend(self.records)

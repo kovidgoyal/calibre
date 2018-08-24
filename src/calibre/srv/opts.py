@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -211,7 +212,7 @@ class Options(object):
     __slots__ = tuple(name for name in options)
 
     def __init__(self, **kwargs):
-        for opt in options.itervalues():
+        for opt in six.itervalues(options):
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
 
@@ -238,7 +239,7 @@ def boolean_option(add_option, opt):
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser
     parser =  OptionParser(usage)
-    for opt in options.itervalues():
+    for opt in six.itervalues(options):
         add_option = partial(parser.add_option, dest=opt.name, help=opt_to_cli_help(opt), default=opt.default)
         if opt.default is True or opt.default is False:
             boolean_option(add_option, opt)

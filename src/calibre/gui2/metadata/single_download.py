@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import zip
 from six.moves import getcwd
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -510,7 +511,7 @@ class IdentifyWidget(QWidget):  # {{{
             parts.append('authors:'+authors_to_string(authors))
             simple_desc += _('Authors: %s ') % authors_to_string(authors)
         if identifiers:
-            x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
+            x = ', '.join('%s:%s'%(k, v) for k, v in six.iteritems(identifiers))
             parts.append(x)
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: %s' % identifiers['isbn']
@@ -690,7 +691,7 @@ class CoversModel(QAbstractListModel):  # {{{
 
     def plugin_for_index(self, index):
         row = index.row() if hasattr(index, 'row') else index
-        for k, v in self.plugin_map.iteritems():
+        for k, v in six.iteritems(self.plugin_map):
             if row in v:
                 return k
 
@@ -751,7 +752,7 @@ class CoversModel(QAbstractListModel):  # {{{
             if pmap.isNull():
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
-            for rows in self.plugin_map.itervalues():
+            for rows in six.itervalues(self.plugin_map):
                 for i in xrange(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1
@@ -761,7 +762,7 @@ class CoversModel(QAbstractListModel):  # {{{
         else:
             # single cover plugin
             idx = None
-            for plugin, rows in self.plugin_map.iteritems():
+            for plugin, rows in six.iteritems(self.plugin_map):
                 if plugin.name == plugin_name:
                     idx = rows[0]
                     break

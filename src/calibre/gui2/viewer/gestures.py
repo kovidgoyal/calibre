@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -183,14 +184,14 @@ class State(QObject):
         else:
             self.check_for_holds()
             if {Swipe, SwipeAndHold} & self.possible_gestures:
-                tp = next(self.touch_points.itervalues())
+                tp = next(six.itervalues(self.touch_points))
                 self.swiping.emit(*tp.swipe_live)
 
     def check_for_holds(self):
         if not {SwipeAndHold, TapAndHold} & self.possible_gestures:
             return
         now = time.time()
-        tp = next(self.touch_points.itervalues())
+        tp = next(six.itervalues(self.touch_points))
         if now - tp.time_of_last_move < HOLD_THRESHOLD:
             return
         if self.hold_started:
@@ -217,20 +218,20 @@ class State(QObject):
 
     def finalize(self):
         if Tap in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(six.itervalues(self.touch_points))
             if tp.total_movement <= TAP_THRESHOLD:
                 self.tapped.emit(tp)
                 return
 
         if Swipe in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(six.itervalues(self.touch_points))
             st = tp.swipe_type
             if st is not None:
                 self.swiped.emit(st)
                 return
 
         if Pinch in self.possible_gestures:
-            points = tuple(self.touch_points.itervalues())
+            points = tuple(six.itervalues(self.touch_points))
             if len(points) == 2:
                 pinch_dir = get_pinch(*points)
                 if pinch_dir is not None:
@@ -240,7 +241,7 @@ class State(QObject):
             return
 
         if TapAndHold in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(six.itervalues(self.touch_points))
             self.tap_hold_finished.emit(tp)
             return
 

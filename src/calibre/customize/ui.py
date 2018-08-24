@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -347,7 +348,7 @@ def reread_metadata_plugins():
         return (1 if plugin.plugin_path is None else 0), plugin.name
 
     for group in (_metadata_readers, _metadata_writers):
-        for plugins in group.itervalues():
+        for plugins in six.itervalues(group):
             if len(plugins) > 1:
                 plugins.sort(key=key)
 
@@ -640,7 +641,7 @@ def patch_metadata_plugins(possibly_updated_plugins):
                     # Metadata source plugins dont use initialize() but that
                     # might change in the future, so be safe.
                     patches[i].initialize()
-    for i, pup in patches.iteritems():
+    for i, pup in six.iteritems(patches):
         _initialized_plugins[i] = pup
 # }}}
 

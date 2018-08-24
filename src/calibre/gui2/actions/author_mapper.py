@@ -8,6 +8,7 @@ from six.moves import map
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
+import six
 
 
 class AuthorMapAction(InterfaceAction):
@@ -53,7 +54,7 @@ class AuthorMapAction(InterfaceAction):
             author_map = db.all_field_for('authors', book_ids)
             changed_author_map = {}
             changed_author_sort_map = {}
-            for book_id, authors in author_map.iteritems():
+            for book_id, authors in six.iteritems(author_map):
                 authors = list(authors)
                 new_authors = map_authors(authors, rules)
                 if authors != new_authors:

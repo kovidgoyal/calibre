@@ -23,6 +23,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
 from six.moves import map
+import six
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -850,7 +851,7 @@ class Metadata(object):
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = dict((value, key) for key, value in list(nsmap.items()))
         elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
@@ -864,7 +865,7 @@ class Metadata(object):
 
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = dict((value, key) for key, value in list(nsmap.items()))
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -1446,7 +1447,7 @@ class Guide(object):
         return self.refs.pop(type, None)
 
     def remove_by_href(self, href):
-        remove = [r for r, i in self.refs.iteritems() if i.href == href]
+        remove = [r for r, i in six.iteritems(self.refs) if i.href == href]
         for r in remove:
             self.remove(r)
 

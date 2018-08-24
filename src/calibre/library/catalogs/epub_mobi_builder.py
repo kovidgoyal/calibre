@@ -3,6 +3,7 @@
 from __future__ import print_function
 from six.moves import map
 from six.moves import zip
+import six
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
@@ -685,14 +686,14 @@ class CatalogBuilder(object):
                 if ordnum == 0 and ordlen == -1:
                     if icu_upper(c[0]) != last_c:
                         last_c = icu_upper(c[0])
-                        if last_c in exceptions.keys():
+                        if last_c in list(exceptions.keys()):
                             last_c = exceptions[unicode(last_c)]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
                 else:
                     if last_ordnum != ordnum:
                         last_c = icu_upper(c[0:ordlen])
-                        if last_c in exceptions.keys():
+                        if last_c in list(exceptions.keys()):
                             last_c = exceptions[unicode(last_c)]
                         last_ordnum = ordnum
                     else:
@@ -702,7 +703,7 @@ class CatalogBuilder(object):
             else:
                 if last_ordnum != ordnum:
                     last_c = icu_upper(c[0:ordlen])
-                    if last_c in exceptions.keys():
+                    if last_c in list(exceptions.keys()):
                         last_c = exceptions[unicode(last_c)]
                     last_ordnum = ordnum
                 else:
@@ -2663,7 +2664,7 @@ class CatalogBuilder(object):
                         title_str=title_str,
                         xmlns=XHTML_NS,
                         )
-            for k, v in args.iteritems():
+            for k, v in six.iteritems(args):
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
@@ -4600,7 +4601,7 @@ class CatalogBuilder(object):
 
         templates = {}
         execfile(P('catalog/section_list_templates.py'), templates)
-        for name, template in templates.iteritems():
+        for name, template in six.iteritems(templates):
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))
 

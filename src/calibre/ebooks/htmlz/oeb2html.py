@@ -78,7 +78,7 @@ class OEB2HTML(object):
         if id:
             href += '#%s' % id
         if href not in self.links:
-            self.links[href] = '#calibre_link-%s' % len(self.links.keys())
+            self.links[href] = '#calibre_link-%s' % len(list(self.links.keys()))
         return self.links[href]
 
     def map_resources(self, oeb_book):

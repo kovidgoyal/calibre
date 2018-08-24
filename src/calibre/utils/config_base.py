@@ -147,7 +147,7 @@ class OptionSet(object):
         '''
         pref = Option(name, switches=switches, help=help, type=type, choices=choices,
                  group=group, default=default, action=action, metavar=None)
-        if group is not None and group not in self.groups.keys():
+        if group is not None and group not in list(self.groups.keys()):
             raise ValueError('Group %s has not been added to this section'%group)
         if pref in self.preferences:
             raise ValueError('An option with the name %s already exists in this set.'%name)

@@ -524,7 +524,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         if False and self.DEBUG:
             print("opts_dict")
-            for opt in sorted(opts_dict.keys(), key=sort_key):
+            for opt in sorted(list(opts_dict.keys()), key=sort_key):
                 print(" %s: %s" % (opt, repr(opts_dict[opt])))
         return opts_dict
 
@@ -697,7 +697,7 @@ class PluginWidget(QWidget,Ui_Form):
         self.preset_field.blockSignals(False)
         self.preset_field.setCurrentIndex(0)
 
-        if item_name in self.presets.keys():
+        if item_name in list(self.presets.keys()):
             del(self.presets[item_name])
             self.presets.commit()
 
@@ -719,7 +719,7 @@ class PluginWidget(QWidget,Ui_Form):
                         _("You must provide a name."), show=True)
         new = True
         name = unicode(name)
-        if name in self.presets.keys():
+        if name in list(self.presets.keys()):
             if not question_dialog(self, _("Save catalog preset"),
                     _("That saved preset already exists and will be overwritten. "
                         "Are you sure?")):
@@ -1190,7 +1190,7 @@ class ExclusionRules(GenericRulesTable):
 
     def _init_table_widget(self):
         header_labels = [self.COLUMNS[index]['name']
-            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+            for index in sorted(list(self.COLUMNS.keys()), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -1242,7 +1242,7 @@ class ExclusionRules(GenericRulesTable):
             self.setCellWidget(row, col, rule_name)
 
         def set_source_field_in_row(row, col, field=''):
-            source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
+            source_combo = ComboBox(self, sorted(list(self.eligible_custom_fields.keys()), key=sort_key), field)
             source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)
             return source_combo
@@ -1283,7 +1283,7 @@ class PrefixRules(GenericRulesTable):
 
     def _init_table_widget(self):
         header_labels = [self.COLUMNS[index]['name']
-            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+            for index in sorted(list(self.COLUMNS.keys()), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -1478,7 +1478,7 @@ class PrefixRules(GenericRulesTable):
             self.setCellWidget(row, col, rule_name)
 
         def set_source_field_in_row(row, col, field=''):
-            source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
+            source_combo = ComboBox(self, sorted(list(self.eligible_custom_fields.keys()), key=sort_key), field)
             source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)
             return source_combo

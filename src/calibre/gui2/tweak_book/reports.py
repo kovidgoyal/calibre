@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -1439,7 +1440,7 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
+            for x, t in sorted(six.iteritems(timing), key=itemgetter(1)):
                 print(('Time for %6s data: %.3f seconds' % (x, t)))
         self.reports(data)
 

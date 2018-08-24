@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -85,7 +86,7 @@ class SyntaxHighlighter(object):
         return bool(self.requests)
 
     def apply_theme(self, theme):
-        self.theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
+        self.theme = {k:highlight_to_char_format(v) for k, v in six.iteritems(theme)}
         self.create_formats()
         self.rehighlight()
 

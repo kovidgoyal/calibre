@@ -70,7 +70,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
                             ext = ext[1:].upper().strip()
                             s.downloads[ext] = fix_url(href)
 
-            s.formats = ', '.join(s.downloads.keys())
+            s.formats = ', '.join(list(s.downloads.keys()))
             if not s.formats:
                 continue
 

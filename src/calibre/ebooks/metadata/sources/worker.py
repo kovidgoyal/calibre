@@ -18,6 +18,7 @@ from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.date import as_utc
 from calibre.utils.logging import GUILog
+import six
 
 
 def merge_result(oldmi, newmi, ensure_fields=None):
@@ -54,7 +55,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
     log = GUILog()
     patch_plugins()
 
-    for book_id, mi in metadata.iteritems():
+    for book_id, mi in six.iteritems(metadata):
         mi = OPF(BytesIO(mi), basedir=tdir,
                 populate_spine=False).to_book_metadata()
         title, authors, identifiers = mi.title, mi.authors, mi.identifiers

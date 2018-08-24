@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -67,12 +68,12 @@ class CoverCache(dict):
             self._pop(key)  # pop() so that item is moved to the top
             self.items[key] = val
             if len(self.items) > self.limit:
-                del self.items[next(self.items.iterkeys())]
+                del self.items[next(six.iterkeys(self.items))]
 
     def clear(self):
         with self.lock:
             if current_thread() is not self.gui_thread:
-                pixmaps = (x for x in self.items.itervalues() if type(x) is QPixmap)
+                pixmaps = (x for x in six.itervalues(self.items) if type(x) is QPixmap)
                 self.pixmap_staging.extend(pixmaps)
             self.items.clear()
 
@@ -84,7 +85,7 @@ class CoverCache(dict):
             self.limit = limit
             if len(self.items) > self.limit:
                 extra = len(self.items) - self.limit
-                remove = tuple(self.iterkeys())[:extra]
+                remove = tuple(six.iterkeys(self))[:extra]
                 for k in remove:
                     self._pop(k)
 

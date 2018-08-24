@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -162,7 +163,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     else:
         # Pretend to be kindlegen 1.2
         vals = {204:201, 205:1, 206:2, 207:33307}
-    for code, val in vals.iteritems():
+    for code, val in six.iteritems(vals):
         exth.write(pack(b'>III', code, 12, val))
         nrecs += 1
     if be_kindlegen2:

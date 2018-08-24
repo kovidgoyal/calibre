@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -200,7 +201,7 @@ class PluginLoader(object):
             else:
                 m = importlib.import_module(plugin_module)
             plugin_classes = []
-            for obj in m.__dict__.itervalues():
+            for obj in six.itervalues(m.__dict__):
                 if isinstance(obj, type) and issubclass(obj, Plugin) and \
                         obj.name != 'Trivial Plugin':
                     plugin_classes.append(obj)
@@ -279,7 +280,7 @@ class PluginLoader(object):
 
         # Legacy plugins
         if '__init__' not in names:
-            for name in list(names.iterkeys()):
+            for name in list(six.iterkeys(names)):
                 if '.' not in name and name.endswith('plugin'):
                     names['__init__'] = names[name]
                     break

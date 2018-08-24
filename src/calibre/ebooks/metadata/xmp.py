@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 from six.moves import zip
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -323,7 +324,7 @@ def metadata_from_xmp_packet(raw_bytes):
                     identifiers[scheme] = val
 
     # Check Dublin Core for recognizable identifier types
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in six.iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in identifiers:
             val = check_func(first_simple('//dc:identifier', root))
             if val:
@@ -407,7 +408,7 @@ def create_identifiers(xmp, identifiers):
     xmp.append(xmpid)
     bag = xmpid.makeelement(expand('rdf:Bag'))
     xmpid.append(bag)
-    for scheme, value in identifiers.iteritems():
+    for scheme, value in six.iteritems(identifiers):
         li = bag.makeelement(expand('rdf:li'))
         li.set(expand('rdf:parseType'), 'Resource')
         bag.append(li)
@@ -443,7 +444,7 @@ def create_user_metadata(calibre, all_user_metadata):
     calibre.append(s)
     bag = s.makeelement(expand('rdf:Bag'))
     s.append(bag)
-    for name, fm in all_user_metadata.iteritems():
+    for name, fm in six.iteritems(all_user_metadata):
         try:
             fm = copy.copy(fm)
             encode_is_multiple(fm)
@@ -473,12 +474,12 @@ def metadata_to_xmp_packet(mi):
     dc = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('dc'))
     dc.set(expand('rdf:about'), '')
     rdf.append(dc)
-    for prop, tag in {'title':'dc:title', 'comments':'dc:description'}.iteritems():
+    for prop, tag in six.iteritems({'title':'dc:title', 'comments':'dc:description'}):
         val = mi.get(prop) or ''
         create_alt_property(dc, tag, val)
-    for prop, (tag, ordered) in {
+    for prop, (tag, ordered) in six.iteritems({
         'authors':('dc:creator', True), 'tags':('dc:subject', False), 'publisher':('dc:publisher', False),
-    }.iteritems():
+    }):
         val = mi.get(prop) or ()
         if isinstance(val, basestring):
             val = [val]
@@ -502,9 +503,9 @@ def metadata_to_xmp_packet(mi):
     identifiers = mi.get_identifiers()
     if identifiers:
         create_identifiers(xmp, identifiers)
-        for scheme, val in identifiers.iteritems():
+        for scheme, val in six.iteritems(identifiers):
             if scheme in {'isbn', 'doi'}:
-                for prefix, parent in extra_ids.iteritems():
+                for prefix, parent in six.iteritems(extra_ids):
                     ie = parent.makeelement(expand('%s:%s'%(prefix, scheme)))
                     ie.text = val
                     parent.append(ie)
@@ -552,7 +553,7 @@ def find_used_namespaces(elem):
 
 def find_preferred_prefix(namespace, elems):
     for elem in elems:
-        ans = {v:k for k, v in elem.nsmap.iteritems()}.get(namespace, None)
+        ans = {v:k for k, v in six.iteritems(elem.nsmap)}.get(namespace, None)
         if ans is not None:
             return ans
         return find_preferred_prefix(namespace, elem.iterchildren(etree.Element))
@@ -564,7 +565,7 @@ def find_nsmap(elems):
         used_namespaces |= find_used_namespaces(elem)
     ans = {}
     used_namespaces -= {NS_MAP['xml'], NS_MAP['x'], None, NS_MAP['rdf']}
-    rmap = {v:k for k, v in NS_MAP.iteritems()}
+    rmap = {v:k for k, v in six.iteritems(NS_MAP)}
     i = 0
     for ns in used_namespaces:
         if ns in rmap:

@@ -120,7 +120,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         stores_check_widget.setLayout(store_list_layout)
 
         icon = QIcon(I('donate.png'))
-        for i, x in enumerate(sorted(self.gui.istores.keys(), key=lambda x: x.lower())):
+        for i, x in enumerate(sorted(list(self.gui.istores.keys()), key=lambda x: x.lower())):
             cbox = QCheckBox(x)
             cbox.setChecked(existing.get(x, first_run))
             store_list_layout.addWidget(cbox, i, 0, 1, 1)
@@ -206,7 +206,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
-        store_names = self.store_checks.keys()
+        store_names = list(self.store_checks.keys())
         if not store_names:
             return
         # Remove all of our internal filtering logic from the query.
@@ -391,7 +391,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.open_store(result)
 
     def download_book(self, result):
-        d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
+        d = ChooseFormatDialog(self, _('Choose format to download to your library.'), list(result.downloads.keys()))
         if d.exec_() == d.Accepted:
             ext = d.format()
             fname = result.title[:60] + '.' + ext.lower()

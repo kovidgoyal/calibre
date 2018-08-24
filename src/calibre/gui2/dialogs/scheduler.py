@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from six.moves import map
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -315,7 +316,7 @@ class SchedulerDialog(QDialog):
         g.addWidget(spw, 2, 0, 1, 2)
         self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
         vt.addWidget(la)
-        for b, c in self.SCHEDULE_TYPES.iteritems():
+        for b, c in six.iteritems(self.SCHEDULE_TYPES):
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
             b.setToolTip(textwrap.dedent(c.HELP))

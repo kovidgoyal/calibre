@@ -165,7 +165,7 @@ if __name__ == '__main__':
     clone = orig.clone_browser()
     pprint(orig._ua_handlers)
     pprint(clone._ua_handlers)
-    assert orig._ua_handlers.keys() == clone._ua_handlers.keys()
+    assert list(orig._ua_handlers.keys()) == list(clone._ua_handlers.keys())
     assert orig._ua_handlers['_cookies'].cookiejar is \
             clone._ua_handlers['_cookies'].cookiejar
     assert orig.addheaders == clone.addheaders

@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import zip
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -60,7 +61,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     correctly for each shortcut.
     '''
     seen, keys_map = {}, {}
-    for unique_name, shortcut in shortcuts.iteritems():
+    for unique_name, shortcut in six.iteritems(shortcuts):
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
             candidates = shortcut['default_keys']
@@ -142,15 +143,15 @@ class Manager(QObject):  # {{{
         done unregistering.
         '''
         self.shortcuts.pop(unique_name, None)
-        for group in self.groups.itervalues():
+        for group in six.itervalues(self.groups):
             try:
                 group.remove(unique_name)
             except ValueError:
                 pass
 
     def finalize(self):
-        custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
-            'map', {}).iteritems()}
+        custom_keys_map = {un:tuple(keys) for un, keys in six.iteritems(self.config.get(
+            'map', {}))}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
     def replace_action(self, unique_name, new_action):
@@ -198,16 +199,16 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         self.keyboard = keyboard
         groups = sorted(keyboard.groups, key=sort_key)
         shortcut_map = {k:v.copy() for k, v in
-                self.keyboard.shortcuts.iteritems()}
-        for un, s in shortcut_map.iteritems():
+                six.iteritems(self.keyboard.shortcuts)}
+        for un, s in six.iteritems(shortcut_map):
             s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
-            s['group'] = [g for g, names in self.keyboard.groups.iteritems() if un in
+            s['group'] = [g for g, names in six.iteritems(self.keyboard.groups) if un in
                     names][0]
 
         group_map = {group:sorted(names, key=lambda x:
                 sort_key(shortcut_map[x]['name'])) for group, names in
-                self.keyboard.groups.iteritems()}
+                six.iteritems(self.keyboard.groups)}
 
         self.data = [Node(group_map, shortcut_map, group) for group in groups]
 

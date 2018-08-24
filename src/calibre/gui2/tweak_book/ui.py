@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -107,7 +108,7 @@ class Central(QStackedWidget):  # {{{
     @property
     def tab_order(self):
         ans = []
-        rmap = {v:k for k, v in editors.iteritems()}
+        rmap = {v:k for k, v in six.iteritems(editors)}
         for i in xrange(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
@@ -166,7 +167,7 @@ class Central(QStackedWidget):  # {{{
     def save_state(self):
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
-        for ed in editors.itervalues():
+        for ed in six.itervalues(editors):
             ed.save_state()
         if self.current_editor is not None:
             self.current_editor.save_state()  # Ensure the current editor saves it state last

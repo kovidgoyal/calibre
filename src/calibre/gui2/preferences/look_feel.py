@@ -36,6 +36,7 @@ from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+import six
 
 
 class BusyCursor(object):
@@ -158,7 +159,7 @@ class IdLinksEditor(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
         items = []
-        for k, lx in msprefs['id_link_rules'].iteritems():
+        for k, lx in six.iteritems(msprefs['id_link_rules']):
             for n, t in lx:
                 items.append((k, n, t))
         items.sort(key=lambda x:sort_key(x[1]))

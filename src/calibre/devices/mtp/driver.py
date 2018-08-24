@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -276,7 +277,7 @@ class MTP_DEVICE(BASE):
             book.path = mtp_file.mtp_id_path
 
         # Remove books in the cache that no longer exist
-        for idx in sorted(relpath_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(relpath_cache), reverse=True):
             del bl[idx]
             need_sync = True
 
@@ -546,7 +547,7 @@ class MTP_DEVICE(BASE):
     def get_user_blacklisted_devices(self):
         bl = frozenset(self.prefs['blacklist'])
         ans = {}
-        for dev, x in self.prefs['history'].iteritems():
+        for dev, x in six.iteritems(self.prefs['history']):
             name = x[0]
             if dev in bl:
                 ans[dev] = name

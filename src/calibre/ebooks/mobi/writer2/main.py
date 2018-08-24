@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -425,10 +426,10 @@ class MobiWriter(object):
             extra_data_flags |= 0b10
         header_fields['extra_data_flags'] = extra_data_flags
 
-        for k, v in {'last_text_record':'last_text_record_idx',
+        for k, v in six.iteritems({'last_text_record':'last_text_record_idx',
                 'first_non_text_record':'first_non_text_record_idx',
                 'ncx_index':'primary_index_record_idx',
-                }.iteritems():
+                }):
             header_fields[k] = getattr(self, v)
         if header_fields['ncx_index'] is None:
             header_fields['ncx_index'] = NULL_INDEX

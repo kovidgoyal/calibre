@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
+import six
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
@@ -149,7 +150,7 @@ class JsonCodec(object):
     def encode_metadata_attr(self, book, key):
         if key == 'user_metadata':
             meta = book.get_all_user_metadata(make_copy=True)
-            for fm in meta.itervalues():
+            for fm in six.itervalues(meta):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = datetime_to_string(fm['#value#'])
                 encode_is_multiple(fm)
@@ -184,7 +185,7 @@ class JsonCodec(object):
     def raw_to_book(self, json_book, book_class, prefix):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
-            for key,val in json_book.iteritems():
+            for key,val in six.iteritems(json_book):
                 meta = self.decode_metadata(key, val)
                 if key == 'user_metadata':
                     book.set_all_user_metadata(meta)
@@ -201,7 +202,7 @@ class JsonCodec(object):
         if key == 'classifiers':
             key = 'identifiers'
         if key == 'user_metadata':
-            for fm in value.itervalues():
+            for fm in six.itervalues(value):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = string_to_datetime(fm['#value#'])
                 decode_is_multiple(fm)

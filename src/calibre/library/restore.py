@@ -18,6 +18,7 @@ from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
 from six.moves import filter
 from six.moves import zip
+import six
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -198,7 +199,7 @@ class Restore(Thread):
             self.mismatched_dirs.append(dirpath)
 
         alm = mi.get('author_link_map', {})
-        for author, link in alm.iteritems():
+        for author, link in six.iteritems(alm):
             existing_link, timestamp = self.authors_links.get(author, (None, None))
             if existing_link is None or existing_link != link and timestamp < mi.timestamp:
                 self.authors_links[author] = (link, mi.timestamp)
@@ -249,7 +250,7 @@ class Restore(Thread):
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
-        for author in self.authors_links.iterkeys():
+        for author in six.iterkeys(self.authors_links):
             link, ign = self.authors_links[author]
             db.conn.execute('UPDATE authors SET link=? WHERE name=?',
                             (link, author.replace(',', '|')))

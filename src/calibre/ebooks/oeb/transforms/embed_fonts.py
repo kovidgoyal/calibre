@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -137,7 +138,7 @@ class EmbedFonts(object):
                 if rule.type != rule.STYLE_RULE:
                     continue
                 props = {k:v for k,v in
-                        get_font_properties(rule).iteritems() if v}
+                        six.iteritems(get_font_properties(rule)) if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:

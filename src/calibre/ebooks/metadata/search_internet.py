@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from urllib import quote_plus
+import six
 
 AUTHOR_SEARCHES = {
     'goodreads':
@@ -54,7 +55,7 @@ def qquote(val):
 
 
 def url_for(template, data):
-    return template.format(**{k: qquote(v) for k, v in data.iteritems()})
+    return template.format(**{k: qquote(v) for k, v in six.iteritems(data)})
 
 
 def url_for_author_search(key, **kw):

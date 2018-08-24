@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -91,7 +92,7 @@ class GoogleImages(Source):
                 continue
             if 'ou' in data:
                 ans[data['ou']] = True
-        return list(ans.iterkeys())
+        return list(six.iterkeys(ans))
 
 
 def test():

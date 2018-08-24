@@ -1486,7 +1486,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     z = ZipFile(zipstream, 'r')
     replacements = {name:datastream}
     replacements.update(extra_replacements)
-    names = frozenset(replacements.keys())
+    names = frozenset(list(replacements.keys()))
     found = set([])
 
     def rbytes(name):

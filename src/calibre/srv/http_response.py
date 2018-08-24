@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -413,7 +414,7 @@ class HTTPConnection(HTTPRequest):
         if self.close_after_response and self.response_protocol is HTTP11:
             buf.append("Connection: close")
         if extra_headers is not None:
-            for h, v in extra_headers.iteritems():
+            for h, v in six.iteritems(extra_headers):
                 buf.append('%s: %s' % (h, v))
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
@@ -504,9 +505,9 @@ class HTTPConnection(HTTPRequest):
             outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
         buf = [HTTP11 + (' %d ' % data.status_code) + six.moves.http_client.responses[data.status_code]]
-        for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
+        for header, value in sorted(six.iteritems(outheaders), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
-        for morsel in data.outcookie.itervalues():
+        for morsel in six.itervalues(data.outcookie):
             morsel['version'] = '1'
             x = morsel.output()
             if isinstance(x, bytes):

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -42,7 +43,7 @@ def build_book(src, dest, args=()):
 
 
 def add_resources(raw, rmap):
-    for placeholder, path in rmap.iteritems():
+    for placeholder, path in six.iteritems(rmap):
         fname = os.path.basename(path)
         shutil.copy2(path, '.')
         raw = raw.replace(placeholder, fname)

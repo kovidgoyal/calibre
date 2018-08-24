@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -60,7 +61,7 @@ attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'
 
 def parse_meta_tags(src):
     rmap = {}
-    for field, names in META_NAMES.iteritems():
+    for field, names in six.iteritems(META_NAMES):
         for name in names:
             rmap[name.lower()] = field
     all_names = '|'.join(rmap)
@@ -89,8 +90,8 @@ def parse_meta_tags(src):
 
 
 def parse_comment_tags(src):
-    all_names = '|'.join(COMMENT_NAMES.itervalues())
-    rmap = {v:k for k, v in COMMENT_NAMES.iteritems()}
+    all_names = '|'.join(six.itervalues(COMMENT_NAMES))
+    rmap = {v:k for k, v in six.iteritems(COMMENT_NAMES)}
     ans = {}
     for match in re.finditer(r'''<!--\s*(?P<name>%s)\s*=\s*%s''' % (all_names, attr_pat), src):
         field = rmap[match.group('name')]

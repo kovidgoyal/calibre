@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
@@ -152,9 +153,9 @@ def get_metadata(stream, cover=True):
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in six.iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in mi.get_identifiers():
-            for k, v in info.iteritems():
+            for k, v in six.iteritems(info):
                 if k != 'xmp_metadata':
                     val = check_func(v)
                     if val:

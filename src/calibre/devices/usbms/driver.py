@@ -21,6 +21,7 @@ from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from six.moves import zip
+import six
 
 BASE_TIME = None
 
@@ -281,7 +282,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 need_sync = True
                 del bl[idx]

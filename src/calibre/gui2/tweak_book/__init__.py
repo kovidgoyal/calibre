@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -118,7 +119,7 @@ dictionaries = Dictionaries()
 
 
 def editor_name(editor):
-    for n, ed in editors.iteritems():
+    for n, ed in six.iteritems(editors):
         if ed is editor:
             return n
 

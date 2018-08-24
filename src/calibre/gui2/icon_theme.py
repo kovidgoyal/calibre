@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -189,7 +190,7 @@ def create_cover(report, icons=(), cols=5, size=120, padding=16):
 def verify_theme(report):
     must_use_qt()
     report.bad = bad = {}
-    for name, path in report.name_map.iteritems():
+    for name, path in six.iteritems(report.name_map):
         reader = QImageReader(os.path.join(report.path, path))
         img = reader.read()
         if img.isNull():
@@ -362,7 +363,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple([_f for _f in pool.map(optimize, tuple(report.name_map.iterkeys())) if _f])
+    errors = tuple([_f for _f in pool.map(optimize, tuple(six.iterkeys(report.name_map))) if _f])
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return

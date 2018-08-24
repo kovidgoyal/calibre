@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -48,12 +49,12 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
+        for k, v in six.iteritems(parse_qs(qs, keep_blank_values=True)):
             dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in ld.iteritems():
+        for key, values in six.iteritems(ld):
             for val in values:
                 self[key] = val
 
@@ -99,12 +100,12 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in six.iteritems(self)) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
         return leading_whitespace + ('\n' + leading_whitespace).join(
-            '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(self.items(), key=itemgetter(0)))
+            '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(list(self.items()), key=itemgetter(0)))
 # }}}
 
 

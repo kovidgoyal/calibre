@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -176,7 +177,7 @@ class IgnoredDevices(QWidget):  # {{{
         l.addWidget(f)
 
         devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in
-                devs.iteritems()]
+                six.iteritems(devs)]
         for dev, x in sorted(devs, key=lambda x:x[1][1], reverse=True):
             name = x[0]
             name = '%s [%s]'%(name, dev)

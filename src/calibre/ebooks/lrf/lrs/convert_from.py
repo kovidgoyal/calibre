@@ -162,7 +162,7 @@ class LrsParser(object):
                    'textstyle'  : 'textStyle',
                    }
         for id, tag in self.objects.items():
-            if tag.name in map.keys():
+            if tag.name in list(map.keys()):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid', 'objlabel'])
                 for a in ('pagestyle', 'blockstyle', 'textstyle'):
                     label = tag.get(a, False)
@@ -192,7 +192,7 @@ class LrsParser(object):
                }
         self._style_labels = {}
         for id, tag in self.objects.items():
-            if tag.name in map.keys():
+            if tag.name in list(map.keys()):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):

@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import filter
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -73,7 +74,7 @@ def read_available_plugins(raise_error=False):
             raise
         traceback.print_exc()
         return
-    for plugin in raw.itervalues():
+    for plugin in six.itervalues(raw):
         try:
             display_plugin = DisplayPlugin(plugin)
             get_installed_plugin_status(display_plugin)

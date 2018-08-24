@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -60,7 +61,7 @@ class Tests(unittest.TestCase):
             if after is not None:
                 ta['after'] = after
             if params:
-                ta['params'] = {unicode(k):(v,) if isinstance(v, unicode) else v for k, v in params.iteritems()}
+                ta['params'] = {unicode(k):(v,) if isinstance(v, unicode) else v for k, v in six.iteritems(params)}
             if ta:
                 step['text_assertion'] = ta
             return ans

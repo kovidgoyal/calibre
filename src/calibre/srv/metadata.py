@@ -24,6 +24,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
 from six.moves import filter
+import six
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
 
@@ -183,11 +184,11 @@ def icon_map():
             from calibre.gui2 import gprefs
             _icon_map = category_icon_map.copy()
             custom_icons = gprefs.get('tags_browser_category_icons', {})
-            for k, v in custom_icons.iteritems():
+            for k, v in six.iteritems(custom_icons):
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + quote(v)
             _icon_map['file_type_icons'] = {
-                k:'mimetypes/%s.png' % v for k, v in EXT_MAP.iteritems()
+                k:'mimetypes/%s.png' % v for k, v in six.iteritems(EXT_MAP)
             }
         return _icon_map
 
@@ -512,7 +513,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
                 count += 1
         item['avg_rating'] = float(total)/count if count else 0
 
-    for item_id, item in tag_map.itervalues():
+    for item_id, item in six.itervalues(tag_map):
         id_len = len(item.pop('id_set', ()))
         if id_len:
             item['count'] = id_len

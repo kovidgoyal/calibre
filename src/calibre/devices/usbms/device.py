@@ -3,6 +3,7 @@
 from __future__ import print_function
 from six.moves import map
 from six.moves import zip
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -405,7 +406,7 @@ class Device(DeviceConfig, DevicePlugin):
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = usbobserver.get_mounted_filesystems()
-        drives = {k: mount_map.get(v) for k, v in drives.iteritems()}
+        drives = {k: mount_map.get(v) for k, v in six.iteritems(drives)}
         if DEBUG:
             print()
             from pprint import pprint

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -246,7 +247,7 @@ class CompletionPopup(ChoosePopupWidget):
 
     def set_items(self, items, descriptions=None, query=None):
         self.current_query = query
-        ChoosePopupWidget.set_items(self, tuple(items.iteritems()), descriptions=descriptions)
+        ChoosePopupWidget.set_items(self, tuple(six.iteritems(items)), descriptions=descriptions)
 
     def choose_next_result(self, previous=False):
         ChoosePopupWidget.choose_next_result(self, previous=previous)

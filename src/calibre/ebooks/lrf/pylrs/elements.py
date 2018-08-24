@@ -36,7 +36,7 @@ class ElementWriter(object):
     def _write(self, f, e):
         f.write(u'<' + unicode(e.tag))
 
-        attributes = e.items()
+        attributes = list(e.items())
         attributes.sort()
         for name, value in attributes:
             self._writeAttribute(f, name, value)

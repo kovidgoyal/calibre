@@ -1,6 +1,7 @@
 from __future__ import with_statement
 from six.moves import filter
 from six.moves import getcwd
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -147,7 +148,7 @@ class RTFInput(InputFormatPlugin):
 
     def convert_images(self, imap):
         self.default_img = None
-        for count, val in imap.iteritems():
+        for count, val in six.iteritems(imap):
             try:
                 imap[count] = self.convert_image(val)
             except:
@@ -212,7 +213,7 @@ class RTFInput(InputFormatPlugin):
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
 
-        for cls, val in border_styles.iteritems():
+        for cls, val in six.iteritems(border_styles):
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
         with open(u'styles.css', 'ab') as f:

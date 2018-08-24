@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -102,7 +103,7 @@ def best_locale_for_language(langcode):
 
 
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].iteritems()}.get(locale, None)
+    return {parse_lang_code(k):v for k, v in six.iteritems(dprefs['preferred_dictionaries'])}.get(locale, None)
 
 
 def remove_dictionary(dictionary):
@@ -110,7 +111,7 @@ def remove_dictionary(dictionary):
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
-    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
+    dprefs['preferred_dictionaries'] = {k:v for k, v in six.iteritems(dprefs['preferred_dictionaries']) if v != dictionary.id}
 
 
 def rename_dictionary(dictionary, name):
@@ -255,13 +256,13 @@ class Dictionaries(object):
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
     def add_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in six.itervalues(self.dictionaries):
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in six.itervalues(self.dictionaries):
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
@@ -313,7 +314,7 @@ class Dictionaries(object):
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-            for langcode, words in removals.iteritems():
+            for langcode, words in six.iteritems(removals):
                 self.remove_user_words(words, langcode)
             self.save_user_dictionaries()
         return changed

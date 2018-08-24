@@ -56,6 +56,7 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
 from six.moves import map
+import six
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
@@ -306,7 +307,7 @@ class Container(ContainerBase):  # {{{
             'tweak_mode': self.tweak_mode,
             'name_path_map': {
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
-                for name, path in self.name_path_map.iteritems()}
+                for name, path in six.iteritems(self.name_path_map)}
         }
 
     def add_name_to_manifest(self, name, process_manifest_item=None):
@@ -653,7 +654,7 @@ class Container(ContainerBase):  # {{{
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             ans[item.get('media-type').lower()].append(self.href_to_name(
                 item.get('href'), self.opf_name))
-        return {mt:tuple(v) for mt, v in ans.iteritems()}
+        return {mt:tuple(v) for mt, v in six.iteritems(ans)}
 
     def manifest_items_with_property(self, property_name):
         ' All manifest items that have the specified property '
@@ -671,7 +672,7 @@ class Container(ContainerBase):  # {{{
             predicate = predicate.__eq__
         elif hasattr(predicate, '__contains__'):
             predicate = predicate.__contains__
-        for mt, names in self.manifest_type_map.iteritems():
+        for mt, names in six.iteritems(self.manifest_type_map):
             if predicate(mt):
                 for name in names:
                     yield name
@@ -793,7 +794,7 @@ class Container(ContainerBase):  # {{{
         the form (name, linear). Will raise an error if one of the names is not
         present in the manifest. '''
         imap = self.manifest_id_map
-        imap = {name:item_id for item_id, name in imap.iteritems()}
+        imap = {name:item_id for item_id, name in six.iteritems(imap)}
         items = [item for item, name, linear in self.spine_iter]
         tail, last_tail = (items[0].tail, items[-1].tail) if items else ('\n    ', '\n  ')
         list(map(self.remove_from_xml, items))
@@ -1057,7 +1058,7 @@ class Container(ContainerBase):  # {{{
         if set(self.name_path_map) != set(other.name_path_map):
             return 'Set of files is not the same'
         mismatches = []
-        for name, path in self.name_path_map.iteritems():
+        for name, path in six.iteritems(self.name_path_map):
             opath = other.name_path_map[name]
             with open(path, 'rb') as f1, open(opath, 'rb') as f2:
                 if f1.read() != f2.read():
@@ -1261,7 +1262,7 @@ class EpubContainer(Container):
             return
 
         package_id = raw_unique_identifier = idpf_key = None
-        for attrib, val in self.opf.attrib.iteritems():
+        for attrib, val in six.iteritems(self.opf.attrib):
             if attrib.endswith('unique-identifier'):
                 package_id = val
                 break
@@ -1290,7 +1291,7 @@ class EpubContainer(Container):
                     self.log.exception('Failed to parse obfuscation key')
                     key = None
 
-        for font, alg in fonts.iteritems():
+        for font, alg in six.iteritems(fonts):
             tkey = key if alg == ADOBE_OBFUSCATION else idpf_key
             if not tkey:
                 raise ObfuscationKeyMissing('Failed to find obfuscation key')
@@ -1357,7 +1358,7 @@ class EpubContainer(Container):
             with open(join(self.root, 'mimetype'), 'wb') as f:
                 f.write(guess_type('a.epub'))
             zip_rebuilder(self.root, outpath)
-            for name, data in restore_fonts.iteritems():
+            for name, data in six.iteritems(restore_fonts):
                 with self.open(name, 'wb') as f:
                     f.write(data)
 

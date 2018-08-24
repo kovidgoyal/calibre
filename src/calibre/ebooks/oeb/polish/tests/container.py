@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -38,7 +39,7 @@ class ContainerTests(BaseTest):
             c2 = clone_container(c1, tdir)
 
             for c in (c1, c2):
-                for name, path in c.name_path_map.iteritems():
+                for name, path in six.iteritems(c.name_path_map):
                     self.assertEqual(2, nlinks_file(path), 'The file %s is not linked' % name)
 
             for name in c1.name_path_map:
@@ -178,13 +179,13 @@ class ContainerTests(BaseTest):
         name = 'folder/added file.html'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertIn(name, set(six.itervalues(c.manifest_id_map)))
         self.assertIn(name, {x[0] for x in c.spine_names})
 
         name = 'added.css'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertIn(name, set(six.itervalues(c.manifest_id_map)))
         self.assertNotIn(name, {x[0] for x in c.spine_names})
         self.assertEqual(c.make_name_unique(name), 'added-1.css')
         c.add_file('added-1.css', b'xxx')

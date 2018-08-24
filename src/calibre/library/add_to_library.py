@@ -69,7 +69,7 @@ class FormatCollection(object):  # {{{
 
     @property
     def hashes(self):
-        return frozenset(self.formats.values())
+        return frozenset(list(self.formats.values()))
 
     @property
     def is_empty(self):

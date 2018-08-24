@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -119,7 +120,7 @@ def load_plugin_tools(plugin):
         import traceback
         traceback.print_exc()
     else:
-        for x in vars(main).itervalues():
+        for x in six.itervalues(vars(main)):
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
                 ans = x()
                 ans.plugin = plugin

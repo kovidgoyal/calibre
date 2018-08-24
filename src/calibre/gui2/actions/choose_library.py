@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -39,7 +40,7 @@ class LibraryUsageStats(object):  # {{{
                 # Rename the current library. Renaming of other libraries is
                 # handled by the switch function
                 q = os.path.basename(lp)
-                for loc in list(self.stats.iterkeys()):
+                for loc in list(six.iterkeys(self.stats)):
                     bn = posixpath.basename(loc)
                     if bn.lower() == q.lower():
                         self.rename(loc, lp)

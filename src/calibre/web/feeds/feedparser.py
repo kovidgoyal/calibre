@@ -1032,7 +1032,7 @@ class _FeedParserMixin:
             return
 
         # all entities must have been defined as valid HTML entities
-        if [e for e in re.findall(r'&(\w+);', s) if e not in entitydefs.keys()]:
+        if [e for e in re.findall(r'&(\w+);', s) if e not in list(entitydefs.keys())]:
             return
 
         return 1
@@ -1560,7 +1560,7 @@ class _FeedParserMixin:
 
     def _start_title(self, attrsD):
         if self.svgOK:
-            return self.unknown_starttag('title', attrsD.items())
+            return self.unknown_starttag('title', list(attrsD.items()))
         self.pushContent('title', attrsD, u'text/plain', self.infeed or self.inentry or self.insource)
     _start_dc_title = _start_title
     _start_media_title = _start_title
@@ -1823,7 +1823,7 @@ if _XML_AVAILABLE:
                 attrsD[str(attrlocalname).lower()] = attrvalue
             for qname in attrs.getQNames():
                 attrsD[str(qname).lower()] = attrs.getValueByQName(qname)
-            self.unknown_starttag(localname, attrsD.items())
+            self.unknown_starttag(localname, list(attrsD.items()))
 
         def characters(self, text):
             self.handle_data(text)
@@ -1922,7 +1922,7 @@ class _BaseHTMLProcessor(sgmllib.SGMLParser):
         if not attrs:
             return attrs
         # utility method to be called by descendants
-        attrs = dict([(k.lower(), v) for k, v in attrs]).items()
+        attrs = list(dict([(k.lower(), v) for k, v in attrs]).items())
         attrs = [(k, k in ('rel', 'type') and v.lower() or v) for k, v in attrs]
         attrs.sort()
         return attrs
@@ -3888,7 +3888,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
 
     # lowercase all of the HTTP headers for comparisons per RFC 2616
     if 'headers' in result:
-        http_headers = dict((k.lower(), v) for k, v in result['headers'].items())
+        http_headers = dict((k.lower(), v) for k, v in list(result['headers'].items()))
     else:
         http_headers = {}
 

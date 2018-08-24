@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -194,7 +195,7 @@ class PreserveViewState(object):  # {{{
                 'vscroll', 'hscroll')}
 
         def fset(self, state):
-            for k, v in state.iteritems():
+            for k, v in six.iteritems(state):
                 setattr(self, k, v)
             self.__exit__()
         return property(fget=fget, fset=fset)
@@ -451,7 +452,7 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            hcols = [(hcol, unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in hidden_cols.iteritems()]
+            hcols = [(hcol, unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in six.iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
@@ -557,7 +558,7 @@ class BooksView(QTableView):  # {{{
                 return
 
         for n,d in reversed(fields):
-            if n in self._model.db.field_metadata.keys():
+            if n in list(self._model.db.field_metadata.keys()):
                 sh.insert(0, (n, d))
         sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]

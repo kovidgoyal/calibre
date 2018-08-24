@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -46,12 +47,12 @@ class ContentTest(LibraryBaseTest):
             self.ae(request('/%s?id_is_uuid=true' % db.field_for('uuid', 1))[1], onedata)
 
             r, data = request('s')
-            self.ae(set(data.iterkeys()), set(map(str, db.all_book_ids())))
+            self.ae(set(six.iterkeys(data)), set(map(str, db.all_book_ids())))
             r, zdata = request('s', headers={'Accept-Encoding':'gzip'})
             self.ae(r.getheader('Content-Encoding'), 'gzip')
             self.ae(json.loads(zlib.decompress(zdata, 16+zlib.MAX_WBITS)), data)
             r, data = request('s?ids=1,2')
-            self.ae(set(data.iterkeys()), {'1', '2'})
+            self.ae(set(six.iterkeys(data)), {'1', '2'})
 
     # }}}
 

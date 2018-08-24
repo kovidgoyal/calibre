@@ -333,7 +333,7 @@ class Tester(SearchQueryParser):
 
     def get_matches(self, location, query, candidates=None):
         location = location.lower()
-        if location in self.fields.keys():
+        if location in list(self.fields.keys()):
             getter = operator.itemgetter(self.fields[location])
         elif location == 'all':
             getter = lambda y: ''.join(x if x else '' for x in y)
@@ -344,11 +344,11 @@ class Tester(SearchQueryParser):
             return set([])
         query = query.lower()
         if candidates:
-            return set(key for key, val in self.texts.items()
+            return set(key for key, val in list(self.texts.items())
                 if key in candidates and query and query
                         in getattr(getter(val), 'lower', lambda : '')())
         else:
-            return set(key for key, val in self.texts.items()
+            return set(key for key, val in list(self.texts.items())
                 if query and query in getattr(getter(val), 'lower', lambda : '')())
 
     def run_tests(self, ae):

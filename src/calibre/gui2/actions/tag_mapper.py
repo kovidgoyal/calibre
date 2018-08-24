@@ -8,6 +8,7 @@ from six.moves import map
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
+import six
 
 
 class TagMapAction(InterfaceAction):
@@ -51,7 +52,7 @@ class TagMapAction(InterfaceAction):
             db = self.gui.current_db.new_api
             tag_map = db.all_field_for('tags', book_ids)
             changed_tag_map = {}
-            for book_id, tags in tag_map.iteritems():
+            for book_id, tags in six.iteritems(tag_map):
                 tags = list(tags)
                 new_tags = map_tags(tags, rules)
                 if tags != new_tags:

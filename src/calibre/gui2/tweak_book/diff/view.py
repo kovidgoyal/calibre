@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -652,12 +653,12 @@ class DiffSplit(QSplitter):  # {{{
                     return x if x <= top else x + delta
                 lnm = LineNumberMap()
                 lnm.max_width = v.line_number_map.max_width
-                for x, val in v.line_number_map.iteritems():
+                for x, val in six.iteritems(v.line_number_map):
                     dict.__setitem__(lnm, mapnum(x), val)
                 v.line_number_map = lnm
                 v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
-                v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
+                v.images = OrderedDict((mapnum(x), v) for x, v in six.iteritems(v.images))
             v.viewport().update()
 
     def get_lines_for_image(self, img, view):

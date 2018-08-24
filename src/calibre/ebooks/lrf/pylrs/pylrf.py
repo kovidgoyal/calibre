@@ -10,6 +10,7 @@ import codecs
 import os
 
 from pylrfopt import tagListOptimizer
+import six
 
 PYLRF_VERSION = "1.0"
 
@@ -526,7 +527,7 @@ class LrfObject(object):
         # belongs somewhere, so here it is.
         #
         composites = {}
-        for name, value in tagDict.iteritems():
+        for name, value in six.iteritems(tagDict):
             if name == 'rubyAlignAndAdjust':
                 continue
             if name in {

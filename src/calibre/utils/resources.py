@@ -3,6 +3,7 @@
 from __future__ import with_statement
 
 from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -150,7 +151,7 @@ def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
 
     lang = lang_name(lang)
 
-    js = '\n\n'.join(hp_cache.itervalues())
+    js = '\n\n'.join(six.itervalues(hp_cache))
     return js, lang
 
 

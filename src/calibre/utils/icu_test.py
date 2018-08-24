@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -66,7 +67,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in six.iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -100,7 +101,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in six.iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))

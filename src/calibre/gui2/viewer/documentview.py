@@ -33,6 +33,7 @@ from calibre.gui2.viewer.footnote import Footnotes
 from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
+import six
 # }}}
 
 
@@ -259,7 +260,7 @@ class Document(QWebPage):  # {{{
         if not isinstance(self.anchor_positions, dict):
             # Some weird javascript error happened
             self.anchor_positions = {}
-        return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
+        return {k:tuple(v) for k, v in six.iteritems(self.anchor_positions)}
 
     def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:

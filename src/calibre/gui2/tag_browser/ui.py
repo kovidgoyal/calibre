@@ -158,7 +158,7 @@ class TagBrowserMixin(object):  # {{{
             category_name = category_name[1:]
         db = self.library_view.model().db
         user_cats = db.prefs.get('user_categories', {})
-        cat_keys = sorted(user_cats.keys(), key=sort_key)
+        cat_keys = sorted(list(user_cats.keys()), key=sort_key)
         has_children = False
         found = False
         for k in cat_keys:

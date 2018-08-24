@@ -110,7 +110,7 @@ def _get_cover(soup, rdr):
             except:
                 # Probably invalid width, height aattributes, ignore
                 continue
-        l = r.keys()
+        l = list(r.keys())
         l.sort()
         if l:
             ans = r[l[0]]

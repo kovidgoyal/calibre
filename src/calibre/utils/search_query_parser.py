@@ -81,7 +81,7 @@ class SavedSearchQueries(object):
         self.save_queries()
 
     def names(self):
-        return sorted(self.queries.keys(),key=sort_key)
+        return sorted(list(self.queries.keys()),key=sort_key)
 
 
 '''

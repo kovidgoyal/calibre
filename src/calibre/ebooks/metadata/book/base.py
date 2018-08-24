@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import sort_key
 from six.moves import map
+import six
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -137,7 +138,7 @@ class Metadata(object):
             return object.__getattribute__(self, field)
         except AttributeError:
             pass
-        if field in _data['user_metadata'].iterkeys():
+        if field in six.iterkeys(_data['user_metadata']):
             d = _data['user_metadata'][field]
             val = d['#value#']
             if d['datatype'] != 'composite':
@@ -180,7 +181,7 @@ class Metadata(object):
             if val and val.lower() != 'und':
                 langs = [val]
             _data['languages'] = langs
-        elif field in _data['user_metadata'].iterkeys():
+        elif field in six.iterkeys(_data['user_metadata']):
             _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
         else:
@@ -190,7 +191,7 @@ class Metadata(object):
             self.__dict__[field] = val
 
     def __iter__(self):
-        return object.__getattribute__(self, '_data').iterkeys()
+        return six.iterkeys(object.__getattribute__(self, '_data'))
 
     def has_key(self, key):
         return key in object.__getattribute__(self, '_data')
@@ -219,7 +220,7 @@ class Metadata(object):
 
     def get_extra(self, field, default=None):
         _data = object.__getattribute__(self, '_data')
-        if field in _data['user_metadata'].iterkeys():
+        if field in six.iterkeys(_data['user_metadata']):
             try:
                 return _data['user_metadata'][field]['#extra#']
             except:
@@ -255,7 +256,7 @@ class Metadata(object):
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
         '''
-        cleaned = {ck(k):cv(v) for k, v in identifiers.iteritems() if k and v}
+        cleaned = {ck(k):cv(v) for k, v in six.iteritems(identifiers) if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
     def set_identifier(self, typ, val):
@@ -287,14 +288,14 @@ class Metadata(object):
         '''
         return a list of the custom fields in this book
         '''
-        return object.__getattribute__(self, '_data')['user_metadata'].iterkeys()
+        return six.iterkeys(object.__getattribute__(self, '_data')['user_metadata'])
 
     def all_field_keys(self):
         '''
         All field keys known by this instance, even if their value is None
         '''
         _data = object.__getattribute__(self, '_data')
-        return frozenset(ALL_METADATA_FIELDS.union(_data['user_metadata'].iterkeys()))
+        return frozenset(ALL_METADATA_FIELDS.union(six.iterkeys(_data['user_metadata'])))
 
     def metadata_for_field(self, key):
         '''
@@ -320,7 +321,7 @@ class Metadata(object):
             v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
-        for attr in _data['user_metadata'].iterkeys():
+        for attr in six.iterkeys(_data['user_metadata']):
             v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
@@ -396,7 +397,7 @@ class Metadata(object):
             return
 
         um = {}
-        for key, meta in metadata.iteritems():
+        for key, meta in six.iteritems(metadata):
             m = meta.copy()
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:
@@ -576,7 +577,7 @@ class Metadata(object):
             if callable(getattr(other, 'get_identifiers', None)):
                 d = self.get_identifiers()
                 s = other.get_identifiers()
-                d.update([v for v in s.iteritems() if v[1] is not None])
+                d.update([v for v in six.iteritems(s) if v[1] is not None])
                 self.set_identifiers(d)
             else:
                 # other structure not Metadata. Copy the top-level identifiers
@@ -749,7 +750,7 @@ class Metadata(object):
             fmt('Rights', unicode(self.rights))
         if self.identifiers:
             fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
-                self.identifiers.iteritems()]))
+                six.iteritems(self.identifiers)]))
         if self.comments:
             fmt('Comments', self.comments)
 

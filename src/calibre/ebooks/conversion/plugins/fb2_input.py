@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from six.moves import getcwd
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
@@ -104,7 +105,7 @@ class FB2Input(InputFormatPlugin):
         notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
         cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
         all_ids = {x for x in result.xpath('//*/@id')}
-        for cite, a in cites.iteritems():
+        for cite, a in six.iteritems(cites):
             note = notes.get(cite, None)
             if note:
                 c = 1

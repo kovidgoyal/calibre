@@ -63,7 +63,7 @@ class PMLOutput(OutputFormatPlugin):
 
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
         for item in manifest:
-            if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
+            if item.media_type in OEB_RASTER_IMAGES and item.href in list(image_hrefs.keys()):
                 if opts.full_image_depth:
                     im = Image.open(StringIO(item.data))
                 else:

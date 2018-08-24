@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -29,7 +30,7 @@ class TestHTTP(BaseTest):
             p = HTTPHeaderParser()
             p.push(*lines)
             self.assertTrue(p.finished)
-            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in kwargs.iteritems()}, name + ' failed')
+            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in six.iteritems(kwargs)}, name + ' failed')
 
         test('Continuation line parsing',
              'a: one',

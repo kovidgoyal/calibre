@@ -42,7 +42,7 @@ class StoreAction(InterfaceAction):
         self.store_list_menu.clear()
         icon = QIcon()
         icon.addFile(I('donate.png'), QSize(16, 16))
-        for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
+        for n, p in sorted(list(self.gui.istores.items()), key=lambda x: x[0].lower()):
             if p.base_plugin.affiliate:
                 self.store_list_menu.addAction(icon, n,
                                                partial(self.open_store, n))

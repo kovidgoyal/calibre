@@ -1,5 +1,6 @@
 from __future__ import print_function
 from six.moves import filter
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -71,7 +72,7 @@ class PreserveMIMEDefaults(object):
                 self.initial_values[x] = None
 
     def __exit__(self, *args):
-        for path, val in self.initial_values.iteritems():
+        for path, val in six.iteritems(self.initial_values):
             if val is None:
                 try:
                     os.remove(path)
@@ -417,13 +418,13 @@ _ebook_edit() {
         f.write('\n_calibredb_cmds() {\n  local commands; commands=(\n')
         f.write('    {-h,--help}":Show help"\n')
         f.write('    "--version:Show version"\n')
-        for command, desc in descs.iteritems():
+        for command, desc in six.iteritems(descs):
             f.write('    "%s:%s"\n'%(
                 command, desc.replace(':', '\\:').replace('"', '\'')))
         f.write('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
-        for command, parser in parsers.iteritems():
+        for command, parser in six.iteritems(parsers):
             exts = []
             if command == 'catalog':
                 exts = [x.lower() for x in available_catalog_formats()]
@@ -478,7 +479,7 @@ _ebook_edit() {
                 self.do_calibredb(f)
                 self.do_ebook_edit(f)
                 f.write('case $service in\n')
-                for c, txt in self.commands.iteritems():
+                for c, txt in six.iteritems(self.commands):
                     if isinstance(txt, type(u'')):
                         txt = txt.encode('utf-8')
                     if isinstance(c, type(u'')):
@@ -1100,7 +1101,7 @@ def write_appdata(key, entry, base, translators):
     description = E.description()
     for para in entry['description']:
         description.append(E.p(para))
-        for lang, t in translators.iteritems():
+        for lang, t in six.iteritems(translators):
             tp = t.ugettext(para)
             if tp != para:
                 description.append(E.p(tp))
@@ -1117,7 +1118,7 @@ def write_appdata(key, entry, base, translators):
         screenshots,
         type='desktop'
     )
-    for lang, t in translators.iteritems():
+    for lang, t in six.iteritems(translators):
         tp = t.ugettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))

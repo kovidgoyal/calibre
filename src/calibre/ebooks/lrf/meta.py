@@ -728,7 +728,7 @@ def main(args=sys.argv):
             f.write(t)
             f.close()
 
-    fields = LRFMetaFile.__dict__.items()
+    fields = list(LRFMetaFile.__dict__.items())
     fields.sort()
     for f in fields:
         if "XML" in str(f):

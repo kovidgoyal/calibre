@@ -95,4 +95,4 @@ commands = {}
 for x in __all__:
     commands[x] = locals()[x]
 
-command_names = dict(zip(commands.values(), commands.keys()))
+command_names = dict(zip(list(commands.values()), list(commands.keys())))

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -435,7 +436,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in fmap.iteritems():
+        for fmt, path in six.iteritems(fmap):
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':

@@ -872,7 +872,7 @@ class DNSCache(object):
         def add(x, y):
             return x+y
         try:
-            return reduce(add, self.cache.values())
+            return reduce(add, list(self.cache.values()))
         except:
             return []
 
@@ -928,7 +928,7 @@ class Engine(threading.Thread):
 
     def getReaders(self):
         self.condition.acquire()
-        result = self.readers.keys()
+        result = list(self.readers.keys())
         self.condition.release()
         return result
 

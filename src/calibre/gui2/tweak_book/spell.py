@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import filter
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -706,7 +707,7 @@ class WordsModel(QAbstractTableModel):
         self.endResetModel()
 
     def update_counts(self, emit_signal=True):
-        self.counts = (len([None for w, recognized in self.spell_map.iteritems() if not recognized]), len(self.words))
+        self.counts = (len([None for w, recognized in six.iteritems(self.spell_map) if not recognized]), len(self.words))
         if emit_signal:
             self.counts_changed.emit()
 
@@ -1341,7 +1342,7 @@ def find_next(word, locations, current_editor, current_editor_name,
 
     if current_editor_name not in files:
         current_editor_name = None
-        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.iteritems()]
+        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in six.iteritems(files)]
     else:
         # Re-order the list of locations to search so that we search in the
         # current editor first

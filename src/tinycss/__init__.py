@@ -10,6 +10,7 @@
 """
 
 from .version import VERSION
+import six
 __version__ = VERSION
 
 from tinycss.css21 import CSS21Parser
@@ -47,5 +48,5 @@ def make_parser(*features, **kwargs):
 
 def make_full_parser(**kwargs):
     ''' A parser that parses all supported CSS 3 modules in addition to CSS 2.1 '''
-    features = tuple(PARSER_MODULES.iterkeys())
+    features = tuple(six.iterkeys(PARSER_MODULES))
     return make_parser(*features, **kwargs)

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,7 +25,7 @@ def from_headings(body, log, namespace):
     level_prev = {i+1:None for i in xrange(len(xpaths))}
     level_prev[0] = tocroot
     level_item_map = {i+1:frozenset(xp(body)) for i, xp in enumerate(xpaths)}
-    item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+    item_level_map = {e:i for i, elems in six.iteritems(level_item_map) for e in elems}
 
     idcount = count()
 

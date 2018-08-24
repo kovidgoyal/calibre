@@ -14,6 +14,7 @@ from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 from six.moves import map
+import six
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -65,7 +66,7 @@ def implementation(
                 continue
             if field == 'isbn':
                 x = db.all_field_for('identifiers', book_ids, default_value={})
-                data[field] = {k: v.get('isbn') or '' for k, v in x.iteritems()}
+                data[field] = {k: v.get('isbn') or '' for k, v in six.iteritems(x)}
                 continue
             field = field.replace('*', '#')
             metadata[field] = fm[field]
@@ -81,37 +82,37 @@ def implementation(
 
 
 def stringify(data, metadata, for_machine):
-    for field, m in metadata.iteritems():
+    for field, m in six.iteritems(metadata):
         if field == 'authors':
             data[field] = {
                 k: authors_to_string(v)
-                for k, v in data[field].iteritems()
+                for k, v in six.iteritems(data[field])
             }
         else:
             dt = m['datatype']
             if dt == 'datetime':
                 data[field] = {
                     k: isoformat(v, as_utc=for_machine) if v else 'None'
-                    for k, v in data[field].iteritems()
+                    for k, v in six.iteritems(data[field])
                 }
             elif not for_machine:
                 ism = m['is_multiple']
                 if ism:
                     data[field] = {
                         k: ism['list_to_ui'].join(v)
-                        for k, v in data[field].iteritems()
+                        for k, v in six.iteritems(data[field])
                     }
                     if field == 'formats':
                         data[field] = {
                             k: '[' + v + ']'
-                            for k, v in data[field].iteritems()
+                            for k, v in six.iteritems(data[field])
                         }
 
 
 def as_machine_data(book_ids, data, metadata):
     for book_id in book_ids:
         ans = {'id': book_id}
-        for field, val_map in data.iteritems():
+        for field, val_map in six.iteritems(data):
             val = val_map.get(book_id)
             if val is not None:
                 ans[field.replace('#', '*')] = val

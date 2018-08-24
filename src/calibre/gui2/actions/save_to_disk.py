@@ -13,6 +13,7 @@ from six.moves import map
 from calibre.utils.config import prefs
 from calibre.gui2 import error_dialog, Dispatcher, choose_dir
 from calibre.gui2.actions import InterfaceAction
+import six
 
 
 class SaveToDiskAction(InterfaceAction):
@@ -123,7 +124,7 @@ class SaveToDiskAction(InterfaceAction):
     def save_library_format_by_ids(self, book_ids, fmt, single_dir=True):
         if isinstance(book_ids, int):
             book_ids = [book_ids]
-        rows = list(self.gui.library_view.ids_to_rows(book_ids).itervalues())
+        rows = list(six.itervalues(self.gui.library_view.ids_to_rows(book_ids)))
         rows = [self.gui.library_view.model().index(r, 0) for r in rows]
         self.save_to_disk(True, single_dir=single_dir, single_format=fmt,
                 rows=rows, write_opf=False, save_cover=False)

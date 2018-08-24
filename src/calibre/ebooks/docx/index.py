@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -98,7 +99,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     if heading_text is not None:
         groups = partition_by_first_letter(xe_fields, key=itemgetter('text'))
         items = []
-        for key, fields in groups.iteritems():
+        for key, fields in six.iteritems(groups):
             items.append(key), items.extend(fields)
         if styles:
             heading_style = styles[0]

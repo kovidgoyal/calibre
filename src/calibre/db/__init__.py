@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -79,7 +80,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         'rating', 'timestamp', 'size', 'tags', 'comments', 'series',
         'series_index', 'uuid', 'pubdate', 'last_modified', 'identifiers',
         'languages']).union(set(fdata))
-    for x, data in fdata.iteritems():
+    for x, data in six.iteritems(fdata):
         if data['datatype'] == 'series':
             FIELDS.add('%d_index'%x)
     data = []

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -66,7 +67,7 @@ def get_image_properties(parent, XPath, get):
 
 def get_image_margins(elem):
     ans = {}
-    for w, css in {'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}.iteritems():
+    for w, css in six.iteritems({'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}):
         val = elem.get('dist%s' % w, None)
         if val is not None:
             try:
@@ -157,7 +158,7 @@ class Images(object):
         return raw, base
 
     def unique_name(self, base):
-        exists = frozenset(self.used.itervalues())
+        exists = frozenset(six.itervalues(self.used))
         c = 1
         name = base
         while name in exists:
@@ -242,7 +243,7 @@ class Images(object):
                 ans = self.pic_to_img(pic, alt, inline, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
+                        ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in six.iteritems(style)))
                     yield ans
 
         # Now process the floats
@@ -253,7 +254,7 @@ class Images(object):
                 ans = self.pic_to_img(pic, alt, anchor, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
+                        ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in six.iteritems(style)))
                     yield ans
 
     def pict_to_html(self, pict, page):
@@ -275,7 +276,7 @@ class Images(object):
                 style['margin-left'] = '0' if align == 'left' else 'auto'
                 style['margin-right'] = 'auto' if align == 'left' else '0'
             if style:
-                hr.set('style', '; '.join(('%s:%s' % (k, v) for k, v in style.iteritems())))
+                hr.set('style', '; '.join(('%s:%s' % (k, v) for k, v in six.iteritems(style))))
             yield hr
 
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):

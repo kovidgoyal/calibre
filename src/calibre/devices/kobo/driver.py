@@ -4,6 +4,7 @@ from __future__ import division
 
 from __future__ import print_function
 from six.moves import zip
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
@@ -394,7 +395,7 @@ class KOBO(USBMS):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -886,13 +887,13 @@ class KOBO(USBMS):
 
                             ContentID = self.contentid_from_path(book.path, ContentType)
 
-                            if category in readstatuslist.keys():
+                            if category in list(readstatuslist.keys()):
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, ContentID, readstatuslist.get(category))
                             elif category == 'Shortlist' and self.dbversion >= 14:
                                 # Manage FavouritesIndex/Shortlist
                                 self.set_favouritesindex(connection, ContentID)
-                            elif category in accessibilitylist.keys():
+                            elif category in list(accessibilitylist.keys()):
                                 # Do not manage the Accessibility List
                                 pass
             else:  # No collections
@@ -1898,7 +1899,7 @@ class KOBOTOUCH(KOBO):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))) or not bl[idx].contentID:
                     need_sync = True
@@ -2072,7 +2073,7 @@ class KOBOTOUCH(KOBO):
         from calibre.ebooks.oeb.base import OEB_STYLES
 
         is_dirty = False
-        for cssname, mt in container.mime_map.iteritems():
+        for cssname, mt in six.iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 newsheet = container.parsed(cssname)
                 oldrules = len(newsheet.cssRules)
@@ -2375,7 +2376,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('        Setting bookshelf on device')
                                     self.set_bookshelf(connection, book, category)
                                     category_added = True
-                            elif category in readstatuslist.keys():
+                            elif category in list(readstatuslist.keys()):
                                 debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
@@ -2390,7 +2391,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('            and about to set it - %s'%book.title)
                                     self.set_favouritesindex(connection, book.contentID)
                                     category_added = True
-                            elif category in accessibilitylist.keys():
+                            elif category in list(accessibilitylist.keys()):
                                 # Do not manage the Accessibility List
                                 pass
 

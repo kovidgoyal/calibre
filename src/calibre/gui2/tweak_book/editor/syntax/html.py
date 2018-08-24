@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -544,7 +545,7 @@ def create_formats(highlighter, add_css=True):
         'nbsp': t['SpecialCharacter'],
         'spell': t['SpellError'],
     }
-    for name, msg in {
+    for name, msg in six.iteritems({
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
             '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
             '>': _('An unescaped > is not allowed. Replace it with &gt;'),
@@ -553,7 +554,7 @@ def create_formats(highlighter, add_css=True):
             'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
             'no-attr-value': _('Expecting an attribute value'),
             'only-prefix': _('A tag name cannot end with a colon'),
-    }.iteritems():
+    }):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     f = formats['title'] = syntax_text_char_format()

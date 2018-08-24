@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -171,7 +172,7 @@ def test():
 
     for family in families:
         prints(family + ':')
-        for font, data in w.fonts_for_family(family).iteritems():
+        for font, data in six.iteritems(w.fonts_for_family(family)):
             prints('  ', font, data[0], data[1], len(data[2]))
         print ()
 

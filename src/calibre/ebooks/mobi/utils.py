@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -589,7 +590,7 @@ class CNCX(object):  # {{{
         offset = 0
         buf = BytesIO()
         RECORD_LIMIT = 0x10000 - 1024  # kindlegen appears to use 1024, PDB limit is 0x10000
-        for key in self.strings.iterkeys():
+        for key in six.iterkeys(self.strings):
             utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
             l = len(utf8)
             sz_bytes = encint(l)

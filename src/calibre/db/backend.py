@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 from six.moves import zip
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -223,7 +224,7 @@ def SortedConcatenate(sep=','):
     def finalize(ctxt):
         if len(ctxt) == 0:
             return None
-        return sep.join(map(ctxt.get, sorted(ctxt.iterkeys())))
+        return sep.join(map(ctxt.get, sorted(six.iterkeys(ctxt))))
 
     return ({}, step, finalize)
 
@@ -248,7 +249,7 @@ def AumSortedConcatenate():
             ctxt[ndx] = ':::'.join((author, sort, link))
 
     def finalize(ctxt):
-        keys = list(ctxt.iterkeys())
+        keys = list(six.iterkeys(ctxt))
         l = len(keys)
         if l == 0:
             return None
@@ -727,7 +728,7 @@ class DB(object):
         }
 
         # Create Tag Browser categories for custom columns
-        for k in sorted(self.custom_column_label_map.iterkeys()):
+        for k in sorted(six.iterkeys(self.custom_column_label_map)):
             v = self.custom_column_label_map[k]
             if v['normalized']:
                 is_category = True
@@ -780,10 +781,10 @@ class DB(object):
             'last_modified':19, 'identifiers':20, 'languages':21,
         }
 
-        for k,v in self.FIELD_MAP.iteritems():
+        for k,v in six.iteritems(self.FIELD_MAP):
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
-        base = max(self.FIELD_MAP.itervalues())
+        base = max(six.itervalues(self.FIELD_MAP))
 
         for label_ in sorted(self.custom_column_label_map):
             data = self.custom_column_label_map[label_]
@@ -1257,7 +1258,7 @@ class DB(object):
         '''
 
         with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
-            for table in self.tables.itervalues():
+            for table in six.itervalues(self.tables):
                 try:
                     table.read(self)
                 except:
@@ -1321,7 +1322,7 @@ class DB(object):
 
     def remove_formats(self, remove_map):
         paths = []
-        for book_id, removals in remove_map.iteritems():
+        for book_id, removals in six.iteritems(remove_map):
             for fmt, fname, path in removals:
                 path = self.format_abspath(book_id, fmt, fname, path)
                 if path is not None:
@@ -1579,7 +1580,7 @@ class DB(object):
                     if samefile(spath, tpath):
                         # The format filenames may have changed while the folder
                         # name remains the same
-                        for fmt, opath in original_format_map.iteritems():
+                        for fmt, opath in six.iteritems(original_format_map):
                             npath = format_map.get(fmt, None)
                             if npath and os.path.abspath(npath.lower()) != os.path.abspath(opath.lower()) and samefile(opath, npath):
                                 # opath and npath are different hard links to the same file
@@ -1642,7 +1643,7 @@ class DB(object):
     def remove_books(self, path_map, permanent=False):
         self.executemany(
             'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
-        paths = {os.path.join(self.library_path, x) for x in path_map.itervalues() if x}
+        paths = {os.path.join(self.library_path, x) for x in six.itervalues(path_map) if x}
         paths = {x for x in paths if os.path.exists(x) and self.is_deletable(x)}
         if permanent:
             for path in paths:
@@ -1657,7 +1658,7 @@ class DB(object):
         self.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
             [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in val_map.iteritems()])
+                    for book_id, val in six.iteritems(val_map)])
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)
@@ -1716,7 +1717,7 @@ class DB(object):
 
     def set_conversion_options(self, options, fmt):
         options = [(book_id, fmt.upper(), buffer(pickle_binary_string(data.encode('utf-8') if isinstance(data, unicode) else data)))
-                for book_id, data in options.iteritems()]
+                for book_id, data in six.iteritems(options)]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
     def get_top_level_move_items(self, all_paths):

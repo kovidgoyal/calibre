@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -229,7 +230,7 @@ class CmapTable(UnknownTable):
     def set_character_map(self, cmap):
         self.version, self.num_tables = 0, 1
         fmt = b'>7H'
-        codes = list(cmap.iterkeys())
+        codes = list(six.iterkeys(cmap))
         codes.sort()
 
         if not codes:

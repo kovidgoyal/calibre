@@ -10,6 +10,7 @@ import json, os
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
 from calibre import prints
+import six
 
 
 class DBPrefs(dict):
@@ -97,7 +98,7 @@ class DBPrefs(dict):
                     return d
                 cls.clear()
                 cls.db.conn.execute('DELETE FROM preferences')
-                for k,v in d.iteritems():
+                for k,v in six.iteritems(d):
                     raw = cls.to_raw(v)
                     cls.db.conn.execute(
                         'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))

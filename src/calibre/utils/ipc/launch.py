@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import getcwd
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -155,7 +156,7 @@ class Worker(object):
         self.gui = gui
         self.job_name = job_name
         # Windows cannot handle unicode env vars
-        for k, v in env.iteritems():
+        for k, v in six.iteritems(env):
             try:
                 if isinstance(k, unicode):
                     k = k.encode('ascii')
