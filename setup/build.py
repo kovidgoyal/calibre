@@ -479,7 +479,7 @@ class Build(Command):
             # Ensure that only the init symbol is exported
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
-                f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+                f.write(('{ global: init%s; PyInit_%s; local: *; };' % (sip['target'], sip['target'])).encode('utf-8'))
         if ext.qt_private_headers:
             qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
             pro += '\nQT += ' + qph
