@@ -62,7 +62,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         self.categories = sorted(self._data.keys())
 
         for plugins in self._data.values():
-            plugins.sort(cmp=lambda x, y: cmp(x.name.lower(), y.name.lower()))
+            plugins.sort(key=lambda x: x.name.lower())
 
     def universal_set(self):
         ans = set([])

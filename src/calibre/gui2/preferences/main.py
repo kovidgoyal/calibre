@@ -170,7 +170,7 @@ class Browser(QScrollArea):  # {{{
         self.category_names = category_names
 
         categories = list(category_map.keys())
-        categories.sort(cmp=lambda x, y: cmp(category_map[x], category_map[y]))
+        categories.sort(key=lambda x: category_map[x])
 
         self.category_map = OrderedDict()
         for c in categories:
@@ -180,7 +180,7 @@ class Browser(QScrollArea):  # {{{
             self.category_map[plugin.category].append(plugin)
 
         for plugins in self.category_map.values():
-            plugins.sort(cmp=lambda x, y: cmp(x.name_order, y.name_order))
+            plugins.sort(key=lambda x: x.name_order)
 
         self.widgets = []
         self._layout = QVBoxLayout()

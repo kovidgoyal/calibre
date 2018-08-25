@@ -821,7 +821,7 @@ OptionRecommendation(name='search_replace',
         if not html_files:
             raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
-        html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        html_files.sort(key=lambda x: x[1])
         html_files = [f[0] for f in html_files]
         for q in ('toc', 'index'):
             for f in html_files:

@@ -1011,7 +1011,7 @@ class BooksView(QTableView):  # {{{
                     h.visualIndex(x) > -1]
             if not pairs:
                 pairs = [(0, 0)]
-            pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
+            pairs.sort(key=lambda x: x[1])
             i = pairs[0][0]
             index = self.model().index(row, i)
             if for_sync:

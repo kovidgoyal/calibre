@@ -28,7 +28,7 @@ class Clean(object):
                     else:
                         covers.append([self.oeb.guide[x], len(item.data)])
 
-            covers.sort(cmp=lambda x,y:cmp(x[1], y[1]), reverse=True)
+            covers.sort(key=lambda x: x[1], reverse=True)
             if covers:
                 ref = covers[0][0]
                 if len(covers) > 1:

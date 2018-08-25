@@ -69,7 +69,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         state = self.columns_state(defaults)
         self.hidden_cols = state['hidden_columns']
         positions = state['column_positions']
-        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
+        colmap.sort(key=lambda x: positions[x])
         self.opt_columns.clear()
 
         db = model.db

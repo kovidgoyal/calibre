@@ -761,7 +761,7 @@ class BasicNewsRecipe(Recipe):
         in index are not in weights, they are assumed to have a weight of 0.
         '''
         weights = defaultdict(lambda: 0, weights)
-        index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
+        index.sort(key=lambda x: weights[x])
         return index
 
     def parse_index(self):

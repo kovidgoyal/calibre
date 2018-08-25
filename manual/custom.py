@@ -274,7 +274,7 @@ def cli_docs(app):
     info(bold('creating CLI documentation...'))
     documented_cmds, undocumented_cmds = get_cli_docs()
 
-    documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
+    documented_cmds.sort(key=lambda x: x[0])
     undocumented_cmds.sort()
 
     documented = [' '*4 + c[0] for c in documented_cmds]

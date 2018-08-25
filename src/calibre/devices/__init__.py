@@ -84,8 +84,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     out = partial(prints, file=buf)
 
     devplugins = device_plugins() if plugins is None else plugins
-    devplugins = list(sorted(devplugins, cmp=lambda
-            x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+    devplugins = list(sorted(devplugins, key=lambda x: x.__class__.__name__))
     if plugins is None:
         for d in devplugins:
             try:

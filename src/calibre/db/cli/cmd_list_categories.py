@@ -151,7 +151,7 @@ def main(opts, args, dbctx):
     ]
 
     categories.sort(
-        cmp=lambda x, y: cmp(x if x[0] != '#' else x[1:], y if y[0] != '#' else y[1:])
+        key=lambda x: x if x[0] != '#' else x[1:]
     )
 
     def fmtr(v):

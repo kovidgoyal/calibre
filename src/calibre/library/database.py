@@ -1019,7 +1019,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if not ans:
             return []
         ans = [id[0] for id in ans]
-        ans.sort(cmp=lambda x, y: cmp(self.series_index(x, True), self.series_index(y, True)))
+        ans.sort(key=lambda x: self.series_index(x, self.series_index(y, True)))
         return ans
 
     def books_in_series_of(self, index, index_is_id=False):
