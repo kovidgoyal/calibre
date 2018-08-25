@@ -32,9 +32,7 @@ def compile_recipe(src):
     :return: Recipe class or None, if no such class was found in src
     '''
     if not isinstance(src, unicode):
-        match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
-        enc = match.group(1) if match else 'utf-8'
-        src = src.decode(enc)
+        src = src.decode()
     # Python complains if there is a coding declaration in a unicode string
     src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src.lstrip(u'\ufeff'), flags=re.MULTILINE)
     # Translate newlines to \n

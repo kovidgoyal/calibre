@@ -201,14 +201,10 @@ class Plugins(collections.Mapping):
             del sys.modules[name]
         except KeyError:
             pass
-        err_text = ''
         try:
-            p = importlib.import_module(name)
-        except Exception as err:
-            p = None
-            err_text = str(err)
-        self._plugins[name] = (p, err_text)
-        sys.path.remove(sys.extensions_location)
+            self._plugins[name] = (importlib.import_module(name), None)
+        finally:
+            sys.path.remove(sys.extensions_location)
 
     def __iter__(self):
         return iter(self.plugins)

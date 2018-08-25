@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, tempfile, os
 from functools import partial
-from itertools import izip
+from six.moves import zip
 
 from calibre.constants import islinux, isbsd
 from calibre.customize.conversion import (InputFormatPlugin,
@@ -216,7 +216,7 @@ class HTMLInput(InputFormatPlugin):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)

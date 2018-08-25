@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs, os
 from collections import namedtuple
-from types import StringType, UnicodeType
+import six
 
 from calibre import (strftime)
 from calibre.customize import CatalogPlugin
@@ -351,7 +352,7 @@ class BIBTEX(CatalogPlugin):
             bibtexc.ascii_bibtex = True
 
         # Check citation choice and go to default in case of bad CLI
-        if isinstance(opts.impcit, (StringType, UnicodeType)) :
+        if isinstance(opts.impcit, six.string_types + six.text_type) :
             if opts.impcit == 'False' :
                 citation_bibtex= False
             elif opts.impcit == 'True' :
@@ -363,7 +364,7 @@ class BIBTEX(CatalogPlugin):
             citation_bibtex= opts.impcit
 
         # Check add file entry and go to default in case of bad CLI
-        if isinstance(opts.addfiles, (StringType, UnicodeType)) :
+        if isinstance(opts.addfiles, six.string_types + six.text_type) :
             if opts.addfiles == 'False' :
                 addfiles_bibtex = False
             elif opts.addfiles == 'True' :

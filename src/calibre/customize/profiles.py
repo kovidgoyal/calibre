@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
+from six.moves import zip
 
 from calibre.customize import Plugin as _Plugin
 
@@ -31,7 +31,7 @@ class Plugin(_Plugin):
         fsizes = list(self.fsizes)
         self.fkey = list(self.fsizes)
         self.fsizes = []
-        for (name, num), size in izip(FONT_SIZES, fsizes):
+        for (name, num), size in zip(FONT_SIZES, fsizes):
             self.fsizes.append((name, num, float(size)))
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
@@ -234,7 +234,7 @@ input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
         IRexDR1000Input, IRexDR800Input, NookInput]
 
-input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
+input_profiles.sort(key=lambda x: x.name.lower())
 
 # }}}
 
@@ -871,4 +871,4 @@ output_profiles = [
     KindlePaperWhite3Output, KindleOasisOutput
 ]
 
-output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
+output_profiles.sort(key=lambda x: x.name.lower())

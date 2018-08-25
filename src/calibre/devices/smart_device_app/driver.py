@@ -12,7 +12,7 @@ import socket, select, json, os, traceback, time, sys, random
 import posixpath
 from collections import defaultdict
 import hashlib, threading
-import Queue
+from six.moves import queue
 
 from functools import wraps
 from errno import EAGAIN, EINTR
@@ -103,7 +103,7 @@ class ConnectionListener(Thread):
                                         {'otherDevice': d.get_gui_name()})
                         self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
                         sock.close()
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass
 
             if getattr(self.driver, 'broadcast_socket', None) is not None:
@@ -148,7 +148,7 @@ class ConnectionListener(Thread):
 
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
-                        except Queue.Full:
+                        except queue.Full:
                             self._close_socket(device_socket)
                             device_socket = None
                             self.driver._debug('driver is not answering')
@@ -993,7 +993,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     raise
                 except:
                     pass
-            except Queue.Empty:
+            except queue.Empty:
                 self.is_connected = False
             return self if self.is_connected else None
         return None
@@ -1969,7 +1969,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     message = 'attaching port to broadcast socket failed. This is not fatal.'
                     self._debug(message)
 
-            self.connection_queue = Queue.Queue(1)
+            self.connection_queue = queue.Queue(1)
             self.connection_listener = ConnectionListener(self)
             self.connection_listener.start()
         return message

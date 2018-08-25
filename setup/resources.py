@@ -306,9 +306,9 @@ class Resources(Command):  # {{{
         dest = self.j(self.RESOURCES, 'builtin_recipes.xml')
         if self.newer(dest, files):
             self.info('\tCreating builtin_recipes.xml')
-            xml = serialize_builtin_recipes()
-            with open(dest, 'wb') as f:
-                f.write(xml)
+        #    xml = serialize_builtin_recipes()
+        #    with open(dest, 'wb') as f:
+        #        f.write(xml)
 
         recipe_icon_dir = self.a(self.j(self.RESOURCES, '..', 'recipes',
             'icons'))
