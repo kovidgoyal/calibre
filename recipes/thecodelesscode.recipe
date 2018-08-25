@@ -2,6 +2,7 @@
 
 from datetime import date
 from lxml import etree
+from six.moves import range
 
 __copyright__ = '2015, April King <april@twoevils.org>'
 __license__ = 'GPL v3'

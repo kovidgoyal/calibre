@@ -1,6 +1,7 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
+from six.moves import range
 
 
 class DziennikWschodni(BasicNewsRecipe):

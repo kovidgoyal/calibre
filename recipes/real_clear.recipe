@@ -2,9 +2,10 @@
 # .epub --test -vv --debug-pipeline debug
 import re
 import time
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString
+from six.moves import range
 
 
 class RealClear(BasicNewsRecipe):
@@ -44,7 +45,7 @@ class RealClear(BasicNewsRecipe):
     # First column is the URL snippet.  Then the string to search for as text,
     # and the attributes to look for above it.  Start with attributes and
     # drill down.
-    phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
+    phUrlSnip, phLinkText, phMainSearch, phHrefSearch = list(range(4))
 
     printhints = [["realclear",           "",                            '', 'printpage'],
                   ["billoreilly.com",     "Print this entry",            'a', ''],

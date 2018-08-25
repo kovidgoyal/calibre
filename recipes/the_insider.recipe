@@ -22,7 +22,7 @@ class AdjectiveSpecies(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', attrs={'id':'wrapper'})
     remove_tags_after  = dict(name='p', attrs={'style':' color: #999999;'})
-    remove_tags     = [dict(name='div',attrs={'class':'post-share'}),
+    remove_tags     = [dict(name='div', attrs={'class':'post-share'}),
                         dict(name='div', attrs={'class':'post-share fixed-likes'}),
                          dict(name='div', attrs={'class':'topads'}),
                          dict(name='div', attrs={'class':'pre-content-line'}),

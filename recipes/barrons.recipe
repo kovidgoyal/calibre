@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 import json
 from mechanize import Request
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

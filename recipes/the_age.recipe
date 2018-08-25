@@ -10,6 +10,7 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
+import six
 
 
 class TheAge(BasicNewsRecipe):
@@ -99,7 +100,7 @@ class TheAge(BasicNewsRecipe):
 
             # Collapse the paragraph by joining the non-tag contents
 
-            contents = [i for i in p.contents if isinstance(i, unicode)]
+            contents = [i for i in p.contents if isinstance(i, six.text_type)]
             if len(contents):
                 contents = ''.join(contents)
 

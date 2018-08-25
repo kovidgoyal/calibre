@@ -10,6 +10,7 @@ import os
 
 from calibre.web.feeds import feeds_from_index
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
+from six.moves import range
 
 
 # To Do: strip ads and graphics, Current Column lacks a title.

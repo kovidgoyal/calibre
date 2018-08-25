@@ -5,13 +5,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 economist.com
 '''
-import cookielib
+import six.moves.http_cookiejar
 from collections import OrderedDict
 
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.cleantext import clean_ascii_chars
 import six
+from six.moves import map
 
 
 def classes(classes):
@@ -76,8 +77,8 @@ class Economist(BasicNewsRecipe):
                     'related-items', 'main-content-container', 'ec-topic-widget',
                     'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
                     'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
-                    'newsletter-form','share-links-header','teaser--wrapped', 'latest-updates-panel__container',
-                    'latest-updates-panel__article-link','blog-post__section'
+                    'newsletter-form', 'share-links-header', 'teaser--wrapped', 'latest-updates-panel__container',
+                    'latest-updates-panel__article-link', 'blog-post__section'
                 ]
             }
         ),
@@ -107,7 +108,7 @@ class Economist(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         # Add a cookie indicating we have accepted Economist's cookie
         # policy (needed when running from some European countries)
-        ck = cookielib.Cookie(
+        ck = six.moves.http_cookiejar.Cookie(
             version=0,
             name='notice_preferences',
             value='2:',
@@ -145,7 +146,7 @@ class Economist(BasicNewsRecipe):
                     p.remove(noscript[0])
         for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
             x.getparent().remove(x)
-        raw = etree.tostring(root, encoding=unicode)
+        raw = etree.tostring(root, encoding=six.text_type)
         return raw
 
     def populate_article_metadata(self, article, soup, first):
@@ -156,7 +157,7 @@ class Economist(BasicNewsRecipe):
             if el is not None and el.contents:
                 for descendant in el.contents:
                     if isinstance(descendant, NavigableString):
-                        result.append(unicode(descendant))
+                        result.append(six.text_type(descendant))
         article.summary = u'. '.join(result) + u'.'
         article.text_summary = clean_ascii_chars(article.summary)
 
@@ -198,7 +199,7 @@ class Economist(BasicNewsRecipe):
                 for a in section.findNextSiblings('a', href=True):
                     spans = a.findAll('span')
                     if len(spans) == 2:
-                        title = u'{}: {}'.format(*map(self.tag_to_string, spans))
+                        title = u'{}: {}'.format(*list(map(self.tag_to_string, spans)))
                     else:
                         title = self.tag_to_string(a)
                     articles.append({'title': title, 'url': process_url(a['href'])})

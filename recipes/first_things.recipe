@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 from __future__ import unicode_literals
+import six
 __license__ = 'GPL v3'
 __copyright__ = '2017, John Hutson <jfhutson at gmail.com>'
 '''
@@ -33,7 +34,7 @@ class FirstThings(BasicNewsRecipe):
         '''
 
     def preprocess_raw_html(self, raw, url):
-        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding=unicode)
+        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding=six.text_type)
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)

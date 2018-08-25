@@ -2,6 +2,7 @@ import re
 from datetime import date, timedelta
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from six.moves import range
 
 
 class MediaDaumRecipe(BasicNewsRecipe):

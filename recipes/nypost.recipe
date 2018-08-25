@@ -42,8 +42,8 @@ class NewYorkPost(BasicNewsRecipe):
     ]
 
     feeds = [
-        ('All Stories','https://nypost.com/feed'),
-        ('News','https://nypost.com/news/feed'),
+        ('All Stories', 'https://nypost.com/feed'),
+        ('News', 'https://nypost.com/news/feed'),
         ('Metro', 'http://nypost.com/metro/feed/'),
         ('Business', 'http://nypost.com/business/feed/'),
         ('Opinion', 'http://nypost.com/opinion/feed/'),

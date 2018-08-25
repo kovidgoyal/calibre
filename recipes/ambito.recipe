@@ -37,22 +37,22 @@ class Ambito(BasicNewsRecipe):
 
     keep_only_tags    = [
                           dict(name='h6', attrs={'class': lambda x: x and 'bajada' in x.split()})
-                          ,dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()})
-                          ,dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()})
-                          ,dict(attrs={'class': lambda x: x and 'foto-perfil-columnista' in x.split()})
-                          ,dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
+                          , dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()})
+                          , dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()})
+                          , dict(attrs={'class': lambda x: x and 'foto-perfil-columnista' in x.split()})
+                          , dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
                         ]
-    remove_tags       = [dict(name=['object','link','embed','iframe','meta','link'])]
+    remove_tags       = [dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])]
 
     feeds = [
              (u'Principales Noticias', u'http://www.ambito.com/rss/noticiasp.asp')
-             ,(u'Economia'            , u'http://www.ambito.com/rss/noticias.asp?S=Econom%EDa')
-             ,(u'Politica'            , u'http://www.ambito.com/rss/noticias.asp?S=Pol%EDtica')
-             ,(u'Informacion General' , u'http://www.ambito.com/rss/noticias.asp?S=Informaci%F3n%20General')
-             ,(u'Campo'               , u'http://www.ambito.com/rss/noticias.asp?S=Agro')
-             ,(u'Internacionales'     , u'http://www.ambito.com/rss/noticias.asp?S=Internacionales')
-             ,(u'Deportes'            , u'http://www.ambito.com/rss/noticias.asp?S=Deportes')
-             ,(u'Espectaculos'        , u'http://www.ambito.com/rss/noticias.asp?S=Espect%E1culos')
-             ,(u'Tecnologia'          , u'http://www.ambito.com/rss/noticias.asp?S=Tecnolog%EDa')
-             ,(u'Ambito Nacional'     , u'http://www.ambito.com/rss/noticias.asp?S=Ambito%20Nacional')
+             , (u'Economia', u'http://www.ambito.com/rss/noticias.asp?S=Econom%EDa')
+             , (u'Politica', u'http://www.ambito.com/rss/noticias.asp?S=Pol%EDtica')
+             , (u'Informacion General', u'http://www.ambito.com/rss/noticias.asp?S=Informaci%F3n%20General')
+             , (u'Campo', u'http://www.ambito.com/rss/noticias.asp?S=Agro')
+             , (u'Internacionales', u'http://www.ambito.com/rss/noticias.asp?S=Internacionales')
+             , (u'Deportes', u'http://www.ambito.com/rss/noticias.asp?S=Deportes')
+             , (u'Espectaculos', u'http://www.ambito.com/rss/noticias.asp?S=Espect%E1culos')
+             , (u'Tecnologia', u'http://www.ambito.com/rss/noticias.asp?S=Tecnolog%EDa')
+             , (u'Ambito Nacional', u'http://www.ambito.com/rss/noticias.asp?S=Ambito%20Nacional')
             ]

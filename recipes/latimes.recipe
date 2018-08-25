@@ -197,7 +197,7 @@ class LATimes(BasicNewsRecipe):
             mdate = date_rx.match(article['url'])
             if mdate is not None:
                 article['timestamp'] = (strptime(mdate.group(
-                    'date'),'%Y%m%d') - DT_EPOCH).total_seconds()
+                    'date'), '%Y%m%d') - DT_EPOCH).total_seconds()
                 article['url'] = mdate.group(0)
         self.log('Found: ', len(articles), ' articles.\n')
         return articles

@@ -1,4 +1,4 @@
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -39,7 +39,7 @@ class JBPress(BasicNewsRecipe):
         return br
 
     def print_version(self, url):
-        url = urllib2.urlopen(url).geturl()  # resolve redirect.
+        url = six.moves.urllib.request.urlopen(url).geturl()  # resolve redirect.
         return url.replace('/-/', '/print/')
 
     def preprocess_html(self, soup):

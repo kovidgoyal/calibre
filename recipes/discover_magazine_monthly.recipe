@@ -9,7 +9,7 @@ discovermagazine.com
 '''
 import re
 import json
-import cookielib
+import six.moves.http_cookiejar
 import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -55,7 +55,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         if hasattr(br, 'set_cookie'):
             br.set_cookie('KSERV', session_id, 'discovermagazine.com')
         else:
-            c = cookielib.Cookie(
+            c = six.moves.http_cookiejar.Cookie(
                 None, 'KSERV', session_id,
                 None, False,
                 'discovermagazine.com', True, False,

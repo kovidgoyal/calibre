@@ -1,4 +1,4 @@
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 import six
@@ -38,7 +38,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
         ans = None
         try:
             s = article.summary
-            ans = urllib.unquote(
+            ans = six.moves.urllib.parse.unquote(
                 re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
         except:
             pass

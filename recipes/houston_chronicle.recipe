@@ -7,7 +7,7 @@ chron.com
 '''
 import re
 import time
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from StringIO import StringIO
 from datetime import datetime
 import traceback
@@ -20,6 +20,9 @@ from calibre.ebooks.BeautifulSoup import NavigableString
 from calibre.utils.date import dt_factory, local_tz
 from lxml import html
 from lxml import etree
+import six
+from six.moves import range
+from six.moves import zip
 
 regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|
@@ -62,7 +65,7 @@ def validate_link(page, link, title):
 
 
 def get_article_parsed(this_url):
-    page = urllib2.urlopen(this_url)
+    page = six.moves.urllib.request.urlopen(this_url)
     content = page.read()
     parser = etree.HTMLParser()
     parsed = html.parse(StringIO(content), parser)
@@ -73,7 +76,7 @@ def sort_subject(element_list):
     # priority of subjects
     subjects = ['news', 'neighborhood', 'entertainment']
     subjects.reverse()
-    subject_dict = OrderedDict(zip(subjects, range(len(subjects))))
+    subject_dict = OrderedDict(list(zip(subjects, list(range(len(subjects))))))
     rank_dict = OrderedDict([(rank, []) for rank in range(len(subjects) + 1)])
     for element in element_list:
         subj = element[0].split('/')[3]
@@ -84,8 +87,7 @@ def sort_subject(element_list):
     # now return in reverse order, sorted
     combined_list = []
     for rank in range(len(subjects), -1, -1):
-        article_list = rank_dict[rank]
-        article_list.sort()
+        article_list = sorted(rank_dict[rank])
         combined_list.extend(article_list)
     return combined_list
 
@@ -167,7 +169,7 @@ class HoustonChronicle(BasicNewsRecipe):
                         result = []
                         for descendant in el.contents:
                             if isinstance(descendant, NavigableString):
-                                result.append(unicode(descendant).strip())
+                                result.append(six.text_type(descendant).strip())
                         all_text = u' '.join(result).encode('utf-8')
                         if len(all_text) > 1:
                             sentences = re.findall(sentence_regex, all_text)

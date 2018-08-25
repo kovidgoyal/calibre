@@ -3,11 +3,11 @@ __copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David
 '''
 irishtimes.com
 '''
-import urlparse, re
+import six.moves.urllib.parse, re
 import json
 from uuid import uuid4
 from mechanize import Request
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -84,7 +84,7 @@ class IrishTimes(BasicNewsRecipe):
             pic = div.img
             if pic:
                 try:
-                    pic['src'] = urlparse.urljoin(url, pic['src'])
+                    pic['src'] = six.moves.urllib.parse.urljoin(url, pic['src'])
                     pic.extract()
                 except:
                     pic = None

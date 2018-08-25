@@ -53,17 +53,17 @@ class PilipinoStarNgayon(BasicNewsRecipe):
 
     feeds = [
 
-    ('Litra-talk'      		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=535'),
-    ('Bansa'       		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=92'),
-    ('Probinsiya'     		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=49'),
-    ('Metro'          		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=93'),
-    ('Opinyon'            	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=94'),
-    ('Palaro'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=95'),
-    ('Showbiz'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=96'),
-    ('True Confessions'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=97'),
-    ('Dr. Love'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=98'),
-    ('Kutob'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=99'),
-    ('Komiks'        		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=100')
+    ('Litra-talk', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=535'),
+    ('Bansa', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=92'),
+    ('Probinsiya', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=49'),
+    ('Metro', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=93'),
+    ('Opinyon', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=94'),
+    ('Palaro', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=95'),
+    ('Showbiz', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=96'),
+    ('True Confessions', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=97'),
+    ('Dr. Love', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=98'),
+    ('Kutob', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=99'),
+    ('Komiks', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=100')
     ]
 
 # process the printer friendly version of article

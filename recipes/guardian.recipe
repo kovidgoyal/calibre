@@ -9,6 +9,7 @@ www.guardian.co.uk
 from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
+import six
 
 
 class Guardian(BasicNewsRecipe):
@@ -67,7 +68,7 @@ class Guardian(BasicNewsRecipe):
     def preprocess_raw_html(self, raw, url):
         import html5lib
         from lxml import html
-        return html.tostring(html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml'), encoding=unicode)
+        return html.tostring(html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml'), encoding=six.text_type)
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):

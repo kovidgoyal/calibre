@@ -8,6 +8,7 @@ www.canada.com
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag
+import six
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -178,7 +179,7 @@ class CanWestPaper(BasicNewsRecipe):
     def massageNCXText(self, description):
         # Kindle TOC descriptions won't render certain characters
         if description:
-            massaged = unicode(BeautifulStoneSoup(
+            massaged = six.text_type(BeautifulStoneSoup(
                 description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
             # Replace '&' with '&'
             massaged = re.sub("&", "&", massaged)

@@ -8,8 +8,8 @@ import json
 import operator
 import re
 import tempfile
-import urllib
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import six
 
 
@@ -101,14 +101,14 @@ class Pocket(BasicNewsRecipe):
             self.get_pull_articles_uri()
         )
         try:
-            request = urllib2.Request(fetch_url)
-            response = urllib2.urlopen(request)
+            request = six.moves.urllib.request.Request(fetch_url)
+            response = six.moves.urllib.request.urlopen(request)
             pocket_feed = json.load(response)['list']
-        except urllib2.HTTPError as e:
+        except six.moves.urllib.error.HTTPError as e:
             self.log.exception(
                 "Pocket returned an error: {0}".format(e.info()))
             return []
-        except urllib2.URLError as e:
+        except six.moves.urllib.error.URLError as e:
             self.log.exception(
                 "Unable to connect to getpocket.com's api: {0}\nurl: {1}".format(e, fetch_url))
             return []
@@ -144,10 +144,10 @@ class Pocket(BasicNewsRecipe):
         fc_tag = soup.find('script', text=re.compile("formCheck"))
         fc_id = re.search(r"formCheck = \'([\d\w]+)\';", fc_tag).group(1)
         article_id = url.split("/")[-1]
-        data = urllib.urlencode({'itemId': article_id, 'formCheck': fc_id})
+        data = six.moves.urllib.parse.urlencode({'itemId': article_id, 'formCheck': fc_id})
         try:
             response = self.browser.open(ajax_url, data)
-        except urllib2.HTTPError as e:
+        except six.moves.urllib.error.HTTPError as e:
             self.log.exception("unable to get textview {0}".format(e.info()))
             raise e
         return json.load(response)['article']
@@ -187,13 +187,13 @@ class Pocket(BasicNewsRecipe):
             self.get_auth_uri()
         )
         try:
-            request = urllib2.Request(mark_read_url)
-            urllib2.urlopen(request)
-        except urllib2.HTTPError as e:
+            request = six.moves.urllib.request.Request(mark_read_url)
+            six.moves.urllib.request.urlopen(request)
+        except six.moves.urllib.error.HTTPError as e:
             self.log.exception(
                 'Pocket returned an error while archiving articles: {0}'.format(e))
             return []
-        except urllib2.URLError as e:
+        except six.moves.urllib.error.URLError as e:
             self.log.exception(
                 "Unable to connect to getpocket.com's modify api: {0}".format(e))
             return []
@@ -211,7 +211,7 @@ class Pocket(BasicNewsRecipe):
         """
         try:
             from calibre.ebooks.covers import calibre_cover2
-            title = self.title if isinstance(self.title, unicode) else \
+            title = self.title if isinstance(self.title, six.text_type) else \
                 self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')

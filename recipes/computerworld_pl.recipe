@@ -19,7 +19,7 @@ class Computerworld_pl(BasicNewsRecipe):
                           (re.compile(u'[*]+reklama[*]+', re.IGNORECASE), lambda m: ''), ]
     keep_only_tags = [dict(name='article')]
     remove_tags = [dict(attrs={'class': ['share_tools nocontent', 'rec']}),
-         dict(name='ul',attrs={'class':'tags'}),
+         dict(name='ul', attrs={'class':'tags'}),
          dict(name='ol'),
          dict(id=['topComment', 'bottom_tools'])]
 

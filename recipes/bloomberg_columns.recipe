@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from lxml import html, etree
 from StringIO import StringIO
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from collections import OrderedDict
 import calendar
 from calibre.ebooks.BeautifulSoup import Tag
@@ -27,8 +27,8 @@ hdr = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.
 
 
 def get_article_parsed(this_url):
-    req = urllib2.Request(this_url, headers=hdr)
-    page = urllib2.urlopen(req)
+    req = six.moves.urllib.request.Request(this_url, headers=hdr)
+    page = six.moves.urllib.request.urlopen(req)
     content = page.read()
     parser = etree.HTMLParser()
     parsed = html.parse(StringIO(content), parser)

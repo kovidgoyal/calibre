@@ -48,19 +48,19 @@ Its cover stories are comprehensive.
     }
 
     feeds = [
-      (u'Cover story'       , u'http://www.frontline.in/cover-story/?service=rss'),
-      (u'The Nation'        , u'http://www.frontline.in/the-nation/?service=rss'),
-      (u'Politics'          , u'http://www.frontline.in/politics/?service=rss'),
-      (u'Columns'           , u'http://www.frontline.in/columns/?service=rss'),
-      (u'Social Issues'     , u'http://www.frontline.in/social-issues/?service=rss'),
-      (u'General issues'    , u'http://www.frontline.in/social-issues/general-issues/?service=rss'),
-      (u'Social justice'    , u'http://www.frontline.in/social-issues/social-justice/?service=rss'),
-      (u'Arts&Culture'      , u'http://www.frontline.in/arts-and-culture/?service=rss'),
-      (u'Economy'           , u'http://www.frontline.in/economy/?service=rss'),
-      (u'World Affairs'     , u'http://www.frontline.in/world-affairs/?service=rss'),
+      (u'Cover story', u'http://www.frontline.in/cover-story/?service=rss'),
+      (u'The Nation', u'http://www.frontline.in/the-nation/?service=rss'),
+      (u'Politics', u'http://www.frontline.in/politics/?service=rss'),
+      (u'Columns', u'http://www.frontline.in/columns/?service=rss'),
+      (u'Social Issues', u'http://www.frontline.in/social-issues/?service=rss'),
+      (u'General issues', u'http://www.frontline.in/social-issues/general-issues/?service=rss'),
+      (u'Social justice', u'http://www.frontline.in/social-issues/social-justice/?service=rss'),
+      (u'Arts&Culture', u'http://www.frontline.in/arts-and-culture/?service=rss'),
+      (u'Economy', u'http://www.frontline.in/economy/?service=rss'),
+      (u'World Affairs', u'http://www.frontline.in/world-affairs/?service=rss'),
       (u'Science&Technology', u'http://www.frontline.in/science-and-technology/?service=rss'),
-      (u'Books'             , u'http://www.frontline.in/books/?service=rss'),
-      (u'Sport'             , u'http://www.frontline.in/other/sport/?service=rss')
+      (u'Books', u'http://www.frontline.in/books/?service=rss'),
+      (u'Sport', u'http://www.frontline.in/other/sport/?service=rss')
     ]
 
     def get_cover_url(self):
@@ -71,4 +71,4 @@ Its cover stories are comprehensive.
         return None
 
     def print_version(self, url):
-        return url.replace('?','?css=print&')
+        return url.replace('?', '?css=print&')

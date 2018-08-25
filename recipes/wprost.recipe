@@ -7,6 +7,7 @@ __copyright__ = '''2010, matek09, matek09@gmail.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+from six.moves import range
 
 
 class Wprost(BasicNewsRecipe):

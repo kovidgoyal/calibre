@@ -9,11 +9,12 @@ ambito.com/diario
 '''
 
 import time
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+import six
 
 
 class Ambito_Financiero(BasicNewsRecipe):
@@ -58,7 +59,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({
+            data = six.moves.urllib.parse.urlencode({
                 'txtUser': self.username,
                 'txtPassword': self.password
             })
@@ -98,7 +99,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         if self.session_id:
             l, s, r = url.rpartition('/')
             artid, s1, r1 = r.partition('-')
-            data = urllib.urlencode({'id': artid, 'id_session': self.session_id})
+            data = six.moves.urllib.parse.urlencode({'id': artid, 'id_session': self.session_id})
             response = self.browser.open(
                 'http://data.ambito.com/diario/cuerpo_noticia.asp', data
             )
@@ -109,12 +110,12 @@ class Ambito_Financiero(BasicNewsRecipe):
                 cfind = smallsoup.find('div', id="contenido_data")
                 if cfind:
                     p.append(cfind)
-                return unicode(soup)
+                return six.text_type(soup)
         return raw_html
 
     def cleanup(self):
         if self.session_id is not None:
-            data = urllib.urlencode({'session_id': self.session_id})
+            data = six.moves.urllib.parse.urlencode({'session_id': self.session_id})
             self.browser.open(
                 'http://www.ambito.com/diario/no-cache/login/x_logout.asp', data
             )

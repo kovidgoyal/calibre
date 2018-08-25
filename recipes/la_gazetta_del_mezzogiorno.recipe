@@ -5,6 +5,7 @@ __version__ = 'v1.01'
 __date__ = '29, May 2012'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from six.moves import range
 
 
 class AdvancedUserRecipe1324038402(BasicNewsRecipe):

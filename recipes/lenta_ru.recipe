@@ -110,7 +110,7 @@ class LentaRURecipe(BasicNewsRecipe):
 
             return result
 
-        except Exception, err:
+        except Exception as err:
             self.log(err)
             raise NotImplementedError
 

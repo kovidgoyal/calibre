@@ -15,6 +15,7 @@ http://www.corriere.it/
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from six.moves import range
 
 
 class ilCorriereEn(BasicNewsRecipe):

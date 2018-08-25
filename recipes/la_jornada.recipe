@@ -5,8 +5,8 @@ www.jornada.unam.mx
 '''
 
 import re
-from urllib import urlencode
-from urlparse import urlparse, urlunparse, parse_qs
+from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import urlparse, urlunparse, parse_qs
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 

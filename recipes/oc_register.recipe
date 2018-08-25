@@ -3,10 +3,11 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 import time
 import json
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from pprint import pprint
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from six.moves import range
 
 
 class OrangeCountyRegister(BasicNewsRecipe):
@@ -87,7 +88,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
         return cleanedHTML
 
     def loadURL(self, url):
-        socket = urllib.urlopen(url)
+        socket = six.moves.urllib.request.urlopen(url)
         rawHTML = socket.read()
         return rawHTML
 

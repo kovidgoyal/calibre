@@ -12,6 +12,8 @@ import datetime
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from six.moves import filter
+from six.moves import map
 
 
 class HurriyetDailyNews_en(BasicNewsRecipe):
@@ -101,7 +103,7 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         regex = re.compile('rmRootLink', re.IGNORECASE)
         links = soup.findAll('a', {'class': regex})
 
-        filtered_links = filter(include_link, links)
+        filtered_links = list(filter(include_link, links))
         self._p(' all sections: ' + ', '.join(map(self.text, links)))
         self._p(' filtered sections: ' +
                 ', '.join(map(self.text, filtered_links)))
