@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -64,6 +65,6 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         for link_tag in soup.findAll(attrs={"id": "story"}):
             link_tag.insert(
                 0, '<h1>' + soup.find('title').contents[0].strip() + '</h1>')
-            print link_tag
+            print(link_tag)
 
         return soup

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
@@ -98,7 +99,7 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
             Todo: refactor to searching this list to avoid the hardcoded zero-index
         """
         link = article.get('link')
-        print("Link:" + link)
+        print(("Link:" + link))
         if not link:
             links = article.get('links')
             if links:

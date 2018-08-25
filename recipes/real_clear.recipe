@@ -1,5 +1,6 @@
 # Test with "\Program Files\Calibre2\ebook-convert.exe" RealClear.recipe
 # .epub --test -vv --debug-pipeline debug
+from __future__ import print_function
 import re
 import time
 from six.moves.urllib.parse import urlparse
@@ -81,7 +82,7 @@ class RealClear(BasicNewsRecipe):
         for x in range(0, hintsCount):
             if pageURL.find(self.printhints[x][0]) == -1:
                 continue
-            print("Trying " + self.printhints[x][0])
+            print(("Trying " + self.printhints[x][0]))
             # Only retrieve the soup if we have a match to check for the
             # printed article with.
             soup = self.index_to_soup(pageURL)
@@ -90,15 +91,15 @@ class RealClear(BasicNewsRecipe):
             if len(self.printhints[x][self.phHrefSearch]) > 0 and len(self.printhints[x][self.phLinkText]) == 0:
                 # e.g. RealClear
                 if self.debugMessages is True:
-                    print("Search by href: " +
-                          self.printhints[x][self.phHrefSearch])
+                    print(("Search by href: " +
+                          self.printhints[x][self.phHrefSearch]))
                 printFind = soup.find(href=re.compile(
                     self.printhints[x][self.phHrefSearch]))
             elif len(self.printhints[x][3]) > 0 and len(self.printhints[x][1]) == 0:
                 if self.debugMessages is True:
-                    print("Search 1: " +
-                          self.printhints[x][2] + " Attributes: ")
-                    print(self.printhints[x][3])
+                    print(("Search 1: " +
+                          self.printhints[x][2] + " Attributes: "))
+                    print((self.printhints[x][3]))
                 printFind = soup.find(
                     self.printhints[x][2], attrs=self.printhints[x][3])
             elif len(self.printhints[x][3]) > 0:
@@ -108,8 +109,8 @@ class RealClear(BasicNewsRecipe):
                                       x][3], text=self.printhints[x][1])
             else:
                 if self.debugMessages is True:
-                    print(
-                        "Default Search: " + self.printhints[x][2] + " Text: " + self.printhints[x][1])
+                    print((
+                        "Default Search: " + self.printhints[x][2] + " Text: " + self.printhints[x][1]))
                 printFind = soup.find(
                     self.printhints[x][2], text=self.printhints[x][1])
             if printFind is None:
@@ -122,8 +123,8 @@ class RealClear(BasicNewsRecipe):
             print(printFind)
             if isinstance(printFind, NavigableString) is False:
                 if printFind['href'] is not None:
-                    print("Check " + printFind['href'] +
-                          " for base of " + baseURL)
+                    print(("Check " + printFind['href'] +
+                          " for base of " + baseURL))
                     if printFind['href'].find("http") != 0:
                         return baseURL + printFind['href']
                     return printFind['href']
@@ -148,7 +149,7 @@ class RealClear(BasicNewsRecipe):
 
     def parseRSS(self, index):
         if self.debugMessages is True:
-            print("\n\nStarting " + self.feedsets[index][0])
+            print(("\n\nStarting " + self.feedsets[index][0]))
         articleList = []
         soup = self.index_to_soup(self.feedsets[index][1])
         for div in soup.findAll("item"):
@@ -161,7 +162,7 @@ class RealClear(BasicNewsRecipe):
             if urlEl is None or len(urlEl.contents) == 0:
                 urlEl = div.find("guid")
             if urlEl is None or title is None or len(urlEl.contents) == 0:
-                print("Error in feed " + self.feedsets[index][0])
+                print(("Error in feed " + self.feedsets[index][0]))
                 print(div)
                 continue
             print(title)

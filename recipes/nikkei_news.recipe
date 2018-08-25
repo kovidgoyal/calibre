@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+from __future__ import print_function
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
@@ -40,39 +41,39 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
 
         if self.username is not None and self.password is not None:
-            print "-------------------------open top page-------------------------------------"
+            print("-------------------------open top page-------------------------------------")
             br.open('http://www.nikkei.com/')
-            print "-------------------------open first login form-----------------------------"
+            print("-------------------------open first login form-----------------------------")
             try:
                 url = list(br.links(
                     url_regex="www.nikkei.com/etc/accounts/login"))[0].url
             except IndexError:
-                print "Found IndexError"
+                print("Found IndexError")
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             br.open(url)
-            print "-------------------------JS redirect(send autoPostForm)--------------------"
+            print("-------------------------JS redirect(send autoPostForm)--------------------")
             br.select_form(name='autoPostForm')
             br.submit()
             # response = br.response()
-            print "-------------------------got login form------------------------------------"
+            print("-------------------------got login form------------------------------------")
             br.select_form(name='LA7010Form01')
             br['LA7010Form01:LA7010Email'] = self.username
             br['LA7010Form01:LA7010Password'] = self.password
             br.submit(id='LA7010Form01:submitBtn')
-            print "-------------------------JS redirect---------------------------------------"
+            print("-------------------------JS redirect---------------------------------------")
             br.select_form(nr=0)
             br.submit()
 
         return br
 
     def cleanup(self):
-        print "-------------------------logout--------------------------------------------"
+        print("-------------------------logout--------------------------------------------")
         self.browser.open('https://regist.nikkei.com/ds/etc/accounts/logout')
 
     def parse_index(self):
-        print "-------------------------get index of paper--------------------------------"
+        print("-------------------------get index of paper--------------------------------")
         result = []
         soup = self.index_to_soup('http://www.nikkei.com/paper/')
         sections = soup.findAll(attrs={'class': re.compile(".*cmn-article_title.*")})
