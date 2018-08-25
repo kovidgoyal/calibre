@@ -7,11 +7,7 @@ import sys, os, re, time, random, warnings
 from math import floor
 from functools import partial
 import six
-from six.moves import map, getcwd, range
-try:
-    import six.moves.builtins as builtins
-except ImportError:
-    import builtins
+from six.moves import map, getcwd, range, builtins, urllib
 
 
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
@@ -326,8 +322,7 @@ def extract(path, dir):
 
 
 def get_proxies(debug=True):
-    from urllib import getproxies
-    proxies = getproxies()
+    proxies = urllib.request.getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy or key == 'auto':
             del proxies[key]
@@ -521,14 +516,6 @@ def detect_ncpus():
 
 
 relpath = os.path.relpath
-_spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
-
-
-def english_sort(x, y):
-    '''
-    Comapare two english phrases ignoring starting prepositions.
-    '''
-    return cmp(_spat.sub('', x), _spat.sub('', y))
 
 
 def walk(dir):

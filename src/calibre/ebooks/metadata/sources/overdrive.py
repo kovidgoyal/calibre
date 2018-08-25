@@ -12,6 +12,7 @@ Fetch metadata using Overdrive Content Reserve
 import re, random, copy, json
 from threading import RLock
 from six.moves.queue import Queue, Empty
+from six.moves import http_cookiejar
 
 
 from calibre.ebooks.metadata import check_isbn
@@ -189,7 +190,7 @@ class OverDrive(Source):
     def overdrive_search(self, br, log, q, title, author):
         import mechanize
         # re-initialize the cookiejar to so that it's clean
-        clean_cj = mechanize.CookieJar()
+        clean_cj = http_cookiejar.CookieJar()
         br.set_cookiejar(clean_cj)
         q_query = q+'default.aspx/SearchByKeyword'
         q_init_search = q+'SearchResults.aspx'
@@ -315,12 +316,11 @@ class OverDrive(Source):
             return ''
 
     def overdrive_get_record(self, br, log, q, ovrdrv_id):
-        import mechanize
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
         results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'  # noqa
 
         # re-initialize the cookiejar to so that it's clean
-        clean_cj = mechanize.CookieJar()
+        clean_cj = http_cookiejar.CookieJar()
         br.set_cookiejar(clean_cj)
         # get the base url to set the proper session cookie
         br.open_novisit(q)
@@ -335,7 +335,7 @@ class OverDrive(Source):
         req.add_header('Accept', 'application/json, text/javascript, */*')
         raw = br.open_novisit(req)
         raw = str(list(raw))
-        clean_cj = mechanize.CookieJar()
+        clean_cj = http_cookiejar.CookieJar()
         br.set_cookiejar(clean_cj)
         return self.sort_ovrdrv_results(raw, log, None, None, None, ovrdrv_id)
 

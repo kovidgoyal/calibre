@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 from contextlib import closing
-from mechanize import MozillaCookieJar
+
+from six.moves import http_cookiejar
 
 from calibre import browser
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -62,7 +63,7 @@ def download_file(url, cookie_file=None, filename=None, create_browser=None):
     except NotImplementedError:
         br = browser()
     if cookie_file:
-        cj = MozillaCookieJar()
+        cj = http_cookiejar.MozillaCookieJar()
         cj.load(cookie_file)
         br.set_cookiejar(cj)
     with closing(br.open(url)) as r:

@@ -1,6 +1,8 @@
 import re
+
+from six.moves import http_cookiejar
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import mechanize
 from calibre.ptempfile import PersistentTemporaryFile
 
 
@@ -26,7 +28,7 @@ class NikkeiNet_subscription(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
 
-        cj = mechanize.LWPCookieJar()
+        cj = http_cookiejar.LWPCookieJar()
         br.set_cookiejar(cj)
 
         # br.set_debug_http(True)
