@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Manage translation of user visible strings.
 '''
-import shutil, tarfile, re, os, subprocess, urllib2
+import shutil, tarfile, re, os, subprocess
+from six.moves.urllib import request
 
 language_codes = {
     'aa':'Afar','ab':'Abkhazian','af':'Afrikaans','am':'Amharic','ar':'Arabic','as':'Assamese','ay':'Aymara','az':'Azerbaijani',
@@ -38,7 +39,7 @@ language_codes = {
 
 def import_from_launchpad(url):
     f = open('/tmp/launchpad_export.tar.gz', 'wb')
-    shutil.copyfileobj(urllib2.urlopen(url), f)
+    shutil.copyfileobj(request.urlopen(url), f)
     f.close()
     tf = tarfile.open('/tmp/launchpad_export.tar.gz', 'r:gz')
     next = tf.next()

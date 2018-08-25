@@ -10,7 +10,10 @@
 
 
 from __future__ import print_function
-import markupbase
+try:
+    import markupbase
+except ImportError:
+    import _markupbase as markupbase
 import re
 
 __all__ = ["SGMLParser", "SGMLParseError"]
