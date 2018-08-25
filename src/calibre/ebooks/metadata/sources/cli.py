@@ -34,6 +34,9 @@ of title, authors or ISBN.
     parser.add_option('-t', '--title', help=_('Book title'))
     parser.add_option('-a', '--authors', help=_('Book author(s)'))
     parser.add_option('-i', '--isbn', help=_('Book ISBN'))
+    parser.add_option('-I', '--identifier', action='append', help=_(
+        'Identifiers such as ASIN/goodreads id etc. Can be specified multiple times for multiple identifiers.'
+        ' For example: ') + '--identifier asin:B0082BAJA0')
     parser.add_option('-v', '--verbose', default=False, action='store_true',
                       help=_('Print the log to the console (stderr)'))
     parser.add_option('-o', '--opf', help=_('Output the metadata in OPF format instead of human readable text.'), action='store_true', default=False)
@@ -64,6 +67,11 @@ def main(args=sys.argv):
         authors = string_to_authors(opts.authors)
 
     identifiers = {}
+    for idspec in opts.identifiers:
+        k, v = idspec.partition(':')[::2]
+        if not k or not v:
+            raise SystemExit('Not a valid identifier: {}'.format(idspec))
+        identifiers[k] = v
     if opts.isbn:
         identifiers['isbn'] = opts.isbn
 
