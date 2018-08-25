@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -119,24 +120,24 @@ class Page(Stream):
         r = Dictionary()
         if self.opacities:
             extgs = Dictionary()
-            for opref, name in self.opacities.iteritems():
+            for opref, name in six.iteritems(self.opacities):
                 extgs[name] = opref
             r['ExtGState'] = extgs
         if self.fonts:
             fonts = Dictionary()
-            for ref, name in self.fonts.iteritems():
+            for ref, name in six.iteritems(self.fonts):
                 fonts[name] = ref
             r['Font'] = fonts
         if self.xobjects:
             xobjects = Dictionary()
-            for ref, name in self.xobjects.iteritems():
+            for ref, name in six.iteritems(self.xobjects):
                 xobjects[name] = ref
             r['XObject'] = xobjects
         if self.patterns:
             r['ColorSpace'] = Dictionary({'PCSp':Array(
                 [Name('Pattern'), Name('DeviceRGB')])})
             patterns = Dictionary()
-            for ref, name in self.patterns.iteritems():
+            for ref, name in six.iteritems(self.patterns):
                 patterns[name] = ref
             r['Pattern'] = patterns
         if r:

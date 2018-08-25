@@ -76,7 +76,7 @@ class respektRecipe(BasicNewsRecipe):
     def parse_index(self):
         raw1 = self.index_to_soup('http://www.respekt.cz/tydenik/', raw=True)
         root1 = lxml.html.fromstring(raw1)
-        current_edition_url = root1.xpath("//div[@class='heroissue']/a")[0].items()[0][1]
+        current_edition_url = list(root1.xpath("//div[@class='heroissue']/a")[0].items())[0][1]
         raw2 = self.index_to_soup('http://www.respekt.cz/' + current_edition_url, raw=True)
         root2 = lxml.html.fromstring(raw2)
         self.cover_url = root2.xpath("//i[contains(@class, 'heroissue-cover')]")[0].get("data-src")

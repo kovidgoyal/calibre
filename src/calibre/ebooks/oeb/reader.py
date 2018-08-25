@@ -8,12 +8,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, uuid, copy, re
-from six.moves import StringIO
-from itertools import izip
-from six.moves.urllib.parse import urldefrag, urlparse
-from six.moves.urllib.parse import unquote as urlunquote
 from collections import defaultdict
 
+from six.moves import StringIO, zip
+from six.moves.urllib.parse import urldefrag, urlparse
+from six.moves.urllib.parse import unquote as urlunquote
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
@@ -542,7 +541,7 @@ class OEBReader(object):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)

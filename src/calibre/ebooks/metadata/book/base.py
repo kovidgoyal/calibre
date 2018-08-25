@@ -193,7 +193,7 @@ class Metadata(object):
     def __iter__(self):
         return six.iterkeys(object.__getattribute__(self, '_data'))
 
-    def has_key(self, key):
+    def __contains__(self, key):
         return key in object.__getattribute__(self, '_data')
 
     def deepcopy(self, class_generator=lambda : Metadata(None)):

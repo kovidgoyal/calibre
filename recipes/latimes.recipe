@@ -161,7 +161,7 @@ class LATimes(BasicNewsRecipe):
 
         keys = []
         for key in SECTIONS:
-            if key in feeds.keys():
+            if key in list(feeds.keys()):
                 keys.append(key)
         self.log(pformat(dict(feeds)))
         return [(k, feeds[k]) for k in keys]

@@ -109,7 +109,7 @@ class VedomostiRecipe(BasicNewsRecipe):
                     continue
                 result.append(feeds[feedName])
                 del feeds[feedName]
-            result = result + feeds.values()
+            result = result + list(feeds.values())
 
             return result
 

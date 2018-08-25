@@ -8,10 +8,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import six.moves.cPickle, os, re
+import os, re
 from functools import partial
-from itertools import izip
 
+from six.moves import cPickle, zip
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
     QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
@@ -227,7 +227,7 @@ class TagsView(QTreeView):  # {{{
                     expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.category_key] = dict(izip(names, states))
+            state_map[category.category_key] = dict(zip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
@@ -742,7 +742,7 @@ class TagsView(QTreeView):  # {{{
                 if src_is_tb:
                     if event.dropAction() == Qt.MoveAction:
                         data = str(event.mimeData().data('application/calibre+from_tag_browser'))
-                        src = six.moves.cPickle.loads(data)
+                        src = cPickle.loads(data)
                         for s in src:
                             if s[0] == TagTreeItem.TAG and \
                                     (not s[1].startswith('@') or s[2]):

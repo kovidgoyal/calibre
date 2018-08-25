@@ -9,9 +9,9 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import six.moves.http_client, sys, inspect, re, time, numbers, json as jsonlib, textwrap
-from urllib import quote as urlquote
-from itertools import izip
 from operator import attrgetter
+from six.moves import zip
+from six.moves.urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
@@ -172,7 +172,7 @@ class Route(object):
     def matches(self, path):
         args_map = self.defaults.copy()
         num = 0
-        for component, (name, matched) in izip(path, self.matchers):
+        for component, (name, matched) in zip(path, self.matchers):
             num += 1
             if matched is True:
                 args_map[name] = component

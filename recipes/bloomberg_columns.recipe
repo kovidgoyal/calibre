@@ -121,7 +121,7 @@ class BloombergContributor:
                             'date': self.get_name() + ": " + article[3].strftime(output_date_format),
                             'timestamp': article[4]}
             output[article_date] = article_dict
-        return OrderedDict(sorted(output.items(), key=lambda t: t[0], reverse=True))
+        return OrderedDict(sorted(list(output.items()), key=lambda t: t[0], reverse=True))
 
     def get_name(self):
         return self._name
@@ -194,7 +194,7 @@ class BloombergContributors(BasicNewsRecipe):
             articles = contributor.get_ordered_article_feed()
             feed_dict.update(articles)
         feed_dict = OrderedDict(
-            sorted(feed_dict.items(), key=lambda t: t[0], reverse=True))
+            sorted(list(feed_dict.items()), key=lambda t: t[0], reverse=True))
         self.log("Found {0:d} linked articles from contributors".format(
             len(feed_dict)))
         feeds.append(("Columns", list(feed_dict.values())))

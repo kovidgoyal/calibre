@@ -9,10 +9,10 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from itertools import izip, groupby
+from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from six.moves import map
+from six.moves import map, zip
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
@@ -188,7 +188,7 @@ class Font(object):
 
     def write_widths(self, objects):
         glyphs = sorted(self.used_glyphs|{0})
-        widths = {g:self.metrics.pdf_scale(w) for g, w in izip(glyphs,
+        widths = {g:self.metrics.pdf_scale(w) for g, w in zip(glyphs,
                                         self.metrics.glyph_widths(glyphs))}
         counter = Counter()
         for g, w in six.iteritems(widths):

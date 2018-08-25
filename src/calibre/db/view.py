@@ -11,8 +11,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, operator
 from functools import partial
-from itertools import izip, imap
-from six.moves import map
+from six.moves import map, zip
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
@@ -376,8 +375,9 @@ class View(object):
             self.marked_ids = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = dict(izip(six.iterkeys(id_dict), imap(unicode,
-                six.itervalues(id_dict))))
+            self.marked_ids = dict(zip(
+                six.iterkeys(id_dict),
+                map(unicode, six.itervalues(id_dict))))
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)

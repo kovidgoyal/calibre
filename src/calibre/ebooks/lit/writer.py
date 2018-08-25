@@ -8,18 +8,20 @@ from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from six.moves import StringIO
 from struct import pack
-from itertools import izip, count, chain
+from itertools import count, chain
 import time
 import random
 import re
 import copy
 import uuid
 import functools
+
+from six.moves import StringIO, zip
 from six.moves.urllib.parse import urldefrag
 from six.moves.urllib.parse import unquote as urlunquote
 from lxml import etree
+
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
@@ -402,7 +404,7 @@ class LitWriter(object):
             1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
         cchunk = StringIO()
         last = 0
-        for i, dcount in izip(count(), dcounts):
+        for i, dcount in zip(count(), dcounts):
             cchunk.write(decint(last))
             cchunk.write(decint(dcount))
             cchunk.write(decint(i))
@@ -667,8 +669,7 @@ class LitWriter(object):
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
-        directory.sort(cmp=lambda x, y:
-            cmp(x.name.lower(), y.name.lower()))
+        directory.sort(key=lambda x: x.name.lower())
         qrn = 1 + (1 << 2)
         dchunk = StringIO()
         dcount = 0
@@ -698,7 +699,7 @@ class LitWriter(object):
         ichunk = None
         if len(ddata) > 1:
             ichunk = StringIO()
-        for cid, (content, quickref, dcount, name) in izip(count(), ddata):
+        for cid, (content, quickref, dcount, name) in zip(count(), ddata):
             dchunk = StringIO()
             prev = cid - 1 if cid > 0 else ULL_NEG1
             next = cid + 1 if cid < cidmax else ULL_NEG1

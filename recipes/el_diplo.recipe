@@ -90,7 +90,7 @@ class ElDiplo_Recipe(BasicNewsRecipe):
                 if section == '':
                     section = default_sect
 
-                if section not in articles.keys():
+                if section not in list(articles.keys()):
                     articles[section] = []
                     ans.append(section)
 

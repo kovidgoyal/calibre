@@ -12,10 +12,11 @@ __docformat__ = 'restructuredtext en'
 
 import struct, re, os
 from collections import namedtuple
-from itertools import repeat, izip
+from itertools import repeat
 from six.moves.urllib.parse import urldefrag
 from uuid import uuid4
 
+from six.moves import zip
 from lxml import etree
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -127,7 +128,7 @@ class Mobi8Reader(object):
             sec_start, num_sections = struct.unpack_from(b'>LL', header, 4)
             secs = struct.unpack_from(b'>%dL' % (num_sections*2),
                     header, sec_start)
-            self.flow_table = tuple(izip(secs[::2], secs[1::2]))
+            self.flow_table = tuple(zip(secs[::2], secs[1::2]))
 
         self.files = []
         if self.header.skelidx != NULL_INDEX:

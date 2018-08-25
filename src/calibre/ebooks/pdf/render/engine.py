@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -339,7 +340,7 @@ class PdfEngine(QPaintEngine):
         self.pdf.links.add_outline(toc)
 
     def add_links(self, current_item, start_page, links, anchors):
-        for pos in anchors.itervalues():
+        for pos in six.itervalues(anchors):
             pos['left'], pos['top'] = self.pdf_system.map(pos['left'], pos['top'])
         for link in links:
             pos = link[1]

@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
 from struct import unpack_from, pack
+from six.moves import zip
 
 from calibre.utils.fonts.sfnt import UnknownTable, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
@@ -39,7 +39,7 @@ class MaxpTable(UnknownTable):
             self._fmt = b'>lH' + b'H'*(len(self.fields)-2)
 
             vals = unpack_from(self._fmt, self.raw)
-            for f, val in izip(self.fields, vals):
+            for f, val in zip(self.fields, vals):
                 setattr(self, f, val)
 
     def update(self):

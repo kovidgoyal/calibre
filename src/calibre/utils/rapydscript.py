@@ -63,7 +63,7 @@ tls = local()
 
 
 def to_dict(obj):
-    return dict(zip(obj.keys(), obj.values()))
+    return dict(zip(list(obj.keys()), list(obj.values())))
 
 
 def compiler():

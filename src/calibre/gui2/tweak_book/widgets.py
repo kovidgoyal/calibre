@@ -9,9 +9,9 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, textwrap, unicodedata
-from itertools import izip
 from collections import OrderedDict
 
+from six.moves import zip
 from PyQt5.Qt import (
     QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
     QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
@@ -349,7 +349,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in izip(prefixes, six.iteritems(results)))
+                for prefix, (text, positions) in zip(prefixes, six.iteritems(results)))
         else:
             self.results = ()
             self.current_result = -1

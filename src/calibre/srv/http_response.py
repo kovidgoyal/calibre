@@ -10,10 +10,10 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, six.moves.http_client, hashlib, uuid, struct, six.moves.reprlib as reprlib
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
-from itertools import chain, repeat, izip_longest
+from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
-from six.moves import map
+from six.moves import map, zip_longest
 
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__, plugins
@@ -706,7 +706,7 @@ class HTTPConnection(HTTPRequest):
                 size = sum(map(len, range_parts)) + sum(r.size + 4 for r in ranges)
                 outheaders.set('Content-Length', '%d' % size, replace_all=True)
                 outheaders.set('Content-Type', 'multipart/byteranges; boundary=' + MULTIPART_SEPARATOR, replace_all=True)
-                output.ranges = izip_longest(ranges, range_parts)
+                output.ranges = zip_longest(ranges, range_parts)
             request.status_code = six.moves.http_client.PARTIAL_CONTENT
         return output
 

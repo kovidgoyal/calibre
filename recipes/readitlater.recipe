@@ -10,6 +10,7 @@ import re
 import tempfile
 import urllib
 import urllib2
+import six
 
 
 __license__ = 'GPL v3'
@@ -117,7 +118,7 @@ class Pocket(BasicNewsRecipe):
             self.user_error(
                 "Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
 
-        for pocket_article in pocket_feed.iteritems():
+        for pocket_article in six.iteritems(pocket_feed):
             self.articles.append({
                 'item_id':      pocket_article[0],
                 'title':        pocket_article[1]['resolved_title'],

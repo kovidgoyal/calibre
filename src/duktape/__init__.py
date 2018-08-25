@@ -177,7 +177,7 @@ def to_python(x):
     if name == 'Array proxy':
         return [to_python(y) for y in x]
     if name == 'Object proxy':
-        return {to_python(k):to_python(v) for k, v in x.items()}
+        return {to_python(k):to_python(v) for k, v in list(x.items())}
     if name == 'Function proxy':
         return Function(x)
     return x
@@ -195,7 +195,7 @@ class JSError(Exception):
                 if fn:
                     msg = type('')(fn) + ':' + msg
                 Exception.__init__(self, msg)
-                for k, v in e.iteritems():
+                for k, v in six.iteritems(e):
                     if k != 'message':
                         setattr(self, k, v)
                     else:
@@ -222,7 +222,7 @@ contexts = {}
 def create_context(base_dirs, *args):
     data = to_python(args[0]) if args else {}
     ctx = Context(base_dirs=base_dirs)
-    for k, val in data.iteritems():
+    for k, val in six.iteritems(data):
         setattr(ctx.g, k, val)
     key = id(ctx)
     contexts[key] = ctx

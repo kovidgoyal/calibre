@@ -10,9 +10,10 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import itertools, time, traceback, locale
-from itertools import repeat, izip, imap
+from itertools import repeat
 from datetime import timedelta
 from threading import Thread
+from six.moves import map, zip
 
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
@@ -916,8 +917,9 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(izip(six.iterkeys(id_dict), imap(unicode,
-                six.itervalues(id_dict))))
+            self.marked_ids_dict = dict(zip(
+                six.iterkeys(id_dict),
+                map(unicode, six.itervalues(id_dict))))
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']

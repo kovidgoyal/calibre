@@ -11,6 +11,7 @@ from collections import OrderedDict
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.cleantext import clean_ascii_chars
+import six
 
 
 def classes(classes):
@@ -246,7 +247,7 @@ class Economist(BasicNewsRecipe):
                     feeds[section_title] = []
                 feeds[section_title] += articles
 
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in six.iteritems(feeds)]
         return ans
 
     def eco_find_image_tables(self, soup):

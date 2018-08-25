@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -126,7 +127,7 @@ class GitHub(Base):  # {{{
         release = self.create_release(releases)
         upload_url = release['upload_url'].partition('{')[0]
         existing_assets = self.existing_assets(release['id'])
-        for path, desc in self.files.iteritems():
+        for path, desc in six.iteritems(self.files):
             self.info('')
             url = self.API + 'repos/%s/%s/releases/assets/{}' % (self.username, self.reponame)
             fname = os.path.basename(path)
@@ -245,7 +246,7 @@ def generate_index():  # {{{
     with open('index.html', 'wb') as f:
         f.write(index.encode('utf-8'))
 
-    for series, releases in rmap.iteritems():
+    for series, releases in six.iteritems(rmap):
         sname = '.'.join(map(type(''), series))
         body = [
             '<li><a href="{0}/" title="Release {0}">{0}</a></li>'.format('.'.join(map(type(''), r)))

@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import range
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -82,7 +83,7 @@ class ListTable(OrderedDict):
     def dump(self, prefix=''):
         print (prefix, self.__class__.__name__, sep='')
         prefix += '  '
-        for tag, child in self.iteritems():
+        for tag, child in six.iteritems(self):
             print (prefix, tag, sep='')
             child.dump(prefix=prefix+'  ')
 

@@ -8,10 +8,11 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, os
-from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 from functools import partial
+
+from six.moves import zip_longest
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
@@ -194,7 +195,7 @@ options = []
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 for shortdoc, name, default, doc in grouper(4, raw_options):
