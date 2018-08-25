@@ -13,14 +13,10 @@ A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
 import sys, traceback, io
-if sys.version_info.major > 2:
-    print('This script is not Python 3 compatible. Run it with Python 2',
-            file=sys.stderr)
-    raise SystemExit(1)
-
-import time, BaseHTTPServer, os, sys, re, SocketServer
+import time, os, sys, re
 from threading import Lock, local
-from SimpleHTTPServer import SimpleHTTPRequestHandler
+from six.moves import BaseHTTPServer, socketserver
+from six.moves.BaseHTTPServer import SimpleHTTPRequestHandler
 
 # Compiler {{{
 
@@ -255,7 +251,7 @@ class Handler(HTTPRequestHandler):  # {{{
 # }}}
 
 
-class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
+class Server(socketserver.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
     daemon_threads = True
 
     def handle_error(self, request, client_address):

@@ -11,7 +11,7 @@ import sys, os, uuid, copy, re
 from six.moves import StringIO
 from itertools import izip
 from six.moves.urllib.parse import urldefrag, urlparse
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import unquote as urlunquote
 from collections import defaultdict
 
 from lxml import etree

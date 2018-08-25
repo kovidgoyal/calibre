@@ -575,7 +575,7 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root, raw):
-        from urllib import unquote
+        from six.moves.urllib.parse import unquote
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:

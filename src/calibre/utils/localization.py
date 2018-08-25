@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import six
+from six import BytesIO
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -138,7 +139,7 @@ def get_all_translators():
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = StringIO(zf.read(mpath + '/%s.mo' % which))
+        buf = BytesIO(zf.read(mpath + '/%s.mo' % which))
         return GNUTranslations(buf)
 
 

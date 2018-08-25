@@ -17,7 +17,7 @@ import copy
 import uuid
 import functools
 from six.moves.urllib.parse import urldefrag
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps

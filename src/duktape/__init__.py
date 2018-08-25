@@ -12,6 +12,7 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
 import six
+from six.moves import getcwd
 
 import dukpy
 
@@ -85,6 +86,8 @@ module.exports = {};
 '''
 
 def sha1sum(x):
+    if not isinstance(x, six.binary_type):
+        x = x.encode()
     return hashlib.sha1(x).hexdigest()
 
 def load_file(base_dirs, builtin_modules, name):
@@ -118,7 +121,7 @@ def readfile(path, enc='utf-8'):
     except UnicodeDecodeError as e:
         return None, '', 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
     except EnvironmentError as e:
-        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
+        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, str(e))]
 
 def atomic_write(name, raw):
     bdir, bname = os.path.dirname(os.path.abspath(name)), os.path.basename(name)
@@ -242,12 +245,12 @@ class Context(object):
     def __init__(self, base_dirs=(), builtin_modules=None):
         self._ctx = Context_()
         self.g = self._ctx.g
-        self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
+        self.g.Duktape.load_file = partial(load_file, base_dirs or (getcwd(),), builtin_modules or {})
         self.g.Duktape.pyreadfile = readfile
         self.g.Duktape.pywritefile = writefile
         self.g.Duktape.create_context = partial(create_context, base_dirs)
         self.g.Duktape.run_in_context = run_in_context
-        self.g.Duktape.cwd = os.getcwdu
+        self.g.Duktape.cwd = getcwd
         self.g.Duktape.sha1sum = sha1sum
         self.g.Duktape.dirname = os.path.dirname
         self.g.Duktape.errprint = lambda *args: print(*args, file=sys.stderr)

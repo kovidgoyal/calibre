@@ -10,7 +10,7 @@ import os, re, logging
 from collections import defaultdict
 from itertools import count
 from six.moves.urllib.parse import urldefrag, urlparse, urlunparse, urljoin
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__

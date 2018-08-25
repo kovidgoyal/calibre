@@ -113,8 +113,12 @@ if not _run_once:
         except:
             pass
 
-    # local_open() opens a file that wont be inherited by child processes
-    if iswindows:
+    # local_open() opens a file that wont be inherited by child processes\
+    if sys.version_info >= (3,4,0):
+        # this is done by default in py3.4+, see https://www.python.org/dev/peps/pep-0446/
+        def local_open(name, mode='r', bufsize=-1):
+            return open(name, mode, bufsize)
+    elif iswindows:
         def local_open(name, mode='r', bufsize=-1):
             mode += 'N'
             return open(name, mode, bufsize)

@@ -19,13 +19,12 @@ from threading import Thread, local
 
 from calibre import force_unicode
 from calibre.constants import __appname__, __version__, cache_dir
+from calibre.startup import local_open
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from six.moves import map
-from six.moves import zip
-from six.moves import getcwd
+from six.moves import map, zip, getcwd
 import six
 
 
@@ -63,7 +62,7 @@ tls = local()
 
 
 def to_dict(obj):
-    return dict(list(zip(list(obj.keys()), list(obj.values()))))
+    return dict(zip(obj.keys(), obj.values()))
 
 
 def compiler():
@@ -73,7 +72,7 @@ def compiler():
         c.eval('exports = {}; sha1sum = Duktape.sha1sum;', noreturn=True)
         buf = BytesIO()
         decompress(P(COMPILER_PATH, data=True, allow_user_override=False), buf)
-        c.eval(buf.getvalue(), fname=COMPILER_PATH, noreturn=True)
+        c.eval(buf.getvalue().decode(), fname=COMPILER_PATH, noreturn=True)
     return c
 
 
@@ -207,13 +206,15 @@ def compile_srv():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
-    execfile(iconf, g)
+    with open(iconf) as f:
+        code = compile(f.read(), iconf, 'exec')
+        exec(code, g)
     icons = g['merge']().encode('utf-8')
-    with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+    with local_open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
-    with lopen(rb, 'rb') as f:
+    with local_open(rb, 'rb') as f:
         rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
     try:
         mathjax_version = P('content-server/mathjax.version', data=True, allow_user_override=False).decode('utf-8')
@@ -223,12 +224,12 @@ def compile_srv():
         mathjax_version = '0'
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
-    with lopen(fname, 'rb') as f:
+    with local_open(fname, 'rb') as f:
         js = compile_fast(f.read(), fname).replace(
             '__RENDER_VERSION__', rv, 1).replace(
             '__MATHJAX_VERSION__', mathjax_version, 1).replace(
             '__CALIBRE_VERSION__', __version__, 1).encode('utf-8')
-    with lopen(os.path.join(base, 'index.html'), 'rb') as f:
+    with local_open(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     manifest = create_manifest(html)
@@ -236,7 +237,7 @@ def compile_srv():
     def atomic_write(name, content):
         name = os.path.join(base, name)
         tname = name + '.tmp'
-        with lopen(tname, 'wb') as f:
+        with local_open(tname, 'wb') as f:
             f.write(content)
         atomic_rename(tname, name)
 

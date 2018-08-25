@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from lxml import etree
 from calibre import guess_type

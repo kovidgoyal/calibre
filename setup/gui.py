@@ -59,7 +59,7 @@ class GUI(Command):
                 for s in sources:
                     files.append('<file>%s</file>'%s)
                 manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(sorted(files))
-                with open('images.qrc', 'wb') as f:
+                with open('images.qrc', 'w') as f:
                     f.write(manifest)
         finally:
             os.chdir(cwd)

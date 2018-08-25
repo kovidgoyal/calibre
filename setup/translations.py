@@ -403,8 +403,7 @@ class Translations(POT):  # {{{
                 else:
                     self.info('\tParsing ' + os.path.basename(src))
                     raw = None
-                    po_data = data.decode('utf-8')
-                    data = json.loads(msgfmt(po_data))
+                    data = json.loads(msgfmt(data))
                     translated_entries = {k:v for k, v in six.iteritems(data['entries']) if v and sum(map(len, v))}
                     data[u'entries'] = translated_entries
                     data[u'hash'] = h.hexdigest()
@@ -501,15 +500,19 @@ class Translations(POT):  # {{{
                 if l == 'en':
                     t = get_language
                 else:
-                    t = get_iso639_translator(l).ugettext
-                    t = partial(get_iso_language, t)
-                lang_names[l] = {x: t(x) for x in dl}
+                    translator = get_iso639_translator(l)
+                    try:
+                        gettext = translator.ugettext
+                    except AttributeError:
+                        gettext = translator.gettext
+                    applied_gettext = partial(get_iso_language, gettext)
+                lang_names[l] = {x: applied_gettext(x) for x in dl}
             zi = ZipInfo('lang-names.json')
             zi.compress_type = ZIP_STORED
             zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
         dest = self.j(self.d(self.stats), 'website-languages.txt')
         with open(dest, 'wb') as f:
-            f.write(' '.join(sorted(done)))
+            f.write(' '.join(sorted(done)).encode())
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')
@@ -541,13 +544,13 @@ class Translations(POT):  # {{{
 
         self.compile_group(files, handle_stats=handle_stats)
         for locale, stats in six.iteritems(all_stats):
-            with open(self.j(srcbase, locale, 'stats.json'), 'wb') as f:
+            with open(self.j(srcbase, locale, 'stats.json'), 'w') as f:
                 json.dump(stats, f)
             total = stats['translated'] + stats['untranslated']
             # Raise the 30% threshold in the future
             if total and (stats['translated'] / float(total)) > 0.3:
                 complete[locale] = stats
-        with open(self.j(destbase, 'completed.json'), 'wb') as f:
+        with open(self.j(destbase, 'completed.json'), 'w') as f:
             json.dump(complete, f, indent=True, sort_keys=True)
 
     def clean(self):

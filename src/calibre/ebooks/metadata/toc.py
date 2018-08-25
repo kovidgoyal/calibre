@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, functools
 from six.moves.urllib.parse import urlparse
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 from collections import Counter
 
 from lxml import etree

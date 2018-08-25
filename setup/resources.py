@@ -5,11 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, six.moves.cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
+import os, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
 from zlib import compress
 from itertools import chain
 import six
 from six import unichr
+from six.moves import cPickle
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely
@@ -62,8 +63,7 @@ class Coffee(Command):  # {{{
         from calibre.utils.serve_coffee import compile_coffeescript
         src_files = {}
         for src in self.COFFEE_DIRS:
-            for f in glob.glob(self.j(self.SRC, __appname__, src,
-                '*.coffee')):
+            for f in glob.glob(self.j(self.SRC, __appname__, src, '*.coffee')):
                 bn = os.path.basename(f).rpartition('.')[0]
                 arcname = src.replace('/', '.') + '.' + bn + '.js'
                 try:
@@ -93,7 +93,7 @@ class Coffee(Command):  # {{{
             print(('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', name)))
             src, sig = src_files[arcname]
-            js, errors = compile_coffeescript(open(src, 'rb').read(), filename=src)
+            js, errors = compile_coffeescript(open(src, 'r').read(), filename=src)
             if errors:
                 print(('\n\tCompilation of %s failed'%name))
                 for line in errors:
@@ -117,7 +117,7 @@ class Coffee(Command):  # {{{
                 for raw, zi, sig in sorted(chain(six.itervalues(updated), six.itervalues(existing)), key=lambda x: x[1].filename):
                     zf.writestr(zi, raw)
                     hashes[zi.filename] = sig
-                zf.comment = json.dumps(hashes)
+                zf.comment = json.dumps(hashes).encode()
 
     def clean(self):
         x = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
@@ -168,29 +168,29 @@ class Kakasi(Command):  # {{{
     def mkitaiji(self, src, dst):
         dic = {}
         for line in open(src, "r"):
-            line = line.decode("utf-8").strip()
+            line = line.strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
                 continue
             pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
-        six.moves.cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def mkkanadict(self, src, dst):
         dic = {}
         for line in open(src, "r"):
-            line = line.decode("utf-8").strip()
+            line = line.strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
                 continue
             (alpha, kana) = line.split(' ')
             dic[kana] = alpha
-        six.moves.cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def parsekdict(self, line):
-        line = line.decode("utf-8").strip()
+        line = line.strip()
         if line.startswith(';;'):  # skip comment
             return
         (yomi, kanji) = line.split(' ')
@@ -219,7 +219,7 @@ class Kakasi(Command):  # {{{
             dic = {}
             for k, v in six.iteritems(self.records):
                 dic[k] = compress(marshal.dumps(v))
-            six.moves.cPickle.dump(dic, f, -1)
+            cPickle.dump(dic, f, -1)
 
     def clean(self):
         kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')
@@ -296,7 +296,7 @@ class Resources(Command):  # {{{
         if self.newer(dest, self.j(self.SRC, 'calibre', 'linux.py')):
             self.info('\tCreating scripts.pickle')
             f = open(dest, 'wb')
-            six.moves.cPickle.dump(scripts, f, -1)
+            cPickle.dump(scripts, f, -1)
 
         from calibre.web.feeds.recipes.collection import \
                 serialize_builtin_recipes, iterate_over_builtin_recipe_files
@@ -351,7 +351,7 @@ class Resources(Command):  # {{{
                     complete[(inf, ouf)] = [x+' 'for x in
                             get_opts_from_parser(p)]
 
-            six.moves.cPickle.dump(complete, open(dest, 'wb'), -1)
+            cPickle.dump(complete, open(dest, 'wb'), -1)
 
         self.info('\tCreating template-functions.json')
         dest = self.j(self.RESOURCES, 'template-functions.json')

@@ -107,7 +107,7 @@ class CHMInput(InputFormatPlugin):
 
     def _create_html_root(self, hhcpath, log, encoding):
         from lxml import html
-        from urllib import unquote as _unquote
+        from six.moves.urllib.parse import unquote as _unquote
         from calibre.ebooks.oeb.base import urlquote
         from calibre.ebooks.chardet import xml_to_unicode
         hhcdata = self._read_file(hhcpath)

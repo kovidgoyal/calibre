@@ -6,6 +6,7 @@ from __future__ import print_function
 import struct, os, time, sys, shutil, stat, re, io
 import binascii
 from six.moves import StringIO
+import six
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
@@ -58,8 +59,8 @@ ZIP_DEFLATED = 8
 
 # The "end of central directory" structure, magic number, size, and indices
 # (section V.I in the format document)
-structEndArchive = "<4s4H2LH"
-stringEndArchive = "PK\005\006"
+structEndArchive = b"<4s4H2LH"
+stringEndArchive = b"PK\005\006"
 sizeEndCentDir = struct.calcsize(structEndArchive)
 
 _ECD_SIGNATURE = 0
@@ -77,8 +78,8 @@ _ECD_LOCATION = 9
 
 # The "central directory" structure, magic number, size, and indices
 # of entries in the structure (section V.F in the format document)
-structCentralDir = "<4s4B4HL2L5H2L"
-stringCentralDir = "PK\001\002"
+structCentralDir = b"<4s4B4HL2L5H2L"
+stringCentralDir = b"PK\001\002"
 sizeCentralDir = struct.calcsize(structCentralDir)
 
 # indexes of entries in the central directory structure
@@ -104,8 +105,8 @@ _CD_LOCAL_HEADER_OFFSET = 18
 
 # The "local file header" structure, magic number, size, and indices
 # (section V.A in the format document)
-structFileHeader = "<4s2B4HL2L2H"
-stringFileHeader = "PK\003\004"
+structFileHeader = b"<4s2B4HL2L2H"
+stringFileHeader = b"PK\003\004"
 sizeFileHeader = struct.calcsize(structFileHeader)
 
 _FH_SIGNATURE = 0
@@ -122,14 +123,14 @@ _FH_FILENAME_LENGTH = 10
 _FH_EXTRA_FIELD_LENGTH = 11
 
 # The "Zip64 end of central directory locator" structure, magic number, and size
-structEndArchive64Locator = "<4sLQL"
-stringEndArchive64Locator = "PK\x06\x07"
+structEndArchive64Locator = b"<4sLQL"
+stringEndArchive64Locator = b"PK\x06\x07"
 sizeEndCentDir64Locator = struct.calcsize(structEndArchive64Locator)
 
 # The "Zip64 end of central directory" record, magic number, size, and indices
 # (section V.G in the format document)
-structEndArchive64 = "<4sQ2H2L4Q"
-stringEndArchive64 = "PK\x06\x06"
+structEndArchive64 = b"<4sQ2H2L4Q"
+stringEndArchive64 = b"PK\x06\x06"
 sizeEndCentDir64 = struct.calcsize(structEndArchive64)
 
 _CD64_SIGNATURE = 0
@@ -336,8 +337,8 @@ class ZipInfo (object):
         self.date_time = date_time      # year, month, day, hour, min, sec
         # Standard values:
         self.compress_type = ZIP_STORED  # Type of compression for the file
-        self.comment = ""               # Comment for each file
-        self.extra = ""                 # ZIP extra data
+        self.comment = b""               # Comment for each file
+        self.extra = b""                 # ZIP extra data
         if sys.platform == 'win32':
             self.create_system = 0          # System which created ZIP archive
         else:
@@ -1282,13 +1283,16 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes, permissions=0o600,
-            compression=ZIP_DEFLATED, raw_bytes=False):
+    def writestr(self, zinfo_or_arcname, content_bytes, permissions=0o600,
+                 compression=ZIP_DEFLATED, raw_bytes=False):
         """Write a file into the archive.  The contents is the string
         'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
+        if isinstance(content_bytes, six.text_type):
+            content_bytes = content_bytes.encode()
+
         if not isinstance(zinfo_or_arcname, ZipInfo):
             if not isinstance(zinfo_or_arcname, unicode):
                 zinfo_or_arcname = zinfo_or_arcname.decode(filesystem_encoding)
@@ -1304,22 +1308,22 @@ class ZipFile:
                   "Attempt to write to ZIP archive that was already closed")
 
         if not raw_bytes:
-            zinfo.file_size = len(bytes)            # Uncompressed size
+            zinfo.file_size = len(content_bytes)            # Uncompressed size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self._writecheck(zinfo)
         self._didModify = True
         if not raw_bytes:
-            zinfo.CRC = crc32(bytes) & 0xffffffff       # CRC-32 checksum
+            zinfo.CRC = crc32(content_bytes) & 0xffffffff       # CRC-32 checksum
             if zinfo.compress_type == ZIP_DEFLATED:
                 co = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION,
                     zlib.DEFLATED, -15)
-                bytes = co.compress(bytes) + co.flush()
-                zinfo.compress_size = len(bytes)    # Compressed size
+                content_bytes = co.compress(content_bytes) + co.flush()
+                zinfo.compress_size = len(content_bytes)    # Compressed size
             else:
                 zinfo.compress_size = zinfo.file_size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self.fp.write(zinfo.FileHeader())
-        self.fp.write(bytes)
+        self.fp.write(content_bytes)
         self.fp.flush()
         if zinfo.flag_bits & 0x08:
             # Write CRC and file sizes after the file data
@@ -1333,7 +1337,7 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            self.writestr(prefix+'/', '', 0o755)
+            self.writestr(prefix + '/', '', 0o755)
         cwd = os.path.abspath(getcwd())
         try:
             os.chdir(path)
@@ -1444,6 +1448,9 @@ class ZipFile:
                 centDirCount = min(centDirCount, 0xFFFF)
                 centDirSize = min(centDirSize, 0xFFFFFFFF)
                 centDirOffset = min(centDirOffset, 0xFFFFFFFF)
+
+            if isinstance(self.comment, six.string_types):
+                self.comment = self.comment.encode()
 
             # check for valid comment length
             if len(self.comment) >= ZIP_MAX_COMMENT:

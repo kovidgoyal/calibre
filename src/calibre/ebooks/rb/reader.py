@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 import zlib
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import unquote as urlunquote
 
 from calibre import CurrentDir
 from calibre.ebooks.rb import HEADER

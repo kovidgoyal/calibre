@@ -28,7 +28,7 @@ import six
 try:
     NO_URL_FORMATTING = QUrl.None_
 except AttributeError:
-    NO_URL_FORMATTING = QUrl.None
+    NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
@@ -1270,7 +1270,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
             dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
 
-            open(compiled_form, 'wb').write(dat)
+            open(compiled_form, 'w').write(dat)
             num += 1
     if num:
         info('Compiled %d forms' % num)

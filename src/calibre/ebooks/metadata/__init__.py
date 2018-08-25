@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, sys, re
+from six import unichr
 
 from six.moves.urllib.parse import urlparse
 
@@ -137,8 +138,9 @@ def get_title_sort_pat(lang=None):
     return ans
 
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in
-        range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = u'\'"'+u''.join(
+    unichr(x) for x in
+    list(range(0x2018, 0x201e)) + [0x2032, 0x2033])
 
 
 def title_sort(title, order=None, lang=None):
@@ -206,7 +208,7 @@ class Resource(object):
     '''
 
     def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
-        from urllib import unquote
+        from six.moves.urllib.parse import unquote
         self._href = None
         self._basedir = basedir
         self.path = None

@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, six.moves.http_client, six.moves.reprlib as reprlib
 from io import BytesIO, DEFAULT_BUFFER_SIZE
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
