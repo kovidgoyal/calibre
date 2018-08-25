@@ -97,7 +97,7 @@ class ByteCode(dict):
     def write_int(self, value, encoding="cff"):
         four_byte_op = {'cff':29, 't1':255}.get(encoding, None)
 
-		if -107 <= value <= 107:
+        if -107 <= value <= 107:
 			code = bytes(bytearray([value + 139]))
 		elif 108 <= value <= 1131:
 			value = value - 108
