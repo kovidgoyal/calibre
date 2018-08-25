@@ -23,6 +23,7 @@ from ..postprocessors import Postprocessor
 from ..util import etree, text_type
 from ..odict import OrderedDict
 import re
+from six.moves import range
 
 FN_BACKLINK_TEXT = "zz1337820767766393qq"
 NBSP_PLACEHOLDER = "qq3936677670287331zz"

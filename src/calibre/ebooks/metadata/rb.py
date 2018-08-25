@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from RB files'''

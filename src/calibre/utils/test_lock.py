@@ -21,6 +21,7 @@ from calibre.utils.tdir_in_cache import (
 )
 from six.moves import getcwd
 import six
+from six.moves import range
 
 
 def FastFailEF(name):

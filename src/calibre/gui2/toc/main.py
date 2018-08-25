@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -45,7 +46,7 @@ class XPathDialog(QDialog):  # {{{
         la.setWordWrap(True)
         l.addWidget(la)
         self.widgets = []
-        for i in xrange(5):
+        for i in range(5):
             la = _('Level %s ToC:')%('&%d'%(i+1))
             xp = XPathEdit(self)
             xp.set_msg(la)
@@ -304,10 +305,10 @@ class ItemView(QFrame):  # {{{
         l.addWidget(la, l.rowCount(), 0, 1, 2)
 
     def create_from_major_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in xrange(1, 4)])
+        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 4)])
 
     def create_from_all_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in xrange(1, 7)])
+        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 7)])
 
     def create_from_user_xpath(self):
         d = XPathDialog(self, self.prefs)
@@ -401,7 +402,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def iteritems(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
-        for i in xrange(parent.childCount()):
+        for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
             for gc in self.iteritems(parent=child):
@@ -493,7 +494,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 is_expanded = item.isExpanded() or item.childCount() == 0
                 gp = parent.parent() or self.invisibleRootItem()
                 idx = gp.indexOfChild(parent)
-                for gc in [parent.child(i) for i in xrange(parent.indexOfChild(item)+1, parent.childCount())]:
+                for gc in [parent.child(i) for i in range(parent.indexOfChild(item)+1, parent.childCount())]:
                     parent.removeChild(gc)
                     item.addChild(gc)
                 parent.removeChild(item)
@@ -795,7 +796,7 @@ class TOCView(QWidget):  # {{{
         if item is not None:
             p = item.parent() or self.root
             idx = p.indexOfChild(item)
-            children = [item.child(i) for i in xrange(item.childCount())]
+            children = [item.child(i) for i in range(item.childCount())]
             for child in reversed(children):
                 item.removeChild(child)
                 p.insertChild(idx+1, child)
@@ -813,7 +814,7 @@ class TOCView(QWidget):  # {{{
         self.tocw.move_down()
 
     def data_changed(self, top_left, bottom_right):
-        for r in xrange(top_left.row(), bottom_right.row()+1):
+        for r in range(top_left.row(), bottom_right.row()+1):
             idx = self.tocw.model().index(r, 0, top_left.parent())
             new_title = unicode(idx.data(Qt.DisplayRole) or '').strip()
             toc = idx.data(Qt.UserRole)
@@ -905,7 +906,7 @@ class TOCView(QWidget):  # {{{
         root = TOC()
 
         def process_node(parent, toc_parent):
-            for i in xrange(parent.childCount()):
+            for i in range(parent.childCount()):
                 item = parent.child(i)
                 title = unicode(item.data(0, Qt.DisplayRole) or '').strip()
                 toc = item.data(0, Qt.UserRole)

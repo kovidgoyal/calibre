@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -287,10 +288,10 @@ class SubsetFonts(object):
         elif fw == 500:
             q = [500, 400, 300, 200, 100, 600, 700, 800, 900]
         elif fw < 400:
-            q = [fw] + list(xrange(fw-100, -100, -100)) + list(xrange(fw+100,
+            q = [fw] + list(range(fw-100, -100, -100)) + list(range(fw+100,
                 100, 1000))
         else:
-            q = [fw] + list(xrange(fw+100, 100, 1000)) + list(xrange(fw-100,
+            q = [fw] + list(range(fw+100, 100, 1000)) + list(range(fw-100,
                 -100, -100))
         for wt in q:
             matches = [f for f in matching_set if f['weight'] == wt]

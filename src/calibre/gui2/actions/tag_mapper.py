@@ -9,6 +9,7 @@ from six.moves import map
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 import six
+from six.moves import range
 
 
 class TagMapAction(InterfaceAction):
@@ -25,7 +26,7 @@ class TagMapAction(InterfaceAction):
         selected = True
         if not rows or len(rows) < 2:
             selected = False
-            rows = xrange(self.gui.library_view.model().rowCount(None))
+            rows = range(self.gui.library_view.model().rowCount(None))
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 

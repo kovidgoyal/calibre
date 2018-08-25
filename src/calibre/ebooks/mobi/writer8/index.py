@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -379,7 +380,7 @@ if __name__ == '__main__':
     # calibre and kindlegen and compare the output
     import os, subprocess
     os.chdir('/t')
-    paras = ['<p>%d</p>' % i for i in xrange(4000)]
+    paras = ['<p>%d</p>' % i for i in range(4000)]
     raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
 
     src = 'index.html'

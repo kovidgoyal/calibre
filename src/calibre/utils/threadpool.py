@@ -31,6 +31,7 @@ Website : http://chrisarndt.de/en/software/python/threadpool/
 """
 
 from __future__ import print_function
+from six.moves import range
 __all__ = [
   'makeRequests',
   'NoResultsPending',

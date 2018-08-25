@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import filter
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -147,12 +148,12 @@ class UserWordList(QListWidget):
         m.exec_(ev.globalPos())
 
     def select_all(self):
-        for item in (self.item(i) for i in xrange(self.count())):
+        for item in (self.item(i) for i in range(self.count())):
             item.setSelected(True)
 
     def copy_to_clipboard(self):
         words = []
-        for item in (self.item(i) for i in xrange(self.count())):
+        for item in (self.item(i) for i in range(self.count())):
             if item.isSelected():
                 words.append(item.data(Qt.UserRole)[0])
         if words:
@@ -292,7 +293,7 @@ class ManageUserDictionaries(Dialog):
         if d is not None:
             dictionaries.mark_user_dictionary_as_active(d.name, self.is_active.isChecked())
             self.dictionaries_changed = True
-            for item in (self.dictionaries.item(i) for i in xrange(self.dictionaries.count())):
+            for item in (self.dictionaries.item(i) for i in range(self.dictionaries.count())):
                 d = item.data(Qt.UserRole)
                 item.setData(Qt.FontRole, self.emph_font if d.is_active else None)
 
@@ -386,7 +387,7 @@ class ManageUserDictionaries(Dialog):
 
     def find_word(self, word, lang):
         key = (word, lang)
-        for i in xrange(self.words.count()):
+        for i in range(self.words.count()):
             if self.words.item(i).data(Qt.UserRole) == key:
                 return i
         return -1
@@ -557,7 +558,7 @@ class ManageDictionaries(Dialog):  # {{{
         item = self.dictionaries.currentItem()
         bf = QFont(self.dictionaries.font())
         bf.setBold(True)
-        for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
+        for x in (item.parent().child(i) for i in range(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
         lc = unicode(item.parent().data(0, Qt.UserRole))
         pl = dprefs['preferred_locales']
@@ -578,7 +579,7 @@ class ManageDictionaries(Dialog):  # {{{
         item = self.dictionaries.currentItem()
         bf = QFont(self.dictionaries.font())
         bf.setItalic(True)
-        for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
+        for x in (item.parent().child(i) for i in range(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
         cc = unicode(item.parent().data(0, Qt.UserRole))
         lc = unicode(item.parent().parent().data(0, Qt.UserRole))

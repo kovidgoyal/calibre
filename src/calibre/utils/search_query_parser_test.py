@@ -8,6 +8,7 @@ import operator
 import unittest
 
 from calibre.utils.search_query_parser import SearchQueryParser, Parser
+from six.moves import range
 
 
 class Tester(SearchQueryParser):

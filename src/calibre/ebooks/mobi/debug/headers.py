@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -225,7 +226,7 @@ class EXTHHeader(object):
 
         pos = 12
         self.records = []
-        for i in xrange(self.count):
+        for i in range(self.count):
             pos = self.read_record(pos)
         self.records.sort(key=lambda x:x.type)
         self.rmap = {x.type:x for x in self.records}
@@ -518,7 +519,7 @@ class MOBIFile(object):
 
         self.record_headers = []
         self.records = []
-        for i in xrange(self.palmdb.number_of_records):
+        for i in range(self.palmdb.number_of_records):
             pos = 78 + i * 8
             offset, a1, a2, a3, a4 = struct.unpack(b'>LBBBB', self.raw[pos:pos+8])
             flags, val = a1, a2 << 16 | a3 << 8 | a4
@@ -558,7 +559,7 @@ class MOBIFile(object):
             from calibre.ebooks.mobi.huffcdic import HuffReader
 
             def huffit(off, cnt):
-                huffman_record_nums = list(xrange(off, off+cnt))
+                huffman_record_nums = list(range(off, off+cnt))
                 huffrecs = [self.records[r].raw for r in huffman_record_nums]
                 huffs = HuffReader(huffrecs)
                 return huffman_record_nums, huffs.unpack

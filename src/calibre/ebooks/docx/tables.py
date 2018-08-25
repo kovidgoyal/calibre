@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import filter
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -573,7 +574,7 @@ class Table(object):
             return
         # Handle vMerge
         max_col_num = max(len(r) for r in self.cell_map)
-        for c in xrange(max_col_num):
+        for c in range(max_col_num):
             cells = [row[c] if c < len(row) else None for row in self.cell_map]
             runs = [[]]
             for cell in cells:

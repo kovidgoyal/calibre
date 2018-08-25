@@ -23,6 +23,7 @@
 import sys, zipfile, xml.dom.minidom
 from namespaces import nsdict
 from elementtypes import *
+from six.moves import range
 
 IGNORED_TAGS = [
     'draw:a'

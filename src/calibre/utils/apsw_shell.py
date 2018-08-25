@@ -12,6 +12,7 @@ import textwrap
 import time
 import codecs
 import base64
+from six.moves import range
 
 if sys.platform=="win32":
     _win_colour=False

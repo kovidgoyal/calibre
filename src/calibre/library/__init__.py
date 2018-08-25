@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
@@ -32,13 +33,13 @@ def generate_test_db(library_path,  # {{{
 
     def randstr(length):
         return ''.join(random.choice(letters) for i in
-                xrange(length))
+                range(length))
 
-    all_tags = [randstr(tag_length) for j in xrange(num_of_tags)]
+    all_tags = [randstr(tag_length) for j in range(num_of_tags)]
     print('Generated', num_of_tags, 'tags')
-    all_authors = [randstr(author_length) for j in xrange(num_of_authors)]
+    all_authors = [randstr(author_length) for j in range(num_of_authors)]
     print('Generated', num_of_authors, 'authors')
-    all_titles = [randstr(title_length) for j in xrange(num_of_records)]
+    all_titles = [randstr(title_length) for j in range(num_of_records)]
     print('Generated', num_of_records, 'titles')
 
     testdb = db(library_path)
@@ -51,9 +52,9 @@ def generate_test_db(library_path,  # {{{
         print(i+1, end=' ')
         sys.stdout.flush()
         authors = random.randint(1, max_authors)
-        authors = [random.choice(all_authors) for i in xrange(authors)]
+        authors = [random.choice(all_authors) for i in range(authors)]
         tags = random.randint(0, max_tags)
-        tags = [random.choice(all_tags) for i in xrange(tags)]
+        tags = [random.choice(all_tags) for i in range(tags)]
         from calibre.ebooks.metadata.book.base import Metadata
         mi = Metadata(title, authors)
         mi.tags = tags

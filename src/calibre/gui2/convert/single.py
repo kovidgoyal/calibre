@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -116,7 +117,7 @@ class Config(QDialog, Ui_Dialog):
 
     @property
     def manually_fine_tune_toc(self):
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             w = self.stack.widget(i)
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()

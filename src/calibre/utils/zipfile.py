@@ -15,6 +15,7 @@ from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from six.moves import map
 from six.moves import getcwd
+from six.moves import range
 
 try:
     import zlib  # We may need its compression method

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -18,7 +19,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 URL = \
 "http://ww2.kdl.org/libcat/WhatsNext.asp?AuthorLastName={0}&AuthorFirstName=&SeriesName=&BookTitle={1}&CategoryID=0&cmdSearch=Search&Search=1&grouping="
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = u'\'"'+u''.join(unichr(x) for x in list(range(0x2018, 0x201e))+[0x2032, 0x2033])
 
 
 def get_series(title, authors, timeout=60):

@@ -15,6 +15,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 from six.moves import map
 import six
+from six.moves import range
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

@@ -12,6 +12,7 @@ from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
         TABLE, TD, TR
 
 from calibre import strftime, isbytestring
+from six.moves import range
 
 
 def CLASS(*args, **kwargs):  # class is a reserved word in Python

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -258,7 +259,7 @@ class ItemEdit(QWidget):
                 self.name.setCursorPosition(0)
             toc = item.data(0, Qt.UserRole)
             if toc.dest:
-                for i in xrange(self.dest_list.count()):
+                for i in range(self.dest_list.count()):
                     litem = self.dest_list.item(i)
                     if unicode(litem.data(Qt.DisplayRole) or '') == toc.dest:
                         dest_index = i

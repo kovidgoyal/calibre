@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -41,7 +42,7 @@ class SimpleListTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             offset = data.unpack('H')
             self.append(self.child_class(raw, data.start_pos + offset))
         self.read_extra_footer(data)
@@ -66,7 +67,7 @@ class ListTable(OrderedDict):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             tag, coffset = data.unpack('4sH')
             self[tag] = self.child_class(raw, data.start_pos + coffset)
 
@@ -93,7 +94,7 @@ class IndexTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             self.append(data.unpack('H'))
 
     def read_extra_header(self, data):
@@ -186,7 +187,7 @@ class Coverage(object):
         else:
             self.ranges = []
             ranges = data.unpack('%dH'%(3*count), single_special=False)
-            for i in xrange(count):
+            for i in range(count):
                 start, end, start_coverage_index = ranges[i*3:(i+1)*3]
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
 

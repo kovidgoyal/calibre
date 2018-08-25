@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -106,7 +107,7 @@ class MobiWriter(object):
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)
-            for i in xrange(self.last_text_record_idx + 1):
+            for i in range(self.last_text_record_idx + 1):
                 if i == 0:
                     continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
@@ -125,7 +126,7 @@ class MobiWriter(object):
 
         breaks = self.serializer.breaks
 
-        for i in xrange(1, self.last_text_record_idx+1):
+        for i in range(1, self.last_text_record_idx+1):
             offset = i * RECORD_SIZE
             pbreak = 0
             running = offset

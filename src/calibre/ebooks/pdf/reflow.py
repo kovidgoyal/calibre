@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -359,9 +360,9 @@ class Region(object):
                 col_map[i] = max_overlap_index
             lines = max(list(map(len, region.columns)))
             if at == 'bottom':
-                lines = range(lines)
+                lines = list(range(lines))
             else:
-                lines = range(lines-1, -1, -1)
+                lines = list(range(lines-1, -1, -1))
             for i in lines:
                 for j, src in enumerate(region.columns):
                     dest = self.columns[col_map[j]]
@@ -622,7 +623,7 @@ class PDFDocument(object):
         self.opts, self.log = opts, log
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
-        idc = iter(xrange(sys.maxint))
+        idc = iter(range(sys.maxint))
 
         self.fonts = []
         self.font_map = {}

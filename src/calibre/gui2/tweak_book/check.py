@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -99,7 +100,7 @@ class Check(QSplitter):
 
     def copy_to_clipboard(self):
         items = []
-        for item in (self.items.item(i) for i in xrange(self.items.count())):
+        for item in (self.items.item(i) for i in range(self.items.count())):
             msg = unicode(item.text())
             msg = prefix_for_level(item.data(Qt.UserRole).level) + msg
             items.append(msg)
@@ -122,7 +123,7 @@ class Check(QSplitter):
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.UserRole) for i in xrange(self.items.count())]
+            errors = [self.items.item(i).data(Qt.UserRole) for i in range(self.items.count())]
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])

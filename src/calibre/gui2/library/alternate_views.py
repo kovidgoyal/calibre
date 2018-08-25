@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -741,8 +742,8 @@ class GridView(QListView):
     @property
     def first_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.top(), (self.spacing()*2) + geom.top(), 5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.top(), (self.spacing()*2) + geom.top(), 5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     return ans
@@ -750,8 +751,8 @@ class GridView(QListView):
     @property
     def last_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     item_width = self.delegate.item_size.width() + 2*self.spacing()
@@ -761,7 +762,7 @@ class GridView(QListView):
         self.ignore_render_requests.clear()
         self.update_timer.stop()
         m = self.model()
-        for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
+        for r in range(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
     def start_view_animation(self, index):

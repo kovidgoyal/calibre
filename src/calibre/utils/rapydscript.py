@@ -26,6 +26,7 @@ from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
 from six.moves import map, zip, getcwd
 import six
+from six.moves import range
 
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -387,7 +388,7 @@ class Repl(Thread):
                     import traceback
                     traceback.print_exc()
 
-                for i in xrange(100):
+                for i in range(100):
                     # Do this many times to ensure we dont deadlock
                     self.from_repl.put(None)
 

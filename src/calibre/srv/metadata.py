@@ -25,6 +25,7 @@ from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
 from six.moves import filter
 import six
+from six.moves import range
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
 
@@ -575,7 +576,7 @@ def dump_tags_model(m):
     def dump_node(index, level=-1):
         if level > -1:
             ans.append(indent*level + index.data(Qt.UserRole).dump_data())
-        for i in xrange(m.rowCount(index)):
+        for i in range(m.rowCount(index)):
             dump_node(m.index(i, 0, index), level + 1)
         if level == 0:
             ans.append('')

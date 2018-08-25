@@ -11,6 +11,7 @@ from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string, \
 from calibre.gui2.dialogs.delete_matching_from_device_ui import \
                                             Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
+from six.moves import range
 
 
 class tableItem(QTableWidgetItem):

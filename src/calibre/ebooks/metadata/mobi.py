@@ -5,6 +5,7 @@ Retrieve and modify in-place Mobipocket book metadata.
 from __future__ import with_statement
 
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
@@ -162,7 +163,7 @@ class MetadataUpdater(object):
         nitems, = unpack('>I', exth[8:12])
         pos = 12
         # Store any EXTH fields not specifiable in GUI
-        for i in xrange(nitems):
+        for i in range(nitems):
             id, size = unpack('>II', exth[pos:pos + 8])
             content = exth[pos + 8: pos + size]
             pos += size
@@ -294,7 +295,7 @@ class MetadataUpdater(object):
 
     def get_pdbrecords(self):
         pdbrecords = []
-        for i in xrange(self.nrecs):
+        for i in range(self.nrecs):
             offset, a1,a2,a3,a4 = unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
             flags, val = a1, a2<<16|a3<<8|a4
             pdbrecords.append([offset, flags, val])
@@ -311,7 +312,7 @@ class MetadataUpdater(object):
         # Diagnostic
         print("MetadataUpdater.dump_pdbrecords()")
         print("%10s %10s %10s" % ("offset","flags","val"))
-        for i in xrange(len(self.pdbrecords)):
+        for i in range(len(self.pdbrecords)):
             pdbrecord = self.pdbrecords[i]
             print("%10X %10X %10X" % (pdbrecord[0], pdbrecord[1], pdbrecord[2]))
 

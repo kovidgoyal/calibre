@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -446,7 +447,7 @@ def check_external_links(container, progress_callback=(lambda num, total:None), 
                 done.append(None)
                 progress_callback(len(done), len(external_links))
 
-    workers = [Thread(name="CheckLinks", target=check_links) for i in xrange(min(10, len(external_links)))]
+    workers = [Thread(name="CheckLinks", target=check_links) for i in range(min(10, len(external_links)))]
     for w in workers:
         w.daemon = True
         w.start()

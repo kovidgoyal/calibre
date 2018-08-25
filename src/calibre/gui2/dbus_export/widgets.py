@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -233,7 +234,7 @@ class Factory(QObject):
 
     def bus_disconnected(self):
         self._bus = None
-        for i in xrange(5):
+        for i in range(5):
             try:
                 self.bus
             except Exception:

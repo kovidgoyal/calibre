@@ -5,6 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from six.moves import map
 from six.moves import zip
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'

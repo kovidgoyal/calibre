@@ -33,6 +33,7 @@ from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
 import six
+from six.moves import range
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '

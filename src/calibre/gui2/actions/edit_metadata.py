@@ -28,6 +28,7 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from six.moves import map
 import six
+from six.moves import range
 
 
 class EditMetadataAction(InterfaceAction):

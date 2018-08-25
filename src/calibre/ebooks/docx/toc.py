@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,7 +23,7 @@ def from_headings(body, log, namespace):
     headings = ('h1', 'h2', 'h3')
     tocroot = TOC()
     xpaths = [XPath('//%s' % x) for x in headings]
-    level_prev = {i+1:None for i in xrange(len(xpaths))}
+    level_prev = {i+1:None for i in range(len(xpaths))}
     level_prev[0] = tocroot
     level_item_map = {i+1:frozenset(xp(body)) for i, xp in enumerate(xpaths)}
     item_level_map = {e:i for i, elems in six.iteritems(level_item_map) for e in elems}
@@ -49,7 +50,7 @@ def from_headings(body, log, namespace):
         text = elem_to_toc_text(item)
         toc = parent.add_item('index.html', elem_id, text)
         level_prev[lvl] = toc
-        for i in xrange(lvl+1, len(xpaths)+1):
+        for i in range(lvl+1, len(xpaths)+1):
             level_prev[i] = None
 
     if len(tuple(tocroot.flat())) > 1:
@@ -79,7 +80,7 @@ def structure_toc(entries):
         parent = find_parent(level)
         last_found[level] = parent.add_item('index.html', item.anchor,
                     item.text)
-        for i in xrange(level+1, len(last_found)):
+        for i in range(level+1, len(last_found)):
             last_found[i] = None
 
     return newtoc

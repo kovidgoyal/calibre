@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -30,7 +31,7 @@ class KernTable(UnknownTable):
             raise UnsupportedFont('kern table has version: %x'%self._version)
         offset = 4 if (self._version == 0) else 8
         tables = []
-        for i in xrange(self.num_tables):
+        for i in range(self.num_tables):
             if self._version == 0:
                 version, length, coverage = unpack_from(b'>3H', self.raw, offset)
                 table_format = version
@@ -57,7 +58,7 @@ class KernTable(UnknownTable):
         offset = calcsize(headerfmt + b'4H')
         entries = []
         entrysz = calcsize(b'>2Hh')
-        for i in xrange(npairs):
+        for i in range(npairs):
             try:
                 left, right, value = unpack_from(b'>2Hh', raw, offset)
             except struct_error:

@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 import six
+from six.moves import range
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
@@ -220,7 +221,7 @@ def split_string_separator(txt, size):
     if len(txt) > size:
         txt = ''.join([re.sub(u'\.(?P<ends>[^.]*)$', '.\n\n\g<ends>',
             txt[i:i+size], 1) for i in
-            xrange(0, len(txt), size)])
+            range(0, len(txt), size)])
     return txt
 
 

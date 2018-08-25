@@ -27,6 +27,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 from six.moves import map
 import six
+from six.moves import range
 
 
 def get_filters():
@@ -267,7 +268,7 @@ class AddAction(InterfaceAction):
                     book_id = db.id(index.row())
                     orig_fmts = tuple(db.new_api.format(book_id, fmt, as_path=True) for fmt in db.new_api.formats(book_id))
 
-            for x in xrange(num):
+            for x in range(num):
                 if dlg.duplicate_current_book:
                     mi = origmi
                 else:

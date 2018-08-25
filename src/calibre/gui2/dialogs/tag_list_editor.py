@@ -8,6 +8,7 @@ from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
+from six.moves import range
 
 
 class NameTableWidgetItem(QTableWidgetItem):

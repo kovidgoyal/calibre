@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -998,7 +999,7 @@ class FormatsManager(QWidget):
         return fmt.ext.lower()
 
     def get_format_path(self, db, id_, fmt):
-        for i in xrange(self.formats.count()):
+        for i in range(self.formats.count()):
             f = self.formats.item(i)
             ext = f.ext.lower()
             if ext == fmt:

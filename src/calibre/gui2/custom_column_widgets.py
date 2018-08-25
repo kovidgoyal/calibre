@@ -24,6 +24,7 @@ from calibre.library.comments import comments_to_html
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
 from calibre.gui2.widgets2 import RatingEditor
 from six.moves import zip
+from six.moves import range
 
 
 def safe_disconnect(signal):

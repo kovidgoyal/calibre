@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 import zlib
+from six.moves import range
 
 try:
     from PIL import Image

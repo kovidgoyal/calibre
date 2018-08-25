@@ -11,6 +11,7 @@ from calibre.gui2 import error_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
 import six
+from six.moves import range
 
 
 class Item(object):

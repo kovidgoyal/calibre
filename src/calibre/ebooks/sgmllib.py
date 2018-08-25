@@ -10,6 +10,7 @@
 
 
 from __future__ import print_function
+from six.moves import range
 try:
     import markupbase
 except ImportError:

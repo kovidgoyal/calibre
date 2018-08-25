@@ -28,6 +28,7 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
 from calibre.utils.monotonic import monotonic
+from six.moves import range
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -477,7 +478,7 @@ def shutdown_other(rc=None):
             return  # No running instance found
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
-    for i in xrange(50):
+    for i in range(50):
         if singleinstance(singleinstance_name):
             return
         time.sleep(0.1)

@@ -23,6 +23,7 @@ from ..preprocessors import Preprocessor
 from ..inlinepatterns import Pattern
 from ..util import etree, AtomicString
 import re
+from six.moves import range
 
 # Global Vars
 ABBR_REF_RE = re.compile(r'[*]\[(?P<abbr>[^\]]*)\][ ]?:\s*(?P<title>.*)')

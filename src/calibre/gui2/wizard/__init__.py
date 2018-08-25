@@ -3,6 +3,7 @@
 from __future__ import with_statement
 from six.moves import map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'

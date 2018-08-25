@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from __future__ import print_function
+from six.moves import range
 __license__ = 'GPL 3'
 __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'

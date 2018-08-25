@@ -4,6 +4,7 @@ Inspect the header of ereader files. This is primarily used for debugging.
 '''
 
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'

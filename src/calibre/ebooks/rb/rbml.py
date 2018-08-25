@@ -12,6 +12,7 @@ import re
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.rb import unique_name
+from six.moves import range
 
 TAGS = [
     'b',

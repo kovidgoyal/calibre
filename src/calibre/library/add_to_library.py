@@ -9,6 +9,7 @@ import os
 from hashlib import sha1
 
 from calibre.ebooks import BOOK_EXTENSIONS
+from six.moves import range
 
 
 def find_folders_under(root, db, add_root=True,  # {{{

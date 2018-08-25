@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -259,8 +260,8 @@ class Router(object):
             lsz = max(len(r.matchers) for r in self)
         except ValueError:
             lsz = 0
-        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in xrange(lsz + 1)}
-        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in xrange(lsz + 1)}
+        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in range(lsz + 1)}
+        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in range(lsz + 1)}
         self.soak_routes = sorted(frozenset(r for r in self if r.soak_up_extra), key=attrgetter('min_size'), reverse=True)
 
     def find_route(self, path):

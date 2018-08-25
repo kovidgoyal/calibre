@@ -4,6 +4,7 @@ from __future__ import print_function
 from six.moves import map
 from six.moves import zip
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'

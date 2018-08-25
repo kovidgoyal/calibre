@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -42,7 +43,7 @@ def read_variable_len_data(data, header):
         tagx_block_size = header['tagx_block_size'] = struct.unpack_from(b'>I', data, offset + 4)[0]
         header['tagx_block'] = data[offset:offset+tagx_block_size]
         offset = idxt_offset + 4
-        for i in xrange(header['count']):
+        for i in range(header['count']):
             p = struct.unpack_from(b'>H', data, offset)[0]
             offset += 2
             strlen = bytearray(data[p])[0]
@@ -78,7 +79,7 @@ def read_index(sections, idx, codec):
     read_variable_len_data(data, indx_header)
     index_headers = []
 
-    for i in xrange(idx + 1, idx + 1 + indx_count):
+    for i in range(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i].raw
         index_headers.append(parse_index_record(table, data, control_byte_count, tags, codec,

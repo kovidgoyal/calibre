@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -712,7 +713,7 @@ class TagsView(QTreeView):  # {{{
         if not index.isValid():
             return
         self.expand(index)
-        for r in xrange(self.model().rowCount(index)):
+        for r in range(self.model().rowCount(index)):
             self.expand_node_and_descendants(index.child(r, 0))
 
     def collapse_menu_hovered(self, action):

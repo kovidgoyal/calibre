@@ -5,6 +5,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from six.moves import zip
 from six.moves import getcwd
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -706,7 +707,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return 1
             return pmap.width()*pmap.height()
         dcovers = sorted(self.covers[1:], key=keygen, reverse=True)
-        cmap = {i:self.plugin_for_index(i) for i in xrange(len(self.covers))}
+        cmap = {i:self.plugin_for_index(i) for i in range(len(self.covers))}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
@@ -753,7 +754,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
             for rows in six.itervalues(self.plugin_map):
-                for i in xrange(len(rows)):
+                for i in range(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1
             self.plugin_map[plugin].insert(-1, last_row)

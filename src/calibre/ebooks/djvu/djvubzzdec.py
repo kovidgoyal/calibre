@@ -2,6 +2,7 @@
 # coding: utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
@@ -505,7 +506,7 @@ class BZZDecoder():
         markerpos = -1
         zc = lambda i: self.zpcodec_decode(self.ctx, i)
         dc = lambda i, bits: self.decode_binary(self.ctx, i, bits)
-        for i in xrange(self.xsize):
+        for i in range(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:
                 ctxid = mtfno

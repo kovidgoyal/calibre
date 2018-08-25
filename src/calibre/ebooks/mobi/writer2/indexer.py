@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import filter, map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -845,7 +846,7 @@ class Indexer(object):  # {{{
 
         deepest = max(i.depth for i in self.indices)
 
-        for i in xrange(self.number_of_text_records):
+        for i in range(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
             data = {'ends':[], 'completes':[], 'starts':[],

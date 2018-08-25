@@ -13,6 +13,7 @@ from __future__ import unicode_literals
 from . import util
 from . import odict
 import re
+from six.moves import range
 
 
 def build_postprocessors(md_instance, **kwargs):

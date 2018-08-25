@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -745,8 +746,8 @@ class WritingTest(BaseTest):
         self.assertEqual(len(changes), 2)
         prefs.load_from_db()
         self.assertIn(4, prefs['test mutable'])
-        prefs['test mutable'] = {k:k for k in range(10)}
+        prefs['test mutable'] = {k:k for k in list(range(10))}
         self.assertEqual(len(changes), 3)
-        prefs['test mutable'] = {k:k for k in reversed(range(10))}
+        prefs['test mutable'] = {k:k for k in reversed(list(range(10)))}
         self.assertEqual(len(changes), 3, 'The database was written to despite there being no change in value')
     # }}}

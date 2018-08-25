@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import zip
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -271,7 +272,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         for node in self.all_shortcuts:
             s = node.data
             s['keys'] = tuple(keys_map[s['unique_name']])
-        for r in xrange(self.rowCount()):
+        for r in range(self.rowCount()):
             group = self.index(r, 0)
             num = self.rowCount(group)
             if num > 0:

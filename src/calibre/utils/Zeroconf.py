@@ -76,6 +76,7 @@
                  timeout on receiving socket for clean shutdown"""
 
 from __future__ import print_function
+from six.moves import range
 __author__ = "Paul Scott-Murphy"
 __email__ = "paul at scott dash murphy dot com"
 __version__ = "0.12"

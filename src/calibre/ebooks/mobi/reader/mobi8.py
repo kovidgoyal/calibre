@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import getcwd
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -195,7 +196,7 @@ class Mobi8Reader(object):
             baseptr = skelpos + skellen
             skeleton = text[skelpos:baseptr]
             inspos_warned = False
-            for i in xrange(divcnt):
+            for i in range(divcnt):
                 insertpos, idtext, filenum, seqnum, startpos, length = \
                                     self.elems[divptr]
                 if i == 0:
@@ -255,7 +256,7 @@ class Mobi8Reader(object):
         self.flowinfo.append(FlowInfo(None, None, None, None))
         svg_tag_pattern = re.compile(br'''(<svg[^>]*>)''', re.IGNORECASE)
         image_tag_pattern = re.compile(br'''(<(?:svg:)?image[^>]*>)''', re.IGNORECASE)
-        for j in xrange(1, len(self.flows)):
+        for j in range(1, len(self.flows)):
             flowpart = self.flows[j]
             nstr = '%04d' % j
             m = svg_tag_pattern.search(flowpart)

@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
+from six.moves import range
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'

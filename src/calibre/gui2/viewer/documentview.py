@@ -34,6 +34,7 @@ from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
 import six
+from six.moves import range
 # }}}
 
 

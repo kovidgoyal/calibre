@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 from six.moves import map
 from six.moves import zip
 import six
+from six.moves import range
 try:
     from PyQt5 import sip
 except ImportError:
@@ -269,21 +270,21 @@ class FileList(QTreeWidget):
             item.setExpanded(category in state['expanded'])
         self.verticalScrollBar().setValue(state['pos'])
         for parent in six.itervalues(self.categories):
-            for c in (parent.child(i) for i in xrange(parent.childCount())):
+            for c in (parent.child(i) for i in range(parent.childCount())):
                 name = unicode(c.data(0, NAME_ROLE) or '')
                 if name in state['selected']:
                     c.setSelected(True)
 
     def item_from_name(self, name):
         for parent in six.itervalues(self.categories):
-            for c in (parent.child(i) for i in xrange(parent.childCount())):
+            for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode(c.data(0, NAME_ROLE) or '')
                 if q == name:
                     return c
 
     def select_name(self, name, set_as_current_index=False):
         for parent in six.itervalues(self.categories):
-            for c in (parent.child(i) for i in xrange(parent.childCount())):
+            for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q == name)
                 if q == name:
@@ -293,7 +294,7 @@ class FileList(QTreeWidget):
 
     def select_names(self, names, current_name=None):
         for parent in six.itervalues(self.categories):
-            for c in (parent.child(i) for i in xrange(parent.childCount())):
+            for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q in names)
                 if q == current_name:
@@ -548,7 +549,7 @@ class FileList(QTreeWidget):
 
     def index_of_name(self, name):
         for category, parent in six.iteritems(self.categories):
-            for i in xrange(parent.childCount()):
+            for i in range(parent.childCount()):
                 item = parent.child(i)
                 if unicode(item.data(0, NAME_ROLE) or '') == name:
                     return (category, i)
@@ -655,7 +656,7 @@ class FileList(QTreeWidget):
                          _('The file(s) %s cannot be deleted.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
 
         text = self.categories['text']
-        children = (text.child(i) for i in xrange(text.childCount()))
+        children = (text.child(i) for i in range(text.childCount()))
         spine_removals = [(unicode(item.data(0, NAME_ROLE) or ''), item.isSelected()) for item in children]
         other_removals = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()
                           if unicode(item.data(0, CATEGORY_ROLE) or '') != 'text'}
@@ -668,7 +669,7 @@ class FileList(QTreeWidget):
                 removals.append(self.categories['text'].child(i))
         for category, parent in six.iteritems(self.categories):
             if category != 'text':
-                for i in xrange(parent.childCount()):
+                for i in range(parent.childCount()):
                     child = parent.child(i)
                     if unicode(child.data(0, NAME_ROLE) or '') in other_removals:
                         removals.append(child)
@@ -701,12 +702,12 @@ class FileList(QTreeWidget):
     def dropEvent(self, event):
         with self:
             text = self.categories['text']
-            pre_drop_order = {text.child(i):i for i in xrange(text.childCount())}
+            pre_drop_order = {text.child(i):i for i in range(text.childCount())}
             super(FileList, self).dropEvent(event)
-            current_order = {text.child(i):i for i in xrange(text.childCount())}
+            current_order = {text.child(i):i for i in range(text.childCount())}
             if current_order != pre_drop_order:
                 order = []
-                for child in (text.child(i) for i in xrange(text.childCount())):
+                for child in (text.child(i) for i in range(text.childCount())):
                     name = unicode(child.data(0, NAME_ROLE) or '')
                     linear = bool(child.data(0, LINEAR_ROLE))
                     order.append([name, linear])
@@ -740,7 +741,7 @@ class FileList(QTreeWidget):
     def edit_next_file(self, currently_editing=None, backwards=False):
         category = self.categories['text']
         seen_current = False
-        items = (category.child(i) for i in xrange(category.childCount()))
+        items = (category.child(i) for i in range(category.childCount()))
         if backwards:
             items = reversed(tuple(items))
         for item in items:
@@ -754,7 +755,7 @@ class FileList(QTreeWidget):
 
     @property
     def all_files(self):
-        return (category.child(i) for category in six.itervalues(self.categories) for i in xrange(category.childCount()))
+        return (category.child(i) for category in six.itervalues(self.categories) for i in range(category.childCount()))
 
     @property
     def searchable_names(self):
@@ -822,7 +823,7 @@ class FileList(QTreeWidget):
 
     def link_stylesheets(self, names):
         s = self.categories['styles']
-        sheets = [unicode(s.child(i).data(0, NAME_ROLE) or '') for i in xrange(s.childCount())]
+        sheets = [unicode(s.child(i).data(0, NAME_ROLE) or '') for i in range(s.childCount())]
         if not sheets:
             return error_dialog(self, _('No stylesheets'), _(
                 'This book currently has no stylesheets. You must first create a stylesheet'
@@ -855,7 +856,7 @@ class FileList(QTreeWidget):
         l.addWidget(bb)
         if d.exec_() == d.Accepted:
             tprefs['remove_existing_links_when_linking_sheets'] = r.isChecked()
-            sheets = [unicode(s.item(il).text()) for il in xrange(s.count()) if s.item(il).checkState() == Qt.Checked]
+            sheets = [unicode(s.item(il).text()) for il in range(s.count()) if s.item(il).checkState() == Qt.Checked]
             if sheets:
                 self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
 

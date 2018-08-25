@@ -11,6 +11,7 @@ from io import BytesIO
 
 from calibre import prints
 from six.moves import map
+from six.moves import range
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

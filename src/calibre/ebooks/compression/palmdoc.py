@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -56,7 +57,7 @@ def py_compress_doc(data):
         if i > 10 and (ldata - i) > 10:
             chunk = ''
             match = -1
-            for j in xrange(10, 2, -1):
+            for j in range(10, 2, -1):
                 chunk = data[i:i+j]
                 try:
                     match = data.rindex(chunk, 0, i)

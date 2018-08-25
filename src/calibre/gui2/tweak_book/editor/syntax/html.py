@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -79,7 +80,7 @@ if _speedup is not None:
     del spell_property
     check_spelling = _speedup.check_spelling
 else:
-    bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
+    bold_tags = {'b', 'strong'} | {'h%d' % d for d in list(range(1, 7))}
     italic_tags = {'i', 'em'}
 
     class Tag(object):

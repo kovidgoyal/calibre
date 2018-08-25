@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import, print_funct
 from six.moves import filter
 from six.moves import getcwd
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -197,7 +198,7 @@ def process_item(ctx, haystack, needle):
         key = (hidx, nidx, last_idx)
         mem = ctx.memory.get(key, None)
         if mem is None:
-            for i in xrange(nidx, len(needle)):
+            for i in range(nidx, len(needle)):
                 n = needle[i]
                 if (len(haystack) - hidx < len(needle) - i):
                     score = 0
@@ -298,12 +299,12 @@ def test(return_tests=False):
                 m('one')
 
             start = memory()
-            for i in xrange(10):
+            for i in range(10):
                 doit(str(i))
             gc.collect()
             used10 = memory() - start
             start = memory()
-            for i in xrange(100):
+            for i in range(100):
                 doit(str(i))
             gc.collect()
             used100 = memory() - start

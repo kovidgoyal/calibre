@@ -21,6 +21,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
 import six
+from six.moves import range
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -368,7 +369,7 @@ class Rules(QWidget):
     @property
     def rules(self):
         ans = []
-        for r in xrange(self.rule_list.count()):
+        for r in range(self.rule_list.count()):
             ans.append(self.rule_list.item(r).data(DATA_ROLE))
         return ans
 

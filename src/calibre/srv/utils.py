@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -371,7 +372,7 @@ class RotatingStream(object):
         if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
-        for i in xrange(self.history - 1, 0, -1):
+        for i in range(self.history - 1, 0, -1):
             src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
             self.rename(src, dest)
         self.rename(self.filename, '%s.%d' % (self.filename, 1))

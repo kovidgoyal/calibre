@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -79,7 +80,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def commit(self):
         devs = {}
-        for i in xrange(0, self.devices.count()):
+        for i in range(0, self.devices.count()):
             e = self.devices.item(i)
             dev, uid = e.data(Qt.UserRole)
             if dev not in devs:
@@ -90,7 +91,7 @@ class ConfigWidget(ConfigWidgetBase):
         for dev, bl in six.iteritems(devs):
             dev.set_user_blacklisted_devices(bl)
 
-        for i in xrange(self.device_plugins.count()):
+        for i in range(self.device_plugins.count()):
             e = self.device_plugins.item(i)
             dev = e.data(Qt.UserRole)
             if e.checkState() == Qt.Unchecked:

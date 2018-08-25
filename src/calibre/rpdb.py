@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -96,7 +97,7 @@ def set_trace(port=4444, skip=None):
 def cli(port=4444):
     prints('Connecting to remote debugger on port %d...' % port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    for i in xrange(20):
+    for i in range(20):
         try:
             sock.connect(('127.0.0.1', port))
             break

@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -287,7 +288,7 @@ def multisplit(container, name, xpath, before=True):
 
     current = name
     all_names = [name]
-    for i in xrange(len(nodes)):
+    for i in range(len(nodes)):
         current = split(container, current, '//*[@calibre-split-point="%d"]' % i, before=before)
         all_names.append(current)
 

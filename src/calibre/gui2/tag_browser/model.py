@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -1487,7 +1488,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if path[depth] > start_path[depth]:
                     start_path = path
             my_key = self.get_node(category_index).category_key
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.type == TagTreeItem.CATEGORY:
@@ -1498,7 +1499,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         return True
             return False
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             if process_level(0, self.index(i, 0, QModelIndex()), start_path):
                 break
         return self.path_found
@@ -1512,7 +1513,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not key:
             return None
 
-        for i in xrange(self.rowCount(parent)):
+        for i in range(self.rowCount(parent)):
             idx = self.index(i, 0, parent)
             node = self.get_node(idx)
             if node.type == TagTreeItem.CATEGORY:
@@ -1542,7 +1543,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 process_tag(self.index(i, 0, tag_index), c)
 
         def process_level(category_index):
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.boxed:
@@ -1553,7 +1554,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 else:
                     process_tag(tag_index, tag_item)
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             process_level(self.index(i, 0, QModelIndex()))
 
     # }}}

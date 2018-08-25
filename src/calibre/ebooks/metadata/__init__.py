@@ -18,6 +18,7 @@ from calibre.utils.config_base import tweaks
 from six.moves import map
 from six.moves import zip
 from six.moves import getcwd
+from six.moves import range
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])

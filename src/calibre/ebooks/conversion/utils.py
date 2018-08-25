@@ -10,6 +10,7 @@ from math import ceil
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
+from six.moves import range
 
 
 class HeuristicProcessor(object):

@@ -4,6 +4,7 @@ from __future__ import with_statement
 
 from __future__ import print_function
 from six.moves import zip
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -969,12 +970,12 @@ class GenericRulesTable(QTableWidget):
             old_layout = self.layout
 
             for child in old_layout.children():
-                for i in reversed(range(child.count())):
+                for i in reversed(list(range(child.count()))):
                     if child.itemAt(i).widget() is not None:
                         child.itemAt(i).widget().setParent(None)
                 sip.delete(child)
 
-            for i in reversed(range(old_layout.count())):
+            for i in reversed(list(range(old_layout.count()))):
                 if old_layout.itemAt(i).widget() is not None:
                     old_layout.itemAt(i).widget().setParent(None)
 

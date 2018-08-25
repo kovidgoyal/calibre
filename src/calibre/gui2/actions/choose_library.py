@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -590,7 +591,7 @@ class ChooseLibraryAction(InterfaceAction):
         import gc
         from calibre.utils.mem import memory
         ref = self.dbref
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         if ref() is not None:
             print('DB object alive:', ref())

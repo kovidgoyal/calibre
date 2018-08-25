@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -50,7 +51,7 @@ class TableRow(object):
         view = self.view()
         if isinstance(obj, slice):
             return [view._field_getters[c](self.book_id)
-                    for c in xrange(*obj.indices(len(view._field_getters)))]
+                    for c in range(*obj.indices(len(view._field_getters)))]
         else:
             return view._field_getters[obj](self.book_id)
 
@@ -58,7 +59,7 @@ class TableRow(object):
         return self.column_count
 
     def __iter__(self):
-        for i in xrange(self.column_count):
+        for i in range(self.column_count):
             yield self[i]
 
 

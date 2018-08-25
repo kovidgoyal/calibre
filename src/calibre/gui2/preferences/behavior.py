@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
 import six
+from six.moves import range
 
 
 class OutputFormatSetting(Setting):

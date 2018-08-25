@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -29,7 +30,7 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
-WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
+WAKEUP, JOB_DONE = bytes(bytearray(range(2)))
 
 
 class ReadBuffer(object):  # {{{

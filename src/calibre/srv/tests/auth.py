@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -144,15 +145,15 @@ class TestAuth(BaseTest):
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')
-            self.assertEqual(library_info()[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            self.assertEqual(library_info()[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4))})
             self.assertEqual(library_info()[1], 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')
             um.add_user('a', 'a')
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4))})
             um.update_user_restrictions('a', {'blocked_library_names': ['L2']})
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i != 2})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4)) if i != 2})
             um.update_user_restrictions('a', {'allowed_library_names': ['l3']})
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i == 3})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4)) if i == 3})
             self.assertEqual(library_info('a')[1], 'l3')
             self.assertRaises(HTTPForbidden, get_library, 'a', 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')

@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -427,7 +428,7 @@ class CategoryModel(QAbstractItemModel):
                     return (_('Favorites'), list(tprefs['charmap_favorites']))
             else:
                 item = self.categories[pid - 1][1][index.row()]
-                return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
+                return (item[0], list(range(item[1][0], item[1][1] + 1)))
 
     def get_char_info(self, char_code):
         ipos = bisect(self.starts, char_code) - 1

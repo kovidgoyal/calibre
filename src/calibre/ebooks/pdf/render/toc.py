@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -42,7 +43,7 @@ def process_children(toc, table, level, pdf):
 def toc_as_html(toc, pdf, opts):
     pdf = pdf.engine.pdf
     indents = []
-    for i in xrange(1, 7):
+    for i in range(1, 7):
         indents.extend((i, 1.4*i))
     html = HTML(
         HEAD(

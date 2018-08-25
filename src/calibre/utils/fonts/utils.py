@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -32,7 +33,7 @@ def is_truetype_font(raw):
 def get_tables(raw):
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
     offset = 4*3  # start of the table record entries
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         table_tag, table_checksum, table_offset, table_length = struct.unpack_from(
                     b'>4s3L', raw, offset)
         yield (table_tag, raw[table_offset:table_offset+table_length], offset,
@@ -183,7 +184,7 @@ def _get_font_names(raw, raw_is_table=False):
 
     records = defaultdict(list)
 
-    for i in xrange(count):
+    for i in range(count):
         try:
             platform_id, encoding_id, language_id, name_id, length, offset = \
                     struct.unpack_from(b'>6H', table, 6+i*12)
@@ -408,7 +409,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
             raise UnsupportedFont('Not a supported font, has no cmap table')
     version, num_tables = struct.unpack_from(b'>HH', table)
     bmp_table = None
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         platform_id, encoding_id, offset = struct.unpack_from(b'>HHL', table,
                 4 + (i*8))
         if platform_id == 3 and encoding_id == 1:

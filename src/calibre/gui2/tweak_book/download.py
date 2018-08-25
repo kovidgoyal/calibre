@@ -16,6 +16,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.ebooks.oeb.polish.download import get_external_resources, download_external_resources, replace_resources
 import six
+from six.moves import range
 
 
 class ChooseResources(QWidget):
@@ -30,7 +31,7 @@ class ChooseResources(QWidget):
         l.addWidget(i)
 
     def __iter__(self):
-        for i in xrange(self.items.count()):
+        for i in range(self.items.count()):
             yield self.items.item(i)
 
     def select_none(self):

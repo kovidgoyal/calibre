@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -310,7 +311,7 @@ class Table(object):
             for cell in tuple(row.cells):
                 idx = row.cells.index(cell)
                 if cell.col_span > 1 and (cell is row.cells[-1] or not isinstance(row.cells[idx+1], SpannedCell)):
-                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in xrange(1, cell.col_span)]
+                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in range(1, cell.col_span)]
 
         # Expand vertically
         for r, row in enumerate(self.rows):
@@ -323,7 +324,7 @@ class Table(object):
                         except Exception:
                             tcell = None
                         if tcell is None:
-                            nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in xrange(idx - len(nrow.cells))])
+                            nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in range(idx - len(nrow.cells))])
                             nrow.cells.append(sc)
                         else:
                             if isinstance(tcell, SpannedCell):

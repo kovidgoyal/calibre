@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key
 from calibre.utils.iso8601 import UNDEFINED_DATE
+from six.moves import range
 
 
 class TableItem(QTableWidgetItem):

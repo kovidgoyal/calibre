@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -79,7 +80,7 @@ class Pointer(QWidget):
         self.animation.setEndValue(self.rect_at(1.0))
         self.animation.setDirection(self.animation.Backward)
         num_keys = 100
-        for i in xrange(1, num_keys):
+        for i in range(1, num_keys):
             i /= num_keys
             self.animation.setKeyValueAt(i, self.rect_at(i))
         self.animation.start()

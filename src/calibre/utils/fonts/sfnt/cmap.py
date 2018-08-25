@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -154,7 +155,7 @@ class BMPTable(object):
         ans = {}
         for i, ec in enumerate(self.end_count):
             sc = self.start_count[i]
-            for code in xrange(sc, ec+1):
+            for code in range(sc, ec+1):
                 ro = self.range_offset[i]
                 if ro == 0:
                     glyph_id = self.id_delta[i] + code
@@ -181,7 +182,7 @@ class CmapTable(UnknownTable):
         offset = 4
         sz = calcsize(b'>HHL')
         recs = []
-        for i in xrange(self.num_tables):
+        for i in range(self.num_tables):
             platform, encoding, table_offset = unpack_from(b'>HHL', self.raw,
                     offset)
             offset += sz
@@ -189,7 +190,7 @@ class CmapTable(UnknownTable):
 
         self.bmp_table = None
 
-        for i in xrange(len(recs)):
+        for i in range(len(recs)):
             platform, encoding, offset = recs[i]
             try:
                 next_offset = recs[i+1][-1]
@@ -257,9 +258,9 @@ class CmapTable(UnknownTable):
         id_delta = []
         id_range_offset = []
         glyph_index_array = []
-        for i in xrange(len(end_code)-1):  # skip the closing codes (0xffff)
-            indices = list(cmap[char_code] for char_code in xrange(start_code[i], end_code[i] + 1))
-            if indices == list(xrange(indices[0], indices[0] + len(indices))):
+        for i in range(len(end_code)-1):  # skip the closing codes (0xffff)
+            indices = list(cmap[char_code] for char_code in range(start_code[i], end_code[i] + 1))
+            if indices == list(range(indices[0], indices[0] + len(indices))):
                 # indices is a contiguous list
                 id_delta_temp = set_id_delta(indices[0] - start_code[i])
                 id_delta.append(id_delta_temp)

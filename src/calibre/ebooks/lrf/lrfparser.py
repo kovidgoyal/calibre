@@ -10,6 +10,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
+from six.moves import range
 
 
 class LRFDocument(LRFMetaFile):

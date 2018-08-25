@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -273,11 +274,11 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             # Test pipelining
             responses = []
-            for i in xrange(10):
+            for i in range(10):
                 conn._HTTPConnection__state = six.moves.http_client._CS_IDLE
                 conn.request('GET', '/%d'%i)
                 responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
-            for i in xrange(10):
+            for i in range(10):
                 r = responses[i]
                 r.begin()
                 self.ae(r.read(), ('%d' % i).encode('ascii'))
@@ -428,7 +429,7 @@ class TestHTTP(BaseTest):
 
     def test_static_generation(self):  # {{{
         'Test static generation'
-        nums = list(map(str, xrange(10)))
+        nums = list(map(str, range(10)))
 
         def handler(conn):
             return conn.generate_static_output('test', nums.pop)
@@ -437,7 +438,7 @@ class TestHTTP(BaseTest):
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
             data = r.read()
-            for i in xrange(5):
+            for i in range(5):
                 conn.request('GET', '/an_etagged_path')
                 r = conn.getresponse()
                 self.assertEqual(data, r.read())

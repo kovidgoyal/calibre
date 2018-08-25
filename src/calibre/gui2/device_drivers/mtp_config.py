@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -52,7 +53,7 @@ class FormatsConfig(QWidget):  # {{{
     @property
     def format_map(self):
         return [unicode(self.f.item(i).data(Qt.UserRole) or '') for i in
-                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def validate(self):
         if not self.format_map:
@@ -189,10 +190,10 @@ class IgnoredDevices(QWidget):  # {{{
     @property
     def blacklist(self):
         return [unicode(self.f.item(i).data(Qt.UserRole) or '') for i in
-                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def ignore_device(self, snum):
-        for i in xrange(self.f.count()):
+        for i in range(self.f.count()):
             i = self.f.item(i)
             c = unicode(i.data(Qt.UserRole) or '')
             if c == snum:

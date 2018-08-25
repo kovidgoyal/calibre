@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import error_dialog
 import six
+from six.moves import range
 
 
 class CreateCustomColumn(QDialog):

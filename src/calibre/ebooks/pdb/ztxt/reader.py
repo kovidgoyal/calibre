@@ -15,6 +15,7 @@ from six.moves import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError
+from six.moves import range
 
 SUPPORTED_VERSION = (1, 40)
 

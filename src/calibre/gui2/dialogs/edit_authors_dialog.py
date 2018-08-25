@@ -11,6 +11,7 @@ from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.icu import sort_key
+from six.moves import range
 
 
 class tableItem(QTableWidgetItem):

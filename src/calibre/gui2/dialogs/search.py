@@ -1,6 +1,7 @@
 from __future__ import print_function
 from six.moves import map
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -192,7 +193,7 @@ def create_date_tab(self, db):
     dy.setRange(102, 10000)
     dy.setValue(now().year)
     self.date_month = dm = add(_('mo&nth'), QComboBox(w))
-    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in xrange(1, 13)]:
+    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in range(1, 13)]:
         dm.addItem(text, val)
     self.date_day = dd = add(_('&day'), QSpinBox(w))
     dd.setRange(0, 31)

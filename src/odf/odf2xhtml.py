@@ -32,6 +32,7 @@ from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
   SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
 from six.moves import map
 import six
+from six.moves import range
 
 if False:  # Added by Kovid
     DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
@@ -1194,7 +1195,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         htmlattrs = {}
         if c:
             htmlattrs['class'] = "TC-%s" % c.replace(".","_")
-        for x in xrange(repeated):
+        for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
 

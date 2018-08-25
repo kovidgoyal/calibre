@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, collections, re
@@ -742,7 +743,7 @@ class Text(LRFStream):
             elif isinstance(c, self.__class__.TextTag) and not c.self_closing:
                 open_containers += 1
             start += 1
-        self.content.extend(None for i in range(open_containers))
+        self.content.extend(None for i in list(range(open_containers)))
 
     def end_para(self, tag, stream):
         i = len(self.content)-1

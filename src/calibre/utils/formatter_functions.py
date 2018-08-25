@@ -9,6 +9,7 @@ Created on 13 Jan 2011
 
 from __future__ import print_function
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'

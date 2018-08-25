@@ -4,6 +4,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 """
 Microsoft LIT OPF tag and attribute tables, copied from ConvertLIT.
 """
+from six.moves import range
 
 TAGS = [
     None,
@@ -76,6 +77,6 @@ ATTRS = {
     0x0016: "xml:lang",
     }
 
-TAGS_ATTRS = [{} for i in xrange(43)]
+TAGS_ATTRS = [{} for i in range(43)]
 
 MAP = (TAGS, ATTRS, TAGS_ATTRS)

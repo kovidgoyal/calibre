@@ -3,6 +3,7 @@
 from __future__ import (absolute_import, print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -780,7 +781,7 @@ class MobiReader(object):
 
     def extract_text(self, offset=1):
         self.log.debug('Extracting text...')
-        text_sections = [self.text_section(i) for i in xrange(offset,
+        text_sections = [self.text_section(i) for i in range(offset,
             min(self.book_header.records + offset, len(self.sections)))]
         processed_records = list(range(offset-1, self.book_header.records +
             offset))
@@ -789,9 +790,9 @@ class MobiReader(object):
 
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in
-                xrange(self.book_header.huff_offset,
+                range(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
-            processed_records += list(xrange(self.book_header.huff_offset,
+            processed_records += list(range(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
             unpack = huff.unpack

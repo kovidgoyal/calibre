@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -215,7 +216,7 @@ def timing():
 
     for name, f in (('calibre', partial(parse, line_numbers=False)), ('html5lib', vanilla), ('calibre-old', html5_parse)):
         timings = []
-        for i in xrange(10):
+        for i in range(10):
             st = monotonic()
             f(raw)
             timings.append(monotonic() - st)

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -131,7 +132,7 @@ class Subset(object):
         charsets.extend(cff.charset[1:])  # .notdef is not included
 
         endchar_operator = bytes(bytearray([14]))
-        for i in xrange(self.cff.num_glyphs):
+        for i in range(self.cff.num_glyphs):
             cname = self.cff.charset.safe_lookup(i)
             ok = cname in keep_charnames
             cs = self.cff.char_strings[i] if ok else endchar_operator

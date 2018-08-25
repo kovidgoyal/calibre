@@ -4,6 +4,7 @@
 from __future__ import print_function
 from six.moves import zip
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -283,7 +284,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         self.plugin_tweaks = d
 
     def universal_set(self):
-        return set(xrange(self.rowCount()))
+        return set(range(self.rowCount()))
 
     def get_matches(self, location, query, candidates=None):
         if candidates is None:

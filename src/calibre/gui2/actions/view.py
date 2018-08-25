@@ -18,6 +18,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
+from six.moves import range
 
 
 class HistoryAction(QAction):

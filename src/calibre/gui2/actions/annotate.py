@@ -14,6 +14,7 @@ from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
 from six.moves import map
 import six
+from six.moves import range
 
 
 class Updater(QThread):  # {{{
@@ -76,7 +77,7 @@ class FetchAnnotationsAction(InterfaceAction):
         def get_ids_from_selected_rows():
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) < 2:
-                rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
+                rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
             ids = list(map(self.gui.library_view.model().id, rows))
             return ids
 

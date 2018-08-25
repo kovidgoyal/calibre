@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import importlib
 from six.moves import map
+from six.moves import range
 
 
 def module_for_cmd(cmd):

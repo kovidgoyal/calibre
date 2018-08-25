@@ -1,6 +1,7 @@
 from __future__ import with_statement
 from six.moves import map
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -34,7 +35,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 def convert_day_time_schedule(val):
     day_of_week, hour, minute = val
     if day_of_week == -1:
-        return (tuple(xrange(7)), hour, minute)
+        return (tuple(range(7)), hour, minute)
     return ((day_of_week,), hour, minute)
 
 
@@ -75,7 +76,7 @@ class DaysOfWeek(Base):
     def __init__(self, parent=None):
         Base.__init__(self, parent)
         self.days = [QCheckBox(force_unicode(calendar.day_abbr[d]),
-            self) for d in xrange(7)]
+            self) for d in range(7)]
         for i, cb in enumerate(self.days):
             row = i % 2
             col = i // 2

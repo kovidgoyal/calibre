@@ -37,6 +37,7 @@ from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 import six
+from six.moves import range
 
 
 class BusyCursor(object):

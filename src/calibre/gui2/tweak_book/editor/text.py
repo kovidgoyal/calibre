@@ -42,6 +42,7 @@ from calibre.utils.icu import (
 )
 from calibre.utils.img import image_to_data
 from calibre.utils.titlecase import titlecase
+from six.moves import range
 
 
 def get_highlighter(syntax):
@@ -259,7 +260,7 @@ class TextEdit(PlainTextEdit):
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
         self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()

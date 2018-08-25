@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -530,7 +531,7 @@ class EditSnippet(QWidget):
         self.template.setPlainText(snip.get('template') or '')
 
         ftypes = snip.get('syntaxes', ())
-        for i in xrange(self.types.count()):
+        for i in range(self.types.count()):
             i = self.types.item(i)
             ftype = i.data(Qt.UserRole)
             i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
@@ -545,7 +546,7 @@ class EditSnippet(QWidget):
 
         def fget(self):
             ftypes = []
-            for i in xrange(self.types.count()):
+            for i in range(self.types.count()):
                 i = self.types.item(i)
                 if i.checkState() == Qt.Checked:
                     ftypes.append(i.data(Qt.UserRole))
@@ -658,7 +659,7 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in xrange(self.snip_list.count())]
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in range(self.snip_list.count())]
         snippets(refresh=True)
         return Dialog.accept(self)
 

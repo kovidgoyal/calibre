@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -109,14 +110,14 @@ class Central(QStackedWidget):  # {{{
     def tab_order(self):
         ans = []
         rmap = {v:k for k, v in six.iteritems(editors)}
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
                 ans.append(name)
         return ans
 
     def rename_editor(self, editor, name):
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 fname = name.rpartition('/')[2]
                 self.editor_tabs.setTabText(i, fname)
@@ -127,7 +128,7 @@ class Central(QStackedWidget):  # {{{
         self.editor_tabs.setCurrentWidget(editor)
 
     def close_editor(self, editor):
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 self.editor_tabs.removeTab(i)
                 if self.editor_tabs.count() == 0:
@@ -137,7 +138,7 @@ class Central(QStackedWidget):  # {{{
 
     def editor_modified(self, *args):
         tb = self.editor_tabs.tabBar()
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             editor = self.editor_tabs.widget(i)
             modified = getattr(editor, 'is_modified', False)
             tb.setTabIcon(i, self.modified_icon if modified else QIcon())
@@ -153,7 +154,7 @@ class Central(QStackedWidget):  # {{{
     def close_all_but(self, ed):
         close = []
         if ed is not None:
-            for i in xrange(self.editor_tabs.count()):
+            for i in range(self.editor_tabs.count()):
                 q = self.editor_tabs.widget(i)
                 if q is not None and q is not ed:
                     close.append(q)

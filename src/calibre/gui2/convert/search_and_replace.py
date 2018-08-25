@@ -16,6 +16,7 @@ from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ebooks.conversion.config import OPTIONS
+from six.moves import range
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
@@ -139,7 +140,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def cell_rearrange(self, i):
         row = self.search_replace.currentRow()
-        for col in xrange(0, self.search_replace.columnCount()):
+        for col in range(0, self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
             item2 = self.search_replace.item(row+i, col)
             value = item1.text()
@@ -227,9 +228,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def get_definitions(self):
         ans = []
-        for row in xrange(0, self.search_replace.rowCount()):
+        for row in range(0, self.search_replace.rowCount()):
             colItems = []
-            for col in xrange(0, self.search_replace.columnCount()):
+            for col in range(0, self.search_replace.columnCount()):
                 colItems.append(unicode(self.search_replace.item(row, col).text()))
             ans.append(colItems)
         return ans

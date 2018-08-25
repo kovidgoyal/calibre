@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -85,7 +86,7 @@ class TextureChooser(QDialog):
         self.update_remove_state()
 
         if initial:
-            existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+            existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -116,7 +117,7 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+        existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)

@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -383,7 +384,7 @@ class BasicRecipe(QWidget):  # {{{
 
         def fget(self):
             title = self.title.text().strip()
-            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in xrange(self.feeds.count())]
+            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in range(self.feeds.count())]
             return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
         def fset(self, src):

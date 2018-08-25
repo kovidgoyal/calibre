@@ -16,6 +16,7 @@ from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.auto_add import AUTO_ADDED
 from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
+from six.moves import range
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

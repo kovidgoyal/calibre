@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -403,7 +404,7 @@ class EditPrograms(Dialog):  # {{{
         register_keyboard_shortcuts(finalize=True)
 
     def update_stored_config(self):
-        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in xrange(self.plist.count())]
+        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in range(self.plist.count())]
         oprefs['entries'][self.file_type] = entries
         oprefs['entries'] = oprefs['entries']
 

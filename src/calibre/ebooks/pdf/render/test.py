@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -25,7 +26,7 @@ def full(p, xmax, ymax):
     pp.addRect(0, 0, xmax, ymax)
     p.drawPath(pp)
     p.save()
-    for i in xrange(3):
+    for i in range(3):
         col = [0, 0, 0, 200]
         col[i] = 255
         p.setOpacity(0.3)

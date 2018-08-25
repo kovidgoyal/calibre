@@ -1,5 +1,6 @@
 from __future__ import with_statement
 from six.moves import getcwd
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -1526,7 +1527,7 @@ class BasicNewsRecipe(Recipe):
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
-                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            prefix = '/'.join('..'for i in list(range(2*len(re.findall(r'link\d+', last)))))
                             templ = self.navbar.generate(True, num, j, len(f),
                                             not self.has_single_feed,
                                             a.orig_url, __appname__, prefix=prefix,

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -293,7 +294,7 @@ class RatingEditor(QComboBox):
             self.redo()
             return ev.accept()
         k = ev.key()
-        num = {getattr(Qt, 'Key_%d'%i):i for i in range(6)}.get(k)
+        num = {getattr(Qt, 'Key_%d'%i):i for i in list(range(6))}.get(k)
         if num is None:
             return QComboBox.keyPressEvent(self, ev)
         ev.accept()

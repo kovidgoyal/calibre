@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -44,7 +45,7 @@ def c_parse(val):
         return UNDEFINED_DATE
 
 
-ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
+ONE_ONE, MANY_ONE, MANY_MANY = range(3)
 
 null = object()
 

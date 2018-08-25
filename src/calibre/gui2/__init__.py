@@ -24,6 +24,7 @@ from calibre.utils.localization import get_lang
 from calibre.utils.file_type_icons import EXT_MAP
 from six.moves import map
 import six
+from six.moves import range
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -307,7 +308,7 @@ def default_author_link():
 
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
-    return [x.height() for x in list(map(desktop.availableGeometry, range(desktop.screenCount())))]
+    return [x.height() for x in list(map(desktop.availableGeometry, list(range(desktop.screenCount()))))]
 
 
 def available_height():
@@ -1002,11 +1003,11 @@ class Application(QApplication):
 
         def fget(self):
             return [col.getRgb() for col in
-                    (QColorDialog.customColor(i) for i in xrange(QColorDialog.customCount()))]
+                    (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
         def fset(self, colors):
             num = min(len(colors), QColorDialog.customCount())
-            for i in xrange(num):
+            for i in range(num):
                 QColorDialog.setCustomColor(i, QColor(*colors[i]))
         return property(fget=fget, fset=fset)
 

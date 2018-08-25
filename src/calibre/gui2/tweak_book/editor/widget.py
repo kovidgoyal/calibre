@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -395,7 +396,7 @@ class Editor(QMainWindow):
                     # For some unknown reason this button is occassionally a
                     # QPushButton instead of a QToolButton
                     ch.setPopupMode(QToolButton.InstantPopup)
-                for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
+                for name in tuple('h%d' % d for d in list(range(1, 7))) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
 
         for name in tprefs.get('editor_common_toolbar', ()):

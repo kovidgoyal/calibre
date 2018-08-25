@@ -16,6 +16,7 @@ import sys
 import operator
 import functools
 import string
+from six.moves import range
 
 
 # * Raw strings with the r'' notation are used so that \ do not need

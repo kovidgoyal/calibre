@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -60,7 +61,7 @@ class NullHighlighter(object):
         self.lines = text.splitlines()
 
     def copy_lines(self, lo, hi, cursor):
-        for i in xrange(lo, hi):
+        for i in range(lo, hi):
             cursor.insertText(self.lines[i])
             cursor.insertBlock()
 
@@ -102,7 +103,7 @@ class PygmentsHighlighter(object):
                     continue
 
     def copy_lines(self, lo, hi, cursor):
-        for i in xrange(lo, hi):
+        for i in range(lo, hi):
             for fmt, text in self.lines[i]:
                 cursor.insertText(text, fmt)
             cursor.setCharFormat(NULL_FMT)

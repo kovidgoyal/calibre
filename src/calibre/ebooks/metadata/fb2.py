@@ -19,6 +19,7 @@ from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
 from six.moves import map
+from six.moves import range
 
 
 NAMESPACES = {
@@ -374,7 +375,7 @@ def _set_series(title_info, mi, ctx):
 
 
 def _rnd_name(size=8, chars=ascii_letters + digits):
-    return ''.join(random.choice(chars) for x in range(size))
+    return ''.join(random.choice(chars) for x in list(range(size)))
 
 
 def _rnd_pic_file_name(prefix='calibre_cover_', size=32, ext='jpg'):

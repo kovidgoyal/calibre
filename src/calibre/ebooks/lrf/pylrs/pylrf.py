@@ -11,6 +11,7 @@ import os
 
 from pylrfopt import tagListOptimizer
 import six
+from six.moves import range
 
 PYLRF_VERSION = "1.0"
 

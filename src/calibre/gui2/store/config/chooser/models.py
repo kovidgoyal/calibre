@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import range
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -55,19 +56,19 @@ class Matches(QAbstractItemModel):
         self.sort(self.sort_col, self.sort_order)
 
     def enable_all(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             data = (True)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_none(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             data = (False)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_invert(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             self.toggle_plugin(self.createIndex(i, 0))
 
     def toggle_plugin(self, index):

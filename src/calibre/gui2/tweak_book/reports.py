@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -77,7 +78,7 @@ class ProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        for item in (sm.data(sm.index(row, c, parent)) or '' for c in xrange(sm.columnCount())):
+        for item in (sm.data(sm.index(row, c, parent)) or '' for c in range(sm.columnCount())):
             if item and primary_contains(self._filter_text, item):
                 return True
         return False
@@ -148,7 +149,7 @@ class FilesView(QTableView):
         if self.model().rowCount() > 0:
             num = min(5, self.model().rowCount())
             h = 1000000
-            for i in xrange(num):
+            for i in range(num):
                 self.resizeRowToContents(i)
                 h = min(h, self.rowHeight(i))
             self.verticalHeader().setDefaultSectionSize(h)
@@ -199,8 +200,8 @@ class FilesView(QTableView):
         w = csv_writer(buf)
         w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
         cols = self.proxy.columnCount()
-        for r in xrange(self.proxy.rowCount()):
-            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in xrange(cols)]
+        for r in range(self.proxy.rowCount()):
+            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in range(cols)]
             w.writerow(items)
         return buf.getvalue()
 
@@ -1093,7 +1094,7 @@ class CSSWidget(QWidget):
         buf = BytesIO()
         w = csv_writer(buf)
         w.writerow([_('Style Rule'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.rule.selector, entry.count])
         return buf.getvalue()
@@ -1239,7 +1240,7 @@ class ClassesWidget(CSSWidget):
         buf = BytesIO()
         w = csv_writer(buf)
         w.writerow([_('Class'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.cls, entry.num_of_matches])
         return buf.getvalue()
@@ -1329,12 +1330,12 @@ class ReportsWidget(QWidget):
         if current_page is not None:
             self.reports.setCurrentRow(current_page)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).layout().setContentsMargins(0, 0, 0, 0)
 
     def __call__(self, data):
         jump.clear()
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             st = time.time()
             self.stack.widget(i)(data)
             if DEBUG:
@@ -1344,7 +1345,7 @@ class ReportsWidget(QWidget):
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
         save_state('report-page', self.reports.currentRow())
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).save()
 
     def to_csv(self):

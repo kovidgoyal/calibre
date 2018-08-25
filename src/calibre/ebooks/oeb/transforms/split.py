@@ -2,6 +2,7 @@ from __future__ import with_statement
 from six.moves import map
 from six.moves import zip
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -247,7 +248,7 @@ class FlowSplitter(object):
         while ordered_ids:
             pb_id, (pattern, before) = six.iteritems(ordered_ids)
             del ordered_ids[pb_id]
-            for i in xrange(len(self.trees)-1, -1, -1):
+            for i in range(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]
                 elem = pattern(tree)
                 if elem:

@@ -6,6 +6,7 @@ import re, six.moves.html_entities
 from six.moves import map
 from calibre.constants import plugins, preferred_encoding
 from six.moves import filter
+from six.moves import range
 
 try:
     _ncxc = plugins['speedup'][0].clean_xml_chars
@@ -29,7 +30,7 @@ def clean_ascii_chars(txt, charlist=None):
         return ''
     global _ascii_pat
     if _ascii_pat is None:
-        chars = set(xrange(32))
+        chars = set(range(32))
         chars.add(127)
         for x in (9, 10, 13):
             chars.remove(x)

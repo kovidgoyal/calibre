@@ -32,6 +32,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
 from six.moves import map
 import six
+from six.moves import range
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -256,7 +257,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if alignment != 'left':
                 self.alignment_map[colname] = alignment
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 

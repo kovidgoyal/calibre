@@ -3,6 +3,7 @@ from __future__ import print_function
 from six.moves import map
 from six.moves import getcwd
 import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -713,7 +714,7 @@ class OPF(object):  # {{{
     def create_manifest_item(self, href, media_type, append=False):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
-        for c in xrange(1, sys.maxint):
+        for c in range(1, sys.maxint):
             id = 'id%d'%c
             if id not in ids:
                 break

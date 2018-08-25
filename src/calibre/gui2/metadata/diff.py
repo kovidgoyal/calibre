@@ -4,6 +4,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from six.moves import map
 import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -701,7 +702,7 @@ if __name__ == '__main__':
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
     get_metadata = lambda x:list(map(gm, ids[x]))
-    d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata, db=db)
+    d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     if d.exec_() == d.Accepted:
         for changed, mi in six.itervalues(d.accepted):
             if changed and mi is not None:

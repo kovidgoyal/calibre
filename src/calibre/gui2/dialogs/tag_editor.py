@@ -1,4 +1,5 @@
 from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -212,7 +213,7 @@ class TagEditor(QDialog, Ui_TagEditor):
     def filter_tags(self, filter_value, which='available_tags'):
         collection = getattr(self, which)
         q = icu_lower(unicode(filter_value))
-        for i in xrange(collection.count()):  # on every available tag
+        for i in range(collection.count()):  # on every available tag
             item = collection.item(i)
             item.setHidden(bool(q and not primary_contains(q, unicode(item.text()))))
 

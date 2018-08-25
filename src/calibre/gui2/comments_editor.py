@@ -15,6 +15,7 @@ from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
     pyqtSignal, QCheckBox)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
+from six.moves import range
 try:
     from PyQt5 import sip
 except ImportError:
