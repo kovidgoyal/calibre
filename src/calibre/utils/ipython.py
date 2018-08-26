@@ -143,6 +143,16 @@ history_length(2000) #value of -1 means no limit
         del readline, rlcompleter, atexit
 
 
+class Exit:
+
+    def __repr__(self):
+        raise SystemExit(0)
+    __str__ = __repr__
+
+    def __call__(self):
+        raise SystemExit(0)
+
+
 def simple_repl(user_ns={}):
     if iswindows:
         setup_pyreadline()
@@ -158,11 +168,13 @@ def simple_repl(user_ns={}):
     import sys, re  # noqa
     for x in ('os', 'sys', 're'):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))
+    user_ns['exit'] = Exit()
     import code
-    code.interact(BANNER, raw_input, user_ns)
+    code.interact(BANNER + 'Use exit to quit', raw_input, user_ns)
 
 
 def ipython(user_ns=None):
+    return simple_repl(user_ns=user_ns)
     os.environ['IPYTHONDIR'] = ipydir
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
