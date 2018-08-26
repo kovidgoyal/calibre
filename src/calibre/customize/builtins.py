@@ -1515,7 +1515,6 @@ class StoreBeamEBooksDEStore(StoreBase):
     drm_free_only = True
     headquarters = 'DE'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 
 class StoreBiblioStore(StoreBase):
