@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -25,19 +25,16 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://klick.affiliwelt.net/klick.php?bannerid=10072&pid=32307&prid=908'
-        url_details = ('http://klick.affiliwelt.net/klick.php?'
-                       'bannerid=66830&pid=32307&prid=908&'
-                       'url={0}')
+        url = 'https://www.beam-shop.de/'
 
         if external or self.config.get('open_external', False):
             if detail_item:
-                url = url_details.format(detail_item)
+                url = detail_item
             open_url(QUrl(url))
         else:
             detail_url = None
             if detail_item:
-                detail_url = url_details.format(detail_item)
+                detail_url = detail_item
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
