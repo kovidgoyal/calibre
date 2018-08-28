@@ -96,14 +96,14 @@ def ensure_single_instance(args, open_at):
 
 
 def option_parser():
-    from gui2.main_window import option_parser
+    from calibre.gui2.main_window import option_parser
     parser = option_parser(_('''\
 %prog [options] file
 
 View an e-book.
 '''))
     a = parser.add_option
-    a('--raise-window', default=False, action='strore_true',
+    a('--raise-window', default=False, action='store_true',
         help=_('If specified, viewer window will try to come to the '
                'front when started.'))
     a('--full-screen', '--fullscreen', '-f', default=False, action='store_true',
@@ -168,6 +168,10 @@ def main(args=sys.argv):
         t.daemon = True
         t.start()
     QTimer.singleShot(0, acc.flush)
+    if opts.raise_window:
+        main.raise_()
+    if opts.full_screen:
+        main.showFullScreen()
 
     app.exec_()
     if listener is not None:

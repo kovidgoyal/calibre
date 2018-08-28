@@ -4,17 +4,20 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import QApplication, QBuffer, QByteArray
+import os
+
+from PyQt5.Qt import QApplication, QBuffer, QByteArray, QSize
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript
 )
 
-from calibre import prints
+from calibre import as_unicode, prints
 from calibre.constants import (
     FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
 )
-from calibre.gui2 import open_url
+from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
@@ -28,8 +31,22 @@ except ImportError:
 # Override network access to load data from the book {{{
 
 
+def set_book_path(path=None):
+    set_book_path.path = os.path.abspath(path)
+
+
 def get_data(name):
-    raise NotImplementedError('TODO: implement this')
+    bdir = getattr(set_book_path, 'path', None)
+    if bdir is None:
+        return None, None
+    path = os.path.abspath(os.path.join(bdir, name))
+    if not path.startswith(bdir):
+        return None, None
+    try:
+        with lopen(path, 'rb') as f:
+            return f.read(), guess_type(name)
+    except EnvironmentError as err:
+        prints('Failed to read from book file: {} with error: {}'.format(name, as_unicode(err)))
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
@@ -46,24 +63,26 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             rq.fail(rq.UrlNotFound)
             return
         name = url.path()[1:]
-        try:
-            data, mime_type = get_data(name)
-            if data is None:
-                rq.fail(rq.UrlNotFound)
-                return
-            if isinstance(data, type('')):
-                data = data.encode('utf-8')
-            mime_type = {
-                # Prevent warning in console about mimetype of fonts
-                'application/vnd.ms-opentype':'application/x-font-ttf',
-                'application/x-font-truetype':'application/x-font-ttf',
-                'application/font-sfnt': 'application/x-font-ttf',
-            }.get(mime_type, mime_type)
-            self.send_reply(rq, mime_type, data)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            rq.fail(rq.RequestFailed)
+        if name.startswith('book/'):
+            name = name.partition('/')[2]
+            try:
+                data, mime_type = get_data(name)
+                if data is None:
+                    rq.fail(rq.UrlNotFound)
+                    return
+                if isinstance(data, type('')):
+                    data = data.encode('utf-8')
+                mime_type = {
+                    # Prevent warning in console about mimetype of fonts
+                    'application/vnd.ms-opentype':'application/x-font-ttf',
+                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/font-sfnt': 'application/x-font-ttf',
+                }.get(mime_type, mime_type)
+                self.send_reply(rq, mime_type, data)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                rq.fail(rq.RequestFailed)
 
     def send_reply(self, rq, mime_type, data):
         if sip.isdeleted(rq):
@@ -151,3 +170,24 @@ class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         RestartingWebEngineView.__init__(self, parent)
+        self.dead_renderer_error_shown = False
+        self.render_process_failed.connect(self.render_process_died)
+        w = QApplication.instance().desktop().availableGeometry(self).width()
+        self._size_hint = QSize(int(w/3), int(w/2))
+        self._page = WebPage(self)
+        self.setPage(self._page)
+        self.setAcceptDrops(False)
+
+    def render_process_died(self):
+        if self.dead_renderer_error_shown:
+            return
+        self.dead_renderer_error_shown = True
+        error_dialog(self, _('Render process crashed'), _(
+            'The Qt WebEngine Render process has crashed.'
+            ' You should try restarting the viewer.') , show=True)
+
+    def sizeHint(self):
+        return self._size_hint
+
+    def refresh(self):
+        self.pageAction(QWebEnginePage.Reload).trigger()
