@@ -10,7 +10,6 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/qt',
             \'/usr/include/freetype2',
             \'/usr/include/fontconfig',
-            \'src/unrar',
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
 let g:syntastic_python_flake8_exec = 'flake8-python2'
