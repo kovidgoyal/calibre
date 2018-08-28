@@ -221,6 +221,16 @@ def compile_editor():
     atomic_write(base, 'editor.js', js)
 
 
+def compile_viewer():
+    base = base_dir()
+    rapydscript_dir = os.path.join(base, 'src', 'pyj')
+    fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
+    with lopen(fname, 'rb') as f:
+        js = compile_fast(f.read(), fname, js_version=6).replace('__SPECIAL_TITLE__', special_title, 1)
+    base = os.path.join(base, 'resources')
+    atomic_write(base, 'viewer.js', js)
+
+
 def compile_srv():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')

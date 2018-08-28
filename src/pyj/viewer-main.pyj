@@ -1,0 +1,5 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+print('11111111111111', document.location.href)

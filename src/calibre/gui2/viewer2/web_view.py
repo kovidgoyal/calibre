@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 
-from PyQt5.Qt import QApplication, QBuffer, QByteArray, QSize
+from PyQt5.Qt import QApplication, QBuffer, QByteArray, QSize, QUrl
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript
@@ -107,15 +107,10 @@ def create_profile():
         ua = 'calibre-viewer ' + __version__
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
-            from calibre.utils.rapydscript import compile_editor
-            compile_editor()
-        js = P('editor.js', data=True, allow_user_override=False)
-        cparser = P('csscolorparser.js', data=True, allow_user_override=False)
-
-        insert_scripts(ans,
-            create_script('csscolorparser.js', cparser),
-            create_script('editor.js', js),
-        )
+            from calibre.utils.rapydscript import compile_viewer
+            compile_viewer()
+        js = P('viewer.js', data=True, allow_user_override=False)
+        insert_scripts(ans, create_script('viewer.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
@@ -177,6 +172,7 @@ class WebView(RestartingWebEngineView):
         self._page = WebPage(self)
         self.setPage(self._page)
         self.setAcceptDrops(False)
+        self.clear()
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
@@ -191,3 +187,6 @@ class WebView(RestartingWebEngineView):
 
     def refresh(self):
         self.pageAction(QWebEnginePage.Reload).trigger()
+
+    def clear(self):
+        self.setHtml('<p>&nbsp;', QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
