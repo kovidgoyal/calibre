@@ -169,8 +169,10 @@ def simple_repl(user_ns={}):
     for x in ('os', 'sys', 're'):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))
     user_ns['exit'] = Exit()
-    import code
-    code.interact(BANNER + 'Use exit to quit', raw_input, user_ns)
+    from code import InteractiveConsole
+    console = InteractiveConsole(user_ns)
+    console.runsource('from __future__ import (unicode_literals, division, absolute_import, print_function)')
+    console.interact(BANNER + 'Use exit to quit')
 
 
 def ipython(user_ns=None):
