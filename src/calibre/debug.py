@@ -230,12 +230,15 @@ def run_debug_gui(logpath):
     calibre(['__CALIBRE_GUI_DEBUG__', logpath])
 
 
-def run_script(path, args):
+def load_user_plugins():
     # Load all user defined plugins so the script can import from the
     # calibre_plugins namespace
     import calibre.customize.ui as dummy
-    dummy
+    return dummy
 
+
+def run_script(path, args):
+    load_user_plugins()
     sys.argv = [path] + args
     ef = os.path.abspath(path)
     if '/src/calibre/' not in ef.replace(os.pathsep, '/'):
@@ -347,6 +350,7 @@ def main(args=sys.argv):
         sys.path.insert(0, args[1])
         run_script(os.path.join(args[1], '__main__.py'), args[2:])
     else:
+        load_user_plugins()
         from calibre import ipython
         ipython()
 
