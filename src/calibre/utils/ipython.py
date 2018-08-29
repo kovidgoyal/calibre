@@ -153,6 +153,17 @@ class Exit:
         raise SystemExit(0)
 
 
+class Helper(object):
+
+    def __repr__(self):
+        return "Type help() for interactive help, " \
+               "or help(object) for help about object."
+
+    def __call__(self, *args, **kwds):
+        import pydoc
+        return pydoc.help(*args, **kwds)
+
+
 def simple_repl(user_ns={}):
     if iswindows:
         setup_pyreadline()
@@ -169,6 +180,7 @@ def simple_repl(user_ns={}):
     for x in ('os', 'sys', 're'):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))
     user_ns['exit'] = Exit()
+    user_ns['help'] = Helper()
     from code import InteractiveConsole
     console = InteractiveConsole(user_ns)
     console.runsource('from __future__ import (unicode_literals, division, absolute_import, print_function)')
@@ -176,6 +188,7 @@ def simple_repl(user_ns={}):
 
 
 def ipython(user_ns=None):
+    return simple_repl(user_ns=user_ns)
     os.environ['IPYTHONDIR'] = ipydir
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
