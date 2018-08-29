@@ -92,7 +92,9 @@ class ISBNMerge(object):
         self.isbnless_results = []
         self.results = []
         self.log = log
-        self.use_xisbn = True
+        # The xISBN service has been de-commissioned
+        # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
+        self.use_xisbn = False
 
     def isbn_in_pool(self, isbn):
         if isbn:

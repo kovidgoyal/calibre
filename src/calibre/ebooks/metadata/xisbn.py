@@ -31,6 +31,9 @@ class xISBN(object):
         return self.isbn_pat.sub('', isbn.upper())
 
     def fetch_data(self, isbn):
+        # xisbn service has been de-comissioned see
+        # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
+        return []
         url = self.QUERY%isbn
         data = browser().open_novisit(url).read()
         data = json.loads(data)
@@ -104,5 +107,3 @@ if __name__ == '__main__':
     print pprint.pprint(xisbn.get_data(isbn))
     print
     print xisbn.get_associated_isbns(isbn)
-
-
