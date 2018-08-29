@@ -756,6 +756,9 @@ class Preferences(QDialog):
             if key.endswith('_again') and tprefs.get(key) is False:
                 del tprefs[key]
                 changed += 1
+            elif key.startswith('skip_ask_to_show_current_diff_for_'):
+                del tprefs[key]
+                changed += 1
         msg = _('There are no disabled confirmation prompts')
         if changed:
             msg = ngettext(

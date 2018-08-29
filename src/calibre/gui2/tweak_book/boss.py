@@ -11,7 +11,7 @@ from functools import partial, wraps
 from urlparse import urlparse
 
 from PyQt5.Qt import (
-    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
+    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCheckBox,
     QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal, QVBoxLayout)
 
 from calibre import prints, isbytestring
@@ -774,11 +774,17 @@ class Boss(QObject):
         d.container_diff(other, self.global_undo.current_container,
                          names=(self.global_undo.label_for_container(other), self.global_undo.label_for_container(self.global_undo.current_container)))
 
-    def ask_to_show_current_diff(self, title, msg, allow_revert=True, to_container=None):
+    def ask_to_show_current_diff(self, name, title, msg, allow_revert=True, to_container=None):
+        if tprefs.get('skip_ask_to_show_current_diff_for_' + name):
+            return
         d = QDialog(self.gui)
         k = QVBoxLayout(d)
         d.setWindowTitle(title)
         k.addWidget(QLabel(msg))
+        k.confirm = cb = QCheckBox(_('Show this popup again'))
+        k.addWidget(cb)
+        cb.setChecked(True)
+        connect_lambda(cb.toggled, d, lambda d, checked: tprefs.set('skip_ask_to_show_current_diff_for_' + name, not checked))
         d.bb = bb = QDialogButtonBox(QDialogButtonBox.Close, d)
         k.addWidget(bb)
         bb.accepted.connect(d.accept)
@@ -842,7 +848,7 @@ class Boss(QObject):
                 fix_all_html(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
-            self.ask_to_show_current_diff(_('Fixing done'), _('All HTML files fixed'))
+            self.ask_to_show_current_diff('html-fix', _('Fixing done'), _('All HTML files fixed'))
 
     def pretty_print(self, current):
         if current:
@@ -855,7 +861,7 @@ class Boss(QObject):
                 self.update_editors_from_container()
                 self.set_modified()
                 QApplication.alert(self.gui)
-            self.ask_to_show_current_diff(_('Beautified'), _('All files beautified'))
+            self.ask_to_show_current_diff('beautify', _('Beautified'), _('All files beautified'))
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
