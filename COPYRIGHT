@@ -16,11 +16,6 @@ Files: resources/rapydscript/*
 Copyright: Various
 License: BSD
 
-Files: src/unrar/*
-Copyright: Various
-License: Non-free
-   Code can be distributed freely.
-
 Files: src/html5lib/*
 Copyright: Copyright (c) 2006-2013 James Graham and other contributors
 License: Expat
