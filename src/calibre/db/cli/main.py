@@ -8,8 +8,7 @@ import six.moves.http_client
 import json
 import os
 import sys
-from urllib import urlencode
-from six.moves.urllib.parse import urlparse, urlunparse
+from six.moves.urllib.parse import urlencode, urlparse, urlunparse
 
 from calibre import browser, prints
 from calibre.constants import __appname__, __version__, iswindows

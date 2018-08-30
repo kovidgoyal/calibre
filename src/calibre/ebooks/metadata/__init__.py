@@ -10,15 +10,12 @@ Provides abstraction for metadata reading.writing from a variety of ebook format
 import os, sys, re
 from six import unichr
 
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, quote
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 
 from calibre.utils.config_base import tweaks
-from six.moves import map
-from six.moves import zip
-from six.moves import getcwd
-from six.moves import range
+from six.moves import map, zip, getcwd, range
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
@@ -247,7 +244,6 @@ class Resource(object):
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
-        from urllib import quote
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir

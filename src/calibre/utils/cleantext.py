@@ -3,10 +3,11 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, six.moves.html_entities
-from six.moves import map
+
+from six import unichr
+from six.moves import map, filter, range
+
 from calibre.constants import plugins, preferred_encoding
-from six.moves import filter
-from six.moves import range
 
 try:
     _ncxc = plugins['speedup'][0].clean_xml_chars

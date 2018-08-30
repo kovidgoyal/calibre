@@ -1,9 +1,6 @@
 #!/usr/bin/env python2
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import with_statement, print_function
 
-import urllib
-from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -13,7 +10,7 @@ UTF-8 encoding with any charset declarations removed.
 '''
 import sys, socket, os, re, time, threading, traceback
 from six.moves.http_client import responses
-from six.moves import urllib
+from six.moves import urllib, range
 from base64 import b64decode
 
 from html5_parser.soup import set_soup_module, parse

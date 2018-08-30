@@ -12,7 +12,7 @@ from io import BytesIO
 from threading import Lock
 from six.moves import map
 from functools import partial
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 from calibre import fit_image, sanitize_file_name_unicode
 from calibre.constants import config_dir, iswindows

@@ -12,7 +12,7 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
-from calibre.utils.html2text import html2text
+from html2text import html2text
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.

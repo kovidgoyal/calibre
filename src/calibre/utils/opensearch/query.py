@@ -6,8 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2006, Ed Summers <ehs@pobox.com>'
 __docformat__ = 'restructuredtext en'
 
-from six.moves.urllib.parse import urlparse, urlunparse, parse_qs
-from urllib import urlencode
+from six.moves.urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 
 class Query(object):

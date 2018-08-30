@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import six
+from six.moves.urllib.parse import urlencode
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -66,7 +67,6 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
-        from urllib import urlencode
         import json
         from collections import OrderedDict
         ans = OrderedDict()

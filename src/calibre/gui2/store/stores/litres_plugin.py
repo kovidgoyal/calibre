@@ -10,10 +10,10 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
 
 from contextlib import closing
 from lxml import etree
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner, prints
@@ -38,7 +38,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         if detail_item:
             # http://www.litres.ru/pages/biblio_book/?art=157074
             detail_url = self.shop_url + u'/pages/biblio_book/' + aff_id +\
-                u'&art=' + urllib2.quote(detail_item)
+                u'&art=' + urlquote(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))

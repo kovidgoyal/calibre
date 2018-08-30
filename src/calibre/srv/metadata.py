@@ -10,7 +10,7 @@ from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag

@@ -8,9 +8,11 @@ from six.moves import range
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, six.moves.cPickle, sys
+import os, sys
 from threading import Thread
 from collections import namedtuple
+
+from six.moves import cPickle
 from six.moves.queue import Queue
 
 from calibre import detect_ncpus, as_unicode, prints
@@ -390,7 +392,11 @@ def worker_main(conn):
 def run_main(func):
     from multiprocessing.connection import Client
     from contextlib import closing
-    address, key = six.moves.cPickle.loads(eintr_retry_call(sys.stdin.read))
+    try:
+        read = sys.stdin.buffer.read
+    except AttributeError:
+        read = sys.stdin.read
+    address, key = cPickle.loads(eintr_retry_call(read))
     with closing(Client(address, authkey=key)) as conn:
         raise SystemExit(func(conn))
 

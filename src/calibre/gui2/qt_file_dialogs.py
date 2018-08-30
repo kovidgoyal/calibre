@@ -5,8 +5,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from six.moves.urllib.parse import unquote
 
+from six.moves.urllib.parse import unquote
+import six
 from PyQt5.Qt import QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions

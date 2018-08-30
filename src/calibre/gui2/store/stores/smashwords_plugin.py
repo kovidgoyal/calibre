@@ -9,11 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -25,7 +24,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'https://www.smashwords.com/books/search?query=' + urllib2.quote(query)
+    url = 'https://www.smashwords.com/books/search?query=' + urlquote(query)
 
     br = browser()
     try:

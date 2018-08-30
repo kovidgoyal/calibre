@@ -7,11 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2014, Rafael Vega <rafavega@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote_plus
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -35,7 +34,7 @@ class BubokPublishingStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.bubok.es/resellers/calibre_search/' + urllib.quote_plus(query)
+        url = 'http://www.bubok.es/resellers/calibre_search/' + quote_plus(query)
 
         br = browser()
 

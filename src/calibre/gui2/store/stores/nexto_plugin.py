@@ -8,11 +8,10 @@ __copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote_plus
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -46,7 +45,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query) + '&scid=1015'
+        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + quote_plus(query) + '&scid=1015'
 
         br = browser()
         offset=0

@@ -10,6 +10,10 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, plistlib, re, mimetypes, subprocess
 from collections import defaultdict
 
+from lxml import etree
+from html5_parser import parse
+from six.moves.urllib.request import urlopen
+
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 
@@ -19,10 +23,7 @@ application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
 
 def generate_public_uti_map():
-    from lxml import etree
-    import urllib
-    from html5_parser import parse
-    raw = urllib.urlopen(
+    raw = urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = parse(raw)
     tables = root.xpath('//table')[0::2]

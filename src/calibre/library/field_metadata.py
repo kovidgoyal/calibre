@@ -488,7 +488,7 @@ class FieldMetadata(object):
         return six.itervalues(self._tb_cats)
 
     def values(self):
-        return list(self._tb_cats.values())
+        return self.itervalues()
 
     def iteritems(self):
         for key in self._tb_cats:
@@ -499,7 +499,7 @@ class FieldMetadata(object):
             yield (key, meta)
 
     def items(self):
-        return list(six.iteritems(self))
+        return self.iteritems()
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)

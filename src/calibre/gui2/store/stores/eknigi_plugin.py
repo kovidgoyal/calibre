@@ -9,11 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import random
-import urllib2
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -55,7 +54,7 @@ class eKnigiStore(BasicStoreConfig, StorePlugin):
             return
 
         base_url = 'http://e-knigi.net'
-        url = base_url + '/virtuemart?page=shop.browse&search_category=0&search_limiter=anywhere&keyword=' + urllib2.quote(query)
+        url = base_url + '/virtuemart?page=shop.browse&search_category=0&search_limiter=anywhere&keyword=' + urlquote(query)
 
         br = browser()
 

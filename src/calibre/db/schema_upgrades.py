@@ -25,7 +25,7 @@ class SchemaUpgrade(object):
         # Upgrade database
         try:
             while True:
-                uv = self.db.execute('pragma user_version').next()[0]
+                uv = next(self.db.execute('pragma user_version'))[0]
                 meth = getattr(self, 'upgrade_version_%d'%uv, None)
                 if meth is None:
                     break

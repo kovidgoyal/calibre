@@ -13,19 +13,11 @@ from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
 
 
-def _cmp_ipaddr(l, r):
-    lparts = ['%3s'%x for x in l.split('.')]
-    rparts = ['%3s'%x for x in r.split('.')]
-
-    if lparts[0] in ['192', '170', ' 10']:
-        if rparts[0] not in ['192', '170', '10']:
-            return -1
-        return cmp(rparts, lparts)
-
-    if rparts[0] in ['192', '170', ' 10']:
-        return 1
-
-    return cmp(lparts, rparts)
+def _key_ipaddr(v):
+    parts = [x for x in v.split('.')]
+    if parts[0] in [192, 170, 10]:
+        return [-1]
+    return parts
 
 
 def get_all_ip_addresses():
@@ -34,7 +26,7 @@ def get_all_ip_addresses():
         for addrs in iface:
             if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
                 ipaddrs.append(addrs['addr'])
-    ipaddrs.sort(cmp=_cmp_ipaddr)
+    ipaddrs.sort(key=_key_ipaddr)
     return ipaddrs
 
 

@@ -12,7 +12,7 @@ import sys, time, io, re
 from zlib import decompressobj
 from collections import OrderedDict
 from threading import Thread
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
@@ -176,7 +176,7 @@ class Stores(OrderedDict):
     def load_object(self, src, key):
         namespace = {}
         builtin = self[key]
-        exec src in namespace
+        exec(src, namespace)
         ver = namespace['store_version']
         cls = None
         for x in six.itervalues(namespace):

@@ -130,11 +130,6 @@ def get_default_library_path():
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
-    if isinstance(fname, unicode):
-        try:
-            fname = fname.encode(filesystem_encoding)
-        except:
-            fname = 'Calibre Library'
     x = os.path.expanduser('~'+os.sep+fname)
     if not os.path.exists(x):
         try:

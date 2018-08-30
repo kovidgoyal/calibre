@@ -8,7 +8,7 @@ __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
+import six.moves.urllib.parse as urllib
 from base64 import b64encode
 from contextlib import closing
 

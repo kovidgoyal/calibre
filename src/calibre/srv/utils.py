@@ -16,7 +16,7 @@ import six.moves.reprlib as reprlib
 from email.utils import formatdate
 from operator import itemgetter
 from six.moves import map
-from urllib import quote as urlquote
+from six.moves.urllib.parse import quote as urlquote
 from binascii import hexlify, unhexlify
 
 from calibre import prints

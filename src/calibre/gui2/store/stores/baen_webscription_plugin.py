@@ -7,7 +7,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 from contextlib import closing
 
 from lxml import html

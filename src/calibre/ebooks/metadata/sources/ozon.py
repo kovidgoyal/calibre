@@ -14,6 +14,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from six.moves.queue import Queue, Empty
+from six.moves.urllib.parse import quote, quote_plus
 
 from calibre import as_unicode, replace_entities
 from calibre.ebooks.metadata import check_isbn
@@ -55,20 +56,17 @@ class Ozon(Source):
     )
 
     def get_book_url(self, identifiers):  # {{{
-        import urllib2
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
             # no affiliateId is used in search/detail
-            url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
+            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
 
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import quote_plus
-
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/?context=search&group=div_book&text='
 

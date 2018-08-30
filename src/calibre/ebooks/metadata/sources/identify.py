@@ -14,8 +14,9 @@ from six.moves.queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
-from six.moves.urllib.parse import urlparse
-from urllib import quote
+
+from six.moves.urllib.parse import urlparse, quote
+from html2text import html2text
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata import check_issn, authors_to_sort_string
@@ -24,7 +25,6 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import utc_tz, as_utc
-from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter

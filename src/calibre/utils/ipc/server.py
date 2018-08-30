@@ -127,7 +127,7 @@ if islinux:
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
         prefix = u'\0calibre-ipc-listener-%d-%%d' % os.getpid()
         while True:
-            address = (prefix % next(_name_counter)).encode('ascii')
+            address = prefix % next(_name_counter)
             try:
                 l = LinuxListener(address=address, authkey=authkey, backlog=backlog)
                 return address, l

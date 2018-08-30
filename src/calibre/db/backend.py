@@ -123,7 +123,7 @@ class DBPrefs(dict):  # {{{
             raw = self.to_raw(val)
             with self.db.conn:
                 try:
-                    dbraw = self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)).next()
+                    dbraw = next(self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)))
                 except StopIteration:
                     dbraw = None
                 if dbraw is None or dbraw[1] != raw:
@@ -154,7 +154,7 @@ class DBPrefs(dict):  # {{{
     def write_serialized(self, library_path):
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
-            with open(to_filename, "wb") as f:
+            with open(to_filename, "w") as f:
                 f.write(json.dumps(self, indent=2, default=to_json))
         except:
             import traceback
@@ -274,7 +274,7 @@ class Connection(apsw.Connection):  # {{{
         self.execute('pragma cache_size=-5000')
         self.execute('pragma temp_store=2')
 
-        encoding = self.execute('pragma encoding').next()[0]
+        encoding = next(self.execute('pragma encoding'))[0]
         self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
@@ -309,7 +309,7 @@ class Connection(apsw.Connection):  # {{{
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 
@@ -871,7 +871,7 @@ class DB(object):
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 

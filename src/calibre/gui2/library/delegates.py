@@ -199,8 +199,8 @@ def get_val_for_textlike_columns(index_):
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
+        self.is_half_star = kwargs.pop('is_half_star', False)
         QStyledItemDelegate.__init__(self, *args, **kwargs)
-        self.is_half_star = kwargs.get('is_half_star', False)
         self.table_widget = args[0]
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle

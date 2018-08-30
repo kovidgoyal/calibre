@@ -9,7 +9,7 @@ import time
 from functools import partial
 from six.moves.queue import Empty, Queue
 from threading import Thread
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, urlencode
 
 from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
@@ -1052,7 +1052,6 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
-        from urllib import urlencode
         if domain is None:
             domain = self.domain
 

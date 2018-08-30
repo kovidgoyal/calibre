@@ -10,7 +10,9 @@ __docformat__ = 'restructuredtext en'
 
 import re, tempfile, os
 from functools import partial
+
 from six.moves import zip
+from six.moves.urllib.parse import quote
 
 from calibre.constants import islinux, isbsd
 from calibre.customize.conversion import (InputFormatPlugin,
@@ -247,7 +249,6 @@ class HTMLInput(InputFormatPlugin):
         return link, frag
 
     def resource_adder(self, link_, base=None):
-        from urllib import quote
         link, frag = self.link_to_local_path(link_, base=base)
         if link is None:
             return link_

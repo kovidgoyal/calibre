@@ -338,7 +338,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
-    from calibre.web.feeds.feedparser import parse
+    from feedparser import parse
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
     raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)

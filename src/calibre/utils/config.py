@@ -386,7 +386,7 @@ class XMLConfig(dict):
 def to_json(obj):
     if isinstance(obj, bytearray):
         return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj))}
+                '__value__': base64.standard_b64encode(bytes(obj)).decode()}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
         return {'__class__': 'datetime.datetime',
@@ -397,7 +397,7 @@ def to_json(obj):
 def from_json(obj):
     if '__class__' in obj:
         if obj['__class__'] == 'bytearray':
-            return bytearray(base64.standard_b64decode(obj['__value__']))
+            return bytearray(base64.standard_b64decode(obj['__value__'].encode()))
         if obj['__class__'] == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
             return parse_iso8601(obj['__value__'], assume_utc=True)

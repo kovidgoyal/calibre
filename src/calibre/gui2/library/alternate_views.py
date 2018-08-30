@@ -260,7 +260,7 @@ def setup_dnd_interface(cls_or_self):
             func = fmap[x]
             if x in {'mouseMoveEvent', 'mousePressEvent'}:
                 func = partial(func, base_class)
-            setattr(cls, x, MethodType(func, None, cls))
+            setattr(cls, x, func)
         return cls
     else:
         self = cls_or_self

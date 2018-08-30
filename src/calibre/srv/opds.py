@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib, binascii
 from functools import partial
 from collections import OrderedDict, namedtuple
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from lxml import etree, html
 from lxml.builder import ElementMaker

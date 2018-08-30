@@ -11,7 +11,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import six.moves.http_client, zlib, json, base64, os
 from io import BytesIO
 from functools import partial
-from urllib import urlencode, quote
+from six.moves.urllib.parse import urlencode, quote
 from six.moves.http_client import OK, NOT_FOUND, FORBIDDEN
 
 from calibre.ebooks.metadata.meta import get_metadata

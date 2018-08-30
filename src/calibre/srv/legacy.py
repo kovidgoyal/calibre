@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from functools import partial
 from lxml.html import tostring
 from lxml.html.builder import E as E_
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from calibre import strftime
 from calibre.constants import __appname__
