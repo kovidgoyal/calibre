@@ -5,9 +5,10 @@
 """
 import struct
 import zlib
-import StringIO
 import codecs
 import os
+
+from six.moves import StringIO
 
 from pylrfopt import tagListOptimizer
 import six
@@ -475,7 +476,7 @@ class LrfTagStream(LrfStreamBase):
 
     def getStreamTags(self, encoding,
             optimizeTags=False, optimizeCompression=False):
-        stream = StringIO.StringIO()
+        stream = StringIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
 
@@ -589,7 +590,7 @@ class LrfToc(LrfObject):
         self.tags.extend(stream.getStreamTags())
 
     def _makeTocStream(self, toc, se):
-        stream = StringIO.StringIO()
+        stream = StringIO()
         nEntries = len(toc)
 
         writeDWord(stream, nEntries)

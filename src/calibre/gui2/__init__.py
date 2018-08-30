@@ -1034,7 +1034,8 @@ class Application(QApplication):
         cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
         for fd in (read_fd, write_fd):
             flags = fcntl.fcntl(fd, fcntl.F_GETFD)
-            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) | os.O_NONBLOCK)
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)

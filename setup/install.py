@@ -154,7 +154,7 @@ class Develop(Command):
         else:
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
-            with open(path, 'wb') as f:
+            with open(path, 'w') as f:
                 f.write(HEADER.format(**self.template_args()))
 
     def install_files(self):
@@ -195,7 +195,7 @@ class Develop(Command):
         self.info('Installing binary:', path)
         if os.path.lexists(path) and not os.path.exists(path):
             os.remove(path)
-        open(path, 'wb').write(script)
+        open(path, 'w').write(script)
         os.chmod(path, self.MODE)
         self.manifest.append(path)
 

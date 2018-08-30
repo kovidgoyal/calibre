@@ -19,6 +19,9 @@ If this module is run, it will perform a series of unit tests.
 
 import weakref, re
 
+import six
+from six import unichr
+
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
@@ -55,7 +58,7 @@ class SavedSearchQueries(object):
             db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, six.text_types):
             x = x.decode(preferred_encoding, 'replace')
         return x
 
@@ -148,8 +151,8 @@ class Parser(object):
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
             (u'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (r'[^"()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
+            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, t.decode())),
+            (r'[^"()\s]+', lambda x,t: (Parser.WORD, t.decode())),
             (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
             (r'\s+',              None)
     ], flags=re.DOTALL)

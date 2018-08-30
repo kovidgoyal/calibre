@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from struct import unpack_from, pack, calcsize
-from six import zip
+from six.moves import zip
 
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont

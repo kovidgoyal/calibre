@@ -25,12 +25,11 @@ else:
     _unicode = str
     _unichr = chr
 
-tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 utab = {c:c+32 for c in list(range(ord('A'), ord('Z')+1))}
 
 def ascii_lower(string):
     """Lower-case, but only in the ASCII range."""
-    return string.translate(utab if isinstance(string, _unicode) else tab)
+    return string.translate(utab)
 
 def urepr(x):
     if isinstance(x, list):

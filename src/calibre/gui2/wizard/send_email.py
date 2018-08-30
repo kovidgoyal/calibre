@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from six.moves import StringIO, sys
+from six.moves import StringIO
+import sys
 from binascii import hexlify, unhexlify
 from functools import partial
 from threading import Thread

@@ -16,6 +16,7 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 
 import re, sys, urllib, six.moves.html_entities, codecs
 import sgmllib
+from six import unichr
 from six.moves import range
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
 

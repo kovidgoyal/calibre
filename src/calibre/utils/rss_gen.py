@@ -7,7 +7,10 @@ __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
 import datetime
-from six.moves import map
+from xml.sax import saxutils
+
+import six
+from six.moves import StringIO
 
 # Could make this the base class; will need to add 'publish'
 
@@ -15,19 +18,13 @@ from six.moves import map
 class WriteXmlMixin:
 
     def write_xml(self, outfile, encoding="iso-8859-1"):
-        from xml.sax import saxutils
         handler = saxutils.XMLGenerator(outfile, encoding)
         handler.startDocument()
         self.publish(handler)
         handler.endDocument()
 
     def to_xml(self, encoding="iso-8859-1"):
-        try:
-            from six.moves import StringIO as StringIO
-            StringIO
-        except ImportError:
-            import StringIO
-        f = StringIO.StringIO()
+        f = StringIO()
         self.write_xml(f, encoding)
         return f.getvalue()
 

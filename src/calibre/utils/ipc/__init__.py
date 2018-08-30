@@ -44,7 +44,7 @@ def gui_socket_address():
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
             if islinux:
-                ADDRESS = (u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user))).encode('ascii')
+                ADDRESS = u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user))
             else:
                 from tempfile import gettempdir
                 tmp = gettempdir()

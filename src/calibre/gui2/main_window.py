@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import StringIO, traceback, sys, gc, weakref
+import traceback, sys, gc, weakref
+
+from six.moves import StringIO
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
@@ -133,7 +135,7 @@ class MainWindow(QMainWindow):
         if type is KeyboardInterrupt:
             return
         try:
-            sio = StringIO.StringIO()
+            sio = StringIO()
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)

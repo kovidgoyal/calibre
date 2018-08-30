@@ -264,7 +264,7 @@ class RecentUAs(Command):  # {{{
     def run(self, opts):
         from setup.browser_data import get_data
         data = get_data()
-        with open(self.UA_PATH, 'wb') as f:
+        with open(self.UA_PATH, 'w') as f:
             f.write(json.dumps(data, indent=2))
 # }}}
 
@@ -368,7 +368,7 @@ class Resources(Command):  # {{{
             lines = ''.join(lines)
             function_dict[obj.name] = lines
         import json
-        json.dump(function_dict, open(dest, 'wb'), indent=4)
+        json.dump(function_dict, open(dest, 'w'), indent=4)
 
         self.info('\tCreating editor-functions.json')
         dest = self.j(self.RESOURCES, 'editor-functions.json')
@@ -384,13 +384,13 @@ class Resources(Command):  # {{{
             if imports:
                 src = '\n'.join(imports) + '\n\n' + src
             function_dict[func.name] = src
-        json.dump(function_dict, open(dest, 'wb'), indent=4)
+        json.dump(function_dict, open(dest, 'w'), indent=4)
         self.info('\tCreating user-manual-translation-stats.json')
         d = {}
         for lc, stats in six.iteritems(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json')))):
             total = sum(six.itervalues(stats))
             d[lc] = stats['translated'] / float(total)
-        json.dump(d, open(self.j(self.RESOURCES, 'user-manual-translation-stats.json'), 'wb'), indent=4)
+        json.dump(d, open(self.j(self.RESOURCES, 'user-manual-translation-stats.json'), 'w'), indent=4)
 
     def clean(self):
         for x in ('scripts', 'ebook-convert-complete'):

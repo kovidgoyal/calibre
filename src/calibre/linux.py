@@ -375,7 +375,7 @@ class ZshCompleter(object):  # {{{
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
-        f.write((ur'''
+        f.write((six.text_type(r'''
 _ebook_edit() {
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
@@ -402,7 +402,7 @@ _ebook_edit() {
 
     return 1
 }
-''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n').encode('utf-8'))
+''') % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n').encode('utf-8'))
 
     def do_calibredb(self, f):
         from calibre.db.cli.main import COMMANDS, option_parser_for
@@ -732,7 +732,7 @@ class PostInstall:
             mime_resources=self.mime_resources, menu_resources=self.menu_resources,
             appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
-            with open(dest, 'wb') as f:
+            with open(dest, 'w') as f:
                 f.write(raw)
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:

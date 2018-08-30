@@ -13,6 +13,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re
 from six.moves import StringIO, cPickle
+from six import BytesIO
 from gettext import GNUTranslations, NullTranslations
 
 _available_translations = None
@@ -219,12 +220,12 @@ def set_translators():
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:
-                    buf = StringIO(zf.read(mpath + '/messages.mo'))
+                    buf = BytesIO(zf.read(mpath + '/messages.mo'))
                 if mpath == 'nds':
                     mpath = 'de'
                 isof = mpath + '/iso639.mo'
                 try:
-                    iso639 = StringIO(zf.read(isof))
+                    iso639 = BytesIO(zf.read(isof))
                 except:
                     pass  # No iso639 translations for this lang
                 if buf is not None:

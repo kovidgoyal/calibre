@@ -10,8 +10,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import re
-import StringIO
 from copy import deepcopy
+
+from six.moves import StringIO
 
 from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.metadata.toc import TOC
@@ -559,7 +560,7 @@ class PML_HTMLizer(object):
                 indent_state['et'] = False
 
             # Must use StringIO, cStringIO does not support unicode
-            line = StringIO.StringIO(line)
+            line = StringIO(line)
             parsed.append(self.start_line())
 
             c = line.read(1)

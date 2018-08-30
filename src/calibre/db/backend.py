@@ -1629,7 +1629,7 @@ class DB(object):
             except EnvironmentError as err:
                 if err.errno == errno.EEXIST:
                     # Parent directory already exists, re-raise original exception
-                    raise exc_info[0], exc_info[1], exc_info[2]
+                    raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
                 raise
             finally:
                 del exc_info

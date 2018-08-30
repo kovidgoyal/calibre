@@ -8,8 +8,10 @@ Provides a command-line interface to ebook devices.
 For usage information run the script.
 """
 
-import StringIO, sys, time, os
+import sys, time, os
 from optparse import OptionParser
+
+from six.moves import StringIO
 
 from calibre import __version__, __appname__, human_readable, fsync
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
@@ -128,7 +130,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 c += 1
         return rowwidths
 
-    output = StringIO.StringIO()
+    output = StringIO()
     if path.endswith("/") and len(path) > 1:
         path = path[:-1]
     dirs = dev.list(path, recurse)

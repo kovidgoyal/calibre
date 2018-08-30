@@ -15,6 +15,7 @@ from datetime import timedelta
 
 from lxml import etree
 from lxml.builder import ElementMaker
+import six
 
 from calibre import force_unicode
 from calibre.utils.iso8601 import parse_iso8601
@@ -43,7 +44,7 @@ def serialize_recipe(urn, recipe_class):
 
     def attr(n, d):
         ans = getattr(recipe_class, n, d)
-        if isinstance(ans, str):
+        if isinstance(ans, six.unicode):
             ans = ans.decode('utf-8', 'replace')
         return ans
 

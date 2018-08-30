@@ -113,12 +113,10 @@ def confirm_config_name(name):
     return name + '_again'
 
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
-_filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
-    u'"', u':', u'>', u'+', u'/'] + list(map(six.unichr, range(32))))
+_filename_sanitize = re.compile(b'[\\x00-\\x1f\\\\|?*<":>+/]')
 
 
-def sanitize_file_name(name, substitute='_', as_unicode=False):
+def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
@@ -128,23 +126,23 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
     are encoded in the filesystem encoding of the platform, or UTF-8.
     '''
-    if isinstance(name, unicode):
-        name = name.encode(filesystem_encoding, 'ignore')
+    if isinstance(substitute, six.text_type):
+        substitute = substitute.encode()
+    if isinstance(name, six.text_type):
+        name = name.encode(errors='ignore')
     one = _filename_sanitize.sub(substitute, name)
-    one = re.sub(r'\s', ' ', one).strip()
+    one = re.sub(b'\\s', b' ', one).strip()
     bname, ext = os.path.splitext(one)
-    one = re.sub(r'^\.+$', '_', bname)
-    if as_unicode:
-        one = one.decode(filesystem_encoding)
-    one = one.replace('..', substitute)
+    one = re.sub(b'^\\.+$', b'_', bname)
+    one = one.replace(b'..', substitute)
     one += ext
     # Windows doesn't like path components that end with a period
-    if one and one[-1] in ('.', ' '):
-        one = one[:-1]+'_'
+    if one and one[-1] in (b'.', b' '):
+        one = one[:-1]+b'_'
     # Names starting with a period are hidden on Unix
-    if one.startswith('.'):
-        one = '_' + one[1:]
-    return one
+    if one.startswith(b'.'):
+        one = b'_' + one[1:]
+    return one.decode(filesystem_encoding)
 
 
 def sanitize_file_name_unicode(name, substitute='_'):
@@ -155,23 +153,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     '''
-    if isbytestring(name):
-        return sanitize_file_name(name, substitute=substitute, as_unicode=True)
-    chars = [substitute if c in _filename_sanitize_unicode else c for c in
-            name]
-    one = u''.join(chars)
-    one = re.sub(r'\s', ' ', one).strip()
-    bname, ext = os.path.splitext(one)
-    one = re.sub(r'^\.+$', '_', bname)
-    one = one.replace('..', substitute)
-    one += ext
-    # Windows doesn't like path components that end with a period or space
-    if one and one[-1] in ('.', ' '):
-        one = one[:-1]+'_'
-    # Names starting with a period are hidden on Unix
-    if one.startswith('.'):
-        one = '_' + one[1:]
-    return one
+    return sanitize_file_name(name, substitute=substitute)
 
 
 def sanitize_file_name2(name, substitute='_'):
@@ -720,3 +702,27 @@ def ipython(user_ns=None):
 def fsync(fileobj):
     fileobj.flush()
     os.fsync(fileobj.fileno())
+import code, traceback, signal
+
+def debug(sig, frame):
+    """Interrupt running process, and provide a python prompt for
+    interactive debugging."""
+    d={'_frame':frame}         # Allow access to frame object.
+    d.update(frame.f_globals)  # Unless shadowed by global
+    d.update(frame.f_locals)
+
+    i = code.InteractiveConsole(d)
+    message  = "Signal received : entering python shell.\nTraceback:\n"
+    message += ''.join(traceback.format_stack(frame))
+    i.interact(message)
+
+signal.signal(signal.SIGUSR1, debug)  # Register handler
+from PyQt5 import QtCore
+import traceback, sys
+
+
+if QtCore.QT_VERSION >= 0x50501:
+    def excepthook(type_, value, traceback_):
+        traceback.print_exception(type_, value, traceback_)
+        QtCore.qFatal('')
+sys.excepthook = excepthook

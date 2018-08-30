@@ -176,7 +176,7 @@ else:
 class Server(Thread):
 
     def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
-            limit=sys.maxint, enforce_cpu_limit=True):
+            limit=999999, enforce_cpu_limit=True):
         Thread.__init__(self)
         self.daemon = True
         global _counter

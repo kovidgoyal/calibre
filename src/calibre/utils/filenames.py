@@ -25,8 +25,7 @@ def ascii_text(orig):
     except:
         if isinstance(orig, unicode):
             orig = orig.encode('ascii', 'replace')
-        ascii = orig.decode(preferred_encoding,
-                'replace').encode('ascii', 'replace')
+        ascii = orig.decode('ascii', errors='replace')
     return ascii
 
 

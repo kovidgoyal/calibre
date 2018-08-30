@@ -508,7 +508,7 @@ def create_listener():
 
 
 def main(args=sys.argv):
-    if os.environ.pop(b'CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
+    if os.environ.pop('CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
         time.sleep(2)  # give the parent process time to cleanup and close
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()

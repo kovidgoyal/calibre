@@ -301,10 +301,10 @@ class XMLConfig(dict):
             pass
 
     def raw_to_object(self, raw):
-        return plistlib.readPlistFromString(raw)
+        return plistlib.loads(raw)
 
     def to_raw(self):
-        return plistlib.writePlistToString(self)
+        return plistlib.dumps(self)
 
     def decouple(self, prefix):
         self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
@@ -412,7 +412,7 @@ class JSONConfig(XMLConfig):
         return json.loads(raw.decode('utf-8'), object_hook=from_json)
 
     def to_raw(self):
-        return json.dumps(self, indent=2, default=to_json)
+        return json.dumps(self, indent=2, default=to_json).encode()
 
     def __getitem__(self, key):
         try:
