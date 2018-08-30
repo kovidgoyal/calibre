@@ -39,6 +39,7 @@ TRANSITIONAL_NAMESPACES = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
     'o': 'urn:schemas-microsoft-com:office:office',
     've': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
+    'mc': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
     # Text Content
     'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
     'w10': 'urn:schemas-microsoft-com:office:word',
