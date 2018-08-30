@@ -169,7 +169,7 @@ class Block(object):
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None, lang=None):
         ws = style['white-space']
-        preserve_whitespace = ws in {'pre', 'pre-wrap'}
+        preserve_whitespace = ws in {'pre', 'pre-wrap', '-o-pre-wrap'}
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
