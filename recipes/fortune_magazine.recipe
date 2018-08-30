@@ -18,8 +18,8 @@ class Fortune(BasicNewsRecipe):
     encoding = 'UTF-8'
     keep_only_tags = [
             dict(name='h1', attrs={'class': lambda x: x and 'headline' in x}),
-            classes('lead-media author'),
-            dict(id='article-body'),
+            classes('lead-media longform-bylines longform-timestamps author'),
+            dict(id=['article-body', 'longform-body']),
     ]
 
     no_javascript = True
@@ -29,12 +29,20 @@ class Fortune(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
-            br.open('http://fortune.com')
+            br.open('http://fortune.com/sitemap/')
             br.select_form(id='sign-in-form')
             br['username'] = self.username
             br['password'] = self.password
             br.submit()
         return br
+
+    def preprocess_html(self, soup, *a):
+        for div in soup.findAll(attrs={'class': lambda x: x and 'lazy-image' in x.split()}):
+            a = div.find('a', href=True)
+            if a is not None:
+                a.name = 'img'
+                a['src'] = a['href']
+        return soup
 
     def parse_index(self):
         articles = []
