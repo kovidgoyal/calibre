@@ -9,6 +9,7 @@ from threading import RLock
 
 import apsw
 
+from calibre import as_unicode
 from calibre.constants import config_dir
 from calibre.utils.config import to_json, from_json
 
@@ -68,6 +69,17 @@ def create_user_data(pw, readonly=False, restriction=None):
     }
 
 
+def connect(path, exc_class=ValueError):
+    try:
+        return apsw.Connection(path)
+    except apsw.CantOpenError as e:
+        pdir = os.path.dirname(path)
+        if os.path.isdir(pdir):
+            raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
+        os.makedirs(pdir)
+        return apsw.Connection(path)
+
+
 class UserManager(object):
 
     lock = RLock()
@@ -76,14 +88,7 @@ class UserManager(object):
     def conn(self):
         with self.lock:
             if self._conn is None:
-                try:
-                    self._conn = apsw.Connection(self.path)
-                except apsw.CantOpenError:
-                    pdir = os.path.dirname(self.path)
-                    if os.path.isdir(pdir):
-                        raise
-                    os.makedirs(pdir)
-                    self._conn = apsw.Connection(self.path)
+                self._conn = connect(self.path)
                 with self._conn:
                     c = self._conn.cursor()
                     uv = next(c.execute('PRAGMA user_version'))[0]
