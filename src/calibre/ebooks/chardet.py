@@ -9,22 +9,25 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs
 
+import six
+
 ENCODING_PATS = [
     # XML declaration
-    re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
+    re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>'.encode(), re.IGNORECASE),
     # HTML 5 charset
-    re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}'''.encode(), re.IGNORECASE),
     # HTML 4 Pragma directive
-    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}'''.encode(), re.IGNORECASE),
 ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
 def strip_encoding_declarations(raw, limit=50*1024):
+    assert isinstance(raw, six.binary_type)
     prefix = raw[:limit]
     suffix = raw[limit:]
     for pat in ENCODING_PATS:
-        prefix = pat.sub('', prefix)
+        prefix = pat.sub(b'', prefix)
     raw = prefix + suffix
     return raw
 
@@ -103,7 +106,7 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
     for pat in ENCODING_PATS:
         match = pat.search(raw)
         if match:
-            encoding = match.group(1)
+            encoding = match.group(1).decode()
             break
     if encoding is None:
         encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
@@ -135,11 +138,12 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         return '', None
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,
             assume_utf8=assume_utf8)
-    if not isinstance(raw, unicode):
-        raw = raw.decode(encoding, 'replace')
 
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
+    if not isinstance(raw, six.text_type):
+        raw = raw.decode(encoding, 'replace')
+
     if resolve_entities:
         raw = substitute_entites(raw)
 

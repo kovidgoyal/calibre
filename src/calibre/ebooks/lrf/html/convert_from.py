@@ -22,7 +22,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
+from bs4 import BeautifulSoup, Comment, Tag, \
                             NavigableString, Declaration, ProcessingInstruction
 from calibre.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \

@@ -150,8 +150,6 @@ else:
         while max_tries > 0:
             max_tries -= 1
             address = prefix % next(_name_counter)
-            if not isinstance(address, bytes):
-                address = address.encode('utf-8')  # multiprocessing needs bytes in python 2
             try:
                 return address, Listener(address=address, authkey=authkey, backlog=backlog)
             except EnvironmentError as err:

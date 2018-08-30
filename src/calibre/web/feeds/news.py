@@ -18,7 +18,7 @@ from contextlib import closing
 
 from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode, random_user_agent)
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
+from bs4 import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
 from calibre.web import Recipe

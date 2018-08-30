@@ -200,7 +200,7 @@ class KINDLE(USBMS):
         return bookmarked_books
 
     def generate_annotation_html(self, bookmark):
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+        from bs4 import BeautifulSoup, Tag
         # Returns <div class="user_annotations"> ... </div>
         last_read_location = bookmark.last_read_location
         timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
@@ -267,7 +267,7 @@ class KINDLE(USBMS):
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
-        from calibre.ebooks.BeautifulSoup import Tag
+        from bs4 import Tag
         from calibre.ebooks.metadata import MetaInformation
 
         bm = annotation

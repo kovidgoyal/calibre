@@ -8,7 +8,7 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
 import os, re, codecs
 
 from calibre import guess_type as guess_mimetype
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, NavigableString
 from calibre.constants import iswindows, filesystem_encoding
 from calibre.utils.chm.chm import CHMFile
 from calibre.utils.chm.chmlib import (

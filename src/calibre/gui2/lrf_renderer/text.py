@@ -10,7 +10,7 @@ from PyQt5.Qt import (
     QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
-from calibre.ebooks.BeautifulSoup import Tag
+from bs4 import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
 
 WEIGHT_MAP = lambda wt : int((wt/10.)-1)

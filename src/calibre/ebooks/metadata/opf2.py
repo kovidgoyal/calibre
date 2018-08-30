@@ -77,8 +77,6 @@ class Resource(object):  # {{{
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
-            if isinstance(path, str):
-                path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:
             href_or_path = href_or_path

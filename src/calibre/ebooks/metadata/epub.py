@@ -13,7 +13,7 @@ from contextlib import closing
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.utils.localunzip import LocalZipFile
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
+from bs4 import BeautifulStoneSoup
 from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf, set_metadata as set_metadata_opf
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
@@ -90,7 +90,7 @@ class OCFReader(OCF):
 
     def __init__(self):
         try:
-            mimetype = self.open('mimetype').read().rstrip()
+            mimetype = self.open('mimetype').read().decode().rstrip()
             if mimetype != OCF.MIMETYPE:
                 print('WARNING: Invalid mimetype declaration', mimetype)
         except:

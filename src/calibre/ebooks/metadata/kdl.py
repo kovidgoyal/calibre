@@ -13,7 +13,7 @@ from mechanize import URLError
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 
 URL = \

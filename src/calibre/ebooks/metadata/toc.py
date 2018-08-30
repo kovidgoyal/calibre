@@ -13,7 +13,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 

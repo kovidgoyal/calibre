@@ -18,7 +18,7 @@ from html5_parser.soup import set_soup_module, parse
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log

@@ -1173,7 +1173,7 @@ class KOBO(USBMS):
 
     def generate_annotation_html(self, bookmark):
         import calendar
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+        from bs4 import BeautifulSoup, Tag
         # Returns <div class="user_annotations"> ... </div>
         # last_read_location = bookmark.last_read_location
         # timestamp = bookmark.timestamp
@@ -1280,7 +1280,7 @@ class KOBO(USBMS):
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
-        from calibre.ebooks.BeautifulSoup import Tag
+        from bs4 import Tag
         bm = annotation
         ignore_tags = set(['Catalog', 'Clippings'])
 

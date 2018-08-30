@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import string_to_authors, MetaInformation
 from calibre.utils.logging import default_log

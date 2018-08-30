@@ -7,13 +7,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, six.moves.cPickle, sys, importlib
+import os, sys, importlib
 from multiprocessing.connection import Client
 from threading import Thread
 from six.moves.queue import Queue
 from contextlib import closing
 from binascii import unhexlify
 from zipimport import ZipImportError
+
+from six.moves import cPickle
 
 from calibre import prints
 from calibre.constants import iswindows, isosx
@@ -179,7 +181,7 @@ def main():
             print('Failed to run pipe worker with command:', sys.argv[-1])
             raise
         return
-    address = six.moves.cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
+    address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
     with closing(Client(address, authkey=key)) as conn:

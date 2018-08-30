@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.constants import preferred_encoding
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
+from bs4 import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
 from html2text import html2text

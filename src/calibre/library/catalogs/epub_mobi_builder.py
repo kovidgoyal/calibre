@@ -16,7 +16,7 @@ from calibre import (
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
+from bs4 import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \

@@ -9,7 +9,7 @@ import sys, os, logging
 
 from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
+from bs4 import BeautifulStoneSoup, NavigableString, \
                                            CData, Tag
 from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             BlockStyle, ImageStream, Font, StyleDefault, BookSetting, Header, \

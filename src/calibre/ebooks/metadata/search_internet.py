@@ -48,14 +48,8 @@ all_book_searches = BOOK_SEARCHES.__iter__
 all_author_searches = AUTHOR_SEARCHES.__iter__
 
 
-def qquote(val):
-    if not isinstance(val, bytes):
-        val = val.encode('utf-8')
-    return quote_plus(val).decode('utf-8')
-
-
 def url_for(template, data):
-    return template.format(**{k: qquote(v) for k, v in six.iteritems(data)})
+    return template.format(**{k: quote_plus(v) for k, v in six.iteritems(data)})
 
 
 def url_for_author_search(key, **kw):

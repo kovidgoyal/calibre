@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,9 +10,12 @@ import os, six.moves.cPickle
 from functools import partial
 from binascii import hexlify
 
+from six.moves import map
+from six.moves.urllib.parse import quote_plus
+
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote, DEFAULT_AUTHOR_SOURCE
+from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, DEFAULT_AUTHOR_SOURCE
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
@@ -212,11 +214,11 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                         which_src = default_author_link.partition('-')[2]
                         link, lt = author_search_href(which_src, title=mi.title, author=aut)
                     else:
-                        vals = {'author': qquote(aut), 'title': qquote(mi.title)}
+                        vals = {'author': quote_plus(aut), 'title': quote_plus(mi.title)}
                         try:
-                            vals['author_sort'] =  qquote(mi.author_sort_map[aut])
+                            vals['author_sort'] = quote_plus(mi.author_sort_map[aut])
                         except KeyError:
-                            vals['author_sort'] = qquote(aut)
+                            vals['author_sort'] = quote_plus(aut)
                         link = lt = formatter.safe_format(default_author_link, vals, '', vals)
                 aut = p(aut)
                 if link:

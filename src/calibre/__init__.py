@@ -579,7 +579,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         if encoding is None or num > 255:
             return check(my_unichr(num))
         try:
-            return check(chr(num).decode(encoding))
+            return check(bytes(bytearray([num])).decode(encoding))
         except UnicodeDecodeError:
             return check(my_unichr(num))
     from calibre.ebooks.html_entities import html5_entities

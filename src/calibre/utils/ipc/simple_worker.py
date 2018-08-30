@@ -129,7 +129,7 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 
     env = dict(env)
     env.update({
-        'CALIBRE_WORKER_ADDRESS': hexlify(six.moves.cPickle.dumps(listener.address, -1)),
+        'CALIBRE_WORKER_ADDRESS': hexlify(cPickle.dumps(listener.address, -1)),
         'CALIBRE_WORKER_KEY': hexlify(auth_key),
         'CALIBRE_SIMPLE_WORKER': 'calibre.utils.ipc.simple_worker:%s' % func,
     })

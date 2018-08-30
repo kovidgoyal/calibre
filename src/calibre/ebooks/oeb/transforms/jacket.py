@@ -16,7 +16,7 @@ from lxml import etree
 
 from calibre import guess_type, strftime
 from calibre.constants import iswindows
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined, as_local_time

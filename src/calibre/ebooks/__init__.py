@@ -97,7 +97,7 @@ def extract_cover_from_embedded_svg(html, base, log):
 
 
 def extract_calibre_cover(raw, base, log):
-    from calibre.ebooks.BeautifulSoup import BeautifulSoup
+    from bs4 import BeautifulSoup
     soup = BeautifulSoup(raw)
     matches = soup.find(name=['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span',
         'font', 'br'])

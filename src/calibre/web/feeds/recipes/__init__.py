@@ -7,7 +7,7 @@ Builtin recipes.
 import re, time, io
 from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.utils.config import JSONConfig
 import six
 
