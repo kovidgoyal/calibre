@@ -188,7 +188,6 @@ def simple_repl(user_ns={}):
 
 
 def ipython(user_ns=None):
-    return simple_repl(user_ns=user_ns)
     os.environ['IPYTHONDIR'] = ipydir
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
