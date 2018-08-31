@@ -115,7 +115,6 @@ def create_profile():
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
-        s.setAttribute(s.FullScreenSupportEnabled, False)
         s.setAttribute(s.LinksIncludedInFocusChain, False)
         create_profile.ans = ans
     return ans
