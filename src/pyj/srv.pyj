@@ -46,9 +46,12 @@ else:
                 print('WARNING: failed to swap applicationCache')
                 console.log(e)
 
-    window.applicationCache.addEventListener('updateready', on_appcache_ready)
-    if window.applicationCache.status is window.applicationCache.UPDATEREADY:
-        on_appcache_ready()
+    if window.applicationCache:
+        window.applicationCache.addEventListener('updateready', on_appcache_ready)
+        if window.applicationCache.status is window.applicationCache.UPDATEREADY:
+            on_appcache_ready()
+    else:
+        console.warn("Your browser does not have a working Application Cache, offline access will not work")
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
