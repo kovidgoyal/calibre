@@ -6,13 +6,14 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send
+from book_list.constants import has_offline_support
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
 from book_list.library_data import last_virtual_library_for, sync_library_books
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
-from dom import add_extra_css, build_rule, clear, ensure_id, unique_id, set_css
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
 from modals import create_custom_dialog
 from session import get_device_uuid, get_interface_data
 from utils import conditional_timeout, safe_set_inner_html, username_key
@@ -255,6 +256,13 @@ def init(container_id):
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
+
+    if not has_offline_support():
+        container.appendChild(E.div(
+            style='margin-top: 1rem; padding: 1rem; border-top: solid 1px currentColor',
+            _('WARNING: This browser does not support Application Cache so offline access'
+              ' to calibre will not work. Some browsers only enable Application Cache over HTTPS'
+              ' connections, so you may have to setup HTTPS for your calibre server.')))
 
 
 set_default_panel_handler(init)
