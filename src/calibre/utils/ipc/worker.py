@@ -161,7 +161,9 @@ def main():
         # Close open file descriptors inherited from parent
         # On Unix this is done by the subprocess module
         os.closerange(3, 256)
-    if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:
+    if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ and \
+            'CALIBRE_SIMPLE_WORKER' not in os.environ and \
+            '--pipe-worker' not in sys.argv:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle
         # so launch the gui as usual
@@ -181,9 +183,9 @@ def main():
             print('Failed to run pipe worker with command:', sys.argv[-1])
             raise
         return
-    address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
-    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
+    address = os.environ['CALIBRE_WORKER_ADDRESS']
+    key     = os.environ['CALIBRE_WORKER_KEY']
+    resultf = os.environ['CALIBRE_WORKER_RESULT']
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs, desc = eintr_retry_call(conn.recv)
         if desc:

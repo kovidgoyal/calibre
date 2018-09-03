@@ -8,8 +8,9 @@ import os
 import re
 import textwrap
 import unicodedata
-from six.moves import map
 
+import six
+from six.moves import map
 from PyQt5.Qt import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
     QPlainTextEdit, QRect, QSize, Qt, QTextEdit, QTextFormat, QTimer, QToolTip,
@@ -69,7 +70,7 @@ _dff = None
 def default_font_family():
     global _dff
     if _dff is None:
-        families = set(map(unicode, QFontDatabase().families()))
+        families = set(map(six.text_type, QFontDatabase().families()))
         for x in ('Ubuntu Mono', 'Consolas', 'Liberation Mono'):
             if x in families:
                 _dff = x
@@ -98,7 +99,7 @@ class TextEdit(PlainTextEdit):
     smart_highlighting_updated = pyqtSignal()
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
-        PlainTextEdit.__init__(self, parent)
+        super(TextEdit, self).__init__(parent)
         self.snippet_manager = SnippetManager(self)
         self.completion_popup = CompletionPopup(self)
         self.request_completion = self.completion_doc_name = None
@@ -278,8 +279,8 @@ class TextEdit(PlainTextEdit):
             if self.smarts.override_tab_stop_width is not None:
                 self.tw = self.smarts.override_tab_stop_width
                 self.setTabStopWidth(self.tw * self.space_width)
-        self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
-        if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
+        self.setPlainText(unicodedata.normalize('NFC', six.text_type(text)))
+        if process_template and super(TextEdit).find('%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
 
@@ -312,7 +313,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(c.NextBlock, n=lnum - 1)
         c.movePosition(c.StartOfLine)
         c.movePosition(c.EndOfLine, c.KeepAnchor)
-        text = unicode(c.selectedText()).rstrip('\0')
+        text = six.text_type(c.selectedText()).rstrip('\0')
         if col is None:
             c.movePosition(c.StartOfLine)
             lt = text.lstrip()
@@ -371,7 +372,7 @@ class TextEdit(PlainTextEdit):
         if wrap:
             pos = m_end if reverse else m_start
         c.setPosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -404,7 +405,7 @@ class TextEdit(PlainTextEdit):
         if self.current_search_mark is None:
             return 0
         c = self.current_search_mark.cursor
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         if template is None:
             count = len(pat.findall(raw))
         else:
@@ -418,7 +419,7 @@ class TextEdit(PlainTextEdit):
                 if getattr(template.func, 'append_final_output_to_marked', False):
                     retval = template.end()
                     if retval:
-                        raw += unicode(retval)
+                        raw += six.text_type(retval)
                 else:
                     template.end()
                 show_function_debug_output(template)
@@ -441,7 +442,7 @@ class TextEdit(PlainTextEdit):
             c = self.textCursor()
             c.beginEditBlock()
             c.movePosition(c.Start), c.movePosition(c.End, c.KeepAnchor)
-            text = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+            text = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
             text = sort_sheet(current_container(), text).cssText
             c.insertText(text)
@@ -462,7 +463,7 @@ class TextEdit(PlainTextEdit):
         if wrap and not complete:
             pos = c.End if reverse else c.Start
         c.movePosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -507,7 +508,7 @@ class TextEdit(PlainTextEdit):
             if not found:
                 return False
         else:
-            raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+            raw = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             m = pat.search(raw)
             if m is None:
                 return False
@@ -540,7 +541,7 @@ class TextEdit(PlainTextEdit):
             return match_pos, match_word
 
         while True:
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = six.text_type(c.selectedText()).rstrip('\0')
             idx, word = find_first_word(text)
             if idx == -1:
                 return False
@@ -577,7 +578,7 @@ class TextEdit(PlainTextEdit):
 
     def replace(self, pat, template, saved_match='gui'):
         c = self.textCursor()
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = six.text_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.fullmatch(raw)
         if m is None:
             # This can happen if either the user changed the selected text or
@@ -604,7 +605,7 @@ class TextEdit(PlainTextEdit):
             self.setTextCursor(c)
             return True
         base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
-        raw = unicode(self.toPlainText())
+        raw = six.text_type(self.toPlainText())
         m = regex.search(base % 'id', raw)
         if m is None:
             m = regex.search(base % 'name', raw)
@@ -658,7 +659,7 @@ class TextEdit(PlainTextEdit):
             self.update_line_number_area_width()
 
     def resizeEvent(self, ev):
-        QPlainTextEdit.resizeEvent(self, ev)
+        super(TextEdit).resizeEvent(ev)
         cr = self.contentsRect()
         self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
 
@@ -700,18 +701,18 @@ class TextEdit(PlainTextEdit):
         if ev in (QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo):
             ev.ignore()
             return True
-        # This is used to convert typed hex codes into unicode
+        # This is used to convert typed hex codes into six.text_type
         # characters
         if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
             ev.accept()
             return True
-        return PlainTextEdit.override_shortcut(self, ev)
+        return super(TextEdit, self).override_shortcut(ev)
 
     def text_for_range(self, block, r):
         c = self.textCursor()
         c.setPosition(block.position() + r.start)
         c.setPosition(c.position() + r.length, c.KeepAnchor)
-        return unicode(c.selectedText())
+        return six.text_type(c.selectedText())
 
     def spellcheck_locale_for_cursor(self, c):
         with store_locale:
@@ -748,7 +749,7 @@ class TextEdit(PlainTextEdit):
         c = self.cursorForPosition(ev.pos())
         fmt = self.syntax_format_for_cursor(c)
         if fmt is not None:
-            tt = unicode(fmt.toolTip())
+            tt = six.text_type(fmt.toolTip())
             if tt:
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
@@ -775,7 +776,7 @@ class TextEdit(PlainTextEdit):
                 ev.accept()
                 self.link_clicked.emit(url)
                 return
-        return PlainTextEdit.mousePressEvent(self, ev)
+        return super(TextEdit, self).mousePressEvent(ev)
 
     def get_range_inside_tag(self):
         c = self.textCursor()
@@ -783,7 +784,7 @@ class TextEdit(PlainTextEdit):
         right = max(c.anchor(), c.position())
         # For speed we use QPlainTextEdit's toPlainText as we dont care about
         # spaces in this context
-        raw = unicode(QPlainTextEdit.toPlainText(self))
+        raw = six.text_type(QPlainTextEdit.toPlainText(self))
         # Make sure the left edge is not within a <>
         gtpos = raw.find('>', left)
         ltpos = raw.find('<', left)
@@ -827,7 +828,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(left)
         c.setPosition(right, c.KeepAnchor)
-        prev_text = unicode(c.selectedText()).rstrip('\0')
+        prev_text = six.text_type(c.selectedText()).rstrip('\0')
         c.insertText(prefix + prev_text + suffix)
         if prev_text:
             right = c.position()
@@ -930,10 +931,10 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         c = self.textCursor()
         has_selection = c.hasSelection()
         if has_selection:
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = six.text_type(c.selectedText()).rstrip('\0')
         else:
             c.setPosition(c.position() - min(c.positionInBlock(), 6), c.KeepAnchor)
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = six.text_type(c.selectedText()).rstrip('\0')
         m = re.search(r'[a-fA-F0-9]{2,6}$', text)
         if m is None:
             return False
@@ -975,7 +976,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         from calibre.gui2.tweak_book.editor.smarts.css import find_rule
         block = None
         if self.syntax == 'css':
-            raw = unicode(self.toPlainText())
+            raw = six.text_type(self.toPlainText())
             line, col = find_rule(raw, rule_address)
             if line is not None:
                 block = self.document().findBlockByNumber(line - 1)

@@ -286,7 +286,7 @@ class Results(QWidget):
     item_selected = pyqtSignal()
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent=parent)
+        super(Results, self).__init__(parent=parent)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.results = ()
@@ -332,7 +332,7 @@ class Results(QWidget):
                 self.update()
                 self.item_selected.emit()
                 return
-        return QWidget.mousePressEvent(self, ev)
+        return super(Results, self).mousePressEvent(ev)
 
     def change_current(self, delta=1):
         if not self.results:
@@ -415,10 +415,10 @@ class QuickOpen(Dialog):
         self.matcher = Matcher(items)
         self.matches = ()
         self.selected_result = None
-        Dialog.__init__(self, _('Choose file to edit'), 'quick-open', parent=parent)
+        super(QuickOpen, self).__init__(_('Choose file to edit'), 'quick-open', parent=parent)
 
     def sizeHint(self):
-        ans = Dialog.sizeHint(self)
+        ans = super(QuickOpen, self).sizeHint()
         ans.setWidth(800)
         ans.setHeight(max(600, ans.height()))
         return ans
@@ -464,11 +464,11 @@ class QuickOpen(Dialog):
             ev.accept()
             self.results.change_current(delta=-1 if ev.key() == Qt.Key_Up else 1)
             return
-        return Dialog.keyPressEvent(self, ev)
+        return super(QuickOpen, self).keyPressEvent(ev)
 
     def accept(self):
         self.selected_result = self.results.selected_result
-        return Dialog.accept(self)
+        return super(QuickOpen, self).accept()
 
     @classmethod
     def test(cls):
@@ -1155,7 +1155,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     of the nbsp unicode character and AltGr input method on windows. '''
 
     def __init__(self, parent=None):
-        QPlainTextEdit.__init__(self, parent)
+        super(QPlainTextEdit).__init__(parent)
         self.syntax = None
 
     def toPlainText(self):

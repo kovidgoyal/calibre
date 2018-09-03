@@ -7,11 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, six.moves.cPickle, traceback, time, importlib
+import os, traceback, time, importlib
 from binascii import hexlify, unhexlify
 from multiprocessing.connection import Client
 from threading import Thread
 from contextlib import closing
+
+import six
+from six.moves import cPickle
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
@@ -129,8 +132,8 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 
     env = dict(env)
     env.update({
-        'CALIBRE_WORKER_ADDRESS': hexlify(cPickle.dumps(listener.address, -1)),
-        'CALIBRE_WORKER_KEY': hexlify(auth_key),
+        'CALIBRE_WORKER_ADDRESS': listener.address,
+        'CALIBRE_WORKER_KEY': auth_key,
         'CALIBRE_SIMPLE_WORKER': 'calibre.utils.ipc.simple_worker:%s' % func,
     })
 
@@ -269,8 +272,8 @@ def compile_code(src):
 
 def main():
     # The entry point for the simple worker process
-    address = six.moves.cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
+    address = os.environ['CALIBRE_WORKER_ADDRESS']
+    key     = os.environ['CALIBRE_WORKER_KEY']
     with closing(Client(address, authkey=key)) as conn:
         args = eintr_retry_call(conn.recv)
         try:
@@ -299,8 +302,8 @@ def main():
 
 def offload():
     # The entry point for the offload worker process
-    address = six.moves.cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
+    address = os.environ['CALIBRE_WORKER_ADDRESS']
+    key     = os.environ['CALIBRE_WORKER_KEY']
     func_cache = {}
     with closing(Client(address, authkey=key)) as conn:
         while True:

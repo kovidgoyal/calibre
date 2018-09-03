@@ -6,11 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, six.moves.cPickle
+import os
 from functools import partial
 from binascii import hexlify
 
-from six.moves import map
+from six.moves import map, cPickle
 from six.moves.urllib.parse import quote_plus
 
 from calibre import prepare_string_for_xml, force_unicode
@@ -56,7 +56,7 @@ def get_field_list(mi):
 
 def search_href(search_term, value):
     search = '%s:"=%s"' % (search_term, value.replace('"', '\\"'))
-    return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
+    return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')).decode(), True)
 
 
 DEFAULT_AUTHOR_LINK = 'search-{}'.format(DEFAULT_AUTHOR_SOURCE)
@@ -81,7 +81,7 @@ def author_search_href(which, title=None, author=None):
 
 
 def item_data(field_name, value, book_id):
-    return hexlify(six.moves.cPickle.dumps((field_name, value, book_id), -1))
+    return hexlify(cPickle.dumps((field_name, value, book_id), -1)).decode()
 
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):

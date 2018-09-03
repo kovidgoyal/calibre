@@ -175,63 +175,7 @@ def prints(*args, **kwargs):
 
     Returns the number of bytes written.
     '''
-    file = kwargs.get('file', sys.stdout)
-    sep  = bytes(kwargs.get('sep', ' '))
-    end  = bytes(kwargs.get('end', '\n'))
-    enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding
-    safe_encode = kwargs.get('safe_encode', False)
-    count = 0
-    for i, arg in enumerate(args):
-        if isinstance(arg, unicode):
-            if iswindows:
-                from calibre.utils.terminal import Detect
-                cs = Detect(file)
-                if cs.is_console:
-                    cs.write_unicode_text(arg)
-                    count += len(arg)
-                    if i != len(args)-1:
-                        file.write(sep)
-                        count += len(sep)
-                    continue
-            try:
-                arg = arg.encode(enc)
-            except UnicodeEncodeError:
-                try:
-                    arg = arg.encode('utf-8')
-                except:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
-        if not isinstance(arg, str):
-            try:
-                arg = str(arg)
-            except ValueError:
-                arg = unicode(arg)
-            if isinstance(arg, unicode):
-                try:
-                    arg = arg.encode(enc)
-                except UnicodeEncodeError:
-                    try:
-                        arg = arg.encode('utf-8')
-                    except:
-                        if not safe_encode:
-                            raise
-                        arg = repr(arg)
-
-        try:
-            file.write(arg)
-            count += len(arg)
-        except:
-            import six.moves.reprlib as reprlib
-            arg = reprlib.repr(arg)
-            file.write(arg)
-            count += len(arg)
-        if i != len(args)-1:
-            file.write(sep)
-            count += len(sep)
-    file.write(end)
-    count += len(sep)
-    return count
+    print(*args, **kwargs)
 
 
 class CommandLineError(Exception):

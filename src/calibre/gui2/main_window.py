@@ -7,6 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import traceback, sys, gc, weakref
 
+import six
 from six.moves import StringIO
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
@@ -143,10 +144,10 @@ class MainWindow(QMainWindow):
                 pass
             traceback.print_exception(type, value, tb, file=sio)
             if getattr(value, 'locking_debug_msg', None):
-                prints(value.locking_debug_msg, file=sio)
+                print(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
-            prints(fe, file=sys.stderr)
-            msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
+            print(fe, file=sys.stderr)
+            msg = '<b>{}</b>: {}'.format(type.__name__, str(value))
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:

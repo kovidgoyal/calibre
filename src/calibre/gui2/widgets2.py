@@ -144,7 +144,7 @@ class RightClickButton(QToolButton):
             self.showMenu()
             ev.accept()
             return
-        return QToolButton.mousePressEvent(self, ev)
+        return super(RightClickButton, self).mousePressEvent(ev)
 
 
 class Dialog(QDialog):

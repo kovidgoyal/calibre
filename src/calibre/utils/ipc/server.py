@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, six.moves.cPickle, time, tempfile, errno, itertools
+import os, time, tempfile, errno, itertools
 from math import ceil
 from threading import Thread, RLock
 from six.moves.queue import Queue, Empty
 from multiprocessing.connection import Listener, arbitrary_address
 from collections import deque
-from binascii import hexlify
+
+import six
 
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
@@ -208,13 +209,11 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(six.moves.cPickle.dumps(self.listener.address, -1)),
-                'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
-                'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
+                'CALIBRE_WORKER_ADDRESS' : self.listener.address,
+                'CALIBRE_WORKER_KEY' : self.auth_key,
+                'CALIBRE_WORKER_RESULT' : rfile,
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
-        if isinstance(cw, six.string_types):
-            raise CriticalError('Failed to launch worker process:\n'+cw)
         if DEBUG:
             print('Worker Launch took:', time.time() - start)
         return cw
@@ -227,13 +226,10 @@ class Server(Thread):
             conn = eintr_retry_call(self.listener.accept)
             if conn is None:
                 raise Exception('Failed to launch worker process')
-        except BaseException:
-            try:
-                w.kill()
-            except:
-                pass
-            import traceback
-            return traceback.format_exc()
+        except BaseException as exc:
+            w.kill()
+            raise six.raise_from(
+                CriticalError('Failed to launch worker process'), exc)
         return ConnectedWorker(w, conn, rfile)
 
     def add_job(self, job):

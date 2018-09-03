@@ -98,14 +98,16 @@ def event_has_mods(self, event=None):
     return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
 
 
-def mousePressEvent(base_class, self, event):
-    ep = event.pos()
-    if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-            event.button() == Qt.LeftButton and not self.event_has_mods():
-        self.drag_start_pos = ep
-    if hasattr(self, 'handle_mouse_press_event'):
-        return self.handle_mouse_press_event(event)
-    return base_class.mousePressEvent(self, event)
+def mousePressEvent(cls):
+    def event_handler(self, event):
+        ep = event.pos()
+        if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
+                event.button() == Qt.LeftButton and not self.event_has_mods():
+            self.drag_start_pos = ep
+        if hasattr(self, 'handle_mouse_press_event'):
+            return self.handle_mouse_press_event(event)
+        return super(cls, self).mousePressEvent(event)
+    return event_handler
 
 
 def drag_icon(self, cover, multiple):
@@ -181,27 +183,29 @@ def drag_data(self):
     return drag
 
 
-def mouseMoveEvent(base_class, self, event):
-    if not self.drag_allowed:
-        return
-    if self.drag_start_pos is None:
-        return base_class.mouseMoveEvent(self, event)
+def mouseMoveEvent(cls):
+    def event_handler(self, event):
+        if not self.drag_allowed:
+            return
+        if self.drag_start_pos is None:
+            return super(cls, self).mouseMoveEvent(event)
 
-    if self.event_has_mods():
+        if self.event_has_mods():
+            self.drag_start_pos = None
+            return
+
+        if not (event.buttons() & Qt.LeftButton) or \
+                (event.pos() - self.drag_start_pos).manhattanLength() \
+                        < QApplication.startDragDistance():
+            return
+
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        drag = self.drag_data()
+        drag.exec_(Qt.CopyAction)
         self.drag_start_pos = None
-        return
-
-    if not (event.buttons() & Qt.LeftButton) or \
-            (event.pos() - self.drag_start_pos).manhattanLength() \
-                    < QApplication.startDragDistance():
-        return
-
-    index = self.indexAt(event.pos())
-    if not index.isValid():
-        return
-    drag = self.drag_data()
-    drag.exec_(Qt.CopyAction)
-    self.drag_start_pos = None
+    return event_handler
 
 
 def dnd_merge_ok(md):
@@ -252,15 +256,14 @@ def paths_from_event(self, event):
 def setup_dnd_interface(cls_or_self):
     if isinstance(cls_or_self, type):
         cls = cls_or_self
-        base_class = cls.__bases__[0]
         fmap = globals()
-        for x in (
+        for name in (
             'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent',
             'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
-            func = fmap[x]
-            if x in {'mouseMoveEvent', 'mousePressEvent'}:
-                func = partial(func, base_class)
-            setattr(cls, x, func)
+            func = fmap[name]
+            if name in {'mouseMoveEvent', 'mousePressEvent'}:
+                func = func(cls)
+            setattr(cls, name, func)
         return cls
     else:
         self = cls_or_self
@@ -1036,7 +1039,7 @@ class GridView(QListView):
             bottom = self.model().index(max(cr, tgt), 0)
             sm.select(QItemSelection(top, bottom), sm.Select)
         else:
-            return QListView.mousePressEvent(self, ev)
+            return super(GridView, self).mousePressEvent(ev)
 
     def indices_for_merge(self, resolved=True):
         return self.selectionModel().selectedIndexes()

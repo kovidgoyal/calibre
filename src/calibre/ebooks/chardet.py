@@ -23,11 +23,17 @@ ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
 def strip_encoding_declarations(raw, limit=50*1024):
-    assert isinstance(raw, six.binary_type)
     prefix = raw[:limit]
+    if isinstance(prefix, six.text_type):
+        prefix = prefix.encode()
+
     suffix = raw[limit:]
     for pat in ENCODING_PATS:
         prefix = pat.sub(b'', prefix)
+
+    if isinstance(prefix, six.binary_type):
+        prefix = prefix.decode()
+
     raw = prefix + suffix
     return raw
 
@@ -95,7 +101,7 @@ def force_encoding(raw, verbose, assume_utf8=False):
 
 
 def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
-    if not raw or isinstance(raw, unicode):
+    if not raw or isinstance(raw, six.text_type):
         return raw, None
     for x in ('utf8', 'utf-16-le', 'utf-16-be'):
         bom = getattr(codecs, 'BOM_'+x.upper().replace('-16', '16').replace(
@@ -139,10 +145,11 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,
             assume_utf8=assume_utf8)
 
+    if isinstance(raw, six.binary_type):
+        raw = raw.decode(encoding, 'replace')
+
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
-    if not isinstance(raw, six.text_type):
-        raw = raw.decode(encoding, 'replace')
 
     if resolve_entities:
         raw = substitute_entites(raw)
