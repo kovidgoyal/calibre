@@ -29,6 +29,7 @@ real_nibbles = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '.', 'E', 'E-', None, '-']
 real_nibbles_map = {x:i for i, x in enumerate(real_nibbles)}
 
+
 class ByteCode(dict):
 
     def read_byte(self, b0, data, index):
@@ -97,20 +98,20 @@ class ByteCode(dict):
     def write_int(self, value, encoding="cff"):
         four_byte_op = {'cff':29, 't1':255}.get(encoding, None)
 
-		if -107 <= value <= 107:
-			code = bytes(bytearray([value + 139]))
-		elif 108 <= value <= 1131:
-			value = value - 108
-			code = bytes(bytearray([(value >> 8) + 247, (value & 0xFF)]))
-		elif -1131 <= value <= -108:
-			value = -value - 108
-			code = bytes(bytearray([(value >> 8) + 251, (value & 0xFF)]))
-		elif four_byte_op is None:
-			# T2 only supports 2 byte ints
+        if -107 <= value <= 107:
+            code = bytes(bytearray([value + 139]))
+        elif 108 <= value <= 1131:
+            value = value - 108
+            code = bytes(bytearray([(value >> 8) + 247, (value & 0xFF)]))
+        elif -1131 <= value <= -108:
+            value = -value - 108
+            code = bytes(bytearray([(value >> 8) + 251, (value & 0xFF)]))
+        elif four_byte_op is None:
+            # T2 only supports 2 byte ints
             code = bytes(bytearray([28])) + pack(b">h", value)
-		else:
-			code = bytes(bytearray([four_byte_op])) + pack(b">l", value)
-		return code
+        else:
+            code = bytes(bytearray([four_byte_op])) + pack(b">l", value)
+        return code
 
     def write_offset(self, value):
         return bytes(bytearray([29])) + pack(b">l", value)
@@ -118,6 +119,7 @@ class ByteCode(dict):
     def write_number(self, value, encoding="cff"):
         f = self.write_float if isinstance(value, float) else self.write_int
         return f(value, encoding)
+
 
 class Dict(ByteCode):
 
@@ -149,47 +151,47 @@ class Dict(ByteCode):
             if value is not None:
                 self.stack.append(value)
 
-	def do_operator(self, b0, data, index):
-		if b0 == 12:
-			op = (b0, ord(data[index]))
-			index += 1
-		else:
-			op = b0
-		operator, arg_type = self.operators[op]
-		self.handle_operator(operator, arg_type)
-		return None, index
+    def do_operator(self, b0, data, index):
+        if b0 == 12:
+            op = (b0, ord(data[index]))
+            index += 1
+        else:
+            op = b0
+        operator, arg_type = self.operators[op]
+        self.handle_operator(operator, arg_type)
+        return None, index
 
-	def handle_operator(self, operator, arg_type):
+    def handle_operator(self, operator, arg_type):
         if isinstance(arg_type, tuple):
-			value = ()
-			for i in xrange(len(arg_type)-1, -1, -1):
-				arg = arg_type[i]
-				arghandler = getattr(self, 'arg_' + arg)
-				value = (arghandler(operator),) + value
-		else:
-			arghandler = getattr(self, 'arg_' + arg_type)
-			value = arghandler(operator)
-		self[operator] = value
+            value = ()
+            for i in xrange(len(arg_type)-1, -1, -1):
+                arg = arg_type[i]
+                arghandler = getattr(self, 'arg_' + arg)
+                value = (arghandler(operator),) + value
+        else:
+            arghandler = getattr(self, 'arg_' + arg_type)
+            value = arghandler(operator)
+        self[operator] = value
 
-	def arg_number(self, name):
-		return self.stack.pop()
+    def arg_number(self, name):
+        return self.stack.pop()
 
-	def arg_SID(self, name):
-		return self.strings[self.stack.pop()]
+    def arg_SID(self, name):
+        return self.strings[self.stack.pop()]
 
-	def arg_array(self, name):
+    def arg_array(self, name):
         ans = self.stack[:]
         del self.stack[:]
         return ans
 
-	def arg_delta(self, name):
-		out = []
-		current = 0
-		for v in self.stack:
-			current = current + v
-			out.append(current)
+    def arg_delta(self, name):
+        out = []
+        current = 0
+        for v in self.stack:
+            current = current + v
+            out.append(current)
         del self.stack[:]
-		return out
+        return out
 
     def compile(self, strings):
         data = []
@@ -227,52 +229,53 @@ class Dict(ByteCode):
     def encode_array(self, val):
         return b''.join(map(self.encode_number, val))
 
-	def encode_delta(self, value):
-		out = []
-		last = 0
-		for v in value:
-			out.append(v - last)
-			last = v
+    def encode_delta(self, value):
+        out = []
+        last = 0
+        for v in value:
+            out.append(v - last)
+            last = v
         return self.encode_array(out)
+
 
 class TopDict(Dict):
 
     TABLE = (
-	#opcode     name                  argument type   default
-	((12, 30), 'ROS',        ('SID','SID','number'), None,      ),
-	((12, 20), 'SyntheticBase',      'number',       None,      ),
-	(0,        'version',            'SID',          None,      ),
-	(1,        'Notice',             'SID',          None,      ),
-	((12, 0),  'Copyright',          'SID',          None,      ),
-	(2,        'FullName',           'SID',          None,      ),
-	((12, 38), 'FontName',           'SID',          None,      ),
-	(3,        'FamilyName',         'SID',          None,      ),
-	(4,        'Weight',             'SID',          None,      ),
-	((12, 1),  'isFixedPitch',       'number',       0,         ),
-	((12, 2),  'ItalicAngle',        'number',       0,         ),
-	((12, 3),  'UnderlinePosition',  'number',       None,      ),
-	((12, 4),  'UnderlineThickness', 'number',       50,        ),
-	((12, 5),  'PaintType',          'number',       0,         ),
-	((12, 6),  'CharstringType',     'number',       2,         ),
-	((12, 7),  'FontMatrix',         'array',  [0.001,0,0,0.001,0,0],  ),
-	(13,       'UniqueID',           'number',       None,      ),
-	(5,        'FontBBox',           'array',  [0,0,0,0],       ),
-	((12, 8),  'StrokeWidth',        'number',       0,         ),
-	(14,       'XUID',               'array',        None,      ),
-	((12, 21), 'PostScript',         'SID',          None,      ),
-	((12, 22), 'BaseFontName',       'SID',          None,      ),
-	((12, 23), 'BaseFontBlend',      'delta',        None,      ),
-	((12, 31), 'CIDFontVersion',     'number',       0,         ),
-	((12, 32), 'CIDFontRevision',    'number',       0,         ),
-	((12, 33), 'CIDFontType',        'number',       0,         ),
-	((12, 34), 'CIDCount',           'number',       8720,      ),
-	(15,       'charset',            'number',       0,         ),
-	((12, 35), 'UIDBase',            'number',       None,      ),
-	(16,       'Encoding',           'number',       0,         ),
-	(18,       'Private',       ('number','number'), None,      ),
-	((12, 37), 'FDSelect',           'number',       None,      ),
-	((12, 36), 'FDArray',            'number',       None,      ),
-	(17,       'CharStrings',        'number',       None,      ),
+    # opcode     name                  argument type   default
+    ((12, 30), 'ROS',        ('SID','SID','number'), None,),
+    ((12, 20), 'SyntheticBase',      'number',       None,),
+    (0,        'version',            'SID',          None,),
+    (1,        'Notice',             'SID',          None,),
+    ((12, 0),  'Copyright',          'SID',          None,),
+    (2,        'FullName',           'SID',          None,),
+    ((12, 38), 'FontName',           'SID',          None,),
+    (3,        'FamilyName',         'SID',          None,),
+    (4,        'Weight',             'SID',          None,),
+    ((12, 1),  'isFixedPitch',       'number',       0,),
+    ((12, 2),  'ItalicAngle',        'number',       0,),
+    ((12, 3),  'UnderlinePosition',  'number',       None,),
+    ((12, 4),  'UnderlineThickness', 'number',       50,),
+    ((12, 5),  'PaintType',          'number',       0,),
+    ((12, 6),  'CharstringType',     'number',       2,),
+    ((12, 7),  'FontMatrix',         'array',  [0.001,0,0,0.001,0,0],),
+    (13,       'UniqueID',           'number',       None,),
+    (5,        'FontBBox',           'array',  [0,0,0,0],),
+    ((12, 8),  'StrokeWidth',        'number',       0,),
+    (14,       'XUID',               'array',        None,),
+    ((12, 21), 'PostScript',         'SID',          None,),
+    ((12, 22), 'BaseFontName',       'SID',          None,),
+    ((12, 23), 'BaseFontBlend',      'delta',        None,),
+    ((12, 31), 'CIDFontVersion',     'number',       0,),
+    ((12, 32), 'CIDFontRevision',    'number',       0,),
+    ((12, 33), 'CIDFontType',        'number',       0,),
+    ((12, 34), 'CIDCount',           'number',       8720,),
+    (15,       'charset',            'number',       0,),
+    ((12, 35), 'UIDBase',            'number',       None,),
+    (16,       'Encoding',           'number',       0,),
+    (18,       'Private',       ('number','number'), None,),
+    ((12, 37), 'FDSelect',           'number',       None,),
+    ((12, 36), 'FDArray',            'number',       None,),
+    (17,       'CharStrings',        'number',       None,),
     )
 
     # We will not write these operators out
@@ -281,31 +284,31 @@ class TopDict(Dict):
             'UIDBase', 'Encoding', 'FDSelect', 'FDArray'}
     OFFSETS = {'charset', 'Encoding', 'CharStrings', 'Private'}
 
+
 class PrivateDict(Dict):
 
     TABLE = (
-    #	opcode     name                  argument type   default
-	(6,        'BlueValues',         'delta',        None,      ),
-	(7,        'OtherBlues',         'delta',        None,      ),
-	(8,        'FamilyBlues',        'delta',        None,      ),
-	(9,        'FamilyOtherBlues',   'delta',        None,      ),
-	((12, 9),  'BlueScale',          'number',       0.039625,  ),
-	((12, 10), 'BlueShift',          'number',       7,         ),
-	((12, 11), 'BlueFuzz',           'number',       1,         ),
-	(10,       'StdHW',              'number',       None,      ),
-	(11,       'StdVW',              'number',       None,      ),
-	((12, 12), 'StemSnapH',          'delta',        None,      ),
-	((12, 13), 'StemSnapV',          'delta',        None,      ),
-	((12, 14), 'ForceBold',          'number',       0,         ),
-	((12, 15), 'ForceBoldThreshold', 'number',       None,      ),  # deprecated
-	((12, 16), 'lenIV',              'number',       None,      ),  # deprecated
-	((12, 17), 'LanguageGroup',      'number',       0,         ),
-	((12, 18), 'ExpansionFactor',    'number',       0.06,      ),
-	((12, 19), 'initialRandomSeed',  'number',       0,         ),
-	(20,       'defaultWidthX',      'number',       0,         ),
-	(21,       'nominalWidthX',      'number',       0,         ),
-	(19,       'Subrs',              'number',       None,      ),
+    #   opcode     name                  argument type   default
+    (6,        'BlueValues',         'delta',        None,),
+    (7,        'OtherBlues',         'delta',        None,),
+    (8,        'FamilyBlues',        'delta',        None,),
+    (9,        'FamilyOtherBlues',   'delta',        None,),
+    ((12, 9),  'BlueScale',          'number',       0.039625,),
+    ((12, 10), 'BlueShift',          'number',       7,),
+    ((12, 11), 'BlueFuzz',           'number',       1,),
+    (10,       'StdHW',              'number',       None,),
+    (11,       'StdVW',              'number',       None,),
+    ((12, 12), 'StemSnapH',          'delta',        None,),
+    ((12, 13), 'StemSnapV',          'delta',        None,),
+    ((12, 14), 'ForceBold',          'number',       0,),
+    ((12, 15), 'ForceBoldThreshold', 'number',       None,),  # deprecated
+    ((12, 16), 'lenIV',              'number',       None,),  # deprecated
+    ((12, 17), 'LanguageGroup',      'number',       0,),
+    ((12, 18), 'ExpansionFactor',    'number',       0.06,),
+    ((12, 19), 'initialRandomSeed',  'number',       0,),
+    (20,       'defaultWidthX',      'number',       0,),
+    (21,       'nominalWidthX',      'number',       0,),
+    (19,       'Subrs',              'number',       None,),
     )
 
     OFFSETS = {'Subrs'}
-
