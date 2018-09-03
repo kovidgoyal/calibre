@@ -12,17 +12,22 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NeueOsnabrueckerZeitung(BasicNewsRecipe):
     title = 'Neue Osnabrücker Zeitung'
-    __author__ = 'vo_he'
+    __author__ = 'vo_he, epubli'
     description = 'RSS-Feeds von noz.de'
     publisher = 'Neue Osnabrücker Zeitung GmbH & Co. KG'
     publication_type = 'newspaper'
     language = 'de'
+    cover_url= 'https://www.noz-cdn.de/version-247/bundles/nozplatform/images/logos/noz-logo2x.png'
 
-    oldest_article = 7
-    max_articles_per_feed = 5
+    oldest_article = 2
+    max_articles_per_feed = 10
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
+    compress_news_images = True
+    compress_news_images_auto_size = 8
+    scale_news_images_to_device = True
+    scale_news_images = (600, 800)
     ignore_duplicate_articles = {'title', 'url'}
 
     masthead_url = 'http://www.noz.de/bundles/nozplatform/images/logos/osnabruecker-zeitung.png'
@@ -104,13 +109,9 @@ class NeueOsnabrueckerZeitung(BasicNewsRecipe):
         # ('Twist', 'http://www.noz.de/rss/ressort/Twist')
     ]
 
-    extra_css = '''
-        h2 {margin-top: 0em}
-    '''
-
     def print_version(self, url):
         url_split = url.split('/')
-        return 'http://www.noz.de/socialmediabar/print/' + url_split[-2]
+        return 'http://www.noz.de/socialmediabar/print/article/' + url_split[-2]
 
     def preprocess_html(self, soup):
         # remove first paragraph
