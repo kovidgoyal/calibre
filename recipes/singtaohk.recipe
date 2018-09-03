@@ -1,5 +1,7 @@
 # vim:fileencoding=UTF-8
 from __future__ import unicode_literals
+import six
+from six.moves import range
 __license__ = 'GPL v3'
 __copyright__ = '2011-2013, Eddie Lau'
 
@@ -488,8 +490,8 @@ class STHKRecipe(BasicNewsRecipe):
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
-                            prefix = '/'.join('..'for i in range(2 *
-                                                                 len(re.findall(r'link\d+', last))))
+                            prefix = '/'.join('..'for i in list(range(2 *
+                                                                 len(re.findall(r'link\d+', last)))))
                             templ = self.navbar.generate(True, num, j, len(f),
                                                          not self.has_single_feed,
                                                          a.orig_url, __appname__, prefix=prefix,
@@ -498,7 +500,7 @@ class STHKRecipe(BasicNewsRecipe):
                                 doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
+                                fi.write(six.text_type(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 

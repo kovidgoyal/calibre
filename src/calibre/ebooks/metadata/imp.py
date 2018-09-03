@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from IMP files'''
@@ -16,7 +17,7 @@ def get_metadata(stream):
     stream.seek(0)
     try:
         if stream.read(10) not in MAGIC:
-            print >>sys.stderr, u'Couldn\'t read IMP header from file'
+            print(u'Couldn\'t read IMP header from file', file=sys.stderr)
             return mi
 
         def cString(skip=0):
@@ -43,5 +44,5 @@ def get_metadata(stream):
             mi.category = category
     except Exception as err:
         msg = u'Couldn\'t read metadata from imp: %s with error %s'%(mi.title, unicode(err))
-        print >>sys.stderr, msg.encode('utf8')
+        print(msg.encode('utf8'), file=sys.stderr)
     return mi

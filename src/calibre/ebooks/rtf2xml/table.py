@@ -304,7 +304,7 @@ class Table:
         if line[3:5] == 'bd':
             border_obj = border_parse.BorderParse()
             the_dict = border_obj.parse_border(line)
-            keys = the_dict.keys()
+            keys = list(the_dict.keys())
             # border-cell-top-hairline
             in_cell = 0
             for key in keys:
@@ -344,7 +344,7 @@ class Table:
             self.__write_obj.write('mi<tg<open-att__<cell')
             # cell_dict = self.__cell_list[-1]
             cell_dict = self.__cell_list[0]
-            keys = cell_dict.keys()
+            keys = list(cell_dict.keys())
             for key in keys:
                 self.__write_obj.write('<%s>%s' % (key, cell_dict[key]))
             self.__write_obj.write('\n')
@@ -368,7 +368,7 @@ class Table:
         """
         self.__state.append('in_row')
         self.__write_obj.write('mi<tg<open-att__<row')
-        keys = self.__row_dict.keys()
+        keys = list(self.__row_dict.keys())
         for key in keys:
             self.__write_obj.write('<%s>%s' % (key, self.__row_dict[key]))
         self.__write_obj.write('\n')
@@ -501,7 +501,7 @@ class Table:
         if len(self.__cell_list) > 0:
             self.__write_obj.write('mi<tg<empty-att_<cell')
             cell_dict = self.__cell_list[-1]
-            keys = cell_dict.keys()
+            keys = list(cell_dict.keys())
             for key in keys:
                 self.__write_obj.write('<%s>%s' % (key, cell_dict[key]))
             self.__write_obj.write('\n')

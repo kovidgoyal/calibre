@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -97,7 +100,7 @@ def escape_funcs():
         escapem = {('\\' + x):unichr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         escape = lambda x: escape_pat.sub(lambda m: escapem[m.group()], x.replace(r'\\', '\x01'))
-        unescapem = {v:k[1] for k, v in escapem.iteritems()}
+        unescapem = {v:k[1] for k, v in six.iteritems(escapem)}
         unescape_pat = re.compile('|'.join(unescapem))
         unescape = lambda x:unescape_pat.sub(lambda m:unescapem[m.group()], x)
     return escape, unescape
@@ -176,7 +179,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], type('')):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(_snippets.iteritems(), key=(lambda (key, snip):string_length(key.trigger)), reverse=True)
+        _snippets = sorted(six.iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 # Editor integration {{{
@@ -351,7 +354,7 @@ def expand_template(editor, trigger, template):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.itervalues()]
+    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in six.itervalues(tab_stops)]
 
     tl = Template(editor_tab_stops)
     if tl.has_tab_stops:
@@ -528,7 +531,7 @@ class EditSnippet(QWidget):
         self.template.setPlainText(snip.get('template') or '')
 
         ftypes = snip.get('syntaxes', ())
-        for i in xrange(self.types.count()):
+        for i in range(self.types.count()):
             i = self.types.item(i)
             ftype = i.data(Qt.UserRole)
             i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
@@ -543,7 +546,7 @@ class EditSnippet(QWidget):
 
         def fget(self):
             ftypes = []
-            for i in xrange(self.types.count()):
+            for i in range(self.types.count()):
                 i = self.types.item(i)
                 if i.checkState() == Qt.Checked:
                     ftypes.append(i.data(Qt.UserRole))
@@ -656,7 +659,7 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in xrange(self.snip_list.count())]
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in range(self.snip_list.count())]
         snippets(refresh=True)
         return Dialog.accept(self)
 
@@ -698,7 +701,7 @@ class UserSnippets(Dialog):
     def change_builtin(self):
         d = QDialog(self)
         lw = QListWidget(d)
-        for (trigger, syntaxes), snip in builtin_snippets.iteritems():
+        for (trigger, syntaxes), snip in six.iteritems(builtin_snippets):
             snip = copy.deepcopy(snip)
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)

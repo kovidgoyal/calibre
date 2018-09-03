@@ -12,6 +12,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 # This imports the version bundled with Calibre
 import lxml
 from lxml.builder import E
+import six
 respekt_url = 'http://www.respekt.cz'
 
 
@@ -27,10 +28,10 @@ class respektRecipe(BasicNewsRecipe):
     remove_tags_before = dict(name='h1')
     remove_tags_after = [dict(id='postcontent')]
     remove_tags = [
-        dict(name='div',attrs={'id':['postsharepopup','survey-respondents']}),
-        dict(name='div',attrs={'class':['ad','ad-content','adinarticle','ad-caption','post-actions','authorship-note','quote','postgallery']}),
-        dict(name='a',attrs={'class':['quote','authorship-face']}),
-        dict(name='span',attrs={'class':'embed'}),
+        dict(name='div', attrs={'id':['postsharepopup', 'survey-respondents']}),
+        dict(name='div', attrs={'class':['ad', 'ad-content', 'adinarticle', 'ad-caption', 'post-actions', 'authorship-note', 'quote', 'postgallery']}),
+        dict(name='a', attrs={'class':['quote', 'authorship-face']}),
+        dict(name='span', attrs={'class':'embed'}),
         dict(name='svg'),
         dict(name='script')
     ]
@@ -70,13 +71,13 @@ class respektRecipe(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         root = lxml.html.fromstring(raw_html)
         if root.xpath("//title")[0].text == (u"Respekt • Despekt • RESPEKT"):
-            raw_html = re.sub("h2","h1",raw_html)
+            raw_html = re.sub("h2", "h1", raw_html)
         return raw_html
 
     def parse_index(self):
         raw1 = self.index_to_soup('http://www.respekt.cz/tydenik/', raw=True)
         root1 = lxml.html.fromstring(raw1)
-        current_edition_url = root1.xpath("//div[@class='heroissue']/a")[0].items()[0][1]
+        current_edition_url = list(root1.xpath("//div[@class='heroissue']/a")[0].items())[0][1]
         raw2 = self.index_to_soup('http://www.respekt.cz/' + current_edition_url, raw=True)
         root2 = lxml.html.fromstring(raw2)
         self.cover_url = root2.xpath("//i[contains(@class, 'heroissue-cover')]")[0].get("data-src")
@@ -85,9 +86,9 @@ class respektRecipe(BasicNewsRecipe):
         s = date_text.split(" ")
         # Are the dates of the issue in the same month and year?
         if len(s) == 4 or len(s) == 7:
-            date = "/".join([s[1].split(".")[0],s[2].split(".")[0],s[-1]])
+            date = "/".join([s[1].split(".")[0], s[2].split(".")[0], s[-1]])
         elif len(s) == 8:
-            date = "/".join([s[1].split(".")[0],s[2].split(".")[0],s[3]])
+            date = "/".join([s[1].split(".")[0], s[2].split(".")[0], s[3]])
         self.conversion_options = {'pubdate':date}
         self.title = "Respekt magazine #" + "/".join(current_edition_url.split("/")[-1:-3:-1])
         ans = []
@@ -100,14 +101,14 @@ class respektRecipe(BasicNewsRecipe):
                 url = respekt_url + article.xpath("@href")[0]
                 articles.append({'title':title,'url':url})
                 article = article.getnext()
-            ans.append((section_name,articles))
+            ans.append((section_name, articles))
         return ans
 
     def cleanup(self):
         self.browser.open('https://www.respekt.cz/?do=logout')
 
-    def preprocess_html(self,soup):
-        raw = u''.join(unicode(a) for a in soup.contents)
+    def preprocess_html(self, soup):
+        raw = u''.join(six.text_type(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
         # Fix Letem světem
         if "Letem sv" in root.xpath("//title")[0].text:
@@ -116,7 +117,7 @@ class respektRecipe(BasicNewsRecipe):
                 next = par.getnext()
                 if par.getchildren():
                     child = par.getchildren()[0]
-                if hasattr(next,"tag") and next.tag == "h2" and hasattr(child,"tag") and child.tag == "strong":
+                if hasattr(next, "tag") and next.tag == "h2" and hasattr(child, "tag") and child.tag == "strong":
                     text = child.text_content()
                     if next.text:
                         next.text = next.text + u" • " + text
@@ -131,14 +132,14 @@ class respektRecipe(BasicNewsRecipe):
         try:
             aut = root.xpath("//div[@class='authorship-names']")[0]
             if aut.getchildren() and aut.getchildren()[0].tag == 'a':
-                for i,t in enumerate(aut.getchildren()):
+                for i, t in enumerate(aut.getchildren()):
                     if i == 0:
                         t.text = 'Autor: ' + t.text + ' '
                     else:
                         t.text = t.text + ' '
                     # Remove link
                     e = E.span(t.text)
-                    t.getparent().replace(t,e)
+                    t.getparent().replace(t, e)
             else:
                 t = root.xpath("//span[@class='post-author-name']")[0]
                 t.text = ('Autor: ' + t.text + ' ')
@@ -151,7 +152,7 @@ class respektRecipe(BasicNewsRecipe):
             image = picture.xpath("//source")[0]
             image_link = [a for a in image.get('srcset').split(' ') if a[:4] == "http"][-1]
             e=E.img({"src":image_link})
-            picture.getparent().replace(picture,e)
+            picture.getparent().replace(picture, e)
         # Properly indent
         paragraphs = root.xpath('//p')
         paragraphs.reverse()
@@ -159,14 +160,14 @@ class respektRecipe(BasicNewsRecipe):
         for par in paragraphs[:-1]:
             prev = par.getprevious()
             # Do not indent after headings
-            if hasattr(prev,'tag') and not (prev.tag in ['h2','h3']):
+            if hasattr(prev, 'tag') and not (prev.tag in ['h2', 'h3']):
                 par.attrib['class']="indent_first_line"
         # Fix subtitle for Téma
         try:
             o = root.xpath("//p[@class='post-perex']")[0]
             e = E.h2({"class":"post-subtitle"})
             e.text = o.text
-            o.getparent().replace(o,e)
+            o.getparent().replace(o, e)
         except:
             pass
-        return(BeautifulSoup(lxml.etree.tostring(root,encoding=unicode)))
+        return(BeautifulSoup(lxml.etree.tostring(root, encoding=six.text_type)))

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -32,7 +33,7 @@ TRANSITIONAL_NAMES = {
 
 STRICT_NAMES = {
     k:v.replace('http://schemas.openxmlformats.org/officeDocument/2006',  'http://purl.oclc.org/ooxml/officeDocument')
-    for k, v in TRANSITIONAL_NAMES.iteritems()
+    for k, v in six.iteritems(TRANSITIONAL_NAMES)
 }
 
 TRANSITIONAL_NAMESPACES = {
@@ -72,7 +73,7 @@ STRICT_NAMESPACES = {
         'http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument').replace(
         'http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml').replace(
         'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
-    for k, v in TRANSITIONAL_NAMESPACES.iteritems()
+    for k, v in six.iteritems(TRANSITIONAL_NAMESPACES)
 }
 # }}}
 
@@ -138,7 +139,7 @@ class DOCXNamespace(object):
         return self.XPath('|'.join('descendant::%s' % a for a in args))(elem)
 
     def makeelement(self, root, tag, append=True, **attrs):
-        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in attrs.iteritems()})
+        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in six.iteritems(attrs)})
         if append:
             root.append(ans)
         return ans

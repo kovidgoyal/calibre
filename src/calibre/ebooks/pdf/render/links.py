@@ -2,13 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from urllib2 import unquote
 
 from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log
@@ -46,7 +47,7 @@ class Links(object):
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
-        for anchor, pos in anchors.iteritems():
+        for anchor, pos in six.iteritems(anchors):
             a[anchor] = Destination(start_page, pos, self.pdf.get_pageref)
         for link in links:
             href, page, rect = link

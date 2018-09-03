@@ -2,17 +2,19 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, time, tempfile, errno, itertools
+import os, time, tempfile, errno, itertools
 from math import ceil
 from threading import Thread, RLock
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from multiprocessing.connection import Listener, arbitrary_address
 from collections import deque
-from binascii import hexlify
+
+import six
 
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
@@ -126,7 +128,7 @@ if islinux:
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
         prefix = u'\0calibre-ipc-listener-%d-%%d' % os.getpid()
         while True:
-            address = (prefix % next(_name_counter)).encode('ascii')
+            address = prefix % next(_name_counter)
             try:
                 l = LinuxListener(address=address, authkey=authkey, backlog=backlog)
                 return address, l
@@ -149,8 +151,6 @@ else:
         while max_tries > 0:
             max_tries -= 1
             address = prefix % next(_name_counter)
-            if not isinstance(address, bytes):
-                address = address.encode('utf-8')  # multiprocessing needs bytes in python 2
             try:
                 return address, Listener(address=address, authkey=authkey, backlog=backlog)
             except EnvironmentError as err:
@@ -175,7 +175,7 @@ else:
 class Server(Thread):
 
     def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
-            limit=sys.maxint, enforce_cpu_limit=True):
+            limit=999999, enforce_cpu_limit=True):
         Thread.__init__(self)
         self.daemon = True
         global _counter
@@ -209,15 +209,13 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(cPickle.dumps(self.listener.address, -1)),
-                'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
-                'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
+                'CALIBRE_WORKER_ADDRESS' : self.listener.address,
+                'CALIBRE_WORKER_KEY' : self.auth_key,
+                'CALIBRE_WORKER_RESULT' : rfile,
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
-        if isinstance(cw, basestring):
-            raise CriticalError('Failed to launch worker process:\n'+cw)
         if DEBUG:
-            print 'Worker Launch took:', time.time() - start
+            print('Worker Launch took:', time.time() - start)
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile, job_name=None):
@@ -228,13 +226,10 @@ class Server(Thread):
             conn = eintr_retry_call(self.listener.accept)
             if conn is None:
                 raise Exception('Failed to launch worker process')
-        except BaseException:
-            try:
-                w.kill()
-            except:
-                pass
-            import traceback
-            return traceback.format_exc()
+        except BaseException as exc:
+            w.kill()
+            raise six.raise_from(
+                CriticalError('Failed to launch worker process'), exc)
         return ConnectedWorker(w, conn, rfile)
 
     def add_job(self, job):
@@ -278,7 +273,7 @@ class Server(Thread):
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
-                        job.result = cPickle.load(open(worker.rfile, 'rb'))
+                        job.result = six.moves.cPickle.load(open(worker.rfile, 'rb'))
                         os.remove(worker.rfile)
                     except:
                         pass

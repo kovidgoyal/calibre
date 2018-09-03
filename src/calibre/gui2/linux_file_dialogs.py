@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import functools
 import os
+import six
 import subprocess
 import sys
 import time
@@ -16,6 +17,7 @@ from PyQt5.Qt import QEventLoop
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, preferred_encoding, DEBUG
 from calibre.utils.config import dynamic
+from six.moves import map
 
 
 def dialog_name(name, title):
@@ -67,7 +69,7 @@ def get_initial_dir(name, title, default_dir, no_save_dir):
         return ensure_dir(process_path(default_dir))
     key = dialog_name(name, title)
     saved = dynamic.get(key)
-    if not isinstance(saved, basestring):
+    if not isinstance(saved, six.string_types):
         saved = None
     if saved and os.path.isdir(saved):
         return ensure_dir(process_path(saved))
@@ -314,7 +316,7 @@ def linux_native_dialog(name):
             t.start()
             loop.exec_(QEventLoop.ExcludeUserInputEvents)
             if ret[1] is not None:
-                raise ret[1][0], ret[1][1], ret[1][2]
+                six.reraise(*ret[1])
             return ret[0]
         except Exception:
             linux_native_dialog.native_failed = True

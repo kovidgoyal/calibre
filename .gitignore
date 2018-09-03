@@ -13,6 +13,8 @@ manual/locale
 build
 dist
 docs
+env*
+.idea
 resources/localization
 resources/scripts.pickle
 resources/ebook-convert-complete.pickle

@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, struct, ctypes
 from collections import namedtuple
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import QtWin, Qt, QIcon, QByteArray, QBuffer, QPixmap
 import win32con, win32api, win32gui, pywintypes, winerror
@@ -113,7 +113,7 @@ def load_icon(module, index, as_data=False, size=ICON_SIZE):
 def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
     if not icon_resource:
         return
-    parts = tuple(filter(None, re.split(r',([-0-9]+$)', icon_resource)))
+    parts = tuple([_f for _f in re.split(r',([-0-9]+$)', icon_resource) if _f])
     if len(parts) != 2:
         return
     module, index = parts

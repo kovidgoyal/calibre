@@ -276,7 +276,7 @@ class Sections:
         my_string += '<num-in-level>%s' % str(self.__section_num)
         my_string += '<type>rtf-native'
         my_string += '<level>0'
-        keys = self.__section_values.keys()
+        keys = list(self.__section_values.keys())
         if len(keys) > 0:
             for key in keys:
                 my_string += '<%s>%s' % (key, self.__section_values[key])
@@ -462,7 +462,7 @@ class Sections:
         'mi<tg<open-att__<section<num>%s' % str(num)
         )
         if self.__list_of_sec_values:
-            keys =  self.__list_of_sec_values[0].keys()
+            keys =  list(self.__list_of_sec_values[0].keys())
             for key in keys:
                 self.__write_obj.write(
                 '<%s>%s\n' % (key, self.__list_of_sec_values[0][key]))

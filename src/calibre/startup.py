@@ -1,3 +1,5 @@
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -7,14 +9,17 @@ Perform various initialization tasks.
 '''
 
 import locale, sys
+try:
+    import six.moves.builtins as builtins
+except ImportError:
+    import builtins
 
 # Default translation is NOOP
-import __builtin__
-__builtin__.__dict__['_'] = lambda s: s
+builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
 # immediately translated to the environment language
-__builtin__.__dict__['__'] = lambda s: s
+builtins.__dict__['__'] = lambda s: s
 
 from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG
 
@@ -109,8 +114,12 @@ if not _run_once:
         except:
             pass
 
-    # local_open() opens a file that wont be inherited by child processes
-    if iswindows:
+    # local_open() opens a file that wont be inherited by child processes\
+    if sys.version_info >= (3,4,0):
+        # this is done by default in py3.4+, see https://www.python.org/dev/peps/pep-0446/
+        def local_open(name, mode='r', bufsize=-1):
+            return open(name, mode, bufsize)
+    elif iswindows:
         def local_open(name, mode='r', bufsize=-1):
             mode += 'N'
             return open(name, mode, bufsize)
@@ -146,12 +155,12 @@ if not _run_once:
                 supports_mode_e = True
             return ans
 
-    __builtin__.__dict__['lopen'] = local_open
+    builtins.__dict__['lopen'] = local_open
 
     from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
-    __builtin__.__dict__['icu_lower'] = icu_lower
-    __builtin__.__dict__['icu_upper'] = icu_upper
-    __builtin__.__dict__['icu_title'] = title_case
+    builtins.__dict__['icu_lower'] = icu_lower
+    builtins.__dict__['icu_upper'] = icu_upper
+    builtins.__dict__['icu_title'] = title_case
 
     def connect_lambda(bound_signal, self, func, **kw):
         import weakref
@@ -169,7 +178,7 @@ if not _run_once:
                 func(ctx, *args)
 
         bound_signal.connect(slot, **kw)
-    __builtin__.__dict__['connect_lambda'] = connect_lambda
+    builtins.__dict__['connect_lambda'] = connect_lambda
 
     if islinux:
         # Name all threads at the OS level created using the threading module, see
@@ -229,19 +238,19 @@ def test_lopen():
         with copen(n, 'w') as f:
             f.write('one')
 
-        print 'O_CREAT tested'
+        print('O_CREAT tested')
         with copen(n, 'w+b') as f:
             f.write('two')
         with copen(n, 'r') as f:
             if f.read() == 'two':
-                print 'O_TRUNC tested'
+                print('O_TRUNC tested')
             else:
                 raise Exception('O_TRUNC failed')
         with copen(n, 'ab') as f:
             f.write('three')
         with copen(n, 'r+') as f:
             if f.read() == 'twothree':
-                print 'O_APPEND tested'
+                print('O_APPEND tested')
             else:
                 raise Exception('O_APPEND failed')
         with copen(n, 'r+') as f:
@@ -249,6 +258,6 @@ def test_lopen():
             f.write('xxxxx')
             f.seek(0)
             if f.read() == 'twoxxxxx':
-                print 'O_RANDOM tested'
+                print('O_RANDOM tested')
             else:
                 raise Exception('O_RANDOM failed')

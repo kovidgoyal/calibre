@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -47,7 +48,7 @@ class FieldsModel(FM):  # {{{
     def commit(self):
         ignored_fields = set([x for x in self.prefs['ignore_fields'] if x not in
             self.overrides])
-        changed = set([k for k, v in self.overrides.iteritems() if v ==
+        changed = set([k for k, v in six.iteritems(self.overrides) if v ==
             Qt.Unchecked])
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 
@@ -100,8 +101,8 @@ class ConfigWidget(QWidget):
             widget.setChecked(bool(val))
         elif opt.type == 'choices':
             widget = QComboBox(self)
-            items = list(opt.choices.iteritems())
-            items.sort(key=lambda (k, v): sort_key(v))
+            items = list(six.iteritems(opt.choices))
+            items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))
             idx = widget.findData((val))

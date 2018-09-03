@@ -98,7 +98,7 @@ class Configure:
             'config-location',
             'script-name',
         ]
-        the_keys = return_dict.keys()
+        the_keys = list(return_dict.keys())
         for the_key in the_keys:
             if the_key not in allowable:
                 sys.stderr.write('options "%s" not a legal option.\n'

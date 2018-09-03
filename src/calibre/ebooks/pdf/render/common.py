@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -150,7 +151,7 @@ class Dictionary(dict):
 
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
-        sorted_keys = sorted(self.iterkeys(),
+        sorted_keys = sorted(six.iterkeys(self),
                              key=lambda x:({'Type':'1', 'Subtype':'2'}.get(
                                  x, x)+x))
         for k in sorted_keys:
@@ -165,7 +166,7 @@ class InlineDictionary(Dictionary):
 
     def pdf_serialize(self, stream):
         stream.write(b'<< ')
-        for k, v in self.iteritems():
+        for k, v in six.iteritems(self):
             serialize(Name(k), stream)
             stream.write(b' ')
             serialize(v, stream)

@@ -7,12 +7,13 @@ Lemonde.fr: Version abonnée
 '''
 
 import os, zipfile, re, time
-from urllib2 import HTTPError
+from six.moves.urllib.error import HTTPError
 from calibre.constants import preferred_encoding
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryFile
+from six.moves import range
 
 
 class LeMondeAbonne(BasicNewsRecipe):

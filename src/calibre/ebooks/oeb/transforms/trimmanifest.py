@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
 from calibre.ebooks.oeb.base import urlnormalize, iterlinks

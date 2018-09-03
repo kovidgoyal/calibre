@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, cPickle, base64, datetime, json, plistlib
+import os, six.moves.cPickle, base64, datetime, json, plistlib
 from copy import deepcopy
 import optparse
 
@@ -217,11 +218,11 @@ class DynamicConfig(dict):
             with ExclusiveFile(self.file_path) as f:
                 raw = f.read()
                 try:
-                    d = cPickle.loads(raw) if raw.strip() else {}
+                    d = six.moves.cPickle.loads(raw) if raw.strip() else {}
                 except SystemError:
                     pass
                 except:
-                    print 'WARNING: Failed to unpickle stored config object, ignoring'
+                    print('WARNING: Failed to unpickle stored config object, ignoring')
                     if DEBUG:
                         import traceback
                         traceback.print_exc()
@@ -254,7 +255,7 @@ class DynamicConfig(dict):
             if not os.path.exists(self.file_path):
                 make_config_dir()
             with ExclusiveFile(self.file_path) as f:
-                raw = cPickle.dumps(self, -1)
+                raw = six.moves.cPickle.dumps(self, -1)
                 f.seek(0)
                 f.truncate()
                 f.write(raw)
@@ -300,10 +301,10 @@ class XMLConfig(dict):
             pass
 
     def raw_to_object(self, raw):
-        return plistlib.readPlistFromString(raw)
+        return plistlib.loads(raw)
 
     def to_raw(self):
-        return plistlib.writePlistToString(self)
+        return plistlib.dumps(self)
 
     def decouple(self, prefix):
         self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
@@ -385,7 +386,7 @@ class XMLConfig(dict):
 def to_json(obj):
     if isinstance(obj, bytearray):
         return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj))}
+                '__value__': base64.standard_b64encode(bytes(obj)).decode()}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
         return {'__class__': 'datetime.datetime',
@@ -396,7 +397,7 @@ def to_json(obj):
 def from_json(obj):
     if '__class__' in obj:
         if obj['__class__'] == 'bytearray':
-            return bytearray(base64.standard_b64decode(obj['__value__']))
+            return bytearray(base64.standard_b64decode(obj['__value__'].encode()))
         if obj['__class__'] == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
             return parse_iso8601(obj['__value__'], assume_utc=True)
@@ -411,7 +412,7 @@ class JSONConfig(XMLConfig):
         return json.loads(raw.decode('utf-8'), object_hook=from_json)
 
     def to_raw(self):
-        return json.dumps(self, indent=2, default=to_json)
+        return json.dumps(self, indent=2, default=to_json).encode()
 
     def __getitem__(self, key):
         try:

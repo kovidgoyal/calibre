@@ -2,12 +2,13 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, io, weakref, sys
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
@@ -41,7 +42,7 @@ def compile_code(src, name='<string>'):
     code = compile(src, name, 'exec')
 
     namespace = {}
-    exec code in namespace
+    exec(code, namespace)
     return namespace
 
 
@@ -68,7 +69,7 @@ class Function(object):
         self.boss = get_boss()
         self.data = {}
         self.debug_buf = StringIO()
-        self.functions = {name:func.mod for name, func in functions().iteritems() if func.mod is not None}
+        self.functions = {name:func.mod for name, func in six.iteritems(functions()) if func.mod is not None}
 
     def __hash__(self):
         return hash(self.name)
@@ -137,7 +138,7 @@ class DebugOutput(Dialog):
 
 
 def builtin_functions():
-    for name, obj in globals().iteritems():
+    for name, obj in six.iteritems(globals()):
         if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
 
@@ -151,7 +152,7 @@ def functions(refresh=False):
         ans = _functions = {}
         for func in builtin_functions():
             ans[func.name] = Function(func.name, func=func)
-        for name, source in user_functions.iteritems():
+        for name, source in six.iteritems(user_functions):
             try:
                 f = Function(name, source=source)
             except Exception:

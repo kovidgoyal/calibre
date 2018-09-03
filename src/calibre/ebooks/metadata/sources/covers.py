@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from threading import Thread, Event
 from io import BytesIO
 

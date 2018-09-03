@@ -1,6 +1,7 @@
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+import six
 
 
 class AdvancedUserRecipe1279258912(BasicNewsRecipe):
@@ -37,7 +38,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
         ans = None
         try:
             s = article.summary
-            ans = urllib.unquote(
+            ans = six.moves.urllib.parse.unquote(
                 re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
         except:
             pass
@@ -48,7 +49,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
                 encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
                             '0D': '?', '0E': '-', '0N': '.com', '0L': 'http:',
                             '0S': '//', '0H': ','}
-                for k, v in encoding.iteritems():
+                for k, v in six.iteritems(encoding):
                     link = link.replace(k, v)
                 ans = link
             elif link:

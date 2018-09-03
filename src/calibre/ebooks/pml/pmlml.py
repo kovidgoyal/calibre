@@ -147,8 +147,8 @@ class PMLMLizer(object):
 
     def get_anchor_id(self, href, aid):
         aid = '%s#%s' % (href, aid)
-        if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        if aid not in list(self.link_hrefs.keys()):
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
         aid = self.link_hrefs[aid]
         return aid
 
@@ -174,7 +174,7 @@ class PMLMLizer(object):
 
     def prepare_text(self, text):
         # Replace empty paragraphs with \c pml codes used to denote emtpy lines.
-        text = re.sub(ur'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', '\\c\n\\c', text)
+        text = re.sub(r'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', '\\c\n\\c', text)
         return text
 
     def clean_text(self, text):
@@ -188,7 +188,7 @@ class PMLMLizer(object):
             text = text.replace('\\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(ur'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
+        text = re.sub(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
@@ -223,9 +223,9 @@ class PMLMLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, basestring) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, six.string_types) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, six.string_types) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return []
@@ -250,12 +250,12 @@ class PMLMLizer(object):
         # text. Usually these require an argument.
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
-                if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
-                    if len(self.image_hrefs.keys()) == 0:
+                if page.abshref(elem.attrib['src']) not in list(self.image_hrefs.keys()):
+                    if len(list(self.image_hrefs.keys())) == 0:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(
-                            '%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                            '%s.png' % len(list(self.image_hrefs.keys())), list(self.image_hrefs.keys())).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         elif tag == 'hr':
             w = '\\w'
@@ -307,8 +307,8 @@ class PMLMLizer(object):
                 if '://' not in href:
                     if '#' not in href:
                         href += '#'
-                    if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    if href not in list(self.link_hrefs.keys()):
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
                     href = '#%s' % self.link_hrefs[href]
                     text.append('\\q="%s"' % href)
                     tags.append('q')

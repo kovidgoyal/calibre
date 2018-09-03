@@ -1,4 +1,6 @@
 from __future__ import with_statement
+from six.moves import getcwd
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -7,15 +9,16 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys, cStringIO
+import os, time, traceback, re, six.moves.urllib.parse, sys
+from six.moves import StringIO
 from collections import defaultdict
 from functools import partial
-from contextlib import nested, closing
+from contextlib import closing
 
 
 from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode, random_user_agent)
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
+from bs4 import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
 from calibre.web import Recipe
@@ -651,7 +654,7 @@ class BasicNewsRecipe(Recipe):
                         download an article.
         '''
         try:
-            parts = urlparse.urlparse(url)
+            parts = six.moves.urllib.parse.urlparse(url)
         except Exception:
             self.log.error('Failed to parse url: %r, ignoring' % url)
             return frozenset()
@@ -758,7 +761,7 @@ class BasicNewsRecipe(Recipe):
         in index are not in weights, they are assumed to have a weight of 0.
         '''
         weights = defaultdict(lambda: 0, weights)
-        index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
+        index.sort(key=lambda x: weights[x])
         return index
 
     def parse_index(self):
@@ -868,7 +871,7 @@ class BasicNewsRecipe(Recipe):
             self.title = unicode(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(os.getcwdu())
+        self.output_dir = os.path.abspath(getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -1088,13 +1091,13 @@ class BasicNewsRecipe(Recipe):
             if feed.image_url in self.image_map:
                 feed.image_url = self.image_map[feed.image_url]
             else:
-                bn = urlparse.urlsplit(feed.image_url).path
+                bn = six.moves.urllib.parse.urlsplit(feed.image_url).path
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            with nested(open(img, 'wb'), closing(self.browser.open(feed.image_url))) as (fi, r):
+                            with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url)) as r:
                                 fi.write(r.read())
                             self.image_counter += 1
                             feed.image_url = img
@@ -1301,7 +1304,7 @@ class BasicNewsRecipe(Recipe):
             ext = cu.split('/')[-1].rpartition('.')[-1].lower().strip()
             if ext == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
-                stream = cStringIO.StringIO(cdata)
+                stream = StringIO(cdata)
                 cdata = None
                 mi = get_metadata(stream)
                 if mi.cover_data and mi.cover_data[1]:
@@ -1343,7 +1346,7 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
         else:
-            with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
+            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu)) as r:
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
         self.prepare_masthead_image(mpath, outfile)
@@ -1447,7 +1450,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -1524,7 +1527,7 @@ class BasicNewsRecipe(Recipe):
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
-                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            prefix = '/'.join('..'for i in list(range(2*len(re.findall(r'link\d+', last)))))
                             templ = self.navbar.generate(True, num, j, len(f),
                                             not self.has_single_feed,
                                             a.orig_url, __appname__, prefix=prefix,
@@ -1561,7 +1564,7 @@ class BasicNewsRecipe(Recipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)
 
     def article_downloaded(self, request, result):
@@ -1608,7 +1611,7 @@ class BasicNewsRecipe(Recipe):
         feeds = self.get_feeds()
         parsed_feeds = []
         for obj in feeds:
-            if isinstance(obj, basestring):
+            if isinstance(obj, six.string_types):
                 title, url = None, obj
             else:
                 title, url = obj
@@ -1655,7 +1658,7 @@ class BasicNewsRecipe(Recipe):
         '''
         if tag is None:
             return ''
-        if isinstance(tag, basestring):
+        if isinstance(tag, six.string_types):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring
@@ -1681,7 +1684,7 @@ class BasicNewsRecipe(Recipe):
 
     @classmethod
     def soup(cls, raw):
-        entity_replace = [(re.compile(ur'&(\S+?);'), partial(entity_to_unicode,
+        entity_replace = [(re.compile(r'&(\S+?);'), partial(entity_to_unicode,
                                                            exceptions=[]))]
         nmassage = list(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(entity_replace)
@@ -1803,7 +1806,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                         ' Either your subscription has expired or you have'
                         ' exceeded the maximum allowed downloads for today.'))
             raise
-        f = cStringIO.StringIO(raw)
+        f = StringIO(raw)
         from calibre.utils.zipfile import ZipFile
         zf = ZipFile(f)
         zf.extractall()

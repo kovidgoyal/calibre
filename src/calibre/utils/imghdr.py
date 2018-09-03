@@ -16,7 +16,7 @@ HSIZE = 120
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             with lopen(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:

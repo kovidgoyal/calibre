@@ -17,6 +17,7 @@ from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.search import get_search_regex, InvalidRegex, initialize_search_request
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
+import six
 
 # UI {{{
 
@@ -78,7 +79,7 @@ class WhereBox(QComboBox):
             return wm[self.currentIndex()]
 
         def fset(self, val):
-            self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
+            self.setCurrentIndex({v:k for k, v in six.iteritems(wm)}[val])
         return property(fget=fget, fset=fset)
 
     def showPopup(self):
@@ -173,7 +174,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
                 return True
             if not files and editor.find_text(pat, wrap=True):
                 return True
-        for fname, syntax in files.iteritems():
+        for fname, syntax in six.iteritems(files):
             ed = editors.get(fname, None)
             if ed is not None:
                 if ed.find_text(pat, complete=True):

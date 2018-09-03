@@ -1,6 +1,6 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 
 class SportsIllustratedColumnistsRecipe(BasicNewsRecipe):

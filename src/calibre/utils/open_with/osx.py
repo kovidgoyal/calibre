@@ -2,12 +2,17 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, plistlib, re, mimetypes, subprocess
 from collections import defaultdict
+
+from lxml import etree
+from html5_parser import parse
+from six.moves.urllib.request import urlopen
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
@@ -18,10 +23,7 @@ application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
 
 def generate_public_uti_map():
-    from lxml import etree
-    import urllib
-    from html5_parser import parse
-    raw = urllib.urlopen(
+    raw = urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = parse(raw)
     tables = root.xpath('//table')[0::2]
@@ -204,7 +206,7 @@ PUBLIC_UTI_MAP = {
     'zip':          'com.pkware.zip-archive',
 }
 PUBLIC_UTI_RMAP = defaultdict(set)
-for ext, uti in PUBLIC_UTI_MAP.iteritems():
+for ext, uti in six.iteritems(PUBLIC_UTI_MAP):
     PUBLIC_UTI_RMAP[uti].add(ext)
 PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 
@@ -239,7 +241,7 @@ def get_extensions_from_utis(utis, plist):
         for decl in plist.get(key, ()):
             if isinstance(decl, dict):
                 uti = decl.get('UTTypeIdentifier')
-                if isinstance(uti, basestring):
+                if isinstance(uti, six.string_types):
                     spec = decl.get('UTTypeTagSpecification')
                     if isinstance(spec, dict):
                         ext = spec.get('public.filename-extension')
@@ -286,10 +288,10 @@ def get_bundle_data(path):
             extensions |= get_extensions_from_utis(utis, plist)
         else:
             for ext in dtype.get('CFBundleTypeExtensions', ()):
-                if isinstance(ext, basestring):
+                if isinstance(ext, six.string_types):
                     extensions.add(ext.lower())
             for mt in dtype.get('CFBundleTypeMIMETypes', ()):
-                if isinstance(mt, basestring):
+                if isinstance(mt, six.string_types):
                     for ext in mimetypes.guess_all_extensions(mt, strict=False):
                         extensions.add(ext.lower())
     return ans

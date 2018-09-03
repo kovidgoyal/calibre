@@ -4,12 +4,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 store_version = 5  # Needed for dynamic plugin loading
 
 from contextlib import closing
-import urllib
 
 from lxml import html
+from six.moves.urllib.parse import urlencode
 
 from PyQt5.Qt import QUrl
 
@@ -43,8 +44,8 @@ def search_amazon(query, max_results=10, timeout=60,
         if isinstance(x, type('')):
             x = x.encode('utf-8')
         return x
-    uquery = {asbytes(k):asbytes(v) for k, v in uquery.iteritems()}
-    url = base_url + '?' + urllib.urlencode(uquery).decode('ascii')
+    uquery = {asbytes(k):asbytes(v) for k, v in six.iteritems(uquery)}
+    url = base_url + '?' + urlencode(uquery).decode('ascii')
     br = browser(user_agent=get_user_agent())
 
     counter = max_results

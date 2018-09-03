@@ -1,4 +1,7 @@
 from __future__ import with_statement
+from six.moves import zip
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,8 +9,9 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
+import os, sys, shutil, glob, time, functools, traceback, re, \
         json, uuid, hashlib, copy, types
+from six.moves import StringIO
 from collections import defaultdict, namedtuple
 import threading, random
 from itertools import repeat
@@ -442,7 +446,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
              'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
 
-        for k,v in self.FIELD_MAP.iteritems():
+        for k,v in six.iteritems(self.FIELD_MAP):
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
@@ -482,13 +486,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
-        for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
+        for user_cat in sorted(list(self.prefs.get('user_categories', {}).keys()), key=sort_key):
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
             self.field_metadata.add_user_category(label=cat_name, name=user_cat)
 
         # add grouped search term user categories
         muc = self.prefs.get('grouped_search_make_user_categories', [])
-        for cat in sorted(self.prefs.get('grouped_search_terms', {}).keys(), key=sort_key):
+        for cat in sorted(list(self.prefs.get('grouped_search_terms', {}).keys()), key=sort_key):
             if cat in muc:
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
@@ -931,7 +935,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # The random stuff is here to prevent a single book from
                 # blocking progress if its metadata cannot be written for some
                 # reason.
-                id_ = self.dirtied_cache.keys()[random.randint(0, l-1)]
+                id_ = list(self.dirtied_cache.keys())[random.randint(0, l-1)]
                 sequence = self.dirtied_cache[id_]
                 return (id_, sequence)
             return (None, None)
@@ -1114,7 +1118,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def find_identical_books(self, mi):
         fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, six.string_types) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),
@@ -1259,7 +1263,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def format_files(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
-        return [(v, k) for k, v in self.format_filename_cache[id].iteritems()]
+        return [(v, k) for k, v in six.iteritems(self.format_filename_cache[id])]
 
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
@@ -1397,7 +1401,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, six.string_types):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if dest:
@@ -1453,7 +1457,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, six.string_types):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
@@ -1796,7 +1800,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # First, build the maps. We need a category->items map and an
         # item -> (item_id, sort_val) map to use in the books loop
-        for category in tb_cats.iterkeys():
+        for category in six.iterkeys(tb_cats):
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
                     or category in ['news', 'formats'] or cat.get('is_csp',
@@ -1852,7 +1856,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             md.append((category, cat['rec_index'],
                        cat['is_multiple'].get('cache_to_list', None), False))
 
-        for category in tb_cats.iterkeys():
+        for category in six.iterkeys(tb_cats):
             cat = tb_cats[category]
             if cat['datatype'] == 'composite' and \
                                 cat['display'].get('make_category', False):
@@ -1957,7 +1961,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # and building the Tag instances.
         categories = {}
         tag_class = Tag
-        for category in tb_cats.iterkeys():
+        for category in six.iterkeys(tb_cats):
             if category not in tcategories:
                 continue
             cat = tb_cats[category]
@@ -2108,7 +2112,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
+            taglist[c] = dict([(icu_lower(t.name), t) for t in categories[c]])
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -2117,12 +2121,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             user_categories[c] = []
             for sc in gst[c]:
-                if sc in categories.keys():
+                if sc in list(categories.keys()):
                     for t in categories[sc]:
                         user_categories[c].append([t.name, sc, 0])
 
         gst_icon = icon_map['gst'] if icon_map else None
-        for user_cat in sorted(user_categories.keys(), key=sort_key):
+        for user_cat in sorted(list(user_categories.keys()), key=sort_key):
             items = []
             names_seen = {}
             for (name,label,ign) in user_categories[user_cat]:
@@ -2331,7 +2335,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
-        elif isinstance(mi.cover, basestring) and mi.cover:
+        elif isinstance(mi.cover, six.string_types) and mi.cover:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     raw = f.read()
@@ -2365,13 +2369,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_identifiers(id, mi_idents, notify=False, commit=False)
         elif mi_idents:
             identifiers = self.get_identifiers(id, index_is_id=True)
-            for key, val in mi_idents.iteritems():
+            for key, val in six.iteritems(mi_idents):
                 if val and val.strip():  # Don't delete an existing identifier
                     identifiers[icu_lower(key)] = val
             self.set_identifiers(id, identifiers, notify=False, commit=False)
 
         user_mi = mi.get_all_user_metadata(make_copy=False)
-        for key in user_mi.iterkeys():
+        for key in six.iterkeys(user_mi):
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype'] and \
                     (user_mi[key]['datatype'] != 'text' or
@@ -2638,7 +2642,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_pubdate(self, id, dt, notify=True, commit=True):
         if not dt:
             dt = UNDEFINED_DATE
-        if isinstance(dt, basestring):
+        if isinstance(dt, six.string_types):
             dt = parse_only_date(dt)
         self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
         self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
@@ -3319,7 +3323,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)', (id_, typ, val))
         if changed:
             raw = ','.join(['%s:%s'%(k, v) for k, v in
-                identifiers.iteritems()])
+                six.iteritems(identifiers)])
             self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)
             if commit:
@@ -3331,16 +3335,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         cleaned = {}
         if not identifiers:
             identifiers = {}
-        for typ, val in identifiers.iteritems():
+        for typ, val in six.iteritems(identifiers):
             typ, val = self._clean_identifier(typ, val)
             if val:
                 cleaned[typ] = val
         self.conn.execute('DELETE FROM identifiers WHERE book=?', (id_,))
         self.conn.executemany(
             'INSERT INTO identifiers (book, type, val) VALUES (?, ?, ?)',
-            [(id_, k, v) for k, v in cleaned.iteritems()])
+            [(id_, k, v) for k, v in six.iteritems(cleaned)])
         raw = ','.join(['%s:%s'%(k, v) for k, v in
-                cleaned.iteritems()])
+                six.iteritems(cleaned)])
         self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)
         if commit:
@@ -3693,7 +3697,7 @@ books_series_link      feeds
             for format in formats:
                 data = db.format(id, format, index_is_id=True)
                 if data:
-                    self.add_format(id, format, cStringIO.StringIO(data), index_is_id=True)
+                    self.add_format(id, format, StringIO(data), index_is_id=True)
             cover = db.cover(id, index_is_id=True)
             if cover:
                 self.set_cover(id, cover)
@@ -3734,7 +3738,7 @@ books_series_link      feeds
         self.conn.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
             [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in vals.iteritems()])
+                    for book_id, val in six.iteritems(vals)])
         self.commit()
 
     def get_custom_book_data(self, book_id, name, default=None):

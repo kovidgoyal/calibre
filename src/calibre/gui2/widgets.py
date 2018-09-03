@@ -1,3 +1,5 @@
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -82,7 +84,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         # Get all items in the combobox. If we are reseting
         # to defaults we don't want to lose what the user
         # has added.
-        val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in range(self.re.count())]
         self.re.clear()
 
         if defaults:
@@ -161,7 +163,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         prefs['filename_pattern'] = pat
 
         history = []
-        history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in range(self.re.count())]
         for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
@@ -807,7 +809,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         "pass", "print", "raise", "return", "try", "while", "with",
         "yield"]
 
-    BUILTINS = ["abs", "all", "any", "basestring", "bool", "callable", "chr",
+    BUILTINS = ["abs", "all", "any", "six.string_types", "bool", "callable", "chr",
         "classmethod", "cmp", "compile", "complex", "delattr", "dict",
         "dir", "divmod", "enumerate", "eval", "execfile", "exit", "file",
         "filter", "float", "frozenset", "getattr", "globals", "hasattr",
@@ -878,7 +880,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
             cls.Formats[name] = format
 
     def highlightBlock(self, text):
-        NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
+        NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = list(range(4))
 
         textLength = len(text)
         prevState = self.previousBlockState()
@@ -1126,8 +1128,8 @@ class Splitter(QSplitter):
 
     def print_sizes(self):
         if self.count() > 1:
-            print self.save_name, 'side:', self.side_index_size, 'other:',
-            print list(self.sizes())[self.other_index]
+            print(self.save_name, 'side:', self.side_index_size, 'other:', end=' ')
+            print(list(self.sizes())[self.other_index])
 
     @dynamic_property
     def side_index_size(self):

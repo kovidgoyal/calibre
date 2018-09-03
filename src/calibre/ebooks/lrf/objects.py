@@ -1,6 +1,9 @@
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import struct, array, zlib, cStringIO, collections, re
+import struct, array, zlib, collections, re
+from six.moves import StringIO
 
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre import entity_to_unicode, prepare_string_for_xml
@@ -98,7 +101,7 @@ class LRFContentObject(LRFObject):
     tag_map = {}
 
     def __init__(self, bytes, objects):
-        self.stream = bytes if hasattr(bytes, 'read') else cStringIO.StringIO(bytes)
+        self.stream = bytes if hasattr(bytes, 'read') else StringIO(bytes)
         length = self.stream_size()
         self.objects = objects
         self._contents = []
@@ -121,7 +124,7 @@ class LRFContentObject(LRFObject):
     def handle_tag(self, tag):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
-            if isinstance(action, basestring):
+            if isinstance(action, six.string_types):
                 func, args = action, tuple([])
             else:
                 func, args = action[0], (action[1],)
@@ -177,7 +180,7 @@ class LRFStream(LRFObject):
             if len(self.stream) != decomp_size:
                 raise LRFParseError("Stream decompressed size is wrong!")
         if stream.read(2) != '\x06\xF5':
-            print "Warning: corrupted end-of-stream tag at %08X; skipping it"%(stream.tell()-2)
+            print("Warning: corrupted end-of-stream tag at %08X; skipping it"%(stream.tell()-2))
         self.end_stream(None, None)
 
 
@@ -583,7 +586,7 @@ class Block(LRFStream, TextCSS):
 
     def initialize(self):
         self.attrs = {}
-        stream = cStringIO.StringIO(self.stream)
+        stream = StringIO(self.stream)
         tag = Tag(stream)
         if tag.id != 0xF503:
             raise LRFParseError("Bad block content")
@@ -740,7 +743,7 @@ class Text(LRFStream):
             elif isinstance(c, self.__class__.TextTag) and not c.self_closing:
                 open_containers += 1
             start += 1
-        self.content.extend(None for i in range(open_containers))
+        self.content.extend(None for i in list(range(open_containers)))
 
     def end_para(self, tag, stream):
         i = len(self.content)-1
@@ -812,7 +815,7 @@ class Text(LRFStream):
 
     def initialize(self):
         self.content = collections.deque()
-        stream = cStringIO.StringIO(self.stream)
+        stream = StringIO(self.stream)
         length = len(self.stream)
         style = self.style.as_dict()
         current_style = style.copy()
@@ -856,7 +859,7 @@ class Text(LRFStream):
                 self.add_text(stream.read(tag.word))
             elif tag.id in self.__class__.text_tags:  # A Text tag
                 action = self.__class__.text_tags[tag.id]
-                if isinstance(action, basestring):
+                if isinstance(action, six.string_types):
                     getattr(self, action)(tag, stream)
                 else:
                     getattr(self, action[0])(tag, action[1])
@@ -880,7 +883,7 @@ class Text(LRFStream):
         s = u''
         open_containers = collections.deque()
         for c in self.content:
-            if isinstance(c, basestring):
+            if isinstance(c, six.string_types):
                 s += prepare_string_for_xml(c).replace('\0', '')
             elif c is None:
                 if open_containers:
@@ -903,7 +906,7 @@ class Text(LRFStream):
         open_containers = collections.deque()
         in_p = False
         for c in self.content:
-            if isinstance(c, basestring):
+            if isinstance(c, six.string_types):
                 s += c
             elif c is None:
                 if c.name == 'P':
@@ -984,7 +987,7 @@ class Canvas(LRFStream):
             if hasattr(self, attr):
                 self.attrs[attr] = getattr(self, attr)
         self._contents = []
-        stream = cStringIO.StringIO(self.stream)
+        stream = StringIO(self.stream)
         while stream.tell() < len(self.stream):
             tag = Tag(stream)
             try:
@@ -992,7 +995,7 @@ class Canvas(LRFStream):
                     PutObj(self._document.objects,
                         *struct.unpack("<HHI", tag.contents)))
             except struct.error:
-                print 'Canvas object has errors, skipping.'
+                print('Canvas object has errors, skipping.')
 
     def __unicode__(self):
         s = '\n<%s objid="%s" '%(self.__class__.__name__, self.id,)
@@ -1218,7 +1221,7 @@ class TocLabel(object):
 class TOCObject(LRFStream):
 
     def initialize(self):
-        stream = cStringIO.StringIO(self.stream)
+        stream = StringIO(self.stream)
         c = struct.unpack("<H", stream.read(2))[0]
         stream.seek(4*(c+1))
         self._contents = []

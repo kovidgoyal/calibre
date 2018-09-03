@@ -6,13 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, cPickle
+import os
 from functools import partial
 from binascii import hexlify
 
+from six.moves import map, cPickle
+from six.moves.urllib.parse import quote_plus
+
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, qquote, DEFAULT_AUTHOR_SOURCE
+from calibre.ebooks.metadata.search_internet import name_for, url_for_author_search, url_for_book_search, DEFAULT_AUTHOR_SOURCE
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
@@ -53,7 +56,7 @@ def get_field_list(mi):
 
 def search_href(search_term, value):
     search = '%s:"=%s"' % (search_term, value.replace('"', '\\"'))
-    return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
+    return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')).decode(), True)
 
 
 DEFAULT_AUTHOR_LINK = 'search-{}'.format(DEFAULT_AUTHOR_SOURCE)
@@ -78,7 +81,7 @@ def author_search_href(which, title=None, author=None):
 
 
 def item_data(field_name, value, book_id):
-    return hexlify(cPickle.dumps((field_name, value, book_id), -1))
+    return hexlify(cPickle.dumps((field_name, value, book_id), -1)).decode()
 
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):
@@ -211,11 +214,11 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                         which_src = default_author_link.partition('-')[2]
                         link, lt = author_search_href(which_src, title=mi.title, author=aut)
                     else:
-                        vals = {'author': qquote(aut), 'title': qquote(mi.title)}
+                        vals = {'author': quote_plus(aut), 'title': quote_plus(mi.title)}
                         try:
-                            vals['author_sort'] =  qquote(mi.author_sort_map[aut])
+                            vals['author_sort'] = quote_plus(mi.author_sort_map[aut])
                         except KeyError:
-                            vals['author_sort'] = qquote(aut)
+                            vals['author_sort'] = quote_plus(aut)
                         link = lt = formatter.safe_format(default_author_link, vals, '', vals)
                 aut = p(aut)
                 if link:
@@ -226,7 +229,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         elif field == 'languages':
             if not mi.languages:
                 continue
-            names = filter(None, map(calibre_langcode_to_name, mi.languages))
+            names = [_f for _f in map(calibre_langcode_to_name, mi.languages) if _f]
             names = ['<a href="%s" title="%s">%s</a>' % (search_href('languages', n), _(
                 'Search calibre for books with the language: {}').format(n), n) for n in names]
             ans.append((field, row % (name, u', '.join(names))))

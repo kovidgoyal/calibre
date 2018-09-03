@@ -7,8 +7,9 @@ Builtin recipes.
 import re, time, io
 from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.utils.config import JSONConfig
+import six
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)
@@ -31,9 +32,7 @@ def compile_recipe(src):
     :return: Recipe class or None, if no such class was found in src
     '''
     if not isinstance(src, unicode):
-        match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
-        enc = match.group(1) if match else 'utf-8'
-        src = src.decode(enc)
+        src = src.decode()
     # Python complains if there is a coding declaration in a unicode string
     src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src.lstrip(u'\ufeff'), flags=re.MULTILINE)
     # Translate newlines to \n
@@ -45,9 +44,9 @@ def compile_recipe(src):
             'time':time, 're':re,
             'BeautifulSoup':BeautifulSoup
     }
-    exec src in namespace
+    exec(src, namespace)
 
-    for x in namespace.itervalues():
+    for x in six.itervalues(namespace):
         if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not
                 in basic_recipes):
             return x

@@ -2,6 +2,8 @@
 CSS flattening transform.
 '''
 from __future__ import with_statement
+from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -223,7 +225,7 @@ class CSSFlattener(object):
 
     def store_page_margins(self):
         self.opts._stored_page_margins = {}
-        for item, stylizer in self.stylizers.iteritems():
+        for item, stylizer in six.iteritems(self.stylizers):
             margins = self.opts._stored_page_margins[item.href] = {}
             for prop, val in stylizer.page_rule.items():
                 p, w = prop.partition('-')[::2]
@@ -277,7 +279,7 @@ class CSSFlattener(object):
                 if font[k] != u'normal':
                     cfont[k] = font[k]
             rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
-                cfont.iteritems()))
+                six.iteritems(cfont)))
             rule = cssutils.parseString(rule)
             efi.append(rule)
 
@@ -334,7 +336,7 @@ class CSSFlattener(object):
             fsize = self.context.source.fbase
             self.baseline_node(body, stylizer, sizes, fsize)
         try:
-            sbase = max(sizes.items(), key=operator.itemgetter(1))[0]
+            sbase = max(list(sizes.items()), key=operator.itemgetter(1))[0]
         except:
             sbase = 12.0
         self.oeb.logger.info(
@@ -366,7 +368,7 @@ class CSSFlattener(object):
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
     def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
-        if not isinstance(node.tag, basestring) \
+        if not isinstance(node.tag, six.string_types) \
            or namespace(node.tag) != XHTML_NS:
             return
         tag = barename(node.tag)
@@ -537,7 +539,7 @@ class CSSFlattener(object):
             keep_classes = set()
 
             if cssdict:
-                items = sorted(cssdict.iteritems())
+                items = sorted(six.iteritems(cssdict))
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 # lower() because otherwise if the document uses the same class
@@ -553,8 +555,8 @@ class CSSFlattener(object):
                 node.attrib['class'] = match
                 keep_classes.add(match)
 
-            for psel, cssdict in pseudo_classes.iteritems():
-                items = sorted(cssdict.iteritems())
+            for psel, cssdict in six.iteritems(pseudo_classes):
+                items = sorted(six.iteritems(cssdict))
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 pstyles = pseudo_styles[psel]
                 if css in pstyles:
@@ -655,7 +657,7 @@ class CSSFlattener(object):
             gc_map[css] = href
 
         ans = {}
-        for css, items in global_css.iteritems():
+        for css, items in six.iteritems(global_css):
             for item in items:
                 ans[item] = gc_map[css]
         return ans
@@ -671,15 +673,15 @@ class CSSFlattener(object):
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
             self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = sorted(((key, val) for (val, key) in styles.iteritems()), key=lambda x:numeric_sort_key(x[0]))
+        items = sorted(((key, val) for (val, key) in six.iteritems(styles)), key=lambda x:numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
-        psels = sorted(pseudo_styles.iterkeys(), key=lambda x :
+        psels = sorted(six.iterkeys(pseudo_styles), key=lambda x :
                 {'hover':1, 'active':2}.get(x, 0))
         for psel in psels:
             styles = pseudo_styles[psel]
             if not styles:
                 continue
-            x = sorted(((k+':'+psel, v) for v, k in styles.iteritems()))
+            x = sorted(((k+':'+psel, v) for v, k in six.iteritems(styles)))
             items.extend(x)
 
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)

@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -151,7 +153,7 @@ class SubsetFonts(object):
             else:
                 fonts[item.href] = font
 
-        for font in fonts.itervalues():
+        for font in six.itervalues(fonts):
             if not font['chars']:
                 self.log('The font %s is unused. Removing it.'%font['src'])
                 remove(font)
@@ -170,8 +172,8 @@ class SubsetFonts(object):
                 totals[1] += sz
             else:
                 font['item'].data = raw
-                nlen = sum(new_stats.itervalues())
-                olen = sum(old_stats.itervalues())
+                nlen = sum(six.itervalues(new_stats))
+                olen = sum(six.itervalues(old_stats))
                 self.log('Decreased the font %s to %.1f%% of its original size'%
                         (font['src'], nlen/olen *100))
                 totals[0] += nlen
@@ -207,7 +209,7 @@ class SubsetFonts(object):
                 if rule.type != rule.STYLE_RULE:
                     continue
                 props = {k:v for k,v in
-                        get_font_properties(rule).iteritems() if v}
+                        six.iteritems(get_font_properties(rule)) if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:
@@ -286,10 +288,10 @@ class SubsetFonts(object):
         elif fw == 500:
             q = [500, 400, 300, 200, 100, 600, 700, 800, 900]
         elif fw < 400:
-            q = [fw] + list(xrange(fw-100, -100, -100)) + list(xrange(fw+100,
+            q = [fw] + list(range(fw-100, -100, -100)) + list(range(fw+100,
                 100, 1000))
         else:
-            q = [fw] + list(xrange(fw+100, 100, 1000)) + list(xrange(fw-100,
+            q = [fw] + list(range(fw+100, 100, 1000)) + list(range(fw-100,
                 -100, -100))
         for wt in q:
             matches = [f for f in matching_set if f['weight'] == wt]

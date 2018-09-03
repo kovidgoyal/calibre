@@ -59,11 +59,11 @@ msdes_des(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    retval = PyString_FromStringAndSize(NULL, len);
+    retval = PyBytes_FromStringAndSize(NULL, len);
     if (retval == NULL) {
         return NULL;
     }
-    outbuf = (unsigned char *)PyString_AS_STRING(retval);
+    outbuf = (unsigned char *)PyBytes_AsString(retval);
 
     for (off = 0; off < len; off += 8) {
         des((inbuf + off), (outbuf + off));
@@ -78,21 +78,33 @@ static PyMethodDef msdes_methods[] = {
     { NULL, NULL }
 };
 
-CALIBRE_MODINIT_FUNC
-initmsdes(void)
-{
-    PyObject *m;
 
-    m = Py_InitModule3("msdes", msdes_methods, msdes_doc);
-    if (m == NULL) {
-        return;
-    }
-    
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef msdes_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "msdes",
+    .m_doc = msdes_doc,
+    .m_size = -1,
+    .m_methods = msdes_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_msdes(void) {
+    PyObject *mod = PyModule_Create(&msdes_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initmsdes(void) {
+    PyObject *mod = Py_InitModule3("msdes", msdes_methods, msdes_doc);
+#endif
+
+    if (mod == NULL) INITERROR;
     MsDesError = PyErr_NewException("msdes.MsDesError", NULL, NULL);
     Py_INCREF(MsDesError);
-    PyModule_AddObject(m, "MsDesError", MsDesError);
-    PyModule_AddObject(m, "EN0", PyInt_FromLong(EN0));
-    PyModule_AddObject(m, "DE1", PyInt_FromLong(DE1));
-    
-    return;
+    PyModule_AddObject(mod, "MsDesError", MsDesError);
+    PyModule_AddObject(mod, "EN0", PyLong_FromLong(EN0));
+    PyModule_AddObject(mod, "DE1", PyLong_FromLong(DE1));
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }

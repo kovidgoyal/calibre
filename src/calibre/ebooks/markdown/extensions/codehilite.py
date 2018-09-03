@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from . import Extension
 from ..treeprocessors import Treeprocessor
+from six.moves import map
 
 try:
     from pygments import highlight

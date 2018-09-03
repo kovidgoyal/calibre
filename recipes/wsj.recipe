@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import json
 from mechanize import Request
-from urllib import quote
+from six.moves.urllib.parse import quote
 
 import html5lib
 from lxml import html

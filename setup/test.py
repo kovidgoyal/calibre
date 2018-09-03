@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import unittest
 
 from setup import Command
+from six.moves import map
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli'.split())
 

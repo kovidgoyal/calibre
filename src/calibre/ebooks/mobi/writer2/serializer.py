@@ -15,8 +15,8 @@ from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
 
 from collections import defaultdict
-from urlparse import urldefrag
-from cStringIO import StringIO
+from six.moves.urllib.parse import urldefrag
+from six.moves import StringIO
 
 
 class Serializer(object):
@@ -300,7 +300,7 @@ class Serializer(object):
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buf = self.buf
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, six.string_types) \
             or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)

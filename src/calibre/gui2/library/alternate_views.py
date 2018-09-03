@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +12,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import itertools, operator, os, math
 from types import MethodType
 from threading import Event, Thread
-from Queue import LifoQueue
+from six.moves.queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
@@ -95,14 +98,16 @@ def event_has_mods(self, event=None):
     return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
 
 
-def mousePressEvent(base_class, self, event):
-    ep = event.pos()
-    if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-            event.button() == Qt.LeftButton and not self.event_has_mods():
-        self.drag_start_pos = ep
-    if hasattr(self, 'handle_mouse_press_event'):
-        return self.handle_mouse_press_event(event)
-    return base_class.mousePressEvent(self, event)
+def mousePressEvent(cls):
+    def event_handler(self, event):
+        ep = event.pos()
+        if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
+                event.button() == Qt.LeftButton and not self.event_has_mods():
+            self.drag_start_pos = ep
+        if hasattr(self, 'handle_mouse_press_event'):
+            return self.handle_mouse_press_event(event)
+        return super(cls, self).mousePressEvent(event)
+    return event_handler
 
 
 def drag_icon(self, cover, multiple):
@@ -178,27 +183,29 @@ def drag_data(self):
     return drag
 
 
-def mouseMoveEvent(base_class, self, event):
-    if not self.drag_allowed:
-        return
-    if self.drag_start_pos is None:
-        return base_class.mouseMoveEvent(self, event)
+def mouseMoveEvent(cls):
+    def event_handler(self, event):
+        if not self.drag_allowed:
+            return
+        if self.drag_start_pos is None:
+            return super(cls, self).mouseMoveEvent(event)
 
-    if self.event_has_mods():
+        if self.event_has_mods():
+            self.drag_start_pos = None
+            return
+
+        if not (event.buttons() & Qt.LeftButton) or \
+                (event.pos() - self.drag_start_pos).manhattanLength() \
+                        < QApplication.startDragDistance():
+            return
+
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        drag = self.drag_data()
+        drag.exec_(Qt.CopyAction)
         self.drag_start_pos = None
-        return
-
-    if not (event.buttons() & Qt.LeftButton) or \
-            (event.pos() - self.drag_start_pos).manhattanLength() \
-                    < QApplication.startDragDistance():
-        return
-
-    index = self.indexAt(event.pos())
-    if not index.isValid():
-        return
-    drag = self.drag_data()
-    drag.exec_(Qt.CopyAction)
-    self.drag_start_pos = None
+    return event_handler
 
 
 def dnd_merge_ok(md):
@@ -249,15 +256,14 @@ def paths_from_event(self, event):
 def setup_dnd_interface(cls_or_self):
     if isinstance(cls_or_self, type):
         cls = cls_or_self
-        base_class = cls.__bases__[0]
         fmap = globals()
-        for x in (
+        for name in (
             'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent',
             'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
-            func = fmap[x]
-            if x in {'mouseMoveEvent', 'mousePressEvent'}:
-                func = partial(func, base_class)
-            setattr(cls, x, MethodType(func, None, cls))
+            func = fmap[name]
+            if name in {'mouseMoveEvent', 'mousePressEvent'}:
+                func = func(cls)
+            setattr(cls, name, func)
         return cls
     else:
         self = cls_or_self
@@ -326,7 +332,7 @@ class AlternateViews(object):
             view.setFocus(Qt.OtherFocusReason)
 
     def set_database(self, db, stage=0):
-        for view in self.views.itervalues():
+        for view in six.itervalues(self.views):
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
 
@@ -355,7 +361,7 @@ class AlternateViews(object):
         self.current_view.select_rows(rows)
 
     def set_context_menu(self, menu):
-        for view in self.views.itervalues():
+        for view in six.itervalues(self.views):
             if view is not self.main_view:
                 view.set_context_menu(menu)
 
@@ -739,8 +745,8 @@ class GridView(QListView):
     @property
     def first_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.top(), (self.spacing()*2) + geom.top(), 5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.top(), (self.spacing()*2) + geom.top(), 5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     return ans
@@ -748,8 +754,8 @@ class GridView(QListView):
     @property
     def last_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     item_width = self.delegate.item_size.width() + 2*self.spacing()
@@ -759,7 +765,7 @@ class GridView(QListView):
         self.ignore_render_requests.clear()
         self.update_timer.stop()
         m = self.model()
-        for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
+        for r in range(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
     def start_view_animation(self, index):
@@ -969,7 +975,7 @@ class GridView(QListView):
         # Create a range based selector for each set of contiguous rows
         # as supplying selectors for each individual row causes very poor
         # performance if a large number of rows has to be selected.
-        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+        for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
             sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
@@ -1033,7 +1039,7 @@ class GridView(QListView):
             bottom = self.model().index(max(cr, tgt), 0)
             sm.select(QItemSelection(top, bottom), sm.Select)
         else:
-            return QListView.mousePressEvent(self, ev)
+            return super(GridView, self).mousePressEvent(ev)
 
     def indices_for_merge(self, resolved=True):
         return self.selectionModel().selectedIndexes()

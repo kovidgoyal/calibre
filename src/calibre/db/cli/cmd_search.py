@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from calibre import prints
+from six.moves import map
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

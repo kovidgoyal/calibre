@@ -23,6 +23,7 @@ from ..postprocessors import Postprocessor
 from ..util import etree, text_type
 from ..odict import OrderedDict
 import re
+from six.moves import range
 
 FN_BACKLINK_TEXT = "zz1337820767766393qq"
 NBSP_PLACEHOLDER = "qq3936677670287331zz"
@@ -267,7 +268,7 @@ class FootnotePattern(Pattern):
 
     def handleMatch(self, m):
         id = m.group(2)
-        if id in self.footnotes.footnotes.keys():
+        if id in list(self.footnotes.footnotes.keys()):
             sup = etree.Element("sup")
             a = etree.SubElement(sup, "a")
             sup.set('id', self.footnotes.makeFootnoteRefId(id))

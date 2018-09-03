@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,7 +17,7 @@ from calibre.ebooks.oeb.transforms.subset import find_font_face_rules
 def obfuscate_font_data(data, key):
     prefix = bytearray(data[:32])
     key = bytearray(reversed(key.bytes))
-    prefix = bytes(bytearray(prefix[i]^key[i % len(key)] for i in xrange(len(prefix))))
+    prefix = bytes(bytearray(prefix[i]^key[i % len(key)] for i in range(len(prefix))))
     return prefix + data[32:]
 
 

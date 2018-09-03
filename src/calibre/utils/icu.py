@@ -42,10 +42,9 @@ def is_ascii(name):
 
 try:
     if is_ascii(sys.getdefaultencoding()):
-        _icu.set_default_encoding(b'utf-8')
-except:
-    import traceback
-    traceback.print_exc()
+        sys.setdefaultencoding("utf-8")
+except AttributeError:
+    pass
 
 try:
     if is_ascii(sys.getfilesystemencoding()):
@@ -68,7 +67,7 @@ def collator():
         try:
             _collator = _icu.Collator(_locale)
         except Exception as e:
-            print ('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            print(('Failed to load collator for locale: %r with error %r, using English' % (_locale, e)))
             _collator = _icu.Collator('en')
     return _collator
 
@@ -187,7 +186,7 @@ def _make_func(template, name, **kwargs):
     l = globals()
     kwargs['name'] = name
     kwargs['func'] = kwargs.get('func', 'sort_key')
-    exec template.format(**kwargs) in l
+    exec(template.format(**kwargs), l)
     return l[name]
 
 
@@ -278,7 +277,7 @@ def contractions(col=None):
     ans = _cmap.get(collator, None)
     if ans is None:
         ans = col.contractions()
-        ans = frozenset(filter(None, ans))
+        ans = frozenset([_f for _f in ans if _f])
         _cmap[col] = ans
     return ans
 

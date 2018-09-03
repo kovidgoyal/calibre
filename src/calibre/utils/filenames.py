@@ -14,6 +14,8 @@ from calibre.constants import (
     filesystem_encoding, iswindows, plugins, preferred_encoding
 )
 from calibre.utils.localization import get_udc
+import six
+from six.moves import range
 
 
 def ascii_text(orig):
@@ -23,8 +25,7 @@ def ascii_text(orig):
     except:
         if isinstance(orig, unicode):
             orig = orig.encode('ascii', 'replace')
-        ascii = orig.decode(preferred_encoding,
-                'replace').encode('ascii', 'replace')
+        ascii = orig.decode('ascii', errors='replace')
     return ascii
 
 
@@ -363,7 +364,7 @@ class WindowsAtomicFolderMove(object):
         names = os.listdir(path)
         name_to_fileid = {x:windows_get_fileid(os.path.join(path, x)) for x in names}
         fileid_to_names = defaultdict(set)
-        for name, fileid in name_to_fileid.iteritems():
+        for name, fileid in six.iteritems(name_to_fileid):
             fileid_to_names[fileid].add(name)
 
         for x in names:
@@ -413,7 +414,7 @@ class WindowsAtomicFolderMove(object):
     def copy_path_to(self, path, dest):
         import win32file
         handle = None
-        for p, h in self.handle_map.iteritems():
+        for p, h in six.iteritems(self.handle_map):
             if samefile_windows(path, p):
                 handle = h
                 break
@@ -442,26 +443,26 @@ class WindowsAtomicFolderMove(object):
     def release_file(self, path):
         ' Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path '
         key = None
-        for p, h in self.handle_map.iteritems():
+        for p, h in six.iteritems(self.handle_map):
             if samefile_windows(path, p):
                 key = (p, h)
                 break
         if key is not None:
             import win32file
             win32file.CloseHandle(key[1])
-            remove = [f for f, h in self.handle_map.iteritems() if h is key[1]]
+            remove = [f for f, h in six.iteritems(self.handle_map) if h is key[1]]
             for x in remove:
                 self.handle_map.pop(x)
 
     def close_handles(self):
         import win32file
-        for h in self.handle_map.itervalues():
+        for h in six.itervalues(self.handle_map):
             win32file.CloseHandle(h)
         self.handle_map = {}
 
     def delete_originals(self):
         import win32file
-        for path in self.handle_map.iterkeys():
+        for path in six.iterkeys(self.handle_map):
             win32file.DeleteFile(path)
         self.close_handles()
 
@@ -495,7 +496,7 @@ def atomic_rename(oldpath, newpath):
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
     or may not exist. If it exists, it is replaced. '''
     if iswindows:
-        for i in xrange(10):
+        for i in range(10):
             try:
                 rename_file(oldpath, newpath)
                 break

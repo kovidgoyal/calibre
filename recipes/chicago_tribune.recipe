@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import six
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -89,7 +90,7 @@ class ChicagoTribune(BasicNewsRecipe):
         encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
                     '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://', '0S':
                     'www.', '0I': '_', '0H': ','}
-        for k, v in encoding.iteritems():
+        for k, v in six.iteritems(encoding):
             url = url.replace(k, v)
         return url.partition('?')[0]
 

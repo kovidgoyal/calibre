@@ -1,13 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-
+from __future__ import with_statement, absolute_import, print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
+from six.moves import filter, map, getcwd
+import six
 
 from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
@@ -16,7 +17,8 @@ py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2
 
 
 def absolutize(paths):
-    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
+    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep))
+                     for x in paths]))
 
 
 class Extension(object):
@@ -37,10 +39,13 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
+            modinit_return_type = 'PyObject*' if six.PY3 else 'void'
             if self.needs_cxx:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" __attribute__ ((visibility ("default"))) void')
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" '
+                                   '__attribute__ ((visibility ("default"))) ' + modinit_return_type)
             else:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=__attribute__ ((visibility ("default"))) void')
+                self.cflags.append('-DCALIBRE_MODINIT_FUNC='
+                                   '__attribute__ ((visibility ("default"))) ' + modinit_return_type)
                 if kwargs.get('needs_c99'):
                     self.cflags.insert(0, '-std=c99')
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
@@ -72,7 +77,7 @@ def expand_file_list(items, is_paths=True):
     for item in items:
         if item.startswith('!'):
             item = lazy_load(item)
-            if isinstance(item, basestring):
+            if isinstance(item, six.string_types):
                 item = [item]
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:
@@ -90,7 +95,7 @@ def is_ext_allowed(ext):
     only = ext.get('only', '')
     if only:
         only = set(only.split())
-        q = set(filter(lambda x: globals()["is" + x], ["bsd", "freebsd", "haiku", "linux", "osx", "windows"]))
+        q = set([x for x in ["bsd", "freebsd", "haiku", "linux", "osx", "windows"] if globals()["is" + x]])
         return len(q.intersection(only)) > 0
     return True
 
@@ -161,20 +166,18 @@ def init_env():
     if islinux:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if isbsd:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if ishaiku:
         cflags.append('-lpthread')
         ldflags.append('-shared')
+
+    if islinux or isbsd or ishaiku:
         cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
+        ldflags.extend(shlex.split(sysconfig.get_config_var('BLDLIBRARY')))
 
     if isosx:
         cflags.append('-D_OSX')
@@ -246,7 +249,7 @@ class Build(Command):
             self.info('--no-compile specified, skipping compilation')
             return
         self.env = init_env()
-        extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
+        extensions = list(map(parse_extension, list(filter(is_ext_allowed, read_extensions()))))
         self.build_dir = os.path.abspath(opts.build_dir or self.DEFAULT_BUILDDIR)
         self.output_dir = os.path.abspath(opts.output_dir or self.DEFAULT_OUTPUTDIR)
         self.obj_dir = os.path.join(self.build_dir, 'objects')
@@ -343,7 +346,7 @@ class Build(Command):
             subprocess.check_call(*args, **kwargs)
         except:
             cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
-            print "Error while executing: %s\n" % (cmdline)
+            print("Error while executing: %s\n" % (cmdline))
             raise
 
     def build_headless(self):
@@ -379,8 +382,7 @@ class Build(Command):
         # LIBS as that would put -lglib-2.0 before libQt5PlatformSupport. See
         # https://bugs.archlinux.org/task/38819
 
-        pro = textwrap.dedent(
-        '''\
+        pro = textwrap.dedent('''\
             TARGET = headless
             PLUGIN_TYPE = platforms
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
@@ -477,14 +479,14 @@ class Build(Command):
             # Ensure that only the init symbol is exported
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
-                f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+                f.write(('{ global: init%s; PyInit_%s; local: *; };' % (sip['target'], sip['target'])).encode('utf-8'))
         if ext.qt_private_headers:
             qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
             pro += '\nQT += ' + qph
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
-        cwd = os.getcwdu()
+        cwd = getcwd()
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]
@@ -504,7 +506,7 @@ class Build(Command):
 
     def clean(self):
         self.output_dir = self.DEFAULT_OUTPUTDIR
-        extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
+        extensions = list(map(parse_extension, list(filter(is_ext_allowed, read_extensions()))))
         for ext in extensions:
             dest = self.dest(ext)
             for x in (dest, dest+'.manifest'):

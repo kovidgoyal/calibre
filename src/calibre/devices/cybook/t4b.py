@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2013, Jellby <jellby at yahoo.com>'
 '''
@@ -34,7 +35,7 @@ def write_t4b(t4bfile, coverdata=None):
         pxs = t4bcover.getdata()
         t4bfile.write(b't4bp')
         data = (16 * reduce_color(pxs[i]) + reduce_color(pxs[i+1])
-                          for i in xrange(0, len(pxs), 2))
+                          for i in range(0, len(pxs), 2))
         t4bfile.write(bytes(bytearray(data)))
     else:
         t4bfile.write(DEFAULT_T4B_DATA)

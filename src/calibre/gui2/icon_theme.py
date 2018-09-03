@@ -2,15 +2,17 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, httplib, bz2, shutil, sys
+import os, errno, json, importlib, math, six.moves.http_client, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
-from future_builtins import map
-from Queue import Queue, Empty
+from six.moves import map
+from six.moves.queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
@@ -189,7 +191,7 @@ def create_cover(report, icons=(), cols=5, size=120, padding=16):
 def verify_theme(report):
     must_use_qt()
     report.bad = bad = {}
-    for name, path in report.name_map.iteritems():
+    for name, path in six.iteritems(report.name_map):
         reader = QImageReader(os.path.join(report.path, path))
         img = reader.read()
         if img.isNull():
@@ -362,7 +364,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map.iterkeys()))))
+    errors = tuple([_f for _f in pool.map(optimize, tuple(six.iterkeys(report.name_map))) if _f])
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return
@@ -439,7 +441,7 @@ def download_cover(cover_url, etag=None, cached=b''):
         etag = response.getheader('ETag', None) or None
         return cached, etag
     except HTTPError as e:
-        if etag and e.code == httplib.NOT_MODIFIED:
+        if etag and e.code == six.moves.http_client.NOT_MODIFIED:
             return cached, etag
         raise
 
@@ -494,7 +496,7 @@ def get_covers(themes, callback, num_of_workers=8):
             else:
                 callback(metadata, cdata)
 
-    for w in xrange(num_of_workers):
+    for w in range(num_of_workers):
         t = Thread(name='IconThemeCover', target=run)
         t.daemon = True
         t.start()
@@ -701,7 +703,7 @@ class ChooseTheme(Dialog):
         get_covers(self.themes, self.cover_downloaded.emit)
 
     def __iter__(self):
-        for i in xrange(self.theme_list.count()):
+        for i in range(self.theme_list.count()):
             yield self.theme_list.item(i)
 
     def item_from_name(self, name):

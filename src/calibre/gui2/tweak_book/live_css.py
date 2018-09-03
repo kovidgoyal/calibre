@@ -26,7 +26,7 @@ class Heading(QWidget):  # {{{
     context_menu_requested = pyqtSignal(object, object)
 
     def __init__(self, text, expanded=True, parent=None):
-        QWidget.__init__(self, parent)
+        super(Heading).__init__(parent)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
         self.text = text
@@ -53,7 +53,7 @@ class Heading(QWidget):  # {{{
             self.toggled.emit(self)
             self.update()
         else:
-            return QWidget.mousePressEvent(self, ev)
+            return super(Heading, self).mousePressEvent(ev)
 
     @property
     def rendered_text(self):
@@ -79,12 +79,12 @@ class Heading(QWidget):  # {{{
     def enterEvent(self, ev):
         self.hovering = True
         self.update()
-        return QWidget.enterEvent(self, ev)
+        return super(Heading).enterEvent(ev)
 
     def leaveEvent(self, ev):
         self.hovering = False
         self.update()
-        return QWidget.leaveEvent(self, ev)
+        return super(Heading).leaveEvent(ev)
 
     def contextMenuEvent(self, ev):
         self.context_menu_requested.emit(self, ev)
@@ -131,7 +131,7 @@ class Declaration(QWidget):
     context_menu_requested = pyqtSignal(object, object)
 
     def __init__(self, html_name, data, is_first=False, parent=None):
-        QWidget.__init__(self, parent)
+        super(Declaration).__init__(parent)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.data = data
         self.is_first = is_first
@@ -219,14 +219,14 @@ class Declaration(QWidget):
                 if cursor != Qt.ArrowCursor:
                     break
             self.setCursor(cursor)
-        return QWidget.mouseMoveEvent(self, ev)
+        return super(Declaration).mouseMoveEvent(ev)
 
     def mousePressEvent(self, ev):
         if hasattr(self, 'hyperlink_rect') and ev.button() == Qt.LeftButton:
             pos = ev.pos()
             if self.hyperlink_rect.contains(pos):
                 self.emit_hyperlink_activated()
-        return QWidget.mousePressEvent(self, ev)
+        return super(Declaration, self).mousePressEvent(ev)
 
     def emit_hyperlink_activated(self):
         dt = self.data['type']
@@ -245,7 +245,7 @@ class Declaration(QWidget):
     def leaveEvent(self, ev):
         self.update_hover(False)
         self.setCursor(Qt.ArrowCursor)
-        return QWidget.leaveEvent(self, ev)
+        return super(Declaration).leaveEvent(ev)
 
     def update_hover(self, hovering):
         cell = self.rows[0][0]
@@ -263,7 +263,7 @@ class Box(QWidget):
     hyperlink_activated = pyqtSignal(object)
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
+        super(Box).__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setAlignment(Qt.AlignTop)
         self.setLayout(l)
@@ -380,7 +380,7 @@ class LiveCSS(QWidget):
     goto_declaration = pyqtSignal(object)
 
     def __init__(self, preview, parent=None):
-        QWidget.__init__(self, parent)
+        super(LiveCSS).__init__(parent)
         self.preview = preview
         self.preview_is_refreshing = False
         self.refresh_needed = False
@@ -535,7 +535,7 @@ class LiveCSS(QWidget):
     def showEvent(self, ev):
         self.update_timer.start()
         actions['auto-reload-preview'].setEnabled(True)
-        return QWidget.showEvent(self, ev)
+        return super(LiveCSS).showEvent(ev)
 
     def sync_to_editor(self):
         self.update_data()

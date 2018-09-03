@@ -112,7 +112,7 @@ class GN(BasicNewsRecipe):
     remove_tags = [
         dict(name='p', attrs={'class': 'l l-2 doc-source'}),
         dict(name='span', attrs={'class': 'wykop'}),
-        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl','txt__social-icons','txt__tags','fb-like fb_iframe_widget', 'jp-audio', 'jp-jplayer']}),
+        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl', 'txt__social-icons', 'txt__tags', 'fb-like fb_iframe_widget', 'jp-audio', 'jp-jplayer']}),
         dict(name='div', attrs={'id': 'vote'}),
         dict(name='a', attrs={'class': 'img_enlarge'})
     ]

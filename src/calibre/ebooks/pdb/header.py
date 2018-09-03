@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 import struct
 import time
+from six.moves import range
 
 
 class PdbHeaderReader(object):
@@ -34,7 +35,7 @@ class PdbHeaderReader(object):
         return re.sub('[^-A-Za-z0-9 ]+', '_', self.stream.read(32).replace('\x00', ''))
 
     def full_section_info(self, number):
-        if number not in range(0, self.num_sections):
+        if number not in list(range(0, self.num_sections)):
             raise ValueError('Not a valid section number %i' % number)
 
         self.stream.seek(78 + number * 8)
@@ -43,14 +44,14 @@ class PdbHeaderReader(object):
         return (offset, flags, val)
 
     def section_offset(self, number):
-        if number not in range(0, self.num_sections):
+        if number not in list(range(0, self.num_sections)):
             raise ValueError('Not a valid section number %i' % number)
 
         self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def section_data(self, number):
-        if number not in range(0, self.num_sections):
+        if number not in list(range(0, self.num_sections)):
             raise ValueError('Not a valid section number %i' % number)
 
         start = self.section_offset(number)

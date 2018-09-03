@@ -2,6 +2,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
+from six.moves import map
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -12,6 +15,7 @@ from datetime import timedelta
 
 from lxml import etree
 from lxml.builder import ElementMaker
+import six
 
 from calibre import force_unicode
 from calibre.utils.iso8601 import parse_iso8601
@@ -40,7 +44,7 @@ def serialize_recipe(urn, recipe_class):
 
     def attr(n, d):
         ans = getattr(recipe_class, n, d)
-        if isinstance(ans, str):
+        if isinstance(ans, six.unicode):
             ans = ans.decode('utf-8', 'replace')
         return ans
 
@@ -67,7 +71,7 @@ def serialize_collection(mapping_of_recipe_classes):
         if isinstance(x.title, str):
             x.title.decode('ascii')
     '''
-    for urn in sorted(mapping_of_recipe_classes.keys(),
+    for urn in sorted(list(mapping_of_recipe_classes.keys()),
             key=lambda key: force_unicode(
                 getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
                 'utf-8')):
@@ -91,7 +95,7 @@ def serialize_builtin_recipes():
             try:
                 recipe_class = compile_recipe(stream.read())
             except:
-                print ('Failed to compile: %s'%f)
+                print(('Failed to compile: %s'%f))
                 raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class
@@ -108,7 +112,7 @@ def get_custom_recipe_collection(*args):
             custom_recipes
     bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
-    for id_, x in custom_recipes.iteritems():
+    for id_, x in six.iteritems(custom_recipes):
         title, fname = x
         recipe = os.path.join(bdir, fname)
         try:
@@ -117,7 +121,7 @@ def get_custom_recipe_collection(*args):
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class
         except:
-            print 'Failed to load recipe from: %r'%fname
+            print('Failed to load recipe from: %r'%fname)
             import traceback
             traceback.print_exc()
             continue
@@ -162,12 +166,12 @@ def add_custom_recipes(script_map):
     from calibre.web.feeds.recipes import custom_recipes, \
             custom_recipe_filename
     id_ = 1000
-    keys = tuple(map(int, custom_recipes.iterkeys()))
+    keys = tuple(map(int, six.iterkeys(custom_recipes)))
     if keys:
         id_ = max(keys)+1
     bdir = os.path.dirname(custom_recipes.file_path)
     with custom_recipes:
-        for title, script in script_map.iteritems():
+        for title, script in six.iteritems(script_map):
             fid = str(id_)
 
             fname = custom_recipe_filename(fid, title)
@@ -278,7 +282,7 @@ class SchedulerConfig(object):
                 try:
                     self.root = etree.fromstring(f.read())
                 except:
-                    print 'Failed to read recipe scheduler config'
+                    print('Failed to read recipe scheduler config')
                     import traceback
                     traceback.print_exc()
         elif os.path.exists(old_conf_path):
@@ -391,7 +395,7 @@ class SchedulerConfig(object):
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
-            dw = ','.join(map(str, map(int, schedule[0])))
+            dw = ','.join(map(str, list(map(int, schedule[0]))))
             text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
         else:
             raise ValueError('Unknown schedule type: %r'%typ)

@@ -16,6 +16,8 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
+import six
+from six.moves import range
 
 
 class CreateCustomColumn(QDialog):
@@ -85,7 +87,7 @@ class CreateCustomColumn(QDialog):
             'is_multiple':True
         },
     )))
-    column_types_map = {k['datatype']:idx for idx, k in column_types.iteritems()}
+    column_types_map = {k['datatype']:idx for idx, k in six.iteritems(column_types)}
 
     def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)
@@ -142,8 +144,7 @@ class CreateCustomColumn(QDialog):
             ct = '*' + ct
         self.orig_column_number = c['colnum']
         self.orig_column_name = col
-        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x),
-                                  self.column_types))
+        column_numbers = dict([(self.column_types[x]['datatype'], x) for x in self.column_types])
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':

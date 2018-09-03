@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves.urllib.parse import urlencode
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -65,7 +67,6 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
-        from urllib import urlencode
         import json
         from collections import OrderedDict
         ans = OrderedDict()
@@ -91,11 +92,11 @@ class GoogleImages(Source):
                 continue
             if 'ou' in data:
                 ans[data['ou']] = True
-        return list(ans.iterkeys())
+        return list(six.iterkeys(ans))
 
 
 def test():
-    from Queue import Queue
+    from six.moves.queue import Queue
     from threading import Event
     from calibre.utils.logging import default_log
     p = GoogleImages(None)
@@ -103,7 +104,7 @@ def test():
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title='The Heroes',
                      authors=('Joe Abercrombie',))
-    print ('Downloaded', rq.qsize(), 'covers')
+    print(('Downloaded', rq.qsize(), 'covers'))
 
 
 if __name__ == '__main__':

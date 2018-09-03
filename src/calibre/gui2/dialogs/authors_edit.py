@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -83,7 +84,7 @@ class List(QListWidget):
             self.mark_as_editable()
 
     def mark_as_editable(self):
-        for i in xrange(self.count()):
+        for i in range(self.count()):
             item = self.item(i)
             item.setFlags(item.flags() | Qt.ItemIsEditable)
 
@@ -91,7 +92,7 @@ class List(QListWidget):
         item = self.item(i)
         q = unicode(item.text())
         remove = []
-        for j in xrange(self.count()):
+        for j in range(self.count()):
             if i != j and unicode(self.item(j).text()) == q:
                 remove.append(j)
         for x in sorted(remove, reverse=True):
@@ -176,7 +177,7 @@ class AuthorsEdit(QDialog):
     @property
     def authors(self):
         ans = []
-        for i in xrange(self.al.count()):
+        for i in range(self.al.count()):
             ans.append(unicode(self.al.item(i).text()))
         return ans or [_('Unknown')]
 
@@ -200,4 +201,4 @@ if __name__ == '__main__':
     app = QApplication([])
     d = AuthorsEdit(['kovid goyal', 'divok layog', 'other author'], ['kovid goyal', 'other author'])
     d.exec_()
-    print (d.authors)
+    print((d.authors))

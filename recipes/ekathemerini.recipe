@@ -44,9 +44,8 @@ class Ekathimerini(BasicNewsRecipe):
         idx = BeautifulStoneSoup(
             idx_contents, convertEntities=BeautifulStoneSoup.XML_ENTITIES)
 
-        cats = list(set([self.tag_to_string(subcat)
-                         for subcat in idx.findAll('subcat')]))
-        cats.sort()
+        cats = sorted({self.tag_to_string(subcat)
+                         for subcat in idx.findAll('subcat')})
 
         feeds = [(u'News', list(self.find_articles(idx, u'')))]
 

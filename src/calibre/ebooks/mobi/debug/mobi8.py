@@ -2,14 +2,15 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
+from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, struct, textwrap
-from itertools import izip
+from six.moves import zip
 
 from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.containers import ContainerHeader
@@ -36,7 +37,7 @@ class FDST(object):
         if rest:
             raise ValueError('FDST record has trailing data: '
                     '%s'%format_bytes(rest))
-        self.sections = tuple(izip(secs[::2], secs[1::2]))
+        self.sections = tuple(zip(secs[::2], secs[1::2]))
 
     def __str__(self):
         ans = ['FDST record']
@@ -256,7 +257,7 @@ class MOBIFile(object):
             desc = ['Record #%d'%i]
             for s, strand in enumerate(strands):
                 desc.append('Strand %d'%s)
-                for entries in strand.itervalues():
+                for entries in six.itervalues(strand):
                     for e in entries:
                         desc.append(
                         ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(
@@ -274,7 +275,7 @@ class MOBIFile(object):
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
-                extra = {bin(k):v for k, v in extra.iteritems()}
+                extra = {bin(k):v for k, v in six.iteritems(extra)}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
                 desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))

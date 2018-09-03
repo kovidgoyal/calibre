@@ -109,7 +109,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     else:
         with ZipFile(path, 'w', compression=ZIP_STORED) as zf:
             zf.writestr('mimetype', b'application/epub+zip', compression=ZIP_STORED)
-            zf.writestr('META-INF/', b'', 0755)
+            zf.writestr('META-INF/', b'', 0o755)
             zf.writestr('META-INF/container.xml', CONTAINER)
             zf.writestr(opf_name, opf)
             zf.writestr(html_name, HTML)
@@ -121,6 +121,6 @@ if __name__ == '__main__':
     path = sys.argv[-1]
     ext = path.rpartition('.')[-1].lower()
     if ext not in valid_empty_formats:
-        print ('Unsupported format:', ext)
+        print(('Unsupported format:', ext))
         raise SystemExit(1)
     create_book(mi, path, fmt=ext)

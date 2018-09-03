@@ -8,11 +8,10 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote_plus
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -37,7 +36,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), urllib.quote_plus(query))
+        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), quote_plus(query))
 
         br = browser()
 

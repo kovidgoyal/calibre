@@ -2,13 +2,15 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from operator import attrgetter, methodcaller
 from collections import namedtuple
-from future_builtins import map
+from six.moves import map
 from itertools import product
 from copy import copy, deepcopy
 
@@ -71,7 +73,7 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged[int].connect(self.emit_changed)
-        for key, human in sorted(choices.iteritems(), key=lambda key_human: key_human[1] or key_human[0]):
+        for key, human in sorted(six.iteritems(choices), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
         def getter(w):
@@ -102,7 +104,7 @@ class BasicSettings(QWidget):  # {{{
         widget.defaults = prefs.defaults[name]
 
         def getter(w):
-            return list(map(unicode, (w.item(i).text() for i in xrange(w.count()))))
+            return list(map(unicode, (w.item(i).text() for i in range(w.count()))))
 
         def setter(w, val):
             order_map = {x:i for i, x in enumerate(val)}
@@ -133,7 +135,7 @@ class BasicSettings(QWidget):  # {{{
                         prefs[name] = cv
 
     def restore_defaults(self):
-        for setting in self.settings.itervalues():
+        for setting in six.itervalues(self.settings):
             setting.setter(setting.widget, self.default_value(setting.name))
 
     def initial_value(self, name):
@@ -262,7 +264,7 @@ class EditorSettings(BasicSettings):
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
         s.widget.clear()
-        for key, human in sorted(choices.iteritems(), key=lambda key_human1: key_human1[1] or key_human1[0]):
+        for key, human in sorted(six.iteritems(choices), key=lambda key_human1: key_human1[1] or key_human1[0]):
             s.widget.addItem(human or key, key)
         s.setter(s.widget, current_val)
         if d.theme_name:
@@ -348,7 +350,7 @@ class PreviewSettings(BasicSettings):
             w.setCurrentFont(QFont(val))
 
         families = {'serif':_('Serif text'), 'sans':_('Sans-serif text'), 'mono':_('Monospaced text')}
-        for fam, text in families.iteritems():
+        for fam, text in six.iteritems(families):
             w = QFontComboBox(self)
             self('preview_%s_family' % fam, widget=w, getter=family_getter, setter=family_setter)
             l.addRow(_('Font family for &%s:') % text, w)
@@ -451,7 +453,7 @@ class ToolbarSettings(QWidget):
     def read_settings(self, prefs=None):
         prefs = prefs or tprefs
         val = self.original_settings = {}
-        for i in xrange(1, self.bars.count()):
+        for i in range(1, self.bars.count()):
             name = unicode(self.bars.itemData(i) or '')
             val[name] = copy(prefs[name])
         self.current_settings = deepcopy(val)
@@ -487,7 +489,7 @@ class ToolbarSettings(QWidget):
             ans.setToolTip(ac.toolTip())
             return ans
 
-        for key, ac in sorted(all_items.iteritems(), key=lambda k_ac: unicode(k_ac[1].text())):
+        for key, ac in sorted(six.iteritems(all_items), key=lambda k_ac: unicode(k_ac[1].text())):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:
@@ -591,7 +593,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.l = l = QVBoxLayout(self)
 
         self.syntaxes = s = QComboBox(self)
-        s.addItems(sorted(DEFAULT_TEMPLATES.iterkeys()))
+        s.addItems(sorted(six.iterkeys(DEFAULT_TEMPLATES)))
         s.setCurrentIndex(s.findText('html'))
         h = QHBoxLayout()
         l.addLayout(h)
@@ -723,7 +725,7 @@ class Preferences(QDialog):
         cl.setCurrentRow(0)
         cl.item(0).setSelected(True)
         w, h = cl.sizeHintForColumn(0), 0
-        for i in xrange(cl.count()):
+        for i in range(cl.count()):
             h = cl.sizeHintForRow(i)
             cl.item(i).setSizeHint(QSize(w, h))
 
@@ -743,7 +745,7 @@ class Preferences(QDialog):
         return self.toolbars_panel.changed
 
     def restore_all_defaults(self):
-        for i in xrange(self.stacks.count()):
+        for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
             w.restore_defaults()
 
@@ -767,7 +769,7 @@ class Preferences(QDialog):
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
-        for i in xrange(self.stacks.count()):
+        for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
             w.commit()
         QDialog.accept(self)

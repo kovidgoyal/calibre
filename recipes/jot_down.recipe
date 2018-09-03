@@ -38,15 +38,15 @@ class jotdown(BasicNewsRecipe):
                          ]
 
     remove_tags        = [dict(name='a', attrs={'href':['http://alternativaseconomicas.coop/']}),
-                          dict(name='div', attrs={'class':['reply','after-meta','tags_list','wp_rp_wrap  wp_rp_plain','after-meta','share_box']}),
+                          dict(name='div', attrs={'class':['reply', 'after-meta', 'tags_list', 'wp_rp_wrap  wp_rp_plain', 'after-meta', 'share_box']}),
                           dict(name='div', attrs={'align':['center']}),
-                          dict(name='span', attrs={'class':['fbreplace','says']}),
+                          dict(name='span', attrs={'class':['fbreplace', 'says']}),
                           dict(name='img', attrs={'class':['avatar avatar-60 photo']}),
                           dict(name='li', attrs={'class':['post pingback']}),
                           dict(name='div', attrs={'id':'respond'})
                          ]
 
-    remove_tags_after  = dict(name='div' , attrs={'id':'respond'})
+    remove_tags_after  = dict(name='div', attrs={'id':'respond'})
 
     preprocess_regexps = [
         # To change the small size of the text

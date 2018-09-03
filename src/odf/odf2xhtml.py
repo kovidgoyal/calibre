@@ -30,6 +30,9 @@ from opendocument import load
 from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
   FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
   SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+from six.moves import map
+import six
+from six.moves import range
 
 if False:  # Added by Kovid
     DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
@@ -879,7 +882,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         css_styles = {}
         for name in self.stylestack:
             styles = self.styledict.get(name)
-            css2 = tuple(self.cs.convert_styles(styles).iteritems())
+            css2 = tuple(six.iteritems(self.cs.convert_styles(styles)))
             if css2 in css_styles:
                 css_styles[css2].append(name)
             else:
@@ -900,7 +903,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 if k not in ignore:
                     yield k, v
 
-        for css2, names in css_styles.iteritems():
+        for css2, names in six.iteritems(css_styles):
             self.writeout("%s {\n" % ', '.join(names))
             for style, val in filter_margins(css2):
                 self.writeout("\t%s: %s;\n" % (style, val))
@@ -1192,7 +1195,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         htmlattrs = {}
         if c:
             htmlattrs['class'] = "TC-%s" % c.replace(".","_")
-        for x in xrange(repeated):
+        for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
 
@@ -1579,7 +1582,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         """
         self.lines = []
         self._wfunc = self._wlines
-        if isinstance(odffile, basestring) \
+        if isinstance(odffile, six.string_types) \
                 or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = load(odffile)
         else:

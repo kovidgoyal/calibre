@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import traceback
 # above for debugging via stack
@@ -10,6 +11,7 @@ import os
 
 from calibre.web.feeds import feeds_from_index
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
+from six.moves import range
 
 
 # To Do: strip ads and graphics, Current Column lacks a title.
@@ -82,8 +84,8 @@ class OReillyPremium(BasicNewsRecipe):
         if soup:
             printText = soup.find('a', text=printString)
         else:
-            print("Failed to find Print string " +
-                  printString + " in " + pageURL)
+            print(("Failed to find Print string " +
+                  printString + " in " + pageURL))
         if printText:
             tag = printText.parent
             tagURL = baseURL + tag['href']
@@ -99,7 +101,7 @@ class OReillyPremium(BasicNewsRecipe):
         fullReturn = []
         for i in range(len(self.catList)):
             articleList = []
-            print("In " + self.catList[i][0] + ", index: " + str(i))
+            print(("In " + self.catList[i][0] + ", index: " + str(i)))
             soup = self.index_to_soup(self.catList[i][1])
             # Set defaults
             description = 'None'
@@ -139,8 +141,8 @@ class OReillyPremium(BasicNewsRecipe):
                                            1], "Print This Article")
             if i == 1:
                 if self.debugMessages:
-                    print(self.catList[i][0] + " Title:" +
-                          title + " at url: " + url)
+                    print((self.catList[i][0] + " Title:" +
+                          title + " at url: " + url))
                 summary = div.find(True, attrs={'class': 'summary'})
                 print("At Summary")
                 print(summary)
@@ -187,11 +189,11 @@ class OReillyPremium(BasicNewsRecipe):
         #    feeds = self.parse_feeds()
         # Now add regular feeds.
         feedsRSS = self.parse_feeds()
-        print ("feedsRSS is type " + feedsRSS.__class__.__name__)
+        print(("feedsRSS is type " + feedsRSS.__class__.__name__))
 
         for articles in feedsRSS:
-            print("articles is type " + articles.__class__.__name__)
-            print("Title:" + articles.title)
+            print(("articles is type " + articles.__class__.__name__))
+            print(("Title:" + articles.title))
             feeds.append(articles)
         if not feeds:
             raise ValueError('No articles found, aborting')
@@ -287,7 +289,7 @@ class OReillyPremium(BasicNewsRecipe):
             except NoResultsPending:
                 break
         for f, feed in enumerate(feeds):
-            print("Writing feeds for " + feed.title)
+            print(("Writing feeds for " + feed.title))
             html = self.feed2index(f, feeds)
             feed_dir = os.path.join(self.output_dir, 'feed_%d' % f)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:

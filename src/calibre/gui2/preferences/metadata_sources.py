@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -117,7 +118,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         return Qt.ItemIsEditable | ans
 
     def commit(self):
-        for plugin, val in self.enabled_overrides.iteritems():
+        for plugin, val in six.iteritems(self.enabled_overrides):
             if val == Qt.Checked:
                 enable_plugin(plugin)
             elif val == Qt.Unchecked:
@@ -125,7 +126,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
         if self.cover_overrides:
             cp = msprefs['cover_priorities']
-            for plugin, val in self.cover_overrides.iteritems():
+            for plugin, val in six.iteritems(self.cover_overrides):
                 if val == 1:
                     cp.pop(plugin.name, None)
                 else:
@@ -235,7 +236,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit(self):
         ignored_fields = set([x for x in msprefs['ignore_fields'] if x not in
             self.overrides])
-        changed = set([k for k, v in self.overrides.iteritems() if v ==
+        changed = set([k for k, v in six.iteritems(self.overrides) if v ==
             Qt.Unchecked])
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
@@ -251,7 +252,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit_user_defaults(self):
         default_ignored_fields = set([x for x in msprefs['user_default_ignore_fields'] if x not in
             self.overrides])
-        changed = set([k for k, v in self.overrides.iteritems() if v ==
+        changed = set([k for k, v in six.iteritems(self.overrides) if v ==
             Qt.Unchecked])
         msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 

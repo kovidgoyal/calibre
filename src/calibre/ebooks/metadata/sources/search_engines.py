@@ -8,15 +8,15 @@ import json
 import re
 import time
 from collections import defaultdict, namedtuple
-from future_builtins import map
-from urllib import quote_plus, urlencode
-from urlparse import parse_qs
+from six.moves import map
+from six.moves.urllib.parse import quote_plus, urlencode, parse_qs
 
 from lxml import etree
 
 from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
+import six
 
 current_version = (1, 0, 1)
 minimum_calibre_version = (2, 80, 0)
@@ -42,7 +42,7 @@ def browser():
 
 
 def encode_query(**query):
-    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.iteritems()}
+    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in six.iteritems(query)}
     return urlencode(q).decode('utf-8')
 
 

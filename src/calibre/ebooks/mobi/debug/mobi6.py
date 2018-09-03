@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -305,7 +307,7 @@ class IndexEntry(object):  # {{{
         except ValueError:
             self.index = ident
         self.tags = [Tag(tag_type, vals, cncx) for tag_type, vals in
-                entry.iteritems()]
+                six.iteritems(entry)]
 
     @property
     def label(self):
@@ -401,7 +403,7 @@ class IndexRecord(object):  # {{{
 
         self.indices = []
 
-        for ident, entry in table.iteritems():
+        for ident, entry in six.iteritems(table):
             self.indices.append(IndexEntry(ident, entry, cncx))
 
     def get_parent(self, index):
@@ -472,7 +474,7 @@ class CNCX(object):  # {{{
 
     def __str__(self):
         ans = ['*'*20 + ' cncx (%d strings) '%len(self.records)+ '*'*20]
-        for k, v in self.records.iteritems():
+        for k, v in six.iteritems(self.records):
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
 
@@ -570,18 +572,18 @@ class TBSIndexing(object):  # {{{
 
     def __str__(self):
         ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
-        for r, dat in self.record_indices.iteritems():
+        for r, dat in six.iteritems(self.record_indices):
             ans += self.dump_record(r, dat)[-1]
         return '\n'.join(ans)
 
     def dump(self, bdir):
         types = defaultdict(list)
-        for r, dat in self.record_indices.iteritems():
+        for r, dat in six.iteritems(self.record_indices):
             tbs_type, strings = self.dump_record(r, dat)
             if tbs_type == 0:
                 continue
             types[tbs_type] += strings
-        for typ, strings in types.iteritems():
+        for typ, strings in six.iteritems(types):
             with open(os.path.join(bdir, 'tbs_type_%d.txt'%typ), 'wb') as f:
                 f.write('\n'.join(strings))
 
@@ -608,7 +610,7 @@ class TBSIndexing(object):  # {{{
             return bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
-            return str({bin4(k):v for k, v in extra.iteritems()})
+            return str({bin4(k):v for k, v in six.iteritems(extra)})
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
@@ -743,7 +745,7 @@ class MOBIFile(object):  # {{{
                 self.index_header.index_encoding)
             self.index_record = IndexRecord(self.records[pir+1:pir+1+numi],
                     self.index_header, self.cncx)
-            self.indexing_record_nums = set(xrange(pir,
+            self.indexing_record_nums = set(range(pir,
                 pir+1+numi+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
@@ -753,17 +755,17 @@ class MOBIFile(object):  # {{{
             self.indexing_record_nums.add(sir)
             self.secondary_index_record = IndexRecord(
                     self.records[sir+1:sir+1+numi], self.secondary_index_header, self.cncx)
-            self.indexing_record_nums |= set(xrange(sir+1, sir+1+numi))
+            self.indexing_record_nums |= set(range(sir+1, sir+1+numi))
 
         ntr = self.mobi_header.number_of_text_records
         fii = self.mobi_header.first_image_index
         self.text_records = [TextRecord(r, self.records[r],
-            self.mobi_header.extra_data_flags, mf.decompress6) for r in xrange(1,
+            self.mobi_header.extra_data_flags, mf.decompress6) for r in range(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         self.font_records = []
         image_index = 0
-        for i in xrange(self.mobi_header.first_resource_record, min(self.mobi_header.last_resource_record, len(self.records))):
+        for i in range(self.mobi_header.first_resource_record, min(self.mobi_header.last_resource_record, len(self.records))):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
                 continue
             image_index += 1

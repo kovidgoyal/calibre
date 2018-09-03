@@ -1,3 +1,4 @@
+from six.moves import range
 # -*- coding: utf-8 -*-
 #  h2a.py
 #
@@ -173,7 +174,7 @@ class H2a (object):
         Hstr = ""
         max_len = -1
         r = min(4, len(text)+1)
-        for x in xrange(r):
+        for x in range(r):
             if text[:x] in self.H2a_table:
                 if max_len < x:
                     max_len = x

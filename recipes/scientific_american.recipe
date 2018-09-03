@@ -4,6 +4,7 @@ __license__ = 'GPL v3'
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.date import now
 from css_selectors import Select
+from six.moves import filter
 
 
 def absurl(url):
@@ -57,7 +58,7 @@ class ScientificAmerican(BasicNewsRecipe):
         select = Select(root)
         for a in select('#sa_body .store-listing__img a[href]'):
             url = absurl(a.get('href'))
-            month = int(filter(None, url.split('/'))[-1].partition('-')[0])
+            month = int([_f for _f in url.split('/') if _f][-1].partition('-')[0])
             if month > now().month:
                 continue
             for source in a.xpath('descendant::source'):

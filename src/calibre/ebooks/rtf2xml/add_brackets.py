@@ -15,6 +15,7 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
+import six
 
 
 class AddBrackets:
@@ -161,7 +162,7 @@ class AddBrackets:
             self.__open_bracket = False
 
         inline_string = ''.join(['%s<nu<%s\n' % (k, v)
-                for k, v in self.__inline.iteritems()
+                for k, v in six.iteritems(self.__inline)
                     if v != 'false'])
         if inline_string:
             self.__write_obj.write('ob<nu<open-brack<0003\n'

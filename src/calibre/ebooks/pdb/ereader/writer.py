@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import re
 import struct
 import zlib
+from six.moves import range
 
 try:
     from PIL import Image
@@ -18,7 +19,7 @@ try:
 except ImportError:
     import Image
 
-import cStringIO
+from six.moves import StringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
@@ -107,7 +108,7 @@ class Writer(FormatWriter):
         index = []
         for mo in re.finditer(regex, pml):
             item = ''
-            if 'text' in mo.groupdict().keys():
+            if 'text' in list(mo.groupdict().keys()):
                 item += struct.pack('>L', mo.start())
                 text = mo.group('text')
                 # Strip all PML tags from text
@@ -115,7 +116,7 @@ class Writer(FormatWriter):
                 text = re.sub(r'\\a\d{3}', '', text)
                 text = re.sub(r'\\.', '', text)
                 # Add appropriate spacing to denote the various levels of headings
-                if 'val' in mo.groupdict().keys():
+                if 'val' in list(mo.groupdict().keys()):
                     text = '%s%s' % (' ' * 4 * int(mo.group('val')), text)
                 item += text
                 item += '\x00'
@@ -138,12 +139,12 @@ class Writer(FormatWriter):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         for item in manifest:
-            if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
+            if item.media_type in OEB_RASTER_IMAGES and item.href in list(image_hrefs.keys()):
                 try:
-                    im = Image.open(cStringIO.StringIO(item.data)).convert('P')
+                    im = Image.open(StringIO(item.data)).convert('P')
                     im.thumbnail((300,300), Image.ANTIALIAS)
 
-                    data = cStringIO.StringIO()
+                    data = StringIO()
                     im.save(data, 'PNG')
                     data = data.getvalue()
 

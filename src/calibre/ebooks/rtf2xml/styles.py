@@ -258,7 +258,7 @@ class Styles:
         self.__ignore_list = [
         'list-tebef',
             ]
-        self.__tabs_list = self.__tabs_dict.keys()
+        self.__tabs_list = list(self.__tabs_dict.keys())
         self.__tab_type = 'left'
         self.__leader_found = 0
 
@@ -286,7 +286,7 @@ class Styles:
         # have to parse border lines with external module
         elif line[0:5] == 'cw<bd':
             border_dict = self.__border_obj.parse_border(line)
-            keys = border_dict.keys()
+            keys = list(border_dict.keys())
             for key in keys:
                 self.__enter_dict_entry(key, border_dict[key])
         elif self.__token_info in self.__tabs_list:
@@ -531,7 +531,7 @@ class Styles:
         """
         types = ['par', 'char']
         for type in types:
-            keys = self.__styles_dict[type].keys()
+            keys = list(self.__styles_dict[type].keys())
             for key in keys:
                 styles = ['next-style', 'based-on-style']
                 for style in styles:
@@ -576,12 +576,12 @@ class Styles:
             self.__write_obj.write(
             'mi<tg<open______<%s-styles\n' % prefix
             )
-            style_numbers = self.__styles_dict[type].keys()
+            style_numbers = list(self.__styles_dict[type].keys())
             for num in style_numbers:
                 self.__write_obj.write(
                 'mi<tg<empty-att_<%s-style-in-table<num>%s' % (prefix, num)
                 )
-                attributes = self.__styles_dict[type][num].keys()
+                attributes = list(self.__styles_dict[type][num].keys())
                 for att in attributes:
                     this_value = self.__styles_dict[type][num][att]
                     self.__write_obj.write(

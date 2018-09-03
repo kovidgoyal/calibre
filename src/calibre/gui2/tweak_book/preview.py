@@ -9,11 +9,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, textwrap, json
 from bisect import bisect_right
 from base64 import b64encode
-from future_builtins import map
+from six.moves import map
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from functools import partial
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
@@ -321,7 +321,7 @@ class WebPage(QWebPage):
                     ans = None
                 return ans
             val = self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.line_numbers()')
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, val))))
+            self._line_numbers = sorted(uniq([x for x in map(atoi, val) if x is not None]))
         return self._line_numbers
 
     def go_to_line(self, lnum):

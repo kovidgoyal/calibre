@@ -11,6 +11,7 @@ from contextlib import closing
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from PIL import Image, ImageDraw, ImageFont
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2017, sukru alatas / alatas.org'
@@ -85,7 +86,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         if raw:
             return _raw
 
-        if not isinstance(_raw, unicode) and self.encoding:
+        if not isinstance(_raw, six.text_type) and self.encoding:
             if callable(self.encoding):
                 _raw = self.encoding(_raw)
             else:
@@ -94,7 +95,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
         from calibre.utils.cleantext import clean_xml_chars
 
-        if isinstance(_raw, unicode):
+        if isinstance(_raw, six.text_type):
             _raw = strip_encoding_declarations(_raw)
         else:
             _raw = xml_to_unicode(

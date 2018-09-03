@@ -147,7 +147,7 @@ class DevicePlugin(Plugin):
         if hasattr(self.VENDOR_ID, 'keys'):
             products = []
             for ven in self.VENDOR_ID:
-                products.extend(self.VENDOR_ID[ven].keys())
+                products.extend(list(self.VENDOR_ID[ven].keys()))
         else:
             products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
 

@@ -15,6 +15,8 @@ import operator
 import string
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
+from six.moves import map
+from six.moves import range
 
 if sys.version_info[0] < 3:
     _unicode = unicode
@@ -23,16 +25,15 @@ else:
     _unicode = str
     _unichr = chr
 
-tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
-utab = {c:c+32 for c in range(ord('A'), ord('Z')+1)}
+utab = {c:c+32 for c in list(range(ord('A'), ord('Z')+1))}
 
 def ascii_lower(string):
     """Lower-case, but only in the ASCII range."""
-    return string.translate(utab if isinstance(string, _unicode) else tab)
+    return string.translate(utab)
 
 def urepr(x):
     if isinstance(x, list):
-        return '[%s]' % ', '.join((map(urepr, x)))
+        return '[%s]' % ', '.join((list(map(urepr, x))))
     ans = repr(x)
     if ans.startswith("u'") or ans.startswith('u"'):
         ans = ans[1:]

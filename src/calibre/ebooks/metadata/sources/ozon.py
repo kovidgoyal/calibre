@@ -3,6 +3,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013 Roman Mukhin <ramses_ru at hotmail.com>'
@@ -12,7 +13,8 @@ __docformat__ = 'restructuredtext en'
 # bitcoins to 1E6CRSLY1uNstcZjLYZBHRVs1CPKbdi4ep
 
 import re
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
+from six.moves.urllib.parse import quote, quote_plus
 
 from calibre import as_unicode, replace_entities
 from calibre.ebooks.metadata import check_isbn
@@ -54,20 +56,17 @@ class Ozon(Source):
     )
 
     def get_book_url(self, identifiers):  # {{{
-        import urllib2
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
             # no affiliateId is used in search/detail
-            url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
+            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
 
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import quote_plus
-
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/?context=search&group=div_book&text='
 
@@ -114,7 +113,7 @@ class Ozon(Source):
     def identify(self, log, result_queue, abort, title=None, authors=None,
                  identifiers={}, timeout=90):  # {{{
         from calibre.ebooks.chardet import xml_to_unicode
-        from HTMLParser import HTMLParser
+        from six.moves.html_parser import HTMLParser
         from lxml import etree, html
         import json
 
@@ -201,8 +200,8 @@ class Ozon(Source):
         title = unicode(title).upper() if title else ''
         if reRemoveFromTitle:
             title = reRemoveFromTitle.sub('', title)
-        authors = map(_normalizeAuthorNameWithInitials,
-                      map(unicode.upper, map(unicode, authors))) if authors else None
+        authors = list(map(_normalizeAuthorNameWithInitials,
+                      list(map(unicode.upper, list(map(unicode, authors)))))) if authors else None
 
         ozon_id = identifiers.get('ozon', None)
         # log.debug(u'ozonid: ', ozon_id)
@@ -240,7 +239,7 @@ class Ozon(Source):
                 relevance += 1
 
             if authors:
-                miauthors = map(unicode.upper, map(unicode, mi.authors)) if mi.authors else []
+                miauthors = list(map(unicode.upper, list(map(unicode, mi.authors)))) if mi.authors else []
                 # log.debug('Authors %s vs miauthors %s'%(','.join(authors), ','.join(miauthors)))
 
                 if (in_authors(authors, miauthors)):
@@ -326,7 +325,7 @@ class Ozon(Source):
         author = unicode(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
         # log.debug(u'Author: -----> %s' % author)
 
-        norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
+        norm_authors = list(map(_normalizeAuthorNameWithInitials, list(map(unicode.strip, unicode(author).split(u',')))))
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.get('data-href').split('/')[-2]

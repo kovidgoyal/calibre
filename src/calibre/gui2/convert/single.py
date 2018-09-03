@@ -1,12 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, shutil
+import six.moves.cPickle, shutil
 
 from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
 
@@ -115,7 +117,7 @@ class Config(QDialog, Ui_Dialog):
 
     @property
     def manually_fine_tune_toc(self):
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             w = self.stack.widget(i)
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()
@@ -230,7 +232,7 @@ class Config(QDialog, Ui_Dialog):
     def recommendations(self):
         recs = [(k, v, OptionRecommendation.HIGH) for k, v in
                 self._recommendations.items()]
-        return cPickle.dumps(recs, -1)
+        return six.moves.cPickle.dumps(recs, -1)
 
     def show_group_help(self, index):
         widget = self._groups_model.widgets[index.row()]

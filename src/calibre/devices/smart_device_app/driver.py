@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
+import six
 '''
 Created on 29 Jun 2012
 
@@ -11,7 +13,7 @@ import socket, select, json, os, traceback, time, sys, random
 import posixpath
 from collections import defaultdict
 import hashlib, threading
-import Queue
+from six.moves import queue
 
 from functools import wraps
 from errno import EAGAIN, EINTR
@@ -102,7 +104,7 @@ class ConnectionListener(Thread):
                                         {'otherDevice': d.get_gui_name()})
                         self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
                         sock.close()
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass
 
             if getattr(self.driver, 'broadcast_socket', None) is not None:
@@ -147,7 +149,7 @@ class ConnectionListener(Thread):
 
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
-                        except Queue.Full:
+                        except queue.Full:
                             self._close_socket(device_socket)
                             device_socket = None
                             self.driver._debug('driver is not answering')
@@ -265,7 +267,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_CALIBRE_DEVICE_NAME': 2,
         'TOTAL_SPACE'            : 4,
     }
-    reverse_opcodes = dict([(v, k) for k,v in opcodes.iteritems()])
+    reverse_opcodes = dict([(v, k) for k,v in six.iteritems(opcodes)])
 
     MESSAGE_PASSWORD_ERROR = 1
     MESSAGE_UPDATE_NEEDED  = 2
@@ -396,7 +398,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 try:
                     if isinstance(a, dict):
                         printable = {}
-                        for k,v in a.iteritems():
+                        for k,v in six.iteritems(a):
                             if isinstance(v, (str, unicode)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
@@ -539,7 +541,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # codec to first convert it to a string dict
     def _json_encode(self, op, arg):
         res = {}
-        for k,v in arg.iteritems():
+        for k,v in six.iteritems(arg):
             if isinstance(v, (Book, Metadata)):
                 res[k] = self.json_codec.encode_book_metadata(v)
                 series = v.get('series', None)
@@ -757,7 +759,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            for b in self.device_book_cache.itervalues():
+            for b in six.itervalues(self.device_book_cache):
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue
@@ -803,7 +805,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             break
                         raw = fd.read(int(rec_len))
                         book = json.loads(raw.decode('utf-8'), object_hook=from_json)
-                        key = book.keys()[0]
+                        key = list(book.keys())[0]
                         metadata = self.json_codec.raw_to_book(book[key]['book'],
                                                             SDBook, self.PREFIX)
                         book[key]['book'] = metadata
@@ -834,7 +836,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             prefix = os.path.join(cache_dir(),
                         'wireless_device_' + self.device_uuid + '_metadata_cache')
             with lopen(prefix + '.tmp', mode='wb') as fd:
-                for key,book in self.device_book_cache.iteritems():
+                for key,book in six.iteritems(self.device_book_cache):
                     if (now_ - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
                         continue
@@ -992,7 +994,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     raise
                 except:
                     pass
-            except Queue.Empty:
+            except queue.Empty:
                 self.is_connected = False
             return self if self.is_connected else None
         return None
@@ -1320,7 +1322,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('processed cache. count=', len(books_on_device))
                 count_of_cache_items_deleted = 0
                 if self.client_cache_uses_lpaths:
-                    for lpath in tuple(self.known_metadata.iterkeys()):
+                    for lpath in tuple(six.iterkeys(self.known_metadata)):
                         if lpath not in lpaths_on_device:
                             try:
                                 uuid = self.known_metadata[lpath].get('uuid', None)
@@ -1391,7 +1393,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         coldict = {}
         if colattrs:
             collections = booklists[0].get_collections(colattrs)
-            for k,v in collections.iteritems():
+            for k,v in six.iteritems(collections):
                 lpaths = []
                 for book in v:
                     lpaths.append(book.lpath)
@@ -1968,7 +1970,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     message = 'attaching port to broadcast socket failed. This is not fatal.'
                     self._debug(message)
 
-            self.connection_queue = Queue.Queue(1)
+            self.connection_queue = queue.Queue(1)
             self.connection_listener = ConnectionListener(self)
             self.connection_listener.start()
         return message

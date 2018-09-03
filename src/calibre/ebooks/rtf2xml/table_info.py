@@ -63,7 +63,7 @@ class TableInfo:
                 if len(self.__table_data) > 0:
                     table_dict = self.__table_data[0]
                     self.__write_obj.write('mi<tg<open-att__<table')
-                    keys = table_dict.keys()
+                    keys = list(table_dict.keys())
                     for key in keys:
                         self.__write_obj.write('<%s>%s' % (key, table_dict[key]))
                     self.__write_obj.write('\n')

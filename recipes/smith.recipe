@@ -1,6 +1,7 @@
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from collections import OrderedDict
+import six
 
 
 class Smithsonian(BasicNewsRecipe):
@@ -66,5 +67,5 @@ class Smithsonian(BasicNewsRecipe):
                 self.log('\t', url)
                 articles.append(
                     {'title': title, 'url': url, 'description': desc})
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in six.iteritems(feeds)]
         return ans

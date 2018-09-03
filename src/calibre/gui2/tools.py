@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Logic for setting up conversion jobs
 '''
 
-import cPickle, os
+import six.moves.cPickle, os
 
 from PyQt5.Qt import QDialog, QProgressDialog, QTimer
 
@@ -70,7 +70,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                 desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
                         {'num':i + 1, 'total':total, 'title':dtitle}
 
-                recs = cPickle.loads(d.recommendations)
+                recs = six.moves.cPickle.loads(d.recommendations)
                 if d.opf_file is not None:
                     recs.append(('read_metadata_from_opf', d.opf_file.name,
                         OptionRecommendation.HIGH))
@@ -143,7 +143,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
         return None
 
     output_format = d.output_format
-    user_recs = cPickle.loads(d.recommendations)
+    user_recs = six.moves.cPickle.loads(d.recommendations)
 
     book_ids = convert_existing(parent, db, book_ids, output_format)
     use_saved_single_settings = d.opt_individual_saved_settings.isChecked()

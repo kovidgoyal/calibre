@@ -249,7 +249,7 @@ class Matches(QAbstractItemModel):
                 return ('<p>%s</p>' % result.formats)
             elif col == 5:
                 if result.downloads:
-                    return ('<p>' + _('The following formats can be downloaded directly: %s.') % ', '.join(result.downloads.keys()) + '</p>')
+                    return ('<p>' + _('The following formats can be downloaded directly: %s.') % ', '.join(list(result.downloads.keys())) + '</p>')
             elif col == 6:
                 if result.affiliate:
                     return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')

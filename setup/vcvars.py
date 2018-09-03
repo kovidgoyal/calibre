@@ -85,5 +85,5 @@ export WindowsSdkDir="%s"
 
 '''%(unix(paths), lib.replace('\\', r'\\'), include.replace('\\', r'\\'), libpath.replace('\\', r'\\'), sdkdir.replace('\\', r'\\'))
 
-print(raw.encode('utf-8'))
+print((raw.encode('utf-8')))
 

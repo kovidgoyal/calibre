@@ -2,6 +2,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -55,7 +58,7 @@ class FilesystemTest(BaseTest):
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             data = self.get_filesystem_data(c, 1)
-            ae(set(orig_data.iterkeys()), set(data.iterkeys()))
+            ae(set(six.iterkeys(orig_data)), set(six.iterkeys(data)))
             ae(orig_data, data, 'Filesystem data does not match')
             ae(c.field_for('path', 1), 'Moved/Moved (1)')
             ae(c.field_for('path', 3), 'Moved1/Moved1 (3)')

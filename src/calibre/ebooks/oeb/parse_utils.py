@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -64,7 +66,7 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
     for b in bodies:
         for x in b:
             body.append(x)
-    map(root.append, (head, body))
+    list(map(root.append, (head, body)))
     if log is not None:
         log.warn('Merging multiple <head> and <body> sections')
     return root
@@ -98,7 +100,7 @@ def html5_parse(data, max_nesting_depth=100):
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
-        if isinstance(x.tag, basestring) and len(x) is 0:  # Leaf node
+        if isinstance(x.tag, six.string_types) and len(x) is 0:  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
                 raise ValueError('HTML 5 parsing resulted in a tree with nesting'
@@ -147,8 +149,8 @@ def clean_word_doc(data, log):
 
 
 def ensure_namespace_prefixes(node, nsmap):
-    namespace_uris = frozenset(nsmap.itervalues())
-    fnsmap = {k:v for k, v in node.nsmap.iteritems() if v not in namespace_uris}
+    namespace_uris = frozenset(six.itervalues(nsmap))
+    fnsmap = {k:v for k, v in six.iteritems(node.nsmap) if v not in namespace_uris}
     fnsmap.update(nsmap)
     if fnsmap != dict(node.nsmap):
         node = clone_element(node, nsmap=fnsmap, in_context=False)
@@ -204,7 +206,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     val = val[1:-1]
                 user_entities[match.group(1)] = val
             if user_entities:
-                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
     if preprocessor is not None:
@@ -244,7 +246,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         for x in data.iterdescendants():
             try:
                 x.tag = x.tag.lower()
-                for key, val in list(x.attrib.iteritems()):
+                for key, val in list(six.iteritems(x.attrib)):
                     del x.attrib[key]
                     key = key.lower()
                     x.attrib[key] = val
@@ -309,7 +311,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         nroot = etree.Element(XHTML('html'),
             nsmap={None: XHTML_NS}, attrib=attrib)
         for elem in data.iterdescendants():
-            if isinstance(elem.tag, basestring) and \
+            if isinstance(elem.tag, six.string_types) and \
                 namespace(elem.tag) == ns:
                 elem.tag = XHTML(barename(elem.tag))
         for elem in data:

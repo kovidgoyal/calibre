@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, time
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from threading import Event
 
 from calibre.customize.ui import all_metadata_plugins

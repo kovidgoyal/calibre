@@ -13,7 +13,7 @@ using namespace pdf;
 static void
 dealloc(PDFOutlineItem* self)
 {
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -96,45 +96,14 @@ static PyMethodDef methods[] = {
 
 // Type definition {{{
 PyTypeObject pdf::PDFOutlineItemType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "podofo.PDFOutlineItem",   /*tp_name*/
-    sizeof(PDFOutlineItem),    /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)dealloc,       /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
-    "PDF Outline items",       /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    new_item,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "podofo.PDFOutlineItem",
+    .tp_basicsize = sizeof(PDFOutlineItem),
+    .tp_dealloc = (destructor)dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "PDF Outline items",
+    .tp_methods = methods,
+    .tp_new = new_item,
 
 };
 // }}}

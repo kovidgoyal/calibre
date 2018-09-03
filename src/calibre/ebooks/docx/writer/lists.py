@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -62,7 +63,7 @@ class NumberingDefinition(object):
         items_for_level = defaultdict(list)
         container_for_level = {}
         type_for_level = {}
-        for ilvl, items in self.level_map.iteritems():
+        for ilvl, items in six.iteritems(self.level_map):
             for container, list_tag, block, list_type, tag_style in items:
                 items_for_level[ilvl].append(list_tag)
                 container_for_level[ilvl] = container
@@ -76,7 +77,7 @@ class NumberingDefinition(object):
         return hash(self.levels)
 
     def link_blocks(self):
-        for ilvl, items in self.level_map.iteritems():
+        for ilvl, items in six.iteritems(self.level_map):
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 
@@ -148,16 +149,16 @@ class ListsManager(object):
                 ilvl = len(container_tags) - 1
                 l.level_map[ilvl].append((container_tags[0], list_tag, block, list_type, tag_style))
 
-        [nd.finalize() for nd in lists.itervalues()]
+        [nd.finalize() for nd in six.itervalues(lists)]
         definitions = {}
-        for defn in lists.itervalues():
+        for defn in six.itervalues(lists):
             try:
                 defn = definitions[defn]
             except KeyError:
                 definitions[defn] = defn
                 defn.num_id = len(definitions) - 1
             defn.link_blocks()
-        self.definitions = sorted(definitions.itervalues(), key=attrgetter('num_id'))
+        self.definitions = sorted(six.itervalues(definitions), key=attrgetter('num_id'))
 
     def serialize(self, parent):
         for defn in self.definitions:

@@ -15,6 +15,8 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
+import six
+from six.moves import range
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
@@ -65,7 +67,7 @@ def split_txt(txt, epub_split_size_kb=0):
         # Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024)) + 2))
         # if there are chunks with a superior size then go and break
-        if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
+        if (len([x for x in txt.split('\n\n') if len(x) > chunk_size])) :
             txt = '\n\n'.join([split_string_separator(line, chunk_size)
                 for line in txt.split('\n\n')])
     if isbytestring(txt):
@@ -124,7 +126,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
     m = md.Meta
-    for k, v in {'date':'pubdate', 'summary':'comments'}.iteritems():
+    for k, v in six.iteritems({'date':'pubdate', 'summary':'comments'}):
         if v not in m and k in m:
             m[v] = m.pop(k)
     for k in 'title authors series tags pubdate comments publisher rating'.split():
@@ -219,7 +221,7 @@ def split_string_separator(txt, size):
     if len(txt) > size:
         txt = ''.join([re.sub(u'\.(?P<ends>[^.]*)$', '.\n\n\g<ends>',
             txt[i:i+size], 1) for i in
-            xrange(0, len(txt), size)])
+            range(0, len(txt), size)])
     return txt
 
 

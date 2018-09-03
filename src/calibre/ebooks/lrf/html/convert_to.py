@@ -1,3 +1,5 @@
+from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os
@@ -78,7 +80,7 @@ class LRFConverter(object):
         for obj in self.lrf.objects.values():
             if isinstance(obj, TextAttr):
                 self.text_css += str(TextStyle(obj))
-        print self.text_css
+        print(self.text_css)
 
     def create_styles(self):
         self.logger.info('Creating CSS stylesheet...')
@@ -100,7 +102,7 @@ def process_file(lrfpath, opts, logger=None):
         logger = logging.getLogger('lrf2html')
         setup_cli_handlers(logger, level)
     if opts.out is None:
-        opts.out = os.getcwdu()
+        opts.out = getcwd()
     else:
         opts.out = os.path.abspath(opts.out)
         if not os.path.isdir(opts.out):

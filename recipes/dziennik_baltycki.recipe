@@ -17,7 +17,7 @@ class DziennikBaltycki(BasicNewsRecipe):
     keep_only_tags = [dict(name='section', attrs={'class': 'zajawka'}),
         dict(name='section', attrs={'id': 'tresc'})
 ]
-    remove_tags = [dict(name='div', attrs={'class':['materialyZKategorii','materialyPodobne']}), dict(name='a', attrs={
+    remove_tags = [dict(name='div', attrs={'class':['materialyZKategorii', 'materialyPodobne']}), dict(name='a', attrs={
         'class': 'czytajDalej'}), dict(attrs={'src': 'http://nm.dz.com.pl/dz.png'})]
 
     feeds = [

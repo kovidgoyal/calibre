@@ -2,6 +2,10 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
+from six.moves import getcwd
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,7 +17,7 @@ DEBUG_DIALOG = False
 import os, time
 from threading import Thread, Event
 from operator import attrgetter
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from io import BytesIO
 
 from PyQt5.Qt import (
@@ -423,7 +427,7 @@ class IdentifyWorker(Thread):  # {{{
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
                 self.results, covers, caches, log_dump = res['result']
-                self.results = [OPF(BytesIO(r), basedir=os.getcwdu(),
+                self.results = [OPF(BytesIO(r), basedir=getcwd(),
                     populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
                     r.has_cached_cover_url = cov
@@ -508,7 +512,7 @@ class IdentifyWidget(QWidget):  # {{{
             parts.append('authors:'+authors_to_string(authors))
             simple_desc += _('Authors: %s ') % authors_to_string(authors)
         if identifiers:
-            x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
+            x = ', '.join('%s:%s'%(k, v) for k, v in six.iteritems(identifiers))
             parts.append(x)
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: %s' % identifiers['isbn']
@@ -688,7 +692,7 @@ class CoversModel(QAbstractListModel):  # {{{
 
     def plugin_for_index(self, index):
         row = index.row() if hasattr(index, 'row') else index
-        for k, v in self.plugin_map.iteritems():
+        for k, v in six.iteritems(self.plugin_map):
             if row in v:
                 return k
 
@@ -703,7 +707,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return 1
             return pmap.width()*pmap.height()
         dcovers = sorted(self.covers[1:], key=keygen, reverse=True)
-        cmap = {i:self.plugin_for_index(i) for i in xrange(len(self.covers))}
+        cmap = {i:self.plugin_for_index(i) for i in range(len(self.covers))}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
@@ -749,8 +753,8 @@ class CoversModel(QAbstractListModel):  # {{{
             if pmap.isNull():
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
-            for rows in self.plugin_map.itervalues():
-                for i in xrange(len(rows)):
+            for rows in six.itervalues(self.plugin_map):
+                for i in range(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1
             self.plugin_map[plugin].insert(-1, last_row)
@@ -759,7 +763,7 @@ class CoversModel(QAbstractListModel):  # {{{
         else:
             # single cover plugin
             idx = None
-            for plugin, rows in self.plugin_map.iteritems():
+            for plugin, rows in six.iteritems(self.plugin_map):
                 if plugin.name == plugin_name:
                     idx = rows[0]
                     break

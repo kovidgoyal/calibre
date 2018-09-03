@@ -62,7 +62,7 @@ def handle_private_entities(data):
                 user_entities[match.group(1)] = val
             if user_entities:
                 data = ('\n' * num_of_nl_in_pre) + data[idx:]
-                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
     return data
 
@@ -106,5 +106,5 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
 if __name__ == '__main__':
     from lxml import etree
     root = parse_html5('\n<html><head><title>a\n</title><p b=1 c=2 a=0>&nbsp;\n<b>b<svg ass="wipe" viewbox="0">', discard_namespaces=False)
-    print (etree.tostring(root, encoding='utf-8'))
+    print((etree.tostring(root, encoding='utf-8')))
     print()

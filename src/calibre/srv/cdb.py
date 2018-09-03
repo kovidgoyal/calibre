@@ -19,6 +19,8 @@ from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
+from six.moves import map
+import six
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -140,7 +142,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             data = json_loads(raw)
         else:
             raise HTTPBadRequest('Only JSON or msgpack requests are supported')
-        changes, loaded_book_ids = data['changes'], frozenset(map(int, data['loaded_book_ids']))
+        changes, loaded_book_ids = data['changes'], frozenset(list(map(int, data['loaded_book_ids'])))
     except Exception:
         raise HTTPBadRequest('Invalid encoded data')
     dirtied = set()
@@ -159,7 +161,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
                 raise HTTPBadRequest('Cover data must be either JPEG or PNG')
         dirtied |= db.set_cover({book_id: cdata})
 
-    for field, value in changes.iteritems():
+    for field, value in six.iteritems(changes):
         dirtied |= db.set_field(field, {book_id: value})
     ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     return {bid: book_as_json(db, book_id) for bid in (dirtied & loaded_book_ids) | {book_id}}

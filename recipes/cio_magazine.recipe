@@ -3,6 +3,7 @@
 # Editar con Notepad++ Si pone - donde no debe es que ha indentado mal... Edit - Blank operations - tab to space
 # He entendido lo que significa el from... son paths dentro de pylib.zip...
 # Con from importa solo un simbolo...con import,la libreria completa
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 # sys no hace falta... lo intente usar para escribir en stderr
 from calibre import strftime
@@ -87,7 +88,7 @@ class CIO_Magazine(BasicNewsRecipe):
         if INDEX.startswith('/'):  # protegiendonos de que dejen de usarlos
             INDEX = 'http://www.cio.com' + INDEX
         # Y nos aseguramos en los logs que lo estamos haciendo bien
-        print ("INDEX en parse_index: ", INDEX)
+        print(("INDEX en parse_index: ", INDEX))
 
     # Ya sabemos cual es la revista... procesemosla.
         soup = self.index_to_soup(INDEX)
@@ -103,7 +104,7 @@ class CIO_Magazine(BasicNewsRecipe):
 
             if div['class'] == 'heading':
                 key = string.capwords(self.tag_to_string(div.span))
-                print ("Key: ", key)  # Esto es para depurar
+                print(("Key: ", key))  # Esto es para depurar
                 articles[key] = []
                 feeds.append(key)
 
@@ -112,7 +113,7 @@ class CIO_Magazine(BasicNewsRecipe):
                 if not a:
                     continue
                 url = re.sub(r'\?.*', '', a['href'])
-                print("url: ", url)  # Esto es para depurar
+                print(("url: ", url))  # Esto es para depurar
                 # Ya para nota, quitar al final las dos ultimas palabras
                 title = self.tag_to_string(a, use_alt=True).strip()
                 # No es la fecha de publicacion sino la de colecta
@@ -126,7 +127,7 @@ class CIO_Magazine(BasicNewsRecipe):
 
                 if summary:
                     description = self.tag_to_string(summary, use_alt=False)
-                    print ("Description = ", description)
+                    print(("Description = ", description))
 
                 # Esto esta copiado del NY times
                 feed = key if key is not None else 'Uncategorized'

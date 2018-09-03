@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from six.moves.urllib.parse import quote_plus
+from lxml import html
+
 from calibre.ebooks.metadata.sources.base import Source, Option
 
 
 def get_urls(br, tokens):
-    from urllib import quote_plus
     from mechanize import Request
-    from lxml import html
     escaped = [quote_plus(x.encode('utf-8')) for x in tokens if x and x.strip()]
     q = b'+'.join(escaped)
     url = 'http://bigbooksearch.com/books/'+q

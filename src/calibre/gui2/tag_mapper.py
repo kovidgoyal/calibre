@@ -20,6 +20,8 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
+import six
+from six.moves import range
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -84,14 +86,14 @@ class RuleEdit(QWidget):
         l.addLayout(h)
         self.action = a = QComboBox(self)
         h.addWidget(a)
-        for action, text in self.ACTION_MAP.iteritems():
+        for action, text in six.iteritems(self.ACTION_MAP):
             a.addItem(text, action)
         a.currentIndexChanged.connect(self.update_state)
         self.la1 = la = QLabel('\xa0' + self.SUBJECT + '\xa0')
         h.addWidget(la)
         self.match_type = q = QComboBox(self)
         h.addWidget(q)
-        for action, text in self.MATCH_TYPE_MAP.iteritems():
+        for action, text in six.iteritems(self.MATCH_TYPE_MAP):
             q.addItem(text, action)
         q.currentIndexChanged.connect(self.update_state)
         self.la2 = la = QLabel(':\xa0')
@@ -153,7 +155,7 @@ class RuleEdit(QWidget):
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
-        d = TagEditor(self, get_gui().current_db, current_tags=filter(None, [x.strip() for x in self.query.text().split(',')]))
+        d = TagEditor(self, get_gui().current_db, current_tags=[_f for _f in [x.strip() for x in self.query.text().split(',')] if _f])
         if d.exec_() == d.Accepted:
             self.query.setText(', '.join(d.tags))
 
@@ -367,7 +369,7 @@ class Rules(QWidget):
     @property
     def rules(self):
         ans = []
-        for r in xrange(self.rule_list.count()):
+        for r in range(self.rule_list.count()):
             ans.append(self.rule_list.item(r).data(DATA_ROLE))
         return ans
 
@@ -451,13 +453,13 @@ class SaveLoadMixin(object):
     def build_load_menu(self):
         self.load_menu.clear()
         if len(self.PREFS_OBJECT):
-            for name, rules in self.PREFS_OBJECT.iteritems():
+            for name, rules in six.iteritems(self.PREFS_OBJECT):
                 ac = self.load_menu.addAction(name)
                 ac.setObjectName(name)
                 connect_lambda(ac.triggered, self, lambda self: self.load_ruleset(self.sender().objectName()))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
-            for name, rules in self.PREFS_OBJECT.iteritems():
+            for name, rules in six.iteritems(self.PREFS_OBJECT):
                 ac = m.addAction(name)
                 ac.setObjectName(name)
                 connect_lambda(ac.triggered, self, lambda self: self.delete_ruleset(self.sender().objectName()))

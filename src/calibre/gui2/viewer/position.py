@@ -53,7 +53,7 @@ class PagePosition(object):
             if jid in self.pending_scrolls:
                 self.pending_scrolls.discard(jid)
                 if DEBUG:
-                    print ('jump_to_cfi() failed to complete after %s seconds' % WAIT)
+                    print(('jump_to_cfi() failed to complete after %s seconds' % WAIT))
 
     @property
     def current_pos(self):

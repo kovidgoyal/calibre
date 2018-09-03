@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -129,7 +131,7 @@ class ToCEditAction(InterfaceAction):
         return self.get_supported_books(ans)
 
     def do_edit(self, book_id_map):
-        for book_id, fmts in book_id_map.iteritems():
+        for book_id, fmts in six.iteritems(book_id_map):
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
                 if d.exec_() != d.Accepted:

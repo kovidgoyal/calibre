@@ -8,12 +8,11 @@ __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -46,7 +45,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=12, timeout=60):
-        url = 'http://virtualo.pl/?q=' + urllib.quote(query)
+        url = 'http://virtualo.pl/?q=' + urlquote(query)
 
         br = browser()
         no_drm_pattern = re.compile(r'Watermark|Brak')

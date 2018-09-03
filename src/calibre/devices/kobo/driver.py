@@ -2,6 +2,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import division
 
+from __future__ import print_function
+from six.moves import zip
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
@@ -392,7 +395,7 @@ class KOBO(USBMS):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -646,7 +649,7 @@ class KOBO(USBMS):
         path = ContentID
 
         if oncard == 'cardb':
-            print 'path from_contentid cardb'
+            print('path from_contentid cardb')
         elif oncard == 'carda':
             path = path.replace("file:///mnt/sd/", self._card_a_prefix)
             # print "SD Card: " + path
@@ -884,13 +887,13 @@ class KOBO(USBMS):
 
                             ContentID = self.contentid_from_path(book.path, ContentType)
 
-                            if category in readstatuslist.keys():
+                            if category in list(readstatuslist.keys()):
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, ContentID, readstatuslist.get(category))
                             elif category == 'Shortlist' and self.dbversion >= 14:
                                 # Manage FavouritesIndex/Shortlist
                                 self.set_favouritesindex(connection, ContentID)
-                            elif category in accessibilitylist.keys():
+                            elif category in list(accessibilitylist.keys()):
                                 # Do not manage the Accessibility List
                                 pass
             else:  # No collections
@@ -1170,7 +1173,7 @@ class KOBO(USBMS):
 
     def generate_annotation_html(self, bookmark):
         import calendar
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+        from bs4 import BeautifulSoup, Tag
         # Returns <div class="user_annotations"> ... </div>
         # last_read_location = bookmark.last_read_location
         # timestamp = bookmark.timestamp
@@ -1277,7 +1280,7 @@ class KOBO(USBMS):
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
-        from calibre.ebooks.BeautifulSoup import Tag
+        from bs4 import Tag
         bm = annotation
         ignore_tags = set(['Catalog', 'Clippings'])
 
@@ -1896,7 +1899,7 @@ class KOBOTOUCH(KOBO):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))) or not bl[idx].contentID:
                     need_sync = True
@@ -1929,7 +1932,7 @@ class KOBOTOUCH(KOBO):
             return super(KOBOTOUCH, self).path_from_contentid(ContentID, ContentType, MimeType, oncard)
 
         if oncard == 'cardb':
-            print 'path from_contentid cardb'
+            print('path from_contentid cardb')
         else:
             if (ContentType == "6" or ContentType == "10"):  # and MimeType == 'application/x-kobo-epub+zip':
                 if path.startswith("file:///mnt/onboard/"):
@@ -2070,7 +2073,7 @@ class KOBOTOUCH(KOBO):
         from calibre.ebooks.oeb.base import OEB_STYLES
 
         is_dirty = False
-        for cssname, mt in container.mime_map.iteritems():
+        for cssname, mt in six.iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 newsheet = container.parsed(cssname)
                 oldrules = len(newsheet.cssRules)
@@ -2373,7 +2376,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('        Setting bookshelf on device')
                                     self.set_bookshelf(connection, book, category)
                                     category_added = True
-                            elif category in readstatuslist.keys():
+                            elif category in list(readstatuslist.keys()):
                                 debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
@@ -2388,7 +2391,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('            and about to set it - %s'%book.title)
                                     self.set_favouritesindex(connection, book.contentID)
                                     category_added = True
-                            elif category in accessibilitylist.keys():
+                            elif category in list(accessibilitylist.keys()):
                                 # Do not manage the Accessibility List
                                 pass
 
@@ -3298,14 +3301,14 @@ class KOBOTOUCH(KOBO):
             # a string, so looking for that.
             start_subclass_extra_options = OPT_MODIFY_CSS
             debugging_title = ''
-            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], basestring):
+            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], six.string_types):
                 debug_print("KoboTouch::migrate_old_settings - Don't have update_series option")
                 settings.update_series = config.get_option('update_series').default
                 settings.modify_css = config.get_option('modify_css').default
                 settings.support_newer_firmware = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
                 debugging_title = settings.extra_customization[OPT_MODIFY_CSS]
                 start_subclass_extra_options = OPT_MODIFY_CSS + 1
-            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], basestring):
+            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], six.string_types):
                 debug_print("KoboTouch::migrate_old_settings - Don't have modify_css option")
                 settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
                 settings.modify_css = config.get_option('modify_css').default
@@ -3320,7 +3323,7 @@ class KOBOTOUCH(KOBO):
                 debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
                 start_subclass_extra_options = OPT_DEBUGGING_TITLE + 1
 
-            settings.debugging_title = debugging_title if isinstance(debugging_title, basestring) else ''
+            settings.debugging_title = debugging_title if isinstance(debugging_title, six.string_types) else ''
             settings.update_device_metadata = settings.update_series
             settings.extra_customization = settings.extra_customization[start_subclass_extra_options:]
 
@@ -3399,6 +3402,6 @@ if __name__ == '__main__':
         dev.set_progress_reporter(prints)
 #         dev.open(cd, None)
 #         dev.filesystem_cache.dump()
-        print ('Prefix for main memory:', dev.dbversion)
+        print(('Prefix for main memory:', dev.dbversion))
     finally:
         dev.shutdown()

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -52,7 +53,7 @@ class TestRouter(BaseTest):
         router = Router()
 
         def find(path):
-            path = filter(None, path.split('/'))
+            path = [_f for _f in path.split('/') if _f]
             ep, args = router.find_route(path)
             args = list(args)
             return ep, args
@@ -85,7 +86,7 @@ class TestRouter(BaseTest):
         def get(ctx, dest, a, b):
             pass
 
-        for x in locals().itervalues():
+        for x in six.itervalues(locals()):
             if getattr(x, 'is_endpoint', False):
                 router.add(x)
         router.finalize()

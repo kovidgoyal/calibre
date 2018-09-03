@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -157,7 +159,7 @@ class TagBrowserMixin(object):  # {{{
             category_name = category_name[1:]
         db = self.library_view.model().db
         user_cats = db.prefs.get('user_categories', {})
-        cat_keys = sorted(user_cats.keys(), key=sort_key)
+        cat_keys = sorted(list(user_cats.keys()), key=sort_key)
         has_children = False
         found = False
         for k in cat_keys:

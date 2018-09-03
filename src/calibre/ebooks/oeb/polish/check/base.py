@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +13,7 @@ from contextlib import closing
 
 from calibre import detect_ncpus as cpu_count
 
-DEBUG, INFO, WARN, ERROR, CRITICAL = xrange(5)
+DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 
 
 class BaseError(object):

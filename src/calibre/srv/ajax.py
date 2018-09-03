@@ -2,12 +2,14 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from future_builtins import zip
+from six.moves import zip
 from itertools import cycle
 
 from calibre import force_unicode
@@ -77,13 +79,13 @@ def book_to_json(ctx, rd, db, book_id,
 
     if not device_compatible:
         mi.format_metadata = {k.lower():dict(v) for k, v in
-                mi.format_metadata.iteritems()}
-        for v in mi.format_metadata.itervalues():
+                six.iteritems(mi.format_metadata)}
+        for v in six.itervalues(mi.format_metadata):
             mtime = v.get('mtime', None)
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
+        fmts = set(x.lower() for x in six.iterkeys(mi.format_metadata))
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:
@@ -107,7 +109,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, basestring):
+                    if isinstance(categories, six.string_types):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:
@@ -280,7 +282,7 @@ def categories(ctx, rd, library_id):
             ans[url] = (display_name, icon)
 
         ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
-                for k, v in ans.iteritems()]
+                for k, v in six.iteritems(ans)]
         ans.sort(key=lambda x: sort_key(x['name']))
         for name, url, icon in [
                 (_('All books'), 'allbooks', 'book.png'),
@@ -473,7 +475,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         try:
-            dname, ditem = map(decode_name, (encoded_category, encoded_item))
+            dname, ditem = list(map(decode_name, (encoded_category, encoded_item)))
         except:
             raise HTTPNotFound('Invalid encoded param: %r (%r)' % (encoded_category, encoded_item))
         num, offset = get_pagination(rd.query)

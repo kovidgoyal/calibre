@@ -2,7 +2,7 @@
 #  jisyo.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>
-import cPickle, marshal
+import six.moves.cPickle, marshal
 from zlib import decompress
 
 
@@ -22,13 +22,13 @@ class jisyo (object):
 
     def __init__(self):
         if self.kanwadict is None:
-            self.kanwadict = cPickle.loads(
+            self.kanwadict = six.moves.cPickle.loads(
                 P('localization/pykakasi/kanwadict2.pickle', data=True))
         if self.itaijidict is None:
-            self.itaijidict = cPickle.loads(
+            self.itaijidict = six.moves.cPickle.loads(
                 P('localization/pykakasi/itaijidict2.pickle', data=True))
         if self.kanadict is None:
-            self.kanadict = cPickle.loads(
+            self.kanadict = six.moves.cPickle.loads(
                 P('localization/pykakasi/kanadict2.pickle', data=True))
 
     def load_jisyo(self, char):

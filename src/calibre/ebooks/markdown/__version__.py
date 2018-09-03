@@ -1,3 +1,4 @@
+from six.moves import map
 #
 # markdown/__version__.py
 #

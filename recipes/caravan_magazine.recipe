@@ -5,6 +5,7 @@ from lxml import etree
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+import six
 
 
 class CaravanMagazine(BasicNewsRecipe):
@@ -33,7 +34,7 @@ class CaravanMagazine(BasicNewsRecipe):
             namespaceHTMLElements=False)
         for s in root.xpath('//script'):
             s.getparent().remove(s)
-        return etree.tostring(root, encoding=unicode)
+        return etree.tostring(root, encoding=six.text_type)
 
     def preprocess_html(self, soup):
         # Handle the image carousel

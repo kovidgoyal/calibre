@@ -1,13 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import itertools, operator
 from functools import partial
-from future_builtins import map
+from six.moves import map
 from collections import OrderedDict
 
 from PyQt5.Qt import (
@@ -193,7 +196,7 @@ class PreserveViewState(object):  # {{{
                 'vscroll', 'hscroll')}
 
         def fset(self, state):
-            for k, v in state.iteritems():
+            for k, v in six.iteritems(state):
                 setattr(self, k, v)
             self.__exit__()
         return property(fget=fget, fset=fset)
@@ -444,13 +447,13 @@ class BooksView(QTableView):  # {{{
                 if len(rows) > 1:
                     act.setEnabled(False)
 
-        hidden_cols = {self.column_map[i]: i for i in range(view.column_header.count())
+        hidden_cols = {self.column_map[i]: i for i in list(range(view.column_header.count()))
                        if view.column_header.isSectionHidden(i) and self.column_map[i] not in ('ondevice', 'inlibrary')}
 
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            hcols = [(hcol, unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in hidden_cols.iteritems()]
+            hcols = [(hcol, unicode(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in six.iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
@@ -556,7 +559,7 @@ class BooksView(QTableView):  # {{{
                 return
 
         for n,d in reversed(fields):
-            if n in self._model.db.field_metadata.keys():
+            if n in list(self._model.db.field_metadata.keys()):
                 sh.insert(0, (n, d))
         sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]
@@ -665,7 +668,7 @@ class BooksView(QTableView):  # {{{
         # Because of a bug in Qt 5 we have to ensure that the header is actually
         # relaid out by changing this value, without this sometimes ghost
         # columns remain visible when changing libraries
-        for i in xrange(h.count()):
+        for i in range(h.count()):
             val = h.isSectionHidden(i)
             h.setSectionHidden(i, not val)
             h.setSectionHidden(i, val)
@@ -944,7 +947,7 @@ class BooksView(QTableView):  # {{{
     @property
     def visible_columns(self):
         h = self.horizontalHeader()
-        logical_indices = (x for x in xrange(h.count()) if not h.isSectionHidden(x))
+        logical_indices = (x for x in range(h.count()) if not h.isSectionHidden(x))
         rmap = {i:x for i, x in enumerate(self.column_map)}
         return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
@@ -1008,7 +1011,7 @@ class BooksView(QTableView):  # {{{
                     h.visualIndex(x) > -1]
             if not pairs:
                 pairs = [(0, 0)]
-            pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
+            pairs.sort(key=lambda x: x[1])
             i = pairs[0][0]
             index = self.model().index(row, i)
             if for_sync:
@@ -1085,7 +1088,7 @@ class BooksView(QTableView):  # {{{
         row_map = OrderedDict()
         ids = frozenset(ids)
         m = self.model()
-        for row in xrange(m.rowCount(QModelIndex())):
+        for row in range(m.rowCount(QModelIndex())):
             if len(row_map) >= len(ids):
                 break
             c = m.id(row)
@@ -1105,7 +1108,7 @@ class BooksView(QTableView):  # {{{
             rows = set([])
             identifiers = set(identifiers)
             m = self.model()
-            for row in xrange(m.rowCount(QModelIndex())):
+            for row in range(m.rowCount(QModelIndex())):
                 if m.id(row) in identifiers:
                     rows.add(row)
         rows = list(sorted(rows))
@@ -1122,7 +1125,7 @@ class BooksView(QTableView):  # {{{
         # Create a range based selector for each set of contiguous rows
         # as supplying selectors for each individual row causes very poor
         # performance if a large number of rows has to be selected.
-        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+        for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
             sel.merge(QItemSelection(m.index(min(group), 0),
                 m.index(max(group), max_col)), sm.Select)
@@ -1151,7 +1154,7 @@ class BooksView(QTableView):  # {{{
             if val is None:
                 return
             m = self.model()
-            for row in xrange(m.rowCount(QModelIndex())):
+            for row in range(m.rowCount(QModelIndex())):
                 if m.id(row) == val:
                     self.set_current_row(row, select=False)
                     break
@@ -1170,7 +1173,7 @@ class BooksView(QTableView):  # {{{
             i.isValid()])
         column = ci.column()
 
-        for i in xrange(ci.row()+1, self.row_count()):
+        for i in range(ci.row()+1, self.row_count()):
             if i in selected_rows:
                 continue
             try:
@@ -1179,7 +1182,7 @@ class BooksView(QTableView):  # {{{
                 pass
 
         # No unselected rows after the current row, look before
-        for i in xrange(ci.row()-1, -1, -1):
+        for i in range(ci.row()-1, -1, -1):
             if i in selected_rows:
                 continue
             try:

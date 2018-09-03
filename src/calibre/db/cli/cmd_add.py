@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added
 from calibre.utils.localization import canonicalize_lang
+from six.moves import map
 
 readonly = False
 version = 0  # change this if you change signature of implementation()

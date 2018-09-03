@@ -18,6 +18,7 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
+from six.moves import range
 
 
 class HeaderRecord(object):
@@ -98,7 +99,7 @@ class Reader132(FormatReader):
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
         '''
-        if number not in range(1, self.header_record.num_text_pages + 1):
+        if number not in list(range(1, self.header_record.num_text_pages + 1)):
             return ''
 
         return self.decompress_text(number)

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import math, json
 from base64 import b64encode
 from functools import partial
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, QPainter, QPalette, QBrush,
@@ -33,6 +33,8 @@ from calibre.gui2.viewer.footnote import Footnotes
 from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
+import six
+from six.moves import range
 # }}}
 
 
@@ -259,7 +261,7 @@ class Document(QWebPage):  # {{{
         if not isinstance(self.anchor_positions, dict):
             # Some weird javascript error happened
             self.anchor_positions = {}
-        return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
+        return {k:tuple(v) for k, v in six.iteritems(self.anchor_positions)}
 
     def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:
@@ -1169,12 +1171,12 @@ class DocumentView(QWebView):  # {{{
         old_pos = (self.document.xpos if self.document.in_paged_mode else
                 self.document.ypos)
         if self.document.in_paged_mode:
-            if isinstance(pos, basestring):
+            if isinstance(pos, six.string_types):
                 self.document.jump_to_anchor(pos)
             else:
                 self.document.scroll_fraction = pos
         else:
-            if isinstance(pos, basestring):
+            if isinstance(pos, six.string_types):
                 self.document.jump_to_anchor(pos)
             else:
                 if pos >= 1:

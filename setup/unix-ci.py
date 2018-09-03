@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 from tempfile import NamedTemporaryFile
+from six.moves import range
 
 _plat = sys.platform.lower()
 isosx = 'darwin' in _plat

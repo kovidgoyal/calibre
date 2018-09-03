@@ -16,6 +16,7 @@ from calibre import prepare_string_for_xml
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.txt.processor import opf_writer, HTML_TEMPLATE
+from six.moves import range
 
 BPDB_IDENT = b'BOOKMTIT'
 UPDB_IDENT = b'BOOKMTIU'
@@ -62,9 +63,7 @@ class LegacyHeaderRecord(object):
         fields = raw.lstrip().replace(b'\x1b\x1b\x1b', b'\x1b').split(b'\x1b')
         self.title = fix_punct(fields[0].decode('cp950', 'replace'))
         self.num_records = int(fields[1])
-        self.chapter_titles = map(
-            lambda x: fix_punct(x.decode('cp950', 'replace').rstrip(b'\x00')),
-            fields[2:])
+        self.chapter_titles = [fix_punct(x.decode('cp950', 'replace').rstrip(b'\x00')) for x in fields[2:]]
 
 
 class UnicodeHeaderRecord(object):
@@ -74,9 +73,7 @@ class UnicodeHeaderRecord(object):
                 b'\x1b\x00').split(b'\x1b\x00')
         self.title = fix_punct(fields[0].decode('utf_16_le', 'ignore'))
         self.num_records = int(fields[1])
-        self.chapter_titles = map(
-            lambda x: fix_punct(x.decode('utf_16_le', 'replace').rstrip(b'\x00')),
-            fields[2].split(b'\r\x00\n\x00'))
+        self.chapter_titles = [fix_punct(x.decode('utf_16_le', 'replace').rstrip(b'\x00')) for x in fields[2].split(b'\r\x00\n\x00')]
 
 
 class Reader(FormatReader):

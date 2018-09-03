@@ -23,7 +23,7 @@ from __future__ import division
 
 import zipfile, re
 import xml.sax.saxutils
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from odf.namespaces import OFFICENS, DCNS, METANS
 from odf.opendocument import load as odLoad
@@ -125,7 +125,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         if name == (OFFICENS,u'meta'):
             for k,v in self.addfields.items():
                 if len(v) > 0:
-                    if isinstance(k, basestring):
+                    if isinstance(k, six.string_types):
                         xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS,u'user-defined'),None,{(METANS,u'name'):k})
                         xml.sax.saxutils.XMLGenerator.characters(self, v)
                         xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS,u'user-defined'),None)

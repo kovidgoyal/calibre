@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re, uuid
 
 from lxml import etree
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
@@ -270,8 +271,8 @@ class DetectStructure(object):
                 return []
 
         for document in self.oeb.spine:
-            previous_level1 = list(added.itervalues())[-1] if added else None
-            previous_level2 = list(added2.itervalues())[-1] if added2 else None
+            previous_level1 = list(six.itervalues(added))[-1] if added else None
+            previous_level2 = list(six.itervalues(added2))[-1] if added2 else None
 
             level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
             for elem in find_matches(level1_toc, document.data):

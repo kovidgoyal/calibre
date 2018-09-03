@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import print_function
 import functools
 import os
 import sys
@@ -13,6 +14,7 @@ from PyQt5.Qt import (
     QAction, QApplication, QByteArray, QIcon, QInputDialog, QMimeData, QModelIndex,
     QObject, QPropertyAnimation, QSize, Qt, QTime, QTimer, pyqtSignal
 )
+from six.moves.urllib.parse import quote
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
 from calibre.constants import (
@@ -417,7 +419,6 @@ class EbookViewer(MainWindow):
                 at_start=True)
 
     def lookup(self, word):
-        from urllib import quote
         word = word.replace(u'\u00ad', '')
         word = quote(word.encode('utf-8'))
         lang = canonicalize_lang(self.view.current_language) or get_lang() or 'en'

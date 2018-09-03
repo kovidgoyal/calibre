@@ -195,7 +195,7 @@ class Tag(object):
         self.id = 0xF500 + tag_id[0]
 
         size, self.name = self.__class__.tags[tag_id[0]]
-        if isinstance(size, basestring):
+        if isinstance(size, six.string_types):
             parser = getattr(self, size + '_parser')
             self.contents = parser(stream)
         else:

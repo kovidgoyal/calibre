@@ -1,3 +1,6 @@
+from __future__ import print_function
+from six.moves import getcwd
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -8,8 +11,8 @@ and to Falstaff for pylrs.
 """
 import os, re, sys, copy, glob, tempfile
 from collections import deque
-from urllib import unquote
-from urlparse import urlparse
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.parse import urlparse
 from math import ceil, floor
 from functools import partial
 
@@ -19,7 +22,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
+from bs4 import BeautifulSoup, Comment, Tag, \
                             NavigableString, Declaration, ProcessingInstruction
 from calibre.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
@@ -107,7 +110,7 @@ class HTMLConverter(object):
                                     re.IGNORECASE), lambda m: '<br />'),
 
                         # Replace entities
-                        (re.compile(ur'&(\S+?);'), partial(entity_to_unicode,
+                        (re.compile(r'&(\S+?);'), partial(entity_to_unicode,
                                                            exceptions=['lt', 'gt', 'amp', 'quot'])),
                         # Remove comments from within style tags as they can mess up BeatifulSoup
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
@@ -646,7 +649,7 @@ class HTMLConverter(object):
             if not isinstance(path, unicode):
                 path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
-                if path+fragment in self.targets.keys():
+                if path+fragment in list(self.targets.keys()):
                     tb = get_target_block(path+fragment, self.targets)
                 else:
                     tb = self.tops[path]
@@ -731,7 +734,7 @@ class HTMLConverter(object):
                 if self.minimize_memory_usage:
                     ptag.extract()
             except AttributeError:
-                print ptag, type(ptag)
+                print(ptag, type(ptag))
 
     def get_alignment(self, css):
         val = css['text-align'].lower() if css.has_key('text-align') else None  # noqa
@@ -1043,12 +1046,12 @@ class HTMLConverter(object):
                             left, 0)
 
     def process_page_breaks(self, tag, tagname, tag_css):
-        if 'page-break-before' in tag_css.keys():
+        if 'page-break-before' in list(tag_css.keys()):
             if tag_css['page-break-before'].lower() != 'avoid':
                 self.end_page()
             tag_css.pop('page-break-before')
         end_page = False
-        if 'page-break-after' in tag_css.keys():
+        if 'page-break-after' in list(tag_css.keys()):
             if tag_css['page-break-after'].lower() == 'avoid':
                 self.avoid_page_break = True
             else:
@@ -1727,7 +1730,7 @@ class HTMLConverter(object):
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'table' and not self.ignore_tables and not self.in_table:
                 if self.render_tables_as_images:
-                    print 'Rendering table...'
+                    print('Rendering table...')
                     from calibre.ebooks.lrf.html.table_as_image import render_table
                     pheight = int(self.current_page.pageStyle.attrs['textheight'])
                     pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
@@ -1804,7 +1807,7 @@ class HTMLConverter(object):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
     def cleanup(self):
-        for _file in self.scaled_images.values() + self.rotated_images.values():
+        for _file in list(self.scaled_images.values()) + list(self.rotated_images.values()):
             _file.__del__()
 
 
@@ -1920,7 +1923,7 @@ def process_file(path, options, logger):
     if not oname:
         suffix = '.lrs' if options.lrs else '.lrf'
         name = os.path.splitext(os.path.basename(path))[0] + suffix
-        oname = os.path.join(os.getcwdu(), name)
+        oname = os.path.join(getcwd(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     conv.cleanup()

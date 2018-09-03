@@ -6,7 +6,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import re
 import time
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
+from six.moves.urllib.parse import urlencode
 
 from calibre import as_unicode
 from calibre.ebooks.chardet import xml_to_unicode
@@ -196,7 +197,6 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

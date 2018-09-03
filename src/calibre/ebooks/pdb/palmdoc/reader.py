@@ -10,9 +10,10 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 
-from cStringIO import StringIO
+from six.moves import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
+from six.moves import range
 
 
 class HeaderRecord(object):

@@ -12,6 +12,7 @@ from lxml.html import (fragment_fromstring, document_fromstring,
 
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
 from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
+from six.moves import map
 
 
 def tounicode(tree_or_node, **kwargs):
@@ -154,7 +155,7 @@ class Document:
                     continue  # try again
                 else:
                     return cleaned_article
-        except StandardError, e:
+        except StandardError as e:
             self.log.exception('error getting summary: ')
             raise Unparseable(str(e)), None, sys.exc_info()[2]
 
@@ -193,7 +194,7 @@ class Document:
         return output.find('body')
 
     def select_best_candidate(self, candidates):
-        sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)
+        sorted_candidates = sorted(list(candidates.values()), key=lambda x: x['content_score'], reverse=True)
         for candidate in sorted_candidates[:5]:
             elem = candidate['elem']
             self.debug("Top 5 : %6.3f %s" % (candidate['content_score'], describe(elem)))
@@ -502,10 +503,10 @@ def main():
     enc = sys.__stdout__.encoding or 'utf-8'
     if options.verbose:
         default_log.filter_level = default_log.DEBUG
-    print (Document(raw, default_log,
+    print((Document(raw, default_log,
             debug=options.verbose,
             keep_elements=options.keep_elements).summary().encode(enc,
-                'replace'))
+                'replace')))
 
 
 if __name__ == '__main__':

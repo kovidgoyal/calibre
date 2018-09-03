@@ -1,4 +1,7 @@
 from __future__ import with_statement
+from six.moves import map
+from six.moves import zip
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -41,8 +44,7 @@ def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
 
 def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     mi = MetaInformation(None, None)
-    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
-                                     METADATA_PRIORITIES[path_to_ext(y)]))
+    formats.sort(key=lambda x: METADATA_PRIORITIES[path_to_ext(x)])
     extensions = list(map(path_to_ext, formats))
     if 'opf' in extensions:
         opf = formats[extensions.index('opf')]
@@ -203,7 +205,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwdu())
+        opfpath = getattr(f, 'name', getcwd())
     else:
         f = open(opfpath, 'rb')
     try:

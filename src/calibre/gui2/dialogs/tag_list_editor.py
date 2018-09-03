@@ -8,6 +8,7 @@ from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
+from six.moves import range
 
 
 class NameTableWidgetItem(QTableWidgetItem):
@@ -121,7 +122,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for k,v,count in data:
             self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v, 'is_deleted': False}
             self.original_names[k] = v
-        self.ordered_tags = sorted(self.all_tags.keys(), key=sorter)
+        self.ordered_tags = sorted(list(self.all_tags.keys()), key=sorter)
 
         # Set up the column headings
         self.down_arrow_icon = QIcon(I('arrow-down.png'))

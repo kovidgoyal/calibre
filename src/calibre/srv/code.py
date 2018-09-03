@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import cPickle
+import six.moves.cPickle
 import hashlib
 import random
 import shutil
@@ -29,6 +29,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key, numeric_sort_key
 from calibre.utils.localization import get_lang, lang_map_for_ui
 from calibre.utils.search_query_parser import ParseException
+import six
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
@@ -193,8 +194,8 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(
             ((sanitize_sort_field_name(db.field_metadata, k), v)
-             for k, v in sf.iteritems()),
-            key=lambda (field, name): sort_key(name)
+             for k, v in six.iteritems(sf)),
+            key=lambda field_name: sort_key(field_name[1])
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
@@ -382,7 +383,7 @@ def tag_browser(ctx, rd):
     db, library_id = get_library_data(ctx, rd)[:2]
     opts = categories_settings(rd.query, db)
     vl = rd.query.get('vl') or ''
-    etag = cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
+    etag = six.moves.cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
     etag = hashlib.sha1(etag).hexdigest()
 
     def generate():
@@ -394,7 +395,7 @@ def tag_browser(ctx, rd):
 def all_lang_names():
     ans = getattr(all_lang_names, 'ans', None)
     if ans is None:
-        ans = all_lang_names.ans = tuple(sorted(lang_map_for_ui().itervalues(), key=numeric_sort_key))
+        ans = all_lang_names.ans = tuple(sorted(six.itervalues(lang_map_for_ui()), key=numeric_sort_key))
     return ans
 
 

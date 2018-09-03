@@ -2,14 +2,16 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, textwrap, unicodedata
-from itertools import izip
 from collections import OrderedDict
 
+from six.moves import zip
 from PyQt5.Qt import (
     QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
     QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
@@ -77,7 +79,7 @@ class InsertTag(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.tag)
+            print((d.tag))
 
 # }}}
 
@@ -284,7 +286,7 @@ class Results(QWidget):
     item_selected = pyqtSignal()
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent=parent)
+        super(Results, self).__init__(parent=parent)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.results = ()
@@ -330,7 +332,7 @@ class Results(QWidget):
                 self.update()
                 self.item_selected.emit()
                 return
-        return QWidget.mousePressEvent(self, ev)
+        return super(Results, self).mousePressEvent(ev)
 
     def change_current(self, delta=1):
         if not self.results:
@@ -347,7 +349,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in izip(prefixes, results.iteritems()))
+                for prefix, (text, positions) in zip(prefixes, six.iteritems(results)))
         else:
             self.results = ()
             self.current_result = -1
@@ -413,10 +415,10 @@ class QuickOpen(Dialog):
         self.matcher = Matcher(items)
         self.matches = ()
         self.selected_result = None
-        Dialog.__init__(self, _('Choose file to edit'), 'quick-open', parent=parent)
+        super(QuickOpen, self).__init__(_('Choose file to edit'), 'quick-open', parent=parent)
 
     def sizeHint(self):
-        ans = Dialog.sizeHint(self)
+        ans = super(QuickOpen, self).sizeHint()
         ans.setWidth(800)
         ans.setHeight(max(600, ans.height()))
         return ans
@@ -462,20 +464,20 @@ class QuickOpen(Dialog):
             ev.accept()
             self.results.change_current(delta=-1 if ev.key() == Qt.Key_Up else 1)
             return
-        return Dialog.keyPressEvent(self, ev)
+        return super(QuickOpen, self).keyPressEvent(ev)
 
     def accept(self):
         self.selected_result = self.results.selected_result
-        return Dialog.accept(self)
+        return super(QuickOpen, self).accept()
 
     @classmethod
     def test(cls):
         import os
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(getcwd(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
-        print (d.selected_result)
+        print((d.selected_result))
 
 # }}}
 
@@ -551,7 +553,7 @@ class NamesModel(QAbstractListModel):
         if not query:
             self.items = tuple((text, None) for text in self.names)
         else:
-            self.items = tuple(self.matcher(query).iteritems())
+            self.items = tuple(six.iteritems(self.matcher(query)))
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
@@ -729,7 +731,7 @@ class InsertLink(Dialog):
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c, next(c.spine_names)[0])
         if d.exec_() == d.Accepted:
-            print (d.href, d.text)
+            print((d.href, d.text))
 
 # }}}
 
@@ -777,7 +779,7 @@ class InsertSemantics(Dialog):
             'text': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in self.known_type_map.iteritems()]
+        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in six.iteritems(self.known_type_map)]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
@@ -787,7 +789,7 @@ class InsertSemantics(Dialog):
 
         self.tl = tl = QFormLayout()
         self.semantic_type = QComboBox(self)
-        for key, val in self.all_types.iteritems():
+        for key, val in six.iteritems(self.all_types):
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
@@ -903,13 +905,13 @@ class InsertSemantics(Dialog):
 
     @property
     def changed_type_map(self):
-        return {k:v for k, v in self.final_type_map.iteritems() if v != self.original_type_map.get(k, None)}
+        return {k:v for k, v in six.iteritems(self.final_type_map) if v != self.original_type_map.get(k, None)}
 
     def apply_changes(self, container):
         from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
         from calibre.translations.dynamic import translate
         lang = get_book_language(container)
-        for item_type, (name, frag) in self.changed_type_map.iteritems():
+        for item_type, (name, frag) in six.iteritems(self.changed_type_map):
             title = self.known_type_map[item_type]
             if lang:
                 title = translate(lang, title)
@@ -994,7 +996,7 @@ class FilterCSS(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.filtered_properties)
+            print((d.filtered_properties))
 
 # }}}
 
@@ -1050,7 +1052,7 @@ class AddCover(Dialog):
     @property
     def image_names(self):
         img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
-        for name, mt in self.container.mime_map.iteritems():
+        for name, mt in six.iteritems(self.container.mime_map):
             if mt.lower() in img_types:
                 yield name
 
@@ -1153,7 +1155,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     of the nbsp unicode character and AltGr input method on windows. '''
 
     def __init__(self, parent=None):
-        QPlainTextEdit.__init__(self, parent)
+        super(QPlainTextEdit).__init__(parent)
         self.syntax = None
 
     def toPlainText(self):

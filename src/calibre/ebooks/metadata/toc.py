@@ -1,17 +1,19 @@
 #!/usr/bin/env  python2
+from __future__ import print_function
+from six.moves import getcwd
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, functools
-from urlparse import urlparse
-from urllib import unquote
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import unquote
 from collections import Counter
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 
@@ -31,7 +33,7 @@ C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 class TOC(list):
 
     def __init__(self, href=None, fragment=None, text=None, parent=None,
-            play_order=0, base_path=os.getcwdu(), type='unknown', author=None,
+            play_order=0, base_path=getcwd(), type='unknown', author=None,
             description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment
@@ -143,7 +145,7 @@ class TOC(list):
 
                     self.read_html_toc(toc)
                 except:
-                    print 'WARNING: Could not read Table of Contents. Continuing anyway.'
+                    print('WARNING: Could not read Table of Contents. Continuing anyway.')
             else:
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
@@ -151,7 +153,7 @@ class TOC(list):
                     try:
                         self.read_ncx_toc(path)
                     except Exception as err:
-                        print 'WARNING: Invalid NCX file:', err
+                        print('WARNING: Invalid NCX file:', err)
                     return
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))

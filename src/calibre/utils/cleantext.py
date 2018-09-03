@@ -2,8 +2,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, htmlentitydefs
-from future_builtins import map
+import re, six.moves.html_entities
+
+from six import unichr
+from six.moves import map, filter, range
+
 from calibre.constants import plugins, preferred_encoding
 
 try:
@@ -28,7 +31,7 @@ def clean_ascii_chars(txt, charlist=None):
         return ''
     global _ascii_pat
     if _ascii_pat is None:
-        chars = set(xrange(32))
+        chars = set(range(32))
         chars.add(127)
         for x in (9, 10, 13):
             chars.remove(x)
@@ -79,7 +82,7 @@ def unescape(text, rm=False, rchar=u''):
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = unichr(six.moves.html_entities.name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

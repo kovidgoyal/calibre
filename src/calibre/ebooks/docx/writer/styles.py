@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -156,7 +158,7 @@ class DOCXStyle(object):
             getattr(self, x) for x in self.ALL_PROPS))
 
     def makeelement(self, parent, name, **attrs):
-        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in attrs.iteritems()})
+        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in six.iteritems(attrs)})
 
     def __hash__(self):
         return self._hash
@@ -363,7 +365,7 @@ class DescendantTextStyle(object):
         p = []
 
         def add(name, **props):
-            p.append((name, frozenset(props.iteritems())))
+            p.append((name, frozenset(six.iteritems(props))))
 
         def vals(attr):
             return getattr(parent_style, attr), getattr(child_style, attr)
@@ -560,7 +562,7 @@ class BlockStyle(DOCXStyle):
     def serialize_properties(self, pPr, normal_style):
         makeelement, w = self.makeelement, self.w
         spacing = makeelement(pPr, 'spacing')
-        for edge, attr in {'top':'before', 'bottom':'after'}.iteritems():
+        for edge, attr in six.iteritems({'top':'before', 'bottom':'after'}):
             getter = attrgetter('css_margin_' + edge)
             css_val, css_unit = parse_css_length(getter(self))
             if css_unit in ('em', 'ex'):
@@ -694,13 +696,13 @@ class StylesManager(object):
 
         counts = Counter()
         smap = {}
-        for (bs, rs), blocks in used_pairs.iteritems():
+        for (bs, rs), blocks in six.iteritems(used_pairs):
             s = CombinedStyle(bs, rs, blocks, self.namespace)
             smap[(bs, rs)] = s
             counts[s] += sum(1 for b in blocks if not b.is_empty())
         for i, heading_tag in enumerate(sorted(heading_styles)):
             styles = sorted((smap[k] for k in heading_styles[heading_tag]), key=counts.__getitem__)
-            styles = filter(lambda s:s.outline_level is None, styles)
+            styles = [s for s in styles if s.outline_level is None]
             if styles:
                 heading_style = styles[-1]
                 heading_style.outline_level = i
@@ -719,7 +721,7 @@ class StylesManager(object):
                     heading_styles.append(style)
                 style.id = style.name = val
             style.seq = i
-        self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
+        self.combined_styles = sorted(six.iterkeys(counts), key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]
 
         descendant_style_map = {}

@@ -14,6 +14,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
+from six.moves import range
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -68,7 +69,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         state = self.columns_state(defaults)
         self.hidden_cols = state['hidden_columns']
         positions = state['column_positions']
-        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
+        colmap.sort(key=lambda x: positions[x])
         self.opt_columns.clear()
 
         db = model.db
@@ -85,9 +86,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.setHorizontalHeaderItem(3, item)
 
         self.opt_columns.setRowCount(len(colmap))
-        self.column_desc = dict(map(lambda x:(CreateCustomColumn.column_types[x]['datatype'],
-                                         CreateCustomColumn.column_types[x]['text']),
-                                  CreateCustomColumn.column_types))
+        self.column_desc = dict([(CreateCustomColumn.column_types[x]['datatype'],
+                                         CreateCustomColumn.column_types[x]['text']) for x in CreateCustomColumn.column_types])
 
         for row, col in enumerate(colmap):
             self.setup_row(self.field_metadata, row, col)

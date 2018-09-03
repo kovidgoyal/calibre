@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import string_to_authors, MetaInformation
 from calibre.utils.logging import default_log
@@ -110,7 +110,7 @@ def _get_cover(soup, rdr):
             except:
                 # Probably invalid width, height aattributes, ignore
                 continue
-        l = r.keys()
+        l = list(r.keys())
         l.sort()
         if l:
             ans = r[l[0]]
@@ -126,7 +126,7 @@ def _get_cover(soup, rdr):
                 ans = None
         if ans is not None:
             from PIL import Image
-            from cStringIO import StringIO
+            from six.moves import StringIO
             buf = StringIO()
             try:
                 Image.open(StringIO(ans)).convert('RGB').save(buf, 'JPEG')

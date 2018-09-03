@@ -7,6 +7,7 @@ import html5lib
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.cleantext import clean_xml_chars
 from lxml import etree
+import six
 
 
 class AmericanThinker(BasicNewsRecipe):
@@ -34,7 +35,7 @@ class AmericanThinker(BasicNewsRecipe):
             namespaceHTMLElements=False)
         for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):  # noqa
             x.getparent().remove(x)
-        return etree.tostring(root, encoding=unicode)
+        return etree.tostring(root, encoding=six.text_type)
 
     feeds = [(u'http://feeds.feedburner.com/americanthinker'),
              (u'http://feeds.feedburner.com/AmericanThinkerBlog')

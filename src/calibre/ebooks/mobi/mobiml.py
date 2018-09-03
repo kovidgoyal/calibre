@@ -3,6 +3,7 @@ Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 '''
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
@@ -121,8 +122,8 @@ class MobiMLizer(object):
         self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
-        self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
-        self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
+        self.fnums = fnums = dict((v, k) for k, v in list(profile.fnums.items()))
+        self.fmap = KeyMapper(profile.fbase, profile.fbase, list(fnums.keys()))
         self.mobimlize_spine()
 
     def mobimlize_spine(self):
@@ -142,7 +143,7 @@ class MobiMLizer(object):
         return self.fnums[self.fmap[ptsize]]
 
     def mobimlize_measure(self, ptsize):
-        if isinstance(ptsize, basestring):
+        if isinstance(ptsize, six.string_types):
             return ptsize
         embase = self.profile.fbase
         if round(ptsize) < embase:
@@ -185,7 +186,7 @@ class MobiMLizer(object):
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
             left = istate.left
-            if isinstance(indent, basestring):
+            if isinstance(indent, six.string_types):
                 indent = 0
             if indent < 0 and abs(indent) < left:
                 left += indent
@@ -237,7 +238,7 @@ class MobiMLizer(object):
             try:
                 etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
             except:
-                print 'Invalid subelement:', para, tag, istate.attrib
+                print('Invalid subelement:', para, tag, istate.attrib)
                 raise
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
@@ -304,7 +305,7 @@ class MobiMLizer(object):
         inline = bstate.inline
         content = self.preize_text(text, pre_wrap=istate.pre_wrap) if istate.preserve or istate.pre_wrap else [text]
         for item in content:
-            if isinstance(item, basestring):
+            if isinstance(item, six.string_types):
                 if len(inline) == 0:
                     inline.text = (inline.text or '') + item
                 else:
@@ -315,7 +316,7 @@ class MobiMLizer(object):
 
     def mobimlize_elem(self, elem, stylizer, bstate, istates,
             ignore_valign=False):
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, six.string_types) \
            or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)

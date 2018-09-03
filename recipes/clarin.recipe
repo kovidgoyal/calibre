@@ -9,7 +9,7 @@ __copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
 clarin.com
 '''
 
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -45,8 +45,8 @@ class Clarin(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-                      dict(name='p'  , attrs={'class'   : 'volanta'}),
-                      dict(name='h1' , attrs={'itemprop': 'headline'}),
+                      dict(name='p', attrs={'class'   : 'volanta'}),
+                      dict(name='h1', attrs={'itemprop': 'headline'}),
                       dict(name='div', attrs={'class'   : 'bajada'}),
                       dict(name='div', attrs={'class'   : 'body-nota'})
                      ]
@@ -76,7 +76,7 @@ class Clarin(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'ingresar_ingresar_paseForm': 'ingresar_ingresar_paseForm',
+            data = six.moves.urllib.parse.urlencode({'ingresar_ingresar_paseForm': 'ingresar_ingresar_paseForm',
                                      'ingresar_ingresar_email_paseInputComponent': self.username,
                                      'ingresar_ingresar_palabraClave_paseInputComponent': self.password,
                                      'ingresar_ingresar_ingresar_paseButton': 'Ingresar',

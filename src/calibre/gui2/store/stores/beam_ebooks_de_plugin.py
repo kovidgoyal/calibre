@@ -7,10 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
 
 from lxml import html
+from six.moves.urllib.parse import quote as urlquote
 
 from PyQt5.Qt import QUrl
 
@@ -41,7 +41,7 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://www.beam-shop.de/search?saltFieldLimitation=all&sSearch=' + urllib2.quote(query)
+        url = 'https://www.beam-shop.de/search?saltFieldLimitation=all&sSearch=' + urlquote(query)
         br = browser()
 
         counter = max_results

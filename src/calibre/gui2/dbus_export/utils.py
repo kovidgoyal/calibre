@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -106,7 +107,7 @@ def key_sequence_to_dbus_shortcut(qks):
         if key == -1 or key == Qt.Key_unknown:
             continue
         items = []
-        for mod, name in {Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}.iteritems():
+        for mod, name in six.iteritems({Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}):
             if key & mod == mod:
                 items.append(name)
         key &= int(~(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier | Qt.KeypadModifier))
@@ -142,7 +143,7 @@ def set_X_window_properties(win_id, **properties):
     conn = xcb.connect()
     atoms = {name:conn.core.InternAtom(False, len(name), name) for name in properties}
     utf8_string_atom = None
-    for name, val in properties.iteritems():
+    for name, val in six.iteritems(properties):
         atom = atoms[name].reply().atom
         type_atom = xcb.xproto.Atom.STRING
         if isinstance(val, unicode):

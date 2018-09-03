@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
+import six
 from PyQt5.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
         QKeySequence)
 
@@ -175,7 +176,7 @@ class InterfaceAction(QObject):
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, six.string_types) else
                     tuple(shortcut))
             if shortcut_name is None and spec[0]:
                 shortcut_name = unicode(spec[0])
@@ -247,7 +248,7 @@ class InterfaceAction(QObject):
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, six.string_types) else
                     tuple(shortcut))
         unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:

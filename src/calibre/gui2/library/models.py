@@ -30,6 +30,9 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
+from six.moves import map
+import six
+from six.moves import range
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -55,7 +58,7 @@ def default_image():
 
 
 def group_numbers(numbers):
-    for k, g in groupby(enumerate(sorted(numbers)), lambda (i, x):i - x):
+    for k, g in groupby(enumerate(sorted(numbers)), lambda i_x:i_x[0] - i_x[1]):
         first = None
         for last in g:
             if first is None:
@@ -254,7 +257,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if alignment != 'left':
                 self.alignment_map[colname] = alignment
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
@@ -295,7 +298,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return 100000
             return self.db.field_metadata[name]['rec_index']
 
-        self.column_map.sort(cmp=lambda x,y: cmp(col_idx(x), col_idx(y)))
+        self.column_map.sort(key=lambda x: col_idx(x))
         for col in self.column_map:
             if col in self.orig_headers:
                 self.headers[col] = self.orig_headers[col]
@@ -379,7 +382,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.beginResetModel(), self.endResetModel()
 
     def delete_books(self, indices, permanent=False):
-        ids = map(self.id, indices)
+        ids = list(map(self.id, indices))
         self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
@@ -481,7 +484,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self._sort(label, order, reset)
 
     def sort_by_named_field(self, field, order, reset=True):
-        if field in self.db.field_metadata.keys():
+        if field in list(self.db.field_metadata.keys()):
             self._sort(field, order, reset)
 
     def _sort(self, label, order, reset):
@@ -851,7 +854,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     ans += '.5'
                 return _('%s stars') % ans
             return f
-        for f, allow_half in rating_fields.iteritems():
+        for f, allow_half in six.iteritems(rating_fields):
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
@@ -1121,7 +1124,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(ur'\s', u' ', unicode(value or '').strip()))
+                    else re.sub(r'\s', u' ', unicode(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = set([id])
             if column == 'rating':
@@ -1251,7 +1254,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     vals = accessor(row)
                     if vals is None:
                         vals = ''
-                    if isinstance(vals, basestring):
+                    if isinstance(vals, six.string_types):
                         vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
@@ -1369,7 +1372,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
 
         path = getattr(item, 'path', None)
-        for items in self.marked_for_deletion.itervalues():
+        for items in six.itervalues(self.marked_for_deletion):
             for x in items:
                 if x is item or (path and path == getattr(x, 'path', None)):
                     return True

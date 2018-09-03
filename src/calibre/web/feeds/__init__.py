@@ -1,5 +1,7 @@
 #!/usr/bin/env  python2
 
+from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -19,7 +21,7 @@ class Article(object):
         from lxml import html
         self.downloaded = False
         self.id = id
-        if not title or not isinstance(title, basestring):
+        if not title or not isinstance(title, six.string_types):
             title = _('Unknown')
         title = force_unicode(title, 'utf-8')
         self._title = clean_xml_chars(title).strip()
@@ -43,8 +45,8 @@ class Article(object):
                 s = html.fragment_fromstring(summary, create_parent=True)
                 summary = html.tostring(s, method='text', encoding=unicode)
             except:
-                print 'Failed to process article summary, deleting:'
-                print summary.encode('utf-8')
+                print('Failed to process article summary, deleting:')
+                print(summary.encode('utf-8'))
                 traceback.print_exc()
                 summary = u''
         self.text_summary = clean_ascii_chars(summary)
@@ -296,8 +298,8 @@ class FeedCollection(list):
                     return x
             return None
 
-        print '#feeds', len(self)
-        print map(len, self)
+        print('#feeds', len(self))
+        print(list(map(len, self)))
         for f in self:
             dups = []
             for a in f:
@@ -311,8 +313,8 @@ class FeedCollection(list):
                 f.articles.remove(x)
 
         self.duplicates = duplicates
-        print len(duplicates)
-        print map(len, self)
+        print(len(duplicates))
+        print(list(map(len, self)))
         # raise
 
     def find_article(self, article):
@@ -336,7 +338,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
-    from calibre.web.feeds.feedparser import parse
+    from feedparser import parse
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
     raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)

@@ -2,14 +2,16 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, sys, inspect, re, time, numbers, json as jsonlib, textwrap
-from urllib import quote as urlquote
-from itertools import izip
+import six.moves.http_client, sys, inspect, re, time, numbers, json as jsonlib, textwrap
 from operator import attrgetter
+from six.moves import zip
+from six.moves.urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
@@ -113,7 +115,7 @@ class Route(object):
         del endpoint_
         if not self.endpoint.route.startswith('/'):
             raise RouteError('A route must start with /, %s does not' % self.endpoint.route)
-        parts = filter(None, self.endpoint.route.split('/'))
+        parts = [_f for _f in self.endpoint.route.split('/') if _f]
         matchers = self.matchers = []
         self.defaults = {}
         found_optional_part = False
@@ -170,7 +172,7 @@ class Route(object):
     def matches(self, path):
         args_map = self.defaults.copy()
         num = 0
-        for component, (name, matched) in izip(path, self.matchers):
+        for component, (name, matched) in zip(path, self.matchers):
             num += 1
             if matched is True:
                 args_map[name] = component
@@ -187,7 +189,7 @@ class Route(object):
                 return tc(val)
             except Exception:
                 raise HTTPNotFound('Argument of incorrect type')
-        for name, tc in self.type_checkers.iteritems():
+        for name, tc in six.iteritems(self.type_checkers):
             args_map[name] = check(tc, args_map[name])
         return (args_map[name] for name in self.names)
 
@@ -208,7 +210,7 @@ class Route(object):
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
-        args = {k:quoted(v) for k, v in args.iteritems()}
+        args = {k:quoted(v) for k, v in six.iteritems(args)}
         route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
@@ -251,15 +253,15 @@ class Router(object):
                 self.add(item)
 
     def __iter__(self):
-        return self.routes.itervalues()
+        return six.itervalues(self.routes)
 
     def finalize(self):
         try:
             lsz = max(len(r.matchers) for r in self)
         except ValueError:
             lsz = 0
-        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in xrange(lsz + 1)}
-        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in xrange(lsz + 1)}
+        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in range(lsz + 1)}
+        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in range(lsz + 1)}
         self.soak_routes = sorted(frozenset(r for r in self if r.soak_up_extra), key=attrgetter('min_size'), reverse=True)
 
     def find_route(self, path):
@@ -297,7 +299,7 @@ class Router(object):
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
-            raise HTTPSimpleResponse(httplib.METHOD_NOT_ALLOWED)
+            raise HTTPSimpleResponse(six.moves.http_client.METHOD_NOT_ALLOWED)
 
         self.read_cookies(data)
 

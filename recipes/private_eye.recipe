@@ -95,7 +95,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # Process the Index page to get the content for the ebook
     def parse_index(self):
-        self.log.info('Private Eye: v%s,Parse Index: %s' % (self.version,self.INDEX))
+        self.log.info('Private Eye: v%s,Parse Index: %s' % (self.version, self.INDEX))
         self.page_index = []
 
         soup = self.index_to_soup(self.INDEX)

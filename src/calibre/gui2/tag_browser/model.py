@@ -2,13 +2,15 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy, os
+import traceback, six.moves.cPickle, copy, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
@@ -304,7 +306,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.node_map = {}
         self.category_nodes = []
         self.category_custom_icons = {}
-        for k, v in self.prefs['tags_browser_category_icons'].iteritems():
+        for k, v in six.iteritems(self.prefs['tags_browser_category_icons']):
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
@@ -384,7 +386,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
-        for node in self.node_map.itervalues():
+        for node in six.itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
@@ -739,7 +741,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 data.append(d)
             else:
                 data.append(None)
-        raw = bytearray(cPickle.dumps(data, -1))
+        raw = bytearray(six.moves.cPickle.dumps(data, -1))
         ans = QMimeData()
         ans.setData('application/calibre+from_tag_browser', raw)
         return ans
@@ -764,7 +766,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not md.hasFormat('application/calibre+from_tag_browser'):
             return False
         data = str(md.data('application/calibre+from_tag_browser'))
-        src = cPickle.loads(data)
+        src = six.moves.cPickle.loads(data)
         for s in src:
             if s[0] != TagTreeItem.TAG:
                 return False
@@ -1099,7 +1101,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.use_position_based_index_on_next_recount = True
                 return True
 
-            for c in sorted(user_cats.keys(), key=sort_key):
+            for c in sorted(list(user_cats.keys()), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
@@ -1486,7 +1488,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if path[depth] > start_path[depth]:
                     start_path = path
             my_key = self.get_node(category_index).category_key
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.type == TagTreeItem.CATEGORY:
@@ -1497,7 +1499,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         return True
             return False
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             if process_level(0, self.index(i, 0, QModelIndex()), start_path):
                 break
         return self.path_found
@@ -1511,7 +1513,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not key:
             return None
 
-        for i in xrange(self.rowCount(parent)):
+        for i in range(self.rowCount(parent)):
             idx = self.index(i, 0, parent)
             node = self.get_node(idx)
             if node.type == TagTreeItem.CATEGORY:
@@ -1541,7 +1543,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 process_tag(self.index(i, 0, tag_index), c)
 
         def process_level(category_index):
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.boxed:
@@ -1552,7 +1554,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 else:
                     process_tag(tag_index, tag_item)
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             process_level(self.index(i, 0, QModelIndex()))
 
     # }}}

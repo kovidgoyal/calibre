@@ -36,7 +36,7 @@ class Extension(object):
                           'Python-Markdown version 2.6 for more info.',
                           DeprecationWarning)
         # check for configs kwarg for backward compat.
-        if 'configs' in kwargs.keys():
+        if 'configs' in list(kwargs.keys()):
             if kwargs['configs'] is not None:
                 self.setConfigs(kwargs.pop('configs', {}))
             warnings.warn('Extension classes accepting a dict on the single '
@@ -77,7 +77,7 @@ class Extension(object):
         """ Set multiple config settings given a dict or list of tuples. """
         if hasattr(items, 'items'):
             # it's a dict
-            items = items.items()
+            items = list(items.items())
         for key, value in items:
             self.setConfig(key, value)
 

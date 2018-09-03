@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -89,7 +90,7 @@ class PluginWidget(QWidget):
     def options(self):
         # Save the currently activated fields
         fields, all_fields = [], []
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             all_fields.append(unicode(item.data(Qt.UserRole)))
             if item.checkState() == Qt.Checked:

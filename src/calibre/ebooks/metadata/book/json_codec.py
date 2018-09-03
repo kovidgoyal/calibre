@@ -4,6 +4,7 @@ Created on 4 Jun 2010
 @author: charles
 '''
 
+from __future__ import print_function
 from base64 import b64encode, b64decode
 import json, traceback
 from datetime import datetime, time
@@ -12,6 +13,7 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
+import six
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
@@ -148,7 +150,7 @@ class JsonCodec(object):
     def encode_metadata_attr(self, book, key):
         if key == 'user_metadata':
             meta = book.get_all_user_metadata(make_copy=True)
-            for fm in meta.itervalues():
+            for fm in six.itervalues(meta):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = datetime_to_string(fm['#value#'])
                 encode_is_multiple(fm)
@@ -177,13 +179,13 @@ class JsonCodec(object):
                 if entry is not None:
                     booklist.append(entry)
         except:
-            print 'exception during JSON decode_from_file'
+            print('exception during JSON decode_from_file')
             traceback.print_exc()
 
     def raw_to_book(self, json_book, book_class, prefix):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
-            for key,val in json_book.iteritems():
+            for key,val in six.iteritems(json_book):
                 meta = self.decode_metadata(key, val)
                 if key == 'user_metadata':
                     book.set_all_user_metadata(meta)
@@ -193,14 +195,14 @@ class JsonCodec(object):
                     setattr(book, key, meta)
             return book
         except:
-            print 'exception during JSON decoding'
+            print('exception during JSON decoding')
             traceback.print_exc()
 
     def decode_metadata(self, key, value):
         if key == 'classifiers':
             key = 'identifiers'
         if key == 'user_metadata':
-            for fm in value.itervalues():
+            for fm in six.itervalues(value):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = string_to_datetime(fm['#value#'])
                 decode_is_multiple(fm)

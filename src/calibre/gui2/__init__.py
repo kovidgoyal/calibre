@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue, threading, glob, signal
+import os, sys, six.moves.queue, threading, glob, signal
 from contextlib import contextmanager
 from threading import RLock, Lock
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
@@ -22,11 +22,14 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import get_lang
 from calibre.utils.file_type_icons import EXT_MAP
+from six.moves import map
+import six
+from six.moves import range
 
 try:
     NO_URL_FORMATTING = QUrl.None_
 except AttributeError:
-    NO_URL_FORMATTING = QUrl.None
+    NO_URL_FORMATTING = getattr(QUrl, 'None')
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
@@ -305,7 +308,7 @@ def default_author_link():
 
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
-    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount())))
+    return [x.height() for x in list(map(desktop.availableGeometry, list(range(desktop.screenCount()))))]
 
 
 def available_height():
@@ -487,7 +490,7 @@ class FunctionDispatcher(QObject):
         if not queued:
             typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
-        self.q = Queue.Queue()
+        self.q = six.moves.queue.Queue()
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):
@@ -554,7 +557,7 @@ class FileIconProvider(QFileIconProvider):
         upath, bpath = I('mimetypes'), I('mimetypes', allow_user_override=False)
         if upath != bpath:
             # User has chosen to override mimetype icons
-            path_map = {v:I('mimetypes/%s.png' % v) for v in set(self.ICONS.itervalues())}
+            path_map = {v:I('mimetypes/%s.png' % v) for v in set(six.itervalues(self.ICONS))}
             icons = self.ICONS.copy()
             for uicon in glob.glob(os.path.join(upath, '*.png')):
                 ukey = os.path.basename(uicon).rpartition('.')[0].lower()
@@ -562,18 +565,18 @@ class FileIconProvider(QFileIconProvider):
                     path_map[ukey] = uicon
                     icons[ukey] = ukey
         else:
-            path_map = {v:os.path.join(bpath, v + '.png') for v in set(self.ICONS.itervalues())}
+            path_map = {v:os.path.join(bpath, v + '.png') for v in set(six.itervalues(self.ICONS))}
             icons = self.ICONS
-        self.icons = {k:path_map[v] for k, v in icons.iteritems()}
+        self.icons = {k:path_map[v] for k, v in six.iteritems(icons)}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 
     def key_from_ext(self, ext):
-        key = ext if ext in self.icons.keys() else 'default'
+        key = ext if ext in list(self.icons.keys()) else 'default'
         if key == 'default' and ext.count('.') > 0:
             ext = ext.rpartition('.')[2]
-            key = ext if ext in self.icons.keys() else 'default'
+            key = ext if ext in list(self.icons.keys()) else 'default'
         return key
 
     def cached_icon(self, key):
@@ -638,8 +641,8 @@ if not iswindows and not isosx and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.env
 if has_windows_file_dialog_helper:
     from calibre.gui2.win_file_dialogs import choose_files, choose_images, choose_dir, choose_save_file
 elif has_linux_file_dialog_helper:
-    choose_dir, choose_files, choose_save_file, choose_images = map(
-        linux_native_dialog, 'dir files save_file images'.split())
+    choose_dir, choose_files, choose_save_file, choose_images = list(map(
+        linux_native_dialog, 'dir files save_file images'.split()))
 else:
     from calibre.gui2.qt_file_dialogs import choose_files, choose_images, choose_dir, choose_save_file
     choose_files, choose_images, choose_dir, choose_save_file
@@ -943,7 +946,7 @@ class Application(QApplication):
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
         pcache = {}
-        for k, v in {
+        for k, v in six.iteritems({
             'DialogYesButton': u'ok.png',
             'DialogNoButton': u'window-close.png',
             'DialogCloseButton': u'window-close.png',
@@ -960,7 +963,7 @@ class Application(QApplication):
             'MessageBoxQuestion': u'dialog_question.png',
             'BrowserReload': u'view-refresh.png',
             'LineEditClearButton': u'clear_left.png',
-        }.iteritems():
+        }):
             if v not in pcache:
                 p = I(v)
                 if isinstance(p, bytes):
@@ -1000,11 +1003,11 @@ class Application(QApplication):
 
         def fget(self):
             return [col.getRgb() for col in
-                    (QColorDialog.customColor(i) for i in xrange(QColorDialog.customCount()))]
+                    (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
         def fset(self, colors):
             num = min(len(colors), QColorDialog.customCount())
-            for i in xrange(num):
+            for i in range(num):
                 QColorDialog.setCustomColor(i, QColor(*colors[i]))
         return property(fget=fget, fset=fset)
 
@@ -1031,7 +1034,8 @@ class Application(QApplication):
         cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
         for fd in (read_fd, write_fd):
             flags = fcntl.fcntl(fd, fcntl.F_GETFD)
-            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) | os.O_NONBLOCK)
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)
@@ -1068,7 +1072,7 @@ def sanitize_env_vars():
 
     originals = {x:os.environ.get(x, '') for x in env_vars}
     changed = {x:False for x in env_vars}
-    for var, suffix in env_vars.iteritems():
+    for var, suffix in six.iteritems(env_vars):
         paths = [x for x in originals[var].split(os.pathsep) if x]
         npaths = [] if suffix is None else [x for x in paths if x != (sys.frozen_path + suffix)]
         if len(npaths) < len(paths):
@@ -1081,7 +1085,7 @@ def sanitize_env_vars():
     try:
         yield
     finally:
-        for var, orig in originals.iteritems():
+        for var, orig in six.iteritems(originals):
             if changed[var]:
                 if orig:
                     os.environ[var] = orig
@@ -1096,7 +1100,7 @@ def open_url(qurl):
     # Qt 5 requires QApplication to be constructed before trying to use
     # QDesktopServices::openUrl()
     ensure_app()
-    if isinstance(qurl, basestring):
+    if isinstance(qurl, six.string_types):
         qurl = QUrl(qurl)
     with sanitize_env_vars():
         QDesktopServices.openUrl(qurl)
@@ -1232,7 +1236,8 @@ def form_to_compiled_form(form):
 
 
 def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
-    import re, cStringIO
+    import re
+    from six.moves import StringIO
     from PyQt5.uic import compileUi
     forms = find_forms(srcdir)
     if info is None:
@@ -1257,7 +1262,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
         if force_compile or not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
             if not summary:
                 info('\tCompiling form', form)
-            buf = cStringIO.StringIO()
+            buf = StringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')
@@ -1267,7 +1272,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
             dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
 
-            open(compiled_form, 'wb').write(dat)
+            open(compiled_form, 'w').write(dat)
             num += 1
     if num:
         info('Compiled %d forms' % num)
@@ -1282,7 +1287,7 @@ if is_running_from_develop:
 def event_type_name(ev_or_etype):
     from PyQt5.QtCore import QEvent
     etype = ev_or_etype.type() if isinstance(ev_or_etype, QEvent) else ev_or_etype
-    for name, num in vars(QEvent).iteritems():
+    for name, num in six.iteritems(vars(QEvent)):
         if num == etype:
             return name
     return 'UnknownEventType'

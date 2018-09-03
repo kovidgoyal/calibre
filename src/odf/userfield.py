@@ -62,7 +62,7 @@ class UserFields(object):
         self.document = None
 
     def loaddoc(self):
-        if isinstance(self.src_file, basestring):
+        if isinstance(self.src_file, six.string_types):
             # src_file is a filename, check if it is a zip-file
             if not zipfile.is_zipfile(self.src_file):
                 raise TypeError("%s is no odt file." % self.src_file)

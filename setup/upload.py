@@ -1,14 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import absolute_import, print_function
 __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json, httplib
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, json, six.moves.http_client
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
+import six
+from six.moves import map
 
 if __name__ == '__main__':
     d = os.path.dirname
@@ -143,7 +146,7 @@ def calibre_cmdline(ver):
 
 
 def run_remote_upload(args):
-    print 'Running remotely:', ' '.join(args)
+    print('Running remotely:', ' '.join(args))
     subprocess.check_call([
         'ssh', '-x', '%s@%s' % (STAGING_USER, STAGING_HOST), 'cd', STAGING_DIR, '&&',
         'python2', 'hosting.py'
@@ -179,14 +182,14 @@ def upload_to_fosshub():
         }]
     }
     # print(json.dumps(jq, indent=2))
-    rq = urllib2.urlopen(
+    rq = six.moves.urllib.request.urlopen(
         'https://www.fosshub.com/JSTools/uploadJson',
-        urllib.urlencode({
+        six.moves.urllib.parse.urlencode({
             'content': json.dumps(jq)
         })
     )
     resp = rq.read()
-    if rq.getcode() != httplib.OK:
+    if rq.getcode() != six.moves.http_client.OK:
         raise SystemExit(
             'Failed to upload to fosshub, with HTTP error code: %d and response: %s'
             % (rq.getcode(), resp)
@@ -235,7 +238,7 @@ class UploadInstallers(Command):  # {{{
         print('\nRecording dist sizes')
         args = [
             '%s:%s:%s' % (__version__, fname, size)
-            for fname, size in sizes.iteritems()
+            for fname, size in six.iteritems(sizes)
         ]
         check_call(['ssh', 'code', '/usr/local/bin/dist_sizes'] + args)
 
@@ -255,7 +258,7 @@ class UploadInstallers(Command):  # {{{
                 )
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
-            for f, desc in files.iteritems():
+            for f, desc in six.iteritems(files):
                 fo.write('%s: %s\n' % (f, desc))
 
         while True:

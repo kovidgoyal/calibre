@@ -4,6 +4,7 @@
 CSS property propagation class.
 '''
 from __future__ import with_statement
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -217,7 +218,7 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
-        pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
         for _, _, cssdict, text, _ in rules:
@@ -363,7 +364,7 @@ class Stylizer(object):
                 style = copy.copy(style)
                 size = float(style['font-size'][:-2])
                 style['font-size'] = "%.2fpt" % (size * font_scale)
-            style = ';\n    '.join(': '.join(item) for item in style.items())
+            style = ';\n    '.join(': '.join(item) for item in list(style.items()))
             rules.append('%s {\n    %s;\n}' % (selector, style))
         return '\n'.join(rules)
 
@@ -403,7 +404,7 @@ class Style(object):
         if 'style' not in attrib:
             return
         css = attrib['style'].split(';')
-        css = filter(None, (x.strip() for x in css))
+        css = [_f for _f in (x.strip() for x in css) if _f]
         css = [y.strip() for y in css]
         css = [y for y in css if self.MS_PAT.match(y) is None]
         css = '; '.join(css)
@@ -752,7 +753,7 @@ class Style(object):
             self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
-        items = sorted(self._style.iteritems())
+        items = sorted(six.iteritems(self._style))
         return '; '.join("%s: %s" % (key, val) for key, val in items)
 
     def cssdict(self):
@@ -761,12 +762,12 @@ class Style(object):
     def pseudo_classes(self, filter_css):
         if filter_css:
             css = copy.deepcopy(self._pseudo_classes)
-            for psel, cssdict in css.iteritems():
+            for psel, cssdict in six.iteritems(css):
                 for k in filter_css:
                     cssdict.pop(k, None)
         else:
             css = self._pseudo_classes
-        return {k:v for k, v in css.iteritems() if v}
+        return {k:v for k, v in six.iteritems(css) if v}
 
     @property
     def is_hidden(self):

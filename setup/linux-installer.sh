@@ -252,22 +252,6 @@ class ProgressBar:
             out.flush()
 # }}}
 
-
-def prints(*args, **kwargs):  # {{{
-    f = kwargs.get('file', sys.stdout.buffer if py3 else sys.stdout)
-    end = kwargs.get('end', b'\n')
-    enc = getattr(f, 'encoding', 'utf-8') or 'utf-8'
-
-    if isinstance(end, unicode):
-        end = end.encode(enc)
-    for x in args:
-        if isinstance(x, unicode):
-            x = x.encode(enc)
-        f.write(x)
-        f.write(b' ')
-    f.write(end)
-    if py3 and f is sys.stdout.buffer:
-        f.flush()
 # }}}
 
 
@@ -277,7 +261,7 @@ class Reporter:  # {{{
         try:
             self.pb  = ProgressBar(TerminalController(), 'Downloading '+fname)
         except ValueError:
-            prints('Downloading', fname)
+            print('Downloading', fname)
             self.pb = None
         self.last_percent = 0
 
@@ -286,7 +270,7 @@ class Reporter:  # {{{
         if self.pb is None:
             if percent - self.last_percent > 0.05:
                 self.last_percent = percent
-                prints('Downloaded {0:%}'.format(percent))
+                print('Downloaded {0:%}'.format(percent))
         else:
             try:
                 self.pb.update(percent)
@@ -323,7 +307,7 @@ class URLOpener(urllib.FancyURLopener):
 
 
 def do_download(dest):
-    prints('Will download and install', os.path.basename(dest))
+    print('Will download and install', os.path.basename(dest))
     reporter = Reporter(os.path.basename(dest))
     offset = 0
     urlopener = URLOpener()
@@ -353,7 +337,7 @@ def do_download(dest):
     if os.path.getsize(dest) < size:
         print ('Download failed, try again later')
         raise SystemExit(1)
-    prints('Downloaded %s bytes'%os.path.getsize(dest))
+    print('Downloaded %s bytes'%os.path.getsize(dest))
 
 
 def download_tarball():
@@ -387,7 +371,7 @@ def download_tarball():
                 ' Delete %s and try again.'%cache)
         raise SystemExit(1)
     do_download(dest)
-    prints('Checking downloaded file integrity...')
+    print('Checking downloaded file integrity...')
     raw = check_signature(dest, signature)
     if raw is None:
         os.remove(dest)
@@ -415,11 +399,11 @@ def get_proxies(debug=True):
         if len(proxy) > 4:
             proxies[key] = proxy
         else:
-            prints('Removing invalid', key, 'proxy:', proxy)
+            print('Removing invalid', key, 'proxy:', proxy)
             del proxies[key]
 
     if proxies and debug:
-        prints('Using proxies:', repr(proxies))
+        print('Using proxies:', repr(proxies))
     return proxies
 
 
@@ -667,7 +651,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
 
 
 def extract_tarball(raw, destdir):
-    prints('Extracting application files...')
+    print('Extracting application files...')
     with open('/dev/null', 'w') as null:
         p = subprocess.Popen(
             list(map(encode_for_subprocess, ['tar', 'xJof', '-', '-C', destdir])),
@@ -676,7 +660,7 @@ def extract_tarball(raw, destdir):
         p.stdin.write(raw)
         p.stdin.close()
         if p.wait() != 0:
-            prints('Extracting of application files failed with error code: %s' % p.returncode)
+            print('Extracting of application files failed with error code: %s' % p.returncode)
             raise SystemExit(1)
 
 
@@ -712,13 +696,13 @@ def check_version():
 def run_installer(install_dir, isolated, bin_dir, share_dir):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
-        prints(destdir, 'is not a valid install location. Choose', end='')
-        prints('a location like /opt or /usr/local')
+        print(destdir, 'is not a valid install location. Choose', end='')
+        print('a location like /opt or /usr/local')
         return 1
     destdir = os.path.realpath(os.path.join(destdir, 'calibre'))
     if os.path.exists(destdir):
         if not os.path.isdir(destdir):
-            prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
+            print(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
             return 1
     print ('Installing to', destdir)
 
@@ -731,9 +715,9 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         if share_dir is not None:
             pi.extend(['--sharedir', share_dir])
         subprocess.call(pi)
-        prints('Run "calibre" to start calibre')
+        print('Run "calibre" to start calibre')
     else:
-        prints('Run "%s/calibre" to start calibre' % destdir)
+        print('Run "%s/calibre" to start calibre' % destdir)
     return 0
 
 
@@ -749,7 +733,7 @@ def check_umask():
     forbid_other_read = mask & stat.S_IROTH
     forbid_other_exec = mask & stat.S_IXOTH
     if forbid_user_read or forbid_user_exec or forbid_group_read or forbid_group_exec or forbid_other_read or forbid_other_exec:
-        prints(
+        print(
             'WARNING: Your current umask disallows reading of files by some users,'
             ' this can cause system breakage when running the installer because'
             ' of bugs in common system utilities.'
@@ -759,13 +743,13 @@ def check_umask():
             q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
             if q in 'f i a'.split():
                 break
-            prints('Response', q, 'not understood')
+            print('Response', q, 'not understood')
         if q == 'f':
             mask = mask & ~stat.S_IRUSR & ~stat.S_IXUSR & ~stat.S_IRGRP & ~stat.S_IXGRP & ~stat.S_IROTH & ~stat.S_IXOTH
             os.umask(mask)
-            prints('umask changed to: {:03o}'.format(mask))
+            print('umask changed to: {:03o}'.format(mask))
         elif q == 'i':
-            prints('Ignoring bad umask and proceeding anyway, you have been warned!')
+            print('Ignoring bad umask and proceeding anyway, you have been warned!')
         else:
             raise SystemExit('The system umask is unsuitable, aborting')
 

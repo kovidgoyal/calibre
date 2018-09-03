@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -70,7 +71,7 @@ class FontMetadata(object):
         sz = calcsize(table_record)
         self.tables = {}
         block = f.read(sz * num_tables)
-        for i in xrange(num_tables):
+        for i in range(num_tables):
             table_tag, table_checksum, table_offset, table_length = \
                     unpack_from(table_record, block, i*sz)
             self.tables[table_tag.lower()] = (table_offset, table_length,

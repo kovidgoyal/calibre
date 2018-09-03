@@ -27,6 +27,8 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key, numeric_sort_key
+from six.moves import map
+import six
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
@@ -199,14 +201,14 @@ class Worker(Thread):  # {{{
                         self.duplicate_ids[book_id] = (mi.title, mi.authors)
                     return
 
-            new_authors = {k for k, v in newdb.new_api.get_item_ids('authors', mi.authors).iteritems() if v is None}
+            new_authors = {k for k, v in six.iteritems(newdb.new_api.get_item_ids('authors', mi.authors)) if v is None}
             new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
                 apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                 preserve_uuid=self.delete_after)
             if new_authors:
                 author_id_map = self.db.new_api.get_item_ids('authors', new_authors)
                 sort_map, link_map = {}, {}
-                for author, aid in author_id_map.iteritems():
+                for author, aid in six.iteritems(author_id_map):
                     if aid is not None:
                         adata = self.db.new_api.author_data((aid,)).get(aid)
                         if adata is not None:
@@ -277,7 +279,7 @@ class ChooseLibrary(Dialog):  # {{{
 
     def resort(self):
         if self.sort_alphabetically.isChecked():
-            sorted_locations = sorted(self.locations, key=lambda (name, loc): numeric_sort_key(name))
+            sorted_locations = sorted(self.locations, key=lambda name_loc: numeric_sort_key(name_loc[0]))
         else:
             sorted_locations = self.locations
         self.items.clear()
@@ -362,7 +364,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.setWindowTitle(_('Duplicate books'))
         self.books = QListWidget(self)
         self.items = []
-        for book_id, (title, authors) in duplicates.iteritems():
+        for book_id, (title, authors) in six.iteritems(duplicates):
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.UserRole, book_id)
             i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
@@ -572,7 +574,7 @@ class CopyToLibraryAction(InterfaceAction):
 
         self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
-            books = '\n'.join(self.worker.auto_merged_ids.itervalues())
+            books = '\n'.join(six.itervalues(self.worker.auto_merged_ids))
             info_dialog(self.gui, _('Auto merged'),
                     _('Some books were automatically merged into existing '
                         'records in the target library. Click "Show '

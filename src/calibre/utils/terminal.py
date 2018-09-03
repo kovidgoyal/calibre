@@ -8,7 +8,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, re
-from itertools import izip
+import six
+from six.moves import zip, range
 
 from calibre.constants import iswindows
 
@@ -30,7 +31,7 @@ def fmt(code):
 
 
 RATTRIBUTES = dict(
-        izip(xrange(1, 9), (
+        zip(range(1, 9), (
             'bold',
             'dark',
             '',
@@ -41,11 +42,11 @@ RATTRIBUTES = dict(
             'concealed'
             )
         ))
-ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
+ATTRIBUTES = {v:fmt(k) for k, v in six.iteritems(RATTRIBUTES)}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
-        izip(xrange(41, 48), (
+        zip(range(41, 48), (
             'red',
             'green',
             'yellow',
@@ -55,10 +56,10 @@ RBACKGROUNDS = dict(
             'white'
             ),
     ))
-BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
+BACKGROUNDS = {v:fmt(k) for k, v in six.iteritems(RBACKGROUNDS)}
 
 RCOLORS = dict(
-        izip(xrange(31, 38), (
+        zip(range(31, 38), (
             'red',
             'green',
             'yellow',
@@ -68,7 +69,7 @@ RCOLORS = dict(
             'white',
             ),
         ))
-COLORS = {v:fmt(k) for k, v in RCOLORS.iteritems()}
+COLORS = {v:fmt(k) for k, v in six.iteritems(RCOLORS)}
 
 RESET = fmt(0)
 

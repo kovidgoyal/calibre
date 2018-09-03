@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -186,7 +187,7 @@ class History(list):  # {{{
 
 def test_history():
     h = History()
-    for i in xrange(4):
+    for i in range(4):
         h.add(i)
     for i in reversed(h):
         h.back(i)

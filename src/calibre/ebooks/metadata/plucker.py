@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import range
 
 '''
 Read meta information from Plucker pdb files.
@@ -44,7 +45,7 @@ def get_metadata(stream, extract_cover=True):
     title = None
     author = None
     pubdate = 0
-    for i in xrange(record_count):
+    for i in range(record_count):
         try:
             type, length = struct.unpack_from('>HH', section_data, 2 + adv)
         except struct.error:

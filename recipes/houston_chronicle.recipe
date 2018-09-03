@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 __license__ = 'GPL v3'
 __copyright__ = '2018, Dale Furrow dkfurrow@gmail.com'
 '''
@@ -7,7 +8,7 @@ chron.com
 '''
 import re
 import time
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 from StringIO import StringIO
 from datetime import datetime
 import traceback
@@ -20,6 +21,9 @@ from calibre.ebooks.BeautifulSoup import NavigableString
 from calibre.utils.date import dt_factory, local_tz
 from lxml import html
 from lxml import etree
+import six
+from six.moves import range
+from six.moves import zip
 
 regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|
@@ -49,20 +53,20 @@ excluded_titles = ["Winning numbers", "TV-radio listings"]
 def validate_link(page, link, title):
     other_category = page[1][1]
     if not title or len(title.strip()) < 5:
-        print("{0} rejected, title too short".format(link))
+        print(("{0} rejected, title too short".format(link)))
         return None
     if link.split('/')[3] in other_category:
-        print("{0} rejected, covered in other section".format(link))
+        print(("{0} rejected, covered in other section".format(link)))
         return None
     for excluded_title in excluded_titles:
         if title.find(excluded_title) != -1:
-            print("{0} rejected, excluded title".format(link))
+            print(("{0} rejected, excluded title".format(link)))
             return None
     return link, title
 
 
 def get_article_parsed(this_url):
-    page = urllib2.urlopen(this_url)
+    page = six.moves.urllib.request.urlopen(this_url)
     content = page.read()
     parser = etree.HTMLParser()
     parsed = html.parse(StringIO(content), parser)
@@ -73,7 +77,7 @@ def sort_subject(element_list):
     # priority of subjects
     subjects = ['news', 'neighborhood', 'entertainment']
     subjects.reverse()
-    subject_dict = OrderedDict(zip(subjects, range(len(subjects))))
+    subject_dict = OrderedDict(list(zip(subjects, list(range(len(subjects))))))
     rank_dict = OrderedDict([(rank, []) for rank in range(len(subjects) + 1)])
     for element in element_list:
         subj = element[0].split('/')[3]
@@ -84,8 +88,7 @@ def sort_subject(element_list):
     # now return in reverse order, sorted
     combined_list = []
     for rank in range(len(subjects), -1, -1):
-        article_list = rank_dict[rank]
-        article_list.sort()
+        article_list = sorted(rank_dict[rank])
         combined_list.extend(article_list)
     return combined_list
 
@@ -114,7 +117,7 @@ def get_all_links_from_sections():
     article_set = set()
     final_dict = OrderedDict()
     for item in pages.items():
-        print("getting links from {0}".format(item[0]))
+        print(("getting links from {0}".format(item[0])))
         all_sections.append(get_links_from_section_page(item))
     for section in all_sections:
         section_id = section[0]
@@ -167,7 +170,7 @@ class HoustonChronicle(BasicNewsRecipe):
                         result = []
                         for descendant in el.contents:
                             if isinstance(descendant, NavigableString):
-                                result.append(unicode(descendant).strip())
+                                result.append(six.text_type(descendant).strip())
                         all_text = u' '.join(result).encode('utf-8')
                         if len(all_text) > 1:
                             sentences = re.findall(sentence_regex, all_text)
@@ -185,7 +188,7 @@ class HoustonChronicle(BasicNewsRecipe):
         except Exception as ex:
             self.log('Error on Article Description')
             traceback.print_exc(file=sys.stdout)
-            print(str(ex))
+            print((str(ex)))
             return ""
 
     @staticmethod

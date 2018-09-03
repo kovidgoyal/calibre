@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -53,11 +55,11 @@ def builtin_dictionaries():
     if _builtins is None:
         dics = []
         for lc in glob.glob(os.path.join(P('dictionaries', allow_user_override=False), '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = [_f for _f in open(lc, 'rb').read().decode('utf-8').splitlines() if _f]
             locale = locales[0]
             base = os.path.dirname(lc)
             dics.append(Dictionary(
-                parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
+                parse_lang_code(locale), frozenset(list(map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
@@ -68,7 +70,7 @@ def custom_dictionaries(reread=False):
     if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = [_f for _f in open(lc, 'rb').read().decode('utf-8').splitlines() if _f]
             try:
                 name, locale, locales = locales[0], locales[1], locales[1:]
             except IndexError:
@@ -78,7 +80,7 @@ def custom_dictionaries(reread=False):
             if ploc.countrycode is None:
                 continue
             dics.append(Dictionary(
-                ploc, frozenset(filter(lambda x:x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
+                ploc, frozenset([x for x in map(parse_lang_code, locales) if x.countrycode is not None]), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom
@@ -101,7 +103,7 @@ def best_locale_for_language(langcode):
 
 
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].iteritems()}.get(locale, None)
+    return {parse_lang_code(k):v for k, v in six.iteritems(dprefs['preferred_dictionaries'])}.get(locale, None)
 
 
 def remove_dictionary(dictionary):
@@ -109,7 +111,7 @@ def remove_dictionary(dictionary):
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
-    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
+    dprefs['preferred_dictionaries'] = {k:v for k, v in six.iteritems(dprefs['preferred_dictionaries']) if v != dictionary.id}
 
 
 def rename_dictionary(dictionary, name):
@@ -254,13 +256,13 @@ class Dictionaries(object):
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
     def add_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in six.itervalues(self.dictionaries):
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in six.itervalues(self.dictionaries):
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
@@ -312,7 +314,7 @@ class Dictionaries(object):
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-            for langcode, words in removals.iteritems():
+            for langcode, words in six.iteritems(removals):
                 self.remove_user_words(words, langcode)
             self.save_user_dictionaries()
         return changed

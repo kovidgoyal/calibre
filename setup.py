@@ -2,28 +2,17 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import print_function
 
+from __future__ import absolute_import
 __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os
 
-
-def check_version_info():
-    vi = sys.version_info
-    if vi[0] == 2 and vi[1:3] >= (7, 9):
-        return
-    raise SystemExit(
-        'calibre requires python >= 2.7.9 and < 3. Current python version: %s'
-        % vi)
-
-
-check_version_info()
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import setup.commands as commands
-from setup import prints, get_warnings
+from setup import get_warnings
 
 
 def option_parser():
@@ -91,13 +80,13 @@ def main(args=sys.argv):
         clean_backups()
 
     if opts.clean:
-        prints('Cleaning', args[1])
+        print('Cleaning', args[1])
         command.clean()
         return 0
 
     if opts.clean_all:
         for cmd in commands.__all__:
-            prints('Cleaning', cmd)
+            print('Cleaning', cmd)
             getattr(commands, cmd).clean()
         return 0
 
@@ -106,10 +95,10 @@ def main(args=sys.argv):
     warnings = get_warnings()
     if warnings:
         print()
-        prints('There were', len(warnings), 'warning(s):')
+        print('There were', len(warnings), 'warning(s):')
         print()
         for args, kwargs in warnings:
-            prints('*', *args, **kwargs)
+            print('*', *args, **kwargs)
             print()
 
     return 0

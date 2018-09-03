@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, codecs
+import re, codecs
+from six.moves import StringIO
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -42,7 +43,7 @@ def get_document_info(stream):
                 break
     if not found:
         return None, 0
-    data, count, = cStringIO.StringIO(), 0
+    data, count, = StringIO(), 0
     pos = stream.tell()
     while True:
         ch = stream.read(1)
@@ -129,7 +130,7 @@ def get_metadata(stream):
     tags_match = tags_pat.search(block)
     if tags_match is not None:
         tags = decode(tags_match.group(1).strip(), cpg)
-        mi.tags = list(filter(None, (x.strip() for x in tags.split(','))))
+        mi.tags = list([_f for _f in (x.strip() for x in tags.split(',')) if _f])
     publisher_match = publisher_pat.search(block)
     if publisher_match is not None:
         publisher = decode(publisher_match.group(1).strip(), cpg)
@@ -145,7 +146,7 @@ def create_metadata(stream, options):
         md.append(r'{\title %s}'%(title,))
     if options.authors:
         au = options.authors
-        if not isinstance(au, basestring):
+        if not isinstance(au, six.string_types):
             au = u', '.join(au)
         author = encode(au)
         md.append(r'{\author %s}'%(author,))

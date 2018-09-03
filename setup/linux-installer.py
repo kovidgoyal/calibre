@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,6 +9,13 @@ __docformat__ = 'restructuredtext en'
 import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
 import ssl, socket, stat
 from contextlib import closing
+
+from six.moves import map
+import six
+from six.moves import range
+from six.moves import zip
+from six.moves import input
+
 
 is64bit = platform.architecture()[0] == '64bit'
 DLURL = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
@@ -22,19 +28,16 @@ calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
+from six.moves import map
+from six.moves.urllib.parse import urlparse
+import six.moves.http_client
 if py3:
-    unicode = str
+    unicode = six.text_type
     raw_input = input
-    from urllib.parse import urlparse
-    import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
-    from future_builtins import map
-    from urlparse import urlparse
-    import httplib
-
     def encode_for_subprocess(x):
-        if isinstance(x, unicode):
+        if isinstance(x, six.text_type):
             x = x.encode(enc)
         return x
 
@@ -114,14 +117,14 @@ class TerminalController:  # {{{
         if set_fg:
             if not isinstance(set_fg, bytes):
                 set_fg = set_fg.encode('utf-8')
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i,color in zip(list(range(len(self._COLORS))), self._COLORS):
                 setattr(self, color,
                         self._escape_code(curses.tparm((set_fg), i)))
         set_fg_ansi = self._tigetstr('setaf')
         if set_fg_ansi:
             if not isinstance(set_fg_ansi, bytes):
                 set_fg_ansi = set_fg_ansi.encode('utf-8')
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i,color in zip(list(range(len(self._ANSICOLORS))), self._ANSICOLORS):
                 setattr(self, color,
                         self._escape_code(curses.tparm((set_fg_ansi),
                             i)))
@@ -129,14 +132,14 @@ class TerminalController:  # {{{
         if set_bg:
             if not isinstance(set_bg, bytes):
                 set_bg = set_bg.encode('utf-8')
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i,color in zip(list(range(len(self._COLORS))), self._COLORS):
                 setattr(self, 'BG_'+color,
                         self._escape_code(curses.tparm((set_bg), i)))
         set_bg_ansi = self._tigetstr('setab')
         if set_bg_ansi:
             if not isinstance(set_bg_ansi, bytes):
                 set_bg_ansi = set_bg_ansi.encode('utf-8')
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i,color in zip(list(range(len(self._ANSICOLORS))), self._ANSICOLORS):
                 setattr(self, 'BG_'+color,
                         self._escape_code(curses.tparm((set_bg_ansi),
                             i)))
@@ -144,7 +147,7 @@ class TerminalController:  # {{{
     def _escape_code(self, raw):
         if not raw:
             raw = ''
-        if not isinstance(raw, unicode):
+        if not isinstance(raw, six.text_type):
             raw = raw.decode('ascii')
         return raw
 
@@ -202,23 +205,6 @@ class ProgressBar:
             self.cleared = 1
             out.flush()
 # }}}
-
-
-def prints(*args, **kwargs):  # {{{
-    f = kwargs.get('file', sys.stdout.buffer if py3 else sys.stdout)
-    end = kwargs.get('end', b'\n')
-    enc = getattr(f, 'encoding', 'utf-8') or 'utf-8'
-
-    if isinstance(end, unicode):
-        end = end.encode(enc)
-    for x in args:
-        if isinstance(x, unicode):
-            x = x.encode(enc)
-        f.write(x)
-        f.write(b' ')
-    f.write(end)
-    if py3 and f is sys.stdout.buffer:
-        f.flush()
 # }}}
 
 
@@ -228,7 +214,7 @@ class Reporter:  # {{{
         try:
             self.pb  = ProgressBar(TerminalController(), 'Downloading '+fname)
         except ValueError:
-            prints('Downloading', fname)
+            print('Downloading', fname)
             self.pb = None
         self.last_percent = 0
 
@@ -237,7 +223,7 @@ class Reporter:  # {{{
         if self.pb is None:
             if percent - self.last_percent > 0.05:
                 self.last_percent = percent
-                prints('Downloaded {0:%}'.format(percent))
+                print('Downloaded {0:%}'.format(percent))
         else:
             try:
                 self.pb.update(percent)
@@ -266,7 +252,7 @@ def check_signature(dest, signature):
         return raw
 
 
-class URLOpener(urllib.FancyURLopener):
+class URLOpener(six.moves.urllib.request.FancyURLopener):
 
     def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
         ''' 206 means partial content, ignore it '''
@@ -274,7 +260,7 @@ class URLOpener(urllib.FancyURLopener):
 
 
 def do_download(dest):
-    prints('Will download and install', os.path.basename(dest))
+    print('Will download and install', os.path.basename(dest))
     reporter = Reporter(os.path.basename(dest))
     offset = 0
     urlopener = URLOpener()
@@ -282,7 +268,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urllib.urlopen(DLURL)
+    rq = six.moves.urllib.request.urlopen(DLURL)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
@@ -304,7 +290,7 @@ def do_download(dest):
     if os.path.getsize(dest) < size:
         print ('Download failed, try again later')
         raise SystemExit(1)
-    prints('Downloaded %s bytes'%os.path.getsize(dest))
+    print('Downloaded %s bytes'%os.path.getsize(dest))
 
 
 def download_tarball():
@@ -319,7 +305,7 @@ def download_tarball():
     dest = os.path.join(cache, fname)
     raw = check_signature(dest, signature)
     if raw is not None:
-        print ('Using previously downloaded', fname)
+        print(('Using previously downloaded', fname))
         return raw
     cached_sigf = dest +'.signature'
     cached_sig = None
@@ -334,11 +320,11 @@ def download_tarball():
     except IOError as e:
         if e.errno != errno.EACCES:
             raise
-        print ('The installer cache directory has incorrect permissions.'
-                ' Delete %s and try again.'%cache)
+        print(('The installer cache directory has incorrect permissions.'
+                ' Delete %s and try again.'%cache))
         raise SystemExit(1)
     do_download(dest)
-    prints('Checking downloaded file integrity...')
+    print('Checking downloaded file integrity...')
     raw = check_signature(dest, signature)
     if raw is None:
         os.remove(dest)
@@ -366,11 +352,11 @@ def get_proxies(debug=True):
         if len(proxy) > 4:
             proxies[key] = proxy
         else:
-            prints('Removing invalid', key, 'proxy:', proxy)
+            print('Removing invalid', key, 'proxy:', proxy)
             del proxies[key]
 
     if proxies and debug:
-        prints('Using proxies:', repr(proxies))
+        print('Using proxies:', repr(proxies))
     return proxies
 
 
@@ -378,7 +364,7 @@ class HTTPError(ValueError):
 
     def __init__(self, url, code):
         msg = '%s returned an unsupported http response code: %d (%s)' % (
-                url, code, httplib.responses.get(code, None))
+                url, code, six.moves.http_client.responses.get(code, None))
         ValueError.__init__(self, msg)
         self.code = code
         self.url = url
@@ -491,16 +477,16 @@ def match_hostname(cert, hostname):
 
 
 if has_ssl_verify:
-    class HTTPSConnection(httplib.HTTPSConnection):
+    class HTTPSConnection(six.moves.http_client.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
             kwargs['context'] = ssl.create_default_context(cafile=kwargs.pop('cert_file'))
-            httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+            six.moves.http_client.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
-    class HTTPSConnection(httplib.HTTPSConnection):
+    class HTTPSConnection(six.moves.http_client.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
-            httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+            six.moves.http_client.HTTPSConnection.__init__(self, *args, **kwargs)
             self.calibre_ssl_version = ssl_version
 
         def connect(self):
@@ -603,7 +589,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
                 path += '?' + p.query
             c.request('GET', path)
             response = c.getresponse()
-            if response.status in (httplib.MOVED_PERMANENTLY, httplib.FOUND, httplib.SEE_OTHER):
+            if response.status in (six.moves.http_client.MOVED_PERMANENTLY, six.moves.http_client.FOUND, six.moves.http_client.SEE_OTHER):
                 if max_redirects <= 0:
                     raise ValueError('Too many redirects, giving up')
                 newurl = response.getheader('Location', None)
@@ -611,14 +597,14 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
                     raise ValueError('%s returned a redirect response with no Location header' % url)
                 return get_https_resource_securely(
                     newurl, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version)
-            if response.status != httplib.OK:
+            if response.status != six.moves.http_client.OK:
                 raise HTTPError(url, response.status)
             return response.read()
 # }}}
 
 
 def extract_tarball(raw, destdir):
-    prints('Extracting application files...')
+    print('Extracting application files...')
     with open('/dev/null', 'w') as null:
         p = subprocess.Popen(
             list(map(encode_for_subprocess, ['tar', 'xJof', '-', '-C', destdir])),
@@ -627,7 +613,7 @@ def extract_tarball(raw, destdir):
         p.stdin.write(raw)
         p.stdin.close()
         if p.wait() != 0:
-            prints('Extracting of application files failed with error code: %s' % p.returncode)
+            print('Extracting of application files failed with error code: %s' % p.returncode)
             raise SystemExit(1)
 
 
@@ -650,28 +636,28 @@ def download_and_extract(destdir):
         shutil.rmtree(destdir)
     os.makedirs(destdir)
 
-    print('Extracting files to %s ...'%destdir)
+    print(('Extracting files to %s ...'%destdir))
     extract_tarball(raw, destdir)
 
 
 def check_version():
     global calibre_version
     if calibre_version == '%version':
-        calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
+        calibre_version = six.moves.urllib.request.urlopen('http://code.calibre-ebook.com/latest').read()
 
 
 def run_installer(install_dir, isolated, bin_dir, share_dir):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
-        prints(destdir, 'is not a valid install location. Choose', end='')
-        prints('a location like /opt or /usr/local')
+        print(destdir, 'is not a valid install location. Choose', end='')
+        print('a location like /opt or /usr/local')
         return 1
     destdir = os.path.realpath(os.path.join(destdir, 'calibre'))
     if os.path.exists(destdir):
         if not os.path.isdir(destdir):
-            prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
+            print(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
             return 1
-    print ('Installing to', destdir)
+    print(('Installing to', destdir))
 
     download_and_extract(destdir)
 
@@ -682,9 +668,9 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         if share_dir is not None:
             pi.extend(['--sharedir', share_dir])
         subprocess.call(pi)
-        prints('Run "calibre" to start calibre')
+        print('Run "calibre" to start calibre')
     else:
-        prints('Run "%s/calibre" to start calibre' % destdir)
+        print('Run "%s/calibre" to start calibre' % destdir)
     return 0
 
 
@@ -700,23 +686,23 @@ def check_umask():
     forbid_other_read = mask & stat.S_IROTH
     forbid_other_exec = mask & stat.S_IXOTH
     if forbid_user_read or forbid_user_exec or forbid_group_read or forbid_group_exec or forbid_other_read or forbid_other_exec:
-        prints(
+        print(
             'WARNING: Your current umask disallows reading of files by some users,'
             ' this can cause system breakage when running the installer because'
             ' of bugs in common system utilities.'
         )
         sys.stdin = open('/dev/tty')  # stdin is a pipe from wget
         while True:
-            q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
+            q = input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
             if q in 'f i a'.split():
                 break
-            prints('Response', q, 'not understood')
+            print('Response', q, 'not understood')
         if q == 'f':
             mask = mask & ~stat.S_IRUSR & ~stat.S_IXUSR & ~stat.S_IRGRP & ~stat.S_IXGRP & ~stat.S_IROTH & ~stat.S_IXOTH
             os.umask(mask)
-            prints('umask changed to: {:03o}'.format(mask))
+            print('umask changed to: {:03o}'.format(mask))
         elif q == 'i':
-            prints('Ignoring bad umask and proceeding anyway, you have been warned!')
+            print('Ignoring bad umask and proceeding anyway, you have been warned!')
         else:
             raise SystemExit('The system umask is unsuitable, aborting')
 

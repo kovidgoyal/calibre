@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from six.moves import map
+from six.moves import zip
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -354,7 +359,7 @@ class Device(DeviceConfig, DevicePlugin):
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
-            return map(int, (g.get('m'), g.get('p')))
+            return list(map(int, (g.get('m'), g.get('p'))))
 
         def dcmp(x, y):
             '''
@@ -402,9 +407,9 @@ class Device(DeviceConfig, DevicePlugin):
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = usbobserver.get_mounted_filesystems()
-        drives = {k: mount_map.get(v) for k, v in drives.iteritems()}
+        drives = {k: mount_map.get(v) for k, v in six.iteritems(drives)}
         if DEBUG:
-            print
+            print()
             from pprint import pprint
             pprint({'bsd_drives': bsd_drives, 'mount_map': mount_map, 'drives': drives})
         if drives.get('carda') is None and drives.get('cardb') is not None:
@@ -474,7 +479,7 @@ class Device(DeviceConfig, DevicePlugin):
                         usb_dir = None
                         continue
                 e = lambda q : raw2num(open(j(usb_dir, q)).read())
-                ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
+                ven, prod, bcd = list(map(e, ('idVendor', 'idProduct', 'bcdDevice')))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
                         test(bcd, 'bcdDevice')):
                     usb_dir = None
@@ -504,7 +509,7 @@ class Device(DeviceConfig, DevicePlugin):
                     except:
                         ok[node] = False
                     if DEBUG and not ok[node]:
-                        print '\nIgnoring the node: %s as could not read size from: %s' % (node, sz)
+                        print('\nIgnoring the node: %s as could not read size from: %s' % (node, sz))
 
                     devnodes.append(node)
 
@@ -535,7 +540,7 @@ class Device(DeviceConfig, DevicePlugin):
             if sz > 0:
                 nodes.append((x.split('/')[-1], sz))
 
-        nodes.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        nodes.sort(key=lambda x: x[1])
         if not nodes:
             return node
         return nodes[-1][0]
@@ -553,7 +558,7 @@ class Device(DeviceConfig, DevicePlugin):
                     mount(node)
                     return 0
                 except:
-                    print 'Udisks mount call failed:'
+                    print('Udisks mount call failed:')
                     import traceback
                     traceback.print_exc()
                     return 1
@@ -570,7 +575,7 @@ class Device(DeviceConfig, DevicePlugin):
             'kernel is exporting a deprecated version of SYSFS.')
                     %self.__class__.__name__)
         if DEBUG:
-            print '\nFound device nodes:', main, carda, cardb
+            print('\nFound device nodes:', main, carda, cardb)
 
         self._linux_mount_map = {}
         mp, ret = mount(main, 'main')
@@ -589,7 +594,7 @@ class Device(DeviceConfig, DevicePlugin):
                 continue
             mp, ret = mount(card, typ)
             if mp is None:
-                print >>sys.stderr, 'Unable to mount card (Error code: %d)'%ret
+                print('Unable to mount card (Error code: %d)'%ret, file=sys.stderr)
             else:
                 if not mp.endswith('/'):
                     mp += '/'
@@ -616,7 +621,7 @@ class Device(DeviceConfig, DevicePlugin):
                 except:
                     pass
             if DEBUG and ro:
-                print '\nThe mountpoint', mp, 'is readonly, ignoring it'
+                print('\nThe mountpoint', mp, 'is readonly, ignoring it')
             return ro
 
         for mp in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
@@ -701,10 +706,10 @@ class Device(DeviceConfig, DevicePlugin):
                                             'label': vdevif.GetProperty('volume.label')}
                                     vols.append(vol)
                                 except dbus.exceptions.DBusException as e:
-                                    print e
+                                    print(e)
                                     continue
                         except dbus.exceptions.DBusException as e:
-                            print e
+                            print(e)
                             continue
             except dbus.exceptions.DBusException as e:
                 continue
@@ -719,7 +724,7 @@ class Device(DeviceConfig, DevicePlugin):
         vols.sort(cmp=ocmp)
 
         if verbose:
-            print "FBSD:	", vols
+            print("FBSD:	", vols)
 
         mtd=0
 
@@ -736,33 +741,33 @@ class Device(DeviceConfig, DevicePlugin):
                         time.sleep(1)
                         loops += 1
                         if loops > 100:
-                            print "ERROR: Timeout waiting for mount to complete"
+                            print("ERROR: Timeout waiting for mount to complete")
                             continue
                     mp = vol['dev'].GetProperty('volume.mount_point')
                 except dbus.exceptions.DBusException as e:
-                    print "Failed to mount ", e
+                    print("Failed to mount ", e)
                     continue
 
             # Mount Point becomes Mount Path
             mp += '/'
 
             if verbose:
-                print "FBSD:	  mounted", vol['label'], "on", mp
+                print("FBSD:	  mounted", vol['label'], "on", mp)
             if mtd == 0:
                 self._main_prefix = mp
                 self._main_vol = vol['vol']
                 if verbose:
-                    print "FBSD:	main = ", self._main_prefix
+                    print("FBSD:	main = ", self._main_prefix)
             if mtd == 1:
                 self._card_a_prefix = mp
                 self._card_a_vol = vol['vol']
                 if verbose:
-                    print "FBSD:	card a = ", self._card_a_prefix
+                    print("FBSD:	card a = ", self._card_a_prefix)
             if mtd == 2:
                 self._card_b_prefix = mp
                 self._card_b_vol = vol['vol']
                 if verbose:
-                    print "FBSD:	card b = ", self._card_b_prefix
+                    print("FBSD:	card b = ", self._card_b_prefix)
                 # Note that mtd is used as a bool... not incrementing is fine.
                 break
             mtd += 1
@@ -785,27 +790,27 @@ class Device(DeviceConfig, DevicePlugin):
 
         if self._main_prefix:
             if verbose:
-                print "FBSD:	umount main:", self._main_prefix
+                print("FBSD:	umount main:", self._main_prefix)
             try:
                 self._main_vol.Unmount([])
             except dbus.exceptions.DBusException as e:
-                print 'Unable to eject ', e
+                print('Unable to eject ', e)
 
         if self._card_a_prefix:
             if verbose:
-                print "FBSD:	umount card a:", self._card_a_prefix
+                print("FBSD:	umount card a:", self._card_a_prefix)
             try:
                 self._card_a_vol.Unmount([])
             except dbus.exceptions.DBusException as e:
-                print 'Unable to eject ', e
+                print('Unable to eject ', e)
 
         if self._card_b_prefix:
             if verbose:
-                print "FBSD:	umount card b:", self._card_b_prefix
+                print("FBSD:	umount card b:", self._card_b_prefix)
             try:
                 self._card_b_vol.Unmount([])
             except dbus.exceptions.DBusException as e:
-                print 'Unable to eject ', e
+                print('Unable to eject ', e)
 
         self._main_prefix = None
         self._card_a_prefix = None
@@ -885,8 +890,8 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 eject(d)
             except Exception as e:
-                print 'Udisks eject call for:', d, 'failed:'
-                print '\t', e
+                print('Udisks eject call for:', d, 'failed:')
+                print('\t', e)
 
     def eject(self):
         if islinux:
@@ -937,7 +942,7 @@ class Device(DeviceConfig, DevicePlugin):
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
-            if isinstance(candidates, basestring):
+            if isinstance(candidates, six.string_types):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']

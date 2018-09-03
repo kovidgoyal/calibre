@@ -8,6 +8,7 @@ from PyQt5.Qt import QSplitter, QTableView
 
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2 import gprefs
+from six.moves import range
 
 
 class PinTableView(QTableView):
@@ -74,7 +75,7 @@ class PinTableView(QTableView):
         # Because of a bug in Qt 5 we have to ensure that the header is actually
         # relaid out by changing this value, without this sometimes ghost
         # columns remain visible when changing libraries
-        for i in xrange(h.count()):
+        for i in range(h.count()):
             val = h.isSectionHidden(i)
             h.setSectionHidden(i, not val)
             h.setSectionHidden(i, val)

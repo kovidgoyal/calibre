@@ -38,7 +38,7 @@ def main():
     pr.disable()
     pr.dump_stats(stats)
     show_stats(stats)
-    print ('Stats saved to', stats)
+    print(('Stats saved to', stats))
 
 if __name__ == '__main__':
     main()

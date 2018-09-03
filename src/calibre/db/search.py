@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -162,7 +163,7 @@ class DateSearch(object):  # {{{
                     matches |= book_ids
             return matches
 
-        for k, relop in self.operators.iteritems():
+        for k, relop in six.iteritems(self.operators):
             if query.startswith(k):
                 query = query[len(k):]
                 break
@@ -249,7 +250,7 @@ class NumericSearch(object):  # {{{
             else:
                 relop = lambda x,y: x is not None
         else:
-            for k, relop in self.operators.iteritems():
+            for k, relop in six.iteritems(self.operators):
                 if query.startswith(k):
                     query = query[len(k):]
                     break
@@ -367,7 +368,7 @@ class KeyPairSearch(object):  # {{{
             return found if valq == 'true' else candidates - found
 
         for m, book_ids in field_iter():
-            for key, val in m.iteritems():
+            for key, val in six.iteritems(m):
                 if (keyq and not _match(keyq, (key,), keyq_mkind,
                                         use_primary_find_in_search=use_primary_find)):
                     continue
@@ -440,7 +441,7 @@ class SavedSearchQueries(object):  # {{{
             db._set_pref(self.opt_name, smap)
 
     def names(self):
-        return sorted(self.queries.iterkeys(), key=sort_key)
+        return sorted(six.iterkeys(self.queries), key=sort_key)
 # }}}
 
 
@@ -627,7 +628,7 @@ class Parser(SearchQueryParser):  # {{{
         text_fields = set()
         field_metadata = {}
 
-        for x, fm in self.field_metadata.iteritems():
+        for x, fm in six.iteritems(self.field_metadata):
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x not in {'series_sort', 'id'}:
@@ -665,7 +666,7 @@ class Parser(SearchQueryParser):  # {{{
                 q = canonicalize_lang(query)
                 if q is None:
                     lm = lang_map()
-                    rm = {v.lower():k for k,v in lm.iteritems()}
+                    rm = {v.lower():k for k,v in six.iteritems(lm)}
                     q = rm.get(query, query)
 
             if matchkind == CONTAINS_MATCH and q.lower() in {'true', 'false'}:
@@ -701,7 +702,7 @@ class Parser(SearchQueryParser):  # {{{
             if location in text_fields:
                 for val, book_ids in self.field_iter(location, current_candidates):
                     if val is not None:
-                        if isinstance(val, basestring):
+                        if isinstance(val, six.string_types):
                             val = (val,)
                         if _match(q, val, matchkind, use_primary_find_in_search=upf, case_sensitive=case_sensitive):
                             matches |= book_ids
@@ -794,7 +795,7 @@ class LRUCache(object):  # {{{
         return self.get(key)
 
     def __iter__(self):
-        return self.item_map.iteritems()
+        return six.iteritems(self.item_map)
 # }}}
 
 

@@ -52,14 +52,14 @@ class Freeman(BasicNewsRecipe):
 
     feeds = [
 
-    ('Cebu News'      		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=107'),
-    ('Freeman Opinion'       	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=109'),
-    ('Metro Cebu'     		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=531'),
-    ('Region'          		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=530'),
-    ('Cebu Business'            	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=108'),
-    ('Cebu Sports'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=110'),
-    ('Cebu Lifestyle'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=111'),
-    ('Cebu Entertainment'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=51')
+    ('Cebu News', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=107'),
+    ('Freeman Opinion', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=109'),
+    ('Metro Cebu', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=531'),
+    ('Region', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=530'),
+    ('Cebu Business', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=108'),
+    ('Cebu Sports', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=110'),
+    ('Cebu Lifestyle', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=111'),
+    ('Cebu Entertainment', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=51')
     ]
 
 # process the printer friendly version of article

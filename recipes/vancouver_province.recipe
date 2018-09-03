@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 __license__ = 'GPL v3'
 
 '''
@@ -8,6 +9,7 @@ www.canada.com
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag
+import six
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -190,7 +192,7 @@ class CanWestPaper(BasicNewsRecipe):
     def massageNCXText(self, description):
         # Kindle TOC descriptions won't render certain characters
         if description:
-            massaged = unicode(BeautifulStoneSoup(
+            massaged = six.text_type(BeautifulStoneSoup(
                 description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
             # Replace '&' with '&'
             massaged = re.sub("&", "&", massaged)
@@ -273,10 +275,10 @@ class CanWestPaper(BasicNewsRecipe):
                     if url.startswith('/'):
                         url = self.url_prefix + url
                     if not url.startswith(self.url_prefix):
-                        print("Rejected " + url)
+                        print(("Rejected " + url))
                         return
                     if url in self.url_list:
-                        print("Rejected dup " + url)
+                        print(("Rejected dup " + url))
                         return
                     self.url_list.append(url)
                     title = self.tag_to_string(atag, False)
@@ -288,8 +290,8 @@ class CanWestPaper(BasicNewsRecipe):
                         return
                     dtag = adiv.find('div', 'content')
                     description = ''
-                    print("URL " + url)
-                    print("TITLE " + title)
+                    print(("URL " + url))
+                    print(("TITLE " + title))
                     if dtag is not None:
                         stag = dtag.span
                         if stag is not None:
@@ -297,18 +299,18 @@ class CanWestPaper(BasicNewsRecipe):
                                 description = self.tag_to_string(stag, False)
                         else:
                             description = self.tag_to_string(dtag, False)
-                        print("DESCRIPTION: " + description)
+                        print(("DESCRIPTION: " + description))
                     if not articles.has_key(key):  # noqa
                         articles[key] = []
                     articles[key].append(dict(
                         title=title, url=url, date='', description=description, author='', content=''))
 
         def parse_web_index(key, keyurl):
-            print("Section: " + key + ': ' + self.url_prefix + keyurl)
+            print(("Section: " + key + ': ' + self.url_prefix + keyurl))
             try:
                 soup = self.index_to_soup(self.url_prefix + keyurl)
             except:
-                print("Section: " + key + ' NOT FOUND')
+                print(("Section: " + key + ' NOT FOUND'))
                 return
             ans.append(key)
             mainsoup = soup.find('div', 'bodywrapper')

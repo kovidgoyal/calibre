@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import range
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -9,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, base64
 from contextlib import closing
 from threading import Thread
-from Queue import Queue
+from six.moves.queue import Queue
 
 from calibre import browser
 from calibre.constants import DEBUG
@@ -44,7 +45,7 @@ class GenericDownloadThreadPool(object):
         starts any threads necessary to fill the pool if it is
         not already full.
         '''
-        for i in xrange(self.thread_count - self.running_threads_count()):
+        for i in range(self.thread_count - self.running_threads_count()):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
             t.start()

@@ -12,6 +12,7 @@
 #########################################################################
 
 
+from __future__ import print_function
 class ListTable:
     """
     Parse the list table line. Make a string. Form a dictionary.
@@ -98,7 +99,7 @@ class ListTable:
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
             if action is None:
-                print self.__state
+                print(self.__state)
             action(line)
         self.__write_final_string()
         # self.__add_to_final_line()
@@ -383,7 +384,7 @@ class ListTable:
             self.__list_table_final += 'mi<tg<open-att__<list-in-table'
             # self.__list_table_final += '<list-id>%s' % (str(id))
             the_dict = list[0]
-            the_keys = the_dict.keys()
+            the_keys = list(the_dict.keys())
             for the_key in the_keys:
                 if the_key in not_allow:
                     continue
@@ -398,7 +399,7 @@ class ListTable:
                 self.__list_table_final += 'mi<tg<empty-att_<level-in-table'
                 self.__list_table_final += '<level>%s' % (str(level_num))
                 the_dict2 = level[0]
-                the_keys2 = the_dict2.keys()
+                the_keys2 = list(the_dict2.keys())
                 is_bullet = 0
                 bullet_text = ''
                 for the_key2 in the_keys2:

@@ -2,16 +2,17 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
-from future_builtins import map
+from six.moves import map
 from operator import itemgetter
 
 from lxml import etree
@@ -168,7 +169,7 @@ def parse_ncx(container, ncx_name):
     if navmaps:
         process_ncx_node(container, navmaps[0], toc_root, ncx_name)
     toc_root.lang = toc_root.uid = None
-    for attr, val in root.attrib.iteritems():
+    for attr, val in six.iteritems(root.attrib):
         if attr.endswith('lang'):
             toc_root.lang = unicode(val)
             break
@@ -415,14 +416,14 @@ def from_xpaths(container, xpaths):
         name = container.abspath_to_name(spinepath)
         root = container.parsed(name)
         level_item_map = maps[name] = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
-        for lvl, elems in level_item_map.iteritems():
+        for lvl, elems in six.iteritems(level_item_map):
             if elems:
                 empty_levels.discard(lvl)
     # Remove empty levels from all level_maps
     if empty_levels:
-        for name, lmap in tuple(maps.iteritems()):
-            lmap = {lvl:items for lvl, items in lmap.iteritems() if lvl not in empty_levels}
-            lmap = sorted(lmap.iteritems(), key=itemgetter(0))
+        for name, lmap in tuple(six.iteritems(maps)):
+            lmap = {lvl:items for lvl, items in six.iteritems(lmap) if lvl not in empty_levels}
+            lmap = sorted(six.iteritems(lmap), key=itemgetter(0))
             lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
             maps[name] = lmap
 
@@ -440,9 +441,9 @@ def from_xpaths(container, xpaths):
 
         return process_node(tocroot)
 
-    for name, level_item_map in maps.iteritems():
+    for name, level_item_map in six.iteritems(maps):
         root = container.parsed(name)
-        item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+        item_level_map = {e:i for i, elems in six.iteritems(level_item_map) for e in elems}
         item_dirtied = False
         all_ids = set(root.xpath('//*/@id'))
 

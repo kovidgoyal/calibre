@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+import six
 
 
 class HistoryToday(BasicNewsRecipe):
@@ -84,7 +85,7 @@ class HistoryToday(BasicNewsRecipe):
                         feeds[section_title] = []
                     feeds[section_title] += articles
 
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in six.iteritems(feeds)]
         return ans
 
     def cleanup(self):

@@ -5,6 +5,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from six.moves import range
 
 HEADER = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 

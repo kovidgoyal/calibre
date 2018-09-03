@@ -169,7 +169,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         if editing:
             db = self.gui.current_db
             virt_libs = db.prefs.get('virtual_libraries', {})
-            for dex,vl in enumerate(sorted(virt_libs.keys(), key=sort_key)):
+            for dex,vl in enumerate(sorted(list(virt_libs.keys()), key=sort_key)):
                 self.vl_name.addItem(vl, virt_libs.get(vl, ''))
                 if vl == editing:
                     self.vl_name.setCurrentIndex(dex)
@@ -357,7 +357,7 @@ class SearchRestrictionMixin(object):
     def do_create_edit(self, name=None):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
-        cd = CreateVirtualLibrary(self, virt_libs.keys(), editing=name)
+        cd = CreateVirtualLibrary(self, list(virt_libs.keys()), editing=name)
         if cd.exec_() == cd.Accepted:
             if name:
                 self._remove_vl(name, reapply=False)
@@ -418,7 +418,7 @@ class SearchRestrictionMixin(object):
         m.addSeparator()
 
         virt_libs = db.prefs.get('virtual_libraries', {})
-        for vl in sorted(virt_libs.keys(), key=sort_key):
+        for vl in sorted(list(virt_libs.keys()), key=sort_key):
             a = m.addAction(self.checked if vl == current_lib else self.empty, vl.replace('&', '&&'))
             a.triggered.connect(partial(self.apply_virtual_library, library=vl))
 
@@ -477,7 +477,7 @@ class SearchRestrictionMixin(object):
             a.triggered.connect(partial(handler, name=name))
             a.setIcon(self.empty)
 
-        libs = sorted(virt_libs.keys(), key=sort_key)
+        libs = sorted(list(virt_libs.keys()), key=sort_key)
         if libs:
             menu.setEnabled(True)
             for n in libs:

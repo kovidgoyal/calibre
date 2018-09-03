@@ -2,11 +2,12 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, _winreg as winreg, struct, datetime
+import ctypes, ctypes.wintypes as types, six.moves.winreg as winreg, struct, datetime
 import winerror, win32con
 
 # Binding to C library {{{

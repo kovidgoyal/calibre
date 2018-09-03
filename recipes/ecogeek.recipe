@@ -9,6 +9,7 @@ EcoGeek.org
 import os
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryDirectory
+import six
 
 
 class EcoGeek(BasicNewsRecipe):
@@ -26,7 +27,7 @@ class EcoGeek(BasicNewsRecipe):
         for i, article in enumerate(soup.findAll('div', attrs={'class': 'article'})):
             fname = os.path.join(tdir, '%d.html' % i)
             with open(fname, 'wb') as f:
-                f.write(unicode(article).encode('utf-8'))
+                f.write(six.text_type(article).encode('utf-8'))
             articles.append({
                 'title': self.tag_to_string(article.find('h2')),
                 'url': 'file://' + fname.replace(os.sep, '/'),

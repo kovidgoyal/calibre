@@ -7,12 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from base64 import b64encode
 
 from lxml import html
-from mechanize import Request
-
+from six.moves.urllib.parse import quote_plus, urlencode
 from PyQt5.Qt import QUrl
 
 from calibre import url_slash_cleaner, browser
@@ -24,7 +22,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'http://woblink.com/publication/ajax?mode=none&query=' + urllib.quote_plus(query.encode('utf-8'))
+    from mechanize import Request
+    url = 'http://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query.encode('utf-8'))
     if max_results > 10:
         if max_results > 20:
             url += '&limit=30'
@@ -37,7 +36,7 @@ def search(query, max_results=10, timeout=60):
         'X-Requested-With': 'XMLHttpRequest',
         'Referrer':'http://woblink.com/ebooki-kategorie',
         'Cache-Control':'max-age=0',
-    }, data=urllib.urlencode({
+    }, data=urlencode({
         'nw_filtry_filtr_zakrescen_formularz[min]':'0',
         'nw_filtry_filtr_zakrescen_formularz[max]':'350',
     }))

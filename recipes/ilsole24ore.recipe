@@ -7,6 +7,7 @@ http://www.ilsole24ore.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from six.moves import range
 
 
 class IlSole24Ore(BasicNewsRecipe):

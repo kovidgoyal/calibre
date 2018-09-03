@@ -2,14 +2,18 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, cPickle, sys
+import os, sys
 from threading import Thread
 from collections import namedtuple
-from Queue import Queue
+
+from six.moves import cPickle
+from six.moves.queue import Queue
 
 from calibre import detect_ncpus, as_unicode, prints
 from calibre.constants import iswindows, DEBUG
@@ -95,7 +99,7 @@ class Worker(object):
         self.name = name or ''
 
     def __call__(self, job):
-        eintr_retry_call(self.conn.send_bytes, cPickle.dumps(job, -1))
+        eintr_retry_call(self.conn.send_bytes, six.moves.cPickle.dumps(job, -1))
         if job is not None:
             self.job_id = job.id
             t = Thread(target=self.recv, name='PoolWorker-'+self.name)
@@ -104,7 +108,7 @@ class Worker(object):
 
     def recv(self):
         try:
-            result = cPickle.loads(eintr_retry_call(self.conn.recv_bytes))
+            result = six.moves.cPickle.loads(eintr_retry_call(self.conn.recv_bytes))
             wr = WorkerResult(self.job_id, result, False, self)
         except Exception as err:
             import traceback
@@ -130,7 +134,7 @@ class Pool(Thread):
         self.results = Queue()
         self.tracker = Queue()
         self.terminal_failure = None
-        self.common_data = cPickle.dumps(None, -1)
+        self.common_data = six.moves.cPickle.dumps(None, -1)
         self.worker_data = None
         self.shutting_down = False
 
@@ -192,7 +196,7 @@ class Pool(Thread):
         p.stdin.flush(), p.stdin.close()
         conn = eintr_retry_call(self.listener.accept)
         w = Worker(p, conn, self.events, self.name)
-        if self.common_data != cPickle.dumps(None, -1):
+        if self.common_data != six.moves.cPickle.dumps(None, -1):
             w.set_common_data(self.common_data)
         return w
 
@@ -211,7 +215,7 @@ class Pool(Thread):
         from calibre.utils.ipc.server import create_listener
         self.auth_key = os.urandom(32)
         self.address, self.listener = create_listener(self.auth_key)
-        self.worker_data = cPickle.dumps((self.address, self.auth_key), -1)
+        self.worker_data = six.moves.cPickle.dumps((self.address, self.auth_key), -1)
         if self.start_worker() is False:
             return
 
@@ -243,12 +247,12 @@ class Pool(Thread):
                 return False
             self.results.put(worker_result)
         else:
-            self.common_data = cPickle.dumps(event, -1)
+            self.common_data = six.moves.cPickle.dumps(event, -1)
             if len(self.common_data) > MAX_SIZE:
                 self.cd_file = PersistentTemporaryFile('pool_common_data')
                 with self.cd_file as f:
                     f.write(self.common_data)
-                self.common_data = cPickle.dumps(File(f.name), -1)
+                self.common_data = six.moves.cPickle.dumps(File(f.name), -1)
             for worker in self.available_workers:
                 try:
                     worker.set_common_data(self.common_data)
@@ -280,7 +284,7 @@ class Pool(Thread):
     def terminal_error(self):
         if self.shutting_down:
             return
-        for worker, job in self.busy_workers.iteritems():
+        for worker, job in six.iteritems(self.busy_workers):
             self.results.put(WorkerResult(job.id, Result(None, None, None), True, worker))
             self.tracker.task_done()
         while self.pending_jobs:
@@ -340,7 +344,7 @@ def worker_main(conn):
     common_data = None
     while True:
         try:
-            job = cPickle.loads(eintr_retry_call(conn.recv_bytes))
+            job = six.moves.cPickle.loads(eintr_retry_call(conn.recv_bytes))
         except EOFError:
             break
         except KeyboardInterrupt:
@@ -354,7 +358,7 @@ def worker_main(conn):
             break
         if not isinstance(job, Job):
             if isinstance(job, File):
-                common_data = cPickle.load(open(job.name, 'rb'))
+                common_data = six.moves.cPickle.load(open(job.name, 'rb'))
             else:
                 common_data = job
             continue
@@ -374,7 +378,7 @@ def worker_main(conn):
             import traceback
             result = Result(None, as_unicode(err), traceback.format_exc())
         try:
-            eintr_retry_call(conn.send_bytes, cPickle.dumps(result, -1))
+            eintr_retry_call(conn.send_bytes, six.moves.cPickle.dumps(result, -1))
         except EOFError:
             break
         except Exception:
@@ -388,7 +392,11 @@ def worker_main(conn):
 def run_main(func):
     from multiprocessing.connection import Client
     from contextlib import closing
-    address, key = cPickle.loads(eintr_retry_call(sys.stdin.read))
+    try:
+        read = sys.stdin.buffer.read
+    except AttributeError:
+        read = sys.stdin.read
+    address, key = cPickle.loads(eintr_retry_call(read))
     with closing(Client(address, authkey=key)) as conn:
         raise SystemExit(func(conn))
 
@@ -403,8 +411,8 @@ def test():
         while not p.results.empty():
             r = p.results.get()
             if not ignore_fail and r.is_terminal_failure:
-                print (r.result.err)
-                print (r.result.traceback)
+                print((r.result.err))
+                print((r.result.traceback))
                 raise SystemExit(1)
             ans[r.id] = r.result
         return ans
@@ -416,7 +424,7 @@ def test():
         p(i, 'def x(i):\n return 2*i', 'x', i)
         expected_results[i] = 2 * i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in get_results(p).iteritems()}
+    results = {k:v.value for k, v in six.iteritems(get_results(p))}
     if results != expected_results:
         raise SystemExit('%r != %r' % (expected_results, results))
     p.shutdown(), p.join()
@@ -430,7 +438,7 @@ def test():
         p(i, 'def x(i, common_data=None):\n return common_data + i', 'x', i)
         expected_results[i] = 7 + i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in get_results(p).iteritems()}
+    results = {k:v.value for k, v in six.iteritems(get_results(p))}
     if results != expected_results:
         raise SystemExit('%r != %r' % (expected_results, results))
     p.shutdown(), p.join()
@@ -452,7 +460,7 @@ def test():
         p(i, 'def x(i):\n return 1/0', 'x', i)
     p.wait_for_tasks(30)
     c = 0
-    for r in get_results(p).itervalues():
+    for r in six.itervalues(get_results(p)):
         c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit('Unexpected result: %s' % r)

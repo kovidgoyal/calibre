@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -315,7 +316,7 @@ def check_opf(container):
                 dups[href].append(item.sourceline)
             else:
                 seen[href] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in six.iteritems(dups))
 
     seen, dups = {}, {}
     for item in container.opf_xpath('/opf:package/opf:spine/opf:itemref[@idref]'):
@@ -326,7 +327,7 @@ def check_opf(container):
             dups[ref].append(item.sourceline)
         else:
             seen[ref] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in six.iteritems(dups))
 
     spine = container.opf_xpath('/opf:package/opf:spine[@toc]')
     if spine:
@@ -345,7 +346,7 @@ def check_opf(container):
             ncx = container.manifest_type_map.get(guess_type('a.ncx'))
             if ncx:
                 ncx_name = ncx[0]
-                rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+                rmap = {v:k for k, v in six.iteritems(container.manifest_id_map)}
                 ncx_id = rmap.get(ncx_name)
                 if ncx_id:
                     errors.append(MissingNCXRef(container.opf_name, spine.sourceline, ncx_id))

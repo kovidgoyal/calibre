@@ -15,6 +15,7 @@ from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import ParseException
+import six
 
 
 class Context(object):
@@ -31,8 +32,8 @@ class Context(object):
         self.testing = testing
         self.lock = Lock()
         self.user_manager = UserManager(opts.userdb)
-        self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
-        self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
+        self.ignored_fields = frozenset([_f for _f in (x.strip() for x in (opts.ignored_fields or '').split(',')) if _f])
+        self.displayed_fields = frozenset([_f for _f in (x.strip() for x in (opts.displayed_fields or '').split(',')) if _f])
         self._notify_changes = notify_changes
 
     def notify_changes(self, library_path, change_event):
@@ -66,7 +67,7 @@ class Context(object):
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
-        library_id = library_id or next(allowed_libraries.iterkeys())
+        library_id = library_id or next(six.iterkeys(allowed_libraries))
         if library_id in allowed_libraries:
             return self.library_broker.get(library_id)
         raise HTTPForbidden('The user {} is not allowed to access the library {}'.format(request_data.username, library_id))
@@ -78,7 +79,7 @@ class Context(object):
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
-        return dict(allowed_libraries), next(allowed_libraries.iterkeys())
+        return dict(allowed_libraries), next(six.iterkeys(allowed_libraries))
 
     def restriction_for(self, request_data, db):
         return self.user_manager.library_restriction(request_data.username, path_for_db(db))
@@ -198,7 +199,7 @@ class Handler(object):
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)
-            self.router.load_routes(vars(module).itervalues())
+            self.router.load_routes(six.itervalues(vars(module)))
         self.router.finalize()
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch

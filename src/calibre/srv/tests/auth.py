@@ -2,11 +2,13 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, base64, urllib2, subprocess, os, cookielib, time
+import six.moves.http_client, base64, urllib2, subprocess, os, six.moves.http_cookiejar, time
 from collections import namedtuple
 try:
     from distutils.spawn import find_executable
@@ -43,7 +45,7 @@ def android2(ctx, data):
 
 def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
-    return Router(globals().itervalues(), auth_controller=AuthController(
+    return Router(six.itervalues(globals()), auth_controller=AuthController(
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
         ban_time_in_minutes=ban_for, ban_after=ban_after,
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
@@ -88,18 +90,18 @@ class TestAuth(BaseTest):
             conn = server.connect()
             conn.request('GET', '/open')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(r.read(), b'open')
 
             conn.request('GET', '/closed')
             r = conn.getresponse()
-            self.ae(r.status, httplib.UNAUTHORIZED)
+            self.ae(r.status, six.moves.http_client.UNAUTHORIZED)
             self.ae(r.getheader('WWW-Authenticate'), b'Basic realm="%s"' % bytes(REALM))
             self.assertFalse(r.read())
             conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + base64.standard_b64encode(b'testuser:testpw')})
             r = conn.getresponse()
             self.ae(r.read(), b'closed')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(b'closed', urlopen(server, method='basic').read())
             self.ae(b'closed', urlopen(server, un='!@#$%^&*()-=_+', pw='!@#$%^&*()-=_+', method='basic').read())
 
@@ -110,14 +112,14 @@ class TestAuth(BaseTest):
 
             warnings = []
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
-            self.ae((httplib.OK, b'closed'), request())
-            self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request('', ''))
+            self.ae((six.moves.http_client.OK, b'closed'), request())
+            self.ae((six.moves.http_client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((six.moves.http_client.BAD_REQUEST, b'The username or password was empty'), request('', ''))
             self.ae(1, len(warnings))
-            self.ae((httplib.UNAUTHORIZED, b''), request('testuser', 'y'))
-            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
-            self.ae((httplib.BAD_REQUEST, b'The username or password was empty'), request(''))
-            self.ae((httplib.UNAUTHORIZED, b''), request('asf', 'testpw'))
+            self.ae((six.moves.http_client.UNAUTHORIZED, b''), request('testuser', 'y'))
+            self.ae((six.moves.http_client.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
+            self.ae((six.moves.http_client.BAD_REQUEST, b'The username or password was empty'), request(''))
+            self.ae((six.moves.http_client.UNAUTHORIZED, b''), request('asf', 'testpw'))
     # }}}
 
     def test_library_restrictions(self):  # {{{
@@ -127,7 +129,7 @@ class TestAuth(BaseTest):
         opts = Options(userdb=':memory:')
         Data = namedtuple('Data', 'username')
         with TemporaryDirectory() as base:
-            l1, l2, l3 = map(lambda x: os.path.join(base, 'l' + x), '123')
+            l1, l2, l3 = [os.path.join(base, 'l' + x) for x in '123']
             for l in (l1, l2, l3):
                 create_backend(l).close()
             ctx = Handler((l1, l2, l3), opts).router.ctx
@@ -139,19 +141,19 @@ class TestAuth(BaseTest):
 
             def library_info(username=None):
                 lmap, defaultlib = ctx.library_info(Data(username))
-                lmap = {k:os.path.basename(v) for k, v in lmap.iteritems()}
+                lmap = {k:os.path.basename(v) for k, v in six.iteritems(lmap)}
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')
-            self.assertEqual(library_info()[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            self.assertEqual(library_info()[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4))})
             self.assertEqual(library_info()[1], 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')
             um.add_user('a', 'a')
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4)})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4))})
             um.update_user_restrictions('a', {'blocked_library_names': ['L2']})
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i != 2})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4)) if i != 2})
             um.update_user_restrictions('a', {'allowed_library_names': ['l3']})
-            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in range(1, 4) if i == 3})
+            self.assertEqual(library_info('a')[0], {'l%d'%i:'l%d'%i for i in list(range(1, 4)) if i == 3})
             self.assertEqual(library_info('a')[1], 'l3')
             self.assertRaises(HTTPForbidden, get_library, 'a', 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')
@@ -166,7 +168,7 @@ class TestAuth(BaseTest):
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
 
-            def test(conn, path, headers={}, status=httplib.OK, body=b'', request_body=b''):
+            def test(conn, path, headers={}, status=six.moves.http_client.OK, body=b'', request_body=b''):
                 conn.request('GET', path, request_body, headers)
                 r = conn.getresponse()
                 self.ae(r.status, status)
@@ -174,9 +176,9 @@ class TestAuth(BaseTest):
                 return {normalize_header_name(k):v for k, v in r.getheaders()}
             conn = server.connect()
             test(conn, '/open', body=b'open')
-            auth = parse_http_dict(test(conn, '/closed', status=httplib.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=six.moves.http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
             nonce = auth['nonce']
-            auth = parse_http_dict(test(conn, '/closed', status=httplib.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=six.moves.http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
             self.assertNotEqual(nonce, auth['nonce'], 'nonce was re-used')
             self.ae(auth[b'realm'], bytes(REALM)), self.ae(auth[b'algorithm'], b'MD5'), self.ae(auth[b'qop'], b'auth')
             self.assertNotIn('stale', auth)
@@ -196,14 +198,14 @@ class TestAuth(BaseTest):
             # Check stale nonces
             orig, r.auth_controller.max_age_seconds = r.auth_controller.max_age_seconds, -1
             auth = parse_http_dict(test(conn, '/closed', headers={
-                'Authorization':digest(**args)},status=httplib.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+                'Authorization':digest(**args)},status=six.moves.http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
             self.assertIn('stale', auth)
             r.auth_controller.max_age_seconds = orig
             ok_test(conn, digest(**args))
 
             def fail_test(conn, modify, **kw):
                 kw['body'] = kw.get('body', b'')
-                kw['status'] = kw.get('status', httplib.UNAUTHORIZED)
+                kw['status'] = kw.get('status', six.moves.http_client.UNAUTHORIZED)
                 args['modify'] = modify
                 return test(conn, '/closed', headers={'Authorization':digest(**args)}, **kw)
 
@@ -255,13 +257,13 @@ class TestAuth(BaseTest):
 
             warnings = []
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
-            self.ae((httplib.OK, b'closed'), request())
-            self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae((httplib.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae(httplib.FORBIDDEN, request('x', 'y')[0])
-            self.ae(httplib.FORBIDDEN, request()[0])
+            self.ae((six.moves.http_client.OK, b'closed'), request())
+            self.ae((six.moves.http_client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((six.moves.http_client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae(six.moves.http_client.FORBIDDEN, request('x', 'y')[0])
+            self.ae(six.moves.http_client.FORBIDDEN, request()[0])
             time.sleep(ban_for * 60 + 0.01)
-            self.ae((httplib.OK, b'closed'), request())
+            self.ae((six.moves.http_client.OK, b'closed'), request())
     # }}}
 
     def test_android_auth_workaround(self):  # {{{
@@ -274,28 +276,28 @@ class TestAuth(BaseTest):
             # First check that unauth access fails
             conn.request('GET', '/android')
             r = conn.getresponse()
-            self.ae(r.status, httplib.UNAUTHORIZED)
+            self.ae(r.status, six.moves.http_client.UNAUTHORIZED)
 
             auth_handler = urllib2.HTTPDigestAuthHandler()
             url = 'http://localhost:%d%s' % (server.address[1], '/android')
             auth_handler.add_password(realm=REALM, uri=url, user='testuser', passwd='testpw')
-            cj = cookielib.CookieJar()
+            cj = six.moves.http_cookiejar.CookieJar()
             cookie_handler = urllib2.HTTPCookieProcessor(cj)
             r = urllib2.build_opener(auth_handler, cookie_handler).open(url)
-            self.ae(r.getcode(), httplib.OK)
+            self.ae(r.getcode(), six.moves.http_client.OK)
             cookies = tuple(cj)
             self.ae(len(cookies), 1)
             cookie = cookies[0]
             self.assertIn(b':', cookie.value)
             self.ae(cookie.path, b'/android')
             r = urllib2.build_opener(cookie_handler).open(url)
-            self.ae(r.getcode(), httplib.OK)
+            self.ae(r.getcode(), six.moves.http_client.OK)
             self.ae(r.read(), b'android')
             # Test that a replay attack against a different URL does not work
             try:
                 urllib2.build_opener(cookie_handler).open(url+'2')
                 assert ('Replay attack succeeded')
             except urllib2.HTTPError as e:
-                self.ae(e.code, httplib.UNAUTHORIZED)
+                self.ae(e.code, six.moves.http_client.UNAUTHORIZED)
 
     # }}}

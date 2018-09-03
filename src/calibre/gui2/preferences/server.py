@@ -14,6 +14,8 @@ from PyQt5.Qt import (
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
     QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
+from six.moves import map
+from six.moves import range
 try:
     from PyQt5 import sip
 except ImportError:

@@ -10,7 +10,7 @@ import bz2
 import errno
 import glob
 import gzip
-import HTMLParser
+import six.moves.html_parser
 import io
 import json
 import os
@@ -22,8 +22,8 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib2
-import urlparse
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.parse
 import zipfile
 import zlib
 from collections import namedtuple
@@ -31,7 +31,8 @@ from contextlib import closing
 from datetime import datetime
 from email.utils import parsedate
 from functools import partial
-from future_builtins import filter, map, zip
+import six
+from six.moves import range, map, zip, getcwd
 from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
 # }}}
@@ -45,15 +46,15 @@ INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 # INDEX = 'file:///t/raw.html'
 
 IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
-u = HTMLParser.HTMLParser().unescape
+u = six.moves.html_parser.HTMLParser().unescape
 
 socket.setdefaulttimeout(30)
 
 
 def read(url, get_info=False):  # {{{
     if url.startswith("file://"):
-        return urllib2.urlopen(url).read()
-    opener = urllib2.build_opener()
+        return six.moves.urllib.request.urlopen(url).read()
+    opener = six.moves.urllib.request.build_opener()
     opener.addheaders = [
         ('User-Agent', USER_AGENT),
         ('Accept-Encoding', 'gzip,deflate'),
@@ -63,7 +64,7 @@ def read(url, get_info=False):  # {{{
         try:
             res = opener.open(url)
             break
-        except urllib2.URLError as e:
+        except six.moves.urllib.error.URLError as e:
             if not isinstance(e.reason, socket.timeout) or i == 9:
                 raise
             time.sleep(random.randint(10, 45))
@@ -83,7 +84,7 @@ def read(url, get_info=False):  # {{{
 
 
 def url_to_plugin_id(url, deprecated):
-    query = urlparse.parse_qs(urlparse.urlparse(url).query)
+    query = six.moves.urllib.parse.parse_qs(six.moves.urllib.parse.urlparse(url).query)
     ans = (query['t'] if 't' in query else query['p'])[0]
     if deprecated:
         ans += '-deprecated'
@@ -152,10 +153,10 @@ def convert_node(fields, x, names={}, import_data=None):
         return x.n
     elif name in {'Set', 'List', 'Tuple'}:
         func = {'Set':set, 'List':list, 'Tuple':tuple}[name]
-        return func(map(conv, x.elts))
+        return func(list(map(conv, x.elts)))
     elif name == 'Dict':
-        keys, values = map(conv, x.keys), map(conv, x.values)
-        return dict(zip(keys, values))
+        keys, values = list(map(conv, x.keys)), list(map(conv, x.values))
+        return dict(list(zip(keys, values)))
     elif name == 'Call':
         if len(x.args) != 1 and len(x.keywords) != 0:
             raise TypeError('Unsupported function call for fields: %s' % (fields,))
@@ -183,7 +184,7 @@ def get_import_data(name, mod, zf, names):
     if mod in names:
         raw = zf.open(names[mod]).read()
         module = ast.parse(raw, filename='__init__.py')
-        top_level_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(module))
+        top_level_assigments = [x for x in ast.iter_child_nodes(module) if x.__class__.__name__ == 'Assign']
         for node in top_level_assigments:
             targets = {getattr(t, 'id', None) for t in node.targets}
             targets.discard(None)
@@ -197,9 +198,9 @@ def get_import_data(name, mod, zf, names):
 
 def parse_metadata(raw, namelist, zf):
     module = ast.parse(raw, filename='__init__.py')
-    top_level_imports = filter(lambda x:x.__class__.__name__ == 'ImportFrom', ast.iter_child_nodes(module))
-    top_level_classes = tuple(filter(lambda x:x.__class__.__name__ == 'ClassDef', ast.iter_child_nodes(module)))
-    top_level_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(module))
+    top_level_imports = [x for x in ast.iter_child_nodes(module) if x.__class__.__name__ == 'ImportFrom']
+    top_level_classes = tuple([x for x in ast.iter_child_nodes(module) if x.__class__.__name__ == 'ClassDef'])
+    top_level_assigments = [x for x in ast.iter_child_nodes(module) if x.__class__.__name__ == 'Assign']
     defaults = {'name':'', 'description':'', 'supported_platforms':['windows', 'osx', 'linux'],
                 'version':(1, 0, 0), 'author':'Unknown', 'minimum_calibre_version':(0, 9, 42)}
     field_names = set(defaults)
@@ -241,7 +242,7 @@ def parse_metadata(raw, namelist, zf):
                 names[x] = val
 
     def parse_class(node):
-        class_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(node))
+        class_assigments = [x for x in ast.iter_child_nodes(node) if x.__class__.__name__ == 'Assign']
         found = {}
         for node in class_assigments:
             targets = {getattr(t, 'id', None) for t in node.targets}
@@ -293,7 +294,7 @@ def get_plugin_info(raw, check_for_qt5=False):
             metadata = names[inits[0]]
         else:
             # Legacy plugin
-            for name, val in names.iteritems():
+            for name, val in six.iteritems(names):
                 if name.endswith('plugin.py'):
                     metadata = val
                     break
@@ -332,7 +333,7 @@ def update_plugin_from_entry(plugin, entry):
 
 
 def fetch_plugin(old_index, entry):
-    lm_map = {plugin['thread_id']:plugin for plugin in old_index.itervalues()}
+    lm_map = {plugin['thread_id']:plugin for plugin in six.itervalues(old_index)}
     raw = read(entry.url)
     url, name = parse_plugin_zip_url(raw)
     if url is None:
@@ -342,9 +343,9 @@ def fetch_plugin(old_index, entry):
     if plugin is not None:
         # Previously downloaded plugin
         lm = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6])
-        request = urllib2.Request(url)
+        request = six.moves.urllib.request.Request(url)
         request.get_method = lambda : 'HEAD'
-        with closing(urllib2.urlopen(request)) as response:
+        with closing(six.moves.urllib.request.urlopen(request)) as response:
             info = response.info()
         slm = datetime(*parsedate(info.get('Last-Modified'))[:6])
         if lm >= slm:
@@ -381,7 +382,7 @@ def log(*args, **kwargs):
 
 
 def atomic_write(raw, name):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    with tempfile.NamedTemporaryFile(dir=getcwd(), delete=False) as f:
         f.write(raw)
         os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)
@@ -404,7 +405,7 @@ def fetch_plugins(old_index):
             log('Failed to get plugin', entry.name, 'at', datetime.utcnow().isoformat(), 'with error:')
             log(plugin)
     # Move staged files
-    for plugin in ans.itervalues():
+    for plugin in six.itervalues(ans):
         if plugin['file'].startswith('staging_'):
             src = plugin['file']
             plugin['file'] = src.partition('_')[-1]
@@ -412,7 +413,7 @@ def fetch_plugins(old_index):
     raw = bz2.compress(json.dumps(ans, sort_keys=True, indent=4, separators=(',', ': ')))
     atomic_write(raw, PLUGINS)
     # Cleanup any extra .zip files
-    all_plugin_files = {p['file'] for p in ans.itervalues()}
+    all_plugin_files = {p['file'] for p in six.itervalues(ans)}
     extra = set(glob.glob('*.zip')) - all_plugin_files
     for x in extra:
         os.unlink(x)
@@ -499,7 +500,7 @@ h1 { text-align: center }
         name, count = x
         return '<tr><td>%s</td><td>%s</td></tr>\n' % (escape(name), count)
 
-    pstats = map(plugin_stats, sorted(stats.iteritems(), reverse=True, key=lambda x:x[1]))
+    pstats = list(map(plugin_stats, sorted(six.iteritems(stats), reverse=True, key=lambda x:x[1])))
     stats = '''\
 <!DOCTYPE html>
 <html>

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import print_function
 import os
 import re
 import socket
@@ -27,6 +28,7 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
 from calibre.utils.monotonic import monotonic
+from six.moves import range
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -128,11 +130,6 @@ def get_default_library_path():
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
-    if isinstance(fname, unicode):
-        try:
-            fname = fname.encode(filesystem_encoding)
-        except:
-            fname = 'Calibre Library'
     x = os.path.expanduser('~'+os.sep+fname)
     if not os.path.exists(x):
         try:
@@ -172,9 +169,9 @@ def repair_library(library_path):
 
 def windows_repair(library_path=None):
     from binascii import hexlify, unhexlify
-    import cPickle, subprocess
+    import six.moves.cPickle, subprocess
     if library_path:
-        library_path = hexlify(cPickle.dumps(library_path, -1))
+        library_path = hexlify(six.moves.cPickle.dumps(library_path, -1))
         winutil.prepare_for_restart()
         os.environ['CALIBRE_REPAIR_CORRUPTED_DB'] = library_path
         subprocess.Popen([sys.executable])
@@ -182,7 +179,7 @@ def windows_repair(library_path=None):
         try:
             app = Application([])
             from calibre.gui2.dialogs.restore_library import repair_library_at
-            library_path = cPickle.loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
+            library_path = six.moves.cPickle.loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
             done = repair_library_at(library_path, wait_time=4)
         except Exception:
             done = False
@@ -257,7 +254,7 @@ class GuiRunner(QObject):
             error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
 
     def initialization_failed(self):
-        print 'Catastrophic failure initializing GUI, bailing out...'
+        print('Catastrophic failure initializing GUI, bailing out...')
         QCoreApplication.exit(1)
         raise SystemExit(1)
 
@@ -476,7 +473,7 @@ def shutdown_other(rc=None):
             return  # No running instance found
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
-    for i in xrange(50):
+    for i in range(50):
         if singleinstance(singleinstance_name):
             return
         time.sleep(0.1)
@@ -506,7 +503,7 @@ def create_listener():
 
 
 def main(args=sys.argv):
-    if os.environ.pop(b'CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
+    if os.environ.pop('CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
         time.sleep(2)  # give the parent process time to cleanup and close
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()

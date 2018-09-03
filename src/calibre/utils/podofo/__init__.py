@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -109,7 +111,7 @@ def delete_all_but(path, pages):
     p.load(raw)
     total = p.page_count()
     pages = {total + x if x < 0 else x for x in pages}
-    for page in xrange(total-1, -1, -1):
+    for page in range(total-1, -1, -1):
         if page not in pages:
             p.delete_page(page)
 
@@ -143,13 +145,13 @@ def test_outline(src):
     p.load(raw)
     total = p.page_count()
     root = p.create_outline(u'Table of Contents')
-    for i in xrange(0, total):
+    for i in range(0, total):
         root.create(u'Page %d'%i, i, True)
     raw = p.write()
     out = '/tmp/outlined.pdf'
     with open(out, 'wb') as f:
         f.write(raw)
-    print 'Outlined PDF:', out
+    print('Outlined PDF:', out)
 
 
 def test_save_to(src, dest):
@@ -160,7 +162,7 @@ def test_save_to(src, dest):
     p.load(raw)
     with open(dest, 'wb') as out:
         p.save_to_fileobj(out)
-        print ('Wrote PDF of size:', out.tell())
+        print(('Wrote PDF of size:', out.tell()))
 
 
 def test_podofo():

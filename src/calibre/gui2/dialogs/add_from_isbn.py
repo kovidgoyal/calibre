@@ -78,7 +78,7 @@ class AddFromISBN(QDialog):
 
     def accept(self, *args):
         tags = unicode(self.add_tags.text()).strip().split(',')
-        tags = list(filter(None, [x.strip() for x in tags]))
+        tags = list([_f for _f in [x.strip() for x in tags] if _f])
         gprefs['add from ISBN tags'] = tags
         self.set_tags = tags
         bad = set()

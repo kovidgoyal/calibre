@@ -1,12 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import getcwd
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii, cPickle
+import subprocess, os, sys, time, binascii, six.moves.cPickle
 from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
@@ -104,7 +106,7 @@ class Worker(object):
             except:
                 pass
         env[b'CALIBRE_WORKER'] = b'1'
-        td = binascii.hexlify(cPickle.dumps(base_dir()))
+        td = binascii.hexlify(six.moves.cPickle.dumps(base_dir()))
         env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
         env.update(self._env)
         return env
@@ -154,7 +156,7 @@ class Worker(object):
         self.gui = gui
         self.job_name = job_name
         # Windows cannot handle unicode env vars
-        for k, v in env.iteritems():
+        for k, v in six.iteritems(env):
             try:
                 if isinstance(k, unicode):
                     k = k.encode('ascii')
@@ -175,17 +177,17 @@ class Worker(object):
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.abspath(os.getcwdu())))
+            env[b'ORIGWD'] = binascii.hexlify(six.moves.cPickle.dumps(
+                cwd or os.path.abspath(getcwd())))
         except EnvironmentError:
             # cwd no longer exists
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+            env[b'ORIGWD'] = binascii.hexlify(six.moves.cPickle.dumps(
                 cwd or os.path.expanduser(u'~')))
 
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, basestring) else exe
+        cmd = [exe] if isinstance(exe, six.string_types) else exe
         args = {
                 'env' : env,
                 'cwd' : _cwd,

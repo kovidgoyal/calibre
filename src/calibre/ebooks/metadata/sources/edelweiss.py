@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
+from six.moves.urllib.parse import urlencode
 
 from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
@@ -137,7 +139,7 @@ def get_basic_data(browser, log, *skus):
             'orderID': '0',
             'mailingID': '',
             'tContentWidth': '926',
-            'originalOrder': ','.join(str(i) for i in range(len(skus))),
+            'originalOrder': ','.join(str(i) for i in list(range(len(skus)))),
             'selectedOrderID': '0',
             'selectedSortColumn': '0',
             'listType': '1',
@@ -231,7 +233,6 @@ class Edelweiss(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
-        from urllib import urlencode
         import time
         BASE_URL = ('https://www.edelweiss.plus/GetTreelineControl.aspx?'
         'controlName=/uc/listviews/controls/ListView_data.ascx&itemID=0&resultType=32&dashboardType=8&itemType=1&dataType=products&keywordSearch&')

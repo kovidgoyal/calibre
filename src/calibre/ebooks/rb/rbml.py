@@ -12,6 +12,7 @@ import re
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.rb import unique_name
+from six.moves import range
 
 TAGS = [
     'b',
@@ -101,7 +102,7 @@ class RBMLizer(object):
             self.log.debug('Generating table of contents...')
             toc.append(u'<H1>%s</H1><UL>\n' % _('Table of Contents:'))
             for item in self.oeb_book.toc:
-                if item.href in self.link_hrefs.keys():
+                if item.href in list(self.link_hrefs.keys()):
                     toc.append('<LI><A HREF="#%s">%s</A></LI>\n' % (self.link_hrefs[item.href], item.title))
                 else:
                     self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
@@ -125,8 +126,8 @@ class RBMLizer(object):
 
     def get_anchor(self, page, aid):
         aid = '%s#%s' % (page.href, aid)
-        if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        if aid not in list(self.link_hrefs.keys()):
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
         aid = self.link_hrefs[aid]
         return u'<A NAME="%s"></A>' % aid
 
@@ -142,9 +143,9 @@ class RBMLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, basestring) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, six.string_types) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, six.string_types) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return [u'']
@@ -165,8 +166,8 @@ class RBMLizer(object):
         # text. Usually these require an argument
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
-                if page.abshref(elem.attrib['src']) not in self.name_map.keys():
-                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(self.name_map.keys()), self.name_map.keys())
+                if page.abshref(elem.attrib['src']) not in list(self.name_map.keys()):
+                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(list(self.name_map.keys())), list(self.name_map.keys()))
                 text.append('<IMG SRC="%s">' % self.name_map[page.abshref(elem.attrib['src'])])
 
         rb_tag = tag.upper() if tag in TAGS else None
@@ -183,8 +184,8 @@ class RBMLizer(object):
                 if '://' not in href:
                     if '#' not in href:
                         href += '#'
-                    if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    if href not in list(self.link_hrefs.keys()):
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(list(self.link_hrefs.keys()))
                     href = self.link_hrefs[href]
                     text.append('<A HREF="#%s">' % href)
                 tag_count += 1

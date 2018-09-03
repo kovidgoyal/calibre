@@ -22,7 +22,7 @@ class ESO(BasicNewsRecipe):
     (u'Zdj\u0119cie tygodnia', u'http://www.eso.org/public/poland/images/potw/feed/')]
 
     keep_only_tags = [
-        dict(name='div',attrs={'class':'col-md-9 left-column'})]
+        dict(name='div', attrs={'class':'col-md-9 left-column'})]
 
     def preprocess_html(self, soup):
         for a in soup.findAll('a', href=True):

@@ -1,4 +1,6 @@
 from __future__ import with_statement
+from six.moves import getcwd
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -149,7 +151,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
         if val:
             orig = mi.get_identifiers()
             orig.update(val)
-            val = {k:v for k, v in orig.iteritems() if k and v}
+            val = {k:v for k, v in six.iteritems(orig) if k and v}
             mi.set_identifiers(val)
 
     if getattr(opts, 'cover', None) is not None:
@@ -206,7 +208,7 @@ def main(args=sys.argv):
 
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         with open(opts.to_opf, 'wb') as f:
             opf.render(f)
         prints(_('OPF created in'), opts.to_opf)

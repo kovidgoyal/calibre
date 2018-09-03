@@ -1,10 +1,12 @@
 #!/usr/bin/env  python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cStringIO import StringIO
+from six.moves import StringIO
 from struct import pack
 
 from calibre.constants import plugins
@@ -34,17 +36,17 @@ def test():
             'owaic jociowapjcivcjpoivjporeivjpoavca; p9aw8743y6r74%$^$^%8 ')
             ]
     for test in TESTS:
-        print 'Test:', repr(test)
-        print '\tTesting compression...'
+        print('Test:', repr(test))
+        print('\tTesting compression...')
         good = py_compress_doc(test)
         x = compress_doc(test)
-        print '\t\tgood:',  repr(good)
-        print '\t\tx   :',  repr(x)
+        print('\t\tgood:',  repr(good))
+        print('\t\tx   :',  repr(x))
         assert x == good
-        print '\tTesting decompression...'
-        print '\t\t', repr(decompress_doc(x))
+        print('\tTesting decompression...')
+        print('\t\t', repr(decompress_doc(x)))
         assert decompress_doc(x) == test
-        print
+        print()
 
 
 def py_compress_doc(data):
@@ -55,7 +57,7 @@ def py_compress_doc(data):
         if i > 10 and (ldata - i) > 10:
             chunk = ''
             match = -1
-            for j in xrange(10, 2, -1):
+            for j in range(10, 2, -1):
                 chunk = data[i:i+j]
                 try:
                     match = data.rindex(chunk, 0, i)

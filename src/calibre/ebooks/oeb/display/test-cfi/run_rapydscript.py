@@ -2,14 +2,15 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil, tempfile
-import SimpleHTTPServer
-import SocketServer
+import six.moves.SimpleHTTPServer
+import six.moves.socketserver
 
 
 def run_devel_server():
@@ -27,9 +28,9 @@ def run_devel_server():
     with lopen('cfi-test.pyj', 'rb') as f, lopen('cfi-test.js', 'wb') as js:
         js.write(compile_pyj(f.read()).encode('utf-8'))
     PORT = 8000
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("", PORT), Handler)
-    print('Serving CFI test at http://localhost:%d' % PORT)
+    Handler = six.moves.SimpleHTTPServer.SimpleHTTPRequestHandler
+    httpd = six.moves.socketserver.TCPServer(("", PORT), Handler)
+    print(('Serving CFI test at http://localhost:%d' % PORT))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

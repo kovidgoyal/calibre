@@ -20,6 +20,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.ebooks.conversion.config import sort_formats_by_preference, get_output_formats
 from calibre.utils.config import prefs
 from calibre.utils.logging import Log
+from six.moves import map
 
 
 class BulkConfig(Config):

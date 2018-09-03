@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -47,7 +48,7 @@ class PluginWidget(QWidget, Ui_Form):
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated db_fields from last use
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             item.setSelected(unicode(item.text()) in fields)
         self.bibfile_enc.clear()
@@ -71,7 +72,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Save the currently activated fields
         fields = []
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             if item.isSelected():
                 fields.append(unicode(item.text()))

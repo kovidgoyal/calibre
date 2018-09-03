@@ -9,8 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os, re, logging
 from collections import defaultdict
 from itertools import count
-from urlparse import urldefrag, urlparse, urlunparse, urljoin
-from urllib import unquote
+from six.moves.urllib.parse import urldefrag, urlparse, urlunparse, urljoin
+from six.moves.urllib.parse import unquote
 
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__
@@ -22,6 +22,9 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
+from six.moves import map
+import six
+from six.moves import range
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -408,8 +411,8 @@ def serialize(data, media_type, pretty_print=False):
     return bytes(data)
 
 
-ASCII_CHARS   = set(chr(x) for x in xrange(128))
-UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
+ASCII_CHARS   = set(chr(x) for x in range(128))
+UNIBYTE_CHARS = set(chr(x) for x in range(256))
 URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                     'abcdefghijklmnopqrstuvwxyz'
                     '0123456789' '_.-/~')
@@ -849,7 +852,7 @@ class Metadata(object):
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = dict((value, key) for key, value in list(nsmap.items()))
         elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
@@ -863,7 +866,7 @@ class Metadata(object):
 
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = dict((value, key) for key, value in list(nsmap.items()))
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -1028,7 +1031,7 @@ class Manifest(object):
                     mt = self.media_type.lower()
                 except Exception:
                     mt = 'application/octet-stream'
-                if not isinstance(data, basestring):
+                if not isinstance(data, six.string_types):
                     pass  # already parsed
                 elif mt in OEB_DOCS:
                     data = self._parse_xhtml(data)
@@ -1283,7 +1286,7 @@ class Spine(object):
         self.page_progression_direction = None
 
     def _linear(self, linear):
-        if isinstance(linear, basestring):
+        if isinstance(linear, six.string_types):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True
@@ -1303,7 +1306,7 @@ class Spine(object):
         item.linear = self._linear(linear)
         item.spine_position = index
         self.items.insert(index, item)
-        for i in xrange(index, len(self.items)):
+        for i in range(index, len(self.items)):
             self.items[i].spine_position = i
         return item
 
@@ -1311,7 +1314,7 @@ class Spine(object):
         """Remove :param:`item` from the `Spine`."""
         index = item.spine_position
         self.items.pop(index)
-        for i in xrange(index, len(self.items)):
+        for i in range(index, len(self.items)):
             self.items[i].spine_position = i
         item.spine_position = None
 
@@ -1445,7 +1448,7 @@ class Guide(object):
         return self.refs.pop(type, None)
 
     def remove_by_href(self, href):
-        remove = [r for r, i in self.refs.iteritems() if i.href == href]
+        remove = [r for r, i in six.iteritems(self.refs) if i.href == href]
         for r in remove:
             self.remove(r)
 
@@ -1990,7 +1993,7 @@ def rel_href(base_href, href):
         return href
     if '/' not in base_href:
         return href
-    base = filter(lambda x: x and x != '.', os.path.dirname(os.path.normpath(base_href)).replace(os.sep, '/').split('/'))
+    base = [x for x in os.path.dirname(os.path.normpath(base_href)).replace(os.sep, '/').split('/') if x and x != '.']
     while True:
         try:
             idx = base.index('..')
@@ -2005,7 +2008,7 @@ def rel_href(base_href, href):
     target, frag = urldefrag(href)
     target = target.split('/')
     index = 0
-    for index in xrange(min(len(base), len(target))):
+    for index in range(min(len(base), len(target))):
         if base[index] != target[index]:
             break
     else:

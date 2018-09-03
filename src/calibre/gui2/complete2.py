@@ -200,9 +200,9 @@ class Completer(QListView):  # {{{
 
     def debug_event(self, ev):
         from calibre.gui2 import event_type_name
-        print ('Event:', event_type_name(ev))
+        print(('Event:', event_type_name(ev)))
         if ev.type() in (ev.KeyPress, ev.ShortcutOverride, ev.KeyRelease):
-            print ('\tkey:', QKeySequence(ev.key()).toString())
+            print(('\tkey:', QKeySequence(ev.key()).toString()))
 
     def eventFilter(self, obj, e):
         'Redirect key presses from the popup to the widget'

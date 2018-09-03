@@ -1,10 +1,13 @@
 from __future__ import with_statement
+from six.moves import map
+from six.moves import zip
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, cStringIO, re, sys, weakref
+import os, traceback, six.moves.queue, time, re, sys, weakref
 from threading import Thread, Event
+from six.moves import StringIO
 
 from PyQt5.Qt import (
     QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
@@ -112,7 +115,7 @@ class DeviceJob(BaseJob):  # {{{
 
     @property
     def log_file(self):
-        return cStringIO.StringIO(self._details.encode('utf-8'))
+        return StringIO(self._details.encode('utf-8'))
 
     # }}}
 
@@ -152,8 +155,8 @@ class DeviceManager(Thread):  # {{{
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.allow_connect_slot = allow_connect_slot
-        self.jobs           = Queue.Queue(0)
-        self.job_steps      = Queue.Queue(0)
+        self.jobs           = six.moves.queue.Queue(0)
+        self.job_steps      = six.moves.queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
         self.reported_errors = set([])
@@ -162,7 +165,7 @@ class DeviceManager(Thread):  # {{{
         self.connected_device = None
         self.connected_device_kind = None
         self.ejected_devices  = set([])
-        self.mount_connection_requests = Queue.Queue(0)
+        self.mount_connection_requests = six.moves.queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_only_once_seen = set()
         self.after_callback_feedback_slot = after_callback_feedback_slot
@@ -240,7 +243,7 @@ class DeviceManager(Thread):  # {{{
             try:
                 job = self.jobs.get_nowait()
                 job.abort(Exception(_('Device no longer connected.')))
-            except Queue.Empty:
+            except six.moves.queue.Empty:
                 break
         try:
             self.connected_device.post_yank_cleanup()
@@ -357,13 +360,13 @@ class DeviceManager(Thread):  # {{{
         if not self.job_steps.empty():
             try:
                 return self.job_steps.get_nowait()
-            except Queue.Empty:
+            except six.moves.queue.Empty:
                 pass
 
         if not self.jobs.empty():
             try:
                 return self.jobs.get_nowait()
-            except Queue.Empty:
+            except six.moves.queue.Empty:
                 pass
 
     def run_startup(self, dev):
@@ -390,7 +393,7 @@ class DeviceManager(Thread):  # {{{
                 try:
                     (kls,device_kind, folder_path) = \
                                 self.mount_connection_requests.get_nowait()
-                except Queue.Empty:
+                except six.moves.queue.Empty:
                     break
             if kls is not None:
                 try:
@@ -470,7 +473,7 @@ class DeviceManager(Thread):  # {{{
         info = self.device.get_device_information(end_session=False)
         if len(info) < 5:
             info = tuple(list(info) + [{}])
-        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, basestring) else i
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, six.string_types) else i
                  for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()
@@ -928,7 +931,7 @@ class DeviceMixin(object):  # {{{
         d.show()
 
     def auto_convert_question(self, msg, autos):
-        autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
+        autos = u'\n'.join(map(unicode, list(map(force_unicode, autos))))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
@@ -1245,7 +1248,7 @@ class DeviceMixin(object):  # {{{
                         else:
                             format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
-                if f in format_count.keys():
+                if f in list(format_count.keys()):
                     formats.append((f, _('%(num)i of %(total)i books') % dict(
                         num=format_count[f], total=len(rows)),
                         True if f in aval_out_formats else False))
@@ -1359,7 +1362,7 @@ class DeviceMixin(object):  # {{{
                 space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
                     self.location_manager.free[2] : 'cardb'}
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(sorted(list(space.keys()), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
@@ -1440,7 +1443,7 @@ class DeviceMixin(object):  # {{{
                 space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
                     self.location_manager.free[2] : 'cardb'}
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(sorted(list(space.keys()), reverse=True)[0], None)
                 try:
                     total_size = sum([os.stat(f).st_size for f in files])
                 except:

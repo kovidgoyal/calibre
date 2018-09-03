@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -27,7 +29,7 @@ from calibre.utils.icu import utf16_length
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
-    if isinstance(fill, basestring):
+    if isinstance(fill, six.string_types):
         fill = QColor(fill)
     sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:
@@ -345,7 +347,7 @@ class Editor(QMainWindow):
     def toolbar_floated(self, floating):
         if not floating:
             self.save_state()
-            for ed in editors.itervalues():
+            for ed in six.itervalues(editors):
                 if ed is not self:
                     ed.restore_state()
 
@@ -394,7 +396,7 @@ class Editor(QMainWindow):
                     # For some unknown reason this button is occassionally a
                     # QPushButton instead of a QToolButton
                     ch.setPopupMode(QToolButton.InstantPopup)
-                for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
+                for name in tuple('h%d' % d for d in list(range(1, 7))) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
 
         for name in tprefs.get('editor_common_toolbar', ()):

@@ -8,11 +8,10 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote_plus
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -44,7 +43,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + urllib.quote_plus(query)
+        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + quote_plus(query)
 
         br = browser()
 

@@ -1,15 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-
+from __future__ import with_statement, absolute_import, print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno, hashlib, sys
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, six.moves.cPickle, shlex, json, errno, hashlib, sys
 from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
+import six
+from six import unichr
+from six.moves import map, range, zip
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file
 from setup.parallel_build import parallel_check_output
@@ -120,7 +122,7 @@ class POT(Command):  # {{{
                 self.tx(['set', '-r', 'calibre.' + slug, '--source', '-l', 'en', '-t', 'PO', dest])
                 with open(self.j(self.d(tbase), '.tx/config'), 'r+b') as f:
                     lines = f.read().splitlines()
-                    for i in xrange(len(lines)):
+                    for i in range(len(lines)):
                         line = lines[i]
                         if line == '[calibre.%s]' % slug:
                             lines.insert(i+1, 'file_filter = manual/<lang>/%s.po' % bname)
@@ -285,7 +287,7 @@ class Translations(POT):  # {{{
 
         def stats_cache(src, data=None):
             cname = self.cache_name(src) + '.stats.json'
-            with open(self.j(self.cache_dir, cname), ('rb' if data is None else 'wb')) as f:
+            with open(self.j(self.cache_dir, cname), ('r' if data is None else 'w')) as f:
                 if data is None:
                     return json.load(f)
                 json.dump(data, f)
@@ -339,7 +341,7 @@ class Translations(POT):  # {{{
                 ld = lcdata[ln]
                 lcdest = self.j(self.d(dest), 'lcdata.pickle')
                 with open(lcdest, 'wb') as lcf:
-                    lcf.write(cPickle.dumps(ld, -1))
+                    lcf.write(six.moves.cPickle.dumps(ld, -1))
 
         stats = {}
 
@@ -357,7 +359,7 @@ class Translations(POT):  # {{{
             'en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds',
             'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
             'jv', 'ka', 'fur', 'ber', 'my', 'fil', 'hy', 'ug'}
-        for f, (locale, dest) in fmap.iteritems():
+        for f, (locale, dest) in six.iteritems(fmap):
             iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
             iso639 = self.j(self.TRANSLATIONS, 'iso_639', '%s.po'%iscpo)
             if os.path.exists(iso639):
@@ -378,14 +380,14 @@ class Translations(POT):  # {{{
         except EnvironmentError as err:
             if err.errno != errno.EEXIST:
                 raise
-        cPickle.dump(stats, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(stats, open(dest, 'wb'), -1)
 
     def hash_and_data(self, f):
         with open(f, 'rb') as s:
             data = s.read()
         h = hashlib.sha1(data)
         h.update(f.encode('utf-8'))
-        return data, h
+        return data.decode(), h
 
     def compile_content_server_translations(self):
         self.info('Compiling content-server translations')
@@ -401,9 +403,8 @@ class Translations(POT):  # {{{
                 else:
                     self.info('\tParsing ' + os.path.basename(src))
                     raw = None
-                    po_data = data.decode('utf-8')
-                    data = json.loads(msgfmt(po_data))
-                    translated_entries = {k:v for k, v in data['entries'].iteritems() if v and sum(map(len, v))}
+                    data = json.loads(msgfmt(data))
+                    translated_entries = {k:v for k, v in six.iteritems(data['entries']) if v and sum(map(len, v))}
                     data[u'entries'] = translated_entries
                     data[u'hash'] = h.hexdigest()
                     cdata = b'{}'
@@ -484,7 +485,7 @@ class Translations(POT):  # {{{
                     files.append((f, d))
             self.compile_group(files, handle_stats=handle_stats)
 
-            for locale, translated in stats.iteritems():
+            for locale, translated in six.iteritems(stats):
                 if translated >= 20:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
@@ -499,15 +500,19 @@ class Translations(POT):  # {{{
                 if l == 'en':
                     t = get_language
                 else:
-                    t = get_iso639_translator(l).ugettext
-                    t = partial(get_iso_language, t)
-                lang_names[l] = {x: t(x) for x in dl}
+                    translator = get_iso639_translator(l)
+                    try:
+                        gettext = translator.ugettext
+                    except AttributeError:
+                        gettext = translator.gettext
+                    applied_gettext = partial(get_iso_language, gettext)
+                lang_names[l] = {x: applied_gettext(x) for x in dl}
             zi = ZipInfo('lang-names.json')
             zi.compress_type = ZIP_STORED
             zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
         dest = self.j(self.d(self.stats), 'website-languages.txt')
         with open(dest, 'wb') as f:
-            f.write(' '.join(sorted(done)))
+            f.write(' '.join(sorted(done)).encode())
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')
@@ -538,14 +543,14 @@ class Translations(POT):  # {{{
                 stats['untranslated'] += nums[1]
 
         self.compile_group(files, handle_stats=handle_stats)
-        for locale, stats in all_stats.iteritems():
-            with open(self.j(srcbase, locale, 'stats.json'), 'wb') as f:
+        for locale, stats in six.iteritems(all_stats):
+            with open(self.j(srcbase, locale, 'stats.json'), 'w') as f:
                 json.dump(stats, f)
             total = stats['translated'] + stats['untranslated']
             # Raise the 30% threshold in the future
             if total and (stats['translated'] / float(total)) > 0.3:
                 complete[locale] = stats
-        with open(self.j(destbase, 'completed.json'), 'wb') as f:
+        with open(self.j(destbase, 'completed.json'), 'w') as f:
             json.dump(complete, f, indent=True, sort_keys=True)
 
     def clean(self):
@@ -617,8 +622,8 @@ class GetTranslations(Translations):  # {{{
                         changes[slug].add(lang)
                 if changed:
                     f.save()
-        for slug, languages in changes.iteritems():
-            print('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug))
+        for slug, languages in six.iteritems(changes):
+            print(('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug)))
             self.tx('push -r calibre.%s -t -l %s' % (slug, ','.join(languages)))
 
     def check_for_errors(self):
@@ -638,7 +643,7 @@ class GetTranslations(Translations):  # {{{
                 languages.add(os.path.basename(parts[-1]).partition('.')[0])
         if languages:
             pot = 'main' if group == 'calibre' else group.replace('-', '_')
-            print('Pushing fixes for %s.pot languages: %s' % (pot, ', '.join(languages)))
+            print(('Pushing fixes for %s.pot languages: %s' % (pot, ', '.join(languages))))
             self.tx('push -r calibre.{} -t -l '.format(pot) + ','.join(languages))
 
     def check_group(self, group):
@@ -656,7 +661,7 @@ class GetTranslations(Translations):  # {{{
 
         def check_for_control_chars(f):
             raw = open(f, 'rb').read().decode('utf-8')
-            pat = re.compile(ur'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]')
+            pat = re.compile(r'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]')
             errs = []
             for i, line in enumerate(raw.splitlines()):
                 if pat.search(line) is not None:
@@ -673,7 +678,7 @@ class GetTranslations(Translations):  # {{{
                     raise SystemExit('Aborting as not all errors were fixed')
             errs = check_for_control_chars(f)
             if errs:
-                print(f, 'has ASCII control codes in it')
+                print((f, 'has ASCII control codes in it'))
                 print(errs)
                 raise SystemExit(1)
 
@@ -762,7 +767,7 @@ class ISO639(Command):  # {{{
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
                 '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(x, open(dest, 'wb'), -1)
 
     def clean(self):
         if os.path.exists(self.DEST):
@@ -802,5 +807,5 @@ class ISO3166(ISO639):  # {{{
             if three:
                 three_map[three] = two
         x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        six.moves.cPickle.dump(x, open(dest, 'wb'), -1)
 # }}}

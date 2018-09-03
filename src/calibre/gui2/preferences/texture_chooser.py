@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -80,11 +82,11 @@ class TextureChooser(QDialog):
 
         images.sort(key=lambda x:sort_key(x['name']))
 
-        map(self.create_item, images)
+        list(map(self.create_item, images))
         self.update_remove_state()
 
         if initial:
-            existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+            existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -115,7 +117,7 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+        existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)
@@ -152,4 +154,4 @@ if __name__ == '__main__':
     app = QApplication([])  # noqa
     d = TextureChooser()
     d.exec_()
-    print (d.texture)
+    print((d.texture))

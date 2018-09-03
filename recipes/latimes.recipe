@@ -161,7 +161,7 @@ class LATimes(BasicNewsRecipe):
 
         keys = []
         for key in SECTIONS:
-            if key in feeds.keys():
+            if key in list(feeds.keys()):
                 keys.append(key)
         self.log(pformat(dict(feeds)))
         return [(k, feeds[k]) for k in keys]
@@ -197,7 +197,7 @@ class LATimes(BasicNewsRecipe):
             mdate = date_rx.match(article['url'])
             if mdate is not None:
                 article['timestamp'] = (strptime(mdate.group(
-                    'date'),'%Y%m%d') - DT_EPOCH).total_seconds()
+                    'date'), '%Y%m%d') - DT_EPOCH).total_seconds()
                 article['url'] = mdate.group(0)
         self.log('Found: ', len(articles), ' articles.\n')
         return articles

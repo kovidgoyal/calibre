@@ -2,12 +2,18 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import __builtin__, sys, os
+import sys, os
+try:
+    import six.moves.builtins as builtins
+except ImportError:
+    import builtins
 
 from calibre import config_dir
 
@@ -145,9 +151,9 @@ def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
 
     lang = lang_name(lang)
 
-    js = '\n\n'.join(hp_cache.itervalues())
+    js = '\n\n'.join(six.itervalues(hp_cache))
     return js, lang
 
 
-__builtin__.__dict__['P'] = get_path
-__builtin__.__dict__['I'] = get_image_path
+builtins.__dict__['P'] = get_path
+builtins.__dict__['I'] = get_image_path

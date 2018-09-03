@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from functools import partial
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
+from six.moves.urllib.parse import urlencode
 
 
 from calibre.ebooks.metadata import check_isbn
@@ -175,7 +176,6 @@ class Douban(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
         SEARCH_URL = 'https://api.douban.com/book/subjects?'
         ISBN_URL = 'https://api.douban.com/book/subject/isbn/'
         SUBJECT_URL = 'https://api.douban.com/book/subject/'

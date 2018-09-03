@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -212,7 +213,7 @@ class Chunker(object):
 
     def remove_namespaces(self, root):
         lang = None
-        for attr, val in root.attrib.iteritems():
+        for attr, val in six.iteritems(root.attrib):
             if attr.rpartition('}')[-1] == 'lang':
                 lang = val
 
@@ -244,11 +245,11 @@ class Chunker(object):
                 tn = tag.tag
                 if tn is not None:
                     tn = tn.rpartition('}')[-1]
-                attrib = {k.rpartition('}')[-1]:v for k, v in tag.attrib.iteritems()}
+                attrib = {k.rpartition('}')[-1]:v for k, v in six.iteritems(tag.attrib)}
                 try:
                     elem = nroot.makeelement(tn, attrib=attrib)
                 except ValueError:
-                    attrib = {k:v for k, v in attrib.iteritems() if ':' not in k}
+                    attrib = {k:v for k, v in six.iteritems(attrib) if ':' not in k}
                     elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text
             elem.tail = tag.tail
@@ -398,7 +399,7 @@ class Chunker(object):
             return bytes(':off:'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
-                self.placeholder_map.iteritems()}
+                six.iteritems(self.placeholder_map)}
 
         # Now update the links
         def sub(match):

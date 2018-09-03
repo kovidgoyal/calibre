@@ -1,5 +1,6 @@
 # vim:fileencoding=UTF-8
 from __future__ import unicode_literals
+from __future__ import print_function
 __license__ = 'GPL v3'
 __copyright__ = '2013, Eddie Lau'
 __Date__ = ''
@@ -60,7 +61,7 @@ class AM730(BasicNewsRecipe):
             title = href.split('/')[-1].split('-')[0]
             title = urllib.unquote(title.encode('ASCII'))  # .decode('utf-8')
             if self.debug:
-                print title
+                print(title)
             try:
                 if articles.index({'title':title,'url':href})>=0:
                     # print 'already added'
@@ -73,7 +74,7 @@ class AM730(BasicNewsRecipe):
             if (len(articles) >= self.max_articles_per_feed):
                 break
         if self.debug:
-            print articles
+            print(articles)
         return (sectionName,articles)
 
     def parse_index(self):
@@ -89,8 +90,8 @@ class AM730(BasicNewsRecipe):
         SectionsArticles=[]
         for (title, url) in Sections:
             if self.debug:
-                print title
-                print url
+                print(title)
+                print(url)
             SectionsArticles.append(self.getAMSectionArticles(title,url))
 #        feeds.append(articles[0]['url'])
         return SectionsArticles

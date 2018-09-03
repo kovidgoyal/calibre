@@ -2,15 +2,16 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, os, re
+import os, re
 from functools import partial
-from itertools import izip
 
+from six.moves import cPickle, zip
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
     QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
@@ -226,7 +227,7 @@ class TagsView(QTreeView):  # {{{
                     expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.category_key] = dict(izip(names, states))
+            state_map[category.category_key] = dict(zip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
@@ -548,7 +549,7 @@ class TagsView(QTreeView):  # {{{
 
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
-                            for k in sorted(tree_dict.keys(), key=sort_key):
+                            for k in sorted(list(tree_dict.keys()), key=sort_key):
                                 p.append(k)
                                 n = k[1:] if k.startswith('@') else k
                                 m.addAction(self.user_category_icon, n,
@@ -657,7 +658,7 @@ class TagsView(QTreeView):  # {{{
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
-                        key[1:] in self.db.prefs.get('user_categories', {}).keys():
+                        key[1:] in list(self.db.prefs.get('user_categories', {}).keys()):
                     self.context_menu.addAction(_('Manage User categories'),
                             partial(self.context_menu_handler, action='manage_categories',
                                     category=key[1:]))
@@ -712,7 +713,7 @@ class TagsView(QTreeView):  # {{{
         if not index.isValid():
             return
         self.expand(index)
-        for r in xrange(self.model().rowCount(index)):
+        for r in range(self.model().rowCount(index)):
             self.expand_node_and_descendants(index.child(r, 0))
 
     def collapse_menu_hovered(self, action):

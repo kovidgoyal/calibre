@@ -1,4 +1,9 @@
 #!/usr/bin/env  python2
+from __future__ import print_function
+from six.moves import map
+from six.moves import getcwd
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -7,9 +12,10 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
-from urllib import unquote
-from urlparse import urlparse
+import re, sys, unittest, functools, os, uuid, glob, json, copy
+from six.moves import StringIO
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.parse import urlparse
 
 from lxml import etree
 
@@ -55,7 +61,7 @@ class Resource(object):  # {{{
     :method:`href`
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
+    def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
         self.orig = href_or_path
         self._href = None
         self._basedir = basedir
@@ -71,8 +77,6 @@ class Resource(object):  # {{{
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
-            if isinstance(path, str):
-                path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:
             href_or_path = href_or_path
@@ -99,7 +103,7 @@ class Resource(object):  # {{{
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwdu()
+                basedir = getcwd()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
@@ -145,7 +149,7 @@ class ResourceCollection(object):  # {{{
         return len(self._resources) > 0
 
     def __str__(self):
-        resources = map(repr, self)
+        resources = list(map(repr, self))
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
@@ -386,7 +390,7 @@ class Guide(ResourceCollection):  # {{{
             return ans + '/>'
 
     @staticmethod
-    def from_opf_guide(references, base_dir=os.getcwdu()):
+    def from_opf_guide(references, base_dir=getcwd()):
         coll = Guide()
         for ref in references:
             try:
@@ -397,7 +401,7 @@ class Guide(ResourceCollection):  # {{{
         return coll
 
     def set_cover(self, path):
-        map(self.remove, [i for i in self if 'cover' in i.type.lower()])
+        list(map(self.remove, [i for i in self if 'cover' in i.type.lower()]))
         for type in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
             self.append(Guide.Reference(path, is_path=True))
             self[-1].type = type
@@ -573,7 +577,7 @@ class OPF(object):  # {{{
     author_link_map = MetadataField('author_link_map', is_dc=False,
                                 formatter=json.loads, renderer=dump_dict)
 
-    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
+    def __init__(self, stream, basedir=getcwd(), unquote_urls=True,
             populate_spine=True, try_to_guess_cover=True, preparsed_opf=None, read_toc=True):
         self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
@@ -708,7 +712,7 @@ class OPF(object):  # {{{
     def create_manifest_item(self, href, media_type, append=False):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
-        for c in xrange(1, sys.maxint):
+        for c in range(1, sys.maxint):
             id = 'id%d'%c
             if id not in ids:
                 break
@@ -971,7 +975,7 @@ class OPF(object):  # {{{
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
             found_scheme = False
-            for attr, val in x.attrib.iteritems():
+            for attr, val in six.iteritems(x.attrib):
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
                     val = etree.tostring(x, with_tail=False, encoding=unicode,
@@ -1004,7 +1008,7 @@ class OPF(object):  # {{{
                     self.metadata):
             xid = x.get('id', None)
             is_package_identifier = uuid_id is not None and uuid_id == xid
-            typ = {val for attr, val in x.attrib.iteritems() if attr.endswith('scheme')}
+            typ = {val for attr, val in six.iteritems(x.attrib) if attr.endswith('scheme')}
             if is_package_identifier:
                 typ = tuple(typ)
                 if typ and typ[0].lower() in identifiers:
@@ -1013,7 +1017,7 @@ class OPF(object):  # {{{
             if typ and not (typ & {'calibre', 'uuid'}):
                 x.getparent().remove(x)
 
-        for typ, val in identifiers.iteritems():
+        for typ, val in six.iteritems(identifiers):
             attrib = {'{%s}scheme'%self.NAMESPACES['opf']: typ.upper()}
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), unicode(val))
@@ -1149,7 +1153,7 @@ class OPF(object):  # {{{
     def page_progression_direction(self):
         spine = self.XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
         if spine:
-            for k, v in spine[0].attrib.iteritems():
+            for k, v in six.iteritems(spine[0].attrib):
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
                     return v
 
@@ -1397,9 +1401,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
         '''
-        entries = map(lambda x: x if os.path.isabs(x[0]) else
-                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
-                      entries)
+        entries = [x if os.path.isabs(x[0]) else
+                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]) for x in entries]
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
@@ -1429,8 +1432,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of paths
         '''
-        entries = map(lambda x: x if os.path.isabs(x) else
-                      os.path.abspath(os.path.join(self.base_path, x)), entries)
+        entries = [x if os.path.isabs(x) else
+                      os.path.abspath(os.path.join(self.base_path, x)) for x in entries]
         self.spine = Spine.from_paths(entries, self.manifest)
 
     def set_toc(self, toc):
@@ -1519,7 +1522,7 @@ class OPFCreator(Metadata):
             a(DC_ELEM('description', self.comments))
         if self.publisher:
             a(DC_ELEM('publisher', self.publisher))
-        for key, val in self.get_identifiers().iteritems():
+        for key, val in six.iteritems(self.get_identifiers()):
             a(DC_ELEM('identifier', val, opf_attrs={'scheme':icu_upper(key)}))
         if self.rights:
             a(DC_ELEM('rights', self.rights))
@@ -1645,7 +1648,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         try:
             elem = metadata.makeelement(tag, attrib=attrib)
         except ValueError:
-            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in attrib.iteritems()})
+            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in six.iteritems(attrib)})
         elem.tail = '\n'+(' '*8)
         if text:
             try:
@@ -1666,7 +1669,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         factory(DC('description'), clean_ascii_chars(mi.comments))
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
-    for key, val in mi.get_identifiers().iteritems():
+    for key, val in six.iteritems(mi.get_identifiers()):
         factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)
@@ -1716,7 +1719,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
 def test_m2o():
     from calibre.utils.date import now as nowf
-    from cStringIO import StringIO
+    from six.moves import StringIO
     mi = MetaInformation('test & title', ['a"1', "a'2"])
     mi.title_sort = 'a\'"b'
     mi.author_sort = 'author sort'
@@ -1734,7 +1737,7 @@ def test_m2o():
     mi.rights = 'yes'
     mi.cover = os.path.abspath('asd.jpg')
     opf = metadata_to_opf(mi)
-    print opf
+    print(opf)
     newmi = MetaInformation(OPF(StringIO(opf)))
     for attr in ('author_sort', 'title_sort', 'comments',
                     'publisher', 'series', 'series_index', 'rating',
@@ -1744,16 +1747,16 @@ def test_m2o():
                     'pubdate', 'rights', 'publication_type'):
         o, n = getattr(mi, attr), getattr(newmi, attr)
         if o != n and o.strip() != n.strip():
-            print 'FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr)
+            print('FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr))
     if mi.get_identifiers() != newmi.get_identifiers():
-        print 'FAILED:', 'identifiers', mi.get_identifiers(),
-        print '!=', newmi.get_identifiers()
+        print('FAILED:', 'identifiers', mi.get_identifiers(), end=' ')
+        print('!=', newmi.get_identifiers())
 
 
 class OPFTest(unittest.TestCase):
 
     def setUp(self):
-        self.stream = cStringIO.StringIO(
+        self.stream = StringIO(
 '''\
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
@@ -1775,7 +1778,7 @@ class OPFTest(unittest.TestCase):
 </package>
 '''
         )
-        self.opf = OPF(self.stream, os.getcwdu())
+        self.opf = OPF(self.stream, getcwd())
 
     def testReading(self, opf=None):
         if opf is None:
@@ -1806,11 +1809,11 @@ class OPFTest(unittest.TestCase):
         self.opf.render()
 
     def testCreator(self):
-        opf = OPFCreator(os.getcwdu(), self.opf)
-        buf = cStringIO.StringIO()
+        opf = OPFCreator(getcwd(), self.opf)
+        buf = StringIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwdu()))
+        self.testReading(opf=OPF(StringIO(raw), getcwd()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1826,7 +1829,7 @@ def test():
 
 
 def test_user_metadata():
-    from cStringIO import StringIO
+    from six.moves import StringIO
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
         '#myseries': {'#value#': u'test series\xe4', 'datatype':'text',
@@ -1838,7 +1841,7 @@ def test_user_metadata():
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
-    opfc = OPFCreator(os.getcwdu(), other=mi)
+    opfc = OPFCreator(getcwd(), other=mi)
     out = StringIO()
     opfc.render(out)
     raw2 = out.getvalue()
@@ -1848,7 +1851,7 @@ def test_user_metadata():
     opf2 = OPF(f2)
     assert um == opf._user_metadata_
     assert um == opf2._user_metadata_
-    print opf.render()
+    print(opf.render())
 
 
 if __name__ == '__main__':

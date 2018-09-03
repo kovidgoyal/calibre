@@ -15,6 +15,8 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
+from six.moves import map
+from six.moves import range
 
 
 class Tokenize:
@@ -43,7 +45,7 @@ class Tokenize:
         self.__uc_bin = False
 
     def __remove_uc_chars(self, startchar, token):
-        for i in xrange(startchar, len(token)):
+        for i in range(startchar, len(token)):
             if self.__uc_char:
                 self.__uc_char -= 1
             else:
@@ -123,7 +125,7 @@ class Tokenize:
         # split
         tokens = re.split(self.__splitexp, input_file)
         # remove empty tokens and \n
-        return filter(lambda x: len(x) > 0 and x != '\n', tokens)
+        return [x for x in tokens if len(x) > 0 and x != '\n']
 
     def __compile_expressions(self):
         SIMPLE_RPL = {
@@ -181,9 +183,9 @@ class Tokenize:
         # remove '' and \n in the process
         tokens = self.__sub_reg_split(input_file)
         # correct unicode
-        tokens = map(self.__unicode_process, tokens)
+        tokens = list(map(self.__unicode_process, tokens))
         # remove empty items created by removing \uc
-        tokens = filter(lambda x: len(x) > 0, tokens)
+        tokens = [x for x in tokens if len(x) > 0]
 
         # write
         with open(self.__write_to, 'wb') as write_obj:

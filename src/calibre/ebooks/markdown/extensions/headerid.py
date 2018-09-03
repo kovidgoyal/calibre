@@ -82,7 +82,7 @@ class HeaderIdExtension(Extension):
         self.processor = HeaderIdTreeprocessor()
         self.processor.md = md
         self.processor.config = self.getConfigs()
-        if 'attr_list' in md.treeprocessors.keys():
+        if 'attr_list' in list(md.treeprocessors.keys()):
             # insert after attr_list treeprocessor
             md.treeprocessors.add('headerid', self.processor, '>attr_list')
         else:

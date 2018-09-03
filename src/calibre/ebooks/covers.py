@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,7 +11,7 @@ import re, random, unicodedata
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
-from future_builtins import map, zip
+from six.moves import map, zip
 from itertools import chain
 
 from PyQt5.Qt import (
@@ -174,7 +175,8 @@ class Block(object):
         def fget(self):
             return self._position
 
-        def fset(self, (x, y)):
+        def fset(self, xxx_todo_changeme):
+            (x, y) = xxx_todo_changeme
             self._position = Point(x, y)
             if self.layouts:
                 self.layouts[0].setPosition(QPointF(x, y))
@@ -274,14 +276,14 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, basestring):
+    if isinstance(fields, six.string_types):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}
     try:
         yield
     finally:
-        for f, val in mem.iteritems():
+        for f, val in six.iteritems(mem):
             if val is null:
                 delattr(obj, f)
             else:
@@ -323,10 +325,10 @@ def load_color_themes(prefs):
     t = default_color_themes.copy()
     t.update(prefs.color_themes)
     disabled = frozenset(prefs.disabled_color_themes)
-    ans = [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
+    ans = [theme_to_colors(v) for k, v in six.iteritems(t) if k not in disabled]
     if not ans:
         # Ignore disabled and return only the builtin color themes
-        ans = [theme_to_colors(v) for k, v in default_color_themes.iteritems()]
+        ans = [theme_to_colors(v) for k, v in six.iteritems(default_color_themes)]
     return ans
 
 
@@ -556,14 +558,14 @@ class Blocks(Style):
 
 def all_styles():
     return set(
-        x.NAME for x in globals().itervalues() if
+        x.NAME for x in six.itervalues(globals()) if
         isinstance(x, type) and issubclass(x, Style) and x is not Style
     )
 
 
 def load_styles(prefs, respect_disabled=True):
     disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
-    ans = tuple(x for x in globals().itervalues() if
+    ans = tuple(x for x in six.itervalues(globals()) if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
     if not ans and disabled:
         # If all styles have been disabled, ignore the disabling and return all

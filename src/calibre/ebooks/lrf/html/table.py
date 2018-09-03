@@ -1,3 +1,5 @@
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import math, sys, re
@@ -17,7 +19,7 @@ def print_xml(elem):
     elem = elem.toElement('utf8')
     ew = ElementWriter(elem, sourceEncoding='utf8')
     ew.write(sys.stdout)
-    print
+    print()
 
 
 def cattrs(base, extra):
@@ -37,7 +39,7 @@ def tokens(tb):
             yield 2, None
         elif isinstance(x, Text):
             yield x.text, cattrs(attrs, {})
-        elif isinstance(x, basestring):
+        elif isinstance(x, six.string_types):
             yield x, cattrs(attrs, {})
         elif isinstance(x, (CharButton, LrsTextTag)):
             if x.contents:
@@ -313,7 +315,7 @@ class Table(object):
         Return widths of columns + self.colpad
         '''
         rows, cols = self.number_or_rows(), self.number_of_columns()
-        widths = range(cols)
+        widths = list(range(cols))
         for c in range(cols):
             cellwidths = [0 for i in range(rows)]
             for r in range(rows):
@@ -323,8 +325,8 @@ class Table(object):
                     continue
             widths[c] = max(cellwidths)
 
-        min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
-        for i in xrange(len(widths)):
+        min_widths = [self.minimum_width(i)+10 for i in range(cols)]
+        for i in range(len(widths)):
             wp = self.width_percent(i)
             if wp >= 0.:
                 widths[i] = max(min_widths[i], ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad)))

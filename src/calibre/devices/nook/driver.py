@@ -10,7 +10,7 @@ Device driver for Barns and Nobel's Nook
 
 import os, errno
 
-import cStringIO
+from six.moves import StringIO
 
 from calibre import fsync, prints
 from calibre.constants import DEBUG
@@ -57,12 +57,12 @@ class NOOK(USBMS):
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover = Image.open(StringIO(coverdata[2]))
         else:
             coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (96, 144), 'black')
-            im = Image.open(cStringIO.StringIO(coverdata))
+            im = Image.open(StringIO(coverdata))
             im.thumbnail((96, 144), Image.ANTIALIAS)
 
             x, y = im.size
@@ -72,7 +72,7 @@ class NOOK(USBMS):
             draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
             draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
 
-        data = cStringIO.StringIO()
+        data = StringIO()
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 

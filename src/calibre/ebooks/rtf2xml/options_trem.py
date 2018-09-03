@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 
 
@@ -53,7 +54,7 @@ class ParseOptions:
             a list of legal options
         """
         legal_list = []
-        keys = options_dict.keys()
+        keys = list(options_dict.keys())
         for key in keys:
             key = '--' + key
             legal_list.append(key)
@@ -67,7 +68,7 @@ class ParseOptions:
             a list of legal short options
         """
         legal_list = []
-        keys = options_dict.keys()
+        keys = list(options_dict.keys())
         for key in keys:
             values = options_dict[key]
             try:
@@ -86,7 +87,7 @@ class ParseOptions:
             read through the options dictionary and pair short options with long options
         """
         short_long_dict = {}
-        keys = options_dict.keys()
+        keys = list(options_dict.keys())
         for key in keys:
             values = options_dict[key]
             try:
@@ -105,7 +106,7 @@ class ParseOptions:
             a list of options that take arguments.
         """
         opt_with_arg = []
-        keys = options_dict.keys()
+        keys = list(options_dict.keys())
         for key in keys:
             values = options_dict[key]
             try:
@@ -125,7 +126,7 @@ class ParseOptions:
             iterate through the system string and replace short options with long options
         """
         new_string = []
-        sub_list = self.__short_long_dict.keys()
+        sub_list = list(self.__short_long_dict.keys())
         for item in self.__system_string:
             if item in sub_list:
                 item = self.__short_long_dict[item]
@@ -279,7 +280,7 @@ if __name__ == '__main__':
                     options_dict=this_dict
             )
     options, the_args = test_obj.parse_options()
-    print options, the_args
+    print(options, the_args)
     """
     this_options = ['--foo', '-o']
     this_opt_with_args = ['--foo']

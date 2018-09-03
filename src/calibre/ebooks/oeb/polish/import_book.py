@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -20,9 +21,9 @@ IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
 
 def auto_fill_manifest(container):
     manifest_id_map = container.manifest_id_map
-    manifest_name_map = {v:k for k, v in manifest_id_map.iteritems()}
+    manifest_name_map = {v:k for k, v in six.iteritems(manifest_id_map)}
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if name not in manifest_name_map and not container.ok_to_be_unmanifested(name):
             mitem = container.generate_item(name, unique_href=False)
             gname = container.href_to_name(mitem.get('href'), container.opf_name)
@@ -53,7 +54,7 @@ def import_book_as_epub(srcpath, destpath, log=default_log):
         c = Container(tdir, pathtoopf, log)
         auto_fill_manifest(c)
         # Auto fix all HTML/CSS
-        for name, mt in c.mime_map.iteritems():
+        for name, mt in six.iteritems(c.mime_map):
             if mt in set(OEB_DOCS) | set(OEB_STYLES):
                 c.parsed(name)
                 c.dirty(name)

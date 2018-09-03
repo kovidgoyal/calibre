@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from cStringIO import StringIO
+from six.moves import StringIO
 
 
 from calibre.customize.conversion import OutputFormatPlugin, \

@@ -8,11 +8,11 @@ __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
+from six.moves.urllib.parse import quote_plus
 
 from PyQt5.Qt import QUrl
 
@@ -46,7 +46,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://www.legimi.pl/ebooki/?szukaj=' + urllib.quote_plus(query)
+        url = 'https://www.legimi.pl/ebooki/?szukaj=' + quote_plus(query)
 
         br = browser()
 

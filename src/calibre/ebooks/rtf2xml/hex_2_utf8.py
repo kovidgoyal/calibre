@@ -10,7 +10,8 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, cStringIO
+import sys, os
+from six.moves import StringIO
 
 from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
@@ -148,7 +149,7 @@ class Hex2Utf8:
         # 128, and the encoding system for Microsoft characters.
         # New on 2004-05-8: the self.__char_map is not in directory with other
         # modules
-        self.__char_file = cStringIO.StringIO(char_set)
+        self.__char_file = StringIO(char_set)
         char_map_obj =  get_char_map.GetCharMap(
                 char_file=self.__char_file,
                 bug_handler=self.__bug_handler,

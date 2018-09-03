@@ -15,7 +15,7 @@ if PY3:  # pragma: no cover
     text_type = str
     int2str = chr
 else:  # pragma: no cover
-    string_type = basestring   # noqa
+    string_type = six.string_types   # noqa
     text_type = unicode        # noqa
     int2str = unichr           # noqa
 

@@ -7,9 +7,9 @@ import re
 import socket
 import time
 from functools import partial
-from Queue import Empty, Queue
+from six.moves.queue import Empty, Queue
 from threading import Thread
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse, urlencode
 
 from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
@@ -17,6 +17,8 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua, all_user_agents
+from six.moves import map
+import six
 
 
 class CaptchaError(Exception):
@@ -290,7 +292,7 @@ class Worker(Thread):  # Get details {{{
             'chs': ('Chinese', u'中文', u'简体中文'),
         }
         self.lang_map = {}
-        for code, names in lm.iteritems():
+        for code, names in six.iteritems(lm):
             for name in names:
                 self.lang_map[name] = code
 
@@ -310,7 +312,7 @@ class Worker(Thread):  # Get details {{{
         if not self.months:
             return raw
         ans = raw.lower()
-        for i, vals in self.months.iteritems():
+        for i, vals in six.iteritems(self.months):
             for x in vals:
                 ans = ans.replace(x, self.english_months[i])
         ans = ans.replace(' de ', ' ')
@@ -573,7 +575,7 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root, raw):
-        from urllib import unquote
+        from six.moves.urllib.parse import unquote
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
@@ -743,7 +745,7 @@ class Worker(Thread):  # Get details {{{
                     mwidth = 0
                     try:
                         url = None
-                        for iurl, (width, height) in idata.iteritems():
+                        for iurl, (width, height) in six.iteritems(idata):
                             if width > mwidth:
                                 mwidth = width
                                 url = iurl
@@ -945,7 +947,7 @@ class Amazon(Source):
         self.touched_fields = frozenset(tf)
 
     def get_domain_and_asin(self, identifiers, extra_domains=()):
-        for key, val in identifiers.iteritems():
+        for key, val in six.iteritems(identifiers):
             key = key.lower()
             if key in ('amazon', 'asin'):
                 return 'com', val
@@ -1050,7 +1052,6 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
-        from urllib import urlencode
         if domain is None:
             domain = self.domain
 
@@ -1123,7 +1124,7 @@ class Amazon(Source):
             encode_to = 'latin1'
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
                                                                    'ignore')) for x, y in
-                          q.iteritems()])
+                          six.iteritems(q)])
         url = 'https://www.amazon.%s/s/?' % self.get_website_domain(
             domain) + urlencode(encoded_q)
         return url, domain

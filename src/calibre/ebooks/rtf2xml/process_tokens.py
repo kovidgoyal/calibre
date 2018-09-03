@@ -717,7 +717,7 @@ class ProcessTokens:
         try:
             # calibre why ignore negative number? Wrong in case of \fi
             numerator = float(re.search('[0-9.\-]+', numerator).group())
-        except TypeError, msg:
+        except TypeError as msg:
             if self.__run_level > 3:
                 msg = ('No number to process?\nthis indicates that the token \(\\li\) \
                 should have a number and does not\nnumerator is \
@@ -804,7 +804,7 @@ class ProcessTokens:
                     elif token[:1] == "\\":
                         try:
                             token.decode('us-ascii')
-                        except UnicodeError, msg:
+                        except UnicodeError as msg:
                             msg = '\nInvalid RTF: Tokens not ascii encoded.\n%s\nError at line %d'\
                                 % (str(msg), line_count)
                             raise self.__exception_handler, msg

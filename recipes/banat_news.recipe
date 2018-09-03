@@ -52,12 +52,12 @@ class BanatNews(BasicNewsRecipe):
 
     feeds = [
 
-    ('Balita'      		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=101'),
-    ('Opinyon'       		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=102'),
-    ('Kalingawan'     		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=104'),
-    ('Showbiz'          		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=62'),
-    ('Palaro'            		, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=103'),
-    ('Imong Kapalaran'        	, 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=105')
+    ('Balita', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=101'),
+    ('Opinyon', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=102'),
+    ('Kalingawan', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=104'),
+    ('Showbiz', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=62'),
+    ('Palaro', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=103'),
+    ('Imong Kapalaran', 'http://rss.philstar.com/Rss.aspx?publicationSubCategoryId=105')
     ]
 
 # process the printer friendly version of article

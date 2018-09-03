@@ -1,5 +1,5 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from urllib import quote
+from six.moves.urllib.parse import quote
 import re
 
 

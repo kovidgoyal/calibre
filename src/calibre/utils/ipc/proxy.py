@@ -7,9 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, struct
+import os, six.moves.cPickle, struct
 from threading import Thread
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from multiprocessing.connection import arbitrary_address, Listener
 from functools import partial
 
@@ -19,7 +19,7 @@ from calibre.utils.ipc import eintr_retry_call
 
 
 def _encode(msg):
-    raw = cPickle.dumps(msg, -1)
+    raw = six.moves.cPickle.dumps(msg, -1)
     size = len(raw)
     header = struct.pack('!Q', size)
     return header + raw
@@ -32,7 +32,7 @@ def _decode(raw):
     header, = struct.unpack('!Q', raw[:sz])
     if len(raw) != sz + header or header == 0:
         return 'invalid', None
-    return cPickle.loads(raw[sz:])
+    return six.moves.cPickle.loads(raw[sz:])
 
 
 class Writer(Thread):

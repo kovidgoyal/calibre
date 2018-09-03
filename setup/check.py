@@ -2,19 +2,19 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import absolute_import
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, json, subprocess, errno, hashlib
 from setup import Command, build_cache_dir, edit_file
-import __builtin__
+from six.moves import builtins
 
-
-def set_builtins(builtins):
-    for x in builtins:
-        if not hasattr(__builtin__, x):
-            setattr(__builtin__, x, True)
+def set_builtins(builtins_required):
+    for x in builtins_required:
+        if not hasattr(builtins, x):
+            setattr(builtins, x, True)
             yield x
 
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +14,7 @@ from io import BytesIO
 from hashlib import sha256
 from struct import unpack, error as struct_error, pack
 from binascii import crc32 as _crc32
+import six
 
 from calibre.ptempfile import SpooledTemporaryFile
 from lzma.errors import NotXZ, InvalidXZ, lzma
@@ -47,7 +49,7 @@ def decode_var_int(f):
 def decode_var_int2(raw, pos):
     ans, ch, opos = 0, 0x80, pos
     while ch >= 0x80:
-        ch = ord(raw[pos])
+        ch = six.indexbytes(raw, pos)
         if ch == 0:
             return 0, pos
         ans |= (ch & 0x7f) << ((pos - opos) * 7)
@@ -99,7 +101,7 @@ class CRCChecker(object):
 
     def finish(self):
         if self.func is not crc32:
-            self.code = 0xFFFFFFFFFFFFFFFFL & self.code
+            self.code = 0xFFFFFFFFFFFFFFFF & self.code
 
     @property
     def code_as_bytes(self):
@@ -214,7 +216,7 @@ def read_block_header(f, block_header_size_, check_type):
     header, crc = unpack(b'<%dsI' % (block_header_size - 5), f.read(block_header_size - 1))
     if crc != crc32(block_header_size_ + header):
         raise InvalidXZ('Block header CRC mismatch')
-    block_flags = ord(header[0])
+    block_flags = six.byte2int(header)
     number_of_filters = (0x03 & block_flags) + 1
     if not (0 < number_of_filters <= 4):
         raise InvalidXZ('Invalid number of filters: %d' % number_of_filters)

@@ -1,14 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cPickle, traceback
+import os, re, traceback
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
+import six
+from six.moves import cPickle
 
 from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE
@@ -143,7 +147,7 @@ class OptionSet(object):
         '''
         pref = Option(name, switches=switches, help=help, type=type, choices=choices,
                  group=group, default=default, action=action, metavar=None)
-        if group is not None and group not in self.groups.keys():
+        if group is not None and group not in list(self.groups.keys()):
             raise ValueError('Group %s has not been added to this section'%group)
         if pref in self.preferences:
             raise ValueError('An option with the name %s already exists in this set.'%name)
@@ -200,10 +204,10 @@ class OptionSet(object):
                 if not isinstance(src, unicode):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
-                exec src in options
+                exec(src, options)
             except:
-                print 'Failed to parse options string:'
-                print repr(src)
+                print('Failed to parse options string:')
+                print(repr(src))
                 traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
@@ -219,12 +223,12 @@ class OptionSet(object):
         prefs = [pref for pref in self.preferences if pref.group == name]
         lines = ['### Begin group: %s'%(name if name else 'DEFAULT')]
         if desc:
-            lines += map(lambda x: '# '+x, desc.split('\n'))
+            lines += ['# '+x for x in desc.split('\n')]
         lines.append(' ')
         for pref in prefs:
             lines.append('# '+pref.name.replace('_', ' '))
             if pref.help:
-                lines += map(lambda x: '# ' + x, pref.help.split('\n'))
+                lines += ['# ' + x for x in pref.help.split('\n')]
             lines.append('%s = %s'%(pref.name,
                             self.serialize_opt(getattr(opts, pref.name, pref.default))))
             lines.append(' ')
@@ -232,7 +236,7 @@ class OptionSet(object):
 
     def serialize_opt(self, val):
         if val is val is True or val is False or val is None or \
-           isinstance(val, (int, float, long, basestring)):
+           isinstance(val, six.integer_types + six.string_types + (float,)):
             return repr(val)
         pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)
@@ -282,7 +286,7 @@ class Config(ConfigInterface):
                 try:
                     src = f.read().decode('utf-8')
                 except ValueError:
-                    print "Failed to parse", self.config_file_path
+                    print("Failed to parse", self.config_file_path)
                     traceback.print_exc()
         return self.option_set.parse_string(src)
 
@@ -298,7 +302,7 @@ class Config(ConfigInterface):
         if not os.path.exists(config_dir):
             make_config_dir()
         with ExclusiveFile(self.config_file_path) as f:
-            src = f.read()
+            src = f.read().decode()
             opts = self.option_set.parse_string(src)
             setattr(opts, name, val)
             footer = self.option_set.get_override_section(src)
@@ -379,7 +383,7 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('database_path',
               default=os.path.expanduser('~/library1.db'),
               help=_('Path to the database in which books are stored'))
-    c.add_opt('filename_pattern', default=ur'(?P<title>.+) - (?P<author>[^_]+)',
+    c.add_opt('filename_pattern', default=u'(?P<title>.+) - (?P<author>[^_]+)',
               help=_('Pattern to guess metadata from filenames'))
     c.add_opt('isbndb_com_key', default='',
               help=_('Access key for isbndb.com'))
@@ -470,13 +474,13 @@ def read_tweaks():
     default_tweaks, tweaks = read_raw_tweaks()
     l, g = {}, {}
     try:
-        exec tweaks in g, l
+        exec(tweaks, g, l)
     except:
         import traceback
-        print 'Failed to load custom tweaks file'
+        print('Failed to load custom tweaks file')
         traceback.print_exc()
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     dl.update(l)
     return dl
 
@@ -495,7 +499,7 @@ def reset_tweaks_to_default():
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     tweaks.clear()
     tweaks.update(dl)
 

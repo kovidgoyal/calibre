@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -46,4 +47,4 @@ def template_for(syntax):
         'AUTHOR': ' & '.join(mi.authors),
     }
     return raw_template_for(syntax).format(
-        **{k:prepare_string_for_xml(v, True) for k, v in data.iteritems()})
+        **{k:prepare_string_for_xml(v, True) for k, v in six.iteritems(data)})

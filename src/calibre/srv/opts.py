@@ -2,15 +2,17 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, os
-from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 from functools import partial
+
+from six.moves import zip_longest
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
@@ -193,7 +195,7 @@ options = []
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 for shortdoc, name, default, doc in grouper(4, raw_options):
@@ -211,7 +213,7 @@ class Options(object):
     __slots__ = tuple(name for name in options)
 
     def __init__(self, **kwargs):
-        for opt in options.itervalues():
+        for opt in six.itervalues(options):
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
 
@@ -238,7 +240,7 @@ def boolean_option(add_option, opt):
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser
     parser =  OptionParser(usage)
-    for opt in options.itervalues():
+    for opt in six.itervalues(options):
         add_option = partial(parser.add_option, dest=opt.name, help=opt_to_cli_help(opt), default=opt.default)
         if opt.default is True or opt.default is False:
             boolean_option(add_option, opt)

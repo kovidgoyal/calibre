@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
-from urlparse import urldefrag
+from six.moves.urllib.parse import urldefrag
 
 from PyQt5.Qt import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
@@ -66,7 +66,7 @@ class SVGRasterizer(object):
 
         if view_box is not None:
             try:
-                box = [float(x) for x in filter(None, re.split('[, ]', view_box))]
+                box = [float(x) for x in [_f for _f in re.split('[, ]', view_box) if _f]]
                 sizes = [box[2]-box[0], box[3] - box[1]]
             except (TypeError, ValueError, IndexError):
                 logger.warn('SVG image has invalid viewBox="%s", ignoring the viewBox' % view_box)

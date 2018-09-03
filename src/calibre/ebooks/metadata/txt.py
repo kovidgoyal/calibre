@@ -10,6 +10,7 @@ Read meta information from TXT files
 import re, os
 
 from calibre.ebooks.metadata import MetaInformation
+from six.moves import range
 
 
 def get_metadata(stream, extract_cover=True):

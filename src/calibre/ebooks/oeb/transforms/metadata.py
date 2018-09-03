@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -50,7 +51,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.clear('series')
     identifiers = mi.get_identifiers()
     set_isbn = False
-    for typ, val in identifiers.iteritems():
+    for typ, val in six.iteritems(identifiers):
         has = False
         if typ.lower() == 'isbn':
             set_isbn = True

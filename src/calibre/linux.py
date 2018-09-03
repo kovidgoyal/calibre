@@ -1,9 +1,12 @@
+from __future__ import print_function
+from six.moves import filter
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat, errno
+import sys, os, six.moves.cPickle, textwrap, stat, errno
 from subprocess import check_call, check_output
 from functools import partial
 
@@ -69,7 +72,7 @@ class PreserveMIMEDefaults(object):
                 self.initial_values[x] = None
 
     def __exit__(self, *args):
-        for path, val in self.initial_values.iteritems():
+        for path, val in six.iteritems(self.initial_values):
             if val is None:
                 try:
                     os.remove(path)
@@ -372,7 +375,7 @@ class ZshCompleter(object):  # {{{
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
-        f.write((ur'''
+        f.write((six.text_type(r'''
 _ebook_edit() {
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
@@ -399,7 +402,7 @@ _ebook_edit() {
 
     return 1
 }
-''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n').encode('utf-8'))
+''') % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n').encode('utf-8'))
 
     def do_calibredb(self, f):
         from calibre.db.cli.main import COMMANDS, option_parser_for
@@ -415,13 +418,13 @@ _ebook_edit() {
         f.write('\n_calibredb_cmds() {\n  local commands; commands=(\n')
         f.write('    {-h,--help}":Show help"\n')
         f.write('    "--version:Show version"\n')
-        for command, desc in descs.iteritems():
+        for command, desc in six.iteritems(descs):
             f.write('    "%s:%s"\n'%(
                 command, desc.replace(':', '\\:').replace('"', '\'')))
         f.write('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
-        for command, parser in parsers.iteritems():
+        for command, parser in six.iteritems(parsers):
             exts = []
             if command == 'catalog':
                 exts = [x.lower() for x in available_catalog_formats()]
@@ -476,7 +479,7 @@ _ebook_edit() {
                 self.do_calibredb(f)
                 self.do_ebook_edit(f)
                 f.write('case $service in\n')
-                for c, txt in self.commands.iteritems():
+                for c, txt in six.iteritems(self.commands):
                     if isinstance(txt, type(u'')):
                         txt = txt.encode('utf-8')
                     if isinstance(c, type(u'')):
@@ -644,12 +647,12 @@ class PostInstall:
         import traceback
         tb = '\n\t'.join(traceback.format_exc().splitlines())
         self.info('\t'+tb)
-        print
+        print()
 
     def warning(self, *args, **kwargs):
-        print '\n'+'_'*20, 'WARNING','_'*20
+        print('\n'+'_'*20, 'WARNING','_'*20)
         prints(*args, **kwargs)
-        print '_'*50
+        print('_'*50)
         print ('\n')
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
@@ -671,7 +674,7 @@ class PostInstall:
         self.opts.staging_etc = '/etc' if self.opts.staging_root == '/usr' else \
                 os.path.join(self.opts.staging_root, 'etc')
 
-        scripts = cPickle.loads(P('scripts.pickle', data=True))
+        scripts = six.moves.cPickle.loads(P('scripts.pickle', data=True))
         self.manifest = manifest or []
         if getattr(sys, 'frozen_path', False):
             if os.access(self.opts.staging_bindir, os.W_OK):
@@ -715,7 +718,7 @@ class PostInstall:
             self.info('\n\nThere were %d warnings\n'%len(self.warnings))
             for args, kwargs in self.warnings:
                 self.info('*', *args, **kwargs)
-                print
+                print()
 
     def create_uninstaller(self):
         base = self.opts.staging_bindir
@@ -729,7 +732,7 @@ class PostInstall:
             mime_resources=self.mime_resources, menu_resources=self.menu_resources,
             appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
-            with open(dest, 'wb') as f:
+            with open(dest, 'w') as f:
                 f.write(raw)
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:
@@ -753,7 +756,7 @@ class PostInstall:
             write_completion(bash_comp_dest, zsh)
         except TypeError as err:
             if 'resolve_entities' in str(err):
-                print 'You need python-lxml >= 2.0.5 for calibre'
+                print('You need python-lxml >= 2.0.5 for calibre')
                 sys.exit(1)
             raise
         except EnvironmentError as e:
@@ -797,7 +800,7 @@ class PostInstall:
                     for size in sizes:
                         install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
 
-                icons = filter(None, [x.strip() for x in '''\
+                icons = [_f for _f in [x.strip() for x in '''\
                     mimetypes/lrf.png application-lrf mimetypes
                     mimetypes/lrf.png text-lrs mimetypes
                     mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
@@ -807,7 +810,7 @@ class PostInstall:
                     lt.png calibre-gui apps
                     viewer.png calibre-viewer apps
                     tweak.png calibre-ebook-edit apps
-                    '''.splitlines()])
+                    '''.splitlines()] if _f]
                 for line in icons:
                     iconsrc, basename, context = line.split()
                     install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
@@ -1098,7 +1101,7 @@ def write_appdata(key, entry, base, translators):
     description = E.description()
     for para in entry['description']:
         description.append(E.p(para))
-        for lang, t in translators.iteritems():
+        for lang, t in six.iteritems(translators):
             tp = t.ugettext(para)
             if tp != para:
                 description.append(E.p(tp))
@@ -1115,7 +1118,7 @@ def write_appdata(key, entry, base, translators):
         screenshots,
         type='desktop'
     )
-    for lang, t in translators.iteritems():
+    for lang, t in six.iteritems(translators):
         tp = t.ugettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))

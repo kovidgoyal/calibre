@@ -10,13 +10,14 @@ Transform OEB content into RTF markup
 
 import os
 import re
-import cStringIO
+from six.moves import StringIO
 
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
+from six.moves import range
 
 TAGS = {
     'b': '\\b',
@@ -78,7 +79,7 @@ def txt2rtf(text):
     if not isinstance(text, unicode):
         return text
 
-    buf = cStringIO.StringIO()
+    buf = StringIO()
     for x in text:
         val = ord(x)
         if val == 160:
@@ -119,7 +120,7 @@ class RTFMLizer(object):
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub(ur'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
+            content = re.sub(u'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = etree.fromstring(content)
@@ -223,10 +224,10 @@ class RTFMLizer(object):
         from calibre.ebooks.oeb.base import (XHTML_NS, namespace, barename,
                 urlnormalize)
 
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, six.string_types) \
            or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, six.string_types) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return elem.tail
             return u''

@@ -2,14 +2,16 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import filter, map
+from six.moves import filter, map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from struct import pack
-from cStringIO import StringIO
+from six.moves import StringIO
 from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
@@ -107,7 +109,7 @@ class IndexEntry(object):
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}  # noqa
+    RTAG_MAP = {v:k for k, v in six.iteritems(TAG_VALUES)}  # noqa
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
@@ -225,7 +227,7 @@ class SecondaryIndexEntry(IndexEntry):
         # The values for this index entry
         # I dont know what the 5 means, it is not the number of entries
         self.secondary = [5 if tag == min(
-            self.INDEX_MAP.itervalues()) else 0, 0, tag]
+            six.itervalues(self.INDEX_MAP)) else 0, 0, tag]
 
     @property
     def tag_nums(self):
@@ -237,7 +239,7 @@ class SecondaryIndexEntry(IndexEntry):
 
     @classmethod
     def entries(cls):
-        rmap = {v:k for k,v in cls.INDEX_MAP.iteritems()}
+        rmap = {v:k for k,v in six.iteritems(cls.INDEX_MAP)}
         for tag in sorted(rmap, reverse=True):
             yield cls(rmap[tag])
 
@@ -282,7 +284,7 @@ class TBS(object):  # {{{
                 for x in ('starts', 'ends', 'completes'):
                     for idx in data[x]:
                         depth_map[idx.depth].append(idx)
-                for l in depth_map.itervalues():
+                for l in six.itervalues(depth_map):
                     l.sort(key=lambda x:x.offset)
                 self.periodical_tbs(data, first, depth_map)
         else:
@@ -316,7 +318,7 @@ class TBS(object):  # {{{
             if first_node is not None and first_node.depth > 0:
                 parent_section_index = (first_node.index if first_node.depth == 1 else first_node.parent_index)
             else:
-                parent_section_index = max(self.section_map.iterkeys())
+                parent_section_index = max(six.iterkeys(self.section_map))
 
         else:
             # Non terminal record
@@ -844,7 +846,7 @@ class Indexer(object):  # {{{
 
         deepest = max(i.depth for i in self.indices)
 
-        for i in xrange(self.number_of_text_records):
+        for i in range(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
             data = {'ends':[], 'completes':[], 'starts':[],

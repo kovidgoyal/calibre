@@ -49,11 +49,11 @@ import re
 try:  # pragma: no cover
     from urllib.parse import urlparse, urlunparse
 except ImportError:  # pragma: no cover
-    from urlparse import urlparse, urlunparse
+    from six.moves.urllib.parse import urlparse, urlunparse
 try:  # pragma: no cover
     from html import entities
 except ImportError:  # pragma: no cover
-    import htmlentitydefs as entities
+    import six.moves.html_entities as entities
 
 
 def build_inlinepatterns(md_instance, **kwargs):

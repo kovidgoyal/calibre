@@ -11,6 +11,7 @@ from calibre import strftime
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+from six.moves import map
 
 is_web_edition = True
 oldest_web_edition_article = 7  # days
@@ -49,7 +50,7 @@ url_date_pat = re.compile(r'/(2\d\d\d)/(\d\d)/(\d\d)/')
 def date_from_url(url):
     m = url_date_pat.search(url)
     if m is not None:
-        return datetime.date(*map(int, m.groups()))
+        return datetime.date(*list(map(int, m.groups())))
 
 
 def format_date(d):

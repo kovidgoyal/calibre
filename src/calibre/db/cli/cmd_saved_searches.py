@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+import six
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -56,7 +57,7 @@ Syntax for removing:
 def main(opts, args, dbctx):
     args = args or ['list']
     if args[0] == 'list':
-        for name, value in dbctx.run('saved_searches', 'list').iteritems():
+        for name, value in six.iteritems(dbctx.run('saved_searches', 'list')):
             prints(_('Name:'), name)
             prints(_('Search string:'), value)
             print()

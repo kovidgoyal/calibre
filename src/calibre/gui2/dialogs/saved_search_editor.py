@@ -143,7 +143,7 @@ class SavedSearchEditor(Dialog):
 
     def populate_search_list(self):
         self.slist.clear()
-        for name in sorted(self.searches.keys(), key=sort_key):
+        for name in sorted(list(self.searches.keys()), key=sort_key):
             self.slist.addItem(name)
 
     def add_search(self):

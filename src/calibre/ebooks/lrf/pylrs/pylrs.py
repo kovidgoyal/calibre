@@ -36,6 +36,7 @@
 #                           Plot, Image (outside of ImageBlock),
 #                           EmpLine, EmpDots
 
+from __future__ import print_function
 import os, re, codecs, operator
 from xml.sax.saxutils import escape
 from datetime import date
@@ -95,7 +96,7 @@ def ElementWithReading(tag, text, reading=False):
 
     if text is None:
         readingText = ""
-    elif isinstance(text, basestring):
+    elif isinstance(text, six.string_types):
         readingText = text
     else:
         # assumed to be a sequence of (name, sortas)
@@ -154,7 +155,7 @@ class Delegator(object):
 
             """
             for setting in d.getSettings():
-                if isinstance(setting, basestring):
+                if isinstance(setting, six.string_types):
                     setting = (d, setting)
                 delegates = \
                         self.delegatedSettingsDict.setdefault(setting[1], [])
@@ -292,7 +293,7 @@ class LrsContainer(object):
                     (content.__class__.__name__,
                     self.__class__.__name__))
 
-        if convertText and isinstance(content, basestring):
+        if convertText and isinstance(content, six.string_types):
             content = Text(content)
 
         content.setParent(self)
@@ -561,10 +562,10 @@ class Book(Delegator):
             length = len(text.text)
             fonts[fs] = fonts.get(fs, 0) + length
         if not fonts:
-            print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
+            print('WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.')
             return
 
-        old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])
+        old_base_font_size = float(max(list(fonts.items()), key=operator.itemgetter(1))[0])
         factor = base_font_size / old_base_font_size
 
         def rescale(old):
@@ -586,14 +587,14 @@ class Book(Delegator):
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
 
     def renderLrs(self, lrsFile, encoding="UTF-8"):
-        if isinstance(lrsFile, basestring):
+        if isinstance(lrsFile, six.string_types):
             lrsFile = codecs.open(lrsFile, "wb", encoding=encoding)
         self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()
 
     def renderLrf(self, lrfFile):
         self.appendReferencedObjects(self)
-        if isinstance(lrfFile, basestring):
+        if isinstance(lrfFile, six.string_types):
             lrfFile = file(lrfFile, "wb")
         lrfWriter = LrfWriter(self.sourceencoding)
 
@@ -1159,7 +1160,7 @@ class TextStyle(LrsStyle):
                  "rubyadjust", "rubyalign", "rubyoverhang",
                  "empdotsposition", 'emplinetype', 'emplineposition']
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults.keys()) + alsoAllow
 
     defaults = baseDefaults.copy()
 
@@ -1190,7 +1191,7 @@ class BlockStyle(LrsStyle):
             framewidth="0", framecolor="0x00000000", topskip="0",
             sidemargin="0", footskip="0", bgcolor="0xFF000000")
 
-    validSettings = baseDefaults.keys()
+    validSettings = list(baseDefaults.keys())
     defaults = baseDefaults.copy()
 
     def __init__(self, **overrides):
@@ -1220,7 +1221,7 @@ class PageStyle(LrsStyle):
     alsoAllow = ["header", "evenheader", "oddheader",
                  "footer", "evenfooter", "oddfooter"]
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults.keys()) + alsoAllow
     defaults = baseDefaults.copy()
 
     @classmethod
@@ -1492,9 +1493,9 @@ class Paragraph(LrsContainer):
 
     def __init__(self, text=None):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
-                                     LrsSimpleChar1, basestring])
+                                     LrsSimpleChar1, six.string_types])
         if text is not None:
-            if isinstance(text, basestring):
+            if isinstance(text, six.string_types):
                 text = Text(text)
             self.append(text)
 
@@ -1527,7 +1528,7 @@ class Paragraph(LrsContainer):
 class LrsTextTag(LrsContainer):
 
     def __init__(self, text, validContents):
-        LrsContainer.__init__(self, [Text, basestring] + validContents)
+        LrsContainer.__init__(self, [Text, six.string_types] + validContents)
         if text is not None:
             self.append(text)
 
@@ -1677,8 +1678,8 @@ class Plot(LrsSimpleChar1, LrsContainer):
             raise LrsError('Sizes must be positive semi-definite')
         self.xsize = int(xsize)
         self.ysize = int(ysize)
-        if adjustment and adjustment not in Plot.ADJUSTMENT_VALUES.keys():
-            raise LrsError('adjustment must be one of' + Plot.ADJUSTMENT_VALUES.keys())
+        if adjustment and adjustment not in list(Plot.ADJUSTMENT_VALUES.keys()):
+            raise LrsError('adjustment must be one of' + list(Plot.ADJUSTMENT_VALUES.keys()))
         self.adjustment = adjustment
 
     def setObj(self, obj):
@@ -1791,7 +1792,7 @@ class Box(LrsSimpleChar1, LrsContainer):
     """
 
     def __init__(self, linetype="solid"):
-        LrsContainer.__init__(self, [Text, basestring])
+        LrsContainer.__init__(self, [Text, six.string_types])
         if linetype not in LINE_TYPE_ENCODING:
             raise LrsError(linetype + " is not a valid line type")
         self.linetype = linetype
@@ -1811,9 +1812,9 @@ class Box(LrsSimpleChar1, LrsContainer):
 class Span(LrsSimpleChar1, LrsContainer):
 
     def __init__(self, text=None, **attrs):
-        LrsContainer.__init__(self, [LrsSimpleChar1, Text, basestring])
+        LrsContainer.__init__(self, [LrsSimpleChar1, Text, six.string_types])
         if text is not None:
-            if isinstance(text, basestring):
+            if isinstance(text, six.string_types):
                 text = Text(text)
             self.append(text)
 
@@ -1955,7 +1956,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
     """
 
     def __init__(self, button, text=None):
-        LrsContainer.__init__(self, [basestring, Text, LrsSimpleChar1])
+        LrsContainer.__init__(self, [six.string_types, Text, LrsSimpleChar1])
         self.button = None
         if button is not None:
             self.setButton(button)

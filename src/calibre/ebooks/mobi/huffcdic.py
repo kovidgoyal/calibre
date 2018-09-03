@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -34,7 +35,7 @@ class Reader(object):
                 assert term
             maxcode = ((maxcode + 1) << (32 - codelen)) - 1
             return (codelen, term, maxcode)
-        self.dict1 = map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1))
+        self.dict1 = list(map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1)))
 
         dict2 = struct.unpack_from(b'>64L', huff, off2)
         self.mincode, self.maxcode = (), ()
@@ -56,7 +57,7 @@ class Reader(object):
             blen, = h(cdic, 16+off)
             slice = cdic[18+off:18+off+(blen&0x7fff)]
             return (slice, blen&0x8000)
-        self.dictionary += map(getslice, struct.unpack_from(b'>%dH' % n, cdic, 16))
+        self.dictionary += list(map(getslice, struct.unpack_from(b'>%dH' % n, cdic, 16)))
 
     def unpack(self, data):
         q = self.q

@@ -7,11 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote_plus
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -41,7 +40,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://wolnelektury.pl/szukaj?q=' + urllib.quote_plus(query.encode('utf-8'))
+        url = 'http://wolnelektury.pl/szukaj?q=' + quote_plus(query.encode('utf-8'))
 
         br = browser()
 
@@ -73,7 +72,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 s.author = author
                 s.price = price
                 s.detail_item = 'http://wolnelektury.pl' + id
-                s.formats = ', '.join(s.downloads.keys())
+                s.formats = ', '.join(list(s.downloads.keys()))
                 s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s

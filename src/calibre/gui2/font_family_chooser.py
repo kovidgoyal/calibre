@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -267,7 +268,7 @@ class FontFamilyDialog(QDialog):
         q = icu_lower(unicode(self.search.text())).strip()
         if not q:
             return
-        r = (xrange(i-1, -1, -1) if backwards else xrange(i+1,
+        r = (range(i-1, -1, -1) if backwards else range(i+1,
             len(self.families)))
         for j in r:
             f = self.families[j]

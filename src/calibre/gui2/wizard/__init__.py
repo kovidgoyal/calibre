@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -426,7 +429,7 @@ def get_manufacturers():
 
 def get_devices_of(manufacturer):
     ans = [d for d in get_devices() if d.manufacturer == manufacturer]
-    return sorted(ans, cmp=lambda x,y:cmp(x.name, y.name))
+    return sorted(ans, key=lambda x: x.name)
 
 
 class ManufacturerModel(QAbstractListModel):
@@ -491,7 +494,7 @@ class KindlePage(QWizardPage, KindleUI):
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
-        for x, ac in opts.accounts.iteritems():
+        for x, ac in six.iteritems(opts.accounts):
             default = ac[2]
             if x.strip().endswith('@kindle.com'):
                 accs.append((x, default))
@@ -676,7 +679,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
-        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        items.sort(key=lambda x: x[1])
         for item in items:
             self.language.addItem(item[1], (item[0]))
         self.language.blockSignals(False)
@@ -684,8 +687,11 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def change_language(self, idx):
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
-        import __builtin__
-        __builtin__.__dict__['_'] = lambda(x): x
+        try:
+            import six.moves.builtins as builtins
+        except ImportError:
+            import builtins
+        builtins.__dict__['_'] = lambda x: x
         from calibre.utils.localization import set_translators
         from calibre.gui2 import qt_app
         from calibre.ebooks.metadata.book.base import reset_field_metadata
@@ -865,7 +871,7 @@ class Wizard(QWizard):
         self.resize(600, 520)
 
     def set_button_texts(self):
-        for but, text in self.BUTTON_TEXTS.iteritems():
+        for but, text in six.iteritems(self.BUTTON_TEXTS):
             self.setButtonText(getattr(self, but+'Button'), _(text))
 
     def retranslate(self):
@@ -876,7 +882,7 @@ class Wizard(QWizard):
         self.set_finish_text()
 
     def accept(self):
-        pages = map(self.page, self.visitedPages())
+        pages = list(map(self.page, self.visitedPages()))
         for page in pages:
             page.commit()
         QWizard.accept(self)

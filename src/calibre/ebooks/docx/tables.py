@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import filter
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -85,7 +88,7 @@ def read_spacing(parent, dest, XPath, get):
 def read_float(parent, dest, XPath, get):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
-        ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.iteritems()}
+        ans = {k.rpartition('}')[-1]: v for k, v in six.iteritems(x.attrib)}
     setattr(dest, 'float', ans)
 
 
@@ -571,7 +574,7 @@ class Table(object):
             return
         # Handle vMerge
         max_col_num = max(len(r) for r in self.cell_map)
-        for c in xrange(max_col_num):
+        for c in range(max_col_num):
             cells = [row[c] if c < len(row) else None for row in self.cell_map]
             runs = [[]]
             for cell in cells:
@@ -618,7 +621,7 @@ class Table(object):
     def __iter__(self):
         for p in self.paragraphs:
             yield p
-        for t in self.sub_tables.itervalues():
+        for t in six.itervalues(self.sub_tables):
             for p in t:
                 yield p
 
@@ -665,7 +668,7 @@ class Table(object):
         table_style = self.table_style.css
         if table_style:
             table.set('class', self.styles.register(table_style, 'table'))
-        for elem, style in style_map.iteritems():
+        for elem, style in six.iteritems(style_map):
             css = style.css
             if css:
                 elem.set('class', self.styles.register(css, elem.tag))
@@ -686,7 +689,7 @@ class Tables(object):
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in six.iteritems(object_map)}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 

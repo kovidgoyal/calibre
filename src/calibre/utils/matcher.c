@@ -155,10 +155,6 @@ static double calc_score_for_char(MatchInfo *m, UChar32 last, UChar32 current, i
 }
 
 static void convert_positions(int32_t *positions, int32_t *final_positions, UChar *string, int32_t char_len, int32_t byte_len, double score) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
-
     // The positions array stores character positions as byte offsets in string, convert them into character offsets
     int32_t i, *end;
 
@@ -349,7 +345,7 @@ static void
 Matcher_dealloc(Matcher* self)
 {
     free_matcher(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 #define alloc_uchar(x) (x * 3 + 1)
@@ -435,7 +431,7 @@ Matcher_calculate_scores(Matcher *self, PyObject *args) {
             PyTuple_SET_ITEM(items, (Py_ssize_t)i, score);
             p = final_positions + (i * needle_char_len);
             for (j = 0; j < needle_char_len; j++) {
-                score = PyInt_FromLong((long)p[j]);
+                score = PyLong_FromLong((long)p[j]);
                 if (score == NULL) { PyErr_NoMemory(); goto end; }
                 PyTuple_SET_ITEM(PyTuple_GET_ITEM(positions, (Py_ssize_t)i), (Py_ssize_t)j, score);
             }
@@ -462,45 +458,14 @@ static PyMethodDef Matcher_methods[] = {
 // }}}
 
 static PyTypeObject MatcherType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "matcher.Matcher",            /*tp_name*/
-    sizeof(Matcher),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Matcher_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Matcher",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    Matcher_methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)Matcher_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    0,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "matcher.Matcher",
+    .tp_basicsize = sizeof(Matcher),
+    .tp_dealloc = (destructor)Matcher_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    .tp_doc = "Matcher",
+    .tp_methods = Matcher_methods,
+    .tp_init = (initproc)Matcher_init,
 }; // }}}
 
 static PyMethodDef matcher_methods[] = {
@@ -508,19 +473,38 @@ static PyMethodDef matcher_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initmatcher(void) {
-    PyObject *m;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef matcher_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "matcher",
+    .m_doc = "Find subsequence matches",
+    .m_size = -1,
+    .m_methods = matcher_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_matcher(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initmatcher(void) {
+#endif
+
     MatcherType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&MatcherType) < 0)
-        return;
-    m = Py_InitModule3("matcher", matcher_methods, "Find subsequence matches");
-    if (m == NULL) return;
+        INITERROR;
 
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&matcher_module);
+#else
+    PyObject *mod = Py_InitModule3("matcher", matcher_methods, "Find subsequence matches");
+#endif
+
+    if (mod == NULL) INITERROR;
     Py_INCREF(&MatcherType);
-    PyModule_AddObject(m, "Matcher", (PyObject *)&MatcherType);
+    PyModule_AddObject(mod, "Matcher", (PyObject *)&MatcherType);
 
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
-
-
 

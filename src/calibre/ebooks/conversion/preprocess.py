@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
+from six.moves import range
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -315,7 +316,7 @@ class CSSPreProcessor(object):
         # are commented lines before the first @import or @charset rule. Since
         # the conversion will remove all stylesheets anyway, we don't lose
         # anything
-        data = re.sub(ur'/\*.*?\*/', u'', data, flags=re.DOTALL)
+        data = re.sub(r'/\*.*?\*/', u'', data, flags=re.DOTALL)
 
         ans, namespaced = [], False
         for line in data.splitlines():
@@ -533,7 +534,7 @@ class HTMLPreProcessor(object):
         start_rules = []
         if is_pdftohtml:
             # Remove non breaking spaces
-            start_rules.append((re.compile(ur'\u00a0'), lambda match : ' '))
+            start_rules.append((re.compile(r'\u00a0'), lambda match : ' '))
 
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)

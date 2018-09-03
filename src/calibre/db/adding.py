@@ -2,13 +2,15 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, time, re
 from collections import defaultdict
-from future_builtins import map
+from six.moves import map
 from contextlib import contextmanager
 from functools import partial
 
@@ -137,7 +139,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if allow_path(path, ext, compiled_rules):
                 formats[ext] = path
         if formats_ok(formats):
-            yield list(formats.itervalues())
+            yield list(six.itervalues(formats))
     else:
         books = defaultdict(dict)
         for path in listdir_impl(dirpath, sort_by_mtime=True):
@@ -145,9 +147,9 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if allow_path(path, ext, compiled_rules):
                 books[icu_lower(key) if isinstance(key, unicode) else key.lower()][ext] = path
 
-        for formats in books.itervalues():
+        for formats in six.itervalues(books):
             if formats_ok(formats):
-                yield list(formats.itervalues())
+                yield list(six.itervalues(formats))
 
 
 def create_format_map(formats):

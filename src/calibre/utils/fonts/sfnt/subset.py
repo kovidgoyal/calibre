@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -20,7 +22,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
 
 
 def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
-    unresolved_glyphs = set(character_map.itervalues()) | extra_glyphs
+    unresolved_glyphs = set(six.itervalues(character_map)) | extra_glyphs
     unresolved_glyphs.add(0)  # We always want the .notdef glyph
     resolved_glyphs = {}
 
@@ -36,7 +38,7 @@ def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
             if gid not in resolved_glyphs:
                 unresolved_glyphs.add(gid)
 
-    return OrderedDict(sorted(resolved_glyphs.iteritems(), key=itemgetter(0)))
+    return OrderedDict(sorted(six.iteritems(resolved_glyphs), key=itemgetter(0)))
 
 
 def subset_truetype(sfnt, character_map, extra_glyphs):
@@ -55,7 +57,7 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
                 'set, subsetting it is pointless')
 
     # Keep only character codes that have resolved glyphs
-    for code, glyph_id in tuple(character_map.iteritems()):
+    for code, glyph_id in tuple(six.iteritems(character_map)):
         if glyph_id not in resolved_glyphs:
             del character_map[code]
 
@@ -110,7 +112,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
     chars = set(map(ord, individual_chars))
     for r in ranges:
-        chars |= set(xrange(ord(r[0]), ord(r[1])+1))
+        chars |= set(range(ord(r[0]), ord(r[1])+1))
 
     # Always add the space character for ease of use from the command line
     if ord(' ') not in chars:
@@ -150,7 +152,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
         gsub = sfnt[b'GSUB']
         try:
             gsub.decompile()
-            extra_glyphs = gsub.all_substitutions(character_map.itervalues())
+            extra_glyphs = gsub.all_substitutions(six.itervalues(character_map))
         except UnsupportedFont as e:
             warn('Usupported GSUB table: %s'%e)
         except Exception as e:
@@ -171,7 +173,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
     if b'kern' in sfnt:
         try:
-            sfnt[b'kern'].restrict_to_glyphs(frozenset(character_map.itervalues()))
+            sfnt[b'kern'].restrict_to_glyphs(frozenset(six.itervalues(character_map)))
         except UnsupportedFont as e:
             warn('kern table unsupported, ignoring: %s'%e)
         except Exception as e:
@@ -210,9 +212,9 @@ def print_stats(old_stats, new_stats):
     prints('Table', ' ', '%10s'%'Size', '  ', 'Percent', '   ', '%10s'%'New Size',
             ' New Percent')
     prints('='*80)
-    old_total = sum(old_stats.itervalues())
-    new_total = sum(new_stats.itervalues())
-    tables = sorted(old_stats.iterkeys(), key=lambda x:old_stats[x],
+    old_total = sum(six.itervalues(old_stats))
+    new_total = sum(six.itervalues(new_stats))
+    tables = sorted(six.iterkeys(old_stats), key=lambda x:old_stats[x],
             reverse=True)
     for table in tables:
         osz = old_stats[table]
@@ -301,10 +303,10 @@ def test_mem():
     start_mem = memory()
     raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
     calls = 1000
-    for i in xrange(calls):
+    for i in range(calls):
         subset(raw, (), (('a', 'z'),))
     del raw
-    for i in xrange(3):
+    for i in range(3):
         gc.collect()
     print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
 
@@ -345,7 +347,7 @@ def all():
                 print ('Failed!')
                 failed.append((font['full_name'], font['path'], unicode(e)))
             else:
-                averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues()) * 100)
+                averages.append(sum(six.itervalues(new_stats))/sum(six.itervalues(old_stats)) * 100)
                 print ('Reduced to:', '%.1f'%averages[-1] , '%')
     if unsupported:
         print ('\n\nUnsupported:')
@@ -354,7 +356,7 @@ def all():
             print()
     if warnings:
         print ('\n\nWarnings:')
-    for name, w in warnings.iteritems():
+    for name, w in six.iteritems(warnings):
         if w:
             print (name)
             print('', '\n\t'.join(w), sep='\t')

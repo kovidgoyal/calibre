@@ -3,21 +3,25 @@ Basic support for writing LIT files.
 '''
 from __future__ import with_statement
 
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from cStringIO import StringIO
 from struct import pack
-from itertools import izip, count, chain
+from itertools import count, chain
 import time
 import random
 import re
 import copy
 import uuid
 import functools
-from urlparse import urldefrag
-from urllib import unquote as urlunquote
+
+from six.moves import StringIO, zip
+from six.moves.urllib.parse import urldefrag
+from six.moves.urllib.parse import unquote as urlunquote
 from lxml import etree
+
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
@@ -47,9 +51,9 @@ ALL_MS_COVER_TYPES = [
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
-    tags = dict((tags[i], i) for i in xrange(len(tags)))
-    dattrs = dict((v, k) for k, v in dattrs.items())
-    tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
+    tags = dict((tags[i], i) for i in range(len(tags)))
+    dattrs = dict((v, k) for k, v in list(dattrs.items()))
+    tattrs = [dict((v, k) for k, v in list((map or {}).items())) for map in tattrs]
     for map in tattrs:
         if map:
             map.update(dattrs)
@@ -131,11 +135,11 @@ def decint(value):
 
 
 def randbytes(n):
-    return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
+    return ''.join(chr(random.randint(0, 255)) for x in range(n))
 
 
 def warn(x):
-    print x
+    print(x)
 
 
 class ReBinary(object):
@@ -171,7 +175,7 @@ class ReBinary(object):
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, basestring):
+        if not isinstance(elem.tag, six.string_types):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)
@@ -328,7 +332,7 @@ class LitWriter(object):
         self._oeb = oeb
         self._logger = oeb.logger
         self._stream = stream
-        self._sections = [StringIO() for i in xrange(4)]
+        self._sections = [StringIO() for i in range(4)]
         self._directory = []
         self._meta = None
         self._litize_oeb()
@@ -359,7 +363,7 @@ class LitWriter(object):
             1, PRIMARY_SIZE, 5, SECONDARY_SIZE))
         self._write(packguid(LITFILE_GUID))
         offset = self._tell()
-        pieces = list(xrange(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
+        pieces = list(range(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
         self._write((5 * PIECE_SIZE) * '\0')
         aoli1 = len(dchunks) if ichunk else ULL_NEG1
         last = len(dchunks) - 1
@@ -400,7 +404,7 @@ class LitWriter(object):
             1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
         cchunk = StringIO()
         last = 0
-        for i, dcount in izip(count(), dcounts):
+        for i, dcount in zip(count(), dcounts):
             cchunk.write(decint(last))
             cchunk.write(decint(dcount))
             cchunk.write(decint(i))
@@ -658,15 +662,14 @@ class LitWriter(object):
             hash.update(data)
         digest = hash.digest()
         key = [0] * 8
-        for i in xrange(0, len(digest)):
+        for i in range(0, len(digest)):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
 
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
-        directory.sort(cmp=lambda x, y:
-            cmp(x.name.lower(), y.name.lower()))
+        directory.sort(key=lambda x: x.name.lower())
         qrn = 1 + (1 << 2)
         dchunk = StringIO()
         dcount = 0
@@ -696,7 +699,7 @@ class LitWriter(object):
         ichunk = None
         if len(ddata) > 1:
             ichunk = StringIO()
-        for cid, (content, quickref, dcount, name) in izip(count(), ddata):
+        for cid, (content, quickref, dcount, name) in zip(count(), ddata):
             dchunk = StringIO()
             prev = cid - 1 if cid > 0 else ULL_NEG1
             next = cid + 1 if cid < cidmax else ULL_NEG1

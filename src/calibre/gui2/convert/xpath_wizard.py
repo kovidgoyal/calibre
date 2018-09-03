@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -29,7 +31,7 @@ class WizardWidget(QWidget, Ui_Form):
         tag = unicode(self.tag.currentText()).strip()
         if tag != '*':
             tag = 'h:'+tag
-        attr, val = map(unicode, (self.attribute.text(), self.value.text()))
+        attr, val = list(map(unicode, (self.attribute.text(), self.value.text())))
         attr, val = attr.strip(), val.strip()
         q = ''
         if attr:
@@ -113,4 +115,4 @@ if __name__ == '__main__':
     w.setObjectName('test')
     w.show()
     app.exec_()
-    print w.xpath
+    print(w.xpath)

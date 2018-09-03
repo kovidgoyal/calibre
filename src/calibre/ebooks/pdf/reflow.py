@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -40,8 +42,8 @@ class Image(Element):
         self.opts, self.log = opts, log
         self.id = idc.next()
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
-          map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
-              'iheight')))
+          list(map(float, list(map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
+              'iheight')))))
         self.src = img.get('src')
         self.bottom = self.top + self.height
         self.right = self.left + self.width
@@ -62,8 +64,8 @@ class Text(Element):
         self.id = idc.next()
         self.opts, self.log = opts, log
         self.font_map = font_map
-        self.top, self.left, self.width, self.height = map(float, map(text.get,
-            ('top', 'left', 'width', 'height')))
+        self.top, self.left, self.width, self.height = list(map(float, list(map(text.get,
+            ('top', 'left', 'width', 'height')))))
         self.bottom  = self.top + self.height
         self.right = self.left + self.width
         self.font = self.font_map[text.get('font')]
@@ -166,7 +168,7 @@ class Column(object):
         self._post_add()
 
     def _post_add(self):
-        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.elements.sort(key=lambda x: x.bottom)
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
         self.left, self.right = sys.maxint, 0
@@ -257,7 +259,7 @@ class Region(object):
 
     def add(self, columns):
         if not self.columns:
-            for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
+            for x in sorted(columns, key=lambda x: x.left):
                 self.columns.append(x)
         else:
             for i in range(len(columns)):
@@ -356,11 +358,11 @@ class Region(object):
                         max_overlap = width
                         max_overlap_index = j
                 col_map[i] = max_overlap_index
-            lines = max(map(len, region.columns))
+            lines = max(list(map(len, region.columns)))
             if at == 'bottom':
-                lines = range(lines)
+                lines = list(range(lines))
             else:
-                lines = range(lines-1, -1, -1)
+                lines = list(range(lines-1, -1, -1))
             for i in lines:
                 for j, src in enumerate(region.columns):
                     dest = self.columns[col_map[j]]
@@ -423,8 +425,8 @@ class Page(object):
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.number = int(page.get('number'))
-        self.width, self.height = map(float, map(page.get,
-            ('width', 'height')))
+        self.width, self.height = list(map(float, list(map(page.get,
+            ('width', 'height')))))
         self.id = 'page%d'%self.number
 
         self.texts = []
@@ -455,7 +457,7 @@ class Page(object):
         self.elements = list(self.texts)
         for img in page.xpath('descendant::img'):
             self.elements.append(Image(img, self.opts, self.log, idc))
-        self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
+        self.elements.sort(key=lambda x: x.top)
 
     def coalesce_fragments(self):
 
@@ -577,7 +579,7 @@ class Page(object):
 
     def sort_into_columns(self, elem, neighbors):
         neighbors.add(elem)
-        neighbors = sorted(neighbors, cmp=lambda x,y:cmp(x.left, y.left))
+        neighbors = sorted(neighbors, key=lambda x: x.left)
         if self.opts.verbose > 3:
             self.log.debug('Neighbors:', [x.to_html() for x in neighbors])
         columns = [Column()]
@@ -592,7 +594,7 @@ class Page(object):
             if not added:
                 columns.append(Column())
                 columns[-1].add(x)
-                columns.sort(cmp=lambda x,y:cmp(x.left, y.left))
+                columns.sort(key=lambda x: x.left)
         return columns
 
     def find_elements_in_row_of(self, x):
@@ -621,7 +623,7 @@ class PDFDocument(object):
         self.opts, self.log = opts, log
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
-        idc = iter(xrange(sys.maxint))
+        idc = iter(range(sys.maxint))
 
         self.fonts = []
         self.font_map = {}

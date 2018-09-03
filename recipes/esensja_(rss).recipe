@@ -2,6 +2,7 @@ __license__ = 'GPL v3'
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+from six.moves import range
 
 
 class EsensjaRSS(BasicNewsRecipe):
@@ -22,8 +23,7 @@ class EsensjaRSS(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                          (re.compile(u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
                           ]
     remove_attributes = ['style', 'bgcolor', 'alt', 'color']
     keep_only_tags = [dict(attrs={'class': 'sekcja'}), ]

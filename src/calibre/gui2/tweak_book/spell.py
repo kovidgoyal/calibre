@@ -2,11 +2,14 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import filter
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, sys
+import six.moves.cPickle, os, sys
 from collections import defaultdict, OrderedDict
 from itertools import chain
 from threading import Thread
@@ -48,7 +51,7 @@ _country_map = None
 def country_map():
     global _country_map
     if _country_map is None:
-        _country_map = cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
+        _country_map = six.moves.cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
     return _country_map
 
 
@@ -145,12 +148,12 @@ class UserWordList(QListWidget):
         m.exec_(ev.globalPos())
 
     def select_all(self):
-        for item in (self.item(i) for i in xrange(self.count())):
+        for item in (self.item(i) for i in range(self.count())):
             item.setSelected(True)
 
     def copy_to_clipboard(self):
         words = []
-        for item in (self.item(i) for i in xrange(self.count())):
+        for item in (self.item(i) for i in range(self.count())):
             if item.isSelected():
                 words.append(item.data(Qt.UserRole)[0])
         if words:
@@ -290,7 +293,7 @@ class ManageUserDictionaries(Dialog):
         if d is not None:
             dictionaries.mark_user_dictionary_as_active(d.name, self.is_active.isChecked())
             self.dictionaries_changed = True
-            for item in (self.dictionaries.item(i) for i in xrange(self.dictionaries.count())):
+            for item in (self.dictionaries.item(i) for i in range(self.dictionaries.count())):
                 d = item.data(Qt.UserRole)
                 item.setData(Qt.FontRole, self.emph_font if d.is_active else None)
 
@@ -364,7 +367,7 @@ class ManageUserDictionaries(Dialog):
         if not lc:
             return error_dialog(self, _('Must specify language'), _(
                 'You must specify a language to import words'), show=True)
-        words = set(filter(None, [x.strip() for x in unicode(w.toPlainText()).splitlines()]))
+        words = set([_f for _f in [x.strip() for x in unicode(w.toPlainText()).splitlines()] if _f])
         lang = lc[0]
         words = {(w, lang) for w in words} - self.current_dictionary.words
         if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, DictionaryLocale(lang, None)):
@@ -384,7 +387,7 @@ class ManageUserDictionaries(Dialog):
 
     def find_word(self, word, lang):
         key = (word, lang)
-        for i in xrange(self.words.count()):
+        for i in range(self.words.count()):
             if self.words.item(i).data(Qt.UserRole) == key:
                 return i
         return -1
@@ -555,7 +558,7 @@ class ManageDictionaries(Dialog):  # {{{
         item = self.dictionaries.currentItem()
         bf = QFont(self.dictionaries.font())
         bf.setBold(True)
-        for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
+        for x in (item.parent().child(i) for i in range(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
         lc = unicode(item.parent().data(0, Qt.UserRole))
         pl = dprefs['preferred_locales']
@@ -576,7 +579,7 @@ class ManageDictionaries(Dialog):  # {{{
         item = self.dictionaries.currentItem()
         bf = QFont(self.dictionaries.font())
         bf.setItalic(True)
-        for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
+        for x in (item.parent().child(i) for i in range(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
         cc = unicode(item.parent().data(0, Qt.UserRole))
         lc = unicode(item.parent().parent().data(0, Qt.UserRole))
@@ -705,7 +708,7 @@ class WordsModel(QAbstractTableModel):
         self.endResetModel()
 
     def update_counts(self, emit_signal=True):
-        self.counts = (len([None for w, recognized in self.spell_map.iteritems() if not recognized]), len(self.words))
+        self.counts = (len([None for w, recognized in six.iteritems(self.spell_map) if not recognized]), len(self.words))
         if emit_signal:
             self.counts_changed.emit()
 
@@ -718,7 +721,7 @@ class WordsModel(QAbstractTableModel):
         return True
 
     def do_filter(self):
-        self.items = filter(self.filter_item, self.words)
+        self.items = list(filter(self.filter_item, self.words))
 
     def toggle_ignored(self, row):
         w = self.word_for_row(row)
@@ -1340,7 +1343,7 @@ def find_next(word, locations, current_editor, current_editor_name,
 
     if current_editor_name not in files:
         current_editor_name = None
-        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.iteritems()]
+        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in six.iteritems(files)]
     else:
         # Re-order the list of locations to search so that we search in the
         # current editor first

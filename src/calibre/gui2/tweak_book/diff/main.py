@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -79,11 +81,11 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     removals = list_of_names1 - common_names
     adds = set(list_of_names2 - common_names)
     adata, rdata = {a:get_data2(a) for a in adds}, {r:get_data1(r) for r in removals}
-    ahash = {a:hash(d) for a, d in adata.iteritems()}
-    rhash = {r:hash(d) for r, d in rdata.iteritems()}
+    ahash = {a:hash(d) for a, d in six.iteritems(adata)}
+    rhash = {r:hash(d) for r, d in six.iteritems(rdata)}
     renamed_names, removed_names, added_names = {}, set(), set()
-    for name, rh in rhash.iteritems():
-        for n, ah in ahash.iteritems():
+    for name, rh in six.iteritems(rhash):
+        for n, ah in six.iteritems(ahash):
             if ah == rh:
                 renamed_names[name] = n
                 adds.discard(n)
@@ -137,7 +139,7 @@ def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='lef
 
 
 def file_diff(left, right):
-    (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
+    (raw1, syntax1), (raw2, syntax2) = list(map(get_decoded_raw, (left, right)))
     if type(raw1) is not type(raw2):
         raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
     cache = Cache()
@@ -419,7 +421,7 @@ class Diff(Dialog):
         kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
-            for name, other_name in sorted(changed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
+            for name, other_name in sorted(six.iteritems(changed_names), key=lambda x:numeric_sort_key(x[0])):
                 args = (name, other_name, cache.left(name), cache.right(other_name))
                 add(args, kwargs(name))
         else:
@@ -435,7 +437,7 @@ class Diff(Dialog):
             args = (name, _('[%s was removed]') % name, cache.left(name), None)
             add(args, kwargs(name))
 
-        for name, new_name in sorted(renamed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
+        for name, new_name in sorted(six.iteritems(renamed_names), key=lambda x:numeric_sort_key(x[0])):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 

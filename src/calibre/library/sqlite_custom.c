@@ -271,11 +271,27 @@ static PyMethodDef sqlite_custom_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initsqlite_custom(void) {
-    PyObject *m;
-    m = Py_InitModule3("sqlite_custom", sqlite_custom_methods,
-    "Implementation of custom sqlite methods in C for speed."
-    );
-    if (m == NULL) return;
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef sqlite_custom_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "sqlite_custom",
+    .m_doc = "Implementation of custom sqlite methods in C for speed.",
+    .m_size = -1,
+    .m_methods = sqlite_custom_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_sqlite_custom(void) {
+    PyObject *mod = PyModule_Create(&sqlite_custom_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initsqlite_custom(void) {
+    PyObject *mod = Py_InitModule3("sqlite_custom", sqlite_custom_methods,
+        "Implementation of custom sqlite methods in C for speed.");
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }

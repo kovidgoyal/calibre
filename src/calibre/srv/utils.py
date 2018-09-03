@@ -2,19 +2,21 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, socket, select, os, time
-from Cookie import SimpleCookie
+from six.moves.http_cookies import SimpleCookie
 from contextlib import closing
-from urlparse import parse_qs
-import repr as reprlib
+from six.moves.urllib.parse import parse_qs
+import six.moves.reprlib as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from future_builtins import map
-from urllib import quote as urlquote
+from six.moves import map
+from six.moves.urllib.parse import quote as urlquote
 from binascii import hexlify, unhexlify
 
 from calibre import prints
@@ -48,12 +50,12 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
+        for k, v in six.iteritems(parse_qs(qs, keep_blank_values=True)):
             dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in ld.iteritems():
+        for key, values in six.iteritems(ld):
             for val in values:
                 self[key] = val
 
@@ -99,12 +101,12 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in six.iteritems(self)) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
         return leading_whitespace + ('\n' + leading_whitespace).join(
-            '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(self.items(), key=itemgetter(0)))
+            '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(list(self.items()), key=itemgetter(0)))
 # }}}
 
 
@@ -370,7 +372,7 @@ class RotatingStream(object):
         if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
-        for i in xrange(self.history - 1, 0, -1):
+        for i in range(self.history - 1, 0, -1):
             src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
             self.rename(src, dest)
         self.rename(self.filename, '%s.%d' % (self.filename, 1))

@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -48,7 +50,7 @@ def import_opml(raw, preserve_groups=True):
                         break
         groups[parent].append((title, url))
 
-    for title in sorted(groups.iterkeys(), key=sort_key):
+    for title in sorted(six.iterkeys(groups), key=sort_key):
         yield Group(title, uniq(groups[title], kmap=itemgetter(1)))
 
 
@@ -141,7 +143,7 @@ class ImportOPML(QDialog):
 if __name__ == '__main__':
     import sys
     for group in import_opml(open(sys.argv[-1], 'rb').read()):
-        print (group.title)
+        print((group.title))
         for title, url in group.feeds:
-            print ('\t%s - %s' % (title, url))
+            print(('\t%s - %s' % (title, url)))
         print ()

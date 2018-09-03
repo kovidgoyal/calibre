@@ -25,6 +25,7 @@ from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
+from six.moves import zip
 
 
 class UpdateEditorGeometry(object):
@@ -198,8 +199,8 @@ def get_val_for_textlike_columns(index_):
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
+        self.is_half_star = kwargs.pop('is_half_star', False)
         QStyledItemDelegate.__init__(self, *args, **kwargs)
-        self.is_half_star = kwargs.get('is_half_star', False)
         self.table_widget = args[0]
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle

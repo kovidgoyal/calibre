@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -151,7 +152,7 @@ class RemoveFakeMargins(object):
                 self.levels[level].append(p)
 
         remove = set()
-        for k, v in self.levels.iteritems():
+        for k, v in six.iteritems(self.levels):
             num = len(v)
             self.log.debug('Found %d items of level:'%num, k)
             level = int(k.split('_')[-1])

@@ -1,5 +1,5 @@
 import re
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import time
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, SoupStrainer
@@ -69,7 +69,7 @@ class Ebert(BasicNewsRecipe):
             self.report_progress(0, _('Fetching feed') + ' %s...' %
                                  (feedtitle if feedtitle else feedurl))
             articles = []
-            page = urllib2.urlopen(feedurl).read()
+            page = six.moves.urllib.request.urlopen(feedurl).read()
 
             if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
                 pattern = self.patternReviews

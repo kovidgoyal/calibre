@@ -2,15 +2,17 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, zlib, json, base64, os
+import six.moves.http_client, zlib, json, base64, os
 from io import BytesIO
 from functools import partial
-from urllib import urlencode, quote
-from httplib import OK, NOT_FOUND, FORBIDDEN
+from six.moves.urllib.parse import urlencode, quote
+from six.moves.http_client import OK, NOT_FOUND, FORBIDDEN
 
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
@@ -22,7 +24,7 @@ def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=
     conn.request(method, prefix + url, headers=headers, body=data)
     r = conn.getresponse()
     data = r.read()
-    if r.status == httplib.OK and data and data[0] in b'{[':
+    if r.status == six.moves.http_client.OK and data and data[0] in b'{[':
         data = json.loads(data)
     return r, data
 
@@ -37,20 +39,20 @@ class ContentTest(LibraryBaseTest):
             request = partial(make_request, conn, prefix='/ajax/book')
 
             r, data = request('/x')
-            self.ae(r.status, httplib.NOT_FOUND)
+            self.ae(r.status, six.moves.http_client.NOT_FOUND)
 
             r, onedata = request('/1')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(request('/1/' + db.server_library_id)[1], onedata)
             self.ae(request('/%s?id_is_uuid=true' % db.field_for('uuid', 1))[1], onedata)
 
             r, data = request('s')
-            self.ae(set(data.iterkeys()), set(map(str, db.all_book_ids())))
+            self.ae(set(six.iterkeys(data)), set(map(str, db.all_book_ids())))
             r, zdata = request('s', headers={'Accept-Encoding':'gzip'})
             self.ae(r.getheader('Content-Encoding'), 'gzip')
             self.ae(json.loads(zlib.decompress(zdata, 16+zlib.MAX_WBITS)), data)
             r, data = request('s?ids=1,2')
-            self.ae(set(data.iterkeys()), {'1', '2'})
+            self.ae(set(six.iterkeys(data)), {'1', '2'})
 
     # }}}
 
@@ -63,22 +65,22 @@ class ContentTest(LibraryBaseTest):
             request = partial(make_request, conn)
 
             r, data = request('/categories')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             r, xdata = request('/categories/' + db.server_library_id)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(data, xdata)
             names = {x['name']:x['url'] for x in data}
             for q in ('Newest', 'All books', 'Tags', 'Series', 'Authors', 'Enum', 'Composite Tags'):
                 self.assertIn(q, names)
             r, data = request(names['Tags'], prefix='')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             names = {x['name']:x['url'] for x in data['items']}
             self.ae(set(names), set('Tag One,Tag Two,News'.split(',')))
             r, data = request(names['Tag One'], prefix='')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(set(data['book_ids']), {1, 2})
             r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"'}))
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, six.moves.http_client.OK)
             self.ae(set(data['book_ids']), {1, 2})
             r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"', 'vl':'1'}))
             self.ae(set(data['book_ids']), {2})

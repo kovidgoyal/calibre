@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,7 +16,7 @@ from calibre.utils.resources import compiled_coffeescript, load_hyphenator_dicts
 
 class JavaScriptLoader(object):
 
-    JS = {x:('viewer/%s.js'%x if y is None else y) for x, y in {
+    JS = {x:('viewer/%s.js'%x if y is None else y) for x, y in six.iteritems({
 
             'bookmarks':None,
             'referencing':None,
@@ -25,7 +26,7 @@ class JavaScriptLoader(object):
             'hyphenator':'viewer/hyphenate/Hyphenator.js',
             'images':None
 
-        }.iteritems()}
+        })}
 
     CS = {
             'cfi':'ebooks.oeb.display.cfi',

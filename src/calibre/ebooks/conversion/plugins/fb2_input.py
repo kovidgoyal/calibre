@@ -1,4 +1,6 @@
 from __future__ import with_statement
+from six.moves import getcwd
+import six
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
@@ -103,7 +105,7 @@ class FB2Input(InputFormatPlugin):
         notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
         cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
         all_ids = {x for x in result.xpath('//*/@id')}
-        for cite, a in cites.iteritems():
+        for cite, a in six.iteritems(cites):
             note = notes.get(cite, None)
             if note:
                 c = 1
@@ -143,7 +145,7 @@ class FB2Input(InputFormatPlugin):
                     cpath = os.path.abspath(href)
                     break
 
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir(u'.')]
         opf.create_manifest(entries)
         opf.create_spine([u'index.xhtml'])
@@ -151,7 +153,7 @@ class FB2Input(InputFormatPlugin):
             opf.guide.set_cover(cpath)
         with open(u'metadata.opf', 'wb') as f:
             opf.render(f)
-        return os.path.join(os.getcwdu(), u'metadata.opf')
+        return os.path.join(getcwd(), u'metadata.opf')
 
     def extract_embedded_content(self, doc):
         from calibre.ebooks.fb2 import base64_decode

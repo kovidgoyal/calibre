@@ -12,6 +12,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import locale, os, pprint, sys
 
+from six.moves import map
+from six.moves import range
+
 def generate_data():
     def nl(code):
         return locale.nl_langinfo(code)

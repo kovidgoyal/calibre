@@ -2,7 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
+from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +12,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
-from future_builtins import zip
+from six.moves import zip
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
@@ -379,7 +380,7 @@ if __name__ == '__main__':
     # calibre and kindlegen and compare the output
     import os, subprocess
     os.chdir('/t')
-    paras = ['<p>%d</p>' % i for i in xrange(4000)]
+    paras = ['<p>%d</p>' % i for i in range(4000)]
     raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
 
     src = 'index.html'

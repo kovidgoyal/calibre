@@ -1,3 +1,7 @@
+from __future__ import print_function
+from six.moves import map
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -172,8 +176,8 @@ def create_date_tab(self, db):
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
-    for k, v in sorted(vals, key=lambda (k, v): sort_key(v)):
+    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in six.iteritems(db.field_metadata) if v.get('datatype', None) == 'datetime']
+    for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
     self.dateop_date = dd = add(_("date column for books whose &date is "), QComboBox(w))
@@ -189,7 +193,7 @@ def create_date_tab(self, db):
     dy.setRange(102, 10000)
     dy.setValue(now().year)
     self.date_month = dm = add(_('mo&nth'), QComboBox(w))
-    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in xrange(1, 13)]:
+    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in range(1, 13)]:
         dm.addItem(text, val)
     self.date_day = dd = add(_('&day'), QSpinBox(w))
     dd.setRange(0, 31)
@@ -321,9 +325,8 @@ class SearchDialog(QDialog):
             self.mc = '='
         else:
             self.mc = '~'
-        all, any, phrase, none = map(lambda x: unicode(x.text()),
-                (self.all, self.any, self.phrase, self.none))
-        all, any, none = map(self.tokens, (all, any, none))
+        all, any, phrase, none = [unicode(x.text()) for x in (self.all, self.any, self.phrase, self.none)]
+        all, any, none = list(map(self.tokens, (all, any, none)))
         phrase = phrase.strip()
         all = ' and '.join(all)
         any = ' or '.join(any)
@@ -405,4 +408,4 @@ if __name__ == '__main__':
     app = Application([])
     d = SearchDialog(None, db)
     d.exec_()
-    print(d.search_string())
+    print((d.search_string()))

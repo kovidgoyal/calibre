@@ -230,7 +230,7 @@ class ParseRtf:
             )
         try:
             return_value = process_tokens_obj.process_tokens()
-        except InvalidRtfException, msg:
+        except InvalidRtfException as msg:
             # Check to see if the file is correctly encoded
             encode_obj = default_encoding.DefaultEncoding(
             in_file=self.__temp_file,

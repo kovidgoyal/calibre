@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from future_builtins import map
+from six.moves import map
 from calibre.utils.fonts.utils import get_all_font_names
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 
@@ -120,11 +120,11 @@ if __name__ == '__main__':
         raw = f.read()
     sfnt = Sfnt(raw)
     m = FontMetrics(sfnt)
-    print ('Ascent:', m.pdf_ascent)
-    print ('Descent:', m.pdf_descent)
-    print ('PDF BBox:', m.pdf_bbox)
-    print ('CapHeight:', m.pdf_capheight)
-    print ('AvgWidth:', m.pdf_avg_width)
-    print ('ItalicAngle', m.post.italic_angle)
-    print ('StemV', m.pdf_stemv)
+    print(('Ascent:', m.pdf_ascent))
+    print(('Descent:', m.pdf_descent))
+    print(('PDF BBox:', m.pdf_bbox))
+    print(('CapHeight:', m.pdf_capheight))
+    print(('AvgWidth:', m.pdf_avg_width))
+    print(('ItalicAngle', m.post.italic_angle))
+    print(('StemV', m.pdf_stemv))
 

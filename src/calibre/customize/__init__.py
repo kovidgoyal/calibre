@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -527,9 +528,9 @@ class CatalogPlugin(Plugin):  # {{{
             if requested_fields - all_fields:
                 from calibre.library import current_library_name
                 invalid_fields = sorted(list(requested_fields - all_fields))
-                print("invalid --fields specified: %s" % ', '.join(invalid_fields))
-                print("available fields in '%s': %s" %
-                      (current_library_name(), ', '.join(sorted(list(all_fields)))))
+                print(("invalid --fields specified: %s" % ', '.join(invalid_fields)))
+                print(("available fields in '%s': %s" %
+                      (current_library_name(), ', '.join(sorted(list(all_fields))))))
                 raise ValueError("unable to generate catalog with specified fields")
 
             fields = [x for x in of if x in all_fields]
@@ -563,7 +564,7 @@ class CatalogPlugin(Plugin):  # {{{
                 try:
                     resources.extract(file, self.resources_path)
                 except:
-                    print " customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path))
+                    print(" customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path)))
                     continue
             resources.close()
 

@@ -10,7 +10,6 @@ A Humane Web Text Generator
 # Last upstream version basis
 # __version__ = '2.1.4'
 # __date__ = '2009/12/04'
-
 __copyright__ = """
 Copyright (c) 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 Copyright (c) 2011, John Schember <john@nachtimwald.com>
@@ -62,7 +61,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.request import urlopen
 
 from calibre.utils.smartypants import smartyPants
 
@@ -96,13 +96,8 @@ def getimagesize(url):
             return None
 
     try:
-        import urllib2
-    except ImportError:
-        return None
-
-    try:
         p = ImageFile.Parser()
-        f = urllib2.urlopen(url)
+        f = urlopen(url)
         while True:
             s = f.read(1024)
             if not s:

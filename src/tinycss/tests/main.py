@@ -37,7 +37,7 @@ def run_tests(find_tests=find_tests, for_build=False):
         except StopIteration:
             pass
         if ans is None:
-            print ('No test named %s found' % args.name)
+            print(('No test named %s found' % args.name))
             raise SystemExit(1)
         tests = ans
     else:

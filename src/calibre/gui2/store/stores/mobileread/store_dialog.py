@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import range
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -67,7 +68,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
-            for i in xrange(self.results_view.model().columnCount()):
+            for i in range(self.results_view.model().columnCount()):
                 self.results_view.resizeColumnToContents(i)
 
         self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)

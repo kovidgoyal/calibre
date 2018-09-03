@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -180,16 +182,16 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
         app.quit()
 
     def on_menu_others(self, widget):
-        print("Menu item " + widget.get_name() + " was selected")
+        print(("Menu item " + widget.get_name() + " was selected"))
 
     def on_menu_choices_changed(self, widget, current):
-        print(current.get_name() + " was selected.")
+        print((current.get_name() + " was selected."))
 
     def on_menu_choices_toggled(self, widget):
         if widget.get_active():
-            print(widget.get_name() + " activated")
+            print((widget.get_name() + " activated"))
         else:
-            print(widget.get_name() + " deactivated")
+            print((widget.get_name() + " deactivated"))
 
     def on_button_press_event(self, widget, event):
         # Check if right mouse button was preseed
@@ -199,14 +201,14 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
 
 
 def convert(v):
-    if isinstance(v, basestring):
+    if isinstance(v, six.string_types):
         return unicode(v)
     if isinstance(v, dbus.Struct):
         return tuple(convert(val) for val in v)
     if isinstance(v, list):
         return [convert(val) for val in v]
     if isinstance(v, dict):
-        return {convert(k):convert(val) for k, val in v.iteritems()}
+        return {convert(k):convert(val) for k, val in six.iteritems(v)}
     if isinstance(v, dbus.Boolean):
         return bool(v)
     if isinstance(v, (dbus.UInt32, dbus.UInt16)):
@@ -231,10 +233,10 @@ class MyApplication(Gtk.Application):
         conn = xcb.Connection()
         atoms = conn.core.ListProperties(win_id).reply().atoms
         atom_names = {atom:conn.core.GetAtomNameUnchecked(atom) for atom in atoms}
-        atom_names = {k:bytes(a.reply().name.buf()) for k, a in atom_names.iteritems()}
-        property_names = {name:atom for atom, name in atom_names.iteritems() if
+        atom_names = {k:bytes(a.reply().name.buf()) for k, a in six.iteritems(atom_names)}
+        property_names = {name:atom for atom, name in six.iteritems(atom_names) if
             name.startswith('_GTK') or name.startswith('_UNITY') or name.startswith('_GNOME')}
-        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in property_names.iteritems()}
+        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in six.iteritems(property_names)}
 
         type_atom_cache = {}
 
@@ -254,7 +256,7 @@ class MyApplication(Gtk.Application):
                                         property_reply.value.buf()))
 
             return None
-        props = {name:get_property_value(r.reply()) for name, r in replies.iteritems()}
+        props = {name:get_property_value(r.reply()) for name, r in six.iteritems(replies)}
         ans = ['\nX Window properties:']
         for name in sorted(props):
             ans.append('%s: %r' % (name, props[name]))
@@ -262,25 +264,24 @@ class MyApplication(Gtk.Application):
         self.object_path = props['_UNITY_OBJECT_PATH']
         self.bus_name = props['_GTK_UNIQUE_BUS_NAME']
 
-    def print(self, *args):
+    def write(self, *args):
         self.data.append(' '.join(map(str, args)))
 
     def print_menu_start(self, bus, group=0, seen=None):
         groups = set()
         seen = seen or set()
         seen.add(group)
-        print = self.print
-        print ('\nMenu description (Group %d)' % group)
+        self.write('\nMenu description (Group %d)' % group)
         for item in bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Menus', 'Start', 'au', ([group],)):
-            print ('Subscription group:', item[0])
-            print ('Menu number:', item[1])
+            self.write('Subscription group:', item[0])
+            self.write('Menu number:', item[1])
             for menu_item in item[2]:
-                menu_item = {unicode(k):convert(v) for k, v in menu_item.iteritems()}
+                menu_item = {unicode(k):convert(v) for k, v in six.iteritems(menu_item)}
                 if ':submenu' in menu_item:
                     groups.add(menu_item[':submenu'][0])
                 if ':section' in menu_item:
                     groups.add(menu_item[':section'][0])
-                print (pformat(menu_item))
+                self.write(pformat(menu_item))
         for other_group in sorted(groups - seen):
             self.print_menu_start(bus, other_group, seen)
 
@@ -294,15 +295,14 @@ class MyApplication(Gtk.Application):
         self.window.label.set_text('\n'.join(self.data))
 
     def get_actions_description(self, bus):
-        print = self.print
-        print('\nActions description')
+        self.write('\nActions description')
         self.actions_desc = d = {}
         adata = bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Actions', 'DescribeAll', '', ())
         for name in sorted(adata):
             data = adata[name]
             d[name] = {'enabled':convert(data[0]), 'param type': convert(data[1]), 'state':convert(data[2])}
-            print ('Name:', name)
-            print (pformat(d[name]))
+            self.write('Name:', name)
+            self.write(pformat(d[name]))
 
     def do_startup(self):
         Gtk.Application.do_startup(self)

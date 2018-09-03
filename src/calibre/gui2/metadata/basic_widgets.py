@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -997,7 +999,7 @@ class FormatsManager(QWidget):
         return fmt.ext.lower()
 
     def get_format_path(self, db, id_, fmt):
-        for i in xrange(self.formats.count()):
+        for i in range(self.formats.count()):
             f = self.formats.item(i)
             ext = f.ext.lower()
             if ext == fmt:
@@ -1542,7 +1544,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                     v = check_isbn(k)
                     if v is not None:
                         val[k] = v
-            ids = sorted(val.iteritems(), key=keygen)
+            ids = sorted(six.iteritems(val), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
             # Use selectAll + insert instead of setText so that undo works
             self.selectAll(), self.insert(txt.strip())

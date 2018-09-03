@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, tempfile, shutil, errno, time, atexit
 from threading import Thread
-from Queue import Queue
+from six.moves.queue import Queue
 
 from calibre.ptempfile import remove_dir
 from calibre.utils.filenames import remove_dir_if_empty

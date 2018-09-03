@@ -9,9 +9,8 @@ from base64 import standard_b64encode, standard_b64decode
 from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
-from future_builtins import map
-from urlparse import urlparse
-from urllib import quote
+from six.moves import map
+from six.moves.urllib.parse import urlparse, quote
 
 from cssutils import replaceUrls
 from cssutils.css import CSSRule
@@ -30,6 +29,7 @@ from calibre.ebooks.oeb.polish.toc import get_toc, get_landmarks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.logging import default_log
+import six
 
 RENDER_VERSION = 1
 
@@ -180,7 +180,7 @@ class Container(ContainerBase):
         # browser has no good way to distinguish between zero byte files and
         # load failures.
         excluded_names = {
-            name for name, mt in self.mime_map.iteritems() if
+            name for name, mt in six.iteritems(self.mime_map) if
             name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
             name == 'mimetype' or not self.has_name_and_is_not_empty(name)}
         raster_cover_name, titlepage_name = self.create_cover_page(input_fmt.lower())
@@ -277,7 +277,7 @@ class Container(ContainerBase):
         # Firefox flakes out sometimes when dynamically creating <style> tags,
         # so convert them to external stylesheets to ensure they never fail
         style_xpath = XPath('//h:style')
-        for name, mt in tuple(self.mime_map.iteritems()):
+        for name, mt in tuple(six.iteritems(self.mime_map)):
             mt = mt.lower()
             if mt in OEB_DOCS:
                 head = ensure_head(self.parsed(name))
@@ -333,7 +333,7 @@ class Container(ContainerBase):
 
         ltm = self.book_render_data['link_to_map']
 
-        for name, mt in self.mime_map.iteritems():
+        for name, mt in six.iteritems(self.mime_map):
             mt = mt.lower()
             if mt in OEB_STYLES:
                 replaceUrls(self.parsed(name), partial(link_replacer, name))
@@ -369,8 +369,8 @@ class Container(ContainerBase):
                 for elem in xlink_xpath(self.parsed(name)):
                     elem.set(xlink, link_replacer(name, elem.get(xlink)))
 
-        for name, amap in ltm.iteritems():
-            for k, v in tuple(amap.iteritems()):
+        for name, amap in six.iteritems(ltm):
+            for k, v in tuple(six.iteritems(amap)):
                 amap[k] = tuple(v)  # needed for JSON serialization
 
         tuple(map(self.dirty, changed))
@@ -416,7 +416,7 @@ def map_epub_type(epub_type, attribs, elem):
         roles = OrderedDict([(k, True) for k in role.split()]) if role else OrderedDict()
         if val not in roles:
             roles[val] = True
-        role = ' '.join(roles.iterkeys())
+        role = ' '.join(six.iterkeys(roles))
         if in_attribs is None:
             attribs.append(['role', role])
         else:
@@ -516,7 +516,7 @@ def html_as_dict(root):
                 child_tree_node = [len(tags)-1]
                 node.append(child_tree_node)
                 stack.append((child, child_tree_node))
-    ns_map = [ns for ns, nsnum in sorted(nsmap.iteritems(), key=lambda x: x[1])]
+    ns_map = [ns for ns, nsnum in sorted(six.iteritems(nsmap), key=lambda x: x[1])]
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
 

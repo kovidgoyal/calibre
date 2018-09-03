@@ -1,12 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (absolute_import, print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, re, struct, textwrap, cStringIO
+import shutil, os, re, struct, textwrap
+from six.moves import StringIO
 
 from lxml import html, etree
 
@@ -229,7 +233,7 @@ class MobiReader(object):
             bodies, heads = root.xpath('//body'), root.xpath('//head')
             for x in root:
                 root.remove(x)
-            head, body = map(root.makeelement, ('head', 'body'))
+            head, body = list(map(root.makeelement, ('head', 'body')))
             for h in heads:
                 for x in h:
                     h.remove(x)
@@ -284,7 +288,7 @@ class MobiReader(object):
             pass
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
-        ncx = cStringIO.StringIO()
+        ncx = StringIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
         opf.render(open(self.created_opf_path, 'wb'), ncx,
@@ -303,7 +307,7 @@ class MobiReader(object):
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
-            ncx = cStringIO.StringIO()
+            ncx = StringIO()
             opf, ncx_manifest_entry  = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx,
                 ncx_manifest_entry)
@@ -314,7 +318,7 @@ class MobiReader(object):
     def read_embedded_metadata(self, root, elem, guide):
         raw = '<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
                 html.tostring(elem, encoding='utf-8') + '</package>'
-        stream = cStringIO.StringIO(raw)
+        stream = StringIO(raw)
         opf = OPF(stream)
         self.embedded_mi = opf.to_book_metadata()
         if guide is not None:
@@ -358,7 +362,7 @@ class MobiReader(object):
         self.processed_html = re.sub(
             r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
         bods = htmls = 0
-        for x in re.finditer(ur'</body>|</html>', self.processed_html):
+        for x in re.finditer(u'</body>|</html>', self.processed_html):
             if x == '</body>':
                 bods +=1
             else:
@@ -491,7 +495,7 @@ class MobiReader(object):
                 try:
                     float(sz)
                 except ValueError:
-                    if sz in size_map.keys():
+                    if sz in list(size_map.keys()):
                         attrib['size'] = size_map[sz]
             elif tag.tag == 'img':
                 recindex = None
@@ -777,7 +781,7 @@ class MobiReader(object):
 
     def extract_text(self, offset=1):
         self.log.debug('Extracting text...')
-        text_sections = [self.text_section(i) for i in xrange(offset,
+        text_sections = [self.text_section(i) for i in range(offset,
             min(self.book_header.records + offset, len(self.sections)))]
         processed_records = list(range(offset-1, self.book_header.records +
             offset))
@@ -786,9 +790,9 @@ class MobiReader(object):
 
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in
-                xrange(self.book_header.huff_offset,
+                range(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
-            processed_records += list(xrange(self.book_header.huff_offset,
+            processed_records += list(range(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
             unpack = huff.unpack
@@ -825,7 +829,7 @@ class MobiReader(object):
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        processed_html = cStringIO.StringIO()
+        processed_html = StringIO()
         end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:
@@ -886,7 +890,7 @@ class MobiReader(object):
 
 
 def test_mbp_regex():
-    for raw, m in {
+    for raw, m in six.iteritems({
         '<mbp:pagebreak></mbp:pagebreak>':'',
         '<mbp:pagebreak xxx></mbp:pagebreak>yyy':' xxxyyy',
         '<mbp:pagebreak> </mbp:pagebreak>':'',
@@ -897,7 +901,7 @@ def test_mbp_regex():
         '</mbp:pagebreak>':'',
         '</mbp:pagebreak sdf>':' sdf',
         '</mbp:pagebreak><mbp:pagebreak></mbp:pagebreak>xxx':'xxx',
-        }.iteritems():
+        }):
         ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
         if ans != m:
             raise Exception('%r != %r for %r'%(ans, m, raw))

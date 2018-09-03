@@ -8,11 +8,11 @@ __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib2
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
+from six.moves.urllib.error import HTTPError
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -49,7 +49,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             return
 
         base_url = 'http://chitanka.info'
-        url = base_url + '/search?q=' +  urllib2.quote(query)
+        url = base_url + '/search?q=' + urlquote(query)
         counter = max_results
 
         # search for book title
@@ -80,7 +80,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                     s.downloads['TXT'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href')).strip().replace('.zip', '')
                     s.formats = 'FB2, EPUB, TXT, SFB'
                     yield s
-        except urllib2.HTTPError, e:
+        except HTTPError as e:
             if e.code == 404:
                 return
             else:

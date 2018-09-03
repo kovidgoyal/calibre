@@ -5,6 +5,7 @@ import lxml.html
 
 from calibre.ebooks.readability.cleaners import normalize_spaces, clean_attributes
 from calibre.ebooks.chardet import xml_to_unicode
+import six
 
 
 def build_doc(page):
@@ -28,7 +29,7 @@ def normalize_entities(cur_title):
         u'\u00BB': '"',
         u'&quot;': '"',
     }
-    for c, r in entities.iteritems():
+    for c, r in six.iteritems(entities):
         if c in cur_title:
             cur_title = cur_title.replace(c, r)
 

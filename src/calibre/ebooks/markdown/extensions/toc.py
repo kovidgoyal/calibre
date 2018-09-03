@@ -20,6 +20,7 @@ from ..treeprocessors import Treeprocessor
 from ..util import etree, parseBoolValue, AMP_SUBSTITUTE, HTML_PLACEHOLDER_RE, string_type
 import re
 import unicodedata
+from six.moves import range
 
 
 def slugify(value, separator):

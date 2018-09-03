@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import getcwd
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +10,9 @@ __docformat__ = 'restructuredtext en'
 
 import re, tempfile, os
 from functools import partial
-from itertools import izip
+
+from six.moves import zip
+from six.moves.urllib.parse import quote
 
 from calibre.constants import islinux, isbsd
 from calibre.customize.conversion import (InputFormatPlugin,
@@ -64,7 +67,7 @@ class HTMLInput(InputFormatPlugin):
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
-        basedir = os.getcwdu()
+        basedir = getcwd()
         self.opts = opts
 
         fname = None
@@ -215,12 +218,12 @@ class HTMLInput(InputFormatPlugin):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)
 
-        oeb.container = DirContainer(os.getcwdu(), oeb.log, ignore_opf=True)
+        oeb.container = DirContainer(getcwd(), oeb.log, ignore_opf=True)
         return oeb
 
     def link_to_local_path(self, link_, base=None):
@@ -232,7 +235,7 @@ class HTMLInput(InputFormatPlugin):
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
                 return None, None
         try:
-            l = Link(link_, base if base else os.getcwdu())
+            l = Link(link_, base if base else getcwd())
         except:
             self.log.exception('Failed to process link: %r'%link_)
             return None, None
@@ -246,7 +249,6 @@ class HTMLInput(InputFormatPlugin):
         return link, frag
 
     def resource_adder(self, link_, base=None):
-        from urllib import quote
         link, frag = self.link_to_local_path(link_, base=base)
         if link is None:
             return link_

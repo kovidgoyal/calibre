@@ -19,7 +19,7 @@ class IdPixel(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', attrs={'class':'blog-post'})
     remove_tags_after  = dict(name='div', attrs={'style':'margin: 20px 0 0 2px;font-size: 16px;'})
-    remove_tags     = [dict(name='div',attrs={'class':' likely__widget likely__widget_vkontakte'}),
+    remove_tags     = [dict(name='div', attrs={'class':' likely__widget likely__widget_vkontakte'}),
                         dict(name='div', attrs={'class':' likely__widget likely__widget_twitter'}),
                          dict(name='div', attrs={'class':' likely__widget likely__widget_facebook'}),
                          dict(name='div', attrs={'class':' likely__widget likely__widget_telegram'}),

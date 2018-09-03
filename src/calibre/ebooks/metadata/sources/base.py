@@ -2,13 +2,15 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, threading
-from future_builtins import map
+from six.moves import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
@@ -66,7 +68,7 @@ class InternalMetadataCompareKeyGen(object):
     def __init__(self, mi, source_plugin, title, authors, identifiers):
         same_identifier = 2
         idents = mi.get_identifiers()
-        for k, v in identifiers.iteritems():
+        for k, v in six.iteritems(identifiers):
             if idents.get(k) == v:
                 same_identifier = 1
                 break
@@ -281,7 +283,7 @@ class Source(Plugin):
 
     def get_related_isbns(self, id_):
         with self.cache_lock:
-            for isbn, q in self._isbn_to_identifier_cache.iteritems():
+            for isbn, q in six.iteritems(self._isbn_to_identifier_cache):
                 if q == id_:
                     yield isbn
 

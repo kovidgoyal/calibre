@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,15 +24,15 @@ class LanguagesEdit(EditWithComplete):
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
         self._lang_map = lang_map_for_ui()
-        self.names_with_commas = [x for x in self._lang_map.itervalues() if ',' in x]
+        self.names_with_commas = [x for x in six.itervalues(self._lang_map) if ',' in x]
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
-        self.comma_rmap = {v:k for k, v in self.comma_map.iteritems()}
-        self._rmap = {lower(v):k for k,v in self._lang_map.iteritems()}
+        self.comma_rmap = {v:k for k, v in six.iteritems(self.comma_map)}
+        self._rmap = {lower(v):k for k,v in six.iteritems(self._lang_map)}
         self.init_langs(db)
         self.item_selected.connect(self.update_recently_used)
 
     def init_langs(self, db):
-        self.update_items_cache(self._lang_map.itervalues())
+        self.update_items_cache(six.itervalues(self._lang_map))
 
     def refresh_recently_used(self):
         recently_used = self.prefs.get('recently_used_languages') or ()
@@ -54,7 +55,7 @@ class LanguagesEdit(EditWithComplete):
     @property
     def vals(self):
         raw = unicode(self.lineEdit().text())
-        for k, v in self.comma_map.iteritems():
+        for k, v in six.iteritems(self.comma_map):
             raw = raw.replace(k, v)
         parts = [x.strip() for x in raw.split(',')]
         return [self.comma_rmap.get(x, x) for x in parts]

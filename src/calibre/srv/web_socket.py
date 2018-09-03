@@ -5,11 +5,11 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import httplib, os, weakref, socket
+import six.moves.http_client, os, weakref, socket
 from base64 import standard_b64encode
 from collections import deque
 from hashlib import sha1
-from Queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 from struct import unpack_from, pack, error as struct_error
 from threading import Lock
 
@@ -285,9 +285,9 @@ class WebSocketConnection(HTTPConnection):
         except Exception:
             ver_ok = False
         if not ver_ok:
-            return self.simple_response(httplib.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
+            return self.simple_response(six.moves.http_client.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
         if self.method != 'GET':
-            return self.simple_response(httplib.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
+            return self.simple_response(six.moves.http_client.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
 
         response = HANDSHAKE_STR % standard_b64encode(sha1(key + GUID_STR).digest())
         self.optimize_for_sending_packet()

@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
+from __future__ import print_function
+from six.moves import map
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -14,7 +16,7 @@ from lxml import etree
 
 from calibre import guess_type, strftime
 from calibre.constants import iswindows
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined, as_local_time
@@ -103,7 +105,7 @@ class Jacket(Base):
         self.log('Inserting metadata into book...')
 
         try:
-            tags = map(unicode, self.oeb.metadata.subject)
+            tags = list(map(unicode, self.oeb.metadata.subject))
         except:
             tags = []
 
@@ -282,7 +284,7 @@ def render_jacket(mi, output_profile,
             print("Custom column values available in jacket template:")
             for key in args.keys():
                 if key.startswith('_') and not key.endswith('_label'):
-                    print(" %s: %s" % ('#' + key[1:], args[key]))
+                    print((" %s: %s" % ('#' + key[1:], args[key])))
 
         # Used in the comment describing use of custom columns in templates
         # Don't change this unless you also change it in template.xhtml

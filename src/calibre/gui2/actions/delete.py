@@ -18,6 +18,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.recycle_bin import can_recycle
+from six.moves import map
 
 single_shot = partial(QTimer.singleShot, 10)
 

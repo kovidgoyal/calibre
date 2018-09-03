@@ -64,7 +64,7 @@ def main():
     from calibre.devices.mtp.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
     dev.startup()
-    print (dev.wpd, dev.wpd_error)
+    print((dev.wpd, dev.wpd_error))
 
     try:
         devices = scan_usb_devices()
@@ -72,12 +72,12 @@ def main():
         if not pnp_id:
             raise ValueError('Failed to detect device')
         # pprint.pprint(dev.detected_devices)
-        print ('Trying to connect to:', pnp_id)
+        print(('Trying to connect to:', pnp_id))
         dev.open(pnp_id, '')
         pprint.pprint(dev.dev.data)
-        print ('Connected to:', dev.get_gui_name())
-        print ('Total space', dev.total_space())
-        print ('Free space', dev.free_space())
+        print(('Connected to:', dev.get_gui_name()))
+        print(('Total space', dev.total_space()))
+        print(('Free space', dev.free_space()))
         # pprint.pprint(dev.dev.create_folder(dev.filesystem_cache.entries[0].object_id,
         #     'zzz'))
         # print ('Fetching file: oFF (198214 bytes)')

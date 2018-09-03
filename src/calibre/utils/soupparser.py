@@ -4,7 +4,7 @@ __doc__ = """External interface to the BeautifulSoup HTML parser.
 __all__ = ["fromstring", "parse", "convert_tree"]
 
 from lxml import etree, html
-from calibre.ebooks.BeautifulSoup import \
+from bs4 import \
      BeautifulSoup, Tag, Comment, ProcessingInstruction, NavigableString
 
 
@@ -114,7 +114,7 @@ try:
     from html.entities import name2codepoint  # Python 3
     name2codepoint
 except ImportError:
-    from htmlentitydefs import name2codepoint
+    from six.moves.html_entities import name2codepoint
 import re
 
 handle_entities = re.compile("&(\w+);").sub

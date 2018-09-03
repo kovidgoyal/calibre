@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext de'
 www.taz.de/digiabo
 '''
 import os
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import zipfile
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -34,17 +34,17 @@ class TazDigiabo(BasicNewsRecipe):
 
         url = domain + "/epub/"
 
-        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler = six.moves.urllib.request.HTTPBasicAuthHandler()
         auth_handler.add_password(realm='TAZ-ABO',
                                   uri=url,
                                   user=self.username,
                                   passwd=self.password)
-        opener = urllib2.build_opener(auth_handler)
-        urllib2.install_opener(opener)
+        opener = six.moves.urllib.request.build_opener(auth_handler)
+        six.moves.urllib.request.install_opener(opener)
 
         try:
-            f = urllib2.urlopen(url)
-        except urllib2.HTTPError:
+            f = six.moves.urllib.request.urlopen(url)
+        except six.moves.urllib.error.HTTPError:
             self.report_progress(0, _('Can\'t login to download issue'))
             raise ValueError('Failed to login, check your username and'
                              ' password')

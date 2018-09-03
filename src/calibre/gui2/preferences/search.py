@@ -14,6 +14,7 @@ from calibre.gui2 import config, error_dialog, gprefs
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.library.caches import set_use_primary_find_in_search
+import six
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -63,7 +64,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "a particular item, or to have hierarchical categories (categories "
     "that contain categories)."))
         self.gst = db.prefs.get('grouped_search_terms', {}).copy()
-        self.orig_gst_keys = self.gst.keys()
+        self.orig_gst_keys = list(self.gst.keys())
 
         fl = []
         for f in db.all_field_keys():
@@ -126,7 +127,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         field.clear()
         choices = []
         choices.extend(self.category_fields)
-        choices.extend(sorted(self.gst.keys(), key=sort_key))
+        choices.extend(sorted(list(self.gst.keys()), key=sort_key))
         field.addItems(choices)
         dex = field.findText(val)
         if dex >= 0:
@@ -189,7 +190,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.set_similar_fields(initial=False)
 
     def fill_gst_box(self, select=None):
-        terms = sorted(self.gst.keys(), key=sort_key)
+        terms = sorted(list(self.gst.keys()), key=sort_key)
         self.opt_grouped_search_make_user_categories.update_items_cache(terms)
         self.gst_names.blockSignals(True)
         self.gst_names.clear()
@@ -248,7 +249,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.do_search()
 
     def clear_histories(self, *args):
-        for key, val in config.defaults.iteritems():
+        for key, val in six.iteritems(config.defaults):
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()

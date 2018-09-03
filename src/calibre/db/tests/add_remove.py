@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -217,14 +218,14 @@ class AddRemoveTest(BaseTest):
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning
-        self.assertIn(_('Unknown'), set(authors.id_map.itervalues()))
+        self.assertIn(_('Unknown'), set(six.itervalues(authors.id_map)))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in authors.id_map.iteritems()}[_('Unknown')]
+        item_id = {v:k for k, v in six.iteritems(authors.id_map)}[_('Unknown')]
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(3, c.all_book_ids())
-            self.assertNotIn(_('Unknown'), set(table.id_map.itervalues()))
+            self.assertNotIn(_('Unknown'), set(six.itervalues(table.id_map)))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.alink_map)
             ae(len(table.id_map), olen-1)
@@ -235,17 +236,17 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         os.mkdir(os.path.join(authorpath, '.DS_Store'))
         open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
+        item_id = {v:k for k, v in six.iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
-            self.assertNotIn('Author Two', set(table.id_map.itervalues()))
-            self.assertNotIn(6, set(c.fields['rating'].table.id_map.itervalues()))
-            self.assertIn('A Series One', set(c.fields['series'].table.id_map.itervalues()))
-            self.assertNotIn('My Series Two', set(c.fields['#series'].table.id_map.itervalues()))
+            self.assertNotIn('Author Two', set(six.itervalues(table.id_map)))
+            self.assertNotIn(6, set(six.itervalues(c.fields['rating'].table.id_map)))
+            self.assertIn('A Series One', set(six.itervalues(c.fields['series'].table.id_map)))
+            self.assertNotIn('My Series Two', set(six.itervalues(c.fields['#series'].table.id_map)))
             self.assertNotIn(item_id, c.fields['#series'].table.col_book_map)
             self.assertNotIn(1, c.fields['#series'].table.book_col_map)
 
@@ -264,7 +265,7 @@ class AddRemoveTest(BaseTest):
         fmtpath = cache.format_abspath(1, 'FMT1')
         bookpath = os.path.dirname(fmtpath)
         authorpath = os.path.dirname(bookpath)
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
+        item_id = {v:k for k, v in six.iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
         delete_service().wait()
         for x in (fmtpath, bookpath, authorpath):

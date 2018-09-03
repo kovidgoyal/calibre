@@ -25,6 +25,7 @@ from calibre.gui2.notify import get_notifier
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.customize.ui import find_plugin
 from calibre.utils.localization import localize_website_link
+from six.moves import range
 
 _keep_refs = []
 

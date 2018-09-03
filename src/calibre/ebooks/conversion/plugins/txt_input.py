@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from six.moves import getcwd
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -135,7 +136,7 @@ class TXTInput(InputFormatPlugin):
         txt = ''
         log.debug('Reading text from file...')
         length = 0
-        base_dir = os.getcwdu()
+        base_dir = getcwd()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':

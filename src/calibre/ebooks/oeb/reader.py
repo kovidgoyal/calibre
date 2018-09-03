@@ -3,15 +3,16 @@ Container-/OPF-based input OEBBook reader.
 """
 from __future__ import with_statement
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy, re, cStringIO
-from itertools import izip
-from urlparse import urldefrag, urlparse
-from urllib import unquote as urlunquote
+import sys, os, uuid, copy, re
 from collections import defaultdict
 
+from six.moves import StringIO, zip
+from six.moves.urllib.parse import urldefrag, urlparse
+from six.moves.urllib.parse import unquote as urlunquote
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
@@ -136,7 +137,7 @@ class OEBReader(object):
     def _metadata_from_opf(self, opf):
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
-        stream = cStringIO.StringIO(etree.tostring(opf, xml_declaration=True, encoding='utf-8'))
+        stream = StringIO(etree.tostring(opf, xml_declaration=True, encoding='utf-8'))
         o = OPF(stream)
         pwm = o.primary_writing_mode
         if pwm:
@@ -540,7 +541,7 @@ class OEBReader(object):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)
@@ -715,9 +716,9 @@ def main(argv=sys.argv):
     for arg in argv[1:]:
         oeb = reader(OEBBook(), arg)
         for name, doc in oeb.to_opf1().values():
-            print etree.tostring(doc, pretty_print=True)
+            print(etree.tostring(doc, pretty_print=True))
         for name, doc in oeb.to_opf2(page_map=True).values():
-            print etree.tostring(doc, pretty_print=True)
+            print(etree.tostring(doc, pretty_print=True))
     return 0
 
 

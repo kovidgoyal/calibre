@@ -60,7 +60,7 @@ class FazNet(BasicNewsRecipe):
     INDEX = ''
 
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('li',attrs={'class':'nvg-Paginator_Item nvg-Paginator_Item-to-next-page'})
+        pager = soup.find('li', attrs={'class':'nvg-Paginator_Item nvg-Paginator_Item-to-next-page'})
         if pager:
             nexturl = self.INDEX + pager.a['href']
             soup2 = self.index_to_soup(nexturl)
@@ -75,10 +75,10 @@ class FazNet(BasicNewsRecipe):
                 if div is not None:
                     div.extract()
             newpos = len(texttag.contents)
-            self.append_page(soup2,texttag,newpos)
+            self.append_page(soup2, texttag, newpos)
             texttag.extract()
             pager.extract()
-            appendtag.insert(position,texttag)
+            appendtag.insert(position, texttag)
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
@@ -88,6 +88,6 @@ class FazNet(BasicNewsRecipe):
 
     # Some last cleanup
     def postprocess_html(self, soup, first_fetch):
-        for div in soup.findAll('div',attrs={'class':['atc-ContainerFunctions_Navigation','atc-ContainerFunctions_Interaction ']}):
+        for div in soup.findAll('div', attrs={'class':['atc-ContainerFunctions_Navigation', 'atc-ContainerFunctions_Interaction ']}):
             div.extract()
         return soup

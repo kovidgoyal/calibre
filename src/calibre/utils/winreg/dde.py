@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -54,7 +55,7 @@ DML_ERRORS = {
 
     'UNFOUND_QUEUE_ID': (0x4011, 'An invalid transaction identifier was passed to a DDEML function. Once the application has returned from an XTYP_XACT_COMPLETE callback, the transaction identifier for that callback function is no longer valid.'),  # noqa
 }
-DML_ERROR_TEXT = {code:text for (code, text) in DML_ERRORS.itervalues()}
+DML_ERROR_TEXT = {code:text for (code, text) in six.itervalues(DML_ERRORS)}
 
 user32 = windll.user32
 

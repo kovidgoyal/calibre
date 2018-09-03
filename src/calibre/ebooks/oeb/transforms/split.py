@@ -1,4 +1,8 @@
 from __future__ import with_statement
+from six.moves import map
+from six.moves import zip
+import six
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -242,9 +246,9 @@ class FlowSplitter(object):
 
         self.trees = [orig_tree]
         while ordered_ids:
-            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            pb_id, (pattern, before) = six.iteritems(ordered_ids)
             del ordered_ids[pb_id]
-            for i in xrange(len(self.trees)-1, -1, -1):
+            for i in range(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]
                 elem = pattern(tree)
                 if elem:
@@ -293,7 +297,7 @@ class FlowSplitter(object):
         body = self.get_body(root)
         if body is None:
             return False
-        txt = re.sub(ur'\s+|\xa0', '',
+        txt = re.sub(r'\s+|\xa0', '',
                 etree.tostring(body, method='text', encoding=unicode))
         if len(txt) > 1:
             return False
@@ -309,7 +313,7 @@ class FlowSplitter(object):
         rest = text.replace('\r', '')
         parts = re.split('\n\n', rest)
         self.log.debug('\t\t\t\tFound %d parts'%len(parts))
-        if max(map(len, parts)) > size:
+        if max(list(map(len, parts))) > size:
             raise SplitError('Cannot split as file contains a <pre> tag '
                 'with a very large paragraph', root)
         ans = []
@@ -436,7 +440,7 @@ class FlowSplitter(object):
 
         spine_pos = self.item.spine_position
 
-        for current, tree in zip(*map(reversed, (self.files, self.trees))):
+        for current, tree in zip(*list(map(reversed, (self.files, self.trees)))):
             for a in tree.getroot().xpath('//h:a[@href]', namespaces=NAMESPACES):
                 href = a.get('href').strip()
                 if href.startswith('#'):

@@ -1,11 +1,15 @@
 from __future__ import with_statement
+from __future__ import print_function
+from six.moves import range
 __license__ = 'GPL 3'
 __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import StringIO, sys
+import sys
 from struct import pack
+
+from six.moves import StringIO
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre import force_unicode
@@ -129,13 +133,13 @@ class MetadataUpdater(object):
 
     def dump_headers(self):
         ''' Diagnostic '''
-        print "\ndump_headers():"
+        print("\ndump_headers():")
         for tag in self.topaz_headers:
-            print "%s: " % (tag)
+            print("%s: " % (tag))
             num_recs = len(self.topaz_headers[tag]['blocks'])
-            print " num_recs: %d" % num_recs
+            print(" num_recs: %d" % num_recs)
             if num_recs:
-                print " starting offset: 0x%x" % self.topaz_headers[tag]['blocks'][0]['offset']
+                print(" starting offset: 0x%x" % self.topaz_headers[tag]['blocks'][0]['offset'])
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
@@ -148,12 +152,12 @@ class MetadataUpdater(object):
             s = s.translate(FILTER)
             result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
             N+=length
-        print result
+        print(result)
 
     def dump_metadata(self):
         ''' Diagnostic '''
         for tag in self.metadata:
-            print '%s: %s' % (tag, repr(self.metadata[tag]))
+            print('%s: %s' % (tag, repr(self.metadata[tag])))
 
     def encode_vwi(self,value):
         bytes = []
@@ -193,7 +197,7 @@ class MetadataUpdater(object):
                 else:
                     return None
         dkey = self.topaz_headers[x]
-        dks = StringIO.StringIO()
+        dks = StringIO()
         dks.write(self.encode_vwi(len(dkey['tag'])))
         offset += 1
         dks.write(dkey['tag'])
@@ -232,7 +236,7 @@ class MetadataUpdater(object):
         return topaz_headers, th_seq
 
     def generate_metadata_stream(self):
-        ms = StringIO.StringIO()
+        ms = StringIO()
         ms.write(self.encode_vwi(len(self.md_header['tag'])).encode('iso-8859-1'))
         ms.write(self.md_header['tag'])
         ms.write(chr(self.md_header['flags']))
@@ -289,7 +293,7 @@ class MetadataUpdater(object):
         delta = updated_md_len - original_md_len
 
         # Copy the first 5 bytes of the file: sig + num_recs
-        ths = StringIO.StringIO()
+        ths = StringIO()
         ths.write(self.data[:5])
 
         # Rewrite the offsets for hdr_offsets > metadata offset
@@ -372,12 +376,11 @@ def set_metadata(stream, mi):
 if __name__ == '__main__':
     if False:
         # Test get_metadata()
-        print get_metadata(open(sys.argv[1], 'rb'))
+        print(get_metadata(open(sys.argv[1], 'rb')))
     else:
         # Test set_metadata()
-        import cStringIO
         data = open(sys.argv[1], 'rb')
-        stream = cStringIO.StringIO()
+        stream = StringIO()
         stream.write(data.read())
         mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
         set_metadata(stream, mi)

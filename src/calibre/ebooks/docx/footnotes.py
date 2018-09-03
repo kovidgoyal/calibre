@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -57,7 +58,7 @@ class Footnotes(object):
         return None, None
 
     def __iter__(self):
-        for anchor, (counter, note) in self.notes.iteritems():
+        for anchor, (counter, note) in six.iteritems(self.notes):
             yield anchor, counter, note
 
     @property

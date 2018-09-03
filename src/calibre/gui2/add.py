@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,9 +10,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
-from Queue import Empty
+from six.moves.queue import Empty
 from io import BytesIO
-from future_builtins import map
+from six.moves import map
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -33,7 +34,7 @@ from calibre.utils.ipc.pool import Pool, Failure
 
 
 def validate_source(source, parent=None):  # {{{
-    if isinstance(source, basestring):
+    if isinstance(source, six.string_types):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
@@ -173,7 +174,7 @@ class Adder(QObject):
             return tdir
 
         try:
-            if isinstance(self.source, basestring):
+            if isinstance(self.source, six.string_types):
                 find_files(self.source)
                 self.ignore_opf = True
             else:
@@ -435,7 +436,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in fmap.iteritems():
+        for fmt, path in six.iteritems(fmap):
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':

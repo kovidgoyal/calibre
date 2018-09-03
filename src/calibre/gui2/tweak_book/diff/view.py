@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +14,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from future_builtins import zip
+from six.moves import zip
 
 import regex
 from PyQt5.Qt import (
@@ -160,7 +162,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max([w.width(str(x)) for x in range(10)])
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
@@ -381,7 +383,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         PlainTextEdit.paintEvent(self, event)
         painter = QPainter(self.viewport())
         painter.setClipRect(event.rect())
-        for top, bottom, kind in sorted(lines, key=lambda (t, b, k):{'replace':0}.get(k, 1)):
+        for top, bottom, kind in sorted(lines, key=lambda t_b_k:{'replace':0}.get(t_b_k[2], 1)):
             painter.setPen(QPen(self.diff_foregrounds[kind], 1))
             painter.drawLine(0, top, w, top)
             painter.drawLine(0, bottom - 1, w, bottom - 1)
@@ -612,7 +614,7 @@ class DiffSplit(QSplitter):  # {{{
             if size > 0:
                 c.beginEditBlock()
                 c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
-                for i in xrange(lines + 1):
+                for i in range(lines + 1):
                     c.insertBlock()
             change.extend((start, c.block().blockNumber()))
             c.insertBlock()
@@ -640,7 +642,7 @@ class DiffSplit(QSplitter):  # {{{
                 c.beginEditBlock()
                 c.movePosition(c.StartOfBlock)
                 if delta > 0:
-                    for _ in xrange(delta):
+                    for _ in range(delta):
                         c.insertBlock()
                 else:
                     c.movePosition(c.NextBlock, c.KeepAnchor, -delta)
@@ -652,12 +654,12 @@ class DiffSplit(QSplitter):  # {{{
                     return x if x <= top else x + delta
                 lnm = LineNumberMap()
                 lnm.max_width = v.line_number_map.max_width
-                for x, val in v.line_number_map.iteritems():
+                for x, val in six.iteritems(v.line_number_map):
                     dict.__setitem__(lnm, mapnum(x), val)
                 v.line_number_map = lnm
                 v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
-                v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
+                v.images = OrderedDict((mapnum(x), v) for x, v in six.iteritems(v.images))
             v.viewport().update()
 
     def get_lines_for_image(self, img, view):
@@ -747,7 +749,7 @@ class DiffSplit(QSplitter):  # {{{
     def do_insert(self, cursor, highlighter, line_number_map, lo, hi):
         start_block = cursor.block()
         highlighter.copy_lines(lo, hi, cursor)
-        for num, i in enumerate(xrange(start_block.blockNumber(), cursor.blockNumber())):
+        for num, i in enumerate(range(start_block.blockNumber(), cursor.blockNumber())):
             line_number_map[i] = lo + num + 1
         return start_block.blockNumber(), cursor.block().blockNumber()
 
@@ -806,10 +808,10 @@ class DiffSplit(QSplitter):  # {{{
         # search for the pair that matches best without being identical
         # (identical lines must be junk lines, & we don't want to synch up
         # on junk -- unless we have to)
-        for j in xrange(blo, bhi):
+        for j in range(blo, bhi):
             bj = b[j]
             cruncher.set_seq2(bj)
-            for i in xrange(alo, ahi):
+            for i in range(alo, ahi):
                 ai = a[i]
                 if ai == bj:
                     if eqi is None:

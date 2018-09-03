@@ -2,12 +2,13 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
-from future_builtins import map
+from six.moves import map
 
 # from lxml.etree import Element
 
@@ -224,7 +225,7 @@ def pretty_xml(container, name, raw):
 
 def fix_all_html(container):
     ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         if mt in OEB_DOCS:
             container.parsed(name)
             container.dirty(name)
@@ -233,7 +234,7 @@ def fix_all_html(container):
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
     xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in six.iteritems(container.mime_map):
         prettied = False
         if mt in OEB_DOCS:
             pretty_html_tree(container, container.parsed(name))

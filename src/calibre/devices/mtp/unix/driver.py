@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import zip
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -192,7 +193,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.libmtp = p[0]
         if self.libmtp is None:
             print ('Failed to load libmtp, MTP device detection disabled')
-            print (p[1])
+            print((p[1]))
         else:
             self.known_devices = frozenset(self.libmtp.known_devices())
 

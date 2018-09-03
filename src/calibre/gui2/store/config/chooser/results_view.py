@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+from six.moves import range
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -30,7 +31,7 @@ class ResultsView(QTreeView):
         for i in self._model.HTML_COLS:
             self.setItemDelegateForColumn(i, self.rt_delegate)
 
-        for i in xrange(self._model.columnCount()):
+        for i in range(self._model.columnCount()):
             self.resizeColumnToContents(i)
 
         self.model().sort(1, Qt.AscendingOrder)

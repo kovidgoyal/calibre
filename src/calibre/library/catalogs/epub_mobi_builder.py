@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from six.moves import map
+from six.moves import zip
+import six
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
@@ -12,7 +16,7 @@ from calibre import (
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
+from bs4 import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
@@ -155,8 +159,8 @@ class CatalogBuilder(object):
         self.html_filelist_1 = []
         self.html_filelist_2 = []
         self.individual_authors = None
-        self.merge_comments_rule = dict(zip(['field', 'position', 'hr'],
-                                            _opts.merge_comments_rule.split(':')))
+        self.merge_comments_rule = dict(list(zip(['field', 'position', 'hr'],
+                                            _opts.merge_comments_rule.split(':'))))
         self.ncx_soup = None
         self.output_profile = self.get_output_profile(_opts)
         self.play_order = 1
@@ -581,7 +585,7 @@ class CatalogBuilder(object):
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags':
-                if rule['pattern'].lower() in map(unicode.lower, record['tags']):
+                if rule['pattern'].lower() in list(map(unicode.lower, record['tags'])):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
                                (rule['prefix'], record['title'],
@@ -682,14 +686,14 @@ class CatalogBuilder(object):
                 if ordnum == 0 and ordlen == -1:
                     if icu_upper(c[0]) != last_c:
                         last_c = icu_upper(c[0])
-                        if last_c in exceptions.keys():
+                        if last_c in list(exceptions.keys()):
                             last_c = exceptions[unicode(last_c)]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
                 else:
                     if last_ordnum != ordnum:
                         last_c = icu_upper(c[0:ordlen])
-                        if last_c in exceptions.keys():
+                        if last_c in list(exceptions.keys()):
                             last_c = exceptions[unicode(last_c)]
                         last_ordnum = ordnum
                     else:
@@ -699,7 +703,7 @@ class CatalogBuilder(object):
             else:
                 if last_ordnum != ordnum:
                     last_c = icu_upper(c[0:ordlen])
-                    if last_c in exceptions.keys():
+                    if last_c in list(exceptions.keys()):
                         last_c = exceptions[unicode(last_c)]
                     last_ordnum = ordnum
                 else:
@@ -710,9 +714,9 @@ class CatalogBuilder(object):
             print("     establish_equivalencies():")
             if key:
                 for idx, item in enumerate(item_list):
-                    print("      %s %s" % (cl_list[idx], item[sort_field]))
+                    print(("      %s %s" % (cl_list[idx], item[sort_field])))
             else:
-                print("      %s %s" % (cl_list[idx], item))
+                print(("      %s %s" % (cl_list[idx], item)))
 
         return cl_list
 
@@ -769,9 +773,9 @@ class CatalogBuilder(object):
             tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
             fs = '{:<6}{:<%d} {:<%d} {!s}' % (len(lt), len(las))
-            print(fs.format('', 'Title', 'Author', 'Series'))
+            print((fs.format('', 'Title', 'Author', 'Series')))
             for i in books_by_author:
-                print(fs.format('', i['title'], i['author_sort'], i['series']))
+                print((fs.format('', i['title'], i['author_sort'], i['series'])))
 
         # Build the unique_authors set from existing data
         authors = [(record['author'], capitalize(record['author_sort'])) for record in books_by_author]
@@ -1265,7 +1269,7 @@ class CatalogBuilder(object):
             normalized_tags.append(_normalize_tag(tag, max_len))
             friendly_tags.append(tag)
 
-        genre_tags_dict = dict(zip(friendly_tags, normalized_tags))
+        genre_tags_dict = dict(list(zip(friendly_tags, normalized_tags)))
 
         # Test for multiple genres resolving to same normalized form
         normalized_set = set(normalized_tags)
@@ -2660,7 +2664,7 @@ class CatalogBuilder(object):
                         title_str=title_str,
                         xmlns=XHTML_NS,
                         )
-            for k, v in args.iteritems():
+            for k, v in six.iteritems(args):
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
@@ -4255,7 +4259,7 @@ class CatalogBuilder(object):
             else:
                 return _short_description(description, self.opts.description_clip)
         else:
-            print " returning description with unspecified destination '%s'" % description
+            print(" returning description with unspecified destination '%s'" % description)
             raise RuntimeError
 
     def generate_sort_title(self, title):
@@ -4597,7 +4601,7 @@ class CatalogBuilder(object):
 
         templates = {}
         execfile(P('catalog/section_list_templates.py'), templates)
-        for name, template in templates.iteritems():
+        for name, template in six.iteritems(templates):
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -244,7 +245,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
                 title_map[i] = metadata[i].title
                 lm_map[i] = metadata[i].last_modified
             metadata = {i:metadata_to_opf(mi, default_lang='und') for i, mi in
-                    metadata.iteritems()}
+                    six.iteritems(metadata)}
             try:
                 ret = fork_job('calibre.ebooks.metadata.sources.worker', 'main',
                         (do_identify, covers, metadata, ensure_fields, tdir),

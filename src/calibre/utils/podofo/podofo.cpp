@@ -38,29 +38,48 @@ class PyLogMessage : public PdfError::LogMessageCallback {
 
 PyLogMessage log_message;
 
-CALIBRE_MODINIT_FUNC
-initpodofo(void) 
-{
-    PyObject* m;
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef podofo_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "podofo",
+    .m_doc = "Wrapper for the PoDoFo PDF library",
+    .m_size = -1,
+    .m_methods = podofo_methods,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_podofo(void) {
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initpodofo(void) {
+#endif
 
     if (PyType_Ready(&pdf::PDFDocType) < 0)
-        return;
+        INITERROR;
 
     if (PyType_Ready(&pdf::PDFOutlineItemType) < 0)
-        return;
+        INITERROR;
 
     pdf::Error = PyErr_NewException((char*)"podofo.Error", NULL, NULL);
-    if (pdf::Error == NULL) return;
+    if (pdf::Error == NULL) INITERROR;
 
     PdfError::SetLogMessageCallback((PdfError::LogMessageCallback*)&log_message);
-
     PdfError::EnableDebug(false);
-    m = Py_InitModule3("podofo", podofo_methods,
-                       "Wrapper for the PoDoFo PDF library");
 
+#if PY_MAJOR_VERSION >= 3
+    PyObject *mod = PyModule_Create(&podofo_module);
+#else
+    PyObject *mod = Py_InitModule3("podofo", podofo_methods, "Wrapper for the PoDoFo PDF library");
+#endif
+
+    if (mod == NULL) INITERROR;
     Py_INCREF(&pdf::PDFDocType);
-    PyModule_AddObject(m, "PDFDoc", (PyObject *)&pdf::PDFDocType);
+    PyModule_AddObject(mod, "PDFDoc", (PyObject *)&pdf::PDFDocType);
 
-    PyModule_AddObject(m, "Error", pdf::Error);
+    PyModule_AddObject(mod, "Error", pdf::Error);
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
-

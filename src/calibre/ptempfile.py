@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -6,7 +7,7 @@ Provides platform independent temporary files that persist even after
 being closed.
 """
 import tempfile, os, atexit
-from future_builtins import map
+from six.moves import map
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
         get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
@@ -105,9 +106,9 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
-            import cPickle, binascii
+            import six.moves.cPickle, binascii
             try:
-                td = cPickle.loads(binascii.unhexlify(td))
+                td = six.moves.cPickle.loads(binascii.unhexlify(td))
             except:
                 td = None
         if td and os.path.exists(td):

@@ -40,7 +40,7 @@ class MathJax(Command):
             raw = f.read()
         self.h.update(raw)
         zi = ZipInfo(name)
-        zi.external_attr = 0o444 << 16L
+        zi.external_attr = 0o444 << 16
         zf.writestr(zi, raw)
 
     def add_tree(self, zf, base, prefix, ignore=lambda n:False):
@@ -68,7 +68,7 @@ class MathJax(Command):
                 for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
                     self.add_tree(zf, self.j(src, 'unpacked', *d.split('/')), d)
 
-                zf.comment = self.h.hexdigest()
+                zf.comment = self.h.hexdigest().encode()
             t.seek(0)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.zip.xz'), 'wb') as f:
                 compress(t, f, level=1 if is_ci else 9)

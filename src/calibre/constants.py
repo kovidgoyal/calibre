@@ -2,7 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from future_builtins import map
+from __future__ import print_function
+from six.moves import map
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = u'calibre'
@@ -87,7 +88,7 @@ else:
         filesystem_encoding = 'utf-8'
 
 
-DEBUG = b'CALIBRE_DEBUG' in os.environ
+DEBUG = 'CALIBRE_DEBUG' in os.environ
 
 
 def debug():
@@ -201,12 +202,9 @@ class Plugins(collections.Mapping):
         except KeyError:
             pass
         try:
-            p, err = importlib.import_module(name), ''
-        except Exception as err:
-            p = None
-            err = str(err)
-        self._plugins[name] = (p, err)
-        sys.path.remove(sys.extensions_location)
+            self._plugins[name] = (importlib.import_module(name), None)
+        finally:
+            sys.path.remove(sys.extensions_location)
 
     def __iter__(self):
         return iter(self.plugins)
@@ -231,7 +229,7 @@ if plugins is None:
 
 # config_dir {{{
 
-CONFIG_DIR_MODE = 0700
+CONFIG_DIR_MODE = 0o700
 
 if 'CALIBRE_CONFIG_DIRECTORY' in os.environ:
     config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
@@ -257,7 +255,7 @@ else:
     if not os.path.exists(config_dir) or \
             not os.access(config_dir, os.W_OK) or not \
             os.access(config_dir, os.X_OK):
-        print 'No write acces to', config_dir, 'using a temporary dir instead'
+        print('No write acces to', config_dir, 'using a temporary dir instead')
         import tempfile, atexit
         config_dir = tempfile.mkdtemp(prefix='calibre-config-')
 

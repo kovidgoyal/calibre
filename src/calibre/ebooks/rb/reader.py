@@ -7,13 +7,14 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 import zlib
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import unquote as urlunquote
 
 from calibre import CurrentDir
 from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from six.moves import range
 
 
 class RBToc(list):
@@ -80,7 +81,7 @@ class Reader(object):
             count = self.read_i32()
             self.read_i32()  # Uncompressed size.
             chunck_sizes = []
-            for i in xrange(count):
+            for i in range(count):
                 chunck_sizes.append(self.read_i32())
 
             for size in chunck_sizes:

@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 # encoding: utf-8
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -17,6 +18,9 @@ If this module is run, it will perform a series of unit tests.
 '''
 
 import weakref, re
+
+import six
+from six import unichr
 
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
@@ -54,7 +58,7 @@ class SavedSearchQueries(object):
             db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, six.text_types):
             x = x.decode(preferred_encoding, 'replace')
         return x
 
@@ -80,7 +84,7 @@ class SavedSearchQueries(object):
         self.save_queries()
 
     def names(self):
-        return sorted(self.queries.keys(),key=sort_key)
+        return sorted(list(self.queries.keys()),key=sort_key)
 
 
 '''
@@ -142,15 +146,15 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(ur'\"()'))
+    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(r'\"()'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (ur'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (ur'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (ur'[^"()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (ur'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (ur'\s+',              None)
+            (u'[()]', lambda x,t: (Parser.OPCODE, t)),
+            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, t.decode())),
+            (r'[^"()\s]+', lambda x,t: (Parser.WORD, t.decode())),
+            (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (r'\s+',              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):
@@ -309,9 +313,9 @@ class SearchQueryParser(object):
             prints('\tTesting:', test[0], end=' ')
             res = parser.parseString(test[0])
             if list(res.get(result, None)) == test[1]:
-                print 'OK'
+                print('OK')
             else:
-                print 'FAILED:', 'Expected:', test[1], 'Got:', list(res.get(result, None))
+                print('FAILED:', 'Expected:', test[1], 'Got:', list(res.get(result, None)))
                 failed.append(test[0])
         return failed
 

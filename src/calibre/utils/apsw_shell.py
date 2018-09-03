@@ -12,6 +12,7 @@ import textwrap
 import time
 import codecs
 import base64
+from six.moves import range
 
 if sys.platform=="win32":
     _win_colour=False
@@ -340,7 +341,7 @@ OPTIONS include:
     ###
 
     _binary_type = eval(("buffer", "bytes")[sys.version_info>=(3,0)])
-    _basestring = eval(("basestring", "str")[sys.version_info>=(3,0)])
+    _six.string_types = eval(("six.string_types", "str")[sys.version_info>=(3,0)])
 
     # bytes that are ok in C strings - no need for quoting
     _printable=[ord(x) for x in
@@ -349,7 +350,7 @@ OPTIONS include:
 
     def _fmt_c_string(self, v):
         "Format as a C string including surrounding double quotes"
-        if isinstance(v, self._basestring):
+        if isinstance(v, self._six.string_types):
             op=['"']
             for c in v:
                 if c=="\\":
@@ -398,7 +399,7 @@ OPTIONS include:
 
     def _fmt_json_value(self, v):
         "Format a value."
-        if isinstance(v, self._basestring):
+        if isinstance(v, self._six.string_types):
             # we assume utf8 so only some characters need to be escaed
             op=['"']
             for c in v:
@@ -443,7 +444,7 @@ OPTIONS include:
         "Format as python literal"
         if v is None:
             return "None"
-        elif isinstance(v, self._basestring):
+        elif isinstance(v, self._six.string_types):
             return repr(v)
         elif isinstance(v, self._binary_type):
             if sys.version_info<(3,0):
@@ -486,7 +487,7 @@ OPTIONS include:
         "Regular text formatting"
         if v is None:
             return self.nullvalue
-        elif isinstance(v, self._basestring):
+        elif isinstance(v, self._six.string_types):
             return v
         elif isinstance(v, self._binary_type):
             # sqlite gives back raw bytes!
@@ -2888,7 +2889,7 @@ Enter SQL statements terminated with a ";"
             self.colour
             if val is None:
                 return self.vnull+formatted+self.vnull_
-            if isinstance(val, Shell._basestring):
+            if isinstance(val, Shell._six.string_types):
                 return self.vstring+formatted+self.vstring_
             if isinstance(val, Shell._binary_type):
                 return self.vblob+formatted+self.vblob_

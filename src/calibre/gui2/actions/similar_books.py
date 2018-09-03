@@ -74,7 +74,7 @@ class SimilarBooksAction(InterfaceAction):
         if not val:
             return
 
-        if isinstance(val, basestring):
+        if isinstance(val, six.string_types):
             val = [val]
         search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
         if search:

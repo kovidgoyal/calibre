@@ -1,4 +1,7 @@
 from __future__ import with_statement
+from __future__ import print_function
+from six.moves import map
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -8,10 +11,10 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
-import repr as reprlib
+import six.moves.reprlib as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
-from Queue import Queue
+from six.moves.queue import Queue
 from threading import RLock
 from datetime import datetime
 from functools import partial
@@ -165,7 +168,7 @@ class AumSortedConcatenate(object):
             self.ans[ndx] = ':::'.join((author, sort, link))
 
     def finalize(self):
-        keys = self.ans.keys()
+        keys = list(self.ans.keys())
         l = len(keys)
         if l == 0:
             return None
@@ -221,8 +224,8 @@ def load_c_extensions(conn, debug=DEBUG):
         return True
     except Exception as e:
         if debug:
-            print 'Failed to load high performance sqlite C extension'
-            print e
+            print('Failed to load high performance sqlite C extension')
+            print(e)
     return False
 
 
@@ -409,5 +412,5 @@ def connect(dbpath, row_factory=None):
 def test():
     c = sqlite.connect(':memory:')
     if load_c_extensions(c, True):
-        print 'Loaded C extension successfully'
+        print('Loaded C extension successfully')
 

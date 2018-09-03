@@ -321,12 +321,12 @@ class MakeLists:
         # to true.
         if self.__list_of_lists and self.__write_list_info and list_dict:
             not_allow = ['list-id',]
-            the_keys_list = list_dict.keys()
+            the_keys_list = list(list_dict.keys())
             for the_key in the_keys_list:
                 if the_key in not_allow:
                     continue
                 self.__write_obj.write('<%s>%s' % (the_key, list_dict[the_key]))
-            the_keys_level = level_dict.keys()
+            the_keys_level = list(level_dict.keys())
             for the_key in the_keys_level:
                 self.__write_obj.write('<%s>%s' % (the_key, level_dict[the_key]))
         self.__write_obj.write('\n')

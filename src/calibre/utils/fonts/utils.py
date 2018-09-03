@@ -2,6 +2,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -30,7 +33,7 @@ def is_truetype_font(raw):
 def get_tables(raw):
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
     offset = 4*3  # start of the table record entries
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         table_tag, table_checksum, table_offset, table_length = struct.unpack_from(
                     b'>4s3L', raw, offset)
         yield (table_tag, raw[table_offset:table_offset+table_length], offset,
@@ -164,7 +167,7 @@ def decode_name_record(recs):
         return mac_names[0]
 
     # Use unicode names
-    for val in unicode_names.itervalues():
+    for val in six.itervalues(unicode_names):
         return val
 
     return None
@@ -181,7 +184,7 @@ def _get_font_names(raw, raw_is_table=False):
 
     records = defaultdict(list)
 
-    for i in xrange(count):
+    for i in range(count):
         try:
             platform_id, encoding_id, language_id, name_id, length, offset = \
                     struct.unpack_from(b'>6H', table, 6+i*12)
@@ -225,9 +228,9 @@ def get_all_font_names(raw, raw_is_table=False):
     records = _get_font_names(raw, raw_is_table)
     ans = {}
 
-    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+    for name, num in six.iteritems({'family_name':1, 'subfamily_name':2, 'full_name':4,
             'preferred_family_name':16, 'preferred_subfamily_name':17,
-            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+            'wws_family_name':21, 'wws_subfamily_name':22}):
         try:
             ans[name] = decode_name_record(records[num])
         except (IndexError, KeyError, ValueError):
@@ -406,7 +409,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
             raise UnsupportedFont('Not a supported font, has no cmap table')
     version, num_tables = struct.unpack_from(b'>HH', table)
     bmp_table = None
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         platform_id, encoding_id, offset = struct.unpack_from(b'>HHL', table,
                 4 + (i*8))
         if platform_id == 3 and encoding_id == 1:
@@ -417,7 +420,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
     if bmp_table is None:
         raise UnsupportedFont('Not a supported font, has no format 4 cmap table')
 
-    for glyph_id in get_bmp_glyph_ids(table, bmp_table, map(ord, text)):
+    for glyph_id in get_bmp_glyph_ids(table, bmp_table, list(map(ord, text))):
         yield glyph_id
 
 
@@ -472,10 +475,10 @@ def test_find_font():
     from calibre.utils.fonts.scanner import font_scanner
     abcd = '诶比西迪'
     family = font_scanner.find_font_for_text(abcd)[0]
-    print ('Family for Chinese text:', family)
+    print(('Family for Chinese text:', family))
     family = font_scanner.find_font_for_text(abcd)[0]
     abcd = 'لوحة المفاتيح العربية'
-    print ('Family for Arabic text:', family)
+    print(('Family for Arabic text:', family))
 
 
 def test():
@@ -487,12 +490,12 @@ def test():
 def main():
     import sys, os
     for f in sys.argv[1:]:
-        print (os.path.basename(f))
+        print((os.path.basename(f)))
         raw = open(f, 'rb').read()
-        print (get_font_names(raw))
+        print((get_font_names(raw)))
         characs = get_font_characteristics(raw)
         print (characs)
-        print (panose_to_css_generic_family(characs[5]))
+        print((panose_to_css_generic_family(characs[5])))
         verify_checksums(raw)
         remove_embed_restriction(raw)
 

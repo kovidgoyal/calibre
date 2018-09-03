@@ -7,6 +7,10 @@ __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
 import datetime
+from xml.sax import saxutils
+
+import six
+from six.moves import StringIO
 
 # Could make this the base class; will need to add 'publish'
 
@@ -14,25 +18,19 @@ import datetime
 class WriteXmlMixin:
 
     def write_xml(self, outfile, encoding="iso-8859-1"):
-        from xml.sax import saxutils
         handler = saxutils.XMLGenerator(outfile, encoding)
         handler.startDocument()
         self.publish(handler)
         handler.endDocument()
 
     def to_xml(self, encoding="iso-8859-1"):
-        try:
-            import cStringIO as StringIO
-            StringIO
-        except ImportError:
-            import StringIO
-        f = StringIO.StringIO()
+        f = StringIO()
         self.write_xml(f, encoding)
         return f.getvalue()
 
 
 def _element(handler, name, obj, d={}):
-    if isinstance(obj, basestring) or obj is None:
+    if isinstance(obj, six.string_types) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
         handler.startElement(name, d)
@@ -373,7 +371,7 @@ class RSS2(WriteXmlMixin):
         _opt_element(handler, "lastBuildDate", lastBuildDate)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, six.string_types):
                 category = Category(category)
             category.publish(handler)
 
@@ -454,7 +452,7 @@ class RSSItem(WriteXmlMixin):
         _opt_element(handler, "author", self.author)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, six.string_types):
                 category = Category(category)
             category.publish(handler)
 

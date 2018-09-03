@@ -77,7 +77,7 @@ class GetOptions:
         if options == 0:
             return_options['valid'] = 0
             return return_options
-        the_keys = options.keys()
+        the_keys = list(options.keys())
         return_options['help'] = 0
         if 'help' in the_keys:
             return_options['help'] = 1

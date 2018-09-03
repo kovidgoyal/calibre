@@ -9,22 +9,31 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs
 
+import six
+
 ENCODING_PATS = [
     # XML declaration
-    re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
+    re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>'.encode(), re.IGNORECASE),
     # HTML 5 charset
-    re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}'''.encode(), re.IGNORECASE),
     # HTML 4 Pragma directive
-    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}'''.encode(), re.IGNORECASE),
 ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
 def strip_encoding_declarations(raw, limit=50*1024):
     prefix = raw[:limit]
+    if isinstance(prefix, six.text_type):
+        prefix = prefix.encode()
+
     suffix = raw[limit:]
     for pat in ENCODING_PATS:
-        prefix = pat.sub('', prefix)
+        prefix = pat.sub(b'', prefix)
+
+    if isinstance(prefix, six.binary_type):
+        prefix = prefix.decode()
+
     raw = prefix + suffix
     return raw
 
@@ -80,8 +89,8 @@ def force_encoding(raw, verbose, assume_utf8=False):
     if chardet['confidence'] < 1 and assume_utf8:
         encoding = 'utf-8'
     if chardet['confidence'] < 1 and verbose:
-        print('WARNING: Encoding detection confidence for %s is %d%%'%(
-            chardet['encoding'], chardet['confidence']*100))
+        print(('WARNING: Encoding detection confidence for %s is %d%%'%(
+            chardet['encoding'], chardet['confidence']*100)))
     if not encoding:
         encoding = preferred_encoding
     encoding = encoding.lower()
@@ -92,7 +101,7 @@ def force_encoding(raw, verbose, assume_utf8=False):
 
 
 def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
-    if not raw or isinstance(raw, unicode):
+    if not raw or isinstance(raw, six.text_type):
         return raw, None
     for x in ('utf8', 'utf-16-le', 'utf-16-be'):
         bom = getattr(codecs, 'BOM_'+x.upper().replace('-16', '16').replace(
@@ -103,7 +112,7 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
     for pat in ENCODING_PATS:
         match = pat.search(raw)
         if match:
-            encoding = match.group(1)
+            encoding = match.group(1).decode()
             break
     if encoding is None:
         encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
@@ -135,11 +144,13 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         return '', None
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,
             assume_utf8=assume_utf8)
-    if not isinstance(raw, unicode):
+
+    if isinstance(raw, six.binary_type):
         raw = raw.decode(encoding, 'replace')
 
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
+
     if resolve_entities:
         raw = substitute_entites(raw)
 

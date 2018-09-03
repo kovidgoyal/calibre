@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -8,7 +9,7 @@ import sys, os, logging
 
 from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
+from bs4 import BeautifulStoneSoup, NavigableString, \
                                            CData, Tag
 from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             BlockStyle, ImageStream, Font, StyleDefault, BookSetting, Header, \
@@ -94,7 +95,7 @@ class LrsParser(object):
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
             for item in contents:
-                if isinstance(item, basestring):
+                if isinstance(item, six.string_types):
                     p.append(item)
                 elif isinstance(item, NavigableString):
                     p.append(item.string)
@@ -161,7 +162,7 @@ class LrsParser(object):
                    'textstyle'  : 'textStyle',
                    }
         for id, tag in self.objects.items():
-            if tag.name in map.keys():
+            if tag.name in list(map.keys()):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid', 'objlabel'])
                 for a in ('pagestyle', 'blockstyle', 'textstyle'):
                     label = tag.get(a, False)
@@ -191,7 +192,7 @@ class LrsParser(object):
                }
         self._style_labels = {}
         for id, tag in self.objects.items():
-            if tag.name in map.keys():
+            if tag.name in list(map.keys()):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
@@ -259,7 +260,7 @@ class LrsParser(object):
             if os.access(f, os.R_OK):
                 settings['thumbnail'] = f
             else:
-                print _('Could not read from thumbnail file:'), f
+                print(_('Could not read from thumbnail file:'), f)
 
         self.book = Book(title=title, author=author, publisher=publisher,
                          category=category, classification=classification,

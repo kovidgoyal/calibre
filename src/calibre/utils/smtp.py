@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -95,10 +96,9 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 def get_mx(host, verbose=0):
     import dns.resolver
     if verbose:
-        print 'Find mail exchanger for', host
+        print('Find mail exchanger for', host)
     answers = list(dns.resolver.query(host, 'MX'))
-    answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
-                                      int(getattr(y, 'preference', sys.maxint))))
+    answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxint)))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
@@ -123,7 +123,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         except Exception as e:
             last_error, last_traceback = e, traceback.format_exc()
     if last_error is not None:
-        print last_traceback
+        print(last_traceback)
         raise IOError('Failed to send mail: '+repr(last_error))
 
 
@@ -302,7 +302,7 @@ def main(args=sys.argv):
         if outbox is not None:
             outbox.add(msg)
             outbox.close()
-            print 'Delivery failed. Message saved to', opts.outbox
+            print('Delivery failed. Message saved to', opts.outbox)
         raise
     return 0
 

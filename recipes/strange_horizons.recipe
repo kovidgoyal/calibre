@@ -157,4 +157,4 @@ class StrangeHorizons(BasicNewsRecipe):
                     "description": excerptStr,
                     "date": dateStr,
                 })
-        return sections.items()
+        return list(sections.items())

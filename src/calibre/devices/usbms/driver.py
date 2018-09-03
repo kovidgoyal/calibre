@@ -20,6 +20,8 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from six.moves import zip
+import six
 
 BASE_TIME = None
 
@@ -242,7 +244,7 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-        if isinstance(ebook_dirs, basestring):
+        if isinstance(ebook_dirs, six.string_types):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
@@ -280,7 +282,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(six.itervalues(bl_cache), reverse=True):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -328,7 +330,7 @@ class USBMS(CLI, Device):
 
         self.report_progress(1.0, _('Transferring books to device...'))
         debug_print('USBMS: finished uploading %d books'%(len(files)))
-        return zip(paths, cycle([on_card]))
+        return list(zip(paths, cycle([on_card])))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''

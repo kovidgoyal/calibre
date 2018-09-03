@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 import os
+from six.moves import range
 
 
 class ReadOnlyFileBuffer(object):
@@ -90,7 +91,7 @@ def svg_path_to_painter_path(d):
         return float(b''.join(chars))
 
     def parse_floats(num, x_offset=0, y_offset=0):
-        for i in xrange(num):
+        for i in range(num):
             val = parse_float()
             yield val + (x_offset if i % 2 == 0 else y_offset)
 

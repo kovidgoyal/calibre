@@ -84,38 +84,34 @@ nfc(PyObject *self UNUSED, PyObject *args) {
     return PyUnicode_FromString(n);
 }
 
-static PyMethodDef module_methods[] = {
+static PyMethodDef unicode_names_methods[] = {
     {"all_words", (PyCFunction)all_words, METH_NOARGS, ""},
     {"codepoints_for_word", (PyCFunction)cfw, METH_VARARGS, ""},
     {"name_for_codepoint", (PyCFunction)nfc, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-#if PY_VERSION_HEX >= 0x03000000
-static struct PyModuleDef module = {
-   .m_base = PyModuleDef_HEAD_INIT,
-   .m_name = "unicode_names",   /* name of module */
-   .m_doc = NULL,
-   .m_size = -1,
-   .m_methods = module_methods
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef unicode_names_module = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "unicode_names",
+    .m_doc = "",
+    .m_size = -1,
+    .m_methods = unicode_names_methods,
 };
 
-
-EXPORTED PyMODINIT_FUNC
-PyInit_unicode_names(void) {
-    PyObject *m;
-
-    m = PyModule_Create(&module);
-    if (m == NULL) return NULL;
-    return m;
-}
+CALIBRE_MODINIT_FUNC PyInit_unicode_names(void) {
 #else
-EXPORTED
-initunicode_names(void) {
-    PyObject *m;
-    m = Py_InitModule3("unicode_names", module_methods,
-    ""
-    );
-    if (m == NULL) return;
-}
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initunicode_names(void) {
 #endif
+    PyObject *mod;
+    // Create the module
+#if PY_MAJOR_VERSION >= 3
+    mod = PyModule_Create(&unicode_names_module);
+    return mod;
+#else
+    mod = Py_InitModule3("unicode_names", unicode_names_methods, "");
+#endif
+}

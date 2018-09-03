@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 from contextlib import closing
-from mechanize import MozillaCookieJar
+
+from six.moves import http_cookiejar
 
 from calibre import browser
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -62,7 +63,7 @@ def download_file(url, cookie_file=None, filename=None, create_browser=None):
     except NotImplementedError:
         br = browser()
     if cookie_file:
-        cj = MozillaCookieJar()
+        cj = http_cookiejar.MozillaCookieJar()
         cj.load(cookie_file)
         br.set_cookiejar(cj)
     with closing(br.open(url)) as r:
@@ -141,7 +142,7 @@ class EbookDownloadMixin(object):
 
     def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
         if tags:
-            if isinstance(tags, basestring):
+            if isinstance(tags, six.string_types):
                 tags = tags.split(',')
         start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser)
         self.status_bar.show_message(_('Downloading') + ' ' + filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore'), 3000)

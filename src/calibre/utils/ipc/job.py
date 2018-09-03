@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 _count = 0
 
-import time, cStringIO
-from Queue import Queue, Empty
+import time
+from six.moves import StringIO
+from six.moves.queue import Queue, Empty
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -146,7 +147,7 @@ class BaseJob(object):
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return cStringIO.StringIO(_('No details available.').encode('utf-8',
+        return StringIO(_('No details available.').encode('utf-8',
             'replace'))
 
     @property

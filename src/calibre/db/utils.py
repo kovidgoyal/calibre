@@ -2,14 +2,15 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys, re
+import os, errno, six.moves.cPickle, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from future_builtins import map
+from six.moves import map
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -43,7 +44,7 @@ def fuzzy_title_patterns():
     if _fuzzy_title_patterns is None:
         from calibre.ebooks.metadata import get_title_sort_pat
         _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, six.string_types) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),
@@ -83,7 +84,7 @@ def find_identical_books(mi, data):
         if fuzzy_title(title) == titleq:
             ans.add(book_id)
 
-    langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
+    langq = tuple([x for x in map(canonicalize_lang, mi.languages or ()) if x and x != 'und'])
     if not langq:
         return ans
 
@@ -206,7 +207,7 @@ class ThumbnailCache(object):
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in self.items.iteritems() if size != entry.thumbnail_size)
+            remove = (key for key, entry in six.iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
@@ -227,7 +228,7 @@ class ThumbnailCache(object):
         if hasattr(self, 'items'):
             try:
                 with open(os.path.join(self.location, 'order'), 'wb') as f:
-                    f.write(cPickle.dumps(tuple(map(hash, self.items)), -1))
+                    f.write(six.moves.cPickle.dumps(tuple(map(hash, self.items)), -1))
             except EnvironmentError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
@@ -235,7 +236,7 @@ class ThumbnailCache(object):
         order = {}
         try:
             with open(os.path.join(self.location, 'order'), 'rb') as f:
-                order = cPickle.loads(f.read())
+                order = six.moves.cPickle.loads(f.read())
                 order = {k:i for i, k in enumerate(order)}
         except Exception as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
@@ -360,7 +361,7 @@ class ThumbnailCache(object):
                 pass
             if not hasattr(self, 'total_size'):
                 self._load_index()
-            for entry in self.items.itervalues():
+            for entry in six.itervalues(self.items):
                 self._do_delete(entry.path)
             self.total_size = 0
             self.items = OrderedDict()

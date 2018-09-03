@@ -16,6 +16,8 @@ from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
+from six.moves import zip
+from six.moves import range
 
 '''
 cahceExt.xml
@@ -57,8 +59,8 @@ MIME_MAP   = {
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
-INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
-INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
+INVERSE_DAY_MAP = dict(list(zip(list(DAY_MAP.values()), list(DAY_MAP.keys()))))
+INVERSE_MONTH_MAP = dict(list(zip(list(MONTH_MAP.values()), list(MONTH_MAP.keys()))))
 
 
 def strptime(src):
@@ -321,7 +323,7 @@ class XMLCache(object):
             # Only rebase ids of nodes that are immediate children of the
             # record root (that way playlist/itemnodes are unaffected
             items = root.xpath('child::*[@id]')
-            items.sort(cmp=lambda x,y:cmp(int(x.get('id')), int(y.get('id'))))
+            items.sort(key=lambda x: int(x.get('id')))
             idmap = {}
             for i, item in enumerate(items):
                 old = int(item.get('id'))

@@ -12,6 +12,7 @@ __date__ = '13, November 2011'
 import time
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from six.moves import range
 
 
 class expansion_spanish(BasicNewsRecipe):

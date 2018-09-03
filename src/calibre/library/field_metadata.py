@@ -7,6 +7,7 @@ import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
+import six
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -428,7 +429,7 @@ class FieldMetadata(object):
         return key in self
 
     def keys(self):
-        return self._tb_cats.keys()
+        return list(self._tb_cats.keys())
 
     def __eq__(self, other):
         if not isinstance(other, FieldMetadata):
@@ -484,21 +485,21 @@ class FieldMetadata(object):
             yield key
 
     def itervalues(self):
-        return self._tb_cats.itervalues()
+        return six.itervalues(self._tb_cats)
 
     def values(self):
-        return self._tb_cats.values()
+        return self.itervalues()
 
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
 
     def custom_iteritems(self):
-        for key, meta in self._tb_custom_fields.iteritems():
+        for key, meta in six.iteritems(self._tb_custom_fields):
             yield (key, meta)
 
     def items(self):
-        return list(self.iteritems())
+        return self.iteritems()
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
@@ -508,7 +509,7 @@ class FieldMetadata(object):
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
-        return [k for k in self._tb_cats.iterkeys() if self.is_ignorable_field(k)]
+        return [k for k in six.iterkeys(self._tb_cats) if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
         try:
@@ -681,8 +682,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
-        'user_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'user'},
-        'search_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'search'},
+        'user_categories': {k:v for k, v in six.iteritems(self._tb_cats) if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in six.iteritems(self._tb_cats) if v['kind'] == 'search'},
     }
 
 
@@ -692,6 +693,6 @@ def fm_from_dict(src):
     ans._search_term_map = src['search_term_map']
     ans.custom_label_to_key_map = src['custom_label_to_key_map']
     for q in ('custom_fields', 'user_categories', 'search_categories'):
-        for k, v in src[q].iteritems():
+        for k, v in six.iteritems(src[q]):
             ans._tb_cats[k] = v
     return ans

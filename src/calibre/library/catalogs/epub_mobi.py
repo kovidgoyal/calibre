@@ -200,10 +200,10 @@ class EPUB_MOBI(CatalogPlugin):
             available_presets = JSONConfig("catalog_presets")
             if opts.preset not in available_presets:
                 if available_presets:
-                    print(_('Error: Preset "%s" not found.' % opts.preset))
-                    print(_('Stored presets: %s' % ', '.join([p for p in sorted(available_presets.keys())])))
+                    print((_('Error: Preset "%s" not found.' % opts.preset)))
+                    print((_('Stored presets: %s' % ', '.join([p for p in sorted(available_presets.keys())]))))
                 else:
-                    print(_('Error: No stored presets.'))
+                    print((_('Error: No stored presets.')))
                 return 1
 
             # Copy the relevant preset values to the opts object
@@ -408,7 +408,7 @@ class EPUB_MOBI(CatalogPlugin):
             if opts.verbose:
                 log.info(" Completed catalog source generation (%s)\n"  %
                          str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
-        except (AuthorSortMismatchException, EmptyCatalogException), e:
+        except (AuthorSortMismatchException, EmptyCatalogException) as e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
             log.error(" unhandled exception in catalog generator")

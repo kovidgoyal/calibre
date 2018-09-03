@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import shutil, os, errno
 from threading import Thread
-from Queue import LifoQueue, Empty
+from six.moves.queue import LifoQueue, Empty
 
 from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
 

@@ -46,7 +46,7 @@ class HTMLOutput(OutputFormatPlugin):
         Generate table of contents
         '''
         from lxml import etree
-        from urllib import unquote
+        from six.moves.urllib.parse import unquote
 
         from calibre.ebooks.oeb.base import element
         with CurrentDir(output_dir):
@@ -80,7 +80,7 @@ class HTMLOutput(OutputFormatPlugin):
         from lxml import etree
         from calibre.utils import zipfile
         from templite import Templite
-        from urllib import unquote
+        from six.moves.urllib.parse import unquote
         from calibre.ebooks.html.meta import EasyMeta
 
         # read template files

@@ -1,0 +1,7 @@
+apsw==3.9.2.post1
+dukpy==0.3
+Elements==0.2.0
+feedparser==5.2.1
+html2text==2018.1.9
+html5-parser==0.4.5
+netifaces==0.10.7

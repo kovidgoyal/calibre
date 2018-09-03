@@ -43,19 +43,19 @@ class StraitsTimes(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class': 'hr_thin'})
 
     feeds = [
-              (u'Top of the News' , u'http://www.straitstimes.com/print/top-of-the-news/rss.xml')
-              ,(u'World'           , u'http://www.straitstimes.com/print/world/rss.xml')
-              ,(u'Home'            , u'http://www.straitstimes.com/print/home/rss.xml')
-              ,(u'Business'        , u'http://www.straitstimes.com/print/business/rss.xml')
-              ,(u'Life'            , u'http://www.straitstimes.com/print/life/rss.xml')
-              ,(u'Science'         , u'http://www.straitstimes.com/print/science/rss.xml')
-              ,(u'Digital'         , u'http://www.straitstimes.com/print/digital/rss.xml')
-              ,(u'Insight'         , u'http://www.straitstimes.com/print/insight/rss.xml')
-              ,(u'Opinion'         , u'http://www.straitstimes.com/print/opinion/rss.xml')
-              ,(u'Forum'           , u'http://www.straitstimes.com/print/forum/rss.xml')
-              ,(u'Big Picture'     , u'http://www.straitstimes.com/print/big-picture/rss.xml')
-              ,(u'Community'       , u'http://www.straitstimes.com/print/community/rss.xml')
-              ,(u'Education'       , u'http://www.straitstimes.com/print/education/rss.xml')
+              (u'Top of the News', u'http://www.straitstimes.com/print/top-of-the-news/rss.xml')
+              , (u'World', u'http://www.straitstimes.com/print/world/rss.xml')
+              , (u'Home', u'http://www.straitstimes.com/print/home/rss.xml')
+              , (u'Business', u'http://www.straitstimes.com/print/business/rss.xml')
+              , (u'Life', u'http://www.straitstimes.com/print/life/rss.xml')
+              , (u'Science', u'http://www.straitstimes.com/print/science/rss.xml')
+              , (u'Digital', u'http://www.straitstimes.com/print/digital/rss.xml')
+              , (u'Insight', u'http://www.straitstimes.com/print/insight/rss.xml')
+              , (u'Opinion', u'http://www.straitstimes.com/print/opinion/rss.xml')
+              , (u'Forum', u'http://www.straitstimes.com/print/forum/rss.xml')
+              , (u'Big Picture', u'http://www.straitstimes.com/print/big-picture/rss.xml')
+              , (u'Community', u'http://www.straitstimes.com/print/community/rss.xml')
+              , (u'Education', u'http://www.straitstimes.com/print/education/rss.xml')
     ]
 
     def preprocess_html(self, soup):

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import range
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -141,7 +142,7 @@ class BookmarkManager(QWidget):
                 l.scrollToItem(item)
 
     def __iter__(self):
-        for i in xrange(self.bookmarks_list.count()):
+        for i in range(self.bookmarks_list.count()):
             yield self.item_to_bm(self.bookmarks_list.item(i))
 
     def item_changed(self, item):

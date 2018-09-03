@@ -15,6 +15,7 @@ from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
 from calibre.utils.config import prefs, tweaks
 from calibre.gui2.actions import InterfaceAction
 from calibre.customize.ui import plugin_for_input_format
+from six.moves import map
 
 
 class ConvertAction(InterfaceAction):

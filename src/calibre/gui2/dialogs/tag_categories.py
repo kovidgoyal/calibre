@@ -10,6 +10,8 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import error_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
+import six
+from six.moves import range
 
 
 class Item(object):
@@ -68,7 +70,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                           ]
         category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
-        for key,cc in self.db.custom_field_metadata().iteritems():
+        for key,cc in six.iteritems(self.db.custom_field_metadata()):
             if cc['datatype'] in ['text', 'series', 'enumeration']:
                 self.category_labels.append(key)
                 self.category_icons.append(cc_icon)
@@ -207,7 +209,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                       'multiple periods in a row or spaces before '
                       'or after periods.')).exec_()
             return False
-        for c in sorted(self.categories.keys(), key=sort_key):
+        for c in sorted(list(self.categories.keys()), key=sort_key):
             if strcmp(c, cat_name) == 0 or \
                     (icu_lower(cat_name).startswith(icu_lower(c) + '.') and
                      not cat_name.startswith(c + '.')):
@@ -282,7 +284,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
-        for cat in sorted(self.categories.keys(), key=sort_key):
+        for cat in sorted(list(self.categories.keys()), key=sort_key):
             components = cat.split('.')
             for i in range(0,len(components)):
                 c = '.'.join(components[0:i+1])
@@ -301,5 +303,5 @@ class TagCategories(QDialog, Ui_TagCategories):
     def populate_category_list(self):
         self.category_box.blockSignals(True)
         self.category_box.clear()
-        self.category_box.addItems(sorted(self.categories.keys(), key=sort_key))
+        self.category_box.addItems(sorted(list(self.categories.keys()), key=sort_key))
         self.category_box.blockSignals(False)

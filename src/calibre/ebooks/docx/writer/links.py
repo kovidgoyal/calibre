@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath, re
 from uuid import uuid4
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from calibre.utils.filenames import ascii_text
 

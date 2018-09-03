@@ -7,12 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -51,7 +50,7 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         while counter:
-            with closing(br.open('https://www.swiatebookow.pl/ebooki/?q=' + urllib.quote(query) + '&page=' + str(page), timeout=timeout)) as f:
+            with closing(br.open('https://www.swiatebookow.pl/ebooki/?q=' + urlquote(query) + '&page=' + str(page), timeout=timeout)) as f:
                 doc = html.fromstring(f.read().decode('utf-8'))
                 for data in doc.xpath('//div[@class="category-item-container"]//div[@class="book-large"]'):
                     if counter <= 0:

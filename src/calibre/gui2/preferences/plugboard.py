@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import print_function
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -71,7 +73,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if n not in self.disabled_devices:
                 self.disabled_devices.append(n)
 
-        self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
+        self.devices.sort(key=lambda x: x.lower())
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
         self.device_to_formats_map[plugboard_content_server_value] = \
@@ -155,11 +157,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_device = unicode(txt)
         fpb = self.current_plugboards.get(self.current_format, None)
         if fpb is None:
-            print 'edit_device_changed: none format!'
+            print('edit_device_changed: none format!')
             return
         dpb = fpb.get(self.current_device, None)
         if dpb is None:
-            print 'edit_device_changed: none device!'
+            print('edit_device_changed: none device!')
             return
         self.set_fields()
         for i,op in enumerate(dpb):
@@ -178,7 +180,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         txt = unicode(txt)
         fpb = self.current_plugboards.get(txt, None)
         if fpb is None:
-            print 'edit_format_changed: none editable format!'
+            print('edit_format_changed: none editable format!')
             return
         self.current_format = txt
         self.check_if_writer_disabled(txt)

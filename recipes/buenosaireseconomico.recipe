@@ -39,7 +39,7 @@ class BsAsEconomico(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class':'post'})]
     remove_tags = [
                     dict(name=['meta', 'base', 'iframe', 'link', 'lang'])
-                    ,dict(attrs={'class':'pdfprnt-bottom-right'})
+                    , dict(attrs={'class':'pdfprnt-bottom-right'})
                   ]
 
     feeds = [(u'Articles', u'http://www.diariobae.com/feed/getfeed')]

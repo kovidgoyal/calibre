@@ -1,12 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, absolute_import, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, re, os, platform, subprocess, time, errno
+import six
+from six.moves import map
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -30,15 +32,15 @@ _cache_dir_built = False
 
 
 def newer(targets, sources):
-    if isinstance(targets, basestring):
+    if isinstance(targets, six.string_types):
         targets = [targets]
-    if isinstance(sources, basestring):
+    if isinstance(sources, six.string_types):
         sources = [sources]
     for f in targets:
         if not os.path.exists(f):
             return True
-    ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-    stimes = map(lambda x: os.stat(x).st_mtime, sources)
+    ttimes = [os.stat(x).st_mtime for x in targets]
+    stimes = [os.stat(x).st_mtime for x in sources]
     newest_source, oldest_target = max(stimes), min(ttimes)
     return newest_source > oldest_target
 
@@ -75,23 +77,23 @@ def require_clean_git():
         c('git rev-parse --verify HEAD'.split(), stdout=null)
         c('git update-index -q --ignore-submodules --refresh'.split())
         if p('git diff-files --quiet --ignore-submodules'.split()).wait() != 0:
-            print >>sys.stderr, 'You have unstaged changes in your working tree'
+            print('You have unstaged changes in your working tree', file=sys.stderr)
             raise SystemExit(1)
         if p('git diff-index --cached --quiet --ignore-submodules HEAD --'.split()).wait() != 0:
-            print >>sys.stderr, 'Your git index contains uncommitted changes'
+            print('Your git index contains uncommitted changes', file=sys.stderr)
             raise SystemExit(1)
 
 
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
-    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read()
+    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
     __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
     epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
-            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read()).group(1)
+            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read().decode('utf-8')).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})
 
     def e2b(ep):
@@ -116,48 +118,6 @@ def initialize_constants():
 
 
 initialize_constants()
-
-preferred_encoding = 'utf-8'
-
-
-def prints(*args, **kwargs):
-    '''
-    Print unicode arguments safely by encoding them to preferred_encoding
-    Has the same signature as the print function from Python 3, except for the
-    additional keyword argument safe_encode, which if set to True will cause the
-    function to use repr when encoding fails.
-    '''
-    file = kwargs.get('file', sys.stdout)
-    sep  = kwargs.get('sep', ' ')
-    end  = kwargs.get('end', '\n')
-    enc = preferred_encoding
-    safe_encode = kwargs.get('safe_encode', False)
-    for i, arg in enumerate(args):
-        if isinstance(arg, unicode):
-            try:
-                arg = arg.encode(enc)
-            except UnicodeEncodeError:
-                if not safe_encode:
-                    raise
-                arg = repr(arg)
-        if not isinstance(arg, str):
-            try:
-                arg = str(arg)
-            except ValueError:
-                arg = unicode(arg)
-            if isinstance(arg, unicode):
-                try:
-                    arg = arg.encode(enc)
-                except UnicodeEncodeError:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
-
-        file.write(arg)
-        if i != len(args)-1:
-            file.write(sep)
-    file.write(end)
-
 
 warnings = []
 
@@ -265,13 +225,13 @@ class Command(object):
         return newer(targets, sources)
 
     def info(self, *args, **kwargs):
-        prints(*args, **kwargs)
+        print(*args, **kwargs)
         sys.stdout.flush()
 
     def warn(self, *args, **kwargs):
-        print '\n'+'_'*20, 'WARNING','_'*20
-        prints(*args, **kwargs)
-        print '_'*50
+        print('\n'+'_'*20, 'WARNING','_'*20)
+        print(*args, **kwargs)
+        print('_'*50)
         warnings.append((args, kwargs))
         sys.stdout.flush()
 

@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import six
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -254,7 +255,7 @@ def add_pipeline_options(parser, plumber):
 
               ))
 
-    for group, (desc, options) in groups.iteritems():
+    for group, (desc, options) in six.iteritems(groups):
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)

@@ -13,6 +13,7 @@ from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase, create_backend, set_global_state
 from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
+import six
 
 
 def canonicalize_path(p):
@@ -114,13 +115,13 @@ class LibraryBroker(object):
 
     def close(self):
         with self:
-            for db in self.loaded_dbs.itervalues():
+            for db in six.itervalues(self.loaded_dbs):
                 getattr(db, 'close', lambda: None)()
             self.lmap, self.loaded_dbs = OrderedDict(), {}
 
     @property
     def default_library(self):
-        return next(self.lmap.iterkeys())
+        return next(six.iterkeys(self.lmap))
 
     @property
     def library_map(self):
@@ -130,9 +131,9 @@ class LibraryBroker(object):
     def allowed_libraries(self, filter_func):
         with self:
             allowed_names = filter_func(
-                basename(l) for l in self.lmap.itervalues())
+                basename(l) for l in six.itervalues(self.lmap))
             return OrderedDict(((lid, self.library_map[lid])
-                                for lid, path in self.lmap.iteritems()
+                                for lid, path in six.iteritems(self.lmap)
                                 if basename(path) in allowed_names))
 
     def __enter__(self):
@@ -179,7 +180,7 @@ class GuiLibraryBroker(LibraryBroker):
     def get_library(self, original_library_path):
         library_path = canonicalize_path(original_library_path)
         with self:
-            for library_id, path in self.lmap.iteritems():
+            for library_id, path in six.iteritems(self.lmap):
                 if samefile(library_path, path):
                     db = self.loaded_dbs.get(library_id)
                     if db is None:
@@ -201,7 +202,7 @@ class GuiLibraryBroker(LibraryBroker):
 
     def prepare_for_gui_library_change(self, newloc):
         # Must be called with lock held
-        for library_id, path in self.lmap.iteritems():
+        for library_id, path in six.iteritems(self.lmap):
             db = self.loaded_dbs.get(library_id)
             if db is not None and samefile(newloc, path):
                 if library_id == self.gui_library_id:
@@ -215,7 +216,7 @@ class GuiLibraryBroker(LibraryBroker):
         # Must be called with lock held
         original_path = path_for_db(db)
         newloc = canonicalize_path(original_path)
-        for library_id, path in self.lmap.iteritems():
+        for library_id, path in six.iteritems(self.lmap):
             if samefile(newloc, path):
                 self.loaded_dbs[library_id] = db
                 self.gui_library_id = library_id
@@ -256,7 +257,7 @@ class GuiLibraryBroker(LibraryBroker):
     def unload_library(self, library_path):
         with self:
             path = canonicalize_path(library_path)
-            for library_id, q in self.lmap.iteritems():
+            for library_id, q in six.iteritems(self.lmap):
                 if samefile(path, q):
                     break
             else:
@@ -269,7 +270,7 @@ class GuiLibraryBroker(LibraryBroker):
     def remove_library(self, path):
         with self:
             path = canonicalize_path(path)
-            for library_id, q in self.lmap.iteritems():
+            for library_id, q in six.iteritems(self.lmap):
                 if samefile(path, q):
                     break
             else:

@@ -18,6 +18,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
+from six.moves import map
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -820,7 +821,7 @@ OptionRecommendation(name='search_replace',
         if not html_files:
             raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
-        html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        html_files.sort(key=lambda x: x[1])
         html_files = [f[0] for f in html_files]
         for q in ('toc', 'index'):
             for f in html_files:
@@ -922,7 +923,7 @@ OptionRecommendation(name='search_replace',
     def download_cover(self, url):
         from calibre import browser
         from PIL import Image
-        from cStringIO import StringIO
+        from six.moves import StringIO
         from calibre.ptempfile import PersistentTemporaryFile
         self.log('Downloading cover from %r'%url)
         br = browser()
@@ -1021,7 +1022,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, basestring):
+        if isinstance(ret, six.string_types):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1171,7 +1172,7 @@ OptionRecommendation(name='search_replace',
             fkey = self.opts.dest.fkey
         else:
             try:
-                fkey = map(float, fkey.split(','))
+                fkey = list(map(float, fkey.split(',')))
             except:
                 self.log.error('Invalid font size key: %r ignoring'%fkey)
                 fkey = self.opts.dest.fkey
@@ -1213,7 +1214,7 @@ OptionRecommendation(name='search_replace',
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, basestring):
+            if isinstance(transform_css_rules, six.string_types):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

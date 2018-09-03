@@ -4,6 +4,8 @@
 
 from collections import OrderedDict
 from calibre.web.feeds.news import BasicNewsRecipe
+import six
+from six.moves import map
 
 
 def absurl(x):
@@ -69,7 +71,7 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             title = self.tag_to_string(div)
             elems = div.findAll('a', href=True)
             if len(elems) == 2:
-                desc, title = map(self.tag_to_string, elems)
+                desc, title = list(map(self.tag_to_string, elems))
             else:
                 title, desc = self.tag_to_string(elems[0]), ''
             url = absurl(elems[-1]['href'])
@@ -78,4 +80,4 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             sections[current_section].append(
                 {'title': title, 'url': url, 'description': desc})
 
-        return [(t, articles) for t, articles in sections.iteritems() if articles]
+        return [(t, articles) for t, articles in six.iteritems(sections) if articles]

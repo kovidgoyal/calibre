@@ -18,6 +18,7 @@ import logging
 import re
 from . import util
 from .blockparser import BlockParser
+from six.moves import range
 
 logger = logging.getLogger('MARKDOWN')
 

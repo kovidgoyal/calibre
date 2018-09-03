@@ -7,12 +7,12 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
 
 from lxml import html
 
 from PyQt5.Qt import QUrl
+from six.moves.urllib.parse import quote as urlquote
 
 from calibre import browser
 from calibre.gui2 import open_url
@@ -42,7 +42,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.nl/store/advanced_search_result.php?keywords=' + urllib2.quote(query))
+        url = ('http://www.ebook.nl/store/advanced_search_result.php?keywords=' + urlquote(query))
         br = browser()
 
         counter = max_results

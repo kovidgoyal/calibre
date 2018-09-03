@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,7 +12,7 @@ import sys, time, io, re
 from zlib import decompressobj
 from collections import OrderedDict
 from threading import Thread
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG
@@ -28,7 +29,7 @@ class VersionMismatch(ValueError):
 
 def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
-    data = {k:type(u'')(v) for k, v in ver_map.iteritems()}
+    data = {k:type(u'')(v) for k, v in six.iteritems(ver_map)}
     data['ver'] = '1'
     url = '%s/stores?%s'%(server, urlencode(data))
     # We use a timeout here to ensure the non-daemonic update thread does not
@@ -58,7 +59,7 @@ class Stores(OrderedDict):
         self.version_map = {}
         self.cached_version_map = {}
         self.name_rmap = {}
-        for key, val in self.iteritems():
+        for key, val in six.iteritems(self):
             prefix, name = val.__module__.rpartition('.')[0::2]
             if prefix == 'calibre.gui2.store.stores' and name.endswith('_plugin'):
                 module = sys.modules[val.__module__]
@@ -74,7 +75,7 @@ class Stores(OrderedDict):
         # Load plugins from on disk cache
         remove = set()
         pat = re.compile(r'^store_version\s*=\s*(\d+)', re.M)
-        for name, src in self.cache_file.iteritems():
+        for name, src in six.iteritems(self.cache_file):
             try:
                 key = self.name_rmap[name]
             except KeyError:
@@ -123,7 +124,7 @@ class Stores(OrderedDict):
 
     def download_updates(self):
         ver_map = {name:max(ver, self.cached_version_map.get(name, -1))
-            for name, ver in self.version_map.iteritems()}
+            for name, ver in six.iteritems(self.version_map)}
         try:
             updates = download_updates(ver_map)
         except:
@@ -159,7 +160,7 @@ class Stores(OrderedDict):
 
         if replacements:
             with self.cache_file:
-                for name, src in replacements.iteritems():
+                for name, src in six.iteritems(replacements):
                     self.cache_file[name] = src
 
     def replace_plugin(self, ver, name, obj, source):
@@ -175,10 +176,10 @@ class Stores(OrderedDict):
     def load_object(self, src, key):
         namespace = {}
         builtin = self[key]
-        exec src in namespace
+        exec(src, namespace)
         ver = namespace['store_version']
         cls = None
-        for x in namespace.itervalues():
+        for x in six.itervalues(namespace):
             if (isinstance(x, type) and issubclass(x, StorePlugin) and x is not
                 StorePlugin):
                 cls = x

@@ -26,6 +26,9 @@ from calibre.db.errors import NoSuchFormat
 from calibre.library.comments import merge_comments
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+from six.moves import map
+import six
+from six.moves import range
 
 
 class EditMetadataAction(InterfaceAction):
@@ -317,7 +320,7 @@ class EditMetadataAction(InterfaceAction):
                     failed_ids |= d.rejected_ids
                     restrict_to_failed = True
                 nid_map = {}
-                for book_id, (changed, mi) in d.accepted.iteritems():
+                for book_id, (changed, mi) in six.iteritems(d.accepted):
                     if mi is None:  # discarded
                         continue
                     if changed:
@@ -490,7 +493,7 @@ class EditMetadataAction(InterfaceAction):
             'merge_too_many_books', self.gui)
 
     def books_dropped(self, merge_map):
-        for dest_id, src_ids in merge_map.iteritems():
+        for dest_id, src_ids in six.iteritems(merge_map):
             if not self.confirm_large_merge(len(src_ids) + 1):
                 continue
             from calibre.gui2.dialogs.confirm_merge import merge_drop
@@ -606,7 +609,7 @@ class EditMetadataAction(InterfaceAction):
 
     def formats_for_books(self, rows):
         m = self.gui.library_view.model()
-        return self.formats_for_ids(map(m.id, rows))
+        return self.formats_for_ids(list(map(m.id, rows)))
 
     def books_to_merge(self, rows):
         src_ids = []
@@ -718,7 +721,7 @@ class EditMetadataAction(InterfaceAction):
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of new text to old ids
             to_delete = d.to_delete  # list of ids
-            for old_id, new_name in to_rename.iteritems():
+            for old_id, new_name in six.iteritems(to_rename):
                 model.rename_collection(old_id, new_name=unicode(new_name))
             for item in to_delete:
                 model.delete_collection_using_id(item)
@@ -746,7 +749,7 @@ class EditMetadataAction(InterfaceAction):
         '''
         if title is None:
             title = _('Applying changed metadata')
-        self.apply_id_map = list(id_map.iteritems())
+        self.apply_id_map = list(six.iteritems(id_map))
         self.apply_current_idx = 0
         self.apply_failures = []
         self.applied_ids = set()

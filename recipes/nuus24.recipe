@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
@@ -48,7 +49,7 @@ class Nuus24(BasicNewsRecipe):
                                    attrs={'id': ['lnkLink']}):
             url = re.sub(r'\?.*', '', anchor['href'])
             title = self.tag_to_string(anchor, use_alt=True).strip()
-            print title
+            print(title)
             description = ''
             pubdate = strftime('%a, %d %b')
             articles[key].append(

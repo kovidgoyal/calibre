@@ -6,6 +6,7 @@ __copyright__ = '2010, matek09, matek09@gmail.com'
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+from six.moves import range
 
 
 class Esensja(BasicNewsRecipe):
@@ -44,8 +45,7 @@ class Esensja(BasicNewsRecipe):
                             '''
 
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                          (re.compile(u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
                           ]
 
     def parse_index(self):

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from six.moves import zip
+from six.moves import range
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, collections, operator, copy, re
@@ -7,7 +10,7 @@ from PyQt5.Qt import (
     QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
-from calibre.ebooks.BeautifulSoup import Tag
+from bs4 import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
 
 WEIGHT_MAP = lambda wt : int((wt/10.)-1)
@@ -162,7 +165,7 @@ class TextBlock(object):
         pass
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
-    XML_ENTITIES = dict(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))
+    XML_ENTITIES = dict(list(zip(list(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values()), list(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))))
     XML_ENTITIES["quot"] = '"'
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,
@@ -221,7 +224,7 @@ class TextBlock(object):
         open_containers = collections.deque()
         self.in_para = False
         for i in tb.content:
-            if isinstance(i, basestring):
+            if isinstance(i, six.string_types):
                 self.process_text(i)
             elif i is None:
                 if len(open_containers) > 0:
@@ -536,7 +539,7 @@ class Line(QGraphicsItem):
                     matches.append(word)
                     for c in range(1, len(tokens)):
                         word = words.next()
-                        print tokens[c], word.string
+                        print(tokens[c], word.string)
                         if tokens[c] not in unicode(word.string):
                             return None
                         matches.append(word)

@@ -6,9 +6,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import re
 from collections import deque
-from future_builtins import map
+from six.moves import map
 
 from calibre.utils.icu import capitalize, lower, upper
+from six.moves import zip
 
 
 def cap_author_token(token):
@@ -143,7 +144,7 @@ def map_authors(authors, rules=()):
     ans = []
     for a in authors:
         ans.extend(apply_rules(a, rules))
-    return uniq(filter(None, ans))
+    return uniq([_f for _f in ans if _f])
 
 
 def find_tests():

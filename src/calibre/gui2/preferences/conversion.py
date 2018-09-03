@@ -22,6 +22,7 @@ from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.customize.ui import input_format_plugins, output_format_plugins
 from calibre.gui2.convert import config_widget_for_input_plugin
+from six.moves import map
 
 
 class Model(QStringListModel):

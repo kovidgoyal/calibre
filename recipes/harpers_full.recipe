@@ -15,7 +15,7 @@ anything in username/password fields
 
 import time
 import re
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -61,7 +61,7 @@ class Harpers_full(BasicNewsRecipe):
         br.open('https://harpers.org/')
         if self.username is not None and self.password is not None:
             tt = time.localtime() * 1000
-            data = urllib.urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'https://harpers.org/', 'tt': tt
+            data = six.moves.urllib.parse.urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'https://harpers.org/', 'tt': tt
                                      })
             br.open(self.LOGIN, data)
         return br

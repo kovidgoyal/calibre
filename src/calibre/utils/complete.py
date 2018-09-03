@@ -12,7 +12,7 @@ BASH completion for calibre commands that are too complex for simple
 completion.
 '''
 
-import sys, os, shlex, glob, re, cPickle
+import sys, os, shlex, glob, re, six.moves.cPickle
 
 
 def prints(*args, **kwargs):
@@ -113,7 +113,7 @@ class EbookConvert(object):
         self.words = words
         self.prefix = prefix
         self.previous = words[-2 if prefix else -1]
-        self.cache = cPickle.load(open(os.path.join(sys.resources_location,
+        self.cache = six.moves.cPickle.load(open(os.path.join(sys.resources_location,
             'ebook-convert-complete.pickle'), 'rb'))
         self.complete(wc)
 

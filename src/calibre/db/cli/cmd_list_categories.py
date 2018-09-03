@@ -10,6 +10,8 @@ from textwrap import TextWrapper
 from io import BytesIO
 
 from calibre import prints
+from six.moves import map
+from six.moves import range
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -76,7 +78,7 @@ def do_list(fields, data, opts):
     from calibre.utils.terminal import geometry, ColoredStream
 
     separator = ' '
-    widths = list(map(lambda x: 0, fields))
+    widths = list([0 for x in fields])
     for i in data:
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
@@ -85,7 +87,7 @@ def do_list(fields, data, opts):
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = map(lambda x: min(x + 1, field_width), widths)
+    base_widths = [min(x + 1, field_width) for x in widths]
 
     while sum(base_widths) < screen_width:
         adjusted = False
@@ -100,20 +102,20 @@ def do_list(fields, data, opts):
             break
 
     widths = list(base_widths)
-    titles = map(
+    titles = list(map(
         lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths, fields
-    )
+    ))
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))
 
-    wrappers = map(lambda x: TextWrapper(x - 1), widths)
+    wrappers = [TextWrapper(x - 1) for x in widths]
 
     for record in data:
         text = [
             wrappers[i].wrap(unicode(record[field]))
             for i, field in enumerate(fields)
         ]
-        lines = max(map(len, text))
+        lines = max(list(map(len, text)))
         for l in range(lines):
             for i, field in enumerate(text):
                 ft = text[i][l] if l < len(text[i]) else ''
@@ -149,7 +151,7 @@ def main(opts, args, dbctx):
     ]
 
     categories.sort(
-        cmp=lambda x, y: cmp(x if x[0] != '#' else x[1:], y if y[0] != '#' else y[1:])
+        key=lambda x: x if x[0] != '#' else x[1:]
     )
 
     def fmtr(v):

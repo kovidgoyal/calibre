@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from functools import partial
 from lxml.html import tostring
 from lxml.html.builder import E as E_
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 
 from calibre import strftime
 from calibre.constants import __appname__
@@ -19,19 +19,22 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
+from six.moves import filter
+from six.moves import map
+import six
 
 # /mobile {{{
 
 
 def clean(x):
-    if isinstance(x, basestring):
+    if isinstance(x, six.string_types):
         x = clean_xml_chars(x)
     return x
 
 
 def E(tag, *children, **attribs):
     children = list(map(clean, children))
-    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.iteritems()}
+    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in six.iteritems(attribs)}
     return getattr(E_, tag)(*children, **attribs)
 
 
@@ -123,7 +126,7 @@ def build_navigation(start, num, total, url_base):  # {{{
 
 def build_choose_library(ctx, library_map):
     select = E.select(name='library_id')
-    for library_id, library_name in library_map.iteritems():
+    for library_id, library_name in six.iteritems(library_map):
         select.append(E.option(library_name, value=library_id))
     return E.div(
         E.form(
@@ -245,7 +248,7 @@ def mobile(ctx, rd):
     order = 'ascending' if ascending else 'descending'
     q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
-    lm = {k:v for k, v in library_map.iteritems() if k != library_id}
+    lm = {k:v for k, v in six.iteritems(library_map) if k != library_id}
     return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 

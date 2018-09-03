@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import cPickle
+import six.moves.cPickle
 import os
 import re
 from binascii import unhexlify
@@ -57,7 +57,7 @@ def css():
         val = P('templates/book_details.css', data=True).decode('utf-8')
         col = QApplication.instance().palette().color(QPalette.Link).name()
         val = val.replace('LINK_COLOR', col)
-        _css = re.sub(ur'/\*.*?\*/', '', val, flags=re.DOTALL)
+        _css = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
     return _css
 
 
@@ -282,7 +282,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                                    lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             if data:
                 try:
-                    field, value, book_id = cPickle.loads(unhexlify(data))
+                    field, value, book_id = six.moves.cPickle.loads(unhexlify(data))
                 except Exception:
                     field = value = book_id = None
                 if field:

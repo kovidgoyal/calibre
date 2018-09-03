@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import binascii, os, random, struct, base64, httplib
+import binascii, os, random, struct, base64, six.moves.http_client
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
@@ -133,19 +133,19 @@ class DigestAuth(object):  # {{{
         self.nonce_count = data.get('nc')
 
         if self.algorithm not in self.valid_algorithms:
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported digest algorithm')
+            raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'Unsupported digest algorithm')
 
         if not (self.username and self.realm and self.nonce and self.uri and self.response):
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Digest algorithm required fields missing')
+            raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'Digest algorithm required fields missing')
 
         if self.qop:
             if self.qop not in self.valid_qops:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported digest qop')
+                raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'Unsupported digest qop')
             if not (self.cnonce and self.nonce_count):
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
+                raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
         else:
             if self.cnonce or self.nonce_count:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'qop missing')
+                raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'qop missing')
 
     def H(self, val):
         return md5_hex(val)
@@ -201,7 +201,7 @@ class DigestAuth(object):  # {{{
             if log is not None:
                 log.warn('Authorization URI mismatch: %s != %s from client: %s' % (
                     data.path, path, data.remote_addr))
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
+            raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
 # }}}
 
@@ -290,16 +290,16 @@ class AuthController(object):
                 try:
                     un, pw = base64_decode(rest.strip()).partition(':')[::2]
                 except ValueError:
-                    raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
+                    raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
                 if not un or not pw:
-                    raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The username or password was empty')
+                    raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'The username or password was empty')
                 if self.check(un, pw):
                     data.username = un
                     return
                 log_msg = 'Failed login attempt from: %s' % data.remote_addr
                 self.ban_list.failed(ban_key)
             else:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported authentication method')
+                raise HTTPSimpleResponse(six.moves.http_client.BAD_REQUEST, 'Unsupported authentication method')
 
         if self.prefer_basic_auth:
             raise HTTPAuthRequired('Basic realm="%s"' % self.realm, log=log_msg)

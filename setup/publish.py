@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, print_function, absolute_import
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess, glob, tempfile, json, time, filecmp, atexit, sys
+from six.moves import getcwd
 
 from setup import Command, __version__, require_clean_git, require_git_master
 from setup.upload import installers
@@ -219,7 +220,7 @@ class Manual(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = getcwd()
         try:
             os.chdir(self.j(tdir, 'en', 'html'))
             for x in os.listdir(tdir):
@@ -240,10 +241,10 @@ class Manual(Command):
 
     def serve_manual(self, root):
         os.chdir(root)
-        import BaseHTTPServer
-        from SimpleHTTPServer import SimpleHTTPRequestHandler
+        import six.moves.BaseHTTPServer
+        from six.moves.SimpleHTTPServer import SimpleHTTPRequestHandler
         HandlerClass = SimpleHTTPRequestHandler
-        ServerClass = BaseHTTPServer.HTTPServer
+        ServerClass = six.moves.BaseHTTPServer.HTTPServer
         Protocol = "HTTP/1.0"
         server_address = ('127.0.0.1', 8000)
 
@@ -311,7 +312,7 @@ class ManPages(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = getcwd()
         os.chdir(dest)
         try:
             for x in tuple(os.listdir('.')):

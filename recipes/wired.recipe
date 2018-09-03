@@ -6,7 +6,7 @@ www.wired.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 
 def classes(classes):
@@ -103,14 +103,14 @@ class WiredDailyNews(BasicNewsRecipe):
         morepages = True
         while morepages:
             try:
-                urllib2.urlopen(baseurl + str(pagenum))
+                six.moves.urllib.request.urlopen(baseurl + str(pagenum))
                 currenturl = baseurl + str(pagenum)
                 res=self.parse_wired_index_page(currenturl, seen)
                 articles.extend(res)
                 if len(list(res))==0:
                     morepages = False
                 pagenum += 1
-            except urllib2.HTTPError:
+            except six.moves.urllib.error.HTTPError:
                 morepages = False
 
         magazine_year_month = self.get_magazine_year_month('.')

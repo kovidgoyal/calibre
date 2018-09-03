@@ -7,11 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
 
 from lxml import html
-
+from six.moves.urllib.parse import quote as urlquote
 from PyQt5.Qt import QUrl
 
 from calibre import browser
@@ -43,7 +42,7 @@ class WHSmithUKStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = ('http://www.whsmith.co.uk/search?keywordCategoryId=wc_dept_ebooks&results=60'
-               '&page=1&keywords=' + urllib2.quote(query))
+               '&page=1&keywords=' + urlquote(query))
 
         br = browser()
 

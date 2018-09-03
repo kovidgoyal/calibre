@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
-from __future__ import with_statement
+from __future__ import with_statement, print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -7,9 +8,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, urllib2, threading, traceback
-from urllib import url2pathname, quote
-from httplib import responses
+import sys, socket, os, re, time, threading, traceback
+from six.moves.http_client import responses
+from six.moves import urllib, range
 from base64 import b64decode
 
 from html5_parser.soup import set_soup_module, parse
@@ -17,7 +18,7 @@ from html5_parser.soup import set_soup_module, parse
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
@@ -56,8 +57,8 @@ bad_url_counter = 0
 
 def basename(url):
     try:
-        parts = urlparse.urlsplit(url)
-        path = url2pathname(parts.path)
+        parts = urllib.parse.urlsplit(url)
+        path = urllib.request.url2pathname(parts.path)
         res = os.path.basename(path)
     except:
         global bad_url_counter
@@ -260,16 +261,16 @@ class RecursiveFetcher(object):
         # handles quoting automatically, but leaving it
         # in case it breaks something
         if re.search(r'\s+', url) is not None:
-            purl = list(urlparse.urlparse(url))
+            purl = list(urllib.parse.urlparse(url))
             for i in range(2, 6):
-                purl[i] = quote(purl[i])
-            url = urlparse.urlunparse(purl)
+                purl[i] = urllib.parse.quote(purl[i])
+            url = urllib.parse.urlunparse(purl)
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         try:
             with closing(open_func(url, timeout=self.timeout)) as f:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
-        except urllib2.URLError as err:
+        except urllib.error.URLError as err:
             if hasattr(err, 'code') and err.code in responses:
                 raise FetchError(responses[err.code])
             if getattr(err, 'reason', [0])[0] == 104 or \
@@ -324,8 +325,8 @@ class RecursiveFetcher(object):
         for c, tag in enumerate(soup.findAll(lambda tag: tag.name.lower()in ['link', 'style'] and tag.has_key('type') and tag['type'].lower() == 'text/css')):  # noqa
             if tag.has_key('href'):  # noqa
                 iurl = tag['href']
-                if not urlparse.urlsplit(iurl).scheme:
-                    iurl = urlparse.urljoin(baseurl, iurl, False)
+                if not urllib.parse.urlsplit(iurl).scheme:
+                    iurl = urllib.parse.urljoin(baseurl, iurl, False)
                 with self.stylemap_lock:
                     if self.stylemap.has_key(iurl):  # noqa
                         tag['href'] = self.stylemap[iurl]
@@ -347,8 +348,8 @@ class RecursiveFetcher(object):
                     m = self.__class__.CSS_IMPORT_PATTERN.search(src)
                     if m:
                         iurl = m.group(1)
-                        if not urlparse.urlsplit(iurl).scheme:
-                            iurl = urlparse.urljoin(baseurl, iurl, False)
+                        if not urllib.parse.urlsplit(iurl).scheme:
+                            iurl = urllib.parse.urljoin(baseurl, iurl, False)
                         with self.stylemap_lock:
                             if self.stylemap.has_key(iurl):  # noqa
                                 ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
@@ -385,8 +386,8 @@ class RecursiveFetcher(object):
             else:
                 if callable(self.image_url_processor):
                     iurl = self.image_url_processor(baseurl, iurl)
-                if not urlparse.urlsplit(iurl).scheme:
-                    iurl = urlparse.urljoin(baseurl, iurl, False)
+                if not urllib.parse.urlsplit(iurl).scheme:
+                    iurl = urllib.parse.urljoin(baseurl, iurl, False)
                 with self.imagemap_lock:
                     if self.imagemap.has_key(iurl):  # noqa
                         tag['src'] = self.imagemap[iurl]
@@ -442,11 +443,11 @@ class RecursiveFetcher(object):
 
     def absurl(self, baseurl, tag, key, filter=True):
         iurl = tag[key]
-        parts = urlparse.urlsplit(iurl)
+        parts = urllib.parse.urlsplit(iurl)
         if not parts.netloc and not parts.path and not parts.query:
             return None
         if not parts.scheme:
-            iurl = urlparse.urljoin(baseurl, iurl, False)
+            iurl = urllib.parse.urljoin(baseurl, iurl, False)
         if not self.is_link_ok(iurl):
             self.log.debug('Skipping invalid link:', iurl)
             return None
@@ -456,12 +457,12 @@ class RecursiveFetcher(object):
         return iurl
 
     def normurl(self, url):
-        parts = list(urlparse.urlsplit(url))
+        parts = list(urllib.parse.urlsplit(url))
         parts[4] = ''
-        return urlparse.urlunsplit(parts)
+        return urllib.parse.urlunsplit(parts)
 
     def localize_link(self, tag, key, path):
-        parts = urlparse.urlsplit(tag[key])
+        parts = urllib.parse.urlsplit(tag[key])
         suffix = ('#'+parts.fragment) if parts.fragment else ''
         tag[key] = path+suffix
 
@@ -486,7 +487,7 @@ class RecursiveFetcher(object):
 
             for c, tag in enumerate(tags):
                 if self.show_progress:
-                    print '.',
+                    print('.', end=' ')
                     sys.stdout.flush()
                 sys.stdout.flush()
                 iurl = self.absurl(baseurl, tag, 'href', filter=recursion_level != 0)
@@ -546,7 +547,7 @@ class RecursiveFetcher(object):
 
                     if newbaseurl and not newbaseurl.startswith('/'):
                         for atag in soup.findAll('a', href=lambda x: x and x.startswith('/')):
-                            atag['href'] = urlparse.urljoin(newbaseurl, atag['href'], True)
+                            atag['href'] = urllib.parse.urljoin(newbaseurl, atag['href'], True)
                     if callable(self.postprocess_html_ext):
                         soup = self.postprocess_html_ext(soup,
                                 c==0 and recursion_level==0 and not getattr(self, 'called_first', False),
@@ -568,7 +569,7 @@ class RecursiveFetcher(object):
         finally:
             self.current_dir = prev_dir
         if self.show_progress:
-            print
+            print()
         return res
 
 

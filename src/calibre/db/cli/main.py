@@ -4,12 +4,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import httplib
+import six.moves.http_client
 import json
 import os
 import sys
-from urllib import urlencode
-from urlparse import urlparse, urlunparse
+from six.moves.urllib.parse import urlencode, urlparse, urlunparse
 
 from calibre import browser, prints
 from calibre.constants import __appname__, __version__, iswindows
@@ -192,13 +191,13 @@ class DBCtx(object):
         return m.implementation(self.db.new_api, None, *args)
 
     def interpret_http_error(self, err):
-        if err.code == httplib.UNAUTHORIZED:
+        if err.code == six.moves.http_client.UNAUTHORIZED:
             if self.has_credentials:
                 raise SystemExit('The username/password combination is incorrect')
             raise SystemExit('A username and password is required to access this server')
-        if err.code == httplib.FORBIDDEN:
+        if err.code == six.moves.http_client.FORBIDDEN:
             raise SystemExit(err.reason)
-        if err.code == httplib.NOT_FOUND:
+        if err.code == six.moves.http_client.NOT_FOUND:
             raise SystemExit(err.reason)
 
     def remote_run(self, name, m, *args):

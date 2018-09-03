@@ -2,6 +2,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -212,7 +215,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('load', 'delete'):
             m = getattr(self, '%s_theme_button'%x).menu()
             m.clear()
-            for x in self.themes.iterkeys():
+            for x in six.iterkeys(self.themes):
                 title = x[len('theme_'):]
                 ac = m.addAction(title)
                 ac.theme_id = x
@@ -238,11 +241,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
     @dynamic_property
     def word_lookups(self):
         def fget(self):
-            return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
+            return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in list(range(self.dictionary_list.count())))
 
         def fset(self, wl):
             self.dictionary_list.clear()
-            for langcode, url in sorted(wl.iteritems(), key=lambda (lc, url):sort_key(calibre_langcode_to_name(lc))):
+            for langcode, url in sorted(six.iteritems(wl), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
                 i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
                 i.setData(Qt.UserRole, (langcode, url))
         return property(fget=fget, fset=fset)
