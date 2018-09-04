@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
-from future_builtins import map
 from __future__ import print_function
+from future_builtins import map
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = u'calibre'
