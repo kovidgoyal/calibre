@@ -16,7 +16,7 @@ class Gildia(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
-    preprocess_regexps = [(re.compile(ur'</?sup>'), lambda match: '')]
+    preprocess_regexps = [(re.compile(u'</?sup>'), lambda match: '')]
     ignore_duplicate_articles = {'title', 'url'}
     remove_tags = [dict(name='div', attrs={'class': [
                         'backlink', 'im_img', 'addthis_toolbox addthis_default_style', 'banner-bottom']})]
