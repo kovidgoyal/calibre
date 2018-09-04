@@ -16,7 +16,7 @@ from calibre.ptempfile import better_mktemp
 
 
 class FieldsLarge:
-    """
+    r"""
 =========================
 Logic
 =========================
