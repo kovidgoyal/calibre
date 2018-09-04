@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -29,7 +30,7 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
         for pat, fname, new_name in zip(patterns, filepaths, names):
             if pat.search(name):
                 if verbose:
-                    print 'Updating %s with %s' % (name, fname)
+                    print('Updating %s with %s' % (name, fname))
                 if new_name is None:
                     z.replace(fname, arcname=name, compress_type=compression)
                 else:

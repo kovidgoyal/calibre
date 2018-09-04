@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 
 
@@ -279,7 +280,7 @@ if __name__ == '__main__':
                     options_dict=this_dict
             )
     options, the_args = test_obj.parse_options()
-    print options, the_args
+    print(options, the_args)
     """
     this_options = ['--foo', '-o']
     this_opt_with_args = ['--foo']

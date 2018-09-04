@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) 2007 Mike Higgins (Falstaff)
 # Modifications from the original:
 #    Copyright (C) 2007 Kovid Goyal <kovid@kovidgoyal.net>
@@ -561,7 +562,7 @@ class Book(Delegator):
             length = len(text.text)
             fonts[fs] = fonts.get(fs, 0) + length
         if not fonts:
-            print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
+            print('WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.')
             return
 
         old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])

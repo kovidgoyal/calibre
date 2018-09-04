@@ -1,5 +1,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from calibre.web.feeds.news import BasicNewsRecipe
+from __future__ import print_function
 import re
 from calibre.utils.magick import Image
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -140,7 +141,7 @@ class MerryPreProcess():
                 img.trim(0)
                 img.save(iurl)
             except:
-                print '\n!!image optimize failed!!\n'
+                print('\n!!image optimize failed!!\n')
                 continue
         return soup
 
@@ -198,7 +199,7 @@ class MerryProcess(BeautifulSoup):
             try:
                 pubdate.parent.insert(0, moveitem)
             except:
-                print '\n!!error in moving title!!\n'
+                print('\n!!error in moving title!!\n')
                 pass
         moveitem = None
         moveitem = soup.find('div', {'class': 'byline'})
@@ -206,7 +207,7 @@ class MerryProcess(BeautifulSoup):
             try:
                 moveitem.parent.parent.insert(-1, moveitem)
             except:
-                print '\n!!error in moving byline!!\n'
+                print('\n!!error in moving byline!!\n')
                 pass
         return soup
 

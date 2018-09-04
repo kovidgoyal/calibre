@@ -408,7 +408,7 @@ class OverDrive(Source):
 
         try:
             raw = br.open_novisit(metadata_url).read()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return False

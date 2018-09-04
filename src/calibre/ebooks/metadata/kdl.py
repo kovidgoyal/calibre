@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -83,5 +84,5 @@ def get_series(title, authors, timeout=60):
 
 if __name__ == '__main__':
     import sys
-    print get_series(sys.argv[-2], [sys.argv[-1]])
+    print(get_series(sys.argv[-2], [sys.argv[-1]]))
 

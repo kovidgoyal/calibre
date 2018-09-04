@@ -2,6 +2,7 @@
 Support for reading LIT files.
 '''
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
@@ -244,7 +245,7 @@ class UnBinary(object):
                         errors += 1
                         tag_name = '?'+unichr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
-                        print 'WARNING: tag %s unknown' % unichr(tag)
+                        print('WARNING: tag %s unknown' % unichr(tag))
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
@@ -920,7 +921,7 @@ class LitContainer(object):
         except LitError:
             if 'PENGUIN group' not in raw:
                 raise
-            print "WARNING: attempting PENGUIN malformed OPF fix"
+            print("WARNING: attempting PENGUIN malformed OPF fix")
             raw = raw.replace(
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)

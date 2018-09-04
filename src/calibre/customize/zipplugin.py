@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 from future_builtins import map
 
 __license__   = 'GPL v3'
@@ -180,7 +181,7 @@ class PluginLoader(object):
             mod.__dict__['get_resources'] = partial(get_resources, zfp)
             mod.__dict__['get_icons'] = partial(get_icons, zfp)
             mod.__dict__['load_translations'] = partial(load_translations, mod.__dict__, zfp)
-            exec compiled in mod.__dict__
+            exec(compiled, mod.__dict__)
 
         return mod
 
@@ -309,11 +310,11 @@ if __name__ == '__main__':
             with CurrentDir(path):
                 for x in os.listdir('.'):
                     if x[0] != '.':
-                        print ('Adding', x)
+                        print('Adding', x)
                     zf.write(x)
                     if os.path.isdir(x):
                         for y in os.listdir(x):
                             zf.write(os.path.join(x, y))
         add_plugin(f.name)
-        print ('Added plugin from', sys.argv[-1])
+        print('Added plugin from', sys.argv[-1])
 

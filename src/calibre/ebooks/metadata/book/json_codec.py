@@ -3,6 +3,7 @@ Created on 4 Jun 2010
 
 @author: charles
 '''
+from __future__ import print_function
 
 from base64 import b64encode, b64decode
 import json, traceback
@@ -177,7 +178,7 @@ class JsonCodec(object):
                 if entry is not None:
                     booklist.append(entry)
         except:
-            print 'exception during JSON decode_from_file'
+            print('exception during JSON decode_from_file')
             traceback.print_exc()
 
     def raw_to_book(self, json_book, book_class, prefix):
@@ -193,7 +194,7 @@ class JsonCodec(object):
                     setattr(book, key, meta)
             return book
         except:
-            print 'exception during JSON decoding'
+            print('exception during JSON decoding')
             traceback.print_exc()
 
     def decode_metadata(self, key, value):

@@ -478,7 +478,7 @@ class HTTPConnection(HTTPRequest):
                 if e.log:
                     self.log.warn(e.log)
                 return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
-            raise etype, e, tb
+            raise etype(e).with_traceback(tb)
 
         data, output = result
         output = self.finalize_output(output, data, self.method is HTTP1)

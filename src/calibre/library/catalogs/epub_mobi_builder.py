@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2010, Greg Riker'
 
 import datetime, os, platform, re, shutil, time, unicodedata, zlib
@@ -4255,7 +4256,7 @@ class CatalogBuilder(object):
             else:
                 return _short_description(description, self.opts.description_clip)
         else:
-            print " returning description with unspecified destination '%s'" % description
+            print(" returning description with unspecified destination '%s'" % description)
             raise RuntimeError
 
     def generate_sort_title(self, title):

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -332,9 +333,9 @@ class PRST1(USBMS):
         return long(row[0])
 
     def get_database_min_id(self, source_id):
-        sequence_min = 0L
+        sequence_min = 0
         if source_id == 1:
-            sequence_min = 4294967296L
+            sequence_min = 4294967296
 
         return sequence_min
 

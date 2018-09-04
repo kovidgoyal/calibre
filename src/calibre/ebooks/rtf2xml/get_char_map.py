@@ -57,6 +57,6 @@ class GetCharMap:
 
         if not found_map:
             msg = 'no map found\nmap is "%s"\n'%(map,)
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         return map_dict
 

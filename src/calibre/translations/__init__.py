@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -49,12 +50,12 @@ def import_from_launchpad(url):
                 next = tf.next()
                 continue
             out = os.path.abspath(os.path.join('.', os.path.basename(po)))
-            print 'Updating', '%6s'%po, '-->', out
+            print('Updating', '%6s'%po, '-->', out)
             open(out, 'wb').write(tf.extractfile(next).read())
         next = tf.next()
     check_for_critical_bugs()
     path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    print path
+    print(path)
     subprocess.check_call('python setup.py translations'.split(), cwd=path)
     return 0
 
@@ -69,8 +70,8 @@ def check_for_critical_bugs():
     subprocess.check_call(pofilter)
     errs = os.listdir('.errors')
     if errs:
-        print 'WARNING: Translation errors detected'
-        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
+        print('WARNING: Translation errors detected')
+        print('See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter')
 
 if __name__ == '__main__':
     import sys

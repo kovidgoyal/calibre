@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -200,10 +201,10 @@ class OptionSet(object):
                 if not isinstance(src, unicode):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
-                exec src in options
+                exec(src, options)
             except:
-                print 'Failed to parse options string:'
-                print repr(src)
+                print('Failed to parse options string:')
+                print(repr(src))
                 traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
@@ -282,7 +283,7 @@ class Config(ConfigInterface):
                 try:
                     src = f.read().decode('utf-8')
                 except ValueError:
-                    print "Failed to parse", self.config_file_path
+                    print("Failed to parse", self.config_file_path)
                     traceback.print_exc()
         return self.option_set.parse_string(src)
 
@@ -470,13 +471,13 @@ def read_tweaks():
     default_tweaks, tweaks = read_raw_tweaks()
     l, g = {}, {}
     try:
-        exec tweaks in g, l
+        exec(tweaks, g, l)
     except:
         import traceback
-        print 'Failed to load custom tweaks file'
+        print('Failed to load custom tweaks file')
         traceback.print_exc()
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     dl.update(l)
     return dl
 
@@ -495,7 +496,7 @@ def reset_tweaks_to_default():
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
     dl, dg = {}, {}
-    exec default_tweaks in dg, dl
+    exec(default_tweaks, dg, dl)
     tweaks.clear()
     tweaks.update(dl)
 

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -120,11 +121,11 @@ if __name__ == '__main__':
         raw = f.read()
     sfnt = Sfnt(raw)
     m = FontMetrics(sfnt)
-    print ('Ascent:', m.pdf_ascent)
-    print ('Descent:', m.pdf_descent)
-    print ('PDF BBox:', m.pdf_bbox)
-    print ('CapHeight:', m.pdf_capheight)
-    print ('AvgWidth:', m.pdf_avg_width)
-    print ('ItalicAngle', m.post.italic_angle)
-    print ('StemV', m.pdf_stemv)
+    print('Ascent:', m.pdf_ascent)
+    print('Descent:', m.pdf_descent)
+    print('PDF BBox:', m.pdf_bbox)
+    print('CapHeight:', m.pdf_capheight)
+    print('AvgWidth:', m.pdf_avg_width)
+    print('ItalicAngle', m.post.italic_angle)
+    print('StemV', m.pdf_stemv)
 

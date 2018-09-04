@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -106,4 +107,4 @@ if __name__ == '__main__':
         fname = b + '-trimmed' + ext
         with open(fname, 'wb') as f:
             f.write(d.image_data)
-        print ('Trimmed image written to', fname)
+        print('Trimmed image written to', fname)

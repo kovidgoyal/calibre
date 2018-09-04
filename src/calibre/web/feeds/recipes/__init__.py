@@ -45,7 +45,7 @@ def compile_recipe(src):
             'time':time, 're':re,
             'BeautifulSoup':BeautifulSoup
     }
-    exec src in namespace
+    exec(src, namespace)
 
     for x in namespace.itervalues():
         if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not

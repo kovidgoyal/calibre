@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -1734,7 +1735,7 @@ def test_m2o():
     mi.rights = 'yes'
     mi.cover = os.path.abspath('asd.jpg')
     opf = metadata_to_opf(mi)
-    print opf
+    print(opf)
     newmi = MetaInformation(OPF(StringIO(opf)))
     for attr in ('author_sort', 'title_sort', 'comments',
                     'publisher', 'series', 'series_index', 'rating',
@@ -1744,10 +1745,10 @@ def test_m2o():
                     'pubdate', 'rights', 'publication_type'):
         o, n = getattr(mi, attr), getattr(newmi, attr)
         if o != n and o.strip() != n.strip():
-            print 'FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr)
+            print('FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr))
     if mi.get_identifiers() != newmi.get_identifiers():
-        print 'FAILED:', 'identifiers', mi.get_identifiers(),
-        print '!=', newmi.get_identifiers()
+        print('FAILED:', 'identifiers', mi.get_identifiers(), end=' ')
+        print('!=', newmi.get_identifiers())
 
 
 class OPFTest(unittest.TestCase):
@@ -1848,7 +1849,7 @@ def test_user_metadata():
     opf2 = OPF(f2)
     assert um == opf._user_metadata_
     assert um == opf2._user_metadata_
-    print opf.render()
+    print(opf.render())
 
 
 if __name__ == '__main__':

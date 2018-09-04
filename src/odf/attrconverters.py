@@ -48,12 +48,12 @@ def cnv_color(attribute, arg, element):
 def cnv_configtype(attribute, arg, element):
     if str(arg) not in ("boolean", "short", "int", "long",
     "double", "string", "datetime", "base64Binary"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 def cnv_data_source_has_labels(attribute, arg, element):
     if str(arg) not in ("none","row","column","both"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 # Understand different date formats
@@ -79,7 +79,7 @@ def cnv_family(attribute, arg, element):
     """ A style family """
     if str(arg) not in ("text", "paragraph", "section", "ruby", "table", "table-column", "table-row", "table-cell",
       "graphic", "presentation", "drawing-page", "chart"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 def __save_prefix(attribute, arg, element):
@@ -112,7 +112,7 @@ def cnv_integer(attribute, arg, element):
 
 def cnv_legend_position(attribute, arg, element):
     if str(arg) not in ("start", "end", "top", "bottom", "top-start", "bottom-start", "top-end", "bottom-end"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 pattern_length = re.compile(r'-?([0-9]+(\.[0-9]*)?|\.[0-9]+)((cm)|(mm)|(in)|(pt)|(pc)|(px))')
@@ -123,7 +123,7 @@ def cnv_length(attribute, arg, element):
     """
     global pattern_length
     if not pattern_length.match(arg):
-        raise ValueError, "'%s' is not a valid length" % arg
+        raise ValueError("'%s' is not a valid length" % arg)
     return arg
 
 def cnv_lengthorpercent(attribute, arg, element):
@@ -133,17 +133,17 @@ def cnv_lengthorpercent(attribute, arg, element):
     try: return cnv_percent(attribute, arg, element)
     except: failed = True
     if failed:
-        raise ValueError, "'%s' is not a valid length or percent" % arg
+        raise ValueError("'%s' is not a valid length or percent" % arg)
     return arg
 
 def cnv_metavaluetype(attribute, arg, element):
     if str(arg) not in ("float", "date", "time", "boolean", "string"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 def cnv_major_minor(attribute, arg, element):
     if arg not in ('major','minor'):
-        raise ValueError, "'%s' is not either 'minor' or 'major'" % arg
+        raise ValueError("'%s' is not either 'minor' or 'major'" % arg)
 
 pattern_namespacedToken = re.compile(r'[0-9a-zA-Z_]+:[0-9a-zA-Z._\-]+')
 
@@ -151,7 +151,7 @@ def cnv_namespacedToken(attribute, arg, element):
     global pattern_namespacedToken
 
     if not pattern_namespacedToken.match(arg):
-        raise ValueError, "'%s' is not a valid namespaced token" % arg
+        raise ValueError("'%s' is not a valid namespaced token" % arg)
     return __save_prefix(attribute, arg, element)
 
 def cnv_NCName(attribute, arg, element):
@@ -195,7 +195,7 @@ pattern_percent = re.compile(r'-?([0-9]+(\.[0-9]*)?|\.[0-9]+)%')
 def cnv_percent(attribute, arg, element):
     global pattern_percent
     if not pattern_percent.match(arg):
-        raise ValueError, "'%s' is not a valid length" % arg
+        raise ValueError("'%s' is not a valid length" % arg)
     return arg
 
 # Real one doesn't allow floating point values
@@ -205,13 +205,13 @@ def cnv_points(attribute, arg, element):
     global pattern_points
     if type(arg) in types.StringTypes:
         if not pattern_points.match(arg):
-            raise ValueError, "x,y are separated by a comma and the points are separated by white spaces"
+            raise ValueError("x,y are separated by a comma and the points are separated by white spaces")
         return arg
     else:
         try:
             strarg = ' '.join([ "%d,%d" % p for p in arg])
         except:
-            raise ValueError, "Points must be string or [(0,0),(1,1)] - not %s" % arg
+            raise ValueError("Points must be string or [(0,0),(1,1)] - not %s" % arg)
         return strarg
 
 def cnv_positiveInteger(attribute, arg, element):
@@ -222,7 +222,7 @@ def cnv_string(attribute, arg, element):
 
 def cnv_textnoteclass(attribute, arg, element):
     if str(arg) not in ("footnote", "endnote"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 # Understand different time formats
@@ -237,12 +237,12 @@ pattern_viewbox = re.compile(r'-?[0-9]+([ ]+-?[0-9]+){3}$')
 def cnv_viewbox(attribute, arg, element):
     global pattern_viewbox
     if not pattern_viewbox.match(arg):
-        raise ValueError, "viewBox must be four integers separated by whitespaces"
+        raise ValueError("viewBox must be four integers separated by whitespaces")
     return arg
 
 def cnv_xlinkshow(attribute, arg, element):
     if str(arg) not in ("new", "replace", "embed"):
-        raise ValueError, "'%s' not allowed" % str(arg)
+        raise ValueError("'%s' not allowed" % str(arg))
     return str(arg)
 
 

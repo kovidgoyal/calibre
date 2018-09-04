@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -160,12 +161,12 @@ def test():
             ('a <b>b&c</b>\nf', '<p class="description">a <b>b&amp;c;</b><br />f</p>'),
             ('a <?xml asd> b\n\ncd', '<p class="description">a  b</p><p class="description">cd</p>'),
             ]:
-        print
-        print 'Testing: %r'%pat
+        print()
+        print('Testing: %r'%pat)
         cval = comments_to_html(pat)
-        print 'Value: %r'%cval
+        print('Value: %r'%cval)
         if comments_to_html(pat) != val:
-            print 'FAILED'
+            print('FAILED')
             break
 
 

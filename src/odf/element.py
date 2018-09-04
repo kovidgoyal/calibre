@@ -116,7 +116,7 @@ class Node(xml.dom.Node):
             If refChild is null, insert newChild at the end of the list of children.
         """
         if newChild.nodeType not in self._child_node_types:
-            raise IllegalChild, "%s cannot be child of %s" % (newChild.tagName, self.tagName)
+            raise IllegalChild("%s cannot be child of %s" % (newChild.tagName, self.tagName))
         if newChild.parentNode is not None:
             newChild.parentNode.removeChild(newChild)
         if refChild is None:
@@ -148,7 +148,7 @@ class Node(xml.dom.Node):
             ### The DOM does not clearly specify what to return in this case
             return newChild
         if newChild.nodeType not in self._child_node_types:
-            raise IllegalChild, "<%s> is not allowed in %s" % ( newChild.tagName, self.tagName)
+            raise IllegalChild("<%s> is not allowed in %s" % ( newChild.tagName, self.tagName))
         if newChild.parentNode is not None:
             newChild.parentNode.removeChild(newChild)
         _append_child(self, newChild)
@@ -324,7 +324,7 @@ class Element(Node):
         if required:
             for r in required:
                 if self.getAttrNS(r[0],r[1]) is None:
-                    raise AttributeError, "Required attribute missing: %s in <%s>" % (r[1].lower().replace('-',''), self.tagName)
+                    raise AttributeError("Required attribute missing: %s in <%s>" % (r[1].lower().replace('-',''), self.tagName))
 
     def get_knownns(self, prefix):
         """ Odfpy maintains a list of known namespaces. In some cases a prefix is used, and
@@ -360,7 +360,7 @@ class Element(Node):
         """
         if check_grammar and self.allowed_children is not None:
             if element.qname not in self.allowed_children:
-                raise IllegalChild, "<%s> is not allowed in <%s>" % ( element.tagName, self.tagName)
+                raise IllegalChild("<%s> is not allowed in <%s>" % ( element.tagName, self.tagName))
         self.appendChild(element)
         self._setOwnerDoc(element)
         if self.ownerDocument:
@@ -371,7 +371,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         """
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText, "The <%s> element does not allow text" % self.tagName
+            raise IllegalText("The <%s> element does not allow text" % self.tagName)
         else:
             if text != '':
                 self.appendChild(Text(text))
@@ -381,7 +381,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         """
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText, "The <%s> element does not allow text" % self.tagName
+            raise IllegalText("The <%s> element does not allow text" % self.tagName)
         else:
             self.appendChild(CDATASection(cdata))
 
@@ -393,12 +393,12 @@ class Element(Node):
                 prefix, localname = attr
                 self.removeAttrNS(prefix, localname)
             else:
-                raise AttributeError, "Unable to add simple attribute - use (namespace, localpart)"
+                raise AttributeError("Unable to add simple attribute - use (namespace, localpart)")
         else:
             # Construct a list of allowed arguments
             allowed_args = [ a[1].lower().replace('-','') for a in allowed_attrs]
             if check_grammar and attr not in allowed_args:
-                raise AttributeError, "Attribute %s is not allowed in <%s>" % ( attr, self.tagName)
+                raise AttributeError("Attribute %s is not allowed in <%s>" % ( attr, self.tagName))
             i = allowed_args.index(attr)
             self.removeAttrNS(allowed_attrs[i][0], allowed_attrs[i][1])
 
@@ -416,12 +416,12 @@ class Element(Node):
                 prefix, localname = attr
                 self.setAttrNS(prefix, localname, value)
             else:
-                raise AttributeError, "Unable to add simple attribute - use (namespace, localpart)"
+                raise AttributeError("Unable to add simple attribute - use (namespace, localpart)")
         else:
             # Construct a list of allowed arguments
             allowed_args = [ a[1].lower().replace('-','') for a in allowed_attrs]
             if check_grammar and attr not in allowed_args:
-                raise AttributeError, "Attribute %s is not allowed in <%s>" % ( attr, self.tagName)
+                raise AttributeError("Attribute %s is not allowed in <%s>" % ( attr, self.tagName))
             i = allowed_args.index(attr)
             self.setAttrNS(allowed_attrs[i][0], allowed_attrs[i][1], value)
 
@@ -455,7 +455,7 @@ class Element(Node):
                 prefix, localname = attr
                 return self.getAttrNS(prefix, localname)
             else:
-                raise AttributeError, "Unable to get simple attribute - use (namespace, localpart)"
+                raise AttributeError("Unable to get simple attribute - use (namespace, localpart)")
         else:
             # Construct a list of allowed arguments
             allowed_args = [ a[1].lower().replace('-','') for a in allowed_attrs]

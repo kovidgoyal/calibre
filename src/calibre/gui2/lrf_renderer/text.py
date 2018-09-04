@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, collections, operator, copy, re
@@ -536,7 +537,7 @@ class Line(QGraphicsItem):
                     matches.append(word)
                     for c in range(1, len(tokens)):
                         word = words.next()
-                        print tokens[c], word.string
+                        print(tokens[c], word.string)
                         if tokens[c] not in unicode(word.string):
                             return None
                         matches.append(word)

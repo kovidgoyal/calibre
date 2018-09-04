@@ -69,7 +69,7 @@ class BodyStyles:
                     # this shouldn't happen!
                     if self.__run_level > 3:
                         msg = 'Not enough data for each table\n'
-                        raise self.__bug_handler, msg
+                        raise self.__bug_handler(msg)
                     # why was this line even here?
                     # self.__write_obj.write('mi<tg<open______<table\n')
             self.__write_obj.write(line)

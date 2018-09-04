@@ -1,3 +1,4 @@
+from __future__ import print_function
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -411,7 +412,7 @@ cw<ci<font-style<nu<0
         info = line[6:16]
         changed = self.__margin_dict.get(info)
         if changed is None:
-            print 'woops!'
+            print('woops!')
         else:
             self.__page[changed] = line[20:-1]
         # cw<pa<margin-lef<nu<1728
@@ -576,7 +577,7 @@ cw<ci<font-style<nu<0
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
             if action is None:
-                print self.__state
+                print(self.__state)
             action(line)
         read_obj.close()
         self.__write_obj.close()

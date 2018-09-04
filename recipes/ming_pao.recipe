@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__ = 'GPL v3'
 __copyright__ = '2010-2013, Eddie Lau'
 
@@ -630,7 +631,7 @@ class MPRecipe(BasicNewsRecipe):
                         {'title': title, 'url': url, 'description': ''})
                     included_urls.append(url)
                 except:
-                    print 'skipping a premium article'
+                    print('skipping a premium article')
         current_articles.reverse()
         return current_articles
 
@@ -822,7 +823,7 @@ class MPRecipe(BasicNewsRecipe):
                     else:
                         if next_is_img_txt is False:
                             if item.startswith("=@"):
-                                print 'skip movie link'
+                                print('skip movie link')
                             elif item.startswith("=?"):
                                 next_is_img_txt = True
                                 new_raw_html += '<img src="' + \

@@ -41,7 +41,7 @@ def compile_code(src, name='<string>'):
     code = compile(src, name, 'exec')
 
     namespace = {}
-    exec code in namespace
+    exec(code, namespace)
     return namespace
 
 

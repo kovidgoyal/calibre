@@ -3,6 +3,7 @@ Retrieve and modify in-place Mobipocket book metadata.
 '''
 
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
@@ -289,7 +290,7 @@ class MetadataUpdater(object):
             s = s.translate(FILTER)
             result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
             N+=length
-        print result
+        print(result)
 
     def get_pdbrecords(self):
         pdbrecords = []
@@ -308,11 +309,11 @@ class MetadataUpdater(object):
 
     def dump_pdbrecords(self):
         # Diagnostic
-        print "MetadataUpdater.dump_pdbrecords()"
-        print "%10s %10s %10s" % ("offset","flags","val")
+        print("MetadataUpdater.dump_pdbrecords()")
+        print("%10s %10s %10s" % ("offset","flags","val"))
         for i in xrange(len(self.pdbrecords)):
             pdbrecord = self.pdbrecords[i]
-            print "%10X %10X %10X" % (pdbrecord[0], pdbrecord[1], pdbrecord[2])
+            print("%10X %10X %10X" % (pdbrecord[0], pdbrecord[1], pdbrecord[2]))
 
     def record(self, n):
         if n >= self.nrecs:

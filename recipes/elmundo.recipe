@@ -1,3 +1,4 @@
+from __future__ import print_function
 # -*- mode: python -*-
 # -*- coding: utf-8 -*-
 # vim:fileencoding=utf-8
@@ -100,7 +101,7 @@ class ElMundo(BasicNewsRecipe):
                 html = response.read()
                 count = tries
             except:
-                print "Retrying download..."
+                print("Retrying download...")
             count += 1
         if html is not None:
             tfile = PersistentTemporaryFile('_fa.html')

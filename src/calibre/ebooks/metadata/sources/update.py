@@ -37,7 +37,7 @@ def debug_print(*args, **k):
 def load_plugin(src):
     src = src.encode('utf-8')
     ns = {}
-    exec src in ns
+    exec(src, ns)
     for x in ns.itervalues():
         if isinstance(x, type) and issubclass(x, Source) and x is not Source:
             return x
@@ -59,7 +59,7 @@ def patch_search_engines(src):
     global current_search_engines
     src = src.encode('utf-8')
     ns = {}
-    exec src in ns
+    exec(src, ns)
     mcv = ns.get('minimum_calibre_version')
     if mcv is None or mcv > numeric_version:
         return

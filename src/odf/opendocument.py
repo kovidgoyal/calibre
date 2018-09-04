@@ -34,7 +34,7 @@ __version__= TOOLSVERSION
 
 _XMLPROLOGUE = u"<?xml version='1.0' encoding='UTF-8'?>\n"
 
-UNIXPERMS = 0100644 << 16L  # -rw-r--r--
+UNIXPERMS = 0o100644 << 16  # -rw-r--r--
 
 IS_FILENAME = 0
 IS_IMAGE = 1
@@ -601,7 +601,7 @@ def __loadxmlparts(z, manifest, doc, objectpath):
             parser.setFeature(handler.feature_external_ges, False)  # Changed by Kovid to ignore external DTDs
             parser.parse(inpsrc)
             del doc._parsing
-        except KeyError, v: pass
+        except KeyError as v: pass
 
 def load(odffile):
     """ Load an ODF file into memory

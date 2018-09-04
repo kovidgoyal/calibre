@@ -30,7 +30,7 @@ def StyleRefElement(stylename=None, classnames=None, **args):
         elif f == 'presentation':
             qattrs[(PRESENTATIONNS,u'style-name')]= stylename
         else:
-            raise ValueError, "Style's family must be either 'graphic' or 'presentation'"
+            raise ValueError("Style's family must be either 'graphic' or 'presentation'")
     if classnames is not None:
         f = classnames[0].getAttrNS(STYLENS, 'family')
         if f == 'graphic':
@@ -38,7 +38,7 @@ def StyleRefElement(stylename=None, classnames=None, **args):
         elif f == 'presentation':
             qattrs[(PRESENTATIONNS,u'class-names')]= classnames
         else:
-            raise ValueError, "Style's family must be either 'graphic' or 'presentation'"
+            raise ValueError("Style's family must be either 'graphic' or 'presentation'")
     return Element(qattributes=qattrs, **args)
 
 def DrawElement(name=None, **args):

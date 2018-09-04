@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 __license__ = 'GPL 3'
 __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -129,13 +130,13 @@ class MetadataUpdater(object):
 
     def dump_headers(self):
         ''' Diagnostic '''
-        print "\ndump_headers():"
+        print("\ndump_headers():")
         for tag in self.topaz_headers:
-            print "%s: " % (tag)
+            print("%s: " % (tag))
             num_recs = len(self.topaz_headers[tag]['blocks'])
-            print " num_recs: %d" % num_recs
+            print(" num_recs: %d" % num_recs)
             if num_recs:
-                print " starting offset: 0x%x" % self.topaz_headers[tag]['blocks'][0]['offset']
+                print(" starting offset: 0x%x" % self.topaz_headers[tag]['blocks'][0]['offset'])
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
@@ -148,12 +149,12 @@ class MetadataUpdater(object):
             s = s.translate(FILTER)
             result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
             N+=length
-        print result
+        print(result)
 
     def dump_metadata(self):
         ''' Diagnostic '''
         for tag in self.metadata:
-            print '%s: %s' % (tag, repr(self.metadata[tag]))
+            print('%s: %s' % (tag, repr(self.metadata[tag])))
 
     def encode_vwi(self,value):
         bytes = []
@@ -372,7 +373,7 @@ def set_metadata(stream, mi):
 if __name__ == '__main__':
     if False:
         # Test get_metadata()
-        print get_metadata(open(sys.argv[1], 'rb'))
+        print(get_metadata(open(sys.argv[1], 'rb')))
     else:
         # Test set_metadata()
         import cStringIO

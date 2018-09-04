@@ -302,7 +302,7 @@ class Inline:
             if len(inline_list) <= 0:
                 if self.__run_level > 3:
                     msg = 'self.__inline_list is %s\n' % self.__inline_list
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
                 self.__write_obj.write('error\n')
                 self.__groups_in_waiting[0] = 0
                 return
