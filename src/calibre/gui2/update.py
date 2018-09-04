@@ -56,7 +56,7 @@ def get_newest_version():
     except UnicodeDecodeError:
         version = u''
     ans = NO_CALIBRE_UPDATE
-    m = re.match(ur'(\d+)\.(\d+).(\d+)$', version)
+    m = re.match(unicode(r'(\d+)\.(\d+).(\d+)$'), version)
     if m is not None:
         ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
     return ans

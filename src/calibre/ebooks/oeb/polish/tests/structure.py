@@ -94,7 +94,7 @@ class Structure(BaseTest):
         self.assertEqual(3, c.opf_version_parsed.major)
         self.assertTrue(len(get_toc(c)))  # detect NCX toc even in epub 3 files
         c.add_file('nav.html', b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
-                   '<body><nav epub:type="toc"><ol><li><a href="start.xhtml">EPUB 3 nav</a></li></ol></nav></body></html>',
+                   b'<body><nav epub:type="toc"><ol><li><a href="start.xhtml">EPUB 3 nav</a></li></ol></nav></body></html>',
                    process_manifest_item=lambda item:item.set('properties', 'nav'))
         toc = get_toc(c)
         self.assertTrue(len(toc))
@@ -132,9 +132,9 @@ class Structure(BaseTest):
         c = self.create_epub([cmi('xxx.html'), cmi('a.html')], ver=3)
         self.assertEqual(3, c.opf_version_parsed.major)
         c.add_file('xxx/nav.html', b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
-                   '<body><nav epub:type="landmarks"><ol><li><a epub:type="x" href="../xxx.html#moo">XXX </a></li>'
-                   '<li><a href="../a.html"> YYY </a></li>'
-                   '</ol></nav></body></html>',
+                   b'<body><nav epub:type="landmarks"><ol><li><a epub:type="x" href="../xxx.html#moo">XXX </a></li>'
+                   b'<li><a href="../a.html"> YYY </a></li>'
+                   b'</ol></nav></body></html>',
                    process_manifest_item=lambda item:item.set('properties', 'nav'))
         self.assertEqual([
             {'dest':'xxx.html', 'frag':'moo', 'type':'x', 'title':'XXX'}, {'dest':'a.html', 'frag':'', 'type':'', 'title':'YYY'}

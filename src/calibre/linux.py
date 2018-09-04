@@ -373,14 +373,14 @@ class ZshCompleter(object):  # {{{
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
-        f.write((ur'''
+        f.write((u'''
 _ebook_edit() {
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
 
-    _arguments -C -s \
+    _arguments -C -s \\
         %s
-        "1:ebook file:_files -g '(#i)*.(%s)'" \
+        "1:ebook file:_files -g '(#i)*.(%s)'" \\
         '*:file in ebook:->files' && return 0
 
     case $state in
@@ -393,7 +393,7 @@ _ebook_edit() {
             else
                 return 1
             fi
-            _wanted files expl 'file from ebook' \
+            _wanted files expl 'file from ebook' \\
             _multi_parts / _zip_cache_list && return 0
             ;;
     esac

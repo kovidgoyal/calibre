@@ -157,17 +157,17 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            ur'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_',
-            ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
-            ur'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_',
-            ur'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_',
-            ur'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*',
-            ur'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/',
-            ur'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|',
-            ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
-            ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
-            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
-            ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_'
+            unicode(r'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/'),
+            unicode(r'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_'),
         ]
 
         for word in ITALICIZE_WORDS:
@@ -419,7 +419,7 @@ class HeuristicProcessor(object):
         return html
 
     def fix_nbsp_indents(self, html):
-        txtindent = re.compile(ur'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
+        txtindent = re.compile(unicode(r'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}'), re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
             self.log.debug("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
@@ -427,10 +427,10 @@ class HeuristicProcessor(object):
 
     def cleanup_markup(self, html):
         # remove remaining non-breaking spaces
-        html = re.sub(ur'\u00a0', ' ', html)
+        html = re.sub(unicode(r'\u00a0'), ' ', html)
         # Get rid of various common microsoft specific tags which can cause issues later
         # Get rid of empty <o:p> tags to simplify other processing
-        html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
+        html = re.sub(unicode(r'\s*<o:p>\s*</o:p>'), ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
         # Re-open self closing paragraph tags

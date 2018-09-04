@@ -175,7 +175,7 @@ class Stores(OrderedDict):
     def load_object(self, src, key):
         namespace = {}
         builtin = self[key]
-        exec src in namespace
+        exec(src, namespace)
         ver = namespace['store_version']
         cls = None
         for x in namespace.itervalues():
