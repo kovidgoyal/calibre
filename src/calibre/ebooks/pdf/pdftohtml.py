@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
+from __future__ import print_function
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, ' \
                 '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -91,8 +92,8 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         if ret != 0:
             raise ConversionError(b'pdftohtml failed with return code: %d\n%s' % (ret, out))
         if out:
-            print "pdftohtml log:"
-            print out
+            print("pdftohtml log:")
+            print(out)
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
 

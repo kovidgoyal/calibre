@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, textwrap
 from functools import partial
@@ -198,12 +199,12 @@ def update_cli_doc(name, raw, app):
     old_raw = open(path, 'rb').read() if os.path.exists(path) else ''
     if not os.path.exists(path) or old_raw != raw:
         import difflib
-        print path, 'has changed'
+        print(path, 'has changed')
         if old_raw:
             lines = difflib.unified_diff(old_raw.splitlines(), raw.splitlines(),
                     path, path)
             for line in lines:
-                print line
+                print(line)
         app.builder.info('creating '+os.path.splitext(os.path.basename(path))[0])
         p = os.path.dirname(path)
         if p and not os.path.exists(p):

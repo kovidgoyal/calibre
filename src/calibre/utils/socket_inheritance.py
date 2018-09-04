@@ -11,6 +11,7 @@ Created on 29 Nov 2013
 Code taken from https://mail.python.org/pipermail/python-dev/2007-June/073745.html
 modified to make it work
 '''
+from __future__ import print_function
 
 from calibre.constants import iswindows
 

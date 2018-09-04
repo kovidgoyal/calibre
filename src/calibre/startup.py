@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -229,19 +230,19 @@ def test_lopen():
         with copen(n, 'w') as f:
             f.write('one')
 
-        print 'O_CREAT tested'
+        print('O_CREAT tested')
         with copen(n, 'w+b') as f:
             f.write('two')
         with copen(n, 'r') as f:
             if f.read() == 'two':
-                print 'O_TRUNC tested'
+                print('O_TRUNC tested')
             else:
                 raise Exception('O_TRUNC failed')
         with copen(n, 'ab') as f:
             f.write('three')
         with copen(n, 'r+') as f:
             if f.read() == 'twothree':
-                print 'O_APPEND tested'
+                print('O_APPEND tested')
             else:
                 raise Exception('O_APPEND failed')
         with copen(n, 'r+') as f:
@@ -249,6 +250,6 @@ def test_lopen():
             f.write('xxxxx')
             f.seek(0)
             if f.read() == 'twoxxxxx':
-                print 'O_RANDOM tested'
+                print('O_RANDOM tested')
             else:
                 raise Exception('O_RANDOM failed')

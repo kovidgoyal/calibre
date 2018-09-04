@@ -73,7 +73,7 @@ class Pict:
         if not os.path.isdir(self.__dir_name):
             try:
                 os.mkdir(self.__dir_name)
-            except OSError, msg:
+            except OSError as msg:
                 msg = "%sCouldn't make directory '%s':\n" % (str(msg), self.__dir_name)
                 raise self.__bug_handler
         else:

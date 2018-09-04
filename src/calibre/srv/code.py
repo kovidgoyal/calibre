@@ -194,7 +194,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['sortable_fields'] = sorted(
             ((sanitize_sort_field_name(db.field_metadata, k), v)
              for k, v in sf.iteritems()),
-            key=lambda (field, name): sort_key(name)
+            key=lambda field_name: sort_key(field_name[1])
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})

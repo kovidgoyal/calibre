@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -103,7 +104,7 @@ def test():
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title='The Heroes',
                      authors=('Joe Abercrombie',))
-    print ('Downloaded', rq.qsize(), 'covers')
+    print('Downloaded', rq.qsize(), 'covers')
 
 
 if __name__ == '__main__':

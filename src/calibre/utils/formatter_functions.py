@@ -6,6 +6,7 @@ Created on 13 Jan 2011
 
 @author: charles
 '''
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -345,7 +346,7 @@ class BuiltinPrint(BuiltinFormatterFunction):
             'the output will go to a black hole.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
-        print args
+        print(args)
         return ''
 
 
@@ -1652,8 +1653,8 @@ class UserFunction(FormatterUserFunction):
 ''' + func
     locals_ = {}
     if DEBUG and tweaks.get('enable_template_debug_printing', False):
-        print prog
-    exec prog in locals_
+        print(prog)
+    exec(prog, locals_)
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 

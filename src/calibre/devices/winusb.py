@@ -4,6 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 import os, string, _winreg as winreg, re, sys
 from collections import namedtuple, defaultdict
@@ -220,8 +221,8 @@ PUSB_DESCRIPTOR_REQUEST = POINTER(USB_DESCRIPTOR_REQUEST)
 PSP_DEVICE_INTERFACE_DETAIL_DATA = POINTER(SP_DEVICE_INTERFACE_DETAIL_DATA)
 PSP_DEVICE_INTERFACE_DATA = POINTER(SP_DEVICE_INTERFACE_DATA)
 INVALID_HANDLE_VALUE = c_void_p(-1).value
-GENERIC_READ = 0x80000000L
-GENERIC_WRITE = 0x40000000L
+GENERIC_READ = 0x80000000
+GENERIC_WRITE = 0x40000000
 FILE_SHARE_READ = 0x1
 FILE_SHARE_WRITE = 0x2
 OPEN_EXISTING = 0x3

@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 '''
 www.canada.com
 '''
+from __future__ import print_function
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag

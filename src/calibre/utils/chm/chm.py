@@ -254,7 +254,7 @@ class CHMFile:
             sys.stderr.write('GetArchiveInfo: #SYSTEM does not exist\n')
             return 0
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 4l, ui.length)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 4, ui.length)
         if (size == 0):
             sys.stderr.write('GetArchiveInfo: file size = 0\n')
             return 0
@@ -337,7 +337,7 @@ class CHMFile:
             if (res != chmlib.CHM_RESOLVE_SUCCESS):
                 return None
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 0l, ui.length)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
         if (size == 0):
             sys.stderr.write('GetTopicsTree: file size = 0\n')
             return None
@@ -356,7 +356,7 @@ class CHMFile:
             if (res != chmlib.CHM_RESOLVE_SUCCESS):
                 return None
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 0l, ui.length)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
         if (size == 0):
             sys.stderr.write('GetIndex: file size = 0\n')
             return None
@@ -388,7 +388,7 @@ class CHMFile:
             else:
                 len = length
             if start == -1:
-                st = 0l
+                st = 0
             else:
                 st = long(start)
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
@@ -478,7 +478,7 @@ class CHMFile:
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             return -1
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 0l, 8)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 0, 8)
         if (size < 8):
             return -2
 
@@ -489,7 +489,7 @@ class CHMFile:
         if num_entries < 1:
             return -3
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 8l, entry_size)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 8, entry_size)
         if (size < entry_size):
             return -4
 
@@ -502,7 +502,7 @@ class CHMFile:
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             return -5
 
-        size, text = chmlib.chm_retrieve_object(self.file, ui, 0l, ui.length)
+        size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
         if (size == 0):
             return -6
 

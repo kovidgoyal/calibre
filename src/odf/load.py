@@ -25,6 +25,7 @@
 # the structure again.
 
 from xml.sax import handler
+from __future__ import print_function
 from element import Element
 from namespaces import OFFICENS
 
@@ -71,8 +72,8 @@ class LoadParser(handler.ContentHandler):
         try:
             e = Element(qname = tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
-        except AttributeError, v:
-            print "Error: %s" % v
+        except AttributeError as v:
+            print("Error: %s" % v)
 
         if tag == (OFFICENS, 'automatic-styles'):
             e = self.doc.automaticstyles

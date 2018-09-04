@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -39,7 +40,7 @@ def dump(path):
     dest += '-dumped'
     do_dump(path, dest)
 
-    print (path, 'dumped to', dest)
+    print(path, 'dumped to', dest)
 
 if __name__ == '__main__':
     dump(sys.argv[-1])

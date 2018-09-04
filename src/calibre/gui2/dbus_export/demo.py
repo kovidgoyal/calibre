@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -90,7 +91,7 @@ class MainWindow(QMainWindow):
         b.clicked.connect(self.remove_menu), l.addWidget(b)
         self.sd = b = QPushButton('Show modal dialog')
         b.clicked.connect(self.show_dialog), l.addWidget(b)
-        print ('DBUS connection unique name:', f.bus.get_unique_name())
+        print('DBUS connection unique name:', f.bus.get_unique_name())
 
     def update_tooltip(self):
         self.systray.setToolTip(time.strftime('A dynamically updated tooltip [%H:%M:%S]'))

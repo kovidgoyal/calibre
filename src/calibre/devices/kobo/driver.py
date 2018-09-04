@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import division
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
@@ -646,7 +647,7 @@ class KOBO(USBMS):
         path = ContentID
 
         if oncard == 'cardb':
-            print 'path from_contentid cardb'
+            print('path from_contentid cardb')
         elif oncard == 'carda':
             path = path.replace("file:///mnt/sd/", self._card_a_prefix)
             # print "SD Card: " + path
@@ -1929,7 +1930,7 @@ class KOBOTOUCH(KOBO):
             return super(KOBOTOUCH, self).path_from_contentid(ContentID, ContentType, MimeType, oncard)
 
         if oncard == 'cardb':
-            print 'path from_contentid cardb'
+            print('path from_contentid cardb')
         else:
             if (ContentType == "6" or ContentType == "10"):  # and MimeType == 'application/x-kobo-epub+zip':
                 if path.startswith("file:///mnt/onboard/"):
@@ -3399,6 +3400,6 @@ if __name__ == '__main__':
         dev.set_progress_reporter(prints)
 #         dev.open(cd, None)
 #         dev.filesystem_cache.dump()
-        print ('Prefix for main memory:', dev.dbversion)
+        print('Prefix for main memory:', dev.dbversion)
     finally:
         dev.shutdown()

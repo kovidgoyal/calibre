@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -126,7 +127,7 @@ class ConditionEditor(QWidget):  # {{{
         self.column_box.addItem('', '')
         for key in sorted(
                 conditionable_columns(fm),
-                key=lambda(key): sort_key(fm[key]['name'])):
+                key=lambda key: sort_key(fm[key]['name'])):
             self.column_box.addItem(fm[key]['name'], key)
         self.column_box.setCurrentIndex(0)
 
@@ -428,7 +429,7 @@ class RuleEditor(QDialog):  # {{{
                 b.setMinimumContentsLength(15)
 
         for key in sorted(displayable_columns(fm),
-                          key=lambda(k): sort_key(fm[k]['name']) if k != color_row_key else 0):
+                          key=lambda k: sort_key(fm[k]['name']) if k != color_row_key else 0):
             if key == color_row_key and self.rule_kind != 'color':
                 continue
             name = all_columns_string if key == color_row_key else fm[key]['name']
@@ -1128,7 +1129,7 @@ if __name__ == '__main__':
 
         kind, col, r = d.rule
 
-        print ('Column to be colored:', col)
+        print('Column to be colored:', col)
         print ('Template:')
         print (r.template)
     else:

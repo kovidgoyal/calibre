@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
+from __future__ import print_function
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -104,6 +105,6 @@ xisbn = xISBN()
 if __name__ == '__main__':
     import sys, pprint
     isbn = sys.argv[-1]
-    print pprint.pprint(xisbn.get_data(isbn))
-    print
-    print xisbn.get_associated_isbns(isbn)
+    print(pprint.pprint(xisbn.get_data(isbn)))
+    print()
+    print(xisbn.get_associated_isbns(isbn))

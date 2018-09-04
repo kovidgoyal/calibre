@@ -40,7 +40,7 @@ class MathJax(Command):
             raw = f.read()
         self.h.update(raw)
         zi = ZipInfo(name)
-        zi.external_attr = 0o444 << 16L
+        zi.external_attr = 0o444 << 16
         zf.writestr(zi, raw)
 
     def add_tree(self, zf, base, prefix, ignore=lambda n:False):

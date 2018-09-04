@@ -99,7 +99,7 @@ class CRCChecker(object):
 
     def finish(self):
         if self.func is not crc32:
-            self.code = 0xFFFFFFFFFFFFFFFFL & self.code
+            self.code = 0xFFFFFFFFFFFFFFFF & self.code
 
     @property
     def code_as_bytes(self):

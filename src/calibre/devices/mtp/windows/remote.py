@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -64,7 +65,7 @@ def main():
     from calibre.devices.mtp.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
     dev.startup()
-    print (dev.wpd, dev.wpd_error)
+    print(dev.wpd, dev.wpd_error)
 
     try:
         devices = scan_usb_devices()
@@ -72,12 +73,12 @@ def main():
         if not pnp_id:
             raise ValueError('Failed to detect device')
         # pprint.pprint(dev.detected_devices)
-        print ('Trying to connect to:', pnp_id)
+        print('Trying to connect to:', pnp_id)
         dev.open(pnp_id, '')
         pprint.pprint(dev.dev.data)
-        print ('Connected to:', dev.get_gui_name())
-        print ('Total space', dev.total_space())
-        print ('Free space', dev.free_space())
+        print('Connected to:', dev.get_gui_name())
+        print('Total space', dev.total_space())
+        print('Free space', dev.free_space())
         # pprint.pprint(dev.dev.create_folder(dev.filesystem_cache.entries[0].object_id,
         #     'zzz'))
         # print ('Fetching file: oFF (198214 bytes)')

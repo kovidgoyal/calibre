@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -323,12 +324,12 @@ class INotifyTreeWatcher(INotify):
 if __name__ == '__main__':
     w = INotifyTreeWatcher(sys.argv[-1])
     w()
-    print ('Monitoring', sys.argv[-1], 'press Ctrl-C to stop')
+    print('Monitoring', sys.argv[-1], 'press Ctrl-C to stop')
     try:
         while w.wait():
             modified = w()
             for path in modified:
-                print (path or sys.argv[-1], 'changed')
+                print(path or sys.argv[-1], 'changed')
         raise SystemExit('inotify flaked out')
     except KeyboardInterrupt:
         pass

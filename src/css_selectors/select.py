@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -53,7 +54,7 @@ def trace_wrapper(func):
     @wraps(func)
     def trace(*args, **kwargs):
         targs = args[1:] if args and isinstance(args[0], Select) else args
-        print ('Called:', func.__name__, 'with args:', targs, kwargs or '')
+        print('Called:', func.__name__, 'with args:', targs, kwargs or '')
         return func(*args, **kwargs)
     return trace
 

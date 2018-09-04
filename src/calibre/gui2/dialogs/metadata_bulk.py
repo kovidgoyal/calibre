@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from __future__ import print_function
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread

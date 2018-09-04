@@ -289,7 +289,7 @@ class Sections:
             self.__handle_sec_def(my_string)
         elif self.__run_level > 3:
             msg = 'missed a flag\n'
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
 
     def __handle_sec_def(self, my_string):
         """

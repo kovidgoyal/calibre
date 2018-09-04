@@ -2,6 +2,7 @@
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 '''
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
@@ -237,7 +238,7 @@ class MobiMLizer(object):
             try:
                 etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
             except:
-                print 'Invalid subelement:', para, tag, istate.attrib
+                print('Invalid subelement:', para, tag, istate.attrib)
                 raise
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'

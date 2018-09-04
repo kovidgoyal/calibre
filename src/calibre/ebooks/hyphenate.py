@@ -13,6 +13,7 @@
     Ned Batchelder, July 2007.
     This Python code is in the public domain.
 """
+from __future__ import print_function
 
 import re
 
@@ -520,7 +521,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
         for word in sys.argv[1:]:
-            print '-'.join(hyphenate_word(word))
+            print('-'.join(hyphenate_word(word)))
     else:
         import doctest
         doctest.testmod(verbose=True)

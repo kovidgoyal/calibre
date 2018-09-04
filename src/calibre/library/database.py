@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -809,7 +810,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if func is None:
                 break
             if self.user_version == i:
-                print 'Upgrading database from version: %d'%i
+                print('Upgrading database from version: %d'%i)
                 func(self.conn)
 
     def close(self):

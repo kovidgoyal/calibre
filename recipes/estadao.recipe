@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime, timedelta
 from calibre.ebooks.BeautifulSoup import Tag, BeautifulSoup
@@ -92,12 +93,12 @@ class Estadao(BasicNewsRecipe):
             img = Image()
             img.open(iurl)
             width, height = img.size
-            print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+            print('img is: ', iurl, 'width is: ', width, 'height is: ', height)
             if img < 0:
                 raise RuntimeError('Out of memory')
             pw = PixelWand()
             if(width > height and width > 590):
-                print 'Rotate image'
+                print('Rotate image')
                 img.rotate(pw, -90)
                 img.save(iurl)
         return soup

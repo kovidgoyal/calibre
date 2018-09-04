@@ -139,7 +139,7 @@ class GroupStyles:
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
                 msg =  'wrong flag'
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
         elif self.__token_info in self.__end_list:
             self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
             self.__write_end_wrap()

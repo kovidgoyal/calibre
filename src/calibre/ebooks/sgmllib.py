@@ -1,4 +1,5 @@
 """A parser for SGML, using the derived class as a static DTD."""
+from __future__ import print_function
 
 # XXX This only supports those SGML features used by HTML.
 
@@ -394,8 +395,8 @@ class SGMLParser(markupbase.ParserBase):
     # Example -- report an unbalanced </...> tag.
     def report_unbalanced(self, tag):
         if self.verbose:
-            print '*** Unbalanced </' + tag + '>'
-            print '*** Stack:', self.stack
+            print('*** Unbalanced </' + tag + '>')
+            print('*** Stack:', self.stack)
 
     def convert_charref(self, name):
         """Convert character reference, may be overridden."""
@@ -487,40 +488,40 @@ class TestSGMLParser(SGMLParser):
         data = self.testdata
         if data:
             self.testdata = ""
-            print 'data:', repr(data)
+            print('data:', repr(data))
 
     def handle_comment(self, data):
         self.flush()
         r = repr(data)
         if len(r) > 68:
             r = r[:32] + '...' + r[-32:]
-        print 'comment:', r
+        print('comment:', r)
 
     def unknown_starttag(self, tag, attrs):
         self.flush()
         if not attrs:
-            print 'start tag: <' + tag + '>'
+            print('start tag: <' + tag + '>')
         else:
-            print 'start tag: <' + tag,
+            print('start tag: <' + tag, end=' ')
             for name, value in attrs:
-                print name + '=' + '"' + value + '"',
-            print '>'
+                print(name + '=' + '"' + value + '"', end=' ')
+            print('>')
 
     def unknown_endtag(self, tag):
         self.flush()
-        print 'end tag: </' + tag + '>'
+        print('end tag: </' + tag + '>')
 
     def unknown_entityref(self, ref):
         self.flush()
-        print '*** unknown entity ref: &' + ref + ';'
+        print('*** unknown entity ref: &' + ref + ';')
 
     def unknown_charref(self, ref):
         self.flush()
-        print '*** unknown char ref: &#' + ref + ';'
+        print('*** unknown char ref: &#' + ref + ';')
 
     def unknown_decl(self, data):
         self.flush()
-        print '*** unknown decl: [' + data + ']'
+        print('*** unknown decl: [' + data + ']')
 
     def close(self):
         SGMLParser.close(self)
@@ -549,8 +550,8 @@ def test(args=None):
     else:
         try:
             f = open(file, 'r')
-        except IOError, msg:
-            print file, ":", msg
+        except IOError as msg:
+            print(file, ":", msg)
             sys.exit(1)
 
     data = f.read()

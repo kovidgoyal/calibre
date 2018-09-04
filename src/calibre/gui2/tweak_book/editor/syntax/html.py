@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -615,10 +616,10 @@ def profile():
     h.set_document(doc)
     h.join()
     import cProfile
-    print ('Running profile on', sys.argv[-2])
+    print('Running profile on', sys.argv[-2])
     h.rehighlight()
     cProfile.runctx('h.join()', {}, {'h':h}, sys.argv[-1])
-    print ('Stats saved to:', sys.argv[-1])
+    print('Stats saved to:', sys.argv[-1])
     del h
     del doc
     del app

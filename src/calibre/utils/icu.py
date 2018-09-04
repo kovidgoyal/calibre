@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -187,7 +188,7 @@ def _make_func(template, name, **kwargs):
     l = globals()
     kwargs['name'] = name
     kwargs['func'] = kwargs.get('func', 'sort_key')
-    exec template.format(**kwargs) in l
+    exec(template.format(**kwargs), l)
     return l[name]
 
 

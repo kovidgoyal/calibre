@@ -4,6 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from __future__ import print_function
 store_version = 14  # Needed for dynamic plugin loading
 
 from contextlib import closing

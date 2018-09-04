@@ -282,7 +282,7 @@ def get_path_components(opts, mi, book_id, path_length):
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace, safe_format=False,
             last_has_extension=False, single_dir=opts.single_dir)
-    except Exception, e:
+    except Exception as e:
         raise ValueError(_('Failed to calculate path for '
             'save to disk. Template: %(templ)s\n'
             'Error: %(err)s')%dict(templ=opts.template, err=e))
