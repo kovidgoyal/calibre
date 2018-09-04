@@ -10,8 +10,8 @@ class NaTemat(BasicNewsRecipe):
     description = u'informacje, komentarze, opinie'
     category = 'news'
     language = 'pl'
-    preprocess_regexps = [(re.compile(ur'Czytaj też\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(ur'Zobacz też\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa
-                          (re.compile(ur'Czytaj więcej\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(ur'Czytaj również\:.*?</a>', re.IGNORECASE), lambda m: '')]  # noqa
+    preprocess_regexps = [(re.compile(u'Czytaj też\\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(u'Zobacz też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa
+                          (re.compile(u'Czytaj więcej\\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(u'Czytaj również\\:.*?</a>', re.IGNORECASE), lambda m: '')]  # noqa
     cover_url = 'http://blog.plona.pl/wp-content/uploads/2012/05/natemat.png'
     no_stylesheets = True
     keep_only_tags = [dict(id='main')]

@@ -11,7 +11,7 @@ class TawernaRPG(BasicNewsRecipe):
     language = 'pl'
     extra_css = '.slajd {list-style-type: none; padding-left: 0px; margin-left: 0px;} .lewanc {float: left; margin-right: 5px;} .srodek {display: block; margin-left: auto; margin-right: auto;}'  # noqa
     cover_url = 'http://www.tawerna.rpg.pl/img/logo.png'
-    preprocess_regexps = [(re.compile(ur'<h2>Dodaj komentarz</h2>.*</body>',
+    preprocess_regexps = [(re.compile(u'<h2>Dodaj komentarz</h2>.*</body>',
                                       re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
     use_embedded_content = False
     oldest_article = 7

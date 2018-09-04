@@ -14,8 +14,8 @@ class Ciekawostki_Historyczne(BasicNewsRecipe):
     max_articles_per_feed = 100
     extra_css = 'img.alignleft {float:left; margin-right:5px;} .alignright {float:right; margin-left:5px;}'
     oldest_article = 12
-    preprocess_regexps = [(re.compile(ur'Ten artykuł ma kilka stron.*?</fb:like>', re.DOTALL),
-                           lambda match: ''), (re.compile(ur'<h2>Zobacz też:</h2>.*?</ol>', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(u'Ten artykuł ma kilka stron.*?</fb:like>', re.DOTALL),
+                           lambda match: ''), (re.compile(u'<h2>Zobacz też:</h2>.*?</ol>', re.DOTALL), lambda match: '')]
     no_stylesheets = True
     remove_empty_feeds = True
     keep_only_tags = [dict(name='div', attrs={'class': 'post'})]

@@ -9,8 +9,8 @@ class WNP(BasicNewsRecipe):
     description = u'Wirtualny Nowy Przemysł'
     category = 'economy'
     language = 'pl'
-    preprocess_regexps = [(re.compile(ur'Czytaj też:.*?</a>', re.DOTALL), lambda match: ''),
-                          (re.compile(ur'Czytaj więcej:.*?</a>', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(u'Czytaj też:.*?</a>', re.DOTALL), lambda match: ''),
+                          (re.compile(u'Czytaj więcej:.*?</a>', re.DOTALL), lambda match: '')]
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets = True
