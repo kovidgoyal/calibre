@@ -19,6 +19,7 @@
     Lesser General Public License for more details.
 
 """
+from __future__ import print_function
 
 """0.13 update - fix IPv6 support
                  some cleanups in code"""
@@ -74,7 +75,6 @@
                  added __ne__ adjuncts where required
                  ensure names end in '.local.'
                  timeout on receiving socket for clean shutdown"""
-from __future__ import print_function
 
 __author__ = "Paul Scott-Murphy"
 __email__ = "paul at scott dash murphy dot com"

@@ -24,8 +24,8 @@
 # in memory. The user should then be able to make operations and then save
 # the structure again.
 
-from xml.sax import handler
 from __future__ import print_function
+from xml.sax import handler
 from element import Element
 from namespaces import OFFICENS
 

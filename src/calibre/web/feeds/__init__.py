@@ -1,7 +1,7 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
 from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.

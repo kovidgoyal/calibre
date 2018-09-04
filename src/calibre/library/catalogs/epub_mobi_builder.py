@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__license__ = 'GPL v3'
 from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
 import datetime, os, platform, re, shutil, time, unicodedata, zlib

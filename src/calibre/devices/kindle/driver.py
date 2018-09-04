@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__license__   = 'GPL v3'
 from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
