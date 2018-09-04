@@ -314,7 +314,7 @@ def linux_native_dialog(name):
             t.start()
             loop.exec_(QEventLoop.ExcludeUserInputEvents)
             if ret[1] is not None:
-                raise ret[1][0](ret[1][1]).with_traceback(ret[1][2])
+                raise ret[1][0], ret[1][1], ret[1][2]
             return ret[0]
         except Exception:
             linux_native_dialog.native_failed = True

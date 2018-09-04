@@ -368,7 +368,7 @@ def create_themeball(report, progress=None, abort=None):
         return
     if errors:
         e = errors[0]
-        raise e[0](e[1]).with_traceback(e[2])
+        raise e[0], e[1], e[2]
 
     if progress is not None:
         progress(next(num), _('Creating theme file'))
