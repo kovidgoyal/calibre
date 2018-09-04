@@ -9,13 +9,14 @@ import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
-from book_list.router import push_state, read_book_mode
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
-from read_book.globals import current_book, set_current_spine_item
+from read_book.globals import (
+    current_book, runtime, set_current_spine_item, ui_operations
+)
 from read_book.goto import get_next_section
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
@@ -115,8 +116,7 @@ def margin_elem(sd, which, id, onclick):
 
 class View:
 
-    def __init__(self, container, ui):
-        self.ui = ui
+    def __init__(self, container):
         self.timers = Timers()
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
@@ -167,7 +167,8 @@ class View:
             'print': self.on_print,
             'human_scroll': self.on_human_scroll,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), 'read_book.iframe', _('Bootstrapping book reader...'))
+        entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
+        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'))
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
@@ -245,7 +246,7 @@ class View:
         for items in item_groups:
             for i in items:
                 names.push(spine[i])
-        find_in_spine(names, self.book, self.ui.db, data.text, def(found_in):
+        find_in_spine(names, self.book, data.text, def(found_in):
             if found_in:
                 self.show_name(found_in, initial_position={'type':'search', 'search_data':data, 'replace_history':True})
             else:
@@ -322,7 +323,7 @@ class View:
             self.show_spine_item_stage2(data)
 
     def on_iframe_error(self, data):
-        self.ui.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
+        ui_operations.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
 
     def get_color_scheme(self, apply_to_margins):
         ans = resolve_color_scheme()
@@ -376,7 +377,8 @@ class View:
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)
         self.book = current_book.book = book
-        self.ui.db.update_last_read_time(book)
+        if ui_operations.update_last_read_time:
+            ui_operations.update_last_read_time(book)
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
@@ -431,7 +433,7 @@ class View:
         def cb(resource_data):
             self.loaded_resources = resource_data
             done_callback(resource_data)
-        load_resources(self.ui.db, self.book, name, self.loaded_resources, cb)
+        load_resources(self.book, name, self.loaded_resources, cb)
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
@@ -495,13 +497,14 @@ class View:
             # See https://bugs.chromium.org/p/chromium/issues/detail?id=404315
             return
         self.currently_showing.bookpos = data.cfi
-        push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
+        ui_operations.update_url_state(data.replace_history)
         username = get_interface_data().username
         unkey = username_key(username)
         if not self.book.last_read_position:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi
-        self.ui.db.update_last_read_time(self.book)
+        if ui_operations.update_last_read_time:
+            ui_operations.update_last_read_time(self.book)
         lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
         self.current_progress_frac = data.progress_frac
         self.current_file_progress_frac = data.file_progress_frac

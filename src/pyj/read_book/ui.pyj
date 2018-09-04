@@ -9,14 +9,13 @@ from gettext import gettext as _
 
 from ajax import ajax
 from book_list.constants import read_book_container_id
-from book_list.library_data import (
-    current_library_id, library_data
-)
+from book_list.library_data import current_library_id, library_data
+from book_list.router import home, push_state, read_book_mode, update_window_title
 from book_list.ui import show_panel
-from book_list.router import update_window_title, home
 from dom import clear
 from modals import create_simple_dialog_markup, error_dialog
 from read_book.db import get_db
+from read_book.globals import ui_operations
 from read_book.view import View
 from utils import debounce, human_readable
 from widgets import create_button
@@ -53,9 +52,14 @@ class ReadUI:
         container.appendChild(E.div(
             id=self.display_id, style='display:none',
         ))
-        self.view = View(container.lastChild, self)
+        self.view = View(container.lastChild)
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
+        ui_operations.get_file = self.db.get_file
+        ui_operations.get_mathjax_files = self.db.get_mathjax_files
+        ui_operations.update_url_state = self.update_url_state.bind(self)
+        ui_operations.update_last_read_time = self.db.update_last_read_time
+        ui_operations.show_error = self.show_error.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -448,3 +452,6 @@ class ReadUI:
                 self.view.goto_bookpos(current_query.bookpos)
         else:
             self.load_book(current_query.library_id, int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
+
+    def update_url_state(self, replace):
+        push_state(self.url_data, replace=replace, mode=read_book_mode)

@@ -2,4 +2,17 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-print('11111111111111', document.location.href)
+
+from elementmaker import E
+from read_book.globals import runtime
+
+def container_div(id):
+    return E.div(id=id, style='margin: 0; padding: 0; display: none')
+
+runtime.is_standalone_viewer = True
+if window is window.top:
+    # main
+    document.body.appendChild(E.iframe(srcdoc="<p>hello"))
+else:
+    # iframe
+    pass

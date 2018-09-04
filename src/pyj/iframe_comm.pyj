@@ -81,13 +81,16 @@ class IframeWrapper:
 
     def create_srcdoc(self):
         r = /__([A-Z][A-Z_0-9]*[A-Z0-9])__/g
-        data = {
-            'BS': self.bootstrap_text,
-            'SCRIPT': iframe_js(),
-            'FONT': get_font_family(),
-            'ENTRY_POINT': self.entry_point,
-        }
-        self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+        if self.entry_point:
+            data = {
+                'BS': self.bootstrap_text,
+                'SCRIPT': iframe_js(),
+                'FONT': get_font_family(),
+                'ENTRY_POINT': self.entry_point,
+            }
+            self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+        else:
+            self.iframe.srcdoc = '<div>\xa0</div>'
         self.srcdoc_created = True
 
     def init(self):

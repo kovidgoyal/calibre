@@ -60,3 +60,16 @@ register_callback(def():
         scheme = default_color_schemes[key]
         scheme.name = gt(scheme.name)
 )
+
+runtime = {
+    'is_standalone_viewer': False
+}
+
+
+ui_operations = {
+    'get_file': None,
+    'get_mathjax_files': None,
+    'update_url_state': None,
+    'update_last_read_time': None,
+    'show_error': None,
+}

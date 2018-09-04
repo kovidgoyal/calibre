@@ -1,13 +1,15 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon
 from keycodes import get_key
-from elementmaker import E
-from gettext import gettext as _
-from book_list.theme import get_color
+from read_book.globals import ui_operations
 from read_book.resources import text_from_serialized_html
 
 CLASS_NAME = 'book-search-container'
@@ -84,7 +86,7 @@ def find_in_serialized_html(data, text):
     return haystack.toLowerCase().indexOf(text) > -1
 
 
-def find_in_spine(names, book, db, text, proceed):
+def find_in_spine(names, book, text, proceed):
     text = text.toLowerCase()
 
     def got_one(data, name, mimetype):
@@ -96,7 +98,7 @@ def find_in_spine(names, book, db, text, proceed):
     def do_one():
         name = names.shift()
         if name:
-            db.get_file(book, name, got_one)
+            ui_operations.get_file(book, name, got_one)
         else:
             proceed(None)
 

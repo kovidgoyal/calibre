@@ -6,6 +6,7 @@ from elementmaker import E
 from encodings import base64decode, utf8_decode
 
 from dom import clear
+from read_book.globals import ui_operations
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -19,7 +20,7 @@ def decode_url(x):
 def create_link_pat(book):
     return RegExp(book.manifest.link_uid + r'\|([^|]+)\|', 'g')
 
-def load_resources(db, book, root_name, previous_resources, proceed):
+def load_resources(book, root_name, previous_resources, proceed):
     ans = Object.create(None)
     pending_resources = v'[root_name]'
     link_pat = create_link_pat(book)
@@ -29,7 +30,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             for k in previous_resources:
                 v'delete previous_resources[k]'
             if book.manifest.files[root_name].has_maths:
-                return load_mathjax(db, book, ans, proceed)
+                return load_mathjax(book, ans, proceed)
             return proceed(ans)
         name = pending_resources.shift()
         if ans[name]:
@@ -39,7 +40,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             if jstype(data[0]) is 'string':
                 find_virtualized_resources(data[0])
             return setTimeout(do_one, 0)
-        db.get_file(book, name, got_one)
+        ui_operations.get_file(book, name, got_one)
 
     def got_one(data, name, mimetype):
         if False and name is book.manifest.title_page_name:
@@ -68,9 +69,9 @@ def load_resources(db, book, root_name, previous_resources, proceed):
 
 mathjax_data = None
 
-def load_mathjax(db, book, resource_data, proceed):
+def load_mathjax(book, resource_data, proceed):
     if mathjax_data is None:
-        db.get_mathjax_files(def(data):
+        ui_operations.get_mathjax_files(def(data):
             nonlocal mathjax_data
             mathjax_data = data
             resource_data['..mathjax-files..'] = data

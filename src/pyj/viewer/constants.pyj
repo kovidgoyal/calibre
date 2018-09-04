@@ -1,0 +1,7 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+FAKE_PROTOCOL = '__FAKE_PROTOCOL__'
+FAKE_HOST = '__FAKE_HOST__'
