@@ -9,7 +9,7 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
 from itertools import groupby
 
-from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
+from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, QFont,
         QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
 
 from calibre import fit_image, force_unicode
@@ -175,6 +175,14 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
+        base_font = parent.font() if parent else QApplication.instance().font()
+        self.bold_font = QFont(base_font)
+        self.bold_font.setBold(True)
+        self.italic_font = QFont(base_font)
+        self.italic_font.setItalic(True)
+        self.bi_font = QFont(self.bold_font)
+        self.bi_font.setItalic(True)
+        self.styled_columns = {}
         self.orig_headers = {
                         'title'     : _("Title"),
                         'ondevice'   : _("On Device"),
@@ -258,6 +266,21 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
+    def change_column_font(self, colname, font_type):
+        if colname in self.column_map and font_type in ('normal', 'bold', 'italic', 'bi'):
+            db = self.db.new_api
+            old = db.pref('styled_columns', {})
+            old.pop(colname, None)
+            self.styled_columns.pop(colname, None)
+            if font_type != 'normal':
+                self.styled_columns[colname] = getattr(self, '{}_font'.format(font_type))
+                old[colname] = font_type
+            self.db.new_api.set_pref('styled_columns', old)
+            col = self.column_map.index(colname)
+            for row in xrange(self.rowCount(QModelIndex())):
+                self.dataChanged.emit(self.index(row, col), self.index(row,
+                    col))
+
     def is_custom_column(self, cc_label):
         try:
             return cc_label in self.custom_columns
@@ -280,6 +303,10 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def set_database(self, db):
         self.ids_to_highlight = []
+
+        if db:
+            style_map = {'bold': self.bold_font, 'bi': self.bi_font, 'italic': self.italic_font}
+            self.styled_columns = {k: style_map.get(v, None) for k, v in db.new_api.pref('styled_columns', {}).iteritems()}
         self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
@@ -968,6 +995,9 @@ class BooksModel(QAbstractTableModel):  # {{{
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return (ans)
+        elif role == Qt.FontRole and self.styled_columns:
+            cname = self.column_map[index.column()]
+            return self.styled_columns.get(cname)
         # elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return (_("Double click to <b>edit</b> me<br><br>"))

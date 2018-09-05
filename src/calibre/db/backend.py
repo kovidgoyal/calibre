@@ -49,8 +49,8 @@ Differences in semantics from pysqlite:
     3. There is no executescript
 
 '''
-CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-    'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
+CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
+    'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
 
 
@@ -479,6 +479,7 @@ class DB(object):
         defs['field_under_covers_in_grid'] = 'title'
         defs['cover_browser_title_template'] = '{title}'
         defs['cover_browser_subtitle_field'] = 'rating'
+        defs['styled_columns'] = {}
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
