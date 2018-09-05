@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, uuid, json, glob, time, hashlib, errno, sys
 from functools import partial
 
+import six
 import apsw
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
@@ -1626,7 +1627,7 @@ class DB(object):
             except EnvironmentError as err:
                 if err.errno == errno.EEXIST:
                     # Parent directory already exists, re-raise original exception
-                    raise exc_info[0], exc_info[1], exc_info[2]
+                    six.reraise(*exc_info)
                 raise
             finally:
                 del exc_info
