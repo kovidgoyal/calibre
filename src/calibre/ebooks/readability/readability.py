@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import re, sys
 from collections import defaultdict
 
+import six
 from lxml.etree import tostring
 from lxml.html import (fragment_fromstring, document_fromstring,
         tostring as htostring)
@@ -156,7 +157,7 @@ class Document:
                     return cleaned_article
         except StandardError as e:
             self.log.exception('error getting summary: ')
-            raise Unparseable(str(e)), None, sys.exc_info()[2]
+            six.reraise(Unparseable, Unparseable(str(e)), sys.exc_info()[2])
 
     def get_article(self, candidates, best_candidate):
         # Now that we have the top candidate, look through its siblings for content that might also be related.
