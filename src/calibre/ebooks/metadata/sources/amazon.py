@@ -598,7 +598,7 @@ class Worker(Thread):  # Get details {{{
         else:
             # Idiot chickens from amazon strike again. This data is now stored
             # in a JS variable inside a script tag URL encoded.
-            m = re.search(b'var\s+iframeContent\s*=\s*"([^"]+)"', raw)
+            m = re.search(br'var\s+iframeContent\s*=\s*"([^"]+)"', raw)
             if m is not None:
                 try:
                     text = unquote(m.group(1)).decode('utf-8')
@@ -624,7 +624,7 @@ class Worker(Thread):  # Get details {{{
             if spans:
                 raw = self.tostring(
                     spans[0], encoding=unicode, method='text', with_tail=False).strip()
-                m = re.search('\s+([0-9.]+)$', raw.strip())
+                m = re.search(r'\s+([0-9.]+)$', raw.strip())
                 if m is not None:
                     series_index = float(m.group(1))
                     s = series.xpath('./a[@id="series-page-link"]')
@@ -637,7 +637,7 @@ class Worker(Thread):  # Get details {{{
         if ans == (None, None):
             for span in root.xpath('//div[@id="aboutEbooksSection"]//li/span'):
                 text = (span.text or '').strip()
-                m = re.match('Book\s+([0-9.]+)', text)
+                m = re.match(r'Book\s+([0-9.]+)', text)
                 if m is not None:
                     series_index = float(m.group(1))
                     a = span.xpath('./a[@href]')
@@ -650,7 +650,7 @@ class Worker(Thread):  # Get details {{{
         if ans == (None, None):
             for b in root.xpath('//div[@id="reviewFeatureGroup"]/span/b'):
                 text = (b.text or '').strip()
-                m = re.match('Book\s+([0-9.]+)', text)
+                m = re.match(r'Book\s+([0-9.]+)', text)
                 if m is not None:
                     series_index = float(m.group(1))
                     a = b.getparent().xpath('./a[@href]')
@@ -839,7 +839,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 2)
+    version = (1, 2, 3)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -856,6 +856,7 @@ class Amazon(Source):
         'fr': _('France'),
         'de': _('Germany'),
         'uk': _('UK'),
+        'au': _('Australia'),
         'it': _('Italy'),
         'jp': _('Japan'),
         'es': _('Spain'),
@@ -957,13 +958,11 @@ class Amazon(Source):
 
     def referrer_for_domain(self, domain=None):
         domain = domain or self.domain
-        if domain == 'uk':
-            return 'https://www.amazon.co.uk/'
-        if domain == 'br':
-            return 'https://www.amazon.com.br/'
-        if domain == 'au':
-            return 'https://www.amazon.com.au/'
-        return 'https://www.amazon.%s/' % domain
+        return {
+            'uk':  'https://www.amazon.co.uk/',
+            'au':  'https://www.amazon.com.au/',
+            'br':  'https://www.amazon.com.br/',
+        }.get(domain, 'https://www.amazon.%s/' % domain)
 
     def _get_book_url(self, identifiers):  # {{{
         domain, asin = self.get_domain_and_asin(
@@ -1016,7 +1015,7 @@ class Amazon(Source):
     def clean_downloaded_metadata(self, mi):
         docase = (
             mi.language == 'eng' or
-            (mi.is_null('language') and self.domain in {'com', 'uk'})
+            (mi.is_null('language') and self.domain in {'com', 'uk', 'au'})
         )
         if mi.title and docase:
             # Remove series information from title
@@ -1039,14 +1038,7 @@ class Amazon(Source):
                     break
 
     def get_website_domain(self, domain):
-        udomain = domain
-        if domain == 'uk':
-            udomain = 'co.uk'
-        elif domain == 'jp':
-            udomain = 'co.jp'
-        elif domain == 'br':
-            udomain = 'com.br'
-        return udomain
+        return {'uk': 'co.uk', 'jp': 'co.jp', 'br': 'com.br', 'au': 'com.au'}.get(domain, domain)
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
