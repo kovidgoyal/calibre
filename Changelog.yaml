@@ -20,6 +20,43 @@
 #   new recipes:
 #     - title:
 
+- version: 3.31.0
+  date: 2018-09-07
+
+  new features:
+    - title: "Book list: Allow changing the font used for any column to bold and/or italic by right clicking on the column header and choosing 'Change font style'."
+      description: "Note that this setting is per-library so it has to be done once for the book list in every calibre library."
+      tickets: [1758434]
+
+    - title: "fetch-ebook-metadata.exe: Allow specifying identifiers other than just ISBN"
+
+    - title: "Amazon metadata download: Add support for Amazon Australia (can be configured via Preferences->Metadata download->customize the amazon metadata source)"
+
+    - title: "Table of Contents Edit tool: When generating from XPath's add a checkbox to control if duplicate entries at the same level are added or not."
+      tickets: [1790761]
+
+    - title: "Edit book: Allow disabling the popup to show changes after running the Fix HTML and Beautify all files tools."
+      tickets: [1789540]
+
+  bug fixes:
+    - title: "DOCX Input: Fix figures in newer Word documents being duplicated."
+      tickets: [1789238]
+
+    - title: "Content server: Disable offline access if application cache is not available, rather than failing."
+      tickets: [1737642]
+
+    - title: "DOCX Output: Workaround for broken CSS that uses -o-pre-wrap for the white-space property"
+      tickets: [1786410]
+
+    - title: "Metadata download: Remove the option to lookup first edition dates as the service used to get the data no longer exists"
+
+  improved recipes:
+    - Howto Geek
+    - Welt der Physik
+    - Neue Osnabrucker Zeitung
+    - Fortune Magazine
+
+
 - version: 3.30.0
   date: 2018-08-24
 
