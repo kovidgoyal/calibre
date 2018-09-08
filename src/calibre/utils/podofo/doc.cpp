@@ -42,7 +42,7 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
 #if PODOFO_VERSION <= 0x000905
             self->doc->Load(buffer, (long)size);
 #else
-            self->doc->LoadBuffer(buffer, (long)size);
+            self->doc->LoadFromBuffer(buffer, (long)size);
 #endif
         } catch(const PdfError & err) {
             podofo_set_exception(err);
@@ -60,11 +60,7 @@ PDFDoc_open(PDFDoc *self, PyObject *args) {
 
     if (PyArg_ParseTuple(args, "s", &fname)) {
         try {
-#if PODOFO_VERSION <= 0x000905
             self->doc->Load(fname);
-#else
-            self->doc->LoadFromFile(fname);
-#endif
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
