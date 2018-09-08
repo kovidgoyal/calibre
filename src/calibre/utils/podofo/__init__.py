@@ -164,6 +164,7 @@ def test_save_to(src, dest):
 
 
 def test_podofo():
+    import tempfile
     from io import BytesIO
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
@@ -179,12 +180,19 @@ def test_podofo():
     buf = BytesIO()
     p.save_to_fileobj(buf)
     raw = buf.getvalue()
-    p = podofo.PDFDoc()
-    p.load(raw)
-    if (p.title, p.author) != (mi.title, mi.authors[0]):
-        raise ValueError('podofo failed to set title and author in Info dict')
-    if not p.get_xmp_metadata():
-        raise ValueError('podofo failed to write XMP packet')
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(raw)
+    try:
+        p = podofo.PDFDoc()
+        p.open(f.name)
+        if (p.title, p.author) != (mi.title, mi.authors[0]):
+            raise ValueError('podofo failed to set title and author in Info dict')
+        if not p.get_xmp_metadata():
+            raise ValueError('podofo failed to write XMP packet')
+        del p
+    finally:
+        os.remove(f.name)
+
 
 if __name__ == '__main__':
     import sys
