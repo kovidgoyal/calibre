@@ -301,7 +301,7 @@ class CreateCustomColumn(QDialog):
         self.format_box = fb = QLineEdit(self)
         h.addWidget(fb)
         self.format_default_label = la = QLabel('')
-        la.setOpenExternalLinks(True)
+        la.setOpenExternalLinks(True), la.setWordWrap(True)
         h.addWidget(la)
         self.format_label = add_row('', h)
 
