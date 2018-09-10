@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, operator
 from functools import partial
 from itertools import izip, imap
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs

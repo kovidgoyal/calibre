@@ -10,7 +10,7 @@ import re, random, unicodedata
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
-from future_builtins import map, zip
+from polyglot.builtins import map, zip
 from itertools import chain
 
 from PyQt5.Qt import (

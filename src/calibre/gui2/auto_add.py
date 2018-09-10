@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, time
 from threading import Thread, Event
-from future_builtins import map
+from polyglot.builtins import map
 
 from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer, QApplication, QCursor)
 

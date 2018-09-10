@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from future_builtins import zip
+from polyglot.builtins import zip
 from itertools import cycle
 
 from calibre import force_unicode

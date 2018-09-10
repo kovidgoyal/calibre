@@ -3,7 +3,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
-from future_builtins import map
+from polyglot.builtins import map
 from calibre.constants import plugins, preferred_encoding
 
 try:

@@ -8,7 +8,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from functools import wraps
-from future_builtins import map
+from polyglot.builtins import map
 
 from lxml import etree
 

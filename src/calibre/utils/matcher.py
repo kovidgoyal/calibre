@@ -15,7 +15,7 @@ from collections import OrderedDict
 from itertools import islice
 
 from itertools import izip
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding

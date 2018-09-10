@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 from collections import OrderedDict
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre.db.adding import compile_glob, filter_filename, compile_rule
 from calibre.gui2 import elided_text, Application, error_dialog

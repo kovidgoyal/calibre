@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
-from future_builtins import map
+from polyglot.builtins import map
 
 from lxml import etree
 

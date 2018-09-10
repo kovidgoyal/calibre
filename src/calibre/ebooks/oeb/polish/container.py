@@ -14,7 +14,7 @@ import time
 import unicodedata
 import uuid
 from collections import defaultdict
-from future_builtins import zip
+from polyglot.builtins import zip
 from io import BytesIO
 from itertools import count
 from urlparse import urlparse

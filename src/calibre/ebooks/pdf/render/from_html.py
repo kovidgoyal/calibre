@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json, os
-from future_builtins import map
+from polyglot.builtins import map
 from math import floor
 from collections import defaultdict
 

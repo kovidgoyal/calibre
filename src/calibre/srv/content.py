@@ -10,7 +10,7 @@ import os, errno
 from binascii import hexlify
 from io import BytesIO
 from threading import Lock
-from future_builtins import map
+from polyglot.builtins import map
 from functools import partial
 from urllib import quote
 

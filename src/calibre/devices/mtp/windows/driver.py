@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time, threading, traceback
 from functools import wraps, partial
-from future_builtins import zip
+from polyglot.builtins import zip
 from itertools import chain
 
 from calibre import as_unicode, prints, force_unicode

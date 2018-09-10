@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import defaultdict
 from urlparse import urlparse
-from future_builtins import map
+from polyglot.builtins import map
 from threading import Thread
 from Queue import Queue, Empty
 

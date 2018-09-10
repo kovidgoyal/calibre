@@ -9,7 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, json, importlib, math, httplib, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
-from future_builtins import map
+from polyglot.builtins import map
 from Queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool

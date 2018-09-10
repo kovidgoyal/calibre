@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction

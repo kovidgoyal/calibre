@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback, types
-from future_builtins import zip
+from polyglot.builtins import zip
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding

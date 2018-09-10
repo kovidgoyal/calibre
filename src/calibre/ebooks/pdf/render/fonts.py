@@ -11,7 +11,7 @@ import re
 from itertools import izip, groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,

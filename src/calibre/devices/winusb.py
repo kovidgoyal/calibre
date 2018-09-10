@@ -15,7 +15,7 @@ from ctypes import (
 )
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
-from future_builtins import map
+from polyglot.builtins import map
 
 from calibre import prints, as_unicode
 

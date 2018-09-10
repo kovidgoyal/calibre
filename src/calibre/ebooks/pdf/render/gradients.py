@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, copy
-from future_builtins import map
+from polyglot.builtins import map
 from collections import namedtuple
 
 from PyQt5.Qt import QLinearGradient, QPointF

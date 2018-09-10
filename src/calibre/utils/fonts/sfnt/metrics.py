@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from future_builtins import map
+from polyglot.builtins import map
 from calibre.utils.fonts.utils import get_all_font_names
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 

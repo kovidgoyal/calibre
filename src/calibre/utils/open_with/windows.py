@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, struct, ctypes
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 
 from PyQt5.Qt import QtWin, Qt, QIcon, QByteArray, QBuffer, QPixmap
 import win32con, win32api, win32gui, pywintypes, winerror

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import math, json
 from base64 import b64encode
 from functools import partial
-from future_builtins import map
+from polyglot.builtins import map
 
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, QPainter, QPalette, QBrush,

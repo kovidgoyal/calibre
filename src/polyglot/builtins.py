@@ -19,6 +19,10 @@ if is_py3:
         finally:
             value = None
             tb = None
+
+    zip = __builtins__['zip']
+    map = __builtins__['map']
+    filter = __builtins__['filter']
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -26,3 +30,5 @@ else:
     finally:
         tb = None
 """)
+
+    from future_builtins import zip, map, filter  # noqa

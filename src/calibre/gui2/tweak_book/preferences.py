@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from operator import attrgetter, methodcaller
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 from itertools import product
 from copy import copy, deepcopy
 

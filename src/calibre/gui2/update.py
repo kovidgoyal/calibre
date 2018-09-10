@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, binascii, cPickle, ssl, json
-from future_builtins import map
+from polyglot.builtins import map
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,

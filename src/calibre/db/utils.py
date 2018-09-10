@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, cPickle, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 from threading import Lock
 
 from calibre import as_unicode, prints

@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import regex, sys
-from future_builtins import map, zip
+from polyglot.builtins import map, zip
 
 is_narrow_build = sys.maxunicode < 0x10ffff
 

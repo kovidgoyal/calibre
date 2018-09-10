@@ -31,7 +31,7 @@ from contextlib import closing
 from datetime import datetime
 from email.utils import parsedate
 from functools import partial
-from future_builtins import filter, map, zip
+from polyglot.builtins import filter, map, zip
 from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
 # }}}

@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import print_function
-from future_builtins import map
+from polyglot.builtins import map
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = u'calibre'

@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import curses, os, select, fcntl, errno, re
 from io import BlockingIOError
-from future_builtins import map
+from polyglot.builtins import map
 from threading import Thread
 
 clean_pat = re.compile(b'[\n\r\f\v]')

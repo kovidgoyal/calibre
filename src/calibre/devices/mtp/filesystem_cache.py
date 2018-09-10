@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, sys, json
 from collections import deque
 from operator import attrgetter
-from future_builtins import map
+from polyglot.builtins import map
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode

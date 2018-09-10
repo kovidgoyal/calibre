@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 
 from lxml import etree
 
