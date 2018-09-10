@@ -12,6 +12,12 @@ if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwdu()
+except AttributeError:
+    os.getcwdu = os.getcwd
+    try:
+        os.getcwd()
+    except EnvironmentError:
+        os.chdir(os.path.expanduser('~'))
 except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
@@ -342,9 +348,9 @@ def get_parsed_proxy(typ='http', debug=True):
     if proxy:
         pattern = re.compile((
             '(?:ptype://)?'
-            '(?:(?P<user>\w+):(?P<pass>.*)@)?'
-            '(?P<host>[\w\-\.]+)'
-            '(?::(?P<port>\d+))?').replace('ptype', typ)
+            '(?:(?P<user>\\w+):(?P<pass>.*)@)?'
+            '(?P<host>[\\w\\-\\.]+)'
+            '(?::(?P<port>\\d+))?').replace('ptype', typ)
         )
 
         match = pattern.match(proxies[typ])
