@@ -63,7 +63,7 @@ class Hex2Utf8:
             'in module "hex_2_utf8.py\n'
             '"area_to_convert" must be "body" or "preamble"\n'
             )
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         self.__char_file = char_file
         self.__area_to_convert = area_to_convert
         self.__default_char_map = default_char_map
@@ -118,7 +118,7 @@ class Hex2Utf8:
             'in module "hex_2_utf8.py\n'
             '"area_to_convert" must be "body" or "preamble"\n'
             )
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         self.__area_to_convert = area_to_convert
         self.__symbol = symbol
         self.__wingdings = wingdings
@@ -261,7 +261,7 @@ class Hex2Utf8:
                     # msg += 'the hexidecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
                     msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
 
     def __found_body_func(self, line):
         self.__state = 'body'

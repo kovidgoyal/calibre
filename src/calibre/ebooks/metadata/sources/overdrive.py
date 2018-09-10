@@ -233,7 +233,7 @@ class OverDrive(Source):
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
-            for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
+            for m in re.finditer(unicode(r'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)'), raw):
                 if int(m.group('totalrecords')) == 0:
                     return ''
                 elif int(m.group('displayrecords')) >= 1:
@@ -408,7 +408,7 @@ class OverDrive(Source):
 
         try:
             raw = br.open_novisit(metadata_url).read()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return False

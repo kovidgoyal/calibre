@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -129,7 +130,7 @@ class PyPIRegister(Command):
         '''
         # send the info to the server and report the result
         (code, result) = self.post_to_server(self.build_post_data('verify'))
-        print 'Server response (%s): %s'%(code, result)
+        print('Server response (%s): %s'%(code, result))
 
     def build_post_data(self, action):
         # figure the data to send - the metadata plus some additional
@@ -199,18 +200,18 @@ class PyPIRegister(Command):
         data = ''
         try:
             result = opener.open(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             if self.show_response:
                 data = e.fp.read()
             result = e.code, e.msg
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             result = 500, str(e)
         else:
             if self.show_response:
                 data = result.read()
             result = 200, 'OK'
         if self.show_response:
-            print '-'*75, data, '-'*75
+            print('-'*75, data, '-'*75)
         return result
 
 class PyPIUpload(PyPIRegister):
@@ -341,7 +342,7 @@ class PyPIUpload(PyPIRegister):
             http.putheader('Authorization', auth)
             http.endheaders()
             http.send(body)
-        except socket.error, e:
+        except socket.error as e:
             self.warn(str(e))
             raise SystemExit(1)
 
@@ -352,4 +353,4 @@ class PyPIUpload(PyPIRegister):
             self.info('Upload failed (%s): %s' % (r.status, r.reason))
             raise SystemExit(1)
         if self.show_response:
-            print '-'*75, r.read(), '-'*75
+            print('-'*75, r.read(), '-'*75)

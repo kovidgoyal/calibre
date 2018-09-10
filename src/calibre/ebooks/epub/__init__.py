@@ -41,7 +41,7 @@ def initialize_container(path_to_container, opf_name='metadata.opf',
     CONTAINER = simple_container_xml(opf_name, rootfiles).encode('utf-8')
     zf = ZipFile(path_to_container, 'w')
     zf.writestr('mimetype', 'application/epub+zip', compression=ZIP_STORED)
-    zf.writestr('META-INF/', '', 0755)
+    zf.writestr('META-INF/', '', 0o755)
     zf.writestr('META-INF/container.xml', CONTAINER)
     for path, _, data in extra_entries:
         zf.writestr(path, data)

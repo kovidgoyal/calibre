@@ -176,7 +176,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], type('')):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(_snippets.iteritems(), key=(lambda (key, snip):string_length(key.trigger)), reverse=True)
+        _snippets = sorted(_snippets.iteritems(), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 # Editor integration {{{

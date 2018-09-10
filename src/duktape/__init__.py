@@ -12,6 +12,7 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
+import six
 import dukpy
 
 from calibre.constants import iswindows
@@ -157,7 +158,7 @@ class Function(object):
             self.reraise(e)
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        six.reraise(JSError, JSError(e), sys.exc_info()[2])
 
 def to_python(x):
     try:
@@ -332,7 +333,7 @@ class Context(object):
         '<init>')
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        six.reraise(JSError, JSError(e), sys.exc_info()[2])
 
     def eval(self, code='', fname='<eval>', noreturn=False):
         try:

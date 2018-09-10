@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,7 +22,7 @@ class SchemaUpgrade(object):
             if meth is None:
                 break
             else:
-                print 'Upgrading database to version %d...'%(uv+1)
+                print('Upgrading database to version %d...'%(uv+1))
                 meth()
                 self.user_version = uv+1
 

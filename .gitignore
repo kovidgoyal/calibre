@@ -48,3 +48,5 @@ recipes/*.mobi
 recipes/*.epub
 recipes/debug
 /.metadata/
+.idea
+/*env*/

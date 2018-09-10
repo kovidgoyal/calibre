@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -685,8 +686,8 @@ def main(args=sys.argv):
     options, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()
-        print
-        print 'No lrf file specified'
+        print()
+        print('No lrf file specified')
         return 1
     lrf = LRFMetaFile(open(args[1], "r+b"))
 
@@ -731,9 +732,9 @@ def main(args=sys.argv):
     fields.sort()
     for f in fields:
         if "XML" in str(f):
-            print str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8')
+            print(str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
     if options.get_thumbnail:
-        print "Thumbnail:", td
+        print("Thumbnail:", td)
     if options.get_cover:
         try:
             ext, data = lrf.get_cover()
@@ -742,9 +743,9 @@ def main(args=sys.argv):
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
             open(cover, 'wb').write(data)
-            print 'Cover:', cover
+            print('Cover:', cover)
         else:
-            print 'Could not find cover in the LRF file'
+            print('Could not find cover in the LRF file')
 
 
 if __name__ == '__main__':

@@ -130,10 +130,10 @@ class PRS505(USBMS):
                     dname = os.path.dirname(cachep)
                     if not os.path.exists(dname):
                         try:
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                         except:
                             time.sleep(5)
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                     with lopen(cachep, 'wb') as f:
                         f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">

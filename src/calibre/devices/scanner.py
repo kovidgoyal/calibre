@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -90,8 +91,8 @@ class LibUSBScanner(object):
                 self()
             for i in xrange(3):
                 gc.collect()
-            print 'Mem consumption increased by:', memory() - start, 'MB',
-            print 'after', num, 'repeats'
+            print('Mem consumption increased by:', memory() - start, 'MB', end=' ')
+            print('after', num, 'repeats')
 
 
 class LinuxScanner(object):

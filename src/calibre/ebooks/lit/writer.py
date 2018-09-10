@@ -2,6 +2,7 @@
 Basic support for writing LIT files.
 '''
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -135,7 +136,7 @@ def randbytes(n):
 
 
 def warn(x):
-    print x
+    print(x)
 
 
 class ReBinary(object):

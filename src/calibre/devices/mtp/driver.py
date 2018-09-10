@@ -572,6 +572,6 @@ if __name__ == '__main__':
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
         dev.filesystem_cache.dump()
-        print ('Prefix for main mem:', dev.prefix_for_location(None))
+        print('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()

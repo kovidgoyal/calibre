@@ -217,7 +217,7 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
-        pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
         for _, _, cssdict, text, _ in rules:

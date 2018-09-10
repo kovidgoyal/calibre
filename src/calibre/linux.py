@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -372,14 +373,14 @@ class ZshCompleter(object):  # {{{
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
-        f.write((ur'''
+        f.write((u'''
 _ebook_edit() {
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
 
-    _arguments -C -s \
+    _arguments -C -s \\
         %s
-        "1:ebook file:_files -g '(#i)*.(%s)'" \
+        "1:ebook file:_files -g '(#i)*.(%s)'" \\
         '*:file in ebook:->files' && return 0
 
     case $state in
@@ -392,7 +393,7 @@ _ebook_edit() {
             else
                 return 1
             fi
-            _wanted files expl 'file from ebook' \
+            _wanted files expl 'file from ebook' \\
             _multi_parts / _zip_cache_list && return 0
             ;;
     esac
@@ -644,12 +645,12 @@ class PostInstall:
         import traceback
         tb = '\n\t'.join(traceback.format_exc().splitlines())
         self.info('\t'+tb)
-        print
+        print()
 
     def warning(self, *args, **kwargs):
-        print '\n'+'_'*20, 'WARNING','_'*20
+        print('\n'+'_'*20, 'WARNING','_'*20)
         prints(*args, **kwargs)
-        print '_'*50
+        print('_'*50)
         print ('\n')
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
@@ -715,7 +716,7 @@ class PostInstall:
             self.info('\n\nThere were %d warnings\n'%len(self.warnings))
             for args, kwargs in self.warnings:
                 self.info('*', *args, **kwargs)
-                print
+                print()
 
     def create_uninstaller(self):
         base = self.opts.staging_bindir
@@ -753,7 +754,7 @@ class PostInstall:
             write_completion(bash_comp_dest, zsh)
         except TypeError as err:
             if 'resolve_entities' in str(err):
-                print 'You need python-lxml >= 2.0.5 for calibre'
+                print('You need python-lxml >= 2.0.5 for calibre')
                 sys.exit(1)
             raise
         except EnvironmentError as e:

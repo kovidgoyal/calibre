@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 # encoding: utf-8
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -142,15 +143,15 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(ur'\"()'))
+    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(u'\\"()'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (ur'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (ur'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (ur'[^"()\s]+', lambda x,t: (Parser.WORD, unicode(t))),
-            (ur'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (ur'\s+',              None)
+            (unicode(r'[()]'), lambda x,t: (Parser.OPCODE, t)),
+            (unicode(r'@.+?:[^")\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
+            (unicode(r'[^"()\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
+            (unicode(r'".*?((?<!\\)")'), lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (unicode(r'\s+'),              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):
@@ -309,9 +310,9 @@ class SearchQueryParser(object):
             prints('\tTesting:', test[0], end=' ')
             res = parser.parseString(test[0])
             if list(res.get(result, None)) == test[1]:
-                print 'OK'
+                print('OK')
             else:
-                print 'FAILED:', 'Expected:', test[1], 'Got:', list(res.get(result, None))
+                print('FAILED:', 'Expected:', test[1], 'Got:', list(res.get(result, None)))
                 failed.append(test[0])
         return failed
 

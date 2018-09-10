@@ -615,10 +615,10 @@ def profile():
     h.set_document(doc)
     h.join()
     import cProfile
-    print ('Running profile on', sys.argv[-2])
+    print('Running profile on', sys.argv[-2])
     h.rehighlight()
     cProfile.runctx('h.join()', {}, {'h':h}, sys.argv[-1])
-    print ('Stats saved to:', sys.argv[-1])
+    print('Stats saved to:', sys.argv[-1])
     del h
     del doc
     del app

@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -75,10 +76,10 @@ def require_clean_git():
         c('git rev-parse --verify HEAD'.split(), stdout=null)
         c('git update-index -q --ignore-submodules --refresh'.split())
         if p('git diff-files --quiet --ignore-submodules'.split()).wait() != 0:
-            print >>sys.stderr, 'You have unstaged changes in your working tree'
+            print('You have unstaged changes in your working tree', file=sys.stderr)
             raise SystemExit(1)
         if p('git diff-index --cached --quiet --ignore-submodules HEAD --'.split()).wait() != 0:
-            print >>sys.stderr, 'Your git index contains uncommitted changes'
+            print('Your git index contains uncommitted changes', file=sys.stderr)
             raise SystemExit(1)
 
 
@@ -269,9 +270,9 @@ class Command(object):
         sys.stdout.flush()
 
     def warn(self, *args, **kwargs):
-        print '\n'+'_'*20, 'WARNING','_'*20
+        print('\n'+'_'*20, 'WARNING','_'*20)
         prints(*args, **kwargs)
-        print '_'*50
+        print('_'*50)
         warnings.append((args, kwargs))
         sys.stdout.flush()
 

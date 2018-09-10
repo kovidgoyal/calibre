@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+from __future__ import print_function
 
 __author__ = 'Darko Spasovski'
 __license__ = 'GPL v3'
@@ -64,7 +65,7 @@ class Dnevnik(BasicNewsRecipe):
             containerTable = section.findPrevious(
                 name='table').findNextSibling(name='table')
             if containerTable is None:
-                print 'No container table found - page layout may have been changed.'
+                print('No container table found - page layout may have been changed.')
                 continue
             articles = []
             for article in containerTable.findAll('a', attrs={'class': 'WB_DNEVNIK_ArhivaFormText'}):

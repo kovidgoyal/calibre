@@ -62,6 +62,6 @@ class LocaTable(UnknownTable):
         for i in xrange(len(self.offset_map)-1):
             off, noff = self.offset_map[i], self.offset_map[i+1]
             if noff != off:
-                print ('Glyph id:', i, 'size:', noff-off)
+                print('Glyph id:', i, 'size:', noff-off)
 
 

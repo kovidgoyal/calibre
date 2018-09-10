@@ -178,7 +178,7 @@ class Fonts:
             if font_name is None:
                 if self.__run_level > 3:
                     msg = 'no value for %s in self.__font_table\n' % font_num
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
             else:
                 # self.__special_font_dict
                 if font_name in self.__special_font_list:

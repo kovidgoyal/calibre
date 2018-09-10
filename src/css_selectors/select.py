@@ -53,7 +53,7 @@ def trace_wrapper(func):
     @wraps(func)
     def trace(*args, **kwargs):
         targs = args[1:] if args and isinstance(args[0], Select) else args
-        print ('Called:', func.__name__, 'with args:', targs, kwargs or '')
+        print('Called:', func.__name__, 'with args:', targs, kwargs or '')
         return func(*args, **kwargs)
     return trace
 

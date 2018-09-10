@@ -77,6 +77,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE, DAMMIT.
 
 """
 from __future__ import generators
+from __future__ import print_function
 
 __author__ = "Leonard Richardson (leonardr@segfault.org)"
 __version__ = "3.0.5"
@@ -419,7 +420,7 @@ class NavigableString(unicode, PageElement):
         if attr == 'string':
             return self
         else:
-            raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__.__name__, attr)
+            raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, attr))
 
     def __unicode__(self):
         return unicode(str(self), DEFAULT_OUTPUT_ENCODING) # Changed by Kovid
@@ -517,10 +518,10 @@ class Tag(PageElement):
         self.escapeUnrecognizedEntities = parser.escapeUnrecognizedEntities
 
         # Convert any HTML, XML, or numeric entities in the attribute values.
-        convert = lambda(k, val): (k,
+        convert = lambda k_val: (k_val[0],
                                    re.sub("&(#\d+|#x[0-9a-fA-F]+|\w+);",
                                           self._convertEntities,
-                                          val))
+                                          k_val[1]))
         self.attrs = map(convert, self.attrs)
 
     def get(self, key, default=None):
@@ -589,7 +590,7 @@ class Tag(PageElement):
             return self.find(tag[:-3])
         elif tag.find('__') != 0:
             return self.find(tag)
-        raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__, tag)
+        raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__, tag))
 
     def __eq__(self, other):
         """Returns true iff this tag has the same name, the same attributes,
@@ -881,8 +882,8 @@ class SoupStrainer:
             if self._matches(markup, self.text):
                 found = markup
         else:
-            raise Exception, "I don't know how to match against a %s" \
-                  % markup.__class__
+            raise Exception("I don't know how to match against a %s" \
+                  % markup.__class__)
         return found
 
     def _matches(self, markup, matchAgainst):
@@ -1261,7 +1262,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         if self.quoteStack:
             #This is not a real tag.
             #print "<%s> is not real!" % name
-            attrs = ''.join(map(lambda(x, y): ' %s="%s"' % (x, y), attrs))
+            attrs = ''.join(map(lambda x_y: ' %s="%s"' % (x_y[0], x_y[1]), attrs))
             self.handle_data('<%s%s>' % (name, attrs))
             return
         self.endData()
@@ -1535,7 +1536,7 @@ class BeautifulSoup(BeautifulStoneSoup):
                     # else an encoding was specified explicitly and it
                     # worked. Rewrite the meta tag.
                     newAttr = self.CHARSET_RE.sub\
-                              (lambda(match):match.group(1) +
+                              (lambda match:match.group(1) +
                                "%SOUP-ENCODING%", value)
                     attrs[contentTypeIndex] = (attrs[contentTypeIndex][0],
                                                newAttr)
@@ -1738,7 +1739,7 @@ class UnicodeDammit:
                                                       "iso-8859-1",
                                                       "iso-8859-2"):
             markup = re.compile("([\x80-\x9f])").sub \
-                     (lambda(x): self._subMSChar(x.group(1)),
+                     (lambda x: self._subMSChar(x.group(1)),
                       markup)
 
         try:
@@ -1934,4 +1935,4 @@ class UnicodeDammit:
 if __name__ == '__main__':
     import sys
     soup = BeautifulSoup(sys.stdin.read())
-    print soup.prettify()
+    print(soup.prettify())

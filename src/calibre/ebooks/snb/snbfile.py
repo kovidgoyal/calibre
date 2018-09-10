@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__license__ = 'GPL 3'
+from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -92,7 +93,7 @@ class SNBFile:
                             else:
                                 uncompressedData += data
                         except Exception as e:
-                            print e
+                            print(e)
                 if len(uncompressedData) != self.plainStreamSizeUncompressed:
                     raise Exception()
                 f.fileBody = uncompressedData[plainPos:plainPos+f.fileSize]
@@ -103,7 +104,7 @@ class SNBFile:
                 f.fileBody = snbFile.read(f.fileSize)
                 binPos += f.fileSize
             else:
-                print f.attr, f.fileName
+                print(f.attr, f.fileName)
                 raise Exception("Invalid file")
 
     def ParseFile(self, vfat, fileCount):
@@ -143,7 +144,7 @@ class SNBFile:
         if (self.binBlock + self.plainBlock) * 4 + self.fileCount * 8 != self.tailSizeUncompressed:
             return False
         if self.tailMagic != SNBFile.MAGIC:
-            print self.tailMagic
+            print(self.tailMagic)
             return False
         return True
 
@@ -222,7 +223,7 @@ class SNBFile:
                 f.contentOffset = len(binStream)
                 binStream += f.fileBody
             else:
-                print f.attr, f.fileName
+                print(f.attr, f.fileName)
                 raise Exception("Unknown file type")
         vfatCompressed = zlib.compress(vfat+fileNameTable)
 
@@ -285,32 +286,32 @@ class SNBFile:
 
     def Dump(self):
         if self.fileName:
-            print "File Name:\t", self.fileName
-        print "File Count:\t", self.fileCount
-        print "VFAT Size(Compressed):\t%d(%d)" % (self.vfatSize, self.vfatCompressed)
-        print "Binary Stream Size:\t", self.binStreamSize
-        print "Plain Stream Uncompressed Size:\t", self.plainStreamSizeUncompressed
-        print "Binary Block Count:\t", self.binBlock
-        print "Plain Block Count:\t", self.plainBlock
+            print("File Name:\t", self.fileName)
+        print("File Count:\t", self.fileCount)
+        print("VFAT Size(Compressed):\t%d(%d)" % (self.vfatSize, self.vfatCompressed))
+        print("Binary Stream Size:\t", self.binStreamSize)
+        print("Plain Stream Uncompressed Size:\t", self.plainStreamSizeUncompressed)
+        print("Binary Block Count:\t", self.binBlock)
+        print("Plain Block Count:\t", self.plainBlock)
         for i in range(self.fileCount):
-            print "File ", i
+            print("File ", i)
             f = self.files[i]
-            print "File Name: ", f.fileName
-            print "File Attr: ", f.attr
-            print "File Size: ", f.fileSize
-            print "Block Index: ", f.blockIndex
-            print "Content Offset: ", f.contentOffset
+            print("File Name: ", f.fileName)
+            print("File Attr: ", f.attr)
+            print("File Size: ", f.fileSize)
+            print("Block Index: ", f.blockIndex)
+            print("Content Offset: ", f.contentOffset)
             tempFile = open("/tmp/" + f.fileName, 'wb')
             tempFile.write(f.fileBody)
             tempFile.close()
 
 
 def usage():
-    print "This unit test is for INTERNAL usage only!"
-    print "This unit test accept two parameters."
-    print "python snbfile.py <INPUTFILE> <DESTFILE>"
-    print "The input file will be extracted and write to dest file. "
-    print "Meta data of the file will be shown during this process."
+    print("This unit test is for INTERNAL usage only!")
+    print("This unit test accept two parameters.")
+    print("python snbfile.py <INPUTFILE> <DESTFILE>")
+    print("The input file will be extracted and write to dest file. ")
+    print("Meta data of the file will be shown during this process.")
 
 
 def main():
@@ -320,15 +321,15 @@ def main():
     inputFile = sys.argv[1]
     outputFile = sys.argv[2]
 
-    print "Input file: ", inputFile
-    print "Output file: ", outputFile
+    print("Input file: ", inputFile)
+    print("Output file: ", outputFile)
 
     snbFile = SNBFile(inputFile)
     if snbFile.IsValid():
         snbFile.Dump()
         snbFile.Output(outputFile)
     else:
-        print "The input file is invalid."
+        print("The input file is invalid.")
         return 1
     return 0
 

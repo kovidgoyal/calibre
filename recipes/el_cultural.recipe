@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
@@ -31,7 +32,7 @@ class RevistaElCultural(BasicNewsRecipe):
 
     # TO GET ARTICLES IN SECTION
     def ec_parse_section(self, url, titleSection):
-        print 'Section: ' + titleSection
+        print('Section: ' + titleSection)
         soup = self.index_to_soup(url)
         div = soup.find(attrs={'id': 'gallery'})
         current_articles = []

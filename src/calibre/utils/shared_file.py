@@ -7,6 +7,9 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys
+
+import six
+
 from calibre.constants import iswindows, plugins
 
 '''
@@ -119,7 +122,11 @@ if iswindows:
     }
 
     def raise_winerror(pywinerr):
-        raise WindowsError(pywinerr.winerror, (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')), None, sys.exc_info()[2]
+        six.reraise(
+            WindowsError,
+            WindowsError(pywinerr.winerror,
+                         (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')),
+            sys.exc_info()[2])
 
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
         '''
@@ -173,7 +180,7 @@ else:
         return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
     def raise_winerror(x):
-        raise NotImplementedError(), None, sys.exc_info()[2]
+        six.reraise(NotImplementedError, None, sys.exc_info()[2])
 
 
 def find_tests():

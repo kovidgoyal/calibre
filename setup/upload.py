@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-__license__ = 'GPL v3'
+from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -143,7 +144,7 @@ def calibre_cmdline(ver):
 
 
 def run_remote_upload(args):
-    print 'Running remotely:', ' '.join(args)
+    print('Running remotely:', ' '.join(args))
     subprocess.check_call([
         'ssh', '-x', '%s@%s' % (STAGING_USER, STAGING_HOST), 'cd', STAGING_DIR, '&&',
         'python2', 'hosting.py'

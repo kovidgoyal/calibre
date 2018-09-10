@@ -129,7 +129,7 @@ class ConvertToTags:
             except:
                 if self.__run_level > 3:
                     msg = 'index out of range\n'
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
         self.__write_obj.write('>')
         self.__new_line = 0
         if element_name in self.__block:

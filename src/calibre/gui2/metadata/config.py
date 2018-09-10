@@ -101,7 +101,7 @@ class ConfigWidget(QWidget):
         elif opt.type == 'choices':
             widget = QComboBox(self)
             items = list(opt.choices.iteritems())
-            items.sort(key=lambda (k, v): sort_key(v))
+            items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))
             idx = widget.findData((val))

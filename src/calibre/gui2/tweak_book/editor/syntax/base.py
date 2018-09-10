@@ -38,7 +38,7 @@ def run_loop(user_data, state_map, formats, text):
                 i += num
         if orig_i == i and state.parse in seen_states[i]:
             # Something went wrong in the syntax highlighter
-            print ('Syntax highlighter returned a zero length format, parse state:', state.parse)
+            print('Syntax highlighter returned a zero length format, parse state:', state.parse)
             break
 
 

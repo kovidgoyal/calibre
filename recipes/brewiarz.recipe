@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-__license__ = 'GPL v3'
+from __future__ import print_function
+__license__   = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
@@ -142,7 +143,7 @@ class brewiarz(BasicNewsRecipe):
                     if x == tag:
                         break
                 else:
-                    print "Can't find", tag, "in", tag.parent
+                    print("Can't find", tag, "in", tag.parent)
                     continue
                 for r in reversed(tag.contents):
                     tag.parent.insert(i, r)

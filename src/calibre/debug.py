@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -254,7 +255,7 @@ def inspect_mobi(path):
     from calibre.ebooks.mobi.debug.main import inspect_mobi
     prints('Inspecting:', path)
     inspect_mobi(path)
-    print
+    print()
 
 
 def main(args=sys.argv):
@@ -325,7 +326,7 @@ def main(args=sys.argv):
             from calibre.utils.winreg.default_programs import register as func
         else:
             from calibre.utils.winreg.default_programs import unregister as func
-        print 'Running', func.__name__, '...'
+        print('Running', func.__name__, '...')
         func()
     elif opts.export_all_calibre_data:
         args = args[1:]

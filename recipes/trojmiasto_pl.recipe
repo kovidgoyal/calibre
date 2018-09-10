@@ -20,8 +20,8 @@ class Trojmiasto(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    preprocess_regexps = [(re.compile(ur'<strong>Czytaj więcej.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(ur'<strong>Zobacz też.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa
-                          (re.compile(ur'<b>[A-ZĄĆĘŁŃÓŚŹŻ \-,.:]*?</b>', re.DOTALL), lambda match: ''), ]
+    preprocess_regexps = [(re.compile(u'<strong>Czytaj więcej.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(u'<strong>Zobacz też.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa
+                          (re.compile(u'<b>[A-ZĄĆĘŁŃÓŚŹŻ ,.:-]*?</b>', re.DOTALL), lambda match: ''), ]
 
     remove_tags = [
         dict(id=['logo', 'font_small', 'font_big']),

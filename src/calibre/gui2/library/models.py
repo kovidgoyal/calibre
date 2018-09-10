@@ -55,7 +55,7 @@ def default_image():
 
 
 def group_numbers(numbers):
-    for k, g in groupby(enumerate(sorted(numbers)), lambda (i, x):i - x):
+    for k, g in groupby(enumerate(sorted(numbers)), lambda i_x:i_x[0] - i_x[1]):
         first = None
         for last in g:
             if first is None:
@@ -1151,7 +1151,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(ur'\s', u' ', unicode(value or '').strip()))
+                    else re.sub(u'\\s', u' ', unicode(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = set([id])
             if column == 'rating':

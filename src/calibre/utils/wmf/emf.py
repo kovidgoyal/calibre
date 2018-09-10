@@ -50,7 +50,7 @@ class EMF(object):
 
     def handle_unknown(self, rtype, size, raw):
         if self.verbose:
-            print ('Ignoring unknown record:', RECORD_RMAP.get(rtype, hex(rtype).upper()))
+            print('Ignoring unknown record:', RECORD_RMAP.get(rtype, hex(rtype).upper()))
 
     def handle_header(self, rtype, size, raw):
         pass

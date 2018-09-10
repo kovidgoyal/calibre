@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -555,7 +556,7 @@ class KINDLE2(KINDLE):
                         print('Could not retrieve override method choice, using default.')
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
             except:
-                print 'Failed to generate APNX'
+                print('Failed to generate APNX')
                 import traceback
                 traceback.print_exc()
 

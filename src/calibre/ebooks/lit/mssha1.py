@@ -3,6 +3,7 @@ Modified version of SHA-1 used in Microsoft LIT files.
 
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -29,7 +30,7 @@ def _long2bytesBigEndian(n, blocksize=0):
     s = ''
     pack = struct.pack
     while n > 0:
-        s = pack('>I', n & 0xffffffffL) + s
+        s = pack('>I', n & 0xffffffff) + s
         n = n >> 32
 
     # Strip off leading zeros.
@@ -55,7 +56,7 @@ def _bytelist2longBigEndian(list):
     "Transform a list of characters into a list of longs."
 
     imax = len(list)/4
-    hl = [0L] * imax
+    hl = [0] * imax
 
     j = 0
     i = 0
@@ -119,10 +120,10 @@ f[68] = f0_19
 
 # Constants to be used
 K = [
-    0x5A827999L,  # ( 0 <= t <= 19)
-    0x6ED9EBA1L,  # (20 <= t <= 39)
-    0x8F1BBCDCL,  # (40 <= t <= 59)
-    0xCA62C1D6L  # (60 <= t <= 79)
+    0x5A827999,  # ( 0 <= t <= 19)
+    0x6ED9EBA1,  # (20 <= t <= 39)
+    0x8F1BBCDC,  # (40 <= t <= 59)
+    0xCA62C1D6  # (60 <= t <= 79)
     ]
 
 
@@ -133,7 +134,7 @@ class mssha1(object):
         "Initialisation."
 
         # Initial message length in bits(!).
-        self.length = 0L
+        self.length = 0
         self.count = [0, 0]
 
         # Initial empty message as a sequence of bytes (8 bit characters).
@@ -146,21 +147,21 @@ class mssha1(object):
     def init(self):
         "Initialize the message-digest and set all fields to zero."
 
-        self.length = 0L
+        self.length = 0
         self.input = []
 
         # Initial 160 bit message digest (5 times 32 bit).
         # Also changed by Microsoft from standard.
-        self.H0 = 0x32107654L
-        self.H1 = 0x23016745L
-        self.H2 = 0xC4E680A2L
-        self.H3 = 0xDC679823L
-        self.H4 = 0xD0857A34L
+        self.H0 = 0x32107654
+        self.H1 = 0x23016745
+        self.H2 = 0xC4E680A2
+        self.H3 = 0xDC679823
+        self.H4 = 0xD0857A34
 
     def _transform(self, W):
         for t in range(16, 80):
             W.append(_rotateLeft(
-                W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1) & 0xffffffffL)
+                W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1) & 0xffffffff)
 
         A = self.H0
         B = self.H1
@@ -172,15 +173,15 @@ class mssha1(object):
             TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t/20]
             E = D
             D = C
-            C = _rotateLeft(B, 30) & 0xffffffffL
+            C = _rotateLeft(B, 30) & 0xffffffff
             B = A
-            A = TEMP & 0xffffffffL
+            A = TEMP & 0xffffffff
 
-        self.H0 = (self.H0 + A) & 0xffffffffL
-        self.H1 = (self.H1 + B) & 0xffffffffL
-        self.H2 = (self.H2 + C) & 0xffffffffL
-        self.H3 = (self.H3 + D) & 0xffffffffL
-        self.H4 = (self.H4 + E) & 0xffffffffL
+        self.H0 = (self.H0 + A) & 0xffffffff
+        self.H1 = (self.H1 + B) & 0xffffffff
+        self.H2 = (self.H2 + C) & 0xffffffff
+        self.H3 = (self.H3 + D) & 0xffffffff
+        self.H4 = (self.H4 + E) & 0xffffffff
 
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
@@ -204,7 +205,7 @@ class mssha1(object):
         leninBuf = long(len(inBuf))
 
         # Compute number of bytes mod 64.
-        index = (self.count[1] >> 3) & 0x3FL
+        index = (self.count[1] >> 3) & 0x3F
 
         # Update number of bits.
         self.count[1] = self.count[1] + (leninBuf << 3)
@@ -243,7 +244,7 @@ class mssha1(object):
         input = [] + self.input
         count = [] + self.count
 
-        index = (self.count[1] >> 3) & 0x3fL
+        index = (self.count[1] >> 3) & 0x3f
 
         if index < 56:
             padLen = 56 - index
@@ -325,7 +326,7 @@ if __name__ == '__main__':
         import sys
         file = None
         if len(sys.argv) > 2:
-            print "usage: %s [FILE]" % sys.argv[0]
+            print("usage: %s [FILE]" % sys.argv[0])
             return
         elif len(sys.argv) < 2:
             file = sys.stdin
@@ -339,6 +340,6 @@ if __name__ == '__main__':
         file.close()
         digest = context.hexdigest().upper()
         for i in xrange(0, 40, 8):
-            print digest[i:i+8],
-        print
+            print(digest[i:i+8], end=' ')
+        print()
     main()

@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os
@@ -78,7 +79,7 @@ class LRFConverter(object):
         for obj in self.lrf.objects.values():
             if isinstance(obj, TextAttr):
                 self.text_css += str(TextStyle(obj))
-        print self.text_css
+        print(self.text_css)
 
     def create_styles(self):
         self.logger.info('Creating CSS stylesheet...')

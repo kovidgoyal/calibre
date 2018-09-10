@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import with_statement
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -486,7 +487,7 @@ class RecursiveFetcher(object):
 
             for c, tag in enumerate(tags):
                 if self.show_progress:
-                    print '.',
+                    print('.', end=' ')
                     sys.stdout.flush()
                 sys.stdout.flush()
                 iurl = self.absurl(baseurl, tag, 'href', filter=recursion_level != 0)
@@ -568,7 +569,7 @@ class RecursiveFetcher(object):
         finally:
             self.current_dir = prev_dir
         if self.show_progress:
-            print
+            print()
         return res
 
 

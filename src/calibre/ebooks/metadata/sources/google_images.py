@@ -103,7 +103,7 @@ def test():
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title='The Heroes',
                      authors=('Joe Abercrombie',))
-    print ('Downloaded', rq.qsize(), 'covers')
+    print('Downloaded', rq.qsize(), 'covers')
 
 
 if __name__ == '__main__':

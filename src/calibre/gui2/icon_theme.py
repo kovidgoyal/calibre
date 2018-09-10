@@ -14,6 +14,7 @@ from Queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
+import six
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
@@ -368,7 +369,7 @@ def create_themeball(report, progress=None, abort=None):
         return
     if errors:
         e = errors[0]
-        raise e[0], e[1], e[2]
+        six.reraise(*e)
 
     if progress is not None:
         progress(next(num), _('Creating theme file'))

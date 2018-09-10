@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import math, sys, re
@@ -17,7 +18,7 @@ def print_xml(elem):
     elem = elem.toElement('utf8')
     ew = ElementWriter(elem, sourceEncoding='utf8')
     ew.write(sys.stdout)
-    print
+    print()
 
 
 def cattrs(base, extra):

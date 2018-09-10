@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -55,7 +56,7 @@ class Coffee(Command):  # {{{
         from pygments.lexers import JavascriptLexer
         from pygments.formatters import TerminalFormatter
         from pygments import highlight
-        print highlight(raw, JavascriptLexer(), TerminalFormatter())
+        print(highlight(raw, JavascriptLexer(), TerminalFormatter()))
 
     def do_coffee_compile(self, opts, timestamp=False, ignore_errors=False):
         from calibre.utils.serve_coffee import compile_coffeescript
@@ -96,7 +97,7 @@ class Coffee(Command):  # {{{
             if errors:
                 print ('\n\tCompilation of %s failed'%name)
                 for line in errors:
-                    print >>sys.stderr, line
+                    print(line, file=sys.stderr)
                 if ignore_errors:
                     js = u'# Compilation from coffeescript failed'
                 else:

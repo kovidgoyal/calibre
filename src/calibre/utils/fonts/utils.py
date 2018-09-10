@@ -472,10 +472,10 @@ def test_find_font():
     from calibre.utils.fonts.scanner import font_scanner
     abcd = '诶比西迪'
     family = font_scanner.find_font_for_text(abcd)[0]
-    print ('Family for Chinese text:', family)
+    print('Family for Chinese text:', family)
     family = font_scanner.find_font_for_text(abcd)[0]
     abcd = 'لوحة المفاتيح العربية'
-    print ('Family for Arabic text:', family)
+    print('Family for Arabic text:', family)
 
 
 def test():

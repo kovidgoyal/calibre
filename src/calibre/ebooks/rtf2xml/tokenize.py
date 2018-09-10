@@ -64,7 +64,7 @@ class Tokenize:
             self.__reini_utf8_counters()
             return token
         # add a uc control
-        elif token[:3] == '\uc':
+        elif token[:3] == r'\uc':
             self.__uc_value[-1] = int(token[3:])
             self.__reini_utf8_counters()
             return token

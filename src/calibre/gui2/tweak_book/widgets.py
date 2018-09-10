@@ -729,7 +729,7 @@ class InsertLink(Dialog):
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c, next(c.spine_names)[0])
         if d.exec_() == d.Accepted:
-            print (d.href, d.text)
+            print(d.href, d.text)
 
 # }}}
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import print_function
 
 import re
 from collections import defaultdict, namedtuple

@@ -373,7 +373,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
         """
@@ -384,7 +384,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
         """
