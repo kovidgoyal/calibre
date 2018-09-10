@@ -47,7 +47,7 @@ def run_pkgconfig(name, envvar, default, flag, prefix):
     if not ans:
         try:
             raw = subprocess.Popen([PKGCONFIG, flag, name],
-                stdout=subprocess.PIPE).stdout.read()
+                stdout=subprocess.PIPE).stdout.read().decode('utf-8')
             ans = [x.strip() for x in raw.split(prefix)]
             ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
         except:

@@ -16,6 +16,7 @@ from setup import iswindows
 if iswindows:
     from ctypes import windll, Structure, POINTER, c_size_t
     from ctypes.wintypes import WORD, DWORD, LPVOID
+
     class SYSTEM_INFO(Structure):
         _fields_ = [
             ("wProcessorArchitecture",      WORD),
@@ -44,21 +45,28 @@ else:
 
 cpu_count = min(16, max(1, cpu_count))
 
+
 def run_worker(job, decorate=True):
     cmd, human_text = job
-    human_text = human_text or b' '.join(cmd)
+    human_text = human_text or ' '.join(cmd)
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except Exception as err:
         return False, human_text, unicode(err)
     stdout, stderr = p.communicate()
+    if stdout:
+        stdout = stdout.decode('utf-8')
+    if stderr:
+        stderr = stderr.decode('utf-8')
     if decorate:
-        stdout = bytes(human_text) + b'\n' + (stdout or b'')
+        stdout = human_text + '\n' + (stdout or '')
     ok = p.returncode == 0
-    return ok, stdout, (stderr or b'')
+    return ok, stdout, (stderr or '')
+
 
 def create_job(cmd, human_text=None):
     return (cmd, human_text)
+
 
 def parallel_build(jobs, log, verbose=True):
     p = Pool(cpu_count)
@@ -71,6 +79,7 @@ def parallel_build(jobs, log, verbose=True):
             if not ok:
                 return False
         return True
+
 
 def parallel_check_output(jobs, log):
     p = Pool(cpu_count)
