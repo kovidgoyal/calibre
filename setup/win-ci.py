@@ -11,10 +11,13 @@ import sys
 import tarfile
 import time
 
-try:
-    import _winreg as winreg
-except ImportError:
+if sys.version_info.major > 2:
     import winreg
+else:
+    try:
+        import _winreg as winreg
+    except ImportError:
+        import winreg
 is64bit = os.environ.get('PLATFORM') != 'x86'
 
 

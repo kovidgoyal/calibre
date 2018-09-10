@@ -241,8 +241,7 @@ class Manual(Command):
 
     def serve_manual(self, root):
         os.chdir(root)
-        import BaseHTTPServer
-        from SimpleHTTPServer import SimpleHTTPRequestHandler
+        from polyglot.http_server import BaseHTTPServer, SimpleHTTPRequestHandler
         HandlerClass = SimpleHTTPRequestHandler
         ServerClass = BaseHTTPServer.HTTPServer
         Protocol = "HTTP/1.0"
