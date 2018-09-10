@@ -23,6 +23,16 @@ if is_py3:
     zip = __builtins__['zip']
     map = __builtins__['map']
     filter = __builtins__['filter']
+
+    def iteritems(d):
+        return iter(d.items())
+
+    def itervalues(d):
+        return iter(d.values())
+
+    def iterkeys(d):
+        return iter(d)
+
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -32,3 +42,12 @@ else:
 """)
 
     from future_builtins import zip, map, filter  # noqa
+
+    def iteritems(d):
+        return d.iteritems()
+
+    def iterkeys(d):
+        return d.iterkeys()
+
+    def itervalues(d):
+        return d.itervalues()

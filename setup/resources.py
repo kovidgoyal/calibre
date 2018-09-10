@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,6 +12,7 @@ from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely
+from polyglot.builtins import itervalues, iteritems
 
 
 def get_opts_from_parser(parser):
@@ -114,7 +114,7 @@ class Coffee(Command):  # {{{
         if updated:
             hashes = {}
             with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
-                for raw, zi, sig in sorted(chain(updated.itervalues(), existing.itervalues()), key=lambda x: x[1].filename):
+                for raw, zi, sig in sorted(chain(itervalues(updated), itervalues(existing)), key=lambda x: x[1].filename):
                     zf.writestr(zi, raw)
                     hashes[zi.filename] = sig
                 zf.comment = json.dumps(hashes)
@@ -222,7 +222,7 @@ class Kakasi(Command):  # {{{
         from calibre.utils.serialize import msgpack_dumps
         with open(out, 'wb') as f:
             dic = {}
-            for k, v in self.records.iteritems():
+            for k, v in iteritems(self.records):
                 dic[k] = compress(msgpack_dumps(v))
             f.write(msgpack_dumps(dic))
 
@@ -394,8 +394,8 @@ class Resources(Command):  # {{{
         json.dump(function_dict, open(dest, 'wb'), indent=4)
         self.info('\tCreating user-manual-translation-stats.json')
         d = {}
-        for lc, stats in json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'))).iteritems():
-            total = sum(stats.itervalues())
+        for lc, stats in iteritems(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json')))):
+            total = sum(itervalues(stats))
             d[lc] = stats['translated'] / float(total)
         json.dump(d, open(self.j(self.RESOURCES, 'user-manual-translation-stats.json'), 'wb'), indent=4)
 

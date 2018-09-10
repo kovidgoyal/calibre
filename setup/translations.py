@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,6 +13,7 @@ from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file
 from setup.parallel_build import parallel_check_output
+from polyglot.builtins import iteritems
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -359,7 +359,7 @@ class Translations(POT):  # {{{
             'en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds',
             'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
             'jv', 'ka', 'fur', 'ber', 'my', 'fil', 'hy', 'ug'}
-        for f, (locale, dest) in fmap.iteritems():
+        for f, (locale, dest) in iteritems(fmap):
             iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
             iso639 = self.j(self.TRANSLATIONS, 'iso_639', '%s.po'%iscpo)
             if os.path.exists(iso639):
@@ -407,7 +407,7 @@ class Translations(POT):  # {{{
                     raw = None
                     po_data = data.decode('utf-8')
                     data = json.loads(msgfmt(po_data))
-                    translated_entries = {k:v for k, v in data['entries'].iteritems() if v and sum(map(len, v))}
+                    translated_entries = {k:v for k, v in iteritems(data['entries']) if v and sum(map(len, v))}
                     data[u'entries'] = translated_entries
                     data[u'hash'] = h.hexdigest()
                     cdata = b'{}'
@@ -488,7 +488,7 @@ class Translations(POT):  # {{{
                     files.append((f, d))
             self.compile_group(files, handle_stats=handle_stats)
 
-            for locale, translated in stats.iteritems():
+            for locale, translated in iteritems(stats):
                 if translated >= 20:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
@@ -542,7 +542,7 @@ class Translations(POT):  # {{{
                 stats['untranslated'] += nums[1]
 
         self.compile_group(files, handle_stats=handle_stats)
-        for locale, stats in all_stats.iteritems():
+        for locale, stats in iteritems(all_stats):
             with open(self.j(srcbase, locale, 'stats.json'), 'wb') as f:
                 json.dump(stats, f)
             total = stats['translated'] + stats['untranslated']
@@ -621,7 +621,7 @@ class GetTranslations(Translations):  # {{{
                         changes[slug].add(lang)
                 if changed:
                     f.save()
-        for slug, languages in changes.iteritems():
+        for slug, languages in iteritems(changes):
             print('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug))
             self.tx('push -r calibre.%s -t -l %s' % (slug, ','.join(languages)))
 

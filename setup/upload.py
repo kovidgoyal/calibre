@@ -10,6 +10,7 @@ import os, subprocess, hashlib, shutil, glob, stat, sys, time, json
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
+from polyglot.builtins import iteritems
 from polyglot.urllib import urlopen, urlencode
 
 if __name__ == '__main__':
@@ -237,7 +238,7 @@ class UploadInstallers(Command):  # {{{
         print('\nRecording dist sizes')
         args = [
             '%s:%s:%s' % (__version__, fname, size)
-            for fname, size in sizes.iteritems()
+            for fname, size in iteritems(sizes)
         ]
         check_call(['ssh', 'code', '/usr/local/bin/dist_sizes'] + args)
 
@@ -257,7 +258,7 @@ class UploadInstallers(Command):  # {{{
                 )
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
-            for f, desc in files.iteritems():
+            for f, desc in iteritems(files):
                 fo.write('%s: %s\n' % (f, desc))
 
         while True:
