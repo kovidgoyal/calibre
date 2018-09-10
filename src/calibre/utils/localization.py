@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, cStringIO, cPickle
+import os, locale, re, cStringIO
 from gettext import GNUTranslations, NullTranslations
 
 _available_translations = None
@@ -16,9 +16,10 @@ _available_translations = None
 def available_translations():
     global _available_translations
     if _available_translations is None:
-        stats = P('localization/stats.pickle', allow_user_override=False)
+        stats = P('localization/stats.calibre_msgpack', allow_user_override=False)
         if os.path.exists(stats):
-            stats = cPickle.load(open(stats, 'rb'))
+            from calibre.utils.serialize import msgpack_loads
+            stats = msgpack_loads(open(stats, 'rb').read())
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
@@ -223,8 +224,9 @@ def set_translators():
                 except:
                     pass  # No iso639 translations for this lang
                 if buf is not None:
+                    from calibre.utils.serialize import msgpack_loads
                     try:
-                        lcdata = cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
+                        lcdata = msgpack_loads(zf.read(mpath + '/lcdata.calibre_msgpack'))
                     except:
                         pass  # No lcdata
 
