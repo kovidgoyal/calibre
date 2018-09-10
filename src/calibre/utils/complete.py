@@ -12,7 +12,7 @@ BASH completion for calibre commands that are too complex for simple
 completion.
 '''
 
-import sys, os, shlex, glob, re, cPickle
+import sys, os, shlex, glob, re
 
 
 def prints(*args, **kwargs):
@@ -113,8 +113,9 @@ class EbookConvert(object):
         self.words = words
         self.prefix = prefix
         self.previous = words[-2 if prefix else -1]
-        self.cache = cPickle.load(open(os.path.join(sys.resources_location,
-            'ebook-convert-complete.pickle'), 'rb'))
+        from calibre.utils.serialize import msgpack_loads
+        self.cache = msgpack_loads(open(os.path.join(sys.resources_location,
+            'ebook-convert-complete.calibre_msgpack'), 'rb').read())
         self.complete(wc)
 
     def complete(self, wc):

@@ -14,8 +14,8 @@ build
 dist
 docs
 resources/localization
-resources/scripts.pickle
-resources/ebook-convert-complete.pickle
+resources/scripts.calibre_msgpack
+resources/ebook-convert-complete.calibre_msgpack
 resources/builtin_recipes.xml
 resources/builtin_recipes.zip
 resources/template-functions.json

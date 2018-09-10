@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, shutil, zipfile, glob, time, sys, hashlib, json, errno, cPickle
+import os, re, shutil, zipfile, glob, time, sys, hashlib, json, errno
 from zlib import compress
 from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -297,11 +297,12 @@ class Resources(Command):  # {{{
                     continue
                 scripts[name] = x
 
-        dest = self.j(self.RESOURCES, 'scripts.pickle')
+        dest = self.j(self.RESOURCES, 'scripts.calibre_msgpack')
         if self.newer(dest, self.j(self.SRC, 'calibre', 'linux.py')):
-            self.info('\tCreating scripts.pickle')
-            f = open(dest, 'wb')
-            cPickle.dump(scripts, f, -1)
+            self.info('\tCreating ' + os.path.basename(dest))
+            from calibre.utils.serialize import msgpack_dumps
+            with open(dest, 'wb') as f:
+                f.write(msgpack_dumps(scripts))
 
         from calibre.web.feeds.recipes.collection import \
                 serialize_builtin_recipes, iterate_over_builtin_recipe_files
@@ -326,7 +327,7 @@ class Resources(Command):  # {{{
                     with open(n, 'rb') as f:
                         zf.writestr(os.path.basename(n), f.read())
 
-        dest = self.j(self.RESOURCES, 'ebook-convert-complete.pickle')
+        dest = self.j(self.RESOURCES, 'ebook-convert-complete.calibre_msgpack')
         files = []
         for x in os.walk(self.j(self.SRC, 'calibre')):
             for f in x[-1]:
@@ -356,7 +357,8 @@ class Resources(Command):  # {{{
                     complete[(inf, ouf)] = [x+' 'for x in
                             get_opts_from_parser(p)]
 
-            cPickle.dump(complete, open(dest, 'wb'), -1)
+            with open(dest, 'wb') as f:
+                f.write(msgpack_dumps(complete))
 
         self.info('\tCreating template-functions.json')
         dest = self.j(self.RESOURCES, 'template-functions.json')
