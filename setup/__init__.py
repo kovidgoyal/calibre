@@ -32,9 +32,9 @@ _cache_dir_built = False
 
 
 def newer(targets, sources):
-    if isinstance(targets, basestring):
+    if hasattr(targets, 'rjust'):
         targets = [targets]
-    if isinstance(sources, basestring):
+    if hasattr(sources, 'rjust'):
         sources = [sources]
     for f in targets:
         if not os.path.exists(f):

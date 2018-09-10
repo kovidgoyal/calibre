@@ -73,7 +73,7 @@ def expand_file_list(items, is_paths=True):
     for item in items:
         if item.startswith('!'):
             item = lazy_load(item)
-            if isinstance(item, basestring):
+            if hasattr(item, 'rjust'):
                 item = [item]
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:
