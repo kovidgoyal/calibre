@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-
 from sphinx.builders.latex import LaTeXBuilder
+
 
 class LaTeXHelpBuilder(LaTeXBuilder):
     name = 'mylatex'
@@ -18,9 +18,9 @@ class LaTeXHelpBuilder(LaTeXBuilder):
         LaTeXBuilder.finish(self)
         self.info('Fixing Cyrillic characters...')
         tex = os.path.join(self.outdir, 'calibre.tex')
-        with open(tex, 'r+') as f:
-            raw = f.read()
+        with open(tex, 'r+b') as f:
+            raw = f.read().decode('utf-8')
             for x in (u'Михаил Горбачёв', u'Фёдор Миха́йлович Достоевский'):
                 raw = raw.replace(x, u'{\\fontencoding{T2A}\\selectfont %s}' % (x.replace(u'а́', u'a')))
             f.seek(0)
-            f.write(raw)
+            f.write(raw.encode('utf-8'))

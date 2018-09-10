@@ -53,13 +53,13 @@ class Tokenize:
 
     def __unicode_process(self, token):
         # change scope in
-        if token == '\{':
+        if token == r'\{':
             self.__uc_value.append(self.__uc_value[-1])
             # basic error handling
             self.__reini_utf8_counters()
             return token
         # change scope out
-        elif token == '\}':
+        elif token == r'\}':
             self.__uc_value.pop()
             self.__reini_utf8_counters()
             return token
@@ -113,10 +113,10 @@ class Tokenize:
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
-        input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
-        input_file = self.__cs_ast.sub("\g<1>", input_file)
-        input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
-        input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
+        input_file = self.__cwdigit_exp.sub("\\g<1>\n\\g<2>", input_file)
+        input_file = self.__cs_ast.sub(r"\g<1>", input_file)
+        input_file = self.__ms_hex_exp.sub("\\mshex0\\g<1> ", input_file)
+        input_file = self.__utf_ud.sub("\\{\\uc0 \\g<1>\\}", input_file)
         # remove \n in bin data
         input_file = self.__bin_exp.sub(lambda x:
                                         x.group().replace('\n', '') + '\n', input_file)

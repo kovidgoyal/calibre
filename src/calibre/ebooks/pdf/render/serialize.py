@@ -278,7 +278,7 @@ class PDFStream(object):
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
-        self.write_line(u'%íì¦"'.encode())
+        self.write_line(u'%íì¦"'.encode('utf-8'))
         creator = ('%s %s [https://calibre-ebook.com]'%(__appname__,
                                     __version__))
         self.write_line('%% Created by %s'%creator)
@@ -528,5 +528,3 @@ class PDFStream(object):
         self.write_line('startxref')
         self.write_line('%d'%startxref)
         self.stream.write('%%EOF')
-
-

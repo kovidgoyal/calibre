@@ -23,7 +23,11 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import get_lang
 from calibre.utils.file_type_icons import EXT_MAP
 
-NO_URL_FORMATTING = QUrl.None_
+try:
+    NO_URL_FORMATTING = QUrl.None_
+except AttributeError:
+    NO_URL_FORMATTING = getattr(QUrl, 'None')
+
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')

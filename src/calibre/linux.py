@@ -387,7 +387,7 @@ _ebook_edit() {
         files)
             ebookfile=${~${(Q)line[1]}}
 
-            if [[ -f "$ebookfile" && "$ebookfile" =~ '\.[eE][pP][uU][bB]$' ]]; then
+            if [[ -f "$ebookfile" && "$ebookfile" =~ '\\.[eE][pP][uU][bB]$' ]]; then
                 _zip_cache_name="$ebookfile"
                 _zip_cache_list=( ${(f)"$(zipinfo -1 $_zip_cache_name 2>/dev/null)"} )
             else

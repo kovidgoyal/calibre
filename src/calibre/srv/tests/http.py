@@ -39,7 +39,7 @@ class TestHTTP(BaseTest):
              '\r\n', a='one', b='two 2 3', c='three')
 
         test('Non-ascii headers parsing',
-             'a:mūs\r', '\r\n', a='mūs')
+             'a:mūs\r'.encode('utf-8'), '\r\n', a='mūs')
 
         test('Comma-separated parsing',
              'Accept-Encoding: one',
