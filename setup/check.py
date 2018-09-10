@@ -8,14 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, json, subprocess, errno, hashlib
 from setup import Command, build_cache_dir, edit_file
-import __builtin__
-
-
-def set_builtins(builtins):
-    for x in builtins:
-        if not hasattr(__builtin__, x):
-            setattr(__builtin__, x, True)
-            yield x
 
 
 class Message:
