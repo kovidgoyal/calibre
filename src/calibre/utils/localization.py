@@ -347,9 +347,9 @@ for k in _extra_lang_codes:
 def _load_iso639():
     global _iso639
     if _iso639 is None:
-        ip = P('localization/iso639.pickle', allow_user_override=False)
-        with open(ip, 'rb') as f:
-            _iso639 = cPickle.load(f)
+        ip = P('localization/iso639.calibre_msgpack', allow_user_override=False, data=True)
+        from calibre.utils.serialize import msgpack_loads
+        _iso639 = msgpack_loads(ip)
     return _iso639
 
 

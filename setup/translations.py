@@ -713,7 +713,7 @@ class ISO639(Command):  # {{{
 
     description = 'Compile language code maps for performance'
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
-            'iso639.pickle')
+            'iso639.calibre_msgpack')
 
     def run(self, opts):
         src = self.j(self.d(self.SRC), 'setup', 'iso_639_3.xml')
@@ -763,7 +763,9 @@ class ISO639(Command):  # {{{
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
                 '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        from calibre.utils.serialize import msgpack_dumps
+        with open(dest, 'wb') as f:
+            f.write(msgpack_dumps(x))
 
     def clean(self):
         if os.path.exists(self.DEST):
@@ -776,7 +778,7 @@ class ISO3166(ISO639):  # {{{
 
     description = 'Compile country code maps for performance'
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
-            'iso3166.pickle')
+            'iso3166.calibre_msgpack')
 
     def run(self, opts):
         src = self.j(self.d(self.SRC), 'setup', 'iso3166.xml')
@@ -803,5 +805,7 @@ class ISO3166(ISO639):  # {{{
             if three:
                 three_map[three] = two
         x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
-        cPickle.dump(x, open(dest, 'wb'), -1)
+        from calibre.utils.serialize import msgpack_dumps
+        with open(dest, 'wb') as f:
+            f.write(msgpack_dumps(x))
 # }}}
