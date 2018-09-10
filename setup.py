@@ -17,8 +17,7 @@ def check_version_info():
         # PY3_TODO: Remove check for 'CALIBRE_PY3_PORT' once calibre works with python3
         return
     raise SystemExit(
-        'calibre requires python >= 2.7.9 and < 3. Current python version: %s'
-        % vi)
+        'calibre requires python >= 2.7.9 and < 3. Current python version: ' + '.'.join(map(str, vi[:3])))
 
 
 check_version_info()
