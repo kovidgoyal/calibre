@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys
 
-import six
+from polyglot.builtins import reraise
 
 from calibre.constants import iswindows, plugins
 
@@ -50,6 +50,8 @@ class FlagConstants(object):
         for x in 'RANDOM SEQUENTIAL TEXT BINARY'.split():
             x = 'O_' + x
             setattr(self, x, getattr(os, x, 0))
+
+
 fc = FlagConstants()
 
 
@@ -78,6 +80,7 @@ def flags_from_mode(mode):
         flags |= fc.O_TRUNC | fc.O_CREAT
     flags |= (fc.O_BINARY if binary else fc.O_TEXT)
     return flags
+
 
 if iswindows:
     from numbers import Integral
@@ -122,7 +125,7 @@ if iswindows:
     }
 
     def raise_winerror(pywinerr):
-        six.reraise(
+        reraise(
             WindowsError,
             WindowsError(pywinerr.winerror,
                          (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')),
@@ -180,7 +183,7 @@ else:
         return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
     def raise_winerror(x):
-        six.reraise(NotImplementedError, None, sys.exc_info()[2])
+        reraise(NotImplementedError, None, sys.exc_info()[2])
 
 
 def find_tests():

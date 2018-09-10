@@ -11,7 +11,7 @@ import sys
 import time
 from threading import Thread
 
-import six
+from polyglot.builtins import reraise
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
@@ -315,7 +315,7 @@ def linux_native_dialog(name):
             t.start()
             loop.exec_(QEventLoop.ExcludeUserInputEvents)
             if ret[1] is not None:
-                six.reraise(*ret[1])
+                reraise(*ret[1])
             return ret[0]
         except Exception:
             linux_native_dialog.native_failed = True

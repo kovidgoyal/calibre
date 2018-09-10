@@ -12,8 +12,8 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
-import six
 import dukpy
+from polyglot.builtins import reraise
 
 from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
@@ -84,8 +84,10 @@ stream = '''
 module.exports = {};
 '''
 
+
 def sha1sum(x):
     return hashlib.sha1(x).hexdigest()
+
 
 def load_file(base_dirs, builtin_modules, name):
     try:
@@ -97,6 +99,7 @@ def load_file(base_dirs, builtin_modules, name):
             return [True, ans]
         if not name.endswith('.js'):
             name += '.js'
+
         def do_open(*args):
             with open(os.path.join(*args), 'rb') as f:
                 return [True, f.read().decode('utf-8')]
@@ -111,6 +114,7 @@ def load_file(base_dirs, builtin_modules, name):
     except Exception as e:
         return [False, str(e)]
 
+
 def readfile(path, enc='utf-8'):
     try:
         with open(path, 'rb') as f:
@@ -120,12 +124,14 @@ def readfile(path, enc='utf-8'):
     except EnvironmentError as e:
         return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
 
+
 def atomic_write(name, raw):
     bdir, bname = os.path.dirname(os.path.abspath(name)), os.path.basename(name)
     tname = ('_' if iswindows else '.') + bname
     with open(os.path.join(bdir, tname), 'wb') as f:
         f.write(raw)
     atomic_rename(f.name, name)
+
 
 def writefile(path, data, enc='utf-8'):
     if enc == undefined:
@@ -139,6 +145,7 @@ def writefile(path, data, enc='utf-8'):
     except EnvironmentError as e:
         return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, e.message or e)]
     return [None, None]
+
 
 class Function(object):
 
@@ -158,7 +165,8 @@ class Function(object):
             self.reraise(e)
 
     def reraise(self, e):
-        six.reraise(JSError, JSError(e), sys.exc_info()[2])
+        reraise(JSError, JSError(e), sys.exc_info()[2])
+
 
 def to_python(x):
     try:
@@ -178,6 +186,7 @@ def to_python(x):
     if name == 'Function proxy':
         return Function(x)
     return x
+
 
 class JSError(Exception):
 
@@ -214,7 +223,9 @@ class JSError(Exception):
             'stack': self.stack or undefined
         }
 
+
 contexts = {}
+
 
 def create_context(base_dirs, *args):
     data = to_python(args[0]) if args else {}
@@ -224,6 +235,7 @@ def create_context(base_dirs, *args):
     key = id(ctx)
     contexts[key] = ctx
     return key
+
 
 def run_in_context(code, ctx, options=None):
     c = contexts[ctx]
@@ -236,6 +248,7 @@ def run_in_context(code, ctx, options=None):
         traceback.print_exc()
         return [False, {'message':type('')(e)}]
     return [True, to_python(ans)]
+
 
 class Context(object):
 
@@ -333,7 +346,7 @@ class Context(object):
         '<init>')
 
     def reraise(self, e):
-        six.reraise(JSError, JSError(e), sys.exc_info()[2])
+        reraise(JSError, JSError(e), sys.exc_info()[2])
 
     def eval(self, code='', fname='<eval>', noreturn=False):
         try:
@@ -346,6 +359,7 @@ class Context(object):
             return self._ctx.eval_file(path, noreturn)
         except dukpy.JSError as e:
             self.reraise(e)
+
 
 def test_build():
     import unittest
