@@ -84,11 +84,6 @@ upload_to_server = UploadToServer()
 upload_installers = UploadInstallers()
 reupload = ReUpload()
 
-from setup.pypi import PyPIRegister, PyPIUpload
-pypi_register = PyPIRegister()
-pypi_upload   = PyPIUpload()
-
-
 commands = {}
 for x in __all__:
     commands[x] = locals()[x]
