@@ -111,6 +111,8 @@ class BuildTest(unittest.TestCase):
         for obj in ({1:1}, utcnow()):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
+        self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
+        self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), type(u''))
 
     @unittest.skipUnless(isosx, 'FSEvents only present on OS X')
     def test_fsevents(self):

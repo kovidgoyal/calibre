@@ -92,7 +92,7 @@ def msgpack_decoder(code, data):
     return decoders[code](msgpack_loads(data), False)
 
 
-msgpack_loads = partial(msgpack.unpackb, encoding='utf-8', ext_hook=msgpack_decoder)
+msgpack_loads = partial(msgpack.unpackb, encoding='utf-8', ext_hook=msgpack_decoder, raw=False)
 
 
 def json_loads(data):
