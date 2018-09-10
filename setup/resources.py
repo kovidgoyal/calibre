@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
+import os, re, shutil, zipfile, glob, time, sys, hashlib, json, errno, cPickle
 from zlib import compress
 from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -137,7 +137,7 @@ class Kakasi(Command):  # {{{
         self.records = {}
         src = self.j(self.KAKASI_PATH, 'kakasidict.utf8')
         dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','kanwadict2.pickle')
+                'pykakasi','kanwadict2.calibre_msgpack')
         base = os.path.dirname(dest)
         if not os.path.exists(base):
             os.makedirs(base)
@@ -151,7 +151,7 @@ class Kakasi(Command):  # {{{
 
         src = self.j(self.KAKASI_PATH, 'itaijidict.utf8')
         dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','itaijidict2.pickle')
+                'pykakasi','itaijidict2.calibre_msgpack')
 
         if self.newer(dest, src):
             self.info('\tGenerating Itaijidict')
@@ -159,7 +159,7 @@ class Kakasi(Command):  # {{{
 
         src = self.j(self.KAKASI_PATH, 'kanadict.utf8')
         dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','kanadict2.pickle')
+                'pykakasi','kanadict2.calibre_msgpack')
 
         if self.newer(dest, src):
             self.info('\tGenerating kanadict')
@@ -175,7 +175,9 @@ class Kakasi(Command):  # {{{
                 continue
             pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        from calibre.utils.serialize import msgpack_dumps
+        with open(dst, 'wb') as f:
+            f.write(msgpack_dumps(dic))
 
     def mkkanadict(self, src, dst):
         dic = {}
@@ -187,7 +189,9 @@ class Kakasi(Command):  # {{{
                 continue
             (alpha, kana) = line.split(' ')
             dic[kana] = alpha
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
+        from calibre.utils.serialize import msgpack_dumps
+        with open(dst, 'wb') as f:
+            f.write(msgpack_dumps(dic))
 
     def parsekdict(self, line):
         line = line.decode("utf-8").strip()
@@ -215,11 +219,12 @@ class Kakasi(Command):  # {{{
             self.records[key][kanji]=[(yomi, tail)]
 
     def kanwaout(self, out):
+        from calibre.utils.serialize import msgpack_dumps
         with open(out, 'wb') as f:
             dic = {}
             for k, v in self.records.iteritems():
-                dic[k] = compress(marshal.dumps(v))
-            cPickle.dump(dic, f, -1)
+                dic[k] = compress(msgpack_dumps(v))
+            f.write(msgpack_dumps(dic))
 
     def clean(self):
         kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')
