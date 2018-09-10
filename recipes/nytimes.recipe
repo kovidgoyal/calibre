@@ -67,10 +67,11 @@ def classes(classes):
 
 class NewYorkTimes(BasicNewsRecipe):
 
-    title = 'The New York Times'
     if is_web_edition:
+        title = 'The New York Times (Web)'
         description = 'New York Times (Web). You can edit the recipe to remove sections you are not interested in.'
     else:
+        title = 'The New York Times'
         description = 'Today\'s New York Times'
     encoding = 'utf-8'
     __author__ = 'Kovid Goyal'
