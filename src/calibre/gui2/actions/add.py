@@ -514,7 +514,7 @@ class AddAction(InterfaceAction):
             ans = os.path.splitext(x)[1]
             ans = ans[1:] if len(ans) > 1 else ans
             return ans.lower()
-        remove = set([p for p in paths if ext(p) in ve])
+        remove = {p for p in paths if ext(p) in ve}
         if remove:
             paths = [p for p in paths if p not in remove]
             vmsg = getattr(self.gui.device_manager.device, 'VIRTUAL_BOOK_EXTENSION_MESSAGE', None) or _(

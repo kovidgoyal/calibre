@@ -81,7 +81,7 @@ class Ozon(Source):
 
         ozonid = identifiers.get('ozon', None)
 
-        qItems = set([ozonid, isbn])
+        qItems = {ozonid, isbn}
 
         # Added Russian variant of 'Unknown'
         unk = [_('Unknown').upper(), 'Неизв.'.upper(), icu_upper('Неизв.')]

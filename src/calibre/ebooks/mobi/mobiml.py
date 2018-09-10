@@ -26,19 +26,19 @@ def MBP(name):
 
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
 INLINE_TAGS = {'span', 'a', 'code', 'u', 's', 'big', 'strike', 'tt', 'font', 'q', 'i', 'b', 'em', 'strong', 'sup', 'sub'}
-HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+HEADER_TAGS = {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}
 # GR: Added 'caption' to both sets
-NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th', 'caption'])
-TABLE_TAGS = set(['table', 'tr', 'td', 'th', 'caption'])
+NESTABLE_TAGS = {'ol', 'ul', 'li', 'table', 'tr', 'td', 'th', 'caption'}
+TABLE_TAGS = {'table', 'tr', 'td', 'th', 'caption'}
 
-SPECIAL_TAGS = set(['hr', 'br'])
-CONTENT_TAGS = set(['img', 'hr', 'br'])
+SPECIAL_TAGS = {'hr', 'br'}
+CONTENT_TAGS = {'img', 'hr', 'br'}
 
 NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | \
     CONTENT_TAGS
-LEAF_TAGS = set(['base', 'basefont', 'frame', 'link', 'meta', 'area', 'br',
-'col', 'hr', 'img', 'input', 'param'])
-PAGE_BREAKS = set(['always', 'left', 'right'])
+LEAF_TAGS = {'base', 'basefont', 'frame', 'link', 'meta', 'area', 'br',
+'col', 'hr', 'img', 'input', 'param'}
+PAGE_BREAKS = {'always', 'left', 'right'}
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 

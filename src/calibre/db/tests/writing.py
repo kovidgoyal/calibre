@@ -152,8 +152,8 @@ class WritingTest(BaseTest):
         del cache2
         self.assertEqual(cache.set_field('publisher', {1:'one', 2:'two',
                                                        3:'three'}), {1, 2, 3})
-        self.assertEqual(cache.set_field('publisher', {1:''}), set([1]))
-        self.assertEqual(cache.set_field('publisher', {1:'two'}), set([1]))
+        self.assertEqual(cache.set_field('publisher', {1:''}), {1})
+        self.assertEqual(cache.set_field('publisher', {1:'two'}), {1})
         self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('two', 'two', 'three'))
         self.assertEqual(cache.set_field('publisher', {1:'Two'}), {1, 2})
         cache2 = self.init_cache(cl)
@@ -163,7 +163,7 @@ class WritingTest(BaseTest):
         # Enum
         self.assertFalse(cache.set_field('#enum', {1:'Not allowed'}))
         self.assertEqual(cache.set_field('#enum', {1:'One', 2:'One', 3:'Three'}), {1, 3})
-        self.assertEqual(cache.set_field('#enum', {1:None}), set([1]))
+        self.assertEqual(cache.set_field('#enum', {1:None}), {1})
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             for i, val in {1:None, 2:'One', 3:'Three'}.iteritems():
@@ -185,10 +185,10 @@ class WritingTest(BaseTest):
         # Series
         self.assertFalse(cache.set_field('series',
                 {1:'a series one', 2:'a series one'}, allow_case_change=False))
-        self.assertEqual(cache.set_field('series', {3:'Series [3]'}), set([3]))
+        self.assertEqual(cache.set_field('series', {3:'Series [3]'}), {3})
         self.assertEqual(cache.set_field('#series', {1:'Series', 3:'Series'}),
                                          {1, 3})
-        self.assertEqual(cache.set_field('#series', {2:'Series [0]'}), set([2]))
+        self.assertEqual(cache.set_field('#series', {2:'Series [0]'}), {2})
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             for i, val in {1:'A Series One', 2:'A Series One', 3:'Series'}.iteritems():
@@ -219,7 +219,7 @@ class WritingTest(BaseTest):
             ae(sf(name, {1:'tag one, News'}), {1, 2})
             ae(sf(name, {3:('tag two', 'sep,sep2')}), {2, 3})
             ae(len(f.table.id_map), 4)
-            ae(sf(name, {1:None}), set([1]))
+            ae(sf(name, {1:None}), {1})
             cache2 = self.init_cache(cl)
             for c in (cache, cache2):
                 ae(c.field_for(name, 3), ('tag two', 'sep;sep2'))
@@ -237,7 +237,7 @@ class WritingTest(BaseTest):
             f = cache.fields[name]
             ae(len(f.table.id_map), 3)
             af(cache.set_field(name, {3:None if name == 'authors' else 'Unknown'}))
-            ae(cache.set_field(name, {3:'Kovid Goyal & Divok Layog'}), set([3]))
+            ae(cache.set_field(name, {3:'Kovid Goyal & Divok Layog'}), {3})
             ae(cache.set_field(name, {1:'', 2:'An, Author'}), {1,2})
             cache2 = self.init_cache(cl)
             for c in (cache, cache2):
@@ -257,18 +257,18 @@ class WritingTest(BaseTest):
         # Languages
         f = cache.fields['languages']
         ae(f.table.id_map, {1: 'eng', 2: 'deu'})
-        ae(sf('languages', {1:''}), set([1]))
+        ae(sf('languages', {1:''}), {1})
         ae(cache.field_for('languages', 1), ())
-        ae(sf('languages', {2:('und',)}), set([2]))
+        ae(sf('languages', {2:('und',)}), {2})
         af(f.table.id_map)
         ae(sf('languages', {1:'eng,fra,deu', 2:'es,Dutch', 3:'English'}), {1, 2, 3})
         ae(cache.field_for('languages', 1), ('eng', 'fra', 'deu'))
         ae(cache.field_for('languages', 2), ('spa', 'nld'))
         ae(cache.field_for('languages', 3), ('eng',))
-        ae(sf('languages', {3:None}), set([3]))
+        ae(sf('languages', {3:None}), {3})
         ae(cache.field_for('languages', 3), ())
-        ae(sf('languages', {1:'deu,fra,eng'}), set([1]), 'Changing order failed')
-        ae(sf('languages', {2:'deu,eng,eng'}), set([2]))
+        ae(sf('languages', {1:'deu,fra,eng'}), {1}, 'Changing order failed')
+        ae(sf('languages', {2:'deu,eng,eng'}), {2})
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             ae(cache.field_for('languages', 1), ('deu', 'fra', 'eng'))
@@ -277,9 +277,9 @@ class WritingTest(BaseTest):
 
         # Identifiers
         f = cache.fields['identifiers']
-        ae(sf('identifiers', {3: 'one:1,two:2'}), set([3]))
-        ae(sf('identifiers', {2:None}), set([2]))
-        ae(sf('identifiers', {1: {'test':'1', 'two':'2'}}), set([1]))
+        ae(sf('identifiers', {3: 'one:1,two:2'}), {3})
+        ae(sf('identifiers', {2:None}), {2})
+        ae(sf('identifiers', {1: {'test':'1', 'two':'2'}}), {1})
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             ae(c.field_for('identifiers', 3), {'one':'1', 'two':'2'})
@@ -323,7 +323,7 @@ class WritingTest(BaseTest):
         onowf = c.nowf
         c.nowf = lambda: utime
         try:
-            ae(sf('title', {3:'xxx'}), set([3]))
+            ae(sf('title', {3:'xxx'}), {3})
             self.assertTrue(3 in cache.dirtied_cache)
             ae(cache.field_for('last_modified', 3), utime)
             cache.dump_metadata()
@@ -374,7 +374,7 @@ class WritingTest(BaseTest):
 
         # Test removing a cover
         ae(cache.field_for('cover', 1), 1)
-        ae(cache.set_cover({1:None}), set([1]))
+        ae(cache.set_cover({1:None}), {1})
         ae(cache.field_for('cover', 1), 0)
         img = IMG
 
@@ -645,7 +645,7 @@ class WritingTest(BaseTest):
         uv = int(cache.backend.user_version)
         all_ids = cache.all_book_ids()
         cache.dump_and_restore()
-        self.assertEqual(cache.set_field('title', {1:'nt'}), set([1]), 'database connection broken')
+        self.assertEqual(cache.set_field('title', {1:'nt'}), {1}, 'database connection broken')
         cache = self.init_cache()
         self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
         self.assertEqual(int(cache.backend.user_version), uv)

@@ -18,7 +18,7 @@ class PMLOutput(OutputFormatPlugin):
     file_type = 'pmlz'
     commit_name = 'pml_output'
 
-    options = set([
+    options = {
         OptionRecommendation(name='pml_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. '
@@ -32,7 +32,7 @@ class PMLOutput(OutputFormatPlugin):
                    'have their size and depth reduced by default to accommodate '
                    'applications that can not convert images on their '
                    'own such as Dropbook.')),
-    ])
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.pml.pmlml import PMLMLizer

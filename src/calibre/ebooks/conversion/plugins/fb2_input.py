@@ -21,19 +21,18 @@ class FB2Input(InputFormatPlugin):
     file_types  = {'fb2', 'fbz'}
     commit_name = 'fb2_input'
 
-    recommendations = set([
+    recommendations = {
         ('level1_toc', '//h:h1', OptionRecommendation.MED),
         ('level2_toc', '//h:h2', OptionRecommendation.MED),
         ('level3_toc', '//h:h3', OptionRecommendation.MED),
-        ])
+        }
 
-    options = set([
+    options = {
     OptionRecommendation(name='no_inline_fb2_toc',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Do not insert a Table of Contents at the beginning of the book.'
                 )
-        ),
-    ])
+        )}
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):

@@ -14,7 +14,7 @@ class LITInput(InputFormatPlugin):
     name        = 'LIT Input'
     author      = 'Marshall T. Vandegrift'
     description = 'Convert LIT files to HTML'
-    file_types  = set(['lit'])
+    file_types  = {'lit'}
     commit_name = 'lit_input'
 
     def convert(self, stream, options, file_ext, log,

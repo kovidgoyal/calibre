@@ -22,10 +22,10 @@ class RecipeInput(InputFormatPlugin):
     name        = 'Recipe Input'
     author      = 'Kovid Goyal'
     description = _('Download periodical content from the internet')
-    file_types  = set(['recipe', 'downloaded_recipe'])
+    file_types  = {'recipe', 'downloaded_recipe'}
     commit_name = 'recipe_input'
 
-    recommendations = set([
+    recommendations = {
         ('chapter', None, OptionRecommendation.HIGH),
         ('dont_split_on_page_breaks', True, OptionRecommendation.HIGH),
         ('use_auto_toc', False, OptionRecommendation.HIGH),
@@ -33,9 +33,9 @@ class RecipeInput(InputFormatPlugin):
         ('input_profile', 'default', OptionRecommendation.HIGH),
         ('page_breaks_before', None, OptionRecommendation.HIGH),
         ('insert_metadata', False, OptionRecommendation.HIGH),
-        ])
+        }
 
-    options = set([
+    options = {
         OptionRecommendation(name='test', recommended_value=False,
             help=_(
             'Useful for recipe development. Forces'
@@ -53,7 +53,7 @@ class RecipeInput(InputFormatPlugin):
             help=_('Do not download latest version of builtin recipes from the calibre server')),
         OptionRecommendation(name='lrf', recommended_value=False,
             help='Optimize fetching for subsequent conversion to LRF.'),
-        ])
+        }
 
     def convert(self, recipe_or_file, opts, file_ext, log,
             accelerators):

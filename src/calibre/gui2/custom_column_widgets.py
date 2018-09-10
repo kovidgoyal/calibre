@@ -1334,10 +1334,10 @@ class BulkText(BulkBase):
                 else:
                     txt = rtext
                     if txt:
-                        remove = set([v.strip() for v in txt.split(ism['ui_to_list'])])
+                        remove = {v.strip() for v in txt.split(ism['ui_to_list'])}
                 txt = adding
                 if txt:
-                    add = set([v.strip() for v in txt.split(ism['ui_to_list'])])
+                    add = {v.strip() for v in txt.split(ism['ui_to_list'])}
                 else:
                     add = set()
                 self.db.set_custom_bulk_multiple(book_ids, add=add,

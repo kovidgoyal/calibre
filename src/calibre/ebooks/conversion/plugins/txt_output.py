@@ -30,7 +30,7 @@ class TXTOutput(OutputFormatPlugin):
             },
     }
 
-    options = set([
+    options = {
         OptionRecommendation(name='newline', recommended_value='system',
             level=OptionRecommendation.LOW,
             short_switch='n', choices=NEWLINE_TYPES,
@@ -80,7 +80,7 @@ class TXTOutput(OutputFormatPlugin):
                    'formatting that supports setting font color. If this option is '
                    'not specified font color will not be set and default to the '
                    'color displayed by the reader (generally this is black).')),
-     ])
+     }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.txt.txtml import TXTMLizer

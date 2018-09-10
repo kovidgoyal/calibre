@@ -44,7 +44,7 @@ class MOBIOutput(OutputFormatPlugin):
     commit_name = 'mobi_output'
     ui_data = {'file_types': ['old', 'both', 'new']}
 
-    options = set([
+    options = {
         OptionRecommendation(name='prefer_author_sort',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
@@ -106,7 +106,7 @@ class MOBIOutput(OutputFormatPlugin):
                 'more features than MOBI 6, but only works with newer Kindles. '
                 'Allowed values: {}').format('old, both, new')),
 
-    ])
+    }
 
     def check_for_periodical(self):
         if self.is_periodical:
@@ -274,7 +274,7 @@ class AZW3Output(OutputFormatPlugin):
     file_type = 'azw3'
     commit_name = 'azw3_output'
 
-    options = set([
+    options = {
         OptionRecommendation(name='prefer_author_sort',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
@@ -305,7 +305,7 @@ class AZW3Output(OutputFormatPlugin):
                 ' the book will not auto sync its last read position '
                 ' on multiple devices. Complain to Amazon.')
         ),
-    ])
+    }
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         from calibre.ebooks.mobi.writer2.resources import Resources

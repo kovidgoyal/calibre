@@ -19,8 +19,8 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
 
-IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
-KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
+IMAGE_TAGS = {XHTML('img'), XHTML('object')}
+KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
 
 
 class Unavailable(Exception):

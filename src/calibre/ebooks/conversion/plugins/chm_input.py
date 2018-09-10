@@ -15,7 +15,7 @@ class CHMInput(InputFormatPlugin):
     name        = 'CHM Input'
     author      = 'Kovid Goyal and Alex Bramley'
     description = 'Convert CHM files to OEB'
-    file_types  = set(['chm'])
+    file_types  = {'chm'}
     commit_name = 'chm_input'
 
     def _chmtohtml(self, output_dir, chm_path, no_images, log, debug_dump=False):

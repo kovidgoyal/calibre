@@ -14,7 +14,7 @@ class RBInput(InputFormatPlugin):
     name        = 'RB Input'
     author      = 'John Schember'
     description = 'Convert RB files to HTML'
-    file_types  = set(['rb'])
+    file_types  = {'rb'}
     commit_name = 'rb_input'
 
     def convert(self, stream, options, file_ext, log,

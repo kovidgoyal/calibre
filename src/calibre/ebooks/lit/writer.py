@@ -34,7 +34,7 @@ import calibre.ebooks.lit.mssha1 as mssha1
 
 __all__ = ['LitWriter']
 
-LIT_IMAGES = set(['image/png', 'image/jpeg', 'image/gif'])
+LIT_IMAGES = {'image/png', 'image/jpeg', 'image/gif'}
 LIT_MIMES = OEB_DOCS | OEB_STYLES | LIT_IMAGES
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
@@ -115,7 +115,7 @@ LZXC_CONTROL = \
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
-PAGE_BREAKS = set(['always', 'left', 'right'])
+PAGE_BREAKS = {'always', 'left', 'right'}
 
 
 def decint(value):

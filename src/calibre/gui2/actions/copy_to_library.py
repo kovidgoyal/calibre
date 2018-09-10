@@ -250,8 +250,8 @@ class Worker(Thread):  # {{{
 
         if gprefs['automerge'] == 'new record':
             incoming_fmts = \
-                set([os.path.splitext(path)[-1].replace('.',
-                    '').upper() for path in paths])
+                {os.path.splitext(path)[-1].replace('.',
+                    '').upper() for path in paths}
 
             if incoming_fmts.intersection(seen_fmts):
                 # There was at least one duplicate format

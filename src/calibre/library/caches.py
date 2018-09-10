@@ -264,7 +264,7 @@ class ResultCache(SearchQueryParser):  # {{{
     # Search functions {{{
 
     def universal_set(self):
-        return set([i[0] for i in self._data if i is not None])
+        return {i[0] for i in self._data if i is not None}
 
     def change_search_locations(self, locations):
         self.sqp_change_locations(locations)

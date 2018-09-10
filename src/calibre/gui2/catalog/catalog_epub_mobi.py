@@ -38,7 +38,7 @@ class PluginWidget(QWidget,Ui_Form):
     sync_enabled = True
 
     # Formats supported by this plugin
-    formats = set(['azw3','epub','mobi'])
+    formats = {'azw3','epub','mobi'}
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)

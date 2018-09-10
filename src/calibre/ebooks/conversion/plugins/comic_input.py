@@ -19,12 +19,12 @@ class ComicInput(InputFormatPlugin):
     name        = 'Comic Input'
     author      = 'Kovid Goyal'
     description = 'Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices'
-    file_types  = set(['cbz', 'cbr', 'cbc'])
+    file_types  = {'cbz', 'cbr', 'cbc'}
     is_image_collection = True
     commit_name = 'comic_input'
     core_usage = -1
 
-    options = set([
+    options = {
         OptionRecommendation(name='colors', recommended_value=0,
             help=_('Reduce the number of colors used in the image. This works only'
                    ' if you choose the PNG output format. It is useful to reduce file sizes.'
@@ -71,9 +71,9 @@ class ComicInput(InputFormatPlugin):
             help=_('When converting a CBC do not add links to each page to'
                 ' the TOC. Note this only applies if the TOC has more than one'
                 ' section')),
-        ])
+        }
 
-    recommendations = set([
+    recommendations = {
         ('margin_left', 0, OptionRecommendation.HIGH),
         ('margin_top',  0, OptionRecommendation.HIGH),
         ('margin_right', 0, OptionRecommendation.HIGH),
@@ -88,7 +88,7 @@ class ComicInput(InputFormatPlugin):
         ('page_breaks_before', None, OptionRecommendation.HIGH),
         ('disable_font_rescaling', True, OptionRecommendation.HIGH),
         ('linearize_tables', False, OptionRecommendation.HIGH),
-        ])
+        }
 
     def get_comics_from_collection(self, stream):
         from calibre.libunzip import extract as zipextract

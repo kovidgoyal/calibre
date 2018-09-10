@@ -166,7 +166,7 @@ class InputFormatPlugin(Plugin):
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
-    common_options = set([
+    common_options = {
         OptionRecommendation(name='input_encoding',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the input document. If '
@@ -174,9 +174,7 @@ class InputFormatPlugin(Plugin):
                    'document itself. Particularly useful for documents that '
                    'do not declare an encoding or that have erroneous '
                    'encoding declarations.')
-        ),
-
-    ])
+        )}
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.
@@ -297,14 +295,13 @@ class OutputFormatPlugin(Plugin):
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
-    common_options = set([
+    common_options = {
         OptionRecommendation(name='pretty_print',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('If specified, the output plugin will try to create output '
             'that is as human readable as possible. May not have any effect '
             'for some output plugins.')
-        ),
-        ])
+        )}
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.

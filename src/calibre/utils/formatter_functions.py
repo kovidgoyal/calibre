@@ -1221,7 +1221,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         res = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = [l.strip() for l in list2.split(separator) if l.strip()]
-        lcl1 = set([icu_lower(l) for l in res])
+        lcl1 = {icu_lower(l) for l in res}
 
         for i in l2:
             if icu_lower(i) not in lcl1 and i not in res:
@@ -1242,7 +1242,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
-        l2 = set([icu_lower(l.strip()) for l in list2.split(separator) if l.strip()])
+        l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
 
         res = []
         for i in l1:
@@ -1264,7 +1264,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
-        l2 = set([icu_lower(l.strip()) for l in list2.split(separator) if l.strip()])
+        l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
 
         res = []
         for i in l1:
@@ -1303,8 +1303,8 @@ class BuiltinListEquals(BuiltinFormatterFunction):
             'The comparison is case insensitive.')
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, sep1, list2, sep2, yes_val, no_val):
-        s1 = set([icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()])
-        s2 = set([icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()])
+        s1 = {icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()}
+        s2 = {icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()}
         if s1 == s2:
             return yes_val
         return no_val

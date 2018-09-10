@@ -19,7 +19,7 @@ class PDBOutput(OutputFormatPlugin):
     commit_name = 'pdb_output'
     ui_data = {'formats': tuple(ALL_FORMAT_WRITERS)}
 
-    options = set([
+    options = {
         OptionRecommendation(name='format', recommended_value='doc',
             level=OptionRecommendation.LOW,
             short_switch='f', choices=list(ALL_FORMAT_WRITERS),
@@ -32,7 +32,7 @@ class PDBOutput(OutputFormatPlugin):
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),
-    ])
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         close = False

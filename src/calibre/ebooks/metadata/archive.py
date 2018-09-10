@@ -13,9 +13,9 @@ from calibre.customize import FileTypePlugin
 
 
 def is_comic(list_of_names):
-    extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names
-                      if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'])
-    comic_extensions = set(['jpg', 'jpeg', 'png'])
+    extensions = {x.rpartition('.')[-1].lower() for x in list_of_names
+                      if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'}
+    comic_extensions = {'jpg', 'jpeg', 'png'}
     return len(extensions - comic_extensions) == 0
 
 
@@ -44,7 +44,7 @@ class ArchiveExtract(FileTypePlugin):
     description = _('Extract common e-book formats from archive files '
         '(ZIP/RAR). Also try to autodetect if they are actually '
         'CBZ/CBR files.')
-    file_types = set(['zip', 'rar'])
+    file_types = {'zip', 'rar'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 

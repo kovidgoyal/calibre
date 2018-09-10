@@ -745,7 +745,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         return ans
 
     def dropMimeData(self, md, action, row, column, parent):
-        fmts = set([unicode(x) for x in md.formats()])
+        fmts = {unicode(x) for x in md.formats()}
         if not fmts.intersection(set(self.mimeTypes())):
             return False
         if "application/calibre+from_library" in fmts:
@@ -880,7 +880,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         cat_contents = categories.get(on_node.category_key[1:], None)
         if cat_contents is None:
             return
-        cat_contents = set([(v, c) for v,c,ign in cat_contents])
+        cat_contents = {(v, c) for v,c,ign in cat_contents}
 
         fm_src = self.db.metadata_for_field(column)
         label = fm_src['label']
@@ -903,7 +903,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if value:
                 if not isinstance(value, list):
                     value = [value]
-                cat_contents |= set([(v, column) for v in value])
+                cat_contents |= {(v, column) for v in value}
 
         categories[on_node.category_key[1:]] = [[v, c, 0] for v,c in cat_contents]
         self.db.new_api.set_pref('user_categories', categories)

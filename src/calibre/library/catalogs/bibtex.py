@@ -27,7 +27,7 @@ class BIBTEX(CatalogPlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)
-    file_types = set(['bib'])
+    file_types = {'bib'}
 
     cli_options = [
             Option('--fields',

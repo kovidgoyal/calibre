@@ -259,7 +259,7 @@ class ViewAction(InterfaceAction):
             except:
                 error_dialog(self.gui, _('Cannot view'),
                     _('This book no longer exists in your library'), show=True)
-                self.update_history([], remove=set([id_]))
+                self.update_history([], remove={id_})
                 continue
 
             title   = db.title(id_, index_is_id=True)

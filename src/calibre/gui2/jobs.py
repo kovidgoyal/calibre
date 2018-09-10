@@ -351,8 +351,8 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                 self._kill_job(job)
 
     def universal_set(self):
-        return set([i for i, j in enumerate(self.jobs) if not getattr(j,
-            'hidden_in_gui', False)])
+        return {i for i, j in enumerate(self.jobs) if not getattr(j,
+            'hidden_in_gui', False)}
 
     def get_matches(self, location, query, candidates=None):
         if candidates is None:

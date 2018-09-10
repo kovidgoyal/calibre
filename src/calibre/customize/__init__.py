@@ -277,8 +277,8 @@ class Plugin(object):  # {{{
         if self.plugin_path is not None:
             from calibre.utils.zipfile import ZipFile
             zf = ZipFile(self.plugin_path)
-            extensions = set([x.rpartition('.')[-1].lower() for x in
-                zf.namelist()])
+            extensions = {x.rpartition('.')[-1].lower() for x in
+                zf.namelist()}
             zip_safe = True
             for ext in ('pyd', 'so', 'dll', 'dylib'):
                 if ext in extensions:
@@ -507,11 +507,10 @@ class CatalogPlugin(Plugin):  # {{{
 
     def get_output_fields(self, db, opts):
         # Return a list of requested fields
-        all_std_fields = set(
-                          ['author_sort','authors','comments','cover','formats',
+        all_std_fields = {'author_sort','authors','comments','cover','formats',
                            'id','isbn','library_name','ondevice','pubdate','publisher',
                            'rating','series_index','series','size','tags','timestamp',
-                           'title_sort','title','uuid','languages','identifiers'])
+                           'title_sort','title','uuid','languages','identifiers'}
         all_custom_fields = set(db.custom_field_keys())
         for field in list(all_custom_fields):
             fm = db.field_metadata[field]

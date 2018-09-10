@@ -292,7 +292,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         names = self.all_actions.model().names(x)
         if names:
             not_added = self.current_actions.model().add(names)
-            ns = set([y.name for y in not_added])
+            ns = {y.name for y in not_added}
             added = set(names) - ns
             self.all_actions.model().remove(x, added)
             if not_added:
@@ -311,7 +311,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         names = self.current_actions.model().names(x)
         if names:
             not_removed = self.current_actions.model().remove(x)
-            ns = set([y.name for y in not_removed])
+            ns = {y.name for y in not_removed}
             removed = set(names) - ns
             self.all_actions.model().add(removed)
             if not_removed:

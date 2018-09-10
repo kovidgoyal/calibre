@@ -146,7 +146,7 @@ class LegacyTest(BaseTest):
         # Ensure that the following change will actually update the timestamp
         # on filesystems with one second resolution (OS X)
         time.sleep(1)
-        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), set([1]))
+        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), {1})
         db2.close()
         del db2
         self.assertNotEqual(db.title(1, index_is_id=True), 'xxx')

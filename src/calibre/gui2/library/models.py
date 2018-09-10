@@ -641,7 +641,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if not fmts:
                 fmts = ''
             db_formats = set(fmts.lower().split(','))
-            available_formats = set([f.lower() for f in formats])
+            available_formats = {f.lower() for f in formats}
             u = available_formats.intersection(db_formats)
             for f in formats:
                 if f.lower() in u:
@@ -697,7 +697,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if not fmts:
                 fmts = ''
             db_formats = set(fmts.lower().split(','))
-            available_formats = set([f.lower() for f in formats])
+            available_formats = {f.lower() for f in formats}
             u = available_formats.intersection(db_formats)
             for f in formats:
                 if f.lower() in u:
@@ -1104,7 +1104,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             return True
 
         id = self.db.id(row)
-        books_to_refresh = set([id])
+        books_to_refresh = {id}
         books_to_refresh |= self.db.set_custom(id, val, extra=s_index,
                            label=label, num=None, append=False, notify=True,
                            allow_case_change=True)
@@ -1153,7 +1153,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     value if column in ('timestamp', 'pubdate')
                     else re.sub(u'\\s', u' ', unicode(value or '').strip()))
             id = self.db.id(row)
-            books_to_refresh = set([id])
+            books_to_refresh = {id}
             if column == 'rating':
                 val = max(0, min(int(val or 0), 10))
                 self.db.set_rating(id, val)
@@ -1243,7 +1243,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.USABLE_LOCATIONS) - set(['all', 'tags'])
+        all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags'}
         locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),

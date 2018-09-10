@@ -25,7 +25,7 @@ class PluginWidget(QWidget, Ui_Form):
                      ]
 
     sync_enabled = False
-    formats = set(['bib'])
+    formats = {'bib'}
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)

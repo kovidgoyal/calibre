@@ -820,7 +820,7 @@ class Text(LRFStream):
         text_tags = set(list(TextAttr.tag_map.keys()) +
                         list(Text.text_tags.keys()) +
                         list(ruby_tags.keys()))
-        text_tags -= set([0xf500+i for i in range(10)])
+        text_tags -= {0xf500+i for i in range(10)}
         text_tags.add(0xf5cc)
 
         while stream.tell() < length:

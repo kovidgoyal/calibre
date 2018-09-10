@@ -51,7 +51,7 @@ class EPUBOutput(OutputFormatPlugin):
     commit_name = 'epub_output'
     ui_data = {'versions': ('2', '3')}
 
-    options = set([
+    options = {
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
@@ -125,9 +125,9 @@ class EPUBOutput(OutputFormatPlugin):
                 ' actually need it.')
         ),
 
-        ])
+        }
 
-    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+    recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def workaround_webkit_quirks(self):  # {{{
         from calibre.ebooks.oeb.base import XPath

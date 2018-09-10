@@ -62,8 +62,8 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 w = getattr(self, 'filter_css_%s'%key)
                 if w.isChecked():
                     ans = ans.union(item)
-            ans = ans.union(set([x.strip().lower() for x in
-                unicode(self.filter_css_others.text()).split(',')]))
+            ans = ans.union({x.strip().lower() for x in
+                unicode(self.filter_css_others.text()).split(',')})
             return ','.join(ans) if ans else None
         if g is self.opt_font_size_mapping:
             val = unicode(g.text()).strip()

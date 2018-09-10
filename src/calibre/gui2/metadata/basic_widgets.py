@@ -911,8 +911,8 @@ class FormatsManager(QWidget):
                 db.add_format(id_, ext, spool, notify=False,
                         index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
-        db_extensions = set([fl.lower() for fl in (dbfmts.split(',') if dbfmts
-            else [])])
+        db_extensions = {fl.lower() for fl in (dbfmts.split(',') if dbfmts
+            else [])}
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions and ext in self.original_val:

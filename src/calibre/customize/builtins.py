@@ -24,7 +24,7 @@ class PML2PMLZ(FileTypePlugin):
         'This plugin is run every time you add '
         'a PML file to the library.')
     version = numeric_version
-    file_types = set(['pml'])
+    file_types = {'pml'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
@@ -54,7 +54,7 @@ class TXT2TXTZ(FileTypePlugin):
         'containing Markdown or Textile references to images. The referenced '
         'images as well as the TXT file are added to the archive.')
     version = numeric_version
-    file_types = set(['txt', 'text'])
+    file_types = {'txt', 'text'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
@@ -132,7 +132,7 @@ plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract,]
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
-    file_types = set(['cbr', 'cbz'])
+    file_types = {'cbr', 'cbz'}
     description = _('Extract cover from comic files')
 
     def customization_help(self, gui=False):
@@ -173,7 +173,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
 class CHMMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read CHM metadata'
-    file_types  = set(['chm'])
+    file_types  = {'chm'}
     description = _('Read metadata from %s files') % 'CHM'
 
     def get_metadata(self, stream, ftype):
@@ -184,7 +184,7 @@ class CHMMetadataReader(MetadataReaderPlugin):
 class EPUBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read EPUB metadata'
-    file_types  = set(['epub'])
+    file_types  = {'epub'}
     description = _('Read metadata from %s files')%'EPUB'
 
     def get_metadata(self, stream, ftype):
@@ -208,7 +208,7 @@ class FB2MetadataReader(MetadataReaderPlugin):
 class HTMLMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read HTML metadata'
-    file_types  = set(['html'])
+    file_types  = {'html'}
     description = _('Read metadata from %s files')%'HTML'
 
     def get_metadata(self, stream, ftype):
@@ -219,7 +219,7 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 class HTMLZMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read HTMLZ metadata'
-    file_types  = set(['htmlz'])
+    file_types  = {'htmlz'}
     description = _('Read metadata from %s files') % 'HTMLZ'
     author      = 'John Schember'
 
@@ -231,7 +231,7 @@ class HTMLZMetadataReader(MetadataReaderPlugin):
 class IMPMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read IMP metadata'
-    file_types  = set(['imp'])
+    file_types  = {'imp'}
     description = _('Read metadata from %s files')%'IMP'
     author      = 'Ashish Kulkarni'
 
@@ -243,7 +243,7 @@ class IMPMetadataReader(MetadataReaderPlugin):
 class LITMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read LIT metadata'
-    file_types  = set(['lit'])
+    file_types  = {'lit'}
     description = _('Read metadata from %s files')%'LIT'
 
     def get_metadata(self, stream, ftype):
@@ -254,7 +254,7 @@ class LITMetadataReader(MetadataReaderPlugin):
 class LRFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read LRF metadata'
-    file_types  = set(['lrf'])
+    file_types  = {'lrf'}
     description = _('Read metadata from %s files')%'LRF'
 
     def get_metadata(self, stream, ftype):
@@ -265,7 +265,7 @@ class LRFMetadataReader(MetadataReaderPlugin):
 class LRXMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read LRX metadata'
-    file_types  = set(['lrx'])
+    file_types  = {'lrx'}
     description = _('Read metadata from %s files')%'LRX'
 
     def get_metadata(self, stream, ftype):
@@ -276,7 +276,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'])
+    file_types  = {'mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'}
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -287,7 +287,7 @@ class MOBIMetadataReader(MetadataReaderPlugin):
 class ODTMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read ODT metadata'
-    file_types  = set(['odt'])
+    file_types  = {'odt'}
     description = _('Read metadata from %s files')%'ODT'
 
     def get_metadata(self, stream, ftype):
@@ -298,7 +298,7 @@ class ODTMetadataReader(MetadataReaderPlugin):
 class DocXMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read DOCX metadata'
-    file_types  = set(['docx'])
+    file_types  = {'docx'}
     description = _('Read metadata from %s files')%'DOCX'
 
     def get_metadata(self, stream, ftype):
@@ -320,7 +320,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 class PDBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PDB metadata'
-    file_types  = set(['pdb', 'updb'])
+    file_types  = {'pdb', 'updb'}
     description = _('Read metadata from %s files') % 'PDB'
     author      = 'John Schember'
 
@@ -332,7 +332,7 @@ class PDBMetadataReader(MetadataReaderPlugin):
 class PDFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PDF metadata'
-    file_types  = set(['pdf'])
+    file_types  = {'pdf'}
     description = _('Read metadata from %s files')%'PDF'
 
     def get_metadata(self, stream, ftype):
@@ -345,7 +345,7 @@ class PDFMetadataReader(MetadataReaderPlugin):
 class PMLMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read PML metadata'
-    file_types  = set(['pml', 'pmlz'])
+    file_types  = {'pml', 'pmlz'}
     description = _('Read metadata from %s files') % 'PML'
     author      = 'John Schember'
 
@@ -357,7 +357,7 @@ class PMLMetadataReader(MetadataReaderPlugin):
 class RARMetadataReader(MetadataReaderPlugin):
 
     name = 'Read RAR metadata'
-    file_types = set(['rar'])
+    file_types = {'rar'}
     description = _('Read metadata from e-books in RAR archives')
 
     def get_metadata(self, stream, ftype):
@@ -368,7 +368,7 @@ class RARMetadataReader(MetadataReaderPlugin):
 class RBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read RB metadata'
-    file_types  = set(['rb'])
+    file_types  = {'rb'}
     description = _('Read metadata from %s files')%'RB'
     author      = 'Ashish Kulkarni'
 
@@ -380,7 +380,7 @@ class RBMetadataReader(MetadataReaderPlugin):
 class RTFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read RTF metadata'
-    file_types  = set(['rtf'])
+    file_types  = {'rtf'}
     description = _('Read metadata from %s files')%'RTF'
 
     def get_metadata(self, stream, ftype):
@@ -391,7 +391,7 @@ class RTFMetadataReader(MetadataReaderPlugin):
 class SNBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read SNB metadata'
-    file_types  = set(['snb'])
+    file_types  = {'snb'}
     description = _('Read metadata from %s files') % 'SNB'
     author      = 'Li Fanxi'
 
@@ -403,7 +403,7 @@ class SNBMetadataReader(MetadataReaderPlugin):
 class TOPAZMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read Topaz metadata'
-    file_types  = set(['tpz', 'azw1'])
+    file_types  = {'tpz', 'azw1'}
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -414,7 +414,7 @@ class TOPAZMetadataReader(MetadataReaderPlugin):
 class TXTMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read TXT metadata'
-    file_types  = set(['txt'])
+    file_types  = {'txt'}
     description = _('Read metadata from %s files') % 'TXT'
     author      = 'John Schember'
 
@@ -426,7 +426,7 @@ class TXTMetadataReader(MetadataReaderPlugin):
 class TXTZMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read TXTZ metadata'
-    file_types  = set(['txtz'])
+    file_types  = {'txtz'}
     description = _('Read metadata from %s files') % 'TXTZ'
     author      = 'John Schember'
 
@@ -438,7 +438,7 @@ class TXTZMetadataReader(MetadataReaderPlugin):
 class ZipMetadataReader(MetadataReaderPlugin):
 
     name = 'Read ZIP metadata'
-    file_types = set(['zip', 'oebzip'])
+    file_types = {'zip', 'oebzip'}
     description = _('Read metadata from e-books in ZIP archives')
 
     def get_metadata(self, stream, ftype):
@@ -457,7 +457,7 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and
 class EPUBMetadataWriter(MetadataWriterPlugin):
 
     name = 'Set EPUB metadata'
-    file_types = set(['epub'])
+    file_types = {'epub'}
     description = _('Set metadata in %s files')%'EPUB'
 
     def set_metadata(self, stream, mi, type):
@@ -487,7 +487,7 @@ class FB2MetadataWriter(MetadataWriterPlugin):
 class HTMLZMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set HTMLZ metadata'
-    file_types  = set(['htmlz'])
+    file_types  = {'htmlz'}
     description = _('Set metadata from %s files') % 'HTMLZ'
     author      = 'John Schember'
 
@@ -499,7 +499,7 @@ class HTMLZMetadataWriter(MetadataWriterPlugin):
 class LRFMetadataWriter(MetadataWriterPlugin):
 
     name = 'Set LRF metadata'
-    file_types = set(['lrf'])
+    file_types = {'lrf'}
     description = _('Set metadata in %s files')%'LRF'
 
     def set_metadata(self, stream, mi, type):
@@ -510,7 +510,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
 class MOBIMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw3', 'azw4'])
+    file_types  = {'mobi', 'prc', 'azw', 'azw3', 'azw4'}
     description = _('Set metadata in %s files')%'MOBI'
     author      = 'Marshall T. Vandegrift'
 
@@ -522,7 +522,7 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
 class PDBMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set PDB metadata'
-    file_types  = set(['pdb'])
+    file_types  = {'pdb'}
     description = _('Set metadata from %s files') % 'PDB'
     author      = 'John Schember'
 
@@ -534,7 +534,7 @@ class PDBMetadataWriter(MetadataWriterPlugin):
 class PDFMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set PDF metadata'
-    file_types  = set(['pdf'])
+    file_types  = {'pdf'}
     description = _('Set metadata in %s files') % 'PDF'
     author      = 'Kovid Goyal'
 
@@ -546,7 +546,7 @@ class PDFMetadataWriter(MetadataWriterPlugin):
 class RTFMetadataWriter(MetadataWriterPlugin):
 
     name = 'Set RTF metadata'
-    file_types = set(['rtf'])
+    file_types = {'rtf'}
     description = _('Set metadata in %s files')%'RTF'
 
     def set_metadata(self, stream, mi, type):
@@ -557,7 +557,7 @@ class RTFMetadataWriter(MetadataWriterPlugin):
 class TOPAZMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set TOPAZ metadata'
-    file_types  = set(['tpz', 'azw1'])
+    file_types  = {'tpz', 'azw1'}
     description = _('Set metadata in %s files')%'TOPAZ'
     author      = 'Greg Riker'
 
@@ -569,7 +569,7 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
 class TXTZMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set TXTZ metadata'
-    file_types  = set(['txtz'])
+    file_types  = {'txtz'}
     description = _('Set metadata from %s files') % 'TXTZ'
     author      = 'John Schember'
 
@@ -581,7 +581,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
 class DocXMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set DOCX metadata'
-    file_types  = set(['docx'])
+    file_types  = {'docx'}
     description = _('Read metadata from %s files')%'DOCX'
 
     def set_metadata(self, stream, mi, type):

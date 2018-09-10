@@ -522,9 +522,9 @@ class _FeedParserMixin:
     }
     _matchnamespaces = {}
 
-    can_be_relative_uri = set(['link', 'id', 'wfw_comment', 'wfw_commentrss', 'docs', 'url', 'href', 'comments', 'icon', 'logo'])
-    can_contain_relative_uris = set(['content', 'title', 'summary', 'info', 'tagline', 'subtitle', 'copyright', 'rights', 'description'])
-    can_contain_dangerous_markup = set(['content', 'title', 'summary', 'info', 'tagline', 'subtitle', 'copyright', 'rights', 'description'])
+    can_be_relative_uri = {'link', 'id', 'wfw_comment', 'wfw_commentrss', 'docs', 'url', 'href', 'comments', 'icon', 'logo'}
+    can_contain_relative_uris = {'content', 'title', 'summary', 'info', 'tagline', 'subtitle', 'copyright', 'rights', 'description'}
+    can_contain_dangerous_markup = {'content', 'title', 'summary', 'info', 'tagline', 'subtitle', 'copyright', 'rights', 'description'}
     html_types = [u'text/html', u'application/xhtml+xml']
 
     def __init__(self, baseuri=None, baselang=None, encoding=u'utf-8'):
@@ -1859,11 +1859,11 @@ if _XML_AVAILABLE:
 class _BaseHTMLProcessor(sgmllib.SGMLParser):
     special = re.compile('''[<>'"]''')
     bare_ampersand = re.compile("&(?!#\d+;|#x[0-9a-fA-F]+;|\w+;)")
-    elements_no_end_tag = set([
+    elements_no_end_tag = {
       'area', 'base', 'basefont', 'br', 'col', 'command', 'embed', 'frame',
       'hr', 'img', 'input', 'isindex', 'keygen', 'link', 'meta', 'param',
       'source', 'track', 'wbr'
-    ])
+    }
 
     def __init__(self, encoding, _type):
         self.encoding = encoding
@@ -2080,8 +2080,8 @@ class _MicroformatsParser:
     NODE = 4
     EMAIL = 5
 
-    known_xfn_relationships = set(['contact', 'acquaintance', 'friend', 'met', 'co-worker', 'coworker', 'colleague', 'co-resident', 'coresident', 'neighbor', 'child', 'parent', 'sibling', 'brother', 'sister', 'spouse', 'wife', 'husband', 'kin', 'relative', 'muse', 'crush', 'date', 'sweetheart', 'me'])
-    known_binary_extensions =  set(['zip','rar','exe','gz','tar','tgz','tbz2','bz2','z','7z','dmg','img','sit','sitx','hqx','deb','rpm','bz2','jar','rar','iso','bin','msi','mp2','mp3','ogg','ogm','mp4','m4v','m4a','avi','wma','wmv'])
+    known_xfn_relationships = {'contact', 'acquaintance', 'friend', 'met', 'co-worker', 'coworker', 'colleague', 'co-resident', 'coresident', 'neighbor', 'child', 'parent', 'sibling', 'brother', 'sister', 'spouse', 'wife', 'husband', 'kin', 'relative', 'muse', 'crush', 'date', 'sweetheart', 'me'}
+    known_binary_extensions =  {'zip','rar','exe','gz','tar','tgz','tbz2','bz2','z','7z','dmg','img','sit','sitx','hqx','deb','rpm','bz2','jar','rar','iso','bin','msi','mp2','mp3','ogg','ogm','mp4','m4v','m4a','avi','wma','wmv'}
 
     def __init__(self, data, baseuri, encoding):
         self.document = BeautifulSoup.BeautifulSoup(data)
@@ -2514,7 +2514,7 @@ def _parseMicroformats(htmlSource, baseURI, encoding):
     return {"tags": p.tags, "enclosures": p.enclosures, "xfn": p.xfn, "vcard": p.vcard}
 
 class _RelativeURIResolver(_BaseHTMLProcessor):
-    relative_uris = set([('a', 'href'),
+    relative_uris = {('a', 'href'),
                      ('applet', 'codebase'),
                      ('area', 'href'),
                      ('blockquote', 'cite'),
@@ -2539,7 +2539,7 @@ class _RelativeURIResolver(_BaseHTMLProcessor):
                      ('object', 'usemap'),
                      ('q', 'cite'),
                      ('script', 'src'),
-                     ('video', 'poster')])
+                     ('video', 'poster')}
 
     def __init__(self, baseuri, encoding, _type):
         _BaseHTMLProcessor.__init__(self, encoding, _type)
@@ -2584,7 +2584,7 @@ def _makeSafeAbsoluteURI(base, rel=None):
     return uri
 
 class _HTMLSanitizer(_BaseHTMLProcessor):
-    acceptable_elements = set(['a', 'abbr', 'acronym', 'address', 'area',
+    acceptable_elements = {'a', 'abbr', 'acronym', 'address', 'area',
         'article', 'aside', 'audio', 'b', 'big', 'blockquote', 'br', 'button',
         'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
         'command', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn',
@@ -2596,9 +2596,9 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
         'p', 'pre', 'progress', 'q', 's', 'samp', 'section', 'select',
         'small', 'sound', 'source', 'spacer', 'span', 'strike', 'strong',
         'sub', 'sup', 'table', 'tbody', 'td', 'textarea', 'time', 'tfoot',
-        'th', 'thead', 'tr', 'tt', 'u', 'ul', 'var', 'video', 'noscript'])
+        'th', 'thead', 'tr', 'tt', 'u', 'ul', 'var', 'video', 'noscript'}
 
-    acceptable_attributes = set(['abbr', 'accept', 'accept-charset', 'accesskey',
+    acceptable_attributes = {'abbr', 'accept', 'accept-charset', 'accesskey',
       'action', 'align', 'alt', 'autocomplete', 'autofocus', 'axis',
       'background', 'balance', 'bgcolor', 'bgproperties', 'border',
       'bordercolor', 'bordercolordark', 'bordercolorlight', 'bottompadding',
@@ -2619,11 +2619,11 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
       'src', 'start', 'step', 'summary', 'suppress', 'tabindex', 'target',
       'template', 'title', 'toppadding', 'type', 'unselectable', 'usemap',
       'urn', 'valign', 'value', 'variable', 'volume', 'vspace', 'vrml',
-      'width', 'wrap', 'xml:lang'])
+      'width', 'wrap', 'xml:lang'}
 
-    unacceptable_elements_with_end_tag = set(['script', 'applet', 'style'])
+    unacceptable_elements_with_end_tag = {'script', 'applet', 'style'}
 
-    acceptable_css_properties = set(['azimuth', 'background-color',
+    acceptable_css_properties = {'azimuth', 'background-color',
       'border-bottom-color', 'border-collapse', 'border-color',
       'border-left-color', 'border-right-color', 'border-top-color', 'clear',
       'color', 'cursor', 'direction', 'display', 'elevation', 'float', 'font',
@@ -2633,26 +2633,26 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
       'speak', 'speak-header', 'speak-numeral', 'speak-punctuation',
       'speech-rate', 'stress', 'text-align', 'text-decoration', 'text-indent',
       'unicode-bidi', 'vertical-align', 'voice-family', 'volume',
-      'white-space', 'width'])
+      'white-space', 'width'}
 
     # survey of common keywords found in feeds
-    acceptable_css_keywords = set(['auto', 'aqua', 'black', 'block', 'blue',
+    acceptable_css_keywords = {'auto', 'aqua', 'black', 'block', 'blue',
       'bold', 'both', 'bottom', 'brown', 'center', 'collapse', 'dashed',
       'dotted', 'fuchsia', 'gray', 'green', '!important', 'italic', 'left',
       'lime', 'maroon', 'medium', 'none', 'navy', 'normal', 'nowrap', 'olive',
       'pointer', 'purple', 'red', 'right', 'solid', 'silver', 'teal', 'top',
-      'transparent', 'underline', 'white', 'yellow'])
+      'transparent', 'underline', 'white', 'yellow'}
 
     valid_css_values = re.compile('^(#[0-9a-f]+|rgb\(\d+%?,\d*%?,?\d*%?\)?|' +
       '\d{0,2}\.?\d{0,2}(cm|em|ex|in|mm|pc|pt|px|%|,|\))?)$')
 
-    mathml_elements = set(['annotation', 'annotation-xml', 'maction', 'math',
+    mathml_elements = {'annotation', 'annotation-xml', 'maction', 'math',
       'merror', 'mfenced', 'mfrac', 'mi', 'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded',
       'mphantom', 'mprescripts', 'mroot', 'mrow', 'mspace', 'msqrt', 'mstyle',
       'msub', 'msubsup', 'msup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder',
-      'munderover', 'none', 'semantics'])
+      'munderover', 'none', 'semantics'}
 
-    mathml_attributes = set(['actiontype', 'align', 'columnalign', 'columnalign',
+    mathml_attributes = {'actiontype', 'align', 'columnalign', 'columnalign',
       'columnalign', 'close', 'columnlines', 'columnspacing', 'columnspan', 'depth',
       'display', 'displaystyle', 'encoding', 'equalcolumns', 'equalrows',
       'fence', 'fontstyle', 'fontweight', 'frame', 'height', 'linethickness',
@@ -2660,18 +2660,18 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
       'maxsize', 'minsize', 'open', 'other', 'rowalign', 'rowalign', 'rowalign',
       'rowlines', 'rowspacing', 'rowspan', 'rspace', 'scriptlevel', 'selection',
       'separator', 'separators', 'stretchy', 'width', 'width', 'xlink:href',
-      'xlink:show', 'xlink:type', 'xmlns', 'xmlns:xlink'])
+      'xlink:show', 'xlink:type', 'xmlns', 'xmlns:xlink'}
 
     # svgtiny - foreignObject + linearGradient + radialGradient + stop
-    svg_elements = set(['a', 'animate', 'animateColor', 'animateMotion',
+    svg_elements = {'a', 'animate', 'animateColor', 'animateMotion',
       'animateTransform', 'circle', 'defs', 'desc', 'ellipse', 'foreignObject',
       'font-face', 'font-face-name', 'font-face-src', 'g', 'glyph', 'hkern',
       'linearGradient', 'line', 'marker', 'metadata', 'missing-glyph', 'mpath',
       'path', 'polygon', 'polyline', 'radialGradient', 'rect', 'set', 'stop',
-      'svg', 'switch', 'text', 'title', 'tspan', 'use'])
+      'svg', 'switch', 'text', 'title', 'tspan', 'use'}
 
     # svgtiny + class + opacity + offset + xmlns + xmlns:xlink
-    svg_attributes = set(['accent-height', 'accumulate', 'additive', 'alphabetic',
+    svg_attributes = {'accent-height', 'accumulate', 'additive', 'alphabetic',
        'arabic-form', 'ascent', 'attributeName', 'attributeType',
        'baseProfile', 'bbox', 'begin', 'by', 'calcMode', 'cap-height',
        'class', 'color', 'color-rendering', 'content', 'cx', 'cy', 'd', 'dx',
@@ -2697,14 +2697,14 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
        'widths', 'x', 'x-height', 'x1', 'x2', 'xlink:actuate', 'xlink:arcrole',
        'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type',
        'xml:base', 'xml:lang', 'xml:space', 'xmlns', 'xmlns:xlink', 'y', 'y1',
-       'y2', 'zoomAndPan'])
+       'y2', 'zoomAndPan'}
 
     svg_attr_map = None
     svg_elem_map = None
 
-    acceptable_svg_properties = set([ 'fill', 'fill-opacity', 'fill-rule',
+    acceptable_svg_properties = { 'fill', 'fill-opacity', 'fill-rule',
       'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin',
-      'stroke-opacity'])
+      'stroke-opacity'}
 
     def reset(self):
         _BaseHTMLProcessor.reset(self)

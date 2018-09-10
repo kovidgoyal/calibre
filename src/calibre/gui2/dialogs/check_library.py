@@ -353,9 +353,9 @@ class CheckLibraryDialog(QDialog):
             item = tl.child(i)
             id = int(item.data(0, Qt.UserRole))
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
-            all = set([f.strip() for f in all.split(',')]) if all else set()
+            all = {f.strip() for f in all.split(',')} if all else set()
             valid = self.db.formats(id, index_is_id=True, verify_formats=True)
-            valid = set([f.strip() for f in valid.split(',')]) if valid else set()
+            valid = {f.strip() for f in valid.split(',')} if valid else set()
             for fmt in all-valid:
                 self.db.remove_format(id, fmt, index_is_id=True, db_only=True)
 

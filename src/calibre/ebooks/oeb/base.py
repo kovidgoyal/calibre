@@ -27,11 +27,11 @@ XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
 OPF1_NS      = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS      = 'http://www.idpf.org/2007/opf'
-OPF_NSES     = set([OPF1_NS, OPF2_NS])
+OPF_NSES     = {OPF1_NS, OPF2_NS}
 DC09_NS      = 'http://purl.org/metadata/dublin_core'
 DC10_NS      = 'http://purl.org/dc/elements/1.0/'
 DC11_NS      = 'http://purl.org/dc/elements/1.1/'
-DC_NSES      = set([DC09_NS, DC10_NS, DC11_NS])
+DC_NSES      = {DC09_NS, DC10_NS, DC11_NS}
 XSI_NS       = 'http://www.w3.org/2001/XMLSchema-instance'
 DCTERMS_NS   = 'http://purl.org/dc/terms/'
 NCX_NS       = 'http://www.daisy.org/z3986/2005/ncx/'
@@ -297,11 +297,11 @@ BINARY_MIME    = 'application/octet-stream'
 
 XHTML_CSS_NAMESPACE = u'@namespace "%s";\n' % XHTML_NS
 
-OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'])
-OEB_DOCS          = set([XHTML_MIME, 'text/html', OEB_DOC_MIME,
-                         'text/x-oeb-document'])
-OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
-OEB_IMAGES        = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
+OEB_STYLES        = {CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'}
+OEB_DOCS          = {XHTML_MIME, 'text/html', OEB_DOC_MIME,
+                         'text/x-oeb-document'}
+OEB_RASTER_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME}
+OEB_IMAGES        = {GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME}
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
@@ -617,12 +617,12 @@ class Metadata(object):
     metadata items.
     """
 
-    DC_TERMS      = set(['contributor', 'coverage', 'creator', 'date',
+    DC_TERMS      = {'contributor', 'coverage', 'creator', 'date',
                          'description', 'format', 'identifier', 'language',
                          'publisher', 'relation', 'rights', 'source',
-                         'subject', 'title', 'type'])
-    CALIBRE_TERMS = set(['series', 'series_index', 'rating', 'timestamp',
-                         'publication_type', 'title_sort'])
+                         'subject', 'title', 'type'}
+    CALIBRE_TERMS = {'series', 'series_index', 'rating', 'timestamp',
+                         'publication_type', 'title_sort'}
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
@@ -1199,7 +1199,7 @@ class Manifest(object):
             href = urlnormalize(href)
             base, ext = os.path.splitext(href)
             index = 1
-            lhrefs = set([x.lower() for x in self.hrefs])
+            lhrefs = {x.lower() for x in self.hrefs}
             while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
@@ -1704,7 +1704,7 @@ class PageList(object):
         :attr:`klass`: Optional semantic class of this page.
         :attr:`id`: Optional unique identifier for this page.
         """
-        TYPES = set(['front', 'normal', 'special'])
+        TYPES = {'front', 'normal', 'special'}
 
         def __init__(self, name, href, type='normal', klass=None, id=None):
             self.name = unicode(name)

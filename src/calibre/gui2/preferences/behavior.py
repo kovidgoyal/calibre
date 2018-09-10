@@ -140,7 +140,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             input_map = prefs['input_format_order']
         all_formats = set()
         self.opt_input_order.clear()
-        for fmt in all_input_formats().union(set(['ZIP', 'RAR'])):
+        for fmt in all_input_formats().union({'ZIP', 'RAR'}):
             all_formats.add(fmt.upper())
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.opt_input_order)

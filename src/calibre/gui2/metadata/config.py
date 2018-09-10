@@ -45,10 +45,10 @@ class FieldsModel(FM):  # {{{
         self.endResetModel()
 
     def commit(self):
-        ignored_fields = set([x for x in self.prefs['ignore_fields'] if x not in
-            self.overrides])
-        changed = set([k for k, v in self.overrides.iteritems() if v ==
-            Qt.Unchecked])
+        ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in
+            self.overrides}
+        changed = {k for k, v in self.overrides.iteritems() if v ==
+            Qt.Unchecked}
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 
 # }}}

@@ -222,7 +222,7 @@ class DeleteAction(InterfaceAction):
             bfmts = m.db.formats(id, index_is_id=True)
             if bfmts is None:
                 continue
-            bfmts = set([x.lower() for x in bfmts.split(',')])
+            bfmts = {x.lower() for x in bfmts.split(',')}
             rfmts = bfmts - set(fmts)
             if bfmts - rfmts:
                 # Do not delete if it will leave the book with no

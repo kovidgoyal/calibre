@@ -36,20 +36,20 @@ class FilesystemTest(BaseTest):
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
 
         # Test that changing metadata on a book with no formats/cover works
-        ae(sf('title', {3:'moved1'}), set([3]))
-        ae(sf('authors', {3:'moved1'}), set([3]))
-        ae(sf('title', {3:'Moved1'}), set([3]))
-        ae(sf('authors', {3:'Moved1'}), set([3]))
+        ae(sf('title', {3:'moved1'}), {3})
+        ae(sf('authors', {3:'moved1'}), {3})
+        ae(sf('title', {3:'Moved1'}), {3})
+        ae(sf('authors', {3:'Moved1'}), {3})
         ae(cache.field_for('title', 3), 'Moved1')
         ae(cache.field_for('authors', 3), ('Moved1',))
 
         # Now try with a book that has covers and formats
         orig_data = self.get_filesystem_data(cache, 1)
         orig_fpath = cache.format_abspath(1, 'FMT1')
-        ae(sf('title', {1:'moved'}), set([1]))
-        ae(sf('authors', {1:'moved'}), set([1]))
-        ae(sf('title', {1:'Moved'}), set([1]))
-        ae(sf('authors', {1:'Moved'}), set([1]))
+        ae(sf('title', {1:'moved'}), {1})
+        ae(sf('authors', {1:'moved'}), {1})
+        ae(sf('title', {1:'Moved'}), {1})
+        ae(sf('authors', {1:'Moved'}), {1})
         ae(cache.field_for('title', 1), 'Moved')
         ae(cache.field_for('authors', 1), ('Moved',))
         cache2 = self.init_cache(cl)

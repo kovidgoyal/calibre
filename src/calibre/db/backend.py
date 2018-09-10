@@ -1215,9 +1215,9 @@ class DB(object):
 
     @property
     def custom_tables(self):
-        return set([x[0] for x in self.conn.get(
+        return {x[0] for x in self.conn.get(
             'SELECT name FROM sqlite_master WHERE type="table" AND '
-            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')])
+            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')}
 
     @classmethod
     def exists_at(cls, path):

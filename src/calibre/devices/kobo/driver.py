@@ -1280,7 +1280,7 @@ class KOBO(USBMS):
     def add_annotation_to_library(self, db, db_id, annotation):
         from calibre.ebooks.BeautifulSoup import Tag
         bm = annotation
-        ignore_tags = set(['Catalog', 'Clippings'])
+        ignore_tags = {'Catalog', 'Clippings'}
 
         if bm.type == 'kobo_bookmark' and bm.value.last_read:
             mi = db.get_metadata(db_id, index_is_id=True)

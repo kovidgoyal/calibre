@@ -271,7 +271,7 @@ class KINDLE(USBMS):
         from calibre.ebooks.metadata import MetaInformation
 
         bm = annotation
-        ignore_tags = set(['Catalog', 'Clippings'])
+        ignore_tags = {'Catalog', 'Clippings'}
 
         if bm.type == 'kindle_bookmark':
             mi = db.get_metadata(db_id, index_is_id=True)

@@ -30,10 +30,10 @@ class HTMLInput(InputFormatPlugin):
     name        = 'HTML Input'
     author      = 'Kovid Goyal'
     description = 'Convert HTML and OPF files to an OEB'
-    file_types  = set(['opf', 'html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'])
+    file_types  = {'opf', 'html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'}
     commit_name = 'html_input'
 
-    options = set([
+    options = {
         OptionRecommendation(name='breadth_first',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Traverse links in HTML files breadth first. Normally, '
@@ -59,7 +59,7 @@ class HTMLInput(InputFormatPlugin):
                 )
         ),
 
-    ])
+    }
 
     def convert(self, stream, opts, file_ext, log,
                 accelerators):

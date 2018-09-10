@@ -52,7 +52,7 @@ class TXTInput(InputFormatPlugin):
         },
     }
 
-    options = set([
+    options = {
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=list(ui_data['formatting_types']),
             help=_('Formatting used within the document.\n'
@@ -87,7 +87,7 @@ class TXTInput(InputFormatPlugin):
                    'To learn more about markdown extensions, see {}\n'
                    'This should be a comma separated list of extensions to enable:\n'
                    ).format('https://python-markdown.github.io/extensions/') + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
-    ])
+    }
 
     def shift_file(self, base_dir, fname, data):
         name, ext = os.path.splitext(fname)

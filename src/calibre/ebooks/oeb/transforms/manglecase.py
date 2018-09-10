@@ -19,7 +19,7 @@ CASE_MANGLER_CSS = """
 }
 """
 
-TEXT_TRANSFORMS = set(['capitalize', 'uppercase', 'lowercase'])
+TEXT_TRANSFORMS = {'capitalize', 'uppercase', 'lowercase'}
 
 
 class CaseMangler(object):

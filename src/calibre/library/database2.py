@@ -1255,7 +1255,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         formats = self.conn.get('SELECT DISTINCT format from data')
         if not formats:
             return set([])
-        return set([f[0] for f in formats])
+        return {f[0] for f in formats}
 
     def format_files(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
@@ -2494,7 +2494,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if case_change:
                 bks = self.conn.get('''SELECT book FROM books_authors_link
                                        WHERE author=?''', (aid,))
-                books_to_refresh |= set([bk[0] for bk in bks])
+                books_to_refresh |= {bk[0] for bk in bks}
                 for bk in books_to_refresh:
                     ss = self.author_sort_from_book(id, index_is_id=True)
                     aus = self.author_sort(bk, index_is_id=True)
@@ -2534,7 +2534,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.windows_check_if_files_in_use(id)
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
-        self.dirtied(set([id])|books_to_refresh, commit=False)
+        self.dirtied({id}|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.set_path(id, index_is_id=True)
@@ -2599,7 +2599,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  FROM books_languages_link WHERE
                                  books_languages_link.lang_code=languages.id) < 1''')
 
-        books_to_refresh = set([book_id])
+        books_to_refresh = {book_id}
         final_languages = []
         for l in languages:
             lc = canonicalize_lang(l)
@@ -2676,12 +2676,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if case_change:
                 bks = self.conn.get('''SELECT book FROM books_publishers_link
                                        WHERE publisher=?''', (aid,))
-                books_to_refresh |= set([bk[0] for bk in bks])
+                books_to_refresh |= {bk[0] for bk in bks}
         self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
                              FROM books_publishers_link
                              WHERE publisher=publishers.id) < 1''')
 
-        self.dirtied(set([id])|books_to_refresh, commit=False)
+        self.dirtied({id}|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
@@ -2990,7 +2990,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         (id,), all=True)
         if not result:
             return set([])
-        return set([r[0] for r in result])
+        return {r[0] for r in result}
 
     @classmethod
     def cleanup_tags(cls, tags):
@@ -3123,10 +3123,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if case_changed:
                 bks = self.conn.get('SELECT book FROM books_tags_link WHERE tag=?',
                                         (tid,))
-                books_to_refresh |= set([bk[0] for bk in bks])
+                books_to_refresh |= {bk[0] for bk in bks}
         self.conn.execute('''DELETE FROM tags WHERE (SELECT COUNT(id)
                                 FROM books_tags_link WHERE tag=tags.id) < 1''')
-        self.dirtied(set([id])|books_to_refresh, commit=False)
+        self.dirtied({id}|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         tags = u','.join(self.get_tags(id))
@@ -3202,7 +3202,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if case_change:
                 bks = self.conn.get('SELECT book FROM books_series_link WHERE series=?',
                                         (aid,))
-                books_to_refresh |= set([bk[0] for bk in bks])
+                books_to_refresh |= {bk[0] for bk in bks}
         self.conn.execute('''DELETE FROM series
                              WHERE (SELECT COUNT(id) FROM books_series_link
                                     WHERE series=series.id) < 1''')
@@ -3598,7 +3598,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for x in items:
                 path_map[x.lower()] = x
             items = set(path_map)
-            paths = set([x.lower() for x in paths])
+            paths = {x.lower() for x in paths}
         items = items.intersection(paths)
         return items, path_map
 

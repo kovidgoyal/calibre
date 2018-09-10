@@ -151,7 +151,7 @@ class FB2Output(OutputFormatPlugin):
         'genres': FB2_GENRES,
     }
 
-    options = set([
+    options = {
         OptionRecommendation(name='sectionize',
             recommended_value='files', level=OptionRecommendation.LOW,
             choices=list(ui_data['sectionize']),
@@ -167,7 +167,7 @@ class FB2Output(OutputFormatPlugin):
             choices=FB2_GENRES,
             help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES)
                 ) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' + _('for a complete list with descriptions.')),
-    ])
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket

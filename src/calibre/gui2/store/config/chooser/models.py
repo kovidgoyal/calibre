@@ -230,7 +230,7 @@ class SearchFilter(SearchQueryParser):
         if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
+        all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
              'affiliate': lambda x: x.affiliate,

@@ -31,7 +31,7 @@ class EPUB_MOBI(CatalogPlugin):
     minimum_calibre_version = (0, 7, 40)
     author = 'Greg Riker'
     version = (1, 0, 0)
-    file_types = set(['azw3', 'epub', 'mobi'])
+    file_types = {'azw3', 'epub', 'mobi'}
 
     THUMB_SMALLEST = "1.0"
     THUMB_LARGEST = "2.0"

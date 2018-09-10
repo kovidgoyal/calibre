@@ -24,7 +24,7 @@ class CSV_XML(CatalogPlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Greg Riker'
     version = (1, 0, 0)
-    file_types = set(['csv', 'xml'])
+    file_types = {'csv', 'xml'}
 
     cli_options = [
             Option('--fields',

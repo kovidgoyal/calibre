@@ -90,7 +90,7 @@ class FetchAnnotationsAction(InterfaceAction):
             paths = []
             for x in ('memory', 'card_a', 'card_b'):
                 x = getattr(self.gui, x+'_view').model()
-                paths += x.paths_for_db_ids(set([id_]), as_map=True)[id_]
+                paths += x.paths_for_db_ids({id_}, as_map=True)[id_]
             return paths[0].path if paths else None
 
         def generate_annotation_paths(ids, db, device):

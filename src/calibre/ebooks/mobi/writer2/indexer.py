@@ -354,8 +354,8 @@ class TBS(object):  # {{{
 
         if spanner is None:
             articles = depth_map[2]
-            sections = set([self.section_map[a.parent_index] for a in
-                articles])
+            sections = {self.section_map[a.parent_index] for a in
+                articles}
             sections = sorted(sections, key=lambda x:x.offset)
             section_map = {s:[a for a in articles if a.parent_index ==
                 s.index] for s in sections}

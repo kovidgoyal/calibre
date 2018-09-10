@@ -92,7 +92,7 @@ class LRFOutput(OutputFormatPlugin):
     file_type = 'lrf'
     commit_name = 'lrf_output'
 
-    options = set([
+    options = {
         OptionRecommendation(name='enable_autorotation', recommended_value=False,
             help=_('Enable auto-rotation of images that are wider than the screen width.')
         ),
@@ -134,11 +134,10 @@ class LRFOutput(OutputFormatPlugin):
             help=_('The monospace family of fonts to embed')
         ),
 
-    ])
+    }
 
-    recommendations = set([
-        ('change_justification', 'original', OptionRecommendation.HIGH),
-        ])
+    recommendations = {
+        ('change_justification', 'original', OptionRecommendation.HIGH)}
 
     def convert_images(self, pages, opts, wide):
         from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock

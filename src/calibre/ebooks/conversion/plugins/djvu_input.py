@@ -18,7 +18,7 @@ class DJVUInput(InputFormatPlugin):
     name        = 'DJVU Input'
     author      = 'Anthon van der Neut'
     description = 'Convert OCR-ed DJVU files (.djvu) to HTML'
-    file_types  = set(['djvu', 'djv'])
+    file_types  = {'djvu', 'djv'}
     commit_name = 'djvu_input'
 
     def convert(self, stream, options, file_ext, log, accelerators):

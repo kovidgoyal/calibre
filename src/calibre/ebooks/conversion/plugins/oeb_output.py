@@ -18,7 +18,7 @@ class OEBOutput(OutputFormatPlugin):
     file_type = 'oeb'
     commit_name = 'oeb_output'
 
-    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+    recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from urllib import unquote

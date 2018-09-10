@@ -47,10 +47,10 @@ def title_test(title, exact=False):
 
 
 def authors_test(authors):
-    authors = set([x.lower() for x in authors])
+    authors = {x.lower() for x in authors}
 
     def test(mi):
-        au = set([x.lower() for x in mi.authors])
+        au = {x.lower() for x in mi.authors}
         if msprefs['swap_author_names']:
             def revert_to_fn_ln(a):
                 if ',' not in a:
@@ -61,7 +61,7 @@ def authors_test(authors):
                 parts.insert(0, t)
                 return ' '.join(parts)
 
-            au = set([revert_to_fn_ln(x) for x in au])
+            au = {revert_to_fn_ln(x) for x in au}
 
         if au == authors:
             return True
@@ -72,10 +72,10 @@ def authors_test(authors):
 
 
 def tags_test(tags):
-    tags = set([x.lower() for x in tags])
+    tags = {x.lower() for x in tags}
 
     def test(mi):
-        t = set([x.lower() for x in mi.tags])
+        t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
         prints('Tags test failed. Expected: \'%s\' found \'%s\''%(tags, t))

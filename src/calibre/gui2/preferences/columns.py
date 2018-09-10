@@ -239,9 +239,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = set([unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        hidden_cols = {unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())
-                 if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked])
+                 if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked}
         hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols
         hidden_cols = list(hidden_cols.intersection(set(model.column_map)))
         if 'ondevice' in hidden_cols:

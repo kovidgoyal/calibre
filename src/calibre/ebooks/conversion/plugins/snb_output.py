@@ -18,7 +18,7 @@ class SNBOutput(OutputFormatPlugin):
     file_type = 'snb'
     commit_name = 'snb_output'
 
-    options = set([
+    options = {
         OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. '
@@ -45,7 +45,7 @@ class SNBOutput(OutputFormatPlugin):
         OptionRecommendation(name='snb_full_screen',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Resize all the images for full screen view. ')),
-     ])
+     }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree
