@@ -15,7 +15,7 @@ __all__ = [
         'check', 'test',
         'sdist', 'bootstrap',
         'manual', 'tag_release',
-        'pypi_register', 'pypi_upload', 'upload_to_server',
+        'upload_to_server',
         'upload_installers',
         'upload_user_manual', 'upload_demo', 'reupload',
         'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
