@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from optparse import OptionParser
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -24,6 +25,14 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
     plumber.merge_ui_recommendations(recommendations)
 
     plumber.run()
+
+
+def gui_convert_recipe(input, output, recommendations, notification=DummyReporter(),
+        abort_after_input_dump=False, log=None, override_input_metadata=False):
+    os.environ['CALIBRE_RECIPE_URN'] = input
+    gui_convert('from-gui.recipe', output, recommendations, notification=notification,
+            abort_after_input_dump=abort_after_input_dump, log=log,
+            override_input_metadata=override_input_metadata)
 
 
 def gui_convert_override(input, output, recommendations, notification=DummyReporter(),
@@ -69,5 +78,3 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
     # Returns 0 if successful, 1 if no catalog built
     plugin = plugin_for_catalog_format(fmt)
     return plugin.run(out_file_name, opts, db, notification=notification)
-
-

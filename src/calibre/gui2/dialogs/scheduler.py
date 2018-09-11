@@ -22,7 +22,6 @@ from PyQt5.Qt import (
 from calibre.gui2 import config as gconf, error_dialog, gprefs
 from calibre.gui2.search_box import SearchBox2
 from calibre.web.feeds.recipes.model import RecipeModel
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre import force_unicode
@@ -654,16 +653,11 @@ class Scheduler(QObject):
             if account_info is not None:
                 un, pw = account_info
             add_title_tag, custom_tags, keep_issues = customize_info
-            script = self.recipe_model.get_recipe(urn)
-            pt = PersistentTemporaryFile('_builtin.recipe')
-            pt.write(script)
-            pt.close()
             arg = {
                     'username': un,
                     'password': pw,
                     'add_title_tag':add_title_tag,
                     'custom_tags':custom_tags,
-                    'recipe':pt.name,
                     'title':recipe.get('title',''),
                     'urn':urn,
                     'keep_issues':keep_issues

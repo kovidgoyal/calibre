@@ -69,7 +69,23 @@ class RecipeInput(InputFormatPlugin):
             recipe.needs_subscription = False
             self.recipe_object = recipe(opts, log, self.report_progress)
         else:
-            if os.access(recipe_or_file, os.R_OK):
+            if os.environ.get('CALIBRE_RECIPE_URN'):
+                from calibre.web.feeds.recipes.collection import get_custom_recipe, get_builtin_recipe_by_id
+                urn = os.environ['CALIBRE_RECIPE_URN']
+                log('Downloading recipe urn: ' + urn)
+                rtype, recipe_id = urn.partition(':')[::2]
+                if not recipe_id:
+                    raise ValueError('Invalid recipe urn: ' + urn)
+                if rtype == 'custom':
+                    self.recipe_source = get_custom_recipe(recipe_id)
+                else:
+                    self.recipe_source = get_builtin_recipe_by_id(urn)
+                if not self.recipe_source:
+                    raise ValueError('Could not find recipe with urn: ' + urn)
+                if not isinstance(self.recipe_source, bytes):
+                    self.recipe_source = self.recipe_source.encode('utf-8')
+                recipe = compile_recipe(self.recipe_source)
+            elif os.access(recipe_or_file, os.R_OK):
                 self.recipe_source = open(recipe_or_file, 'rb').read()
                 recipe = compile_recipe(self.recipe_source)
                 log('Using custom recipe')

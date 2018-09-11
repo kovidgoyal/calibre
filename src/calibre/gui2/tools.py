@@ -306,13 +306,13 @@ def fetch_scheduled_recipe(arg):  # {{{
         for opt in p.options:
             recs.append((opt.option.name, pdf.get(opt.option.name, opt.recommended_value), OptionRecommendation.HIGH))
 
-    args = [arg['recipe'], pt.name, recs]
+    args = [arg['urn'], pt.name, recs]
     if arg['username'] is not None:
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
 
-    return 'gui_convert', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
+    return 'gui_convert_recipe', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
 
 # }}}
 
