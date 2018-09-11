@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,6 +14,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import force_unicode
+from calibre.constants import numeric_version
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
@@ -221,7 +221,11 @@ def download_builtin_recipe(urn):
     recipe_source = bz2.decompress(get_https_resource_securely(
         'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
     from calibre.web.feeds.recipes import compile_recipe
-    compile_recipe(recipe_source)  # ensure the downloaded recipe is at least compile-able
+    recipe = compile_recipe(recipe_source)  # ensure the downloaded recipe is at least compile-able
+    if recipe is None:
+        raise ValueError('Failed to find recipe object in downloaded recipe: ' + urn)
+    if recipe.requires_version > numeric_version:
+        raise ValueError('Downloaded recipe for {} requires calibre >= {}'.format(urn, recipe.requires_version))
     return recipe_source
 
 
