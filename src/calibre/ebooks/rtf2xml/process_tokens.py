@@ -584,7 +584,7 @@ class ProcessTokens:
         }
     """
         # unknown
-        # These must get passed on because they occure after \*
+        # These must get passed on because they occure after \\*
         'do'                :   ('un', 'unknown___', self.default_func),
         'company'           :	('un', 'company___', self.default_func),
         'shpinst'           :   ('un', 'unknown___', self.default_func),
@@ -716,10 +716,10 @@ class ProcessTokens:
     def divide_num(self, numerator, denominator):
         try:
             # calibre why ignore negative number? Wrong in case of \fi
-            numerator = float(re.search('[0-9.\-]+', numerator).group())
+            numerator = float(re.search('[0-9.\\-]+', numerator).group())
         except TypeError as msg:
             if self.__run_level > 3:
-                msg = ('No number to process?\nthis indicates that the token \(\\li\) \
+                msg = ('No number to process?\nthis indicates that the token \\(\\li\\) \
                 should have a number and does not\nnumerator is \
                 "%s"\ndenominator is "%s"\n') % (numerator, denominator)
                 raise self.__bug_handler(msg)

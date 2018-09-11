@@ -32,6 +32,7 @@ class CheckEncoding:
                     return True
         return False
 
+
 if __name__ == '__main__':
     check_encoding_obj = CheckEncoding()
     check_encoding_obj.check_encoding(sys.argv[1])

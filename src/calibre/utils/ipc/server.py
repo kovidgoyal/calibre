@@ -87,6 +87,7 @@ class ConnectedWorker(Thread):
 class CriticalError(Exception):
     pass
 
+
 _name_counter = itertools.count()
 
 if islinux:
@@ -384,4 +385,3 @@ class Server(Thread):
 
     def __exit__(self, *args):
         self.close()
-

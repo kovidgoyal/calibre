@@ -73,7 +73,7 @@ def check_for_critical_bugs():
         print('WARNING: Translation errors detected')
         print('See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter')
 
+
 if __name__ == '__main__':
     import sys
     import_from_launchpad(sys.argv[1])
-

@@ -84,11 +84,11 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     remove_tags = [
         dict(name=['iframe', 'script', 'noscript', 'style']),
         dict(name='div', attrs={'class': ['fact-related-box', 'aside clearfix', 'aside clearfix middle-col-line', 'comments', 'share-tools', 'article-right-column', 'column-4-5', 'column-1-5', 'ad-msg', 'col-179 ', 'col-373 ', 'clear', 'ad', 'navigation', re.compile('share-tools(-top)?'), 'tools', 'metroCommentFormWrap', 'article-tools-below-title', 'related-links', 'padding-top-15', re.compile('^promo.*?$'), 'teaser-component', re.compile('fb(-comments|_iframe_widget)'), 'promos', 'header-links', 'promo-2']}),  # noqa
-        dict(id=['super-carousel', 'article-2', 'googleads', 'column-1-5-bottom', 'column-4-5', re.compile('^ad(\d+|adcomp.*?)?$'), 'adadcomp-4', 'margin-5', 'sidebar', re.compile('^article-\d'), 'comments', 'gallery-1', 'sharez_container', 'ts-container', 'topshares', 'ts-title']),  # noqa
+        dict(id=['super-carousel', 'article-2', 'googleads', 'column-1-5-bottom', 'column-4-5', re.compile('^ad(\\d+|adcomp.*?)?$'), 'adadcomp-4', 'margin-5', 'sidebar', re.compile('^article-\\d'), 'comments', 'gallery-1', 'sharez_container', 'ts-container', 'topshares', 'ts-title']),  # noqa
         dict(name='a', attrs={'name': 'comments'}),
         dict(name='img', attrs={'class': 'top-line',
                                 'title': 'volledig scherm'}),
-        dict(attrs={'style': re.compile('^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$'), 'title': 'volledig scherm'})]
+        dict(attrs={'style': re.compile('^(.*(display\\s?:\\s?none|img-mask|white)\\s?;?.*)$'), 'title': 'volledig scherm'})]
 
     '''removed by before/after:
         id:
@@ -223,7 +223,7 @@ class MerryProcess(BeautifulSoup):
         return self.myKiller.safeRemovePart(souparray, True)
 
     def removeEmptyTags(self, soup, run=0):
-        emptymatches = re.compile('^[&nbsp;\s\n\r\t ]*$')
+        emptymatches = re.compile('^[&nbsp;\\s\n\r\t ]*$')
         emptytags = soup.findAll(lambda tag: tag.find(True) is None and (
             tag.string is None or tag.string.strip() == "" or tag.string.strip() == emptymatches) and not tag.isSelfClosing)
         if emptytags and not (emptytags is None or emptytags == []):

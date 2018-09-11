@@ -374,6 +374,7 @@ class NonLinearNCXIndex(NCXIndex):
         EndTagTable
     )))
 
+
 if __name__ == '__main__':
     # Generate a document with a large number of index entries using both
     # calibre and kindlegen and compare the output
@@ -393,4 +394,3 @@ if __name__ == '__main__':
 
     from calibre.gui2.tweak_book.diff.main import main
     main(['cdiff', 'decompiled_index/mobi8/ncx.record', 'x/ncx.record'])
-

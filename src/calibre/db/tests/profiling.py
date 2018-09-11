@@ -40,5 +40,6 @@ def main():
     show_stats(stats)
     print('Stats saved to', stats)
 
+
 if __name__ == '__main__':
     main()

@@ -165,6 +165,7 @@ class Parser(object):
             ans['text_assertion'] = ta
         return raw[1:]
 
+
 _parser = None
 
 
@@ -203,5 +204,3 @@ def cfi_sort_key(cfi, only_path=True):
     step = steps[-1] if steps else {}
     offsets = (step.get('temporal_offset', 0), tuple(reversed(step.get('spatial_offset', (0, 0)))), step.get('text_offset', 0), )
     return (step_nums, offsets)
-
-

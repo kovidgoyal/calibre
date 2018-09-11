@@ -30,6 +30,7 @@ def same_thread(func):
         return func(self, *args, **kwargs)
     return check_thread
 
+
 FreeTypeError = getattr(plugins['freetype'][0], 'FreeTypeError', Exception)
 
 
@@ -80,5 +81,3 @@ class FreeType(object):
     @same_thread
     def load_font(self, data):
         return Face(self.ft.load_font(data))
-
-

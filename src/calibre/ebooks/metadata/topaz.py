@@ -370,6 +370,7 @@ def set_metadata(stream, mi):
     mu.update(mi)
     return
 
+
 if __name__ == '__main__':
     if False:
         # Test get_metadata()
@@ -388,4 +389,3 @@ if __name__ == '__main__':
         updated_data = open(tokens[0]+'-updated' + '.' + tokens[2],'wb')
         updated_data.write(stream.getvalue())
         updated_data.close()
-

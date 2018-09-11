@@ -411,8 +411,6 @@ class FieldStrings:
             line -- the string to be parse
         Retuns:
             The name of the field
-        Logic:
-        self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
         """
         self.__link_switch = re.compile(r'\\l\s{1,}"{0,1}(.*?)"{0,1}\s')
         the_string = name

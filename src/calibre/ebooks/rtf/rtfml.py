@@ -142,7 +142,7 @@ class RTFMLizer(object):
         return text
 
     def remove_tabs(self, text):
-        self.log.debug('\Replace tabs with space for processing...')
+        self.log.debug('Replace tabs with space for processing...')
         text = text.replace('\t', ' ')
 
         return text

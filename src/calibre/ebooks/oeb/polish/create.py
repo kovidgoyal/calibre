@@ -115,6 +115,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
             zf.writestr(html_name, HTML)
             zf.writestr(toc_name, ncx)
 
+
 if __name__ == '__main__':
     from calibre.ebooks.metadata.book.base import Metadata
     mi = Metadata('Test book', authors=('Kovid Goyal',))

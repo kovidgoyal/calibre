@@ -211,7 +211,6 @@ def test_udisks(ver=None):
     print('Ejecting:')
     u.eject(dev)
 
+
 if __name__ == '__main__':
     test_udisks()
-
-

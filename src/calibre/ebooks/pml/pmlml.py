@@ -188,7 +188,7 @@ class PMLMLizer(object):
             text = text.replace('\\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(unicode(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), '\g<t>\g<a>\g<b>\g<t>', text)
+        text = re.sub(unicode(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), '\\g<t>\\g<a>\\g<b>\\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
@@ -206,7 +206,7 @@ class PMLMLizer(object):
         text = re.sub('[ ]{2,}', ' ', text)
 
         # Condense excessive \c empty line sequences.
-        text = re.sub('(\\c\s*\\c\s*){2,}', '\\c \n\\c\n', text)
+        text = re.sub('(\\c\\s*\\c\\s*){2,}', '\\c \n\\c\n', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)

@@ -144,7 +144,7 @@ class LentaRURecipe(BasicNewsRecipe):
 
         # Place article date after header
         dates = soup.findAll(text=re.compile(
-            '\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
+            r'\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
         if dates:
             for date in dates:
                 for string in date:

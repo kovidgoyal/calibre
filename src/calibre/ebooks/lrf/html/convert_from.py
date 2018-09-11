@@ -153,9 +153,9 @@ class HTMLConverter(object):
                      (re.compile('<hr>', re.IGNORECASE),
                       lambda match : '<span style="page-break-after:always"> </span>'),
                      # Create header tags
-                     (re.compile('<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+                     (re.compile('<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
                       lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
-                     (re.compile('<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+                     (re.compile('<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
                       lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile('<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
@@ -409,7 +409,7 @@ class HTMLConverter(object):
         selector name and the value is a dictionary of properties
         """
         sdict, pdict = {}, {}
-        style = re.sub('/\*.*?\*/', '', style)  # Remove /*...*/ comments
+        style = re.sub('/\\*.*?\\*/', '', style)  # Remove /*...*/ comments
         for sel in re.findall(HTMLConverter.SELECTOR_PAT, style):
             for key in sel[0].split(','):
                 val = self.parse_style_properties(sel[1])

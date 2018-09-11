@@ -113,6 +113,7 @@ class FontMetrics(object):
         'The width of the string at the specified pixel size and stretch, in pixels'
         return sum(self.advance_widths(string, pixel_size, stretch))
 
+
 if __name__ == '__main__':
     import sys
     from calibre.utils.fonts.sfnt.container import Sfnt
@@ -127,4 +128,3 @@ if __name__ == '__main__':
     print('AvgWidth:', m.pdf_avg_width)
     print('ItalicAngle', m.post.italic_angle)
     print('StemV', m.pdf_stemv)
-

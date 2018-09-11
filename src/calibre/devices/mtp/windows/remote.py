@@ -93,8 +93,8 @@ def main():
     finally:
         dev.shutdown()
 
-    print ('Device connection shutdown')
+    print('Device connection shutdown')
+
 
 if __name__ == '__main__':
     main()
-

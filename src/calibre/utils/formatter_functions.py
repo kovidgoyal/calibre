@@ -640,7 +640,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
             'the template and the eval functions, you use [[ for { and ]] for }.'
             ' The following example in template program mode looks for series '
             'with more than one word and uppercases the first word: '
-            "{series:'re_group($, \"(\S* )(.*)\", \"[[$:uppercase()]]\", \"[[$]]\")'}")
+            "{series:'re_group($, \"(\\S* )(.*)\", \"[[$:uppercase()]]\", \"[[$]]\")'}")
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, *args):
         from formatter import EvalFormatter
@@ -924,9 +924,9 @@ class BuiltinSublist(BuiltinFormatterFunction):
             'of zero is assumed to be the length of the list. Examples using '
             'basic template mode and assuming that the tags column (which is '
             'comma-separated) contains "A, B, C": '
-            '{tags:sublist(0,1,\,)} returns "A". '
-            '{tags:sublist(-1,0,\,)} returns "C". '
-            '{tags:sublist(0,-1,\,)} returns "A, B".'
+            '{tags:sublist(0,1,\\,)} returns "A". '
+            '{tags:sublist(-1,0,\\,)} returns "C". '
+            '{tags:sublist(0,-1,\\,)} returns "A, B".'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):

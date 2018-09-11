@@ -241,7 +241,7 @@ class BIBTEX(CatalogPlugin):
             # define a function to replace the template entry by its value
             def tpl_replace(objtplname) :
 
-                tpl_field = re.sub(u'[\{\}]', u'', objtplname.group())
+                tpl_field = re.sub(u'[\\{\\}]', u'', objtplname.group())
 
                 if tpl_field in TEMPLATE_ALLOWED_FIELDS :
                     if tpl_field in ['pubdate', 'timestamp'] :
@@ -258,14 +258,14 @@ class BIBTEX(CatalogPlugin):
 
             if len(template_citation) >0 :
                 tpl_citation = bibtexclass.utf8ToBibtex(
-                    bibtexclass.ValidateCitationKey(re.sub(u'\{[^{}]*\}',
+                    bibtexclass.ValidateCitationKey(re.sub(u'\\{[^{}]*\\}',
                         tpl_replace, template_citation)))
 
                 if len(tpl_citation) >0 :
                     return tpl_citation
 
             if len(entry["isbn"]) > 0 :
-                template_citation = u'%s' % re.sub(u'[\D]',u'', entry["isbn"])
+                template_citation = u'%s' % re.sub(u'[\\D]',u'', entry["isbn"])
 
             else :
                 template_citation = u'%s' % str(entry["id"])

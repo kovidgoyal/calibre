@@ -83,6 +83,7 @@ def get_icons(zfp, name_or_list_of_names):
         ians = ians.pop(names[0])
     return ians
 
+
 _translations_cache = {}
 
 
@@ -316,4 +317,3 @@ if __name__ == '__main__':
                             zf.write(os.path.join(x, y))
         add_plugin(f.name)
         print('Added plugin from', sys.argv[-1])
-

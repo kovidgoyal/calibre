@@ -120,7 +120,7 @@ class ListTable:
         Requires: line -- line to process
         Returns: nothing
         Logic:
-            I have found \list.
+            I have found \\list.
             Change the state to list
             Get the open bracket count so you know when this state ends.
             Append an empty list to all lists.
@@ -162,7 +162,7 @@ class ListTable:
         Requires: line -- line to process
         Returns: nothing
         Logic:
-            I have found \listlevel.
+            I have found \\listlevel.
             Change the state to level
             Get the open bracket count so you know when this state ends.
             Append an empty list to the last list inside all lists.
@@ -285,7 +285,7 @@ class ListTable:
         Returns:
             nothing
         Logic:
-            Method is used for to parse text in the \leveltext group.
+            Method is used for to parse text in the \\leveltext group.
         """
         num = line[18:]
         the_num = int(num, 16)

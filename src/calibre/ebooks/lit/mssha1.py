@@ -104,6 +104,7 @@ def f60_79(B, C, D):
 def f6_42(B, C, D):
     return (B + C) ^ C
 
+
 f = [f0_19]*20 + [f20_39]*20 + [f40_59]*20 + [f60_79]*20
 
 # ...and delightful changes
@@ -320,6 +321,7 @@ def new(arg=None):
         crypto.update(arg)
 
     return crypto
+
 
 if __name__ == '__main__':
     def main():

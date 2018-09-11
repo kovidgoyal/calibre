@@ -90,8 +90,8 @@ class NumberToText(object):  # {{{
         # Special case ordinals
         if re.search('[st|nd|rd|th]',self.number):
             self.number = re.sub(',','',self.number)
-            ordinal_suffix = re.search('[\D]', self.number)
-            ordinal_number = re.sub('\D','',re.sub(',','',self.number))
+            ordinal_suffix = re.search('[\\D]', self.number)
+            ordinal_number = re.sub('\\D','',re.sub(',','',self.number))
             if self.verbose:
                 self.log("Ordinal: %s" % ordinal_number)
             self.number_as_float = ordinal_number
@@ -120,7 +120,7 @@ class NumberToText(object):  # {{{
             self.text = NumberToText(self.number.replace('%',' percent')).text
 
         # Test for decimal
-        elif re.search('\.',self.number):
+        elif re.search('\\.',self.number):
             if self.verbose:
                 self.log("Decimal: %s" % self.number)
             self.number_as_float = self.number
@@ -151,12 +151,12 @@ class NumberToText(object):  # {{{
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'
-        elif re.search('[\D]+', self.number):
+        elif re.search('[\\D]+', self.number):
             if self.verbose:
                 self.log("Hybrid: %s" % self.number)
             # Split the token into number/text
-            number_position = re.search('\d',self.number).start()
-            text_position = re.search('\D',self.number).start()
+            number_position = re.search('\\d',self.number).start()
+            text_position = re.search('\\D',self.number).start()
             if number_position < text_position:
                 number = self.number[:text_position]
                 text = self.number[text_position:]
@@ -225,4 +225,3 @@ class NumberToText(object):  # {{{
                     self.log(u'resultString: %s' % resultString)
                 self.text = resultString.strip().capitalize()
 # }}}
-

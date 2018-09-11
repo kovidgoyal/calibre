@@ -160,6 +160,7 @@ class MainWindow(QMainWindow):
                 self.window_unblocked.emit()
         return QMainWindow.event(self, ev)
 
+
 app=QApplication([])
 app.setAttribute(Qt.AA_DontUseNativeMenuBar, False)
 app.setApplicationName('com.calibre-ebook.DBusExportDemo')

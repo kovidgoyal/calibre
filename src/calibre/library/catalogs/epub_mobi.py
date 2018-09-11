@@ -61,7 +61,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "Default: '%default'\n"
                            "Applies to: AZW3, EPUB, MOBI output formats")),
                    Option('--exclude-genre',
-                          default='\[.+\]|^\+$',
+                          default='\\[.+\\]|^\\+$',
                           dest='exclude_genre',
                           action=None,
                           help=_("Regex describing tags to exclude as genres.\n"

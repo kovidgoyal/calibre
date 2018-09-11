@@ -221,7 +221,7 @@ def main():
         try:
             d.startup()
         except:
-            print ('Startup failed for device plugin: %s'%d)
+            print('Startup failed for device plugin: %s'%d)
         if d.MANAGES_DEVICE_PRESENCE:
             cd = d.detect_managed_devices(scanner.devices)
             if cd is not None:
@@ -394,6 +394,7 @@ def main():
         shutdown_plugins()
 
     return 0
+
 
 if __name__ == '__main__':
     main()

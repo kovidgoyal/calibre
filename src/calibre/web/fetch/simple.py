@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import with_statement, print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -110,7 +109,7 @@ def default_is_link_wanted(url, tag):
 
 class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
-                ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
+                ('.exe\\s*$', '.mp3\\s*$', '.ogg\\s*$', '^\\s*mailto:', '^\\s*$'))
     # ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
     #                       (
     #

@@ -562,6 +562,8 @@ class Hex2Utf8:
             self.__convert_preamble()
         else:
             self.__convert_body()
+
+
 """
 how to swap case for non-capitals
 my_string.swapcase()

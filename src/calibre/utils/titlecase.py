@@ -15,7 +15,7 @@ from calibre.utils.icu import capitalize, upper
 __all__ = ['titlecase']
 __version__ = '0.5'
 
-SMALL = 'a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v\.?|via|vs\.?'
+SMALL = 'a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v\\.?|via|vs\\.?'
 PUNCT = r"""!"#$%&'‘’()*+,\-‒–—―./:;?@[\\\]_`{|}~"""
 
 SMALL_WORDS = re.compile(r'^(%s)$' % SMALL, re.I)
@@ -54,7 +54,7 @@ def titlecase(text):
 
     all_caps = upper(text) == text
 
-    words = re.split('\s+', text)
+    words = re.split('\\s+', text)
     line = []
     for word in words:
         if all_caps:

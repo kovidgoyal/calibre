@@ -114,6 +114,7 @@ def normalize_simple_composition(name, cssvalue, composition, check_inherit=True
                     break
     return style
 
+
 font_composition = ('font-style', 'font-variant', 'font-weight', 'font-size', 'line-height', 'font-family')
 
 
@@ -143,6 +144,7 @@ def normalize_border(name, cssvalue):
     for edge in EDGES[1:]:
         style.update({k.replace(EDGES[0], edge):v for k, v in vals.iteritems()})
     return style
+
 
 normalizers = {
     'list-style': simple_normalizer('list-style', ('type', 'position', 'image')),
@@ -242,6 +244,7 @@ def condense_border(style, props):
         for prop in edge_vals:
             style.removeProperty(prop.name)
         style.setProperty('border', edge_vals[0].value)
+
 
 condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': simple_condenser('padding', condense_edge), 'border': condense_border}
 
@@ -429,6 +432,7 @@ def test_normalization(return_tests=False):  # {{{
         return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
 # }}}
+
 
 if __name__ == '__main__':
     test_normalization()

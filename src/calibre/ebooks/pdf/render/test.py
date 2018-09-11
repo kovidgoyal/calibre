@@ -134,7 +134,6 @@ def main():
     print('PDF written to:', pdf)
     print('Image written to:', path)
 
+
 if __name__ == '__main__':
     main()
-
-

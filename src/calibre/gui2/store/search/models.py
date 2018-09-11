@@ -153,15 +153,15 @@ class Matches(QAbstractItemModel):
         # Remove filter identifiers
         # Remove the prefix.
         for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
-            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, r'\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove whitespace
-        query = re.sub('\s', '', query)
-        mod_query = re.sub('\s', '', mod_query)
+        query = re.sub(r'\s', '', query)
+        mod_query = re.sub(r'\s', '', mod_query)
         # If mod_query and query are the same then there were no filter modifiers
         # so this isn't a filterable query.
         if mod_query == query:

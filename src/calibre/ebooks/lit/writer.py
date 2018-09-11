@@ -57,6 +57,7 @@ def invert_tag_map(tag_map):
     tattrs[0] = dattrs
     return tags, tattrs
 
+
 OPF_MAP = invert_tag_map(maps.OPF_MAP)
 HTML_MAP = invert_tag_map(maps.HTML_MAP)
 
@@ -75,6 +76,7 @@ def packguid(guid):
         guid[29:31], guid[31:33], guid[33:35], guid[35:37]
     values = [int(value, 16) for value in values]
     return pack("<LHHBBBBBBBB", *values)
+
 
 FLAG_OPENING = (1 << 0)
 FLAG_CLOSING = (1 << 1)

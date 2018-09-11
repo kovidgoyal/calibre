@@ -146,7 +146,7 @@ def make(filename, outfile):
         # This is a message with plural forms
         elif l.startswith('msgid_plural'):
             if section != ID:
-                print('msgid_plural not preceeded by msgid on %s:%d' %\
+                print('msgid_plural not preceeded by msgid on %s:%d' %
                     (infile, lno), file=sys.stderr)
                 sys.exit(1)
             l = l[12:]
@@ -157,7 +157,7 @@ def make(filename, outfile):
             section = STR
             if l.startswith('msgstr['):
                 if not is_plural:
-                    print('plural without msgid_plural on %s:%d' %\
+                    print('plural without msgid_plural on %s:%d' %
                         (infile, lno), file=sys.stderr)
                     sys.exit(1)
                 l = l.split(']', 1)[1]
@@ -165,7 +165,7 @@ def make(filename, outfile):
                     msgstr += '\0'  # Separator of the various plural forms
             else:
                 if is_plural:
-                    print('indexed msgstr required for plural on  %s:%d' %\
+                    print('indexed msgstr required for plural on  %s:%d' %
                         (infile, lno), file=sys.stderr)
                     sys.exit(1)
                 l = l[6:]
@@ -180,7 +180,7 @@ def make(filename, outfile):
         elif section == STR:
             msgstr += l
         else:
-            print('Syntax error on %s:%d' % (infile, lno), \
+            print('Syntax error on %s:%d' % (infile, lno),
                   'before:', file=sys.stderr)
             print(l, file=sys.stderr)
             sys.exit(1)

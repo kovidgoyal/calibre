@@ -52,7 +52,7 @@ class OverrideTable:
         Returns:
             nothing
         Logic:
-            The group {\override has been found.
+            The group {\\override has been found.
             Check for the end of the group.
             Otherwise, add appropriate tokens to the override dictionary.
         """

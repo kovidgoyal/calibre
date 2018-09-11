@@ -581,5 +581,6 @@ class Word(object):
 def main(args=sys.argv):
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())

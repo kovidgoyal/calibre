@@ -121,7 +121,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 if article_anchor:
                     article_url = article_anchor.get('href')
                     if not article_url:
-                        print('article_url is None for article_anchor "%s": "%s"' \
+                        print('article_url is None for article_anchor "%s": "%s"'
                             % (str(article_anchor), article_title), file=sys.stderr)
                         continue
 

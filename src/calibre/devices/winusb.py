@@ -53,6 +53,7 @@ class GUID(Structure):
             ''.join(["%02x" % d for d in self.data4[2:]]),
         )
 
+
 CONFIGRET = DWORD
 DEVINST = DWORD
 LPDWORD = POINTER(DWORD)
@@ -70,6 +71,8 @@ def CTL_CODE(DeviceType, Function, Method, Access):
 def USB_CTL(id):
     # CTL_CODE(FILE_DEVICE_USB, (id), METHOD_BUFFERED, FILE_ANY_ACCESS)
     return CTL_CODE(0x22, id, 0, 0)
+
+
 IOCTL_USB_GET_ROOT_HUB_NAME = USB_CTL(258)
 IOCTL_USB_GET_NODE_INFORMATION = USB_CTL(258)
 IOCTL_USB_GET_NODE_CONNECTION_INFORMATION = USB_CTL(259)
@@ -108,6 +111,7 @@ class SP_DEVINFO_DATA(Structure):
     def __str__(self):
         return "ClassGuid:%s DevInst:%s" % (self.ClassGuid, self.DevInst)
 
+
 PSP_DEVINFO_DATA = POINTER(SP_DEVINFO_DATA)
 
 
@@ -122,6 +126,7 @@ class SP_DEVICE_INTERFACE_DATA(Structure):
     def __str__(self):
         return "InterfaceClassGuid:%s Flags:%s" % (self.InterfaceClassGuid, self.Flags)
 
+
 ANYSIZE_ARRAY = 1
 
 
@@ -130,6 +135,7 @@ class SP_DEVICE_INTERFACE_DETAIL_DATA(Structure):
         ("cbSize", DWORD),
         ("DevicePath", c_wchar*ANYSIZE_ARRAY)
     ]
+
 
 UCHAR = c_ubyte
 
@@ -215,6 +221,7 @@ class USB_DESCRIPTOR_REQUEST(Structure):
         ('SetupPacket', SetupPacket),
         ('Data', USB_STRING_DESCRIPTOR),
     )
+
 
 PUSB_DESCRIPTOR_REQUEST = POINTER(USB_DESCRIPTOR_REQUEST)
 PSP_DEVICE_INTERFACE_DETAIL_DATA = POINTER(SP_DEVICE_INTERFACE_DETAIL_DATA)
@@ -389,6 +396,7 @@ def config_err_check(result, func, args):
     if result != CR_CODES['CR_SUCCESS']:
         raise WindowsError(result, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(result, result))
     return args
+
 
 GetLogicalDrives = cwrap('GetLogicalDrives', DWORD, errcheck=bool_err_check, lib=kernel32)
 GetDriveType = cwrap('GetDriveTypeW', UINT, LPCWSTR, lib=kernel32)
@@ -674,6 +682,7 @@ def get_volume_pathnames(volume_id, buf=None):
 # }}}
 
 # def scan_usb_devices(): {{{
+
 
 _USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
 
@@ -1016,6 +1025,7 @@ def drives_for(vendor_id, product_id=None):
             print('Drives for: {}'.format(usbdev))
             pprint(get_drive_letters_for_device(usbdev, debug=True))
             print('USB info:', get_usb_info(usbdev, debug=True))
+
 
 if __name__ == '__main__':
     develop()

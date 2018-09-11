@@ -27,19 +27,19 @@ class Sections:
     logic
     ---------------
     The tags for the first section breaks have already been written.
-    RTF stores section breaks with the \sect tag. Each time this tag is
+    RTF stores section breaks with the \\sect tag. Each time this tag is
     encountered, add one to the counter.
-    When I encounter the \sectd tag, I want to collect all the appropriate tokens
-    that describe the section. When I reach a \pard, I know I an stop collecting
+    When I encounter the \\sectd tag, I want to collect all the appropriate tokens
+    that describe the section. When I reach a \\pard, I know I an stop collecting
     tokens and write the section tags.
     The exception to this method occurs when sections occur in field blocks, such
     as the index. Normally, two section break occur within the index and other
-    field-blocks. (If less or more section breaks occurr, this code may not work.)
+    field-blocks. (If less or more section breaks occur, this code may not work.)
     I want the sections to occur outside of the index. That is, the index
     should be nested inside one section tag. After the index is complete, a new
     section should begin.
     In order to write the sections outside of the field blocks, I have to store
-    all of the field block as a string. When I ecounter the \sect tag, add one to
+    all of the field block as a string. When I ecounter the \\sect tag, add one to
     the section counter, but store this number in a list. Likewise, store the
     information describing the section in another list.
     When I reach the end of the field block, choose the first item from the
@@ -243,7 +243,7 @@ class Sections:
             nothing
         Logic:
             Text or control words indicating text have been found
-            before \pard. This shoud indicate older RTF. Reset the state
+            before \\pard. This shoud indicate older RTF. Reset the state
             Write the section defintion. Insert a paragraph definition.
             Insert {} to mark the end of a paragraph defintion
         """

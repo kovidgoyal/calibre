@@ -175,6 +175,7 @@ class DefaultEncoding:
                     elif enc == 'pca':
                         self.__code_page = '850'
 
+
 if __name__ == '__main__':
     import sys
     encode_obj = DefaultEncoding(

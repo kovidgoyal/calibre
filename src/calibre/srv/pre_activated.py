@@ -14,6 +14,8 @@ from calibre.constants import islinux
 
 def pre_activated_socket():
     return None
+
+
 has_preactivated_support = False
 
 if islinux:

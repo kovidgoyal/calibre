@@ -68,6 +68,7 @@ def _py_convert_timestamp(val):
         return parse_date(val, as_utc=False)
     return None
 
+
 convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
                     _c_convert_timestamp
 
@@ -75,12 +76,14 @@ convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')
 
+
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
 
 def convert_bool(val):
     return val != '0'
+
 
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
 sqlite.register_converter('bool', convert_bool)
@@ -411,4 +414,3 @@ def test():
     c = sqlite.connect(':memory:')
     if load_c_extensions(c, True):
         print('Loaded C extension successfully')
-

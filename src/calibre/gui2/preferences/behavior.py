@@ -171,8 +171,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         info_dialog(self, _('Done'),
                 _('Confirmation dialogs have all been reset'), show=True)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Behavior')
-

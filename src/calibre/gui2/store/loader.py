@@ -190,6 +190,7 @@ class Stores(OrderedDict):
         return cls(builtin.gui, builtin.name, config=builtin.config,
                    base_plugin=builtin.base_plugin), ver
 
+
 if __name__ == '__main__':
     st = time.time()
     count = 0
@@ -199,5 +200,3 @@ if __name__ == '__main__':
         print(code.encode('utf-8'))
         print('\n', '_'*80, '\n', sep='')
     print ('Time to download all %d plugins: %.2f seconds'%(count, time.time() - st))
-
-

@@ -26,6 +26,7 @@ class DirTooLarge(ValueError):
     def __init__(self, bdir):
         ValueError.__init__(self, 'The directory {0} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches'.format(bdir))
 
+
 _inotify = None
 
 
@@ -319,6 +320,7 @@ class INotifyTreeWatcher(INotify):
         ret = self.modified
         self.modified = set()
         return ret
+
 
 if __name__ == '__main__':
     w = INotifyTreeWatcher(sys.argv[-1])

@@ -456,6 +456,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.rule = ('', txt)
         QDialog.accept(self)
 
+
 if __name__ == '__main__':
     app = QApplication([])
     from calibre.ebooks.metadata.book.base import field_metadata

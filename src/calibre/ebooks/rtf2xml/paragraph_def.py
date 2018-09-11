@@ -128,7 +128,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'list-conti'    : 'list-continue',
         'list-hang_'    : 'list-hang',
         # 'list-tebef'    :	'list-text-before',
-        'list-level'    : 'level',
+        # 'list-level'    : 'level',
         'list-id___'    : 'list-id',
         'list-start'    : 'list-start',
         'nest-level'    : 'nest-level',
@@ -198,7 +198,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'bor-cel-to'    : 'border-cell-top',
         'bor-cel-le'    : 'border-cell-left',
         'bor-cel-ri'    : 'border-cell-right',
-        'bor-par-bo'    : 'border-paragraph-bottom',
+        # 'bor-par-bo'    : 'border-paragraph-bottom',
         'bor-par-to'    : 'border-paragraph-top',
         'bor-par-le'    : 'border-paragraph-left',
         'bor-par-ri'    : 'border-paragraph-right',
@@ -413,7 +413,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Returns:
             nothing
         Logic:
-            I have found a \pard while I am collecting tokens. I want to reset
+            I have found a \\pard while I am collecting tokens. I want to reset
             the dectionary and do nothing else.
         """
         # Change this

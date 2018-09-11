@@ -49,6 +49,7 @@ def allowed(x):
 def py_clean_xml_chars(unicode_string):
     return u''.join(filter(allowed, unicode_string))
 
+
 clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
 
 
@@ -85,5 +86,4 @@ def unescape(text, rm=False, rchar=u''):
         if rm:
             return rchar  # replace by char
         return text  # leave as is
-    return re.sub("&#?\w+;", fixup, text)
-
+    return re.sub("&#?\\w+;", fixup, text)

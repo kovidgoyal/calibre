@@ -292,7 +292,7 @@ if __name__ == '__main__':
 
     # this will be called when an exception occurs within a thread
     def handle_exception(request, exc_info):
-        print("Exception occured in request #%s: %s" % \
+        print("Exception occured in request #%s: %s" %
           (request.requestID, exc_info[1]))
 
     # assemble the arguments for each job to a list...

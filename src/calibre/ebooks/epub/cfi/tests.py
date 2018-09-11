@@ -100,5 +100,6 @@ class Tests(unittest.TestCase):
 def find_tests():
     return unittest.TestLoader().loadTestsFromTestCase(Tests)
 
+
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(find_tests())

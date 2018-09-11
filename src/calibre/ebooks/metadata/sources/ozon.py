@@ -149,7 +149,7 @@ class Ozon(Source):
                 # Redirect page: trying to extract ozon_id from javascript data
                 h = HTMLParser()
                 entry_string = (h.unescape(etree.tostring(doc, pretty_print=True, encoding=unicode)))
-                json_pat = re.compile(u'dataLayer\s*=\s*(.+)?;')
+                json_pat = re.compile(r'dataLayer\s*=\s*(.+)?;')
                 json_info = re.search(json_pat, entry_string)
                 jsondata = json_info.group(1) if json_info else None
                 if jsondata:
@@ -344,7 +344,7 @@ class Ozon(Source):
 
         pub_year = None
         pub_year_block = entry.xpath(u'.//div[@class="bOneTileProperty"]/text()')
-        year_pattern = re.compile('\d{4}')
+        year_pattern = re.compile(r'\d{4}')
         if pub_year_block:
             pub_year = re.search(year_pattern, pub_year_block[0])
             if pub_year:
@@ -625,8 +625,8 @@ def _translageLanguageToCode(displayLang):  # {{{
 def _normalizeAuthorNameWithInitials(name):  # {{{
     res = name
     if name:
-        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
-        re2 = u'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
+        re1 = r'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
+        re2 = r'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
         matcher = re.match(re1, unicode(name), re.UNICODE)
         if not matcher:
             matcher = re.match(re2, unicode(name), re.UNICODE)

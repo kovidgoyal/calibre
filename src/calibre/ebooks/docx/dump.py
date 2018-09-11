@@ -41,6 +41,6 @@ def dump(path):
 
     print(path, 'dumped to', dest)
 
+
 if __name__ == '__main__':
     dump(sys.argv[-1])
-

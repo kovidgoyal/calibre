@@ -162,7 +162,7 @@ class AlMonitor(BasicNewsRecipe):
     def scrape_article_date(self, soup):
         for span in soup.findAll('span'):
             txt = self.text(span)
-            rgx = re.compile('Posted ([a-zA-Z]+ \d\d?, \d\d\d\d).*')
+            rgx = re.compile(unicode(r'Posted ([a-zA-Z]+ \d\d?, \d\d\d\d).*'))
             hit = rgx.match(txt)
             if hit:
                 return self.date_from_string(txt)

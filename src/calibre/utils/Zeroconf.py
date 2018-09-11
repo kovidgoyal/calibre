@@ -1627,6 +1627,7 @@ class Zeroconf(object):
 # Test a few module features, including service registration, service
 # query (for Zoe), and service unregistration.
 
+
 if __name__ == '__main__':
     print("Multicast DNS Service Discovery for Python, version", __version__)
     r = Zeroconf()
