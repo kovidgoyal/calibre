@@ -59,8 +59,12 @@ def patch_search_engines(src):
     global current_search_engines
     src = src.encode('utf-8')
     ns = {}
-    exec(src, ns)
-    mcv = ns.get('minimum_calibre_version')
+    try:
+        exec(src, ns)
+    except Exception:
+        mcv = None
+    else:
+        mcv = ns.get('minimum_calibre_version')
     if mcv is None or mcv > numeric_version:
         return
     cv = ns.get('current_version')
