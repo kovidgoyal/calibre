@@ -79,7 +79,7 @@ class RecipeInput(InputFormatPlugin):
                 if rtype == 'custom':
                     self.recipe_source = get_custom_recipe(recipe_id)
                 else:
-                    self.recipe_source = get_builtin_recipe_by_id(urn)
+                    self.recipe_source = get_builtin_recipe_by_id(urn, log=log, download_recipe=True)
                 if not self.recipe_source:
                     raise ValueError('Could not find recipe with urn: ' + urn)
                 if not isinstance(self.recipe_source, bytes):
