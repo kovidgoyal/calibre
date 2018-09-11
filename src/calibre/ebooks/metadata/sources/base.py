@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, threading
-from polyglot.builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
