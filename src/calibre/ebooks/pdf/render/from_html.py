@@ -465,7 +465,7 @@ class PDFWriter(QObject):
                     self.load_header_footer_images()
 
             self.painter.save()
-            mf.render(self.painter)
+            mf.render(self.painter, mf.ContentsLayer)
             self.painter.restore()
             try:
                 nsl = int(evaljs('paged_display.next_screen_location()'))
