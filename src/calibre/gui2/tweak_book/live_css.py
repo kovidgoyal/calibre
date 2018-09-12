@@ -473,16 +473,8 @@ class LiveCSS(QWidget):
                 # error in the web view
                 self.start_update_timer()
                 return
-            if self.now_showing == (None, None, None) or self.now_showing[0] != self.current_name:
-                self.clear()
-                return
-            # Try to refresh the data for the currently shown tag instead
-            # of clearing
-            editor_name, sourceline, tags = self.now_showing
-            data = self.read_data(sourceline, tags)
-            if data is None or len(data['computed_css']) < 1:
-                self.clear()
-                return
+            self.clear()
+            return
         self.now_showing = (editor_name, sourceline, tags)
         data['html_name'] = editor_name
         self.box.show_data(data)
