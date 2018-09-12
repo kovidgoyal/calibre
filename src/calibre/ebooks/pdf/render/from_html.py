@@ -419,6 +419,10 @@ class PDFWriter(QObject):
 
         amap = json.loads(evaljs('''
         document.body.style.backgroundColor = "white";
+        // Qt WebKit cannot handle opacity with the Pdf backend
+        s = document.createElement('style');
+        s.textContent = '* {opacity: 1 !important}';
+        document.documentElement.appendChild(s);
         paged_display.set_geometry(1, %d, %d, %d);
         paged_display.layout();
         paged_display.fit_images();
