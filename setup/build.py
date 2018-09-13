@@ -38,12 +38,16 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
-            if self.needs_cxx:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=extern "C" __attribute__ ((visibility ("default"))) void')
-            else:
-                self.cflags.append('-DCALIBRE_MODINIT_FUNC=__attribute__ ((visibility ("default"))) void')
-                if kwargs.get('needs_c99'):
-                    self.cflags.insert(0, '-std=c99')
+            return_type = 'PyObject*' if sys.version_info >= (3,) else 'void'
+            extern_decl = 'extern "C"' if self.needs_cxx else ''
+
+            self.cflags.append(
+                '-DCALIBRE_MODINIT_FUNC='
+                '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type))
+
+            if not self.needs_cxx and kwargs.get('needs_c99'):
+                self.cflags.insert(0, '-std=c99')
+
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
         of = kwargs.get('optimize_level', None)
@@ -162,20 +166,21 @@ def init_env():
     if islinux:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if isbsd:
         cflags.append('-pthread')
         ldflags.append('-shared')
-        cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
 
     if ishaiku:
         cflags.append('-lpthread')
         ldflags.append('-shared')
+
+    if islinux or isbsd or ishaiku:
         cflags.append('-I'+sysconfig.get_python_inc())
-        ldflags.append('-lpython'+sysconfig.get_python_version())
+        # getattr(..., 'abiflags') is for PY2 compat, since PY2 has no abiflags
+        # member
+        ldflags.append('-lpython{}{}'.format(
+            sysconfig.get_config_var('VERSION'), getattr(sys, 'abiflags', '')))
 
     if isosx:
         cflags.append('-D_OSX')
