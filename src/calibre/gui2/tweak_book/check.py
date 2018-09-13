@@ -195,10 +195,12 @@ class Check(QSplitter):
                 activate = '<div>%s</div>' % ('<br>'.join(activate))
                 if many:
                     activate += '<br>'
+                activate = activate.replace('%', '%%')
                 template = header + ((msg + activate) if many else (activate + msg)) + footer
             else:
                 activate = '<div><a href="activate:item" title="%s">%s %s</a></div>' % (
                        open_tt, err.name, loc)
+                activate = activate.replace('%', '%%')
                 template = header + activate + msg + footer
             self.help.setText(
                 template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
