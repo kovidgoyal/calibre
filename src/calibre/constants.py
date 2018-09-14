@@ -168,7 +168,6 @@ class Plugins(collections.Mapping):
                 'chm_extra',
                 'icu',
                 'speedup',
-                'monotonic',
                 'unicode_names',
                 'zlib2',
                 'html',
@@ -183,6 +182,10 @@ class Plugins(collections.Mapping):
                 'certgen',
                 'lzma_binding',
             ]
+        if not ispy3:
+            plugins.extend([
+                'monotonic',
+            ])
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:
