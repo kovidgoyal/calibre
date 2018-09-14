@@ -7,18 +7,6 @@
 
 #include "names.h"
 
-static PyObject*
-all_words(PYNOARG) {
-    PyObject *ans = PyTuple_New(arraysz(all_words_map));
-    if (!ans) return NULL;
-    for (size_t i = 0; i < arraysz(all_words_map); i++) {
-        PyObject *w = PyUnicode_FromString(all_words_map[i]);
-        if (w == NULL) { Py_DECREF(ans); return NULL; }
-        PyTuple_SET_ITEM(ans, i, w);
-    }
-    return ans;
-}
-
 static inline void
 add_matches(const word_trie *wt, char_type *codepoints, size_t *pos, const size_t sz) {
     size_t num = mark_groups[wt->match_offset];
@@ -85,9 +73,11 @@ nfc(PyObject *self UNUSED, PyObject *args) {
 }
 
 static PyMethodDef unicode_names_methods[] = {
-    {"all_words", (PyCFunction)all_words, METH_NOARGS, ""},
-    {"codepoints_for_word", (PyCFunction)cfw, METH_VARARGS, ""},
-    {"name_for_codepoint", (PyCFunction)nfc, METH_VARARGS, ""},
+    {"codepoints_for_word", (PyCFunction)cfw, METH_VARARGS,
+     "Return a set of integer codepoints for where each codepoint's name "
+     "contains ``word``,"},
+    {"name_for_codepoint", (PyCFunction)nfc, METH_VARARGS,
+     "Returns the given codepoint's name"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
