@@ -27,6 +27,7 @@ class Extension(object):
         self.name = d['name'] = name
         self.sources = d['sources'] = absolutize(sources)
         self.needs_cxx = d['needs_cxx'] = bool([1 for x in self.sources if os.path.splitext(x)[1] in ('.cpp', '.c++', '.cxx')])
+        self.needs_py2 = d['needs_py2'] = kwargs.get('needs_py2', False)
         self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
         self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
         self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
@@ -261,6 +262,8 @@ class Build(Command):
                 os.makedirs(x)
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
+                continue
+            if ext.needs_py2 and sys.version_info >= (3,):
                 continue
             if ext.error:
                 if ext.optional:
