@@ -260,9 +260,10 @@ class PDFOutput(OutputFormatPlugin):
             import json
             for href, margins in self.stored_page_margins.iteritems():
                 item = oeb_book.manifest.hrefs.get(href)
-                root = item.data
-                if hasattr(root, 'xpath') and margins:
-                    root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
+                if item is not None:
+                    root = item.data
+                    if hasattr(root, 'xpath') and margins:
+                        root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
