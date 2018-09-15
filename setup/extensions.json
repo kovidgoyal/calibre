@@ -10,7 +10,8 @@
     {
         "name": "monotonic",
         "sources": "calibre/utils/monotonic.c",
-        "linux_libraries": "rt"
+        "linux_libraries": "rt",
+        "needs_py2": true
     },
     {
         "name": "unicode_names",
