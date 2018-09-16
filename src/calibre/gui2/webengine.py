@@ -73,6 +73,8 @@ class to_js_bound(QObject):
 
 class Bridge(QObject):
 
+    bridge_ready = pyqtSignal()
+
     def __init__(self, page):
         QObject.__init__(self, page)
         self._signals = json.dumps(tuple({k for k, v in self.__class__.__dict__.iteritems() if isinstance(v, pyqtSignal)}))
@@ -100,6 +102,7 @@ class Bridge(QObject):
             if isinstance(v, to_js):
                 setattr(self, k, to_js_bound(self, k))
         self.page.runJavaScript('python_comm._register_signals(' + self._signals + ')', QWebEngineScript.ApplicationWorld)
+        self.bridge_ready.emit()
 
     def _poll_for_messages(self):
         self.page.runJavaScript('python_comm._poll()', QWebEngineScript.ApplicationWorld, self._dispatch_messages)

@@ -70,3 +70,4 @@ class EbookViewer(MainWindow):
                 det_msg=data['tb'], show=True)
             return
         set_book_path(data['base'])
+        self.web_view.start_book_load()

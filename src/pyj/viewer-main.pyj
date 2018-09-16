@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 from read_book.globals import runtime, ui_operations
+from qt import from_python
 
 def container_div(id):
     return E.div(id=id, style='margin: 0; padding: 0; display: none')
@@ -28,13 +29,19 @@ def show_error(title, msg, details):
     pass  # TODO: Implement this
 
 
+@from_python
+def start_book_load():
+    print(111111111111111)
+
+
 if window is window.top:
     # main
-    document.body.appendChild(E.iframe(srcdoc="<p> "))
     ui_operations.get_file = get_file
     ui_operations.get_mathjax_files = get_mathjax_files
     ui_operations.update_url_state = update_url_state
     ui_operations.show_error = show_error
+    document.body.appendChild(E.div(id='loading'))
+    document.body.appendChild(E.div(id='view'))
 else:
     # iframe
     pass

@@ -122,14 +122,9 @@ def create_profile():
 
 class ViewerBridge(Bridge):
 
-    request_sync = from_js(object, object, object)
-    request_split = from_js(object, object)
     live_css_data = from_js(object)
 
-    go_to_sourceline_address = to_js()
-    go_to_anchor = to_js()
-    set_split_mode = to_js()
-    live_css = to_js()
+    start_book_load = to_js()
 
 
 class WebPage(QWebEnginePage):
@@ -169,6 +164,8 @@ class WebView(RestartingWebEngineView):
         w = QApplication.instance().desktop().availableGeometry(self).width()
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
+        self.bridge.bridge_ready.connect(self.on_bridge_ready)
+        self.pending_bridge_ready_actions = set()
         self.setPage(self._page)
         self.setAcceptDrops(False)
         self.clear()
@@ -189,3 +186,17 @@ class WebView(RestartingWebEngineView):
 
     def clear(self):
         self.setHtml('<p>&nbsp;', QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
+
+    @property
+    def bridge(self):
+        return self._page.bridge
+
+    def on_bridge_ready(self):
+        for func, args in self.pending_bridge_ready_actions:
+            getattr(self.bridge, func)(*args)
+
+    def start_book_load(self):
+        if self.bridge.ready:
+            self.bridge.start_book_load()
+        else:
+            self.pending_bridge_ready_actions.add(('start_book_load', ()))
