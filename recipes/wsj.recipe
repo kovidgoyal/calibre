@@ -98,19 +98,12 @@ class WSJ(BasicNewsRecipe):
         return soup
 
     def get_cover_url(self):
-        cover = 'https://vir.wsj.net/fp/cdn/fp/assets/images/WSJ_A1.jpg'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            index = 'http://en.kiosko.net/us/np/wsj.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
+        index = 'http://en.kiosko.net/us/np/wsj.html'
+        soup = self.index_to_soup(index)
+        for image in soup.findAll('img', src=True):
+            if image['src'].endswith('750.jpg'):
+                return image['src']
+        self.log("\nCover unavailable")
 
     def get_browser(self):
         # To understand the signin logic read signin.js from
