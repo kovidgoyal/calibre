@@ -20,6 +20,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from calibre.utils.config_base import tweaks
 
 BASE_TIME = None
 
@@ -432,7 +433,8 @@ class USBMS(CLI, Device):
     # at the end just before the return
     def sync_booklists(self, booklists, end_session=True):
         debug_print('USBMS: starting sync_booklists')
-        json_codec = JsonCodec()
+        json_codec = JsonCodec(skip_fields=tweaks['exclude_fields_on_usb_send'])
+#['comments','cover','thumbnail','user_metadata'])
 
         if not os.path.exists(self.normalize_path(self._main_prefix)):
             os.makedirs(self.normalize_path(self._main_prefix))
