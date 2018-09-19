@@ -573,3 +573,12 @@ exclude_fields_on_paste = []
 # Useful if for some reason your operating systems network checking
 # facilities are not reliable (for example NetworkManager on Linux).
 skip_network_check = False
+
+#: Exclude fields when sending metadata to USB devices
+# You can ask calibre to not send some metadata fields when saving
+# metadata to metadata.calibre on a USB device.  This can reduce the
+# size of metadata.calibre as much as 95% For example,
+# exclude_fields_on_usb_send = ['cover', 'comments', 'user_metadata', 'thumbnail']
+# to prevent saving the cover file page, comments, custom columns and
+# encoded thumbnail.
+exclude_fields_on_usb_send = []

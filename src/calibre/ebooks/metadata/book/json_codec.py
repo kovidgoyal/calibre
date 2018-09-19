@@ -127,8 +127,9 @@ def decode_is_multiple(fm):
 
 class JsonCodec(object):
 
-    def __init__(self, field_metadata=None):
+    def __init__(self, field_metadata=None, skip_fields=None):
         self.field_metadata = field_metadata or FieldMetadata()
+        self.skip_fields = skip_fields or []
 
     def encode_to_file(self, file_, booklist):
         file_.write(json.dumps(self.encode_booklist_metadata(booklist),
@@ -147,6 +148,8 @@ class JsonCodec(object):
         return result
 
     def encode_metadata_attr(self, book, key):
+        if key in self.skip_fields:
+            return None
         if key == 'user_metadata':
             meta = book.get_all_user_metadata(make_copy=True)
             for fm in meta.itervalues():
@@ -185,13 +188,14 @@ class JsonCodec(object):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
             for key,val in json_book.iteritems():
-                meta = self.decode_metadata(key, val)
-                if key == 'user_metadata':
-                    book.set_all_user_metadata(meta)
-                else:
-                    if key == 'classifiers':
-                        key = 'identifiers'
-                    setattr(book, key, meta)
+                if key not in self.skip_fields:
+                    meta = self.decode_metadata(key, val)
+                    if key == 'user_metadata':
+                        book.set_all_user_metadata(meta)
+                    else:
+                        if key == 'classifiers':
+                            key = 'identifiers'
+                        setattr(book, key, meta)
             return book
         except:
             print('exception during JSON decoding')
@@ -201,6 +205,8 @@ class JsonCodec(object):
         if key == 'classifiers':
             key = 'identifiers'
         if key == 'user_metadata':
+            if not value:
+                return {}
             for fm in value.itervalues():
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = string_to_datetime(fm['#value#'])
