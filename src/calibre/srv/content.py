@@ -200,6 +200,10 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     def copy_func(dest):
         db.copy_format_to(book_id, fmt, dest)
         if update_metadata:
+            if not mi.cover_data or not mi.cover_data[-1]:
+                cdata = db.cover(book_id)
+                if cdata:
+                    mi.cover_data = ('jpeg', cdata)
             set_metadata(dest, mi, fmt)
             dest.seek(0)
 
