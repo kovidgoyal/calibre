@@ -47,6 +47,7 @@ def get_data(name):
             return f.read(), guess_type(name)
     except EnvironmentError as err:
         prints('Failed to read from book file: {} with error: {}'.format(name, as_unicode(err)))
+    return None, None
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
