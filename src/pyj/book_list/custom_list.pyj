@@ -129,7 +129,9 @@ def render_field(field, mi, book_id):  # {{{
     def process_series_index(field, fm, name, val):
         sval = mi[field[:-6]]
         if sval:
-            return fmt_sidx(val or 1, use_roman=interface_data.use_roman_numerals_for_series_number)
+            if val is None or val is undefined:
+                val = 1
+            return fmt_sidx(val, use_roman=interface_data.use_roman_numerals_for_series_number)
 
     name = fm.name or field
     datatype = fm.datatype
