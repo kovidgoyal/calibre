@@ -389,6 +389,20 @@ def date_edit(container_id, book_id, field, fm, div, mi):
         val = format_date(val, 'yyyy-MM-dd')
     le.value = val or ''
     form = create_form(le, date_edit_get_value, container_id, book_id, field)
+
+    def clear(ev):
+        ev.currentTarget.closest('form').querySelector('input').value = ''
+
+    def today(ev):
+        ev.currentTarget.closest('form').querySelector('input').value = Date().toISOString().substr(0, 10)
+
+    form.firstChild.appendChild(
+        E.span(
+        '\xa0',
+        create_button(_('Clear'), action=clear),
+        '\xa0',
+        create_button(_('Today'), action=today),
+    ))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     le.focus(), le.select()
