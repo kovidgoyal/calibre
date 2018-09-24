@@ -141,7 +141,13 @@ class WebPage(QWebEnginePage):
         self.bridge = ViewerBridge(self)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prints('%s:%s: %s' % (source_id, linenumber, msg))
+        if level >= QWebEnginePage.ErrorMessageLevel and source_id == 'userscript:viewer.js':
+            error_dialog(self.parent(), _('Unhandled error'), _(
+                'There was an unhandled error: {} at line: {} of {}').format(
+                    msg, linenumber, source_id.partition(':')[2]), show=True)
+        prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
+                level, 'ERROR')
+        prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg))
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
         if req_type == self.NavigationTypeReload:
