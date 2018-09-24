@@ -89,6 +89,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 import traceback
                 traceback.print_exc()
                 rq.fail(rq.RequestFailed)
+        elif name == 'manifest':
+            manifest, mime_type = get_data('calibre-book-manifest.json')
+            metadata = get_data('calibre-book-metadata.json')[0]
+            data = b'[' + manifest + b',' + metadata + b']'
+            self.send_reply(rq, mime_type, data)
 
     def send_reply(self, rq, mime_type, data):
         if sip.isdeleted(rq):

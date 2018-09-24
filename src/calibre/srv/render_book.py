@@ -522,8 +522,17 @@ def html_as_dict(root):
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
 
-def render(pathtoebook, output_dir, book_hash=None):
+def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False):
     Container(pathtoebook, output_dir, book_hash=book_hash)
+    if serialize_metadata:
+        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+        with lopen(pathtoebook, 'rb') as f:
+            mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
+            d = metadata_as_dict(mi)
+            d.pop('cover_data', None)
+            with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
+                f.write(json.dumps(d))
 
 
 if __name__ == '__main__':

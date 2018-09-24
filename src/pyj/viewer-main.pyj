@@ -45,8 +45,9 @@ def manifest_received(key, end_type, xhr, ev):
     nonlocal book
     if end_type is 'load':
         book = new_book(key, {})
-        book.manifest = JSON.parse(xhr.responseText)
-        book.metadata = book.manifest.metadata
+        data = JSON.parse(xhr.responseText)
+        book.manifest = data[0]
+        book.metadata = book.manifest.metadata = data[1]
         book.stored_files = {}
         book.is_complete = True
         v'delete book.manifest["metadata"]'
@@ -96,7 +97,7 @@ def start_book_load(key, prefs):
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
-    ajax('book/calibre-book-manifest.json', manifest_received.bind(None, key), ok_code=0).send()
+    ajax('manifest', manifest_received.bind(None, key), ok_code=0).send()
 
 
 def onerror(msg, script_url, line_number, column_number, error_object):
