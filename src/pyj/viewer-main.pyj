@@ -6,17 +6,23 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
+import initialize  # noqa: unused-import
 from ajax import ajax
+from book_list.globals import set_session_data
 from modals import error_dialog
-from qt import from_python
+from qt import from_python, to_python
+from read_book.db import new_book
 from read_book.globals import runtime, ui_operations
+from read_book.view import View
+from session import session_defaults
 
 
 def container_div(id):
     return E.div(id=id, style='margin: 0; padding: 0; display: none')
 
 runtime.is_standalone_viewer = True
-book_manifest = None
+book = None
+view = None
 
 
 def get_file(book, name, proceed):
@@ -32,22 +38,64 @@ def update_url_state(replace):
 
 
 def show_error(title, msg, details):
-    pass  # TODO: Implement this
+    error_dialog(title, msg, details)
 
 
-def manifest_received(end_type, xhr, ev):
-    nonlocal book_manifest
+def manifest_received(key, end_type, xhr, ev):
+    nonlocal book
     if end_type is 'load':
-        book_manifest = xhr.response
+        book = new_book(key, {})
+        book.manifest = xhr.response
+        book.metadata = book.manifest.metadata
+        book.stored_files = {}
+        book.is_complete = True
+        v'delete book.manifest["metadata"]'
+        v'delete book.manifest["last_read_positions"]'
     else:
         error_dialog(_('Could not open book'), _(
             'Failed to load book manifest, click "Show details" for more info'),
         xhr.error_html or None)
 
 
+class SessionData:
+
+    def __init__(self, prefs):
+        defaults = session_defaults()
+        self.data = {k: defaults[k] if prefs[k] is undefined else prefs[k] for k in defaults}
+
+    def get(self, key, defval):
+        ans = self.data[key]
+        if ans is undefined or ans is None:
+            if defval is undefined:
+                defval = None
+            return defval
+        return ans
+
+    def set(self, key, val):
+        if val is None:
+            self.data[key] = session_defaults()[key]
+        else:
+            self.data[key] = val
+        to_python.set_session_data(key, val)
+
+    def clear(self):
+        defaults = session_defaults()
+        self.data = {k: defaults[k] for k in defaults}
+        to_python.set_session_data('*', None)
+
+
+def create_session_data(prefs):
+    sd = SessionData(prefs)
+    set_session_data(sd)
+
+
 @from_python
-def start_book_load():
-    ajax('book/calibre-book-manifest.json', manifest_received, ok_code=0).send()
+def start_book_load(key, prefs):
+    nonlocal view
+    if view is None:
+        create_session_data(prefs)
+        view = View(document.getElementById('view'))
+    ajax('book/calibre-book-manifest.json', manifest_received.bind(None, key), ok_code=0).send()
 
 
 def onerror(msg, script_url, line_number, column_number, error_object):
@@ -76,7 +124,6 @@ if window is window.top:
     ui_operations.get_mathjax_files = get_mathjax_files
     ui_operations.update_url_state = update_url_state
     ui_operations.show_error = show_error
-    document.body.appendChild(E.div(id='loading'))
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
 else:

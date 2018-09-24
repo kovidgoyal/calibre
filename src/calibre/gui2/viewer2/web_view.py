@@ -22,11 +22,16 @@ from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
+from calibre.utils.config import JSONConfig
 
 try:
     from PyQt5 import sip
 except ImportError:
     import sip
+
+vprefs = JSONConfig('viewer-webengine')
+vprefs.defaults['session_data'] = {}
+
 
 # Override network access to load data from the book {{{
 
@@ -123,7 +128,7 @@ def create_profile():
 
 class ViewerBridge(Bridge):
 
-    live_css_data = from_js(object)
+    set_session_data = from_js(object, object)
 
     start_book_load = to_js()
 
@@ -166,7 +171,8 @@ class WebView(RestartingWebEngineView):
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
-        self.pending_bridge_ready_actions = set()
+        self.bridge.set_session_data.connect(self.set_session_data)
+        self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
         self.clear()
@@ -193,11 +199,20 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        for func, args in self.pending_bridge_ready_actions:
+        for func, args in self.pending_bridge_ready_actions.iteritems():
             getattr(self.bridge, func)(*args)
 
     def start_book_load(self):
+        key = (set_book_path.path,)
         if self.bridge.ready:
-            self.bridge.start_book_load()
+            self.bridge.start_book_load(key, vprefs['session_data'])
         else:
-            self.pending_bridge_ready_actions.add(('start_book_load', ()))
+            self.pending_bridge_ready_actions['start_book_load'] = key, vprefs['session_data']
+
+    def set_session_data(self, key, val):
+        if key == '*' and val is None:
+            vprefs['session_data'] = {}
+        else:
+            sd = vprefs['session_data']
+            sd[key] = val
+            vprefs['session_data'] = sd

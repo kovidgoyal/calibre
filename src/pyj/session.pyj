@@ -58,6 +58,10 @@ is_local_setting = {
 }
 
 
+def session_defaults():
+    return defaults
+
+
 def storage_available(which):
     which = which or 'localStorage'
     try:

@@ -44,6 +44,24 @@ def get_error_details(event):
             desc = desc.name
     return desc or 'Unknown Error'
 
+
+def new_book(key, metadata):
+    return {
+        'key':key,
+        'is_complete':False,
+        'stored_files': {},
+        'book_hash':None,
+        'metadata': metadata,
+        'manifest': None,
+        'cover_width': None,
+        'cover_height': None,
+        'cover_name': None,
+        'recent_date': new Date(),
+        'last_read': {},
+        'last_read_position': {},
+    }
+
+
 DB_NAME = 'calibre'
 DB_VERSION = 1
 
@@ -170,20 +188,7 @@ class DB:
         book_id = int(book_id)
         key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
-            proceed(result or {
-                'key':key,
-                'is_complete':False,
-                'stored_files': {},
-                'book_hash':None,
-                'metadata': metadata,
-                'manifest': None,
-                'cover_width': None,
-                'cover_height': None,
-                'cover_name': None,
-                'recent_date': new Date(),
-                'last_read': {},
-                'last_read_position': {},
-            })
+            proceed(result or new_book(key, metadata))
         )
 
     def get_mathjax_info(self, proceed):
