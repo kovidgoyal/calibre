@@ -542,7 +542,7 @@ class OPF(object):  # {{{
     guide_cover_path = XPath('descendant::*[local-name()="guide"]/*[local-name()="reference" and re:match(@type, "cover", "i")]/@href')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
     application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '
-                            '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
+                            '(re:match(@opf:scheme, "calibre|libprs500|goodreads", "i") or re:match(@scheme, "calibre|libprs500|goodreads", "i"))]')
     uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '
                             '(re:match(@opf:scheme, "uuid", "i") or re:match(@scheme, "uuid", "i"))]')
     languages_path  = XPath('descendant::*[local-name()="language"]')
