@@ -10,7 +10,7 @@ def is_date_undefined(date):
     return dy < uy or (
             dy is uy and
             date.getUTCMonth() is UNDEFINED_DATE.getUTCMonth() and
-            date.getUTCDate() is UNDEFINED_DATE.getUTCDate())
+            date.getUTCDate() <= UNDEFINED_DATE.getUTCDate() + 1)
 
 # format_date() {{{
 
