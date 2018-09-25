@@ -77,7 +77,7 @@ class EditMetadataAction(InterfaceAction):
                 shortcut='Ctrl+D')
         self.metadata_menu = md
 
-        mb = QMenu()
+        self.metamerge_menu = mb = QMenu()
         cm2 = partial(self.create_menu_action, mb)
         cm2('merge delete', _('Merge into first selected book - delete others'),
                 triggered=self.merge_books)
@@ -102,7 +102,9 @@ class EditMetadataAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
-        self.action_merge.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
+        for action in self.metamerge_menu.actions() + self.metadata_menu.actions():
+            action.setEnabled(enabled)
 
     def copy_metadata(self):
         rows = self.gui.library_view.selectionModel().selectedRows()

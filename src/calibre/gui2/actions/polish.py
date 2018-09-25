@@ -435,6 +435,7 @@ class PolishAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def get_books_for_polishing(self):
         rows = [r.row() for r in

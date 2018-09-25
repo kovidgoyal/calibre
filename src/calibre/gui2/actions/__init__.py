@@ -143,6 +143,7 @@ class InterfaceAction(QObject):
         self.gui.addAction(self.qaction)
         self.gui.addAction(self.menuless_qaction)
         self.genesis()
+        self.location_selected('library')
 
     @property
     def unique_name(self):

@@ -95,6 +95,9 @@ class MarkBooksAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
+        for action in self.menu.actions():
+            action.setEnabled(enabled)
 
     def toggle_selected(self):
         book_ids = self._get_selected_ids()

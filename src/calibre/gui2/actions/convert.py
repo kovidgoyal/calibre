@@ -69,6 +69,9 @@ class ConvertAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
+        for action in list(self.convert_menu.actions()):
+            action.setEnabled(enabled)
 
     def auto_convert(self, book_ids, on_card, format):
         previous = self.gui.library_view.currentIndex()

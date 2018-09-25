@@ -41,7 +41,9 @@ class SortByAction(InterfaceAction):
         self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
     def location_selected(self, loc):
-        self.qaction.setEnabled(loc == 'library')
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def about_to_show(self):
         self.update_menu()
