@@ -26,7 +26,7 @@ book = None
 view = None
 
 
-def file_received(name, proceed, end_type, xhr, ev):
+def file_received(name, file_data, proceed, end_type, xhr, ev):
     if end_type is 'abort':
         return
     if end_type is not 'load':
@@ -35,20 +35,24 @@ def file_received(name, proceed, end_type, xhr, ev):
         return
     if not xhr.responseType or xhr.responseType is 'text':
         result = xhr.responseText
-        mt = xhr.getResponseHeader('Content-Type')
     else if xhr.responseType is 'blob':
         result = xhr.response
-        mt = result.type
     else:
         show_error(_('Failed to load file from book'), _(
             'Could not load the file: {} unknown response type: {}').format(name, xhr.responseType))
         return
 
-    proceed(result, name, mt, book)
+    proceed(result, name, file_data.mimetype, book)
 
 
 def get_file(book, name, proceed):
-    ajax('book/' + name, file_received.bind(None, name, proceed), ok_code=0).send()
+    entry = book.manifest.files[name]
+    xhr = ajax('book/' + name, file_received.bind(None, name, entry, proceed), ok_code=0)
+    if entry.is_html or entry.mimetype.startswith('text/') or entry.mimetype is 'application/javascript':
+        xhr.responseType = 'text'
+    else:
+        xhr.responseType = 'blob'
+    xhr.send()
 
 
 def get_mathjax_files(proceed):
