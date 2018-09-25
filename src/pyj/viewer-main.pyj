@@ -14,6 +14,7 @@ from qt import from_python, to_python
 from read_book.db import new_book
 from read_book.globals import runtime, ui_operations
 from read_book.view import View
+from read_book.iframe import main as iframe_main
 from session import session_defaults
 
 
@@ -32,18 +33,22 @@ def file_received(name, proceed, end_type, xhr, ev):
         show_error(_('Failed to load file from book'), _(
             'Could not load the file: {} with error: {}').format(name, xhr.error_html))
         return
-    if xhr.responseType is not 'blob':
+    if not xhr.responseType or xhr.responseType is 'text':
+        result = xhr.responseText
+        mt = xhr.getResponseHeader('Content-Type')
+    else if xhr.responseType is 'blob':
+        result = xhr.response
+        mt = result.type
+    else:
         show_error(_('Failed to load file from book'), _(
-            'Could not load the file: {} in blob form').format(name))
+            'Could not load the file: {} unknown response type: {}').format(name, xhr.responseType))
         return
-    blob = xhr.response
-    proceed(blob, name, blob.type, book)
+
+    proceed(result, name, mt, book)
 
 
 def get_file(book, name, proceed):
-    xhr = ajax('book/' + name, file_received.bind(None, name, proceed), ok_code=0)
-    xhr.responseType = 'blob'
-    xhr.send()
+    ajax('book/' + name, file_received.bind(None, name, proceed), ok_code=0).send()
 
 
 def get_mathjax_files(proceed):
@@ -143,4 +148,4 @@ if window is window.top:
     create_modal_container()
 else:
     # iframe
-    pass
+    iframe_main()
