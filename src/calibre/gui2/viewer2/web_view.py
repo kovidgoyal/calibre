@@ -172,6 +172,13 @@ class WebPage(QWebEnginePage):
             self.runJavaScript(src, QWebEngineScript.ApplicationWorld, callback)
 
 
+def viewer_html():
+    ans = getattr(viewer_html, 'ans', None)
+    if ans is None:
+        ans = viewer_html.ans = P('viewer.html', data=True, allow_user_override=False).decode('utf-8')
+    return ans
+
+
 class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
@@ -203,7 +210,7 @@ class WebView(RestartingWebEngineView):
         self.pageAction(QWebEnginePage.Reload).trigger()
 
     def clear(self):
-        self.setHtml('<p>&nbsp;', QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
+        self.setHtml(viewer_html(), QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
 
     @property
     def bridge(self):

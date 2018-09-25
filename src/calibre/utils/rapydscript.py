@@ -225,6 +225,15 @@ def compile_editor():
 
 def compile_viewer():
     base = base_dir()
+    iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
+    g = {'__file__': iconf}
+    execfile(iconf, g)
+    icons = g['merge']().encode('utf-8')
+    with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+        reset = f.read()
+    html = '<!DOCTYPE html>\n<html><head><style>{reset}</style></head><body>{icons}</body></html>'.format(
+            icons=icons, reset=reset)
+
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
     with lopen(fname, 'rb') as f:
@@ -234,6 +243,7 @@ def compile_viewer():
             '__FAKE_HOST__', FAKE_HOST, 1)
     base = os.path.join(base, 'resources')
     atomic_write(base, 'viewer.js', js)
+    atomic_write(base, 'viewer.html', html)
 
 
 def compile_srv():
