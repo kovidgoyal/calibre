@@ -25,8 +25,25 @@ book = None
 view = None
 
 
+def file_received(name, proceed, end_type, xhr, ev):
+    if end_type is 'abort':
+        return
+    if end_type is not 'load':
+        show_error(_('Failed to load file from book'), _(
+            'Could not load the file: {} with error: {}').format(name, xhr.error_html))
+        return
+    if xhr.responseType is not 'blob':
+        show_error(_('Failed to load file from book'), _(
+            'Could not load the file: {} in blob form').format(name))
+        return
+    blob = xhr.response
+    proceed(blob, name, blob.type, book)
+
+
 def get_file(book, name, proceed):
-    pass  # TODO: Implement this
+    xhr = ajax('book/' + name, file_received.bind(None, name, proceed), ok_code=0)
+    xhr.responseType = 'blob'
+    xhr.send()
 
 
 def get_mathjax_files(proceed):
@@ -45,7 +62,7 @@ def manifest_received(key, end_type, xhr, ev):
     nonlocal book
     if end_type is 'load':
         book = new_book(key, {})
-        data = JSON.parse(xhr.responseText)
+        data = xhr.response
         book.manifest = data[0]
         book.metadata = book.manifest.metadata = data[1]
         book.stored_files = {}
@@ -97,7 +114,9 @@ def start_book_load(key, prefs):
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
-    ajax('manifest', manifest_received.bind(None, key), ok_code=0).send()
+    xhr = ajax('manifest', manifest_received.bind(None, key), ok_code=0)
+    xhr.responseType = 'json'
+    xhr.send()
 
 
 def onerror(msg, script_url, line_number, column_number, error_object):
