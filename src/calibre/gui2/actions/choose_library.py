@@ -402,6 +402,7 @@ class ChooseLibraryAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def rename_requested(self, name, location):
         LibraryDatabase = db_class()

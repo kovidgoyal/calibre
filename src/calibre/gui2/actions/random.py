@@ -25,6 +25,7 @@ class PickRandomAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def pick_random(self):
         pick = random.randint(0, self.gui.library_view.model().rowCount(None))

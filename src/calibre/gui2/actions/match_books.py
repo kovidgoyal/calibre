@@ -27,6 +27,7 @@ class MatchBookAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def match_books_in_library(self, *args):
         view = self.gui.current_view()

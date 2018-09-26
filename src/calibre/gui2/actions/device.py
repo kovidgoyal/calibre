@@ -163,6 +163,7 @@ class SendToDeviceAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def do_sync(self, *args):
         self.gui._sync_action_triggered()
@@ -189,6 +190,7 @@ class ConnectShareAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def set_state(self, device_connected, device):
         self.share_conn_menu.set_state(device_connected, device)

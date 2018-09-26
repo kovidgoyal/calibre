@@ -432,6 +432,7 @@ class CopyToLibraryAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def build_menus(self):
         self.menu.clear()
