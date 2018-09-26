@@ -40,6 +40,7 @@ from calibre.utils.icu import strcmp
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.db import SPOOL_SIZE
+from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 
 OK_COLOR = 'rgba(0, 255, 0, 12%)'
 ERR_COLOR = 'rgba(255, 0, 0, 12%)'
@@ -760,7 +761,6 @@ class Format(QListWidgetItem):
             self.setToolTip(text)
             self.setStatusTip(text)
 
-
 class OrigAction(QAction):
 
     restore_fmt = pyqtSignal(object)
@@ -773,27 +773,67 @@ class OrigAction(QAction):
     def _triggered(self):
         self.restore_fmt.emit(self.fmt)
 
+class ViewAction(QAction):
+
+    view_fmt = pyqtSignal(object)
+
+    def __init__(self, item, parent):
+        self.item = item
+        QAction.__init__(self, _('View')+' '+item.ext.upper(), parent)
+        self.triggered.connect(self._triggered)
+
+    def _triggered(self):
+        self.view_fmt.emit(self.item)
+
+class EditAction(QAction):
+
+    edit_fmt = pyqtSignal(object)
+
+    def __init__(self, item, parent):
+        self.item = item
+        QAction.__init__(self, _('Edit')+' '+item.ext.upper(), parent)
+        self.triggered.connect(self._triggered)
+
+    def _triggered(self):
+        self.edit_fmt.emit(self.item)
 
 class FormatList(_FormatList):
 
     restore_fmt = pyqtSignal(object)
+    view_fmt = pyqtSignal(object)
+    edit_fmt = pyqtSignal(object)
 
     def __init__(self, parent):
         _FormatList.__init__(self, parent)
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
 
     def contextMenuEvent(self, event):
+        item = self.itemFromIndex(self.currentIndex())
         originals = [self.item(x).ext.upper() for x in range(self.count())]
         originals = [x for x in originals if x.startswith('ORIGINAL_')]
-        if not originals:
-            return
-        self.cm = cm = QMenu(self)
-        for fmt in originals:
-            action = OrigAction(fmt, cm)
-            action.restore_fmt.connect(self.restore_fmt)
-            cm.addAction(action)
-        cm.popup(event.globalPos())
-        event.accept()
+
+        if item or originals:
+            self.cm = cm = QMenu(self)
+
+            if item:
+                action = ViewAction(item, cm)
+                action.view_fmt.connect(self.view_fmt)
+                cm.addAction(action)
+
+                if item.ext.upper() in EDIT_SUPPORTED:
+                    action = EditAction(item, cm)
+                    action.edit_fmt.connect(self.edit_fmt)
+                    cm.addAction(action)
+
+            if item and originals:
+                cm.addSeparator()
+
+            for fmt in originals:
+                action = OrigAction(fmt, cm)
+                action.restore_fmt.connect(self.restore_fmt)
+                cm.addAction(action)
+            cm.popup(event.globalPos())
+            event.accept()
 
     def remove_format(self, fmt):
         for i in range(self.count()):
@@ -855,6 +895,8 @@ class FormatsManager(QWidget):
         self.formats.setAcceptDrops(True)
         self.formats.formats_dropped.connect(self.formats_dropped)
         self.formats.restore_fmt.connect(self.restore_fmt)
+        self.formats.view_fmt.connect(self.show_format)
+        self.formats.edit_fmt.connect(self.edit_format)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
         self.formats.setDragDropMode(self.formats.DropOnly)
@@ -983,6 +1025,9 @@ class FormatsManager(QWidget):
 
     def show_format(self, item, *args):
         self.dialog.do_view_format(item.path, item.ext)
+
+    def edit_format(self, item, *args):
+        self.dialog.do_edit_format(item.path, item.ext)
 
     def get_selected_format(self):
         row = self.formats.currentRow()

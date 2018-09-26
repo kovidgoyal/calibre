@@ -418,6 +418,7 @@ class EditMetadataAction(InterfaceAction):
         db = self.gui.library_view.model().db
         changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
                 parent=self.gui, view_slot=self.view_format_callback,
+                edit_slot=self.edit_format_callback,
                 set_current_callback=self.set_current_callback, editing_multiple=editing_multiple)
         return changed, rows_to_refresh
 
@@ -434,6 +435,10 @@ class EditMetadataAction(InterfaceAction):
         else:
             db = self.gui.library_view.model().db
             view.view_format(db.row(id_), fmt)
+
+    def edit_format_callback(self, id_, fmt):
+        edit = self.gui.iactions['Tweak ePub']
+        edit.ebook_edit_format(id_, fmt)
 
     def edit_bulk_metadata(self, checked):
         '''
