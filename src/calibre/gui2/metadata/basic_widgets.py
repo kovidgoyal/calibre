@@ -779,7 +779,7 @@ class ViewAction(QAction):
 
     def __init__(self, item, parent):
         self.item = item
-        QAction.__init__(self, _('View')+' '+item.ext.upper(), parent)
+        QAction.__init__(self, _('&View')+' '+item.ext.upper(), parent)
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -791,7 +791,7 @@ class EditAction(QAction):
 
     def __init__(self, item, parent):
         self.item = item
-        QAction.__init__(self, _('Edit')+' '+item.ext.upper(), parent)
+        QAction.__init__(self, _('&Edit')+' '+item.ext.upper(), parent)
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
