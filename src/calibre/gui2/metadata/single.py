@@ -365,7 +365,7 @@ class MetadataSingleDialogBase(QDialog):
                       " You need to save your changes for them to be included."),
                     yes_text=_('&Save'), no_text=_("&Don't Save"),
                     yes_icon='dot_green.png', no_icon='dot_red.png',
-                    default_yes=False, skip_dialog_name='edit-metadata-save-before-edit-format'):
+                    default_yes=True, skip_dialog_name='edit-metadata-save-before-edit-format'):
                 if self.apply_changes():
                     self.was_data_edited = False
         self.edit_format.emit(self.book_id, fmt)
