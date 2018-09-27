@@ -51,6 +51,7 @@ class ScrollArea(QScrollArea):
 class MetadataSingleDialogBase(QDialog):
 
     view_format = pyqtSignal(object, object)
+    edit_format = pyqtSignal(object, object)
     cc_two_column = tweaks['metadata_single_use_2_cols_for_custom_fields']
     one_line_comments_toolbar = False
     use_toolbutton_for_config_metadata = True
@@ -352,6 +353,23 @@ class MetadataSingleDialogBase(QDialog):
         else:
             self.view_format.emit(self.book_id, fmt)
 
+    def do_edit_format(self, path, fmt):
+        if self.was_data_edited:
+            from calibre.gui2.tweak_book import tprefs
+            tprefs.refresh()  # In case they were changed in a Tweak Book process
+            from calibre.gui2 import question_dialog
+            if tprefs['update_metadata_from_calibre'] and question_dialog(
+                    self, _('Save Changed Metadata?'),
+                    _("You've changed the metadata for this book."
+                      " Edit book is set to update embedded metadata when opened."
+                      " You need to save your changes for them to be included."),
+                    yes_text=_('&Save'), no_text=_("&Don't Save"),
+                    yes_icon='dot_green.png', no_icon='dot_red.png',
+                    default_yes=True, skip_dialog_name='edit-metadata-save-before-edit-format'):
+                if self.apply_changes():
+                    self.was_data_edited = False
+        self.edit_format.emit(self.book_id, fmt)
+
     def copy_fmt(self, fmt, f):
         self.db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
 
@@ -644,12 +662,14 @@ class MetadataSingleDialogBase(QDialog):
             traceback.print_exc()
 
     # Dialog use methods {{{
-    def start(self, row_list, current_row, view_slot=None,
+    def start(self, row_list, current_row, view_slot=None, edit_slot=None,
             set_current_callback=None):
         self.row_list = row_list
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
+        if edit_slot is not None:
+            self.edit_format.connect(edit_slot)
         self.set_current_callback = set_current_callback
         self.do_one(apply_changes=False)
         ret = self.exec_()
@@ -706,6 +726,7 @@ class MetadataSingleDialogBase(QDialog):
             except:
                 pass  # Fails if view format was never connected
         disconnect(self.view_format)
+        disconnect(self.edit_format)
         for b in ('next_button', 'prev_button'):
             x = getattr(self, b, None)
             if x is not None:
@@ -1164,14 +1185,14 @@ editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1,
            'alt2': MetadataSingleDialogAlt2}
 
 
-def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
+def edit_metadata(db, row_list, current_row, parent=None, view_slot=None, edit_slot=None,
         set_current_callback=None, editing_multiple=False):
     cls = gprefs.get('edit_metadata_single_layout', '')
     if cls not in editors:
         cls = 'default'
     d = editors[cls](db, parent, editing_multiple=editing_multiple)
     try:
-        d.start(row_list, current_row, view_slot=view_slot,
+        d.start(row_list, current_row, view_slot=view_slot, edit_slot=edit_slot,
                 set_current_callback=set_current_callback)
         return d.changed, d.rows_to_refresh
     finally:
