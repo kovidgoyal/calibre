@@ -80,11 +80,18 @@ class ImageDelegate(QStyledItemDelegate):
 
     def __init__(self, parent):
         super(ImageDelegate, self).__init__(parent)
+        self.current_basic_size = [120, 160]
         self.set_dimensions()
-        self.cover_cache = {}
+
+    def change_size(self, increase=True):
+        percent = 10 if increase else -10
+        frac = (100 + percent) / 100.
+        self.current_basic_size[0] = max(40, int(frac * self.current_basic_size[0]))
+        self.current_basic_size[1] = max(60, int(frac * self.current_basic_size[1]))
+        self.set_dimensions()
 
     def set_dimensions(self):
-        width, height = 120, 160
+        width, height = self.current_basic_size
         self.cover_size = QSize(width, height)
         f = self.parent().font()
         sz = f.pixelSize()
@@ -93,6 +100,7 @@ class ImageDelegate(QStyledItemDelegate):
         self.title_height = max(25, sz + 10)
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
         self.calculate_spacing()
+        self.cover_cache = {}
 
     def calculate_spacing(self):
         self.spacing = max(10, min(50, int(0.1 * self.item_size.width())))
@@ -265,6 +273,12 @@ class InsertImage(Dialog):
             h = QHBoxLayout()
             l.addLayout(h, 3, 0, 1, -1)
             h.addWidget(f), h.addStretch(10), h.addWidget(a)
+        b = self.bb.addButton(_('&Zoom in'), self.bb.ActionRole)
+        b.clicked.connect(self.zoom_in)
+        b.setIcon(QIcon(I('plus.png')))
+        b = self.bb.addButton(_('Zoom &out'), self.bb.ActionRole)
+        b.clicked.connect(self.zoom_out)
+        b.setIcon(QIcon(I('minus.png')))
         l.addWidget(self.bb, 4, 0, 1, 2)
 
     def full_page_image_toggled(self):
@@ -290,6 +304,14 @@ class InsertImage(Dialog):
             if d.exec_() == d.Accepted and d.filename:
                 self.accept()
                 self.chosen_image_is_external = (d.filename, path)
+
+    def zoom_in(self):
+        self.d.change_size(increase=True)
+        self.model.beginResetModel(), self.model.endResetModel()
+
+    def zoom_out(self):
+        self.d.change_size(increase=False)
+        self.model.beginResetModel(), self.model.endResetModel()
 
     def paste_image(self):
         c = QApplication.instance().clipboard()
