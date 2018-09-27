@@ -204,6 +204,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, book_info))
     search_internet_added = False
     if not r.isNull():
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         if url.startswith('format:'):
             parts = url.split(':')
             try:
@@ -213,7 +214,6 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 traceback.print_exc()
             else:
                 from calibre.gui2.ui import get_gui
-                from calibre.ebooks.oeb.polish.main import SUPPORTED
                 db = get_gui().current_db.new_api
                 ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
                 nfmt = ofmt[len('ORIGINAL_'):]
@@ -253,6 +253,9 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                         m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
                         menu.addMenu(m)
                         menu.ow = m
+                    if fmt.upper() in SUPPORTED:
+                        menu.addSeparator()
+                        menu.addAction(_('Edit %s...') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
                 ac = book_info.copy_link_action
                 ac.current_url = r.linkElement().attribute('data-full-path')
                 if ac.current_url:
@@ -543,6 +546,7 @@ class BookInfo(QWebView):
     copy_link = pyqtSignal(object)
     manage_category = pyqtSignal(object, object)
     open_fmt_with = pyqtSignal(int, object, object)
+    edit_book = pyqtSignal(int, object)
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -647,6 +651,9 @@ class BookInfo(QWebView):
         entry = choose_program(fmt, self)
         if entry is not None:
             self.open_with(book_id, fmt, entry)
+
+    def edit_fmt(self, book_id, fmt):
+        self.edit_book.emit(book_id, fmt)
 
 
 # }}}
@@ -762,6 +769,7 @@ class BookDetails(QWidget):  # {{{
     view_device_book = pyqtSignal(object)
     manage_category = pyqtSignal(object, object)
     open_fmt_with = pyqtSignal(int, object, object)
+    edit_book = pyqtSignal(int, object)
 
     # Drag 'n drop {{{
 
@@ -831,6 +839,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.remove_format.connect(self.remove_specific_format)
         self.book_info.remove_item.connect(self.remove_metadata_item)
         self.book_info.open_fmt_with.connect(self.open_fmt_with)
+        self.book_info.edit_book.connect(self.edit_book)
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)
         self.book_info.set_cover_format.connect(self.set_cover_from_format)

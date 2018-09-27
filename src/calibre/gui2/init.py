@@ -659,6 +659,8 @@ class LayoutMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.book_details.open_fmt_with.connect(self.bd_open_fmt_with,
                 type=Qt.QueuedConnection)
+        self.book_details.edit_book.connect(self.bd_edit_book,
+                type=Qt.QueuedConnection)
         self.book_details.cover_removed.connect(self.bd_cover_removed,
                 type=Qt.QueuedConnection)
         self.book_details.remote_file_dropped.connect(
@@ -729,6 +731,11 @@ class LayoutMixin(object):  # {{{
                 'The book {0} does not have the {1} format').format(
                     self.current_db.new_api.field_for('title', book_id, default_value=_('Unknown')),
                     fmt), show=True)
+
+    def bd_edit_book(self, book_id, fmt):
+        from calibre.gui2.device import BusyCursor
+        with BusyCursor():
+            self.iactions['Tweak ePub'].ebook_edit_format(book_id, fmt)
 
     def open_with_action_triggerred(self, fmt, entry, *args):
         book_id = self.library_view.current_book
