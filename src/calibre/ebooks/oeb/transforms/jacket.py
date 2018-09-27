@@ -17,7 +17,7 @@ from calibre import guess_type, strftime
 from calibre.constants import iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
-from calibre.library.comments import comments_to_html
+from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.date import is_date_undefined, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -272,6 +272,18 @@ def render_jacket(mi, output_profile,
                     args[dkey] = Series(mi.get(key), mi.get(key + '_index'))
                 elif dt == 'rating':
                     args[dkey] = rating_to_stars(mi.get(key), m.get('display', {}).get('allow_half_stars', False))
+                elif dt == 'comments':
+                    display = m.get('display', {})
+                    ctype = display.get('interpret_as') or 'html'
+                    if ctype == 'long-text':
+                        val = '<pre style="white-space:pre-wrap">%s</pre>' % escape(val)
+                    elif ctype == 'short-text':
+                        val = '<span>%s</span>' % escape(val)
+                    elif ctype == 'markdown':
+                        val = markdown(val)
+                    else:
+                        val = comments_to_html(val)
+                    args[dkey] = val
                 else:
                     args[dkey] = escape(val)
                 args[dkey+'_label'] = escape(display_name)
