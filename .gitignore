@@ -10,6 +10,7 @@ src/calibre/plugins
 resources/images.qrc
 manual/generated
 manual/locale
+manual/.doctrees
 build
 dist
 docs
