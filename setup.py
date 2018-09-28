@@ -25,7 +25,7 @@ check_version_info()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import setup.commands as commands
-from setup import get_warnings
+from setup import prints, get_warnings
 
 
 def option_parser():
@@ -93,13 +93,13 @@ def main(args=sys.argv):
         clean_backups()
 
     if opts.clean:
-        print('Cleaning', args[1])
+        prints('Cleaning', args[1])
         command.clean()
         return 0
 
     if opts.clean_all:
         for cmd in commands.__all__:
-            print('Cleaning', cmd)
+            prints('Cleaning', cmd)
             getattr(commands, cmd).clean()
         return 0
 
@@ -108,10 +108,10 @@ def main(args=sys.argv):
     warnings = get_warnings()
     if warnings:
         print()
-        print('There were', len(warnings), 'warning(s):')
+        prints('There were', len(warnings), 'warning(s):')
         print()
         for args, kwargs in warnings:
-            print('*', *args, **kwargs)
+            prints('*', *args, **kwargs)
             print()
 
     return 0
