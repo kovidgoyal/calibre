@@ -20,6 +20,46 @@
 #   new recipes:
 #     - title:
 
+- version: 3.32.0
+  date: 2018-09-28
+
+  new features:
+    - title: "Edit book: Insert image dialog: Add buttons to change the image thumbnail size."
+      tickets: [1791428]
+
+    - title: "Book details panel: Allow right clicking on a format to open it in the calibre editor"
+
+    - title: "Edit metadata dialog: Allow viewing or editing specific formats by right clicking the format in the formats list"
+
+    - title: "When creating a metadata jacket allow HTML in custom long text columns"
+
+    - title: "Content server: When editing metadata add a button to remove the existing cover. Note that after removing the cover a auto-generated cover is displayed instead. You might need to hit refresh in your browser to see the change."
+      tickets: [1794123]
+
+    - title: "Content server: Date edit: Add buttons to clear the date or set it to today's date"
+
+  bug fixes:
+    - title: "When showing books on the device, disable keyboard shortcuts for actions that operate on library books"
+
+    - title: "Content server: Custom List: Fix a zero series index being displayed as one"
+
+    - title: "Content server: Fix covers not being updated in downloaded copies of some books."
+      tickets: [1699932]
+
+    - title: "PDF Output: Fix an error that could occur in rare circumstances when using the option to read page margins from the input document"
+      tickets: [1792616]
+
+    - title: "Edit book: Check book: Fix an error if a filename contains a % character"
+
+    - title: "PDF Output: Fix CSS opacity property causing text to not be rendered.  Now opacity is ignored, as it is unsupported by Qt WebKit."
+      tickets: [1792048]
+
+    - title: "Create custom column dialog: Ensure that the format numbers field is always visible"
+
+  improved recipes:
+    - Washington Post
+
+
 - version: 3.31.0
   date: 2018-09-07
 
