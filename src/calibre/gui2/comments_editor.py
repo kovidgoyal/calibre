@@ -412,7 +412,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         self.page().setContentEditable(not self.readonly)
 
     def event(self, ev):
-        if ev.type() in (ev.KeyPress, ev.KeyRelease, ev.ShortcutOverride) and ev.key() in (
+        if ev.type() in (ev.KeyPress, ev.KeyRelease, ev.ShortcutOverride) and hasattr(ev, 'key') and ev.key() in (
                 Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
             if (ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.ControlModifier and ev.type() == ev.KeyPress):
                 self.exec_command('insertHTML', '<span style="white-space:pre">\t</span>')
