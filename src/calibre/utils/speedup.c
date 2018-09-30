@@ -361,34 +361,50 @@ clean_xml_chars(PyObject *self, PyObject *text) {
 static PyObject*
 clean_xml_chars(PyObject *self, PyObject *text) {
     PyObject *result = NULL;
-    Py_UCS4 *ucs4_text = NULL;
+    void *result_text = NULL;
     Py_ssize_t src_i, target_i;
+    enum PyUnicode_Kind text_kind;
     Py_UCS4 ch;
 
     if (!PyUnicode_Check(text)) {
         PyErr_SetString(PyExc_TypeError, "A unicode string is required");
         return NULL;
     }
+    if(PyUnicode_READY(text) != 0) {
+        // just return null, an exception is already set by READY()
+        return NULL;
+    }
+    if(PyUnicode_GET_LENGTH(text) == 0) {
+        // make sure that malloc(0) will never happen
+        return text;
+    }
 
-    ucs4_text = PyUnicode_AsUCS4Copy(text);
-    if (ucs4_text == NULL) return PyErr_NoMemory();
+    text_kind = PyUnicode_KIND(text);
+    // Once we've called READY(), our string is in canonical form, which means
+    // it is encoded using UTF-{8,16,32}, such that each codepoint is one
+    // element in the array. The value of the Kind enum is the size of each
+    // character.
+    result_text = malloc(PyUnicode_GET_LENGTH(text) * text_kind);
+    if (result_text == NULL) return PyErr_NoMemory();
 
     target_i = 0;
     for (src_i = 0; src_i < PyUnicode_GET_LENGTH(text); src_i++) {
-        ch = ucs4_text[src_i];
+        ch = PyUnicode_READ(text_kind, PyUnicode_DATA(text), src_i);
+        // based on https://en.wikipedia.org/wiki/Valid_characters_in_XML#Non-restricted_characters
+        // python 3.3+ unicode strings never contain surrogate pairs, since if
+        // they did, they would be represented as UTF-32
         if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) ||
                 ch == 9 || ch == 10 || ch == 13 ||
-                (0xe000 <= ch && ch <= 0xfffd) ||
                 (0xffff < ch && ch <= 0x10ffff)) {
-            // we can overwrite the same buffer that we're reading from because
-            // all our writes will occur at or before the current character
-            ucs4_text[target_i] = ch;
+            PyUnicode_WRITE(text_kind, result_text, target_i, ch);
             target_i += 1;
         }
     }
-    result = PyUnicode_FromKindAndData(
-        PyUnicode_4BYTE_KIND, ucs4_text, target_i);
-    PyMem_Free(ucs4_text);
+
+    // using text_kind here is ok because we don't create any characters that
+    // are larger than might already exist
+    result = PyUnicode_FromKindAndData(text_kind, result_text, target_i);
+    free(result_text);
     return result;
 }
 #endif
