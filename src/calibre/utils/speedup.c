@@ -128,23 +128,25 @@ speedup_detach(PyObject *self, PyObject *args) {
 
 static PyObject*
 speedup_fdopen(PyObject *self, PyObject *args) {
-    PyObject *ans = NULL, *name = NULL;
-    PyFileObject *t = NULL;
-    FILE *fp = NULL;
-    int fd = -1, bufsize = -1;
-    char *mode = NULL;
+    PyObject *ans = NULL;
+    char *name;
+#if PY_MAJOR_VERSION == 2
+    FILE *fp;
+#endif
+    int fd, bufsize = -1;
+    char *mode;
 
-    if (!PyArg_ParseTuple(args, "iOs|i", &fd, &name, &mode, &bufsize)) return NULL;
+    if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
+#if PY_MAJOR_VERSION >= 3
+    ans = PyFile_FromFd(fd, name, mode, bufsize, NULL, NULL, NULL, 1);
+#else
     fp = fdopen(fd, mode);
     if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);
-    ans = PyFile_FromFile(fp, "<fdopen>", mode, fclose);
+    ans = PyFile_FromFile(fp, name, mode, fclose);
     if (ans != NULL) {
-        t = (PyFileObject*)ans;
-        Py_XDECREF(t->f_name);
-        t->f_name = name;
-        Py_INCREF(name);
         PyFile_SetBufSize(ans, bufsize);
     }
+#endif
     return ans;
 }
 
@@ -280,7 +282,10 @@ static void __inline
 static void inline
 #endif
 utf8_decode_(uint32_t* state, uint32_t* codep, uint8_t byte) {
-  /* Comes from http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ */
+  /* Comes from http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+   * Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+   * Used under license: https://opensource.org/licenses/MIT
+   */
   uint32_t type = utf8d[byte];
 
   *codep = (*state != UTF8_ACCEPT) ?
@@ -317,11 +322,10 @@ error:
 	return Py_BuildValue("NII", ans, state, codep);
 }
 
+// This digs into python internals and can't be implemented easily in python3
+#if PY_MAJOR_VERSION == 2
 static PyObject*
 clean_xml_chars(PyObject *self, PyObject *text) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     Py_UNICODE *buf = NULL, ch;
     PyUnicodeObject *ans = NULL;
     Py_ssize_t i = 0, j = 0;
@@ -353,6 +357,57 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     ans->length = j;
     return (PyObject*)ans;
 }
+#else
+static PyObject*
+clean_xml_chars(PyObject *self, PyObject *text) {
+    PyObject *result = NULL;
+    void *result_text = NULL;
+    Py_ssize_t src_i, target_i;
+    enum PyUnicode_Kind text_kind;
+    Py_UCS4 ch;
+
+    if (!PyUnicode_Check(text)) {
+        PyErr_SetString(PyExc_TypeError, "A unicode string is required");
+        return NULL;
+    }
+    if(PyUnicode_READY(text) != 0) {
+        // just return null, an exception is already set by READY()
+        return NULL;
+    }
+    if(PyUnicode_GET_LENGTH(text) == 0) {
+        // make sure that malloc(0) will never happen
+        return text;
+    }
+
+    text_kind = PyUnicode_KIND(text);
+    // Once we've called READY(), our string is in canonical form, which means
+    // it is encoded using UTF-{8,16,32}, such that each codepoint is one
+    // element in the array. The value of the Kind enum is the size of each
+    // character.
+    result_text = malloc(PyUnicode_GET_LENGTH(text) * text_kind);
+    if (result_text == NULL) return PyErr_NoMemory();
+
+    target_i = 0;
+    for (src_i = 0; src_i < PyUnicode_GET_LENGTH(text); src_i++) {
+        ch = PyUnicode_READ(text_kind, PyUnicode_DATA(text), src_i);
+        // based on https://en.wikipedia.org/wiki/Valid_characters_in_XML#Non-restricted_characters
+        // python 3.3+ unicode strings never contain surrogate pairs, since if
+        // they did, they would be represented as UTF-32
+        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) ||
+                ch == 9 || ch == 10 || ch == 13 ||
+                (0xffff < ch && ch <= 0x10ffff)) {
+            PyUnicode_WRITE(text_kind, result_text, target_i, ch);
+            target_i += 1;
+        }
+    }
+
+    // using text_kind here is ok because we don't create any characters that
+    // are larger than might already exist
+    result = PyUnicode_FromKindAndData(text_kind, result_text, target_i);
+    free(result_text);
+    return result;
+}
+#endif
 
 static PyObject *
 speedup_iso_8601(PyObject *self, PyObject *args) {
@@ -483,15 +538,36 @@ static PyMethodDef speedup_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initspeedup(void) {
-    PyObject *m;
-    m = Py_InitModule3("speedup", speedup_methods,
-    "Implementation of methods in C for speed."
-    );
-    if (m == NULL) return;
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef speedup_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "speedup",
+    /* m_doc      */ "Implementation of methods in C for speed.",
+    /* m_size     */ -1,
+    /* m_methods  */ speedup_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_speedup(void) {
+    PyObject *mod = PyModule_Create(&speedup_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC initspeedup(void) {
+    PyObject *mod = Py_InitModule3("speedup", speedup_methods,
+        "Implementation of methods in C for speed.");
+#endif
+
+    if (mod == NULL) INITERROR;
     PyDateTime_IMPORT;
 #ifdef O_CLOEXEC
-    PyModule_AddIntConstant(m, "O_CLOEXEC", O_CLOEXEC);
+    PyModule_AddIntConstant(mod, "O_CLOEXEC", O_CLOEXEC);
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
 #endif
 }
