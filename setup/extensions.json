@@ -31,7 +31,8 @@
         "inc_dirs": "!zlib_inc_dirs",
         "lib_dirs": "!zlib_lib_dirs",
         "libraries": "z",
-        "windows_libraries": "zlib"
+        "windows_libraries": "zlib",
+        "needs_py2": true
     },
     {
         "name": "certgen",
