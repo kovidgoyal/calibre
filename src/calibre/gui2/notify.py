@@ -76,7 +76,7 @@ class FDONotifier(DBUSNotifier):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         try:
             self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
-                self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
+                self.dbus.Array(signature='s'), self.dbus.Dictionary({"desktop-entry": "calibre-gui"}, signature='sv'),
                 timeout)
         except:
             import traceback
