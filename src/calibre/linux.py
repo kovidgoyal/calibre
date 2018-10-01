@@ -1039,6 +1039,7 @@ TryExec=calibre
 Exec=calibre --detach %F
 Icon=calibre-gui
 Categories=Office;
+X-GNOME-UsesNotifications=true
 '''
 
 
