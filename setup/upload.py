@@ -176,7 +176,7 @@ def upload_to_fosshub():
             raise SystemExit('Request to {} failed with response code: {}'.format(path, res.getcode()))
         # from pprint import pprint
         # pprint(ans)
-        return ans['data'] if 'data' in ans else ans['status']
+        return ans['status'] if 'status' in ans else ans['data']
 
     print('Sending upload request to fosshub...')
     project_id = None
@@ -207,7 +207,8 @@ def upload_to_fosshub():
         'isOldRelease': False,
     }
     # print(json.dumps(jq, indent=2))
-    request('projects/{}/releases/'.format(project_id), data=json.dumps(jq))
+    if not request('projects/{}/releases/'.format(project_id), data=json.dumps(jq)):
+        raise SystemExit('Failed to queue publish job with fosshub')
 
 
 class UploadInstallers(Command):  # {{{
@@ -221,7 +222,7 @@ class UploadInstallers(Command):  # {{{
         )
 
     def run(self, opts):
-        # return upload_to_fosshub()
+        return upload_to_fosshub()
         all_possible = set(installers())
         available = set(glob.glob('dist/*'))
         files = {
