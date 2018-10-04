@@ -25,14 +25,15 @@ class EbookViewer(MainWindow):
         MainWindow.__init__(self, None)
         self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
 
-        def create_dock(title, name, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
+        def create_dock(title, name, area, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
             ans = QDockWidget(title, self)
             ans.setObjectName(name)
-            ans.close()
+            self.addDockWidget(area, ans)
+            ans.setVisible(False)
             return ans
 
-        self.toc_dock = create_dock(_('Table of Contents'), 'toc-dock')
-        self.inspector_dock = create_dock(_('Inspector'), 'inspector')
+        self.toc_dock = create_dock(_('Table of Contents'), 'toc-dock', Qt.LeftDockWidgetArea)
+        self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
         self.web_view = WebView(self)
         self.setCentralWidget(self.web_view)
 

@@ -221,7 +221,9 @@ class WebView(RestartingWebEngineView):
         self.setAcceptDrops(False)
         self.clear()
         if parent is not None:
-            self.inspector = Inspector(parent.toc_dock.toggleViewAction(), self)
+            self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
+            parent.inspector_dock.setWidget(self.inspector)
+            # QTimer.singleShot(100, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(450)))
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
