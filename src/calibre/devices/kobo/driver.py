@@ -1335,7 +1335,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 10, 11586)
+    max_supported_fwversion         = (4, 10, 11626)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1347,6 +1347,7 @@ class KOBOTOUCH(KOBO):
     min_auraone_fwversion           = (3, 20,  7280)
     min_fwversion_overdrive         = (4,  0,  7523)
     min_clarahd_fwversion           = (4,  8, 11090)
+    # min_forma_fwversion             = (4, 10, 11xxx) # TODO: Update when known. 
 
     has_kepubs = True
 
@@ -1372,6 +1373,7 @@ class KOBOTOUCH(KOBO):
     AURA_H2O_EDITION2_PRODUCT_ID = [0x4227]
     AURA_ONE_PRODUCT_ID = [0x4225]
     CLARA_HD_PRODUCT_ID = [0x4228]
+    FORMA_PRODUCT_ID    = [0x4229]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
@@ -1381,7 +1383,7 @@ class KOBOTOUCH(KOBO):
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401]
 
@@ -1435,6 +1437,14 @@ class KOBOTOUCH(KOBO):
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
+                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
+                          # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
+                          }
+    FORMA_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
                           # Used for library lists
@@ -3006,6 +3016,9 @@ class KOBOTOUCH(KOBO):
     def isClaraHD(self):
         return self.detected_device.idProduct in self.CLARA_HD_PRODUCT_ID
 
+    def isForma(self):
+        return self.detected_device.idProduct in self.FORMA_PRODUCT_ID
+
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
 
@@ -3036,6 +3049,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
         elif self.isClaraHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isForma():
+            _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
         elif self.isGlo():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isGloHD():
@@ -3066,7 +3081,9 @@ class KOBOTOUCH(KOBO):
         elif self.isAuraOne():
             device_name = 'Kobo Aura ONE'
         elif self.isClaraHD():
-            device_name = 'Clara HD'
+            device_name = 'Kobo Clara HD'
+        elif self.isForma():
+            device_name = 'Kobo Forma'
         elif self.isGlo():
             device_name = 'Kobo Glo'
         elif self.isGloHD():
