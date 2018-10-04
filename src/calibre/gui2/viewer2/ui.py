@@ -24,15 +24,17 @@ class EbookViewer(MainWindow):
     def __init__(self):
         MainWindow.__init__(self, None)
         self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
-        self.web_view = WebView(self)
-        self.setCentralWidget(self.web_view)
 
         def create_dock(title, name, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
             ans = QDockWidget(title, self)
             ans.setObjectName(name)
             ans.close()
+            return ans
 
         self.toc_dock = create_dock(_('Table of Contents'), 'toc-dock')
+        self.inspector_dock = create_dock(_('Inspector'), 'inspector')
+        self.web_view = WebView(self)
+        self.setCentralWidget(self.web_view)
 
     def handle_commandline_arg(self, arg):
         if arg and os.path.isfile(arg) and os.access(arg, os.R_OK):

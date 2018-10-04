@@ -6,10 +6,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 
-from PyQt5.Qt import QApplication, QBuffer, QByteArray, QSize, QUrl
+from PyQt5.Qt import (
+    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, QTimer, QUrl, QWidget
+)
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 
 from calibre import as_unicode, prints
@@ -179,6 +181,30 @@ def viewer_html():
     return ans
 
 
+class Inspector(QWidget):
+
+    def __init__(self, dock_action, parent=None):
+        QWidget.__init__(self, parent=parent)
+        self.view_to_debug = parent
+        self.view = None
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.dock_action = dock_action
+        QTimer.singleShot(0, self.connect_to_dock)
+
+    def connect_to_dock(self):
+        ac = self.dock_action
+        ac.toggled.connect(self.visibility_changed)
+        if ac.isChecked():
+            self.visibility_changed(True)
+
+    def visibility_changed(self, visible):
+        if visible and self.view is None:
+            self.view = QWebEngineView(self.view_to_debug)
+            self.view_to_debug.page().setDevToolsPage(self.view.page())
+            self.layout.addWidget(self.view)
+
+
 class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
@@ -194,6 +220,8 @@ class WebView(RestartingWebEngineView):
         self.setPage(self._page)
         self.setAcceptDrops(False)
         self.clear()
+        if parent is not None:
+            self.inspector = Inspector(parent.toc_dock.toggleViewAction(), self)
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
