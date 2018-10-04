@@ -523,17 +523,20 @@ def html_as_dict(root):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False):
-    Container(pathtoebook, output_dir, book_hash=book_hash)
+    container = Container(pathtoebook, output_dir, book_hash=book_hash)
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict
         with lopen(pathtoebook, 'rb') as f:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
             d = metadata_as_dict(mi)
-            d.pop('cover_data', None)
+            cdata = d.pop('cover_data', None)
+            if cdata and cdata[1] and container.book_render_data['raster_cover_name']:
+                with lopen(os.path.join(output_dir, container.book_render_data['raster_cover_name']), 'wb') as f:
+                    f.write(cdata[1])
             with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
                 f.write(json.dumps(d))
 
 
 if __name__ == '__main__':
-    render(sys.argv[-2], sys.argv[-1])
+    render(sys.argv[-2], sys.argv[-1], serialize_metadata=True)
