@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2017, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2018, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
 
 
 class Pagina12(BasicNewsRecipe):
@@ -24,12 +25,17 @@ class Pagina12(BasicNewsRecipe):
     remove_empty_feeds   = True
     publication_type     = 'newspaper'
     auto_cleanup         = False
+    delay                  = 1
+    simultaneous_downloads = 1
+    timeout                = 8
     ignore_duplicate_articles = {'url'}
-    PREFIX               = 'https://www.pagina12.com.ar'
+    articles_are_obfuscated = True
+    temp_files              = []
+    fetch_retries           = 10
     extra_css            = """
-        body{font-family: Lora,serif}
+        body{font-family: "Open Sans", sans-serif}
         .article-date{font-size: small; margin-bottom: 1em;}
-        .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em; font-family: Oswald,sans-serif}
+        .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em;}
         .article-main-media{display: block; margin-bottom: 1em;}
         .article-summary{margin-top:1em; margin-bottom: 1em; display:block}
         .article-author{font-family: "Archivo Narrow",Helvetica,sans-serif; color: gray; font-size: small; margin-top:1em; margin-bottom: 1em}
@@ -44,56 +50,48 @@ class Pagina12(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['meta', 'link']),
+        dict(attrs={'class':'article-main-media-social show-for-medium'})
     ]
 
     keep_only_tags=[
        dict(name='div', attrs={'class':[
-                                        'article-date',
-                                        'article-main-media-image',
-                                        'article-prefix',
-                                        'article-title',
-                                        'article-summary',
-                                        'article-author',
+                                        'article-info',
+                                        'article-titles',
+                                        'article-main-media-header',
+                                        'article-main-media',
                                         'article-text'
                                        ]})
     ]
 
     feeds = [
-      (u'Diario de hoy'    , u'https://www.pagina12.com.ar/rss/edicion-impresa'),
-      (u'El Pais'          , u'https://www.pagina12.com.ar/rss/secciones/el-pais/notas'),
-      (u'Economia'         , u'https://www.pagina12.com.ar/rss/secciones/economia/notas'),
-      (u'Sociedad'         , u'https://www.pagina12.com.ar/rss/secciones/sociedad/notas'),
-      (u'El Mundo'         , u'https://www.pagina12.com.ar/rss/secciones/el-mundo/notas'),
-      (u'Deportes'         , u'https://www.pagina12.com.ar/rss/secciones/deportes/notas'),
-      (u'Cultura'          , u'https://www.pagina12.com.ar/rss/secciones/cultura/notas'),
-      (u'Universidad'      , u'https://www.pagina12.com.ar/rss/secciones/universidad/notas'),
-      (u'Ciencia'          , u'https://www.pagina12.com.ar/rss/secciones/ciencia/notas'),
-      (u'Psicologia'       , u'https://www.pagina12.com.ar/rss/secciones/psicologia/notas'),
-      (u'Ajedrez'          , u'https://www.pagina12.com.ar/rss/secciones/ajedrez/notas'),
-      (u'La Ventana'       , u'https://www.pagina12.com.ar/rss/secciones/la-ventana/notas'),
-      (u'Dialogos'         , u'https://www.pagina12.com.ar/rss/secciones/dialogos/notas'),
-      (u'Hoy'              , u'https://www.pagina12.com.ar/rss/secciones/hoy/notas'),
-      (u'Plastica'         , u'https://www.pagina12.com.ar/rss/secciones/plastica/notas'),
-      (u'Carta de Lectores', u'https://www.pagina12.com.ar/rss/secciones/cartas-de-lectores/notas'),
-      (u'Espectaculos'     , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
-      (u'Radar'            , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
-      (u'Radar libros'     , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
-      (u'Cash'             , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
-      (u'Turismo'          , u'https://www.pagina12.com.ar/rss/suplementos/turismo/notas'),
-      (u'Libero'           , u'https://www.pagina12.com.ar/rss/suplementos/libero/notas'),
-      (u'NO'               , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
-      (u'Las/12'           , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
-      (u'Soy'              , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
-      (u'Futuro'           , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'),
-      (u'M2'               , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
-      (u'Rosario/12'       , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
+      (u'Diario de hoy'     , u'https://www.pagina12.com.ar/rss/edicion-impresa'),
+      (u'El Pais'           , u'https://www.pagina12.com.ar/rss/secciones/el-pais/notas'),
+      (u'Economia'          , u'https://www.pagina12.com.ar/rss/secciones/economia/notas'),
+      (u'Sociedad'          , u'https://www.pagina12.com.ar/rss/secciones/sociedad/notas'),
+      (u'El Mundo'          , u'https://www.pagina12.com.ar/rss/secciones/el-mundo/notas'),
+      (u'Deportes'          , u'https://www.pagina12.com.ar/rss/secciones/deportes/notas'),
+      (u'Cultura'           , u'https://www.pagina12.com.ar/rss/secciones/cultura/notas'),
+      (u'Universidad'       , u'https://www.pagina12.com.ar/rss/secciones/universidad/notas'),
+      (u'Ciencia'           , u'https://www.pagina12.com.ar/rss/secciones/ciencia/notas'),
+      (u'Psicologia'        , u'https://www.pagina12.com.ar/rss/secciones/psicologia/notas'),
+      (u'Ajedrez'           , u'https://www.pagina12.com.ar/rss/secciones/ajedrez/notas'),
+      (u'La Ventana'        , u'https://www.pagina12.com.ar/rss/secciones/la-ventana/notas'),
+      (u'Dialogos'          , u'https://www.pagina12.com.ar/rss/secciones/dialogos/notas'),
+      (u'Hoy'               , u'https://www.pagina12.com.ar/rss/secciones/hoy/notas'),
+      (u'Plastica'          , u'https://www.pagina12.com.ar/rss/secciones/plastica/notas'),
+      (u'Cartas de Lectores', u'https://www.pagina12.com.ar/rss/secciones/cartas-de-lectores/notas'),
+      (u'Espectaculos'      , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
+      (u'Radar'             , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
+      (u'Radar libros'      , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
+      (u'Cash'              , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
+      (u'Turismo'           , u'https://www.pagina12.com.ar/rss/suplementos/turismo/notas'),
+      (u'Libero'            , u'https://www.pagina12.com.ar/rss/suplementos/libero/notas'),
+      (u'NO'                , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
+      (u'Las 12'            , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
+      (u'Soy'               , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
+      (u'M2'                , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
+      (u'Rosario 12'        , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
     ]
-
-    def get_article_url(self, article):
-        url = article.get('guid',  None)
-        if url.startswith('/'):
-            return self.PREFIX + url
-        return url
 
     def get_cover_url(self):
         lurl = strftime('https://www.pagina12.com.ar/edicion-impresa/%d-%m-%Y')
@@ -104,3 +102,21 @@ class Pagina12(BasicNewsRecipe):
                 if image['data-src'].startswith('https://images.pagina12.com.ar/styles/width700/public/'):
                     return image['data-src']
         return None
+
+    def get_obfuscated_article(self, url):
+        result = None
+        count = 0
+        while (count < self.fetch_retries):
+            try:
+                response = self.browser.open(url, timeout=self.timeout)
+                html = response.read()
+                count = self.fetch_retries
+                tfile = PersistentTemporaryFile('_fa.html')
+                tfile.write(html)
+                tfile.close()
+                self.temp_files.append(tfile)
+                result = tfile.name
+            except:
+                print "Retrying download..."
+            count += 1
+        return result
