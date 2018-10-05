@@ -208,6 +208,7 @@ class Inspector(QWidget):
 class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
+        self._host_widget = None
         RestartingWebEngineView.__init__(self, parent)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
@@ -223,7 +224,13 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
-            # QTimer.singleShot(100, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(450)))
+            # QTimer.singleShot(100, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(650)))
+
+    @property
+    def host_widget(self):
+        ans = self._host_widget
+        if ans is not None and not sip.isdeleted(ans):
+            return ans
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
@@ -232,6 +239,13 @@ class WebView(RestartingWebEngineView):
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed.'
             ' You should try restarting the viewer.') , show=True)
+
+    def event(self, event):
+        if event.type() == event.ChildPolished:
+            child = event.child()
+            if 'HostView' in child.metaObject().className():
+                self._host_widget = child
+        return QWebEngineView.event(self, event)
 
     def sizeHint(self):
         return self._size_hint
