@@ -23,6 +23,9 @@ class wolne_media(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     auto_cleanup = True
+    ignore_duplicate_articles = {'url'}
+
+    remove_tags = [dict(name='p', attrs={'class': 'tags'})]
 
     feeds = [
     (u'Wiadomości z kraju', u'http://wolnemedia.net/category/wiadomosci-z-kraju/feed/'),
