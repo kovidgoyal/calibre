@@ -224,7 +224,7 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
-            # QTimer.singleShot(100, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(650)))
+            # QTimer.singleShot(300, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(650)))
 
     @property
     def host_widget(self):

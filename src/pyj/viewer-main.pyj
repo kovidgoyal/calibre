@@ -9,12 +9,14 @@ from gettext import gettext as _
 import initialize  # noqa: unused-import
 from ajax import ajax
 from book_list.globals import set_session_data
-from modals import error_dialog, create_modal_container
+from book_list.theme import get_color, get_font_family
+from dom import get_widget_css, set_css
+from modals import create_modal_container, error_dialog
 from qt import from_python, to_python
 from read_book.db import new_book
 from read_book.globals import runtime, ui_operations
-from read_book.view import View
 from read_book.iframe import main as iframe_main
+from read_book.view import View
 from session import session_defaults
 
 
@@ -150,6 +152,9 @@ if window is window.top:
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()
+    document.body.style.fontFamily = get_font_family()
+    document.head.appendChild(E.style(get_widget_css()))
+    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
 else:
     # iframe
     iframe_main()
