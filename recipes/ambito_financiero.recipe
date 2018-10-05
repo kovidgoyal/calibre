@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2011 - 2018, Darko Miletic <darko.miletic at gmail.com>'
 '''
-ambito.com/diario
+http://www.ambito.com/diario/
 '''
 
 import time
@@ -14,6 +14,7 @@ import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryFile
 
 
 class Ambito_Financiero(BasicNewsRecipe):
@@ -28,15 +29,22 @@ class Ambito_Financiero(BasicNewsRecipe):
     needs_subscription = True
     use_embedded_content = False
     language = 'es_AR'
+    fetch_retries = 10
     delay = 1
     session_id = None
+    timeout                = 8
+    ignore_duplicate_articles = {'url'}
+    articles_are_obfuscated = True
+    temp_files              = []
     PREFIX = 'http://www.ambito.com'
     PREFIXDIARIO = PREFIX + '/diario'
     INDEX = PREFIX + '/diario/index.asp'
     LOGIN = PREFIX + '/login/login_cabezal.asp'
     extra_css = """
-                               body{font-family: Roboto,sans-serif}
-                           """
+                    body{font-family: Roboto, sans-serif;}
+                    .titulo-noticia{font-family: "Roboto Condensed", sans-serif;}
+                    .dia{font-family: "Roboto Condensed", sans-serif; font-size: small;}
+                """
 
     conversion_options = {
         'comment': description,
@@ -50,7 +58,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()}),
         dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()}),
         dict(attrs={'class': lambda x: x and 'foto-perfil-columnista' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
+        dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()}),
     ]
     remove_tags = [dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])]
 
@@ -58,13 +66,14 @@ class Ambito_Financiero(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({
+            postdata = urllib.urlencode({
                 'txtUser': self.username,
                 'txtPassword': self.password
             })
             response = br.open(
                 'http://www.ambito.com/diario/no-cache/login/x_login_cabezal.asp',
-                data
+                data=postdata,
+                timeout=self.timeout
             )
             sessiondata = response.read()
             prog = re.compile(
@@ -73,6 +82,9 @@ class Ambito_Financiero(BasicNewsRecipe):
             m = prog.match(sessiondata)
             if m:
                 self.session_id = m.group('session_id')
+        # br.set_debug_http(True)
+        # br.set_debug_responses(True)
+        # br.set_debug_redirects(True)
         return br
 
     def parse_index(self):
@@ -96,14 +108,16 @@ class Ambito_Financiero(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw_html, url):
         if self.session_id:
-            l, s, r = url.rpartition('/')
-            artid, s1, r1 = r.partition('-')
-            data = urllib.urlencode({'id': artid, 'id_session': self.session_id})
+            l, s, r = url.rpartition('.html')
+            o, s1, artid = l.rpartition('_')
+            postdata = urllib.urlencode({'id': artid, 'id_session': self.session_id})
             response = self.browser.open(
-                'http://data.ambito.com/diario/cuerpo_noticia.asp', data
+                'http://data.ambito.com/diario/cuerpo_noticia.asp',
+                data=postdata,
+                timeout=self.timeout
             )
             soup = BeautifulSoup(raw_html)
-            p = soup.find('p', id="cuerpo_noticia")
+            p = soup.find(id="cuerpo_noticia")
             if p:
                 smallsoup = BeautifulSoup(response.read())
                 cfind = smallsoup.find('div', id="contenido_data")
@@ -114,8 +128,34 @@ class Ambito_Financiero(BasicNewsRecipe):
 
     def cleanup(self):
         if self.session_id is not None:
-            data = urllib.urlencode({'session_id': self.session_id})
+            postdata = urllib.urlencode({'session_id': self.session_id})
             self.browser.open(
-                'http://www.ambito.com/diario/no-cache/login/x_logout.asp', data
+                'http://www.ambito.com/diario/no-cache/login/x_logout.asp', data=postdata, timeout=self.timeout
             )
             self.session_id = None
+
+    def get_obfuscated_article(self, url):
+        result = None
+        count = 0
+        while (count < self.fetch_retries):
+            try:
+                response = self.browser.open(url, timeout=self.timeout)
+                html = response.read()
+                count = self.fetch_retries
+                l, s, r = url.rpartition('/')
+                artid, s1, r1 = r.partition('-')
+                tfile = PersistentTemporaryFile('_' + artid + '.html')
+                tfile.write(html)
+                tfile.close()
+                self.temp_files.append(tfile)
+                result = tfile.name
+            except:
+                print "Retrying download..."
+            count += 1
+        return result
+
+    def image_url_processor(self, baseurl, url):
+        result = url
+        if url.startswith('/'):
+            result = self.PREFIX + url
+        return result
