@@ -158,7 +158,7 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
                 ans[i] = data[i];
             }
         } else {
-            memcpy(ans, data, sz);
+            memcpy(ans, data, sz * sizeof(UChar));
         }
         // add null terminator
         ans[sz] = 0;
