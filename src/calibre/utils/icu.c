@@ -145,7 +145,7 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *input) {
     uint8_t *buf2 = NULL;
     PyObject *ans = NULL;
 
-    buf = python_to_icu(input, &sz, 1);
+    buf = python_to_icu(input, &sz);
     if (buf == NULL) return NULL;
 
     bsz = 7 * sz + 1;
@@ -176,9 +176,9 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
 
-    a = python_to_icu(a_, &asz, 1);
+    a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
-    b = python_to_icu(b_, &bsz, 1);
+    b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
     res = ucol_strcoll(self->collator, a, asz, b, bsz);
 end:
@@ -202,9 +202,9 @@ icu_Collator_find(icu_Collator *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
 
-    a = python_to_icu(a_, &asz, 1);
+    a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
-    b = python_to_icu(b_, &bsz, 1);
+    b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
 
     search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
@@ -241,10 +241,10 @@ icu_Collator_contains(icu_Collator *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
 
-    a = python_to_icu(a_, &asz, 1);
+    a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
     if (asz == 0) { found = TRUE; goto end; }
-    b = python_to_icu(b_, &bsz, 1);
+    b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
 
     search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
@@ -313,9 +313,9 @@ icu_Collator_startswith(icu_Collator *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
 
-    a = python_to_icu(a_, &asz, 1);
+    a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
-    b = python_to_icu(b_, &bsz, 1);
+    b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
 
     if (asz < bsz) goto end;
@@ -341,7 +341,7 @@ icu_Collator_collation_order(icu_Collator *self, PyObject *a_) {
     UCollationElements *iter = NULL;
     int order = 0, len = -1;
 
-    a = python_to_icu(a_, &asz, 1);
+    a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
 
     iter = ucol_openElements(self->collator, a, asz, &status);
@@ -578,7 +578,7 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
     UChar *buf = NULL;
     UErrorCode status = U_ZERO_ERROR;
 
-    buf = python_to_icu(input, &sz, 1);
+    buf = python_to_icu(input, &sz);
     if (buf == NULL) return NULL;
     ubrk_setText(self->break_iterator, buf, sz, &status);
     if (U_FAILURE(status)) {
@@ -602,7 +602,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
     UChar *buf = NULL, *needle = NULL;
     int32_t word_start = 0, p = 0, sz = 0, ans = -1, leading_hyphen = 0, trailing_hyphen = 0;
 
-    buf = python_to_icu(token, &sz, 1);
+    buf = python_to_icu(token, &sz);
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
     needle = buf;
@@ -796,7 +796,7 @@ static PyObject* icu_change_case(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    input_buf = python_to_icu(input, &sz, 1);
+    input_buf = python_to_icu(input, &sz);
     if (input_buf == NULL) goto end;
     output_buf = (UChar*) calloc(3 * sz, sizeof(UChar));
     if (output_buf == NULL) { PyErr_NoMemory(); goto end; }
@@ -830,7 +830,7 @@ static PyObject* icu_swap_case(PyObject *self, PyObject *input) {
     UChar32 *buf = NULL;
     int32_t sz = 0, sz32 = 0, i = 0;
 
-    input_buf = python_to_icu(input, &sz, 1);
+    input_buf = python_to_icu(input, &sz);
     if (input_buf == NULL) goto end;
     output_buf = (UChar*) calloc(3 * sz, sizeof(UChar));
     buf = (UChar32*) calloc(2 * sz, sizeof(UChar32));
@@ -922,7 +922,7 @@ icu_character_name(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|O", &input, &palias)) return NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1;
-    buf = python_to_icu(input, &sz, 1);
+    buf = python_to_icu(input, &sz);
     if (buf == NULL) goto end;
     U16_GET(buf, 0, 0, sz, code);
     if (alias) {
@@ -984,7 +984,7 @@ icu_ord_string(PyObject *self, PyObject *input) {
     int32_t sz = 0, i = 0;
     PyObject *ans = NULL, *temp = NULL;
 
-    input_buf = python_to_icu32(input, &sz, 1);
+    input_buf = python_to_icu32(input, &sz);
     if (input_buf == NULL) goto end;
     ans = PyTuple_New(sz);
     if (ans == NULL) goto end;
@@ -1031,7 +1031,7 @@ icu_normalize(PyObject *self, PyObject *args) {
         goto end;
     }
 
-    source = python_to_icu(src, &sz, 1);
+    source = python_to_icu(src, &sz);
     if (source == NULL) goto end;
     cap = 2 * sz;
     dest = (UChar*) calloc(cap, sizeof(UChar));
@@ -1069,7 +1069,7 @@ icu_roundtrip(PyObject *self, PyObject *src) {
     UChar *icu = NULL;
     PyObject *ret = NULL;
 
-    icu = python_to_icu(src, &sz, 1);
+    icu = python_to_icu(src, &sz);
     if (icu != NULL) {
         ret = icu_to_python(icu, sz);
         free(icu);
@@ -1105,7 +1105,7 @@ icu_string_length(PyObject *self, PyObject *src) {
     int32_t sz = 0;
     UChar *icu = NULL;
 
-    icu = python_to_icu(src, &sz, 1);
+    icu = python_to_icu(src, &sz);
     if (icu == NULL) return NULL;
     sz = u_countChar32(icu, sz);
     free(icu);
