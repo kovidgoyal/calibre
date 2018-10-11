@@ -80,14 +80,15 @@ class ImageDelegate(QStyledItemDelegate):
 
     def __init__(self, parent):
         super(ImageDelegate, self).__init__(parent)
-        self.current_basic_size = [120, 160]
+        self.current_basic_size = tprefs.get('image-thumbnail-preview-size', [120, 160])
         self.set_dimensions()
 
     def change_size(self, increase=True):
         percent = 10 if increase else -10
         frac = (100 + percent) / 100.
-        self.current_basic_size[0] = max(40, int(frac * self.current_basic_size[0]))
-        self.current_basic_size[1] = max(60, int(frac * self.current_basic_size[1]))
+        self.current_basic_size[0] = min(1200, max(40, int(frac * self.current_basic_size[0])))
+        self.current_basic_size[1] = min(1600, max(60, int(frac * self.current_basic_size[1])))
+        tprefs.set('image-thumbnail-preview-size', self.current_basic_size)
         self.set_dimensions()
 
     def set_dimensions(self):
