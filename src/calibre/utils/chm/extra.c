@@ -32,7 +32,7 @@
 #include <stdlib.h>
 
 #ifdef _MSC_VER
-#include "stdint.h"
+#include <stdint.h>
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
 #else
@@ -76,13 +76,13 @@
 
 #define FREE(x) free (x); x = NULL
 
-inline uint16_t 
+inline uint16_t
 get_uint16 (uint8_t* b) {
   return b[0] |
     b[1]<<8;
 }
 
-inline uint32_t 
+inline uint32_t
 get_uint32 (uint8_t* b) {
   return b[0] |
     b[1]<<8   |
@@ -90,7 +90,7 @@ get_uint32 (uint8_t* b) {
     b[3]<<24;
 }
 
-inline uint64_t 
+inline uint64_t
 get_uint64 (uint8_t* b) {
   return b[0]           |
     b[1]<<8             |
@@ -102,20 +102,20 @@ get_uint64 (uint8_t* b) {
     (uint64_t) b[7]<<56;
 }
 
-inline uint64_t 
+inline uint64_t
 be_encint (unsigned char *buffer, size_t *length)
 {
   uint64_t result = 0;
   int shift=0;
   *length = 0;
-  
+
   do {
     result |= ((*buffer) & 0x7f) << shift;
     shift += 7;
     *length = *length + 1;
-  
+
   } while (*(buffer++) & 0x80);
-  
+
   return result;
 }
 
@@ -127,7 +127,7 @@ inline int
 ffus (unsigned char* byte, int* bit, size_t *length) {
   int bits = 0;
   *length = 0;
-  
+
   while(*byte & (1 << *bit)){
     if(*bit)
       --(*bit);
@@ -138,14 +138,14 @@ ffus (unsigned char* byte, int* bit, size_t *length) {
     }
     ++bits;
   }
-  
+
   if(*bit)
     --(*bit);
   else {
     ++(*length);
     *bit = 7;
   }
-  
+
   return bits;
 }
 
@@ -160,21 +160,21 @@ sr_int(unsigned char* byte, int* bit,
   size_t fflen;
 
   *length = 0;
-  
+
   if(!bit || *bit > 7 || s != 2)
     return ~(uint64_t)0;
   ret = 0;
-  
+
   count = ffus(byte, bit, &fflen);
   *length += fflen;
   byte += *length;
-  
+
   n_bits = n = r + (count ? count-1 : 0) ;
-  
+
   while (n > 0) {
     num_bits = n > *bit ? *bit : n-1;
     base = n > *bit ? 0 : *bit - (n-1);
-  
+
     switch (num_bits){
     case 0:
       mask = 1;
@@ -204,11 +204,11 @@ sr_int(unsigned char* byte, int* bit,
       mask = 0xff;
       break;
     }
-  
+
     mask <<= base;
     ret = (ret << (num_bits+1)) |
       (uint64_t)((*byte & mask) >> base);
-  
+
     if( n > *bit ){
       ++byte;
       ++(*length);
@@ -219,14 +219,14 @@ sr_int(unsigned char* byte, int* bit,
       n = 0;
     }
   }
-  
+
   if(count)
     ret |= (uint64_t)1 << n_bits;
-  
+
   return ret;
 }
 
-            
+
 static inline uint32_t
 get_leaf_node_offset(struct chmFile *chmfile,
                      const char *text,
@@ -246,31 +246,31 @@ get_leaf_node_offset(struct chmFile *chmfile,
 
   if (NULL == buffer)
     return 0;
-  
+
   while (--tree_depth) {
     if (initial_offset == test_offset) {
       FREE(buffer);
       return 0;
     }
-    
+
     test_offset = initial_offset;
-    if (chm_retrieve_object (chmfile, ui, buffer, 
+    if (chm_retrieve_object (chmfile, ui, buffer,
                              initial_offset, buff_size) == 0) {
       FREE(buffer);
       return 0;
     }
-    
+
     free_space = get_uint16 (buffer);
-    
+
     while (i < buff_size - free_space) {
 
       word_len = *(buffer + i);
       pos = *(buffer + i + 1);
-      
+
       wrd_buf = (char*)malloc (word_len);
       memcpy (wrd_buf, buffer + i + 2, word_len - 1);
       wrd_buf[word_len - 1] = 0;
-      
+
       if (pos == 0) {
         FREE (word);
         word = (char *) strdup (wrd_buf);
@@ -280,17 +280,17 @@ get_leaf_node_offset(struct chmFile *chmfile,
       }
 
       FREE(wrd_buf);
-      
+
       if (strcasecmp (text, word) <= 0) {
         initial_offset = get_uint32 (buffer + i + word_len + 1);
         break;
       }
-      
-      i += word_len + sizeof (unsigned char) + sizeof(uint32_t) + 
+
+      i += word_len + sizeof (unsigned char) + sizeof(uint32_t) +
         sizeof(uint16_t);
     }
   }
-  
+
   if(initial_offset == test_offset)
     initial_offset = 0;
 
@@ -300,7 +300,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
   return initial_offset;
 }
 
-static inline int 
+static inline int
 pychm_process_wlc (struct chmFile *chmfile,
                    uint64_t wlc_count, uint64_t wlc_size,
                    uint32_t wlc_offset, unsigned char ds,
@@ -325,14 +325,14 @@ pychm_process_wlc (struct chmFile *chmfile,
   char *url = NULL;
   char *topic = NULL;
 
-  if (chm_retrieve_object(chmfile, uimain, buffer, 
+  if (chm_retrieve_object(chmfile, uimain, buffer,
                           wlc_offset, wlc_size) == 0) {
     FREE(buffer);
     return false;
   }
 
   for (i = 0; i < wlc_count; ++i) {
-    
+
     if(wlc_bit != 7) {
       ++off;
       wlc_bit = 7;
@@ -341,7 +341,7 @@ pychm_process_wlc (struct chmFile *chmfile,
     index += sr_int(buffer + off, &wlc_bit, ds, dr, &length);
     off += length;
 
-    if(chm_retrieve_object(chmfile, topics, entry, 
+    if(chm_retrieve_object(chmfile, topics, entry,
                            index * 16, TOPICS_ENTRY_LEN) == 0) {
       FREE(topic);
       FREE(url);
@@ -353,34 +353,34 @@ pychm_process_wlc (struct chmFile *chmfile,
     stroff = get_uint32 (entry + 4);
 
     FREE (topic);
-    if (chm_retrieve_object (chmfile, uistrings, combuf, 
+    if (chm_retrieve_object (chmfile, uistrings, combuf,
                              stroff, COMMON_BUF_LEN - 1) == 0) {
       topic = strdup ("Untitled in index");
 
     } else {
       combuf[COMMON_BUF_LEN - 1] = 0;
-      
+
       topic = strdup ((char*)combuf);
     }
-        
+
     urloff = get_uint32 (entry + 8);
 
-    if(chm_retrieve_object (chmfile, uitbl, combuf, 
+    if(chm_retrieve_object (chmfile, uitbl, combuf,
                             urloff, 12) == 0) {
       FREE(buffer);
       return false;
     }
 
     urloff = get_uint32 (combuf + 8);
-    
-    if (chm_retrieve_object (chmfile, urlstr, combuf, 
+
+    if (chm_retrieve_object (chmfile, urlstr, combuf,
                              urloff + 8, COMMON_BUF_LEN - 1) == 0) {
       FREE(topic);
       FREE(url);
       FREE(buffer);
       return false;
     }
-         
+
     combuf[COMMON_BUF_LEN - 1] = 0;
 
     FREE (url);
@@ -388,16 +388,16 @@ pychm_process_wlc (struct chmFile *chmfile,
 
     if (url && topic) {
 #ifdef __PYTHON__
-      PyDict_SetItemString (dict, topic, 
+      PyDict_SetItemString (dict, topic,
                             PyString_FromString (url));
 #else
       printf ("%s ==> %s\n", url, topic);
 #endif
     }
-        
+
     count = sr_int (buffer + off, &wlc_bit, cs, cr, &length);
     off += length;
-    
+
     for (j = 0; j < count; ++j) {
       sr_int (buffer + off, &wlc_bit, ls, lr, &length);
       off += length;
@@ -411,9 +411,9 @@ pychm_process_wlc (struct chmFile *chmfile,
   return true;
 }
 
-int 
+int
 chm_search (struct chmFile *chmfile,
-            const char *text, int whole_words, 
+            const char *text, int whole_words,
             int titles_only, PyObject *dict)
 {
   unsigned char header[FTS_HEADER_LEN];
@@ -443,7 +443,7 @@ chm_search (struct chmFile *chmfile,
     return -1;
 
   if (chm_resolve_object (chmfile, "/$FIftiMain", &ui) !=
-      CHM_RESOLVE_SUCCESS || 
+      CHM_RESOLVE_SUCCESS ||
       chm_resolve_object (chmfile, "/#TOPICS", &uitopics) !=
       CHM_RESOLVE_SUCCESS ||
       chm_resolve_object (chmfile, "/#STRINGS", &uistrings) !=
@@ -456,7 +456,7 @@ chm_search (struct chmFile *chmfile,
 
   if(chm_retrieve_object(chmfile, &ui, header, 0, FTS_HEADER_LEN) == 0)
     return false;
-  
+
   doc_index_s = header[0x1E];
   doc_index_r = header[0x1F];
   code_count_s = header[0x20];
@@ -473,40 +473,40 @@ chm_search (struct chmFile *chmfile,
   tree_depth = get_uint16 (header + 0x18);
 
   i = sizeof(uint16_t);
-  
+
   buffer = (unsigned char*)malloc (node_len);
-  
+
   node_offset = get_leaf_node_offset (chmfile, text, node_offset, node_len,
                                       tree_depth, &ui);
-  
-  if (!node_offset) { 
+
+  if (!node_offset) {
     FREE(buffer);
     return false;
   }
-  
+
   do {
-    
-    if (chm_retrieve_object (chmfile, &ui, buffer, 
+
+    if (chm_retrieve_object (chmfile, &ui, buffer,
                              node_offset, node_len) == 0) {
       FREE(word);
       FREE(buffer);
       return false;
     }
-    
+
     free_space = get_uint16 (buffer + 6);
-    
+
     i = sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t);
-    
+
     encsz = 0;
 
     while (i < node_len - free_space) {
       word_len = *(buffer + i);
       pos = *(buffer + i + 1);
-                        
+
       wrd_buf = (char*)malloc (word_len);
       memcpy (wrd_buf, buffer + i + 2, word_len - 1);
       wrd_buf[word_len - 1] = 0;
-      
+
       if (pos == 0) {
         FREE(word);
         word = (char *) strdup (wrd_buf);
@@ -516,29 +516,29 @@ chm_search (struct chmFile *chmfile,
       }
 
       FREE(wrd_buf);
-      
+
       i += 2 + word_len;
       title = *(buffer + i - 1);
 
       wlc_count = be_encint (buffer + i, &encsz);
       i += encsz;
-      
+
       wlc_offset = get_uint32 (buffer + i);
 
       i += sizeof(uint32_t) + sizeof(uint16_t);
       wlc_size =  be_encint (buffer + i, &encsz);
       i += encsz;
-      
+
       node_offset = get_uint32 (buffer);
 
       if (!title && titles_only)
         continue;
-      
+
       if (whole_words && !strcasecmp(text, word)) {
-        partial = pychm_process_wlc (chmfile, wlc_count, wlc_size, 
-                                     wlc_offset, doc_index_s, 
-                                     doc_index_r,code_count_s, 
-                                     code_count_r, loc_codes_s, 
+        partial = pychm_process_wlc (chmfile, wlc_count, wlc_size,
+                                     wlc_offset, doc_index_s,
+                                     doc_index_r,code_count_s,
+                                     code_count_r, loc_codes_s,
                                      loc_codes_r, &ui, &uiurltbl,
                                      &uistrings, &uitopics,
                                      &uiurlstr, dict);
@@ -546,27 +546,27 @@ chm_search (struct chmFile *chmfile,
         FREE(buffer);
         return partial;
       }
-      
+
       if (!whole_words) {
         if (!strncasecmp (word, text, strlen(text))) {
           partial = true;
-          pychm_process_wlc (chmfile, wlc_count, wlc_size, 
-                             wlc_offset, doc_index_s, 
-                             doc_index_r,code_count_s, 
-                             code_count_r, loc_codes_s, 
+          pychm_process_wlc (chmfile, wlc_count, wlc_size,
+                             wlc_offset, doc_index_s,
+                             doc_index_r,code_count_s,
+                             code_count_r, loc_codes_s,
                              loc_codes_r, &ui, &uiurltbl,
                              &uistrings, &uitopics,
                              &uiurlstr, dict);
-          
+
         } else if (strncasecmp (text, word, strlen(text)) < -1)
           break;
       }
 
     }
-  } while (!whole_words && 
-           !strncmp (word, text, strlen(text)) && 
+  } while (!whole_words &&
+           !strncmp (word, text, strlen(text)) &&
            node_offset);
-  
+
   FREE(word);
   FREE(buffer);
 
@@ -593,11 +593,11 @@ chm_get_lcid (struct chmFile *chmfile) {
   int i;
 
   for (i=0; i<LANG_FILES_SIZE; i++) {
-  
-    if (chm_resolve_object (chmfile, lang_files[i].file, &ui) == 
+
+    if (chm_resolve_object (chmfile, lang_files[i].file, &ui) ==
         CHM_RESOLVE_SUCCESS) {
-    
-      if (chm_retrieve_object (chmfile, &ui, (unsigned char *) &lang, 
+
+      if (chm_retrieve_object (chmfile, &ui, (unsigned char *) &lang,
                                lang_files[i].offset, sizeof(uint32_t)) != 0)
         return lang;
     }
@@ -619,7 +619,7 @@ is_searchable (PyObject *self, PyObject *args) {
     file = (struct chmFile *) PyCObject_AsVoidPtr(obj0);
 
     if (chm_resolve_object (file, "/$FIftiMain", &ui) !=
-        CHM_RESOLVE_SUCCESS || 
+        CHM_RESOLVE_SUCCESS ||
         chm_resolve_object (file, "/#TOPICS", &ui) !=
         CHM_RESOLVE_SUCCESS ||
         chm_resolve_object (file, "/#STRINGS", &ui) !=
@@ -647,7 +647,7 @@ search (PyObject *self, PyObject *args) {
   PyObject *obj0;
   PyObject *dict;
 
-  if (PyArg_ParseTuple (args, "Osii:search", &obj0, &text, 
+  if (PyArg_ParseTuple (args, "Osii:search", &obj0, &text,
                         &whole_words, &titles_only)) {
 
     dict = PyDict_New();
@@ -655,9 +655,9 @@ search (PyObject *self, PyObject *args) {
     if (dict) {
       file = (struct chmFile *) PyCObject_AsVoidPtr(obj0);
 
-      partial = chm_search (file, 
+      partial = chm_search (file,
                             text, whole_words, titles_only, dict);
-    
+
       return Py_BuildValue ("(iO)", partial, dict);
 
     } else {
@@ -682,10 +682,10 @@ get_lcid (PyObject *self, PyObject *args) {
       file = (struct chmFile *) PyCObject_AsVoidPtr(obj0);
 
       code = chm_get_lcid (file);
-    
+
       if (code != -1)
         return Py_BuildValue ("i", code);
-      else 
+      else
         Py_INCREF(Py_None);
       return Py_None;
   } else {
@@ -696,11 +696,11 @@ get_lcid (PyObject *self, PyObject *args) {
 
 static PyMethodDef
 IndexMethods[] = {
-  {"get_lcid", get_lcid, METH_VARARGS, 
+  {"get_lcid", get_lcid, METH_VARARGS,
    "Returns LCID (Locale ID) for archive."},
-  {"search", search, METH_VARARGS, 
+  {"search", search, METH_VARARGS,
    "Perform Full-Text search."},
-  {"is_searchable", is_searchable, METH_VARARGS, 
+  {"is_searchable", is_searchable, METH_VARARGS,
    "Return 1 if it is possible to search the archive, 0 otherwise."},
   {NULL, NULL, 0, NULL}
 };
@@ -731,11 +731,11 @@ main (int argc, char **argv) {
         printf ("\n<whole_words> <titles_only> <string>\n");
         printf ("> ");
         if (scanf ("%d %d %s", &whole_words, &titles_only, text))
-          partial = chm_search (file, 
+          partial = chm_search (file,
                                 text, whole_words, titles_only, NULL);
-        else 
+        else
           break;
-        
+
         printf ("Partial = %d\n", partial);
       }
 
