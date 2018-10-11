@@ -523,6 +523,9 @@ class FileList(QTreeWidget):
             m.addAction(QIcon(I('modified.png')), _('Change the file extension for the selected files'), self.request_change_ext)
             m.addAction(QIcon(I('trash.png')), ngettext(
                 '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
+            m.addAction(QIcon(I('edit-copy.png')), ngettext(
+                '&Copy the selected file to another editor instance',
+                '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
             m.addSeparator()
 
         selected_map = defaultdict(list)
@@ -643,6 +646,9 @@ class FileList(QTreeWidget):
         ans = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         ans.discard('')
         return ans
+
+    def copy_selected_files(self):
+        pass
 
     def request_delete(self):
         names = self.selected_names

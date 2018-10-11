@@ -185,15 +185,19 @@ class CompressImages(Dialog):
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.jq = jq = QSpinBox(self)
-        jq.setMinimum(0), jq.setMaximum(100), jq.setValue(80), jq.setEnabled(False)
+        jq.setMinimum(0), jq.setMaximum(100), jq.setValue(tprefs.get('jpeg_compression_quality_for_lossless_compression', 80)), jq.setEnabled(False)
         jq.setToolTip(_('The compression quality, 1 is high compression, 100 is low compression.\nImage'
                         ' quality is inversely correlated with compression quality.'))
+        jq.valueChanged.connect(self.save_compression_quality)
         el.toggled.connect(jq.setEnabled)
         self.jql = la = QLabel(_('Compression &quality:'))
         la.setBuddy(jq)
         h.addWidget(la), h.addWidget(jq)
         l.addStretch(10)
         l.addWidget(self.bb)
+
+    def save_compression_quality(self):
+        tprefs.set('jpeg_compression_quality_for_lossless_compression', self.jq.value())
 
     @property
     def names(self):
