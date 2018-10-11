@@ -122,6 +122,7 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
     UChar *ans = NULL;
     Py_ssize_t sz = 0;
     UErrorCode status = U_ZERO_ERROR;
+    Py_UCS2 *data;
     int i;
 
     if (!PyUnicode_CheckExact(obj)) {
@@ -150,10 +151,14 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
         break;
     case PyUnicode_2BYTE_KIND:
         ans = (UChar*) malloc((sz+1) * sizeof(UChar));
-        // UChar might be more than 2 bytes, so we need to copy manually.
-        // Hopefully this will be optimized as memcpy where possible.
-        for(i = 0; i < sz; i++) {
-            ans[i] = PyUnicode_2BYTE_DATA(obj)[i];
+        data = PyUnicode_2BYTE_DATA(obj);
+        // if UChar is more than 2 bytes, we need to copy manually.
+        if(sizeof(UChar) != sizeof(Py_UCS2)) {
+            for(i = 0; i < sz; i++) {
+                ans[i] = data[i];
+            }
+        } else {
+            memcpy(ans, data, sz);
         }
         // add null terminator
         ans[sz] = 0;
