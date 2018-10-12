@@ -34,7 +34,7 @@ html_Tag_dealloc(html_Tag* self)
     Py_XDECREF(self->bold); self->bold = NULL;
     Py_XDECREF(self->italic); self->italic = NULL;
     Py_XDECREF(self->lang); self->lang = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 
@@ -47,7 +47,7 @@ html_Tag_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->bold = NULL; self->italic = NULL; self->lang = NULL;
     if (!PyArg_ParseTuple(args, "O|OOO", &(self->name), &(self->bold), &(self->italic), &(self->lang))) {
-        self->ob_type->tp_free((PyObject*)self); return NULL;
+        Py_TYPE(self)->tp_free((PyObject*)self); return NULL;
     }
     if (self->bold == NULL) {
         self->bold = (PySet_Contains(bold_tags, self->name)) ? Py_True : Py_False;
@@ -95,12 +95,8 @@ html_Tag_compare(html_Tag *a, html_Tag *b, int op) {
 
 static PyObject *
 html_Tag_repr(html_Tag *self) {
-    PyObject *name = NULL, *bold = NULL, *italic = NULL, *lang = NULL, *ans = NULL;
-    name = PyObject_Repr(self->name); bold = PyObject_Repr(self->bold); italic = PyObject_Repr(self->italic); lang = PyObject_Repr(self->lang);
-    if (name && bold && italic && lang)
-        ans = PyString_FromFormat("Tag(%s, bold=%s, italic=%s, lang=%s)", PyString_AS_STRING(name), PyString_AS_STRING(bold), PyString_AS_STRING(italic), PyString_AS_STRING(lang));
-    Py_XDECREF(name); Py_XDECREF(bold); Py_XDECREF(italic); Py_XDECREF(lang);
-    return ans;
+    return PyUnicode_FromFormat("Tag(%R, bold=%R, italic=%R, lang=%R)",
+        self->name, self->bold, self->italic, self->lang);
 }
 
 static PyMemberDef html_Tag_members[] = {
@@ -120,45 +116,44 @@ static PyMethodDef html_Tag_methods[] = {
 };
 
 static PyTypeObject html_TagType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "html.Tag",            /*tp_name*/
-    sizeof(html_Tag),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)html_Tag_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)html_Tag_repr,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Token",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    (richcmpfunc)html_Tag_compare,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    html_Tag_methods,             /* tp_methods */
-    html_Tag_members,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    html_Tag_new,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "html.Tag",
+    /* tp_basicsize      */ sizeof(html_Tag),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)html_Tag_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ (reprfunc)html_Tag_repr,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_doc            */ "Token",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ (richcmpfunc)html_Tag_compare,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ html_Tag_methods,
+    /* tp_members        */ html_Tag_members,
+    /* tp_getset         */ 0,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ 0,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ html_Tag_new,
 }; // }}}
 // }}}
 
@@ -196,7 +191,7 @@ html_State_dealloc(html_State* self)
     Py_XDECREF(self->default_lang); self->default_lang = NULL;
     Py_XDECREF(self->attribute_name);self->attribute_name = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 
@@ -230,7 +225,7 @@ html_State_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             &(self->default_lang),
             &(self->attribute_name)))
     {
-        self->ob_type->tp_free((PyObject*)self); return NULL;
+        Py_TYPE(self)->tp_free((PyObject*)self); return NULL;
     }
 
     if (self->tag_being_defined == NULL) self->tag_being_defined = Py_None;
@@ -315,12 +310,8 @@ html_State_compare(html_State *a, html_State *b, int op) {
 
 static PyObject *
 html_State_repr(html_State *self) {
-    PyObject *bold = NULL, *italic = NULL, *lang = NULL, *ans = NULL;
-    bold = PyObject_Repr(self->is_bold); italic = PyObject_Repr(self->is_italic); lang = PyObject_Repr(self->current_lang);
-    if (bold && italic && lang)
-        ans = PyString_FromFormat("State(bold=%s, italic=%s, lang=%s)", PyString_AS_STRING(bold), PyString_AS_STRING(italic), PyString_AS_STRING(lang));
-    Py_XDECREF(bold); Py_XDECREF(italic); Py_XDECREF(lang);
-    return ans;
+    return PyUnicode_FromFormat("State(bold=%R, italic=%R, lang=%R)",
+        self->is_bold, self->is_italic, self->current_lang);
 }
 
 static PyMemberDef html_State_members[] = {
@@ -346,45 +337,44 @@ static PyMethodDef html_State_methods[] = {
 };
 
 static PyTypeObject html_StateType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "html.State",            /*tp_name*/
-    sizeof(html_State),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)html_State_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)html_State_repr,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Token",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    (richcmpfunc)html_State_compare,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    html_State_methods,             /* tp_methods */
-    html_State_members,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    html_State_new,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "html.State",
+    /* tp_basicsize      */ sizeof(html_State),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)html_State_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ (reprfunc)html_State_repr,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_doc            */ "Token",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ (richcmpfunc)html_State_compare,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ html_State_methods,
+    /* tp_members        */ html_State_members,
+    /* tp_getset         */ 0,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ 0,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ html_State_new,
 }; // }}}
 // }}}
 
@@ -398,9 +388,6 @@ html_init(PyObject *self, PyObject *args) {
 
 static PyObject*
 html_check_spelling(PyObject *self, PyObject *args) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     PyObject *ans = NULL, *temp = NULL, *items = NULL, *text = NULL, *fmt = NULL, *locale = NULL, *sfmt = NULL, *_store_locale = NULL, *t = NULL, *utmp = NULL;
     long text_len = 0, start = 0, length = 0, ppos = 0; 
     int store_locale = 0, ok = 0;
@@ -416,17 +403,27 @@ html_check_spelling(PyObject *self, PyObject *args) {
     ans = PyTuple_New((2 * PyList_GET_SIZE(items)) + 1);
     if (ans == NULL) { PyErr_NoMemory(); goto error; }
 
-#define APPEND(x, y) t = Py_BuildValue("lO", (x), y); if (t == NULL) goto error; PyTuple_SET_ITEM(ans, j, t); j += 1;
+#define APPEND(x, y) t = Py_BuildValue("lO", (x), (y)); \
+                     if (t == NULL) goto error; \
+                     PyTuple_SET_ITEM(ans, j, t); \
+                     j += 1;
 
     for (i = 0, j = 0; i < PyList_GET_SIZE(items); i++) {
         temp = PyList_GET_ITEM(items, i);
-        start = PyInt_AS_LONG(PyTuple_GET_ITEM(temp, 0)); length = PyInt_AS_LONG(PyTuple_GET_ITEM(temp, 1));
+        start = PyLong_AsLong(PyTuple_GET_ITEM(temp, 0));
+        if(start == -1 && PyErr_Occurred() != NULL) goto error;
+        length = PyLong_AsLong(PyTuple_GET_ITEM(temp, 1));
+        if(length == -1 && PyErr_Occurred() != NULL) goto error;
         temp = NULL;
 
         if (start > ppos) { APPEND(start - ppos, fmt) }
         ppos = start + length;
 
+#if PY_VERSION_HEX >= 0x03030000
+        utmp = PyUnicode_Substring(text, start, start + length);
+#else
         utmp = PyUnicode_FromUnicode(PyUnicode_AS_UNICODE(text) + start, length);
+#endif
         if (utmp == NULL) { PyErr_NoMemory(); goto error; }
         temp = PyObject_CallFunctionObjArgs(recognized, utmp, locale, NULL);
         Py_DECREF(utmp); utmp = NULL;
@@ -473,33 +470,66 @@ static PyMethodDef html_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef html_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "html",
+    /* m_doc      */ "Speedups for the html syntax highlighter",
+    /* m_size     */ -1,
+    /* m_methods  */ html_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
 
-CALIBRE_MODINIT_FUNC
-inithtml(void) {
-    PyObject *m, *temp;
+CALIBRE_MODINIT_FUNC PyInit_html(void) {
+    PyObject *temp, *mod = PyModule_Create(&html_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC inithtml(void) {
+    PyObject *temp, *mod = Py_InitModule3("html", html_methods,
+        "Speedups for the html syntax highlighter");
+#endif
+
+    if (mod == NULL) INITERROR;
+
     if (PyType_Ready(&html_TagType) < 0)
-        return;
+        INITERROR;
     if (PyType_Ready(&html_StateType) < 0)
-        return;
+        INITERROR;
 
     temp = Py_BuildValue("ssssssss", "b", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7");
-    if (temp == NULL) return;
-    bold_tags = PyFrozenSet_New(temp); Py_DECREF(temp);
-    temp = Py_BuildValue("ss", "i", "em");
-    if (temp == NULL) return;
-    italic_tags = PyFrozenSet_New(temp); Py_DECREF(temp); temp = NULL;
-    zero = PyInt_FromLong(0);
-    if (bold_tags == NULL || italic_tags == NULL || zero == NULL) return;
-    Py_INCREF(bold_tags); Py_INCREF(italic_tags);
+    if (temp == NULL) INITERROR;
+    bold_tags = PyFrozenSet_New(temp);
+    Py_DECREF(temp);
+    temp = NULL;
 
-    m = Py_InitModule3("html", html_methods,
-    "Speedups for the html syntax highlighter."
-    );
-    if (m == NULL) return;
+    temp = Py_BuildValue("ss", "i", "em");
+    if (temp == NULL) INITERROR;
+    italic_tags = PyFrozenSet_New(temp);
+    Py_DECREF(temp);
+    temp = NULL;
+
+    zero = PyLong_FromLong(0);
+
+    if (bold_tags == NULL || italic_tags == NULL || zero == NULL) {
+        Py_XDECREF(bold_tags);
+        Py_XDECREF(italic_tags);
+        Py_XDECREF(zero);
+        INITERROR;
+    }
+
     Py_INCREF(&html_TagType);
     Py_INCREF(&html_StateType);
-    PyModule_AddObject(m, "Tag", (PyObject *)&html_TagType);
-    PyModule_AddObject(m, "State", (PyObject *)&html_StateType);
-    PyModule_AddObject(m, "bold_tags", bold_tags);
-    PyModule_AddObject(m, "italic_tags", italic_tags);
+    PyModule_AddObject(mod, "Tag", (PyObject *)&html_TagType);
+    PyModule_AddObject(mod, "State", (PyObject *)&html_StateType);
+    PyModule_AddObject(mod, "bold_tags", bold_tags);
+    PyModule_AddObject(mod, "italic_tags", italic_tags);
+
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
