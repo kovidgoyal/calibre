@@ -386,15 +386,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sources_model.commit()
         self.fields_model.commit()
         if self.tag_map_rules is not None:
-            if self.tag_map_rules:
-                msprefs['tag_map_rules'] = self.tag_map_rules
-            else:
-                msprefs.pop('tag_map_rules', None)
+            msprefs['tag_map_rules'] = self.tag_map_rules or []
         if self.author_map_rules is not None:
-            if self.author_map_rules:
-                msprefs['author_map_rules'] = self.author_map_rules
-            else:
-                msprefs.pop('author_map_rules', None)
+            msprefs['author_map_rules'] = self.author_map_rules or []
         return ConfigWidgetBase.commit(self)
 
 
