@@ -303,7 +303,7 @@ OPTIONS = {
             'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
             'toc_title', 'pdf_page_margin_left', 'pdf_page_margin_top',
             'pdf_page_margin_right', 'pdf_page_margin_bottom',
-            'pdf_use_document_margins',),
+            'pdf_use_document_margins', 'pdf_page_number_map',),
 
         'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),
 

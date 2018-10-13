@@ -254,9 +254,10 @@ class PDFWriter(QObject):
             raise Exception('PDF Output failed, see log for details')
 
     def render_inline_toc(self):
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
         self.rendered_inline_toc = True
         from calibre.ebooks.pdf.render.toc import toc_as_html
-        raw = toc_as_html(self.toc, self.doc, self.opts)
+        raw = toc_as_html(self.toc, self.doc, self.opts, evaljs)
         pt = PersistentTemporaryFile('_pdf_itoc.htm')
         pt.write(raw)
         pt.close()
@@ -460,12 +461,15 @@ class PDFWriter(QObject):
             if idx is not None:
                 setattr(self, attr, sections[idx][0])
 
+        from calibre.ebooks.pdf.render.toc import calculate_page_number
+
         while True:
             set_section(col, sections, 'current_section')
             set_section(col, tl_sections, 'current_tl_section')
             self.doc.init_page(page_margins)
+            num = calculate_page_number(self.current_page_num, self.opts.pdf_page_number_map, evaljs)
             if self.header or self.footer:
-                if evaljs('paged_display.update_header_footer(%d)'%self.current_page_num) is True:
+                if evaljs('paged_display.update_header_footer(%d)'%num) is True:
                     self.load_header_footer_images()
 
             self.painter.save()

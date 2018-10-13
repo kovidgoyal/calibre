@@ -12,7 +12,14 @@ from lxml.html import tostring
 from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H2, STYLE)
 
 
-def convert_node(toc, table, level, pdf):
+def calculate_page_number(num, map_expression, evaljs):
+    if map_expression:
+        num = int(evaljs('(function(){{var n={}; return {};}})()'.format(
+            num, map_expression)))
+    return num
+
+
+def convert_node(toc, table, level, pdf, pdf_page_number_map, evaljs):
     tr = TR(
         TD(toc.text or _('Unknown')), TD(),
     )
@@ -28,18 +35,18 @@ def convert_node(toc, table, level, pdf):
         return None
     a = anchors[path]
     dest = a.get(frag, a[None])
-    num = pdf.page_tree.obj.get_num(dest[0])
+    num = calculate_page_number(pdf.page_tree.obj.get_num(dest[0]), pdf_page_number_map, evaljs)
     tr[1].text = type('')(num)
     table.append(tr)
 
 
-def process_children(toc, table, level, pdf):
+def process_children(toc, table, level, pdf, pdf_page_number_map, evaljs):
     for child in toc:
-        convert_node(child, table, level, pdf)
-        process_children(child, table, level+1, pdf)
+        convert_node(child, table, level, pdf, pdf_page_number_map, evaljs)
+        process_children(child, table, level+1, pdf, pdf_page_number_map, evaljs)
 
 
-def toc_as_html(toc, pdf, opts):
+def toc_as_html(toc, pdf, opts, evaljs):
     pdf = pdf.engine.pdf
     indents = []
     for i in xrange(1, 7):
@@ -73,6 +80,6 @@ def toc_as_html(toc, pdf, opts):
     body = html[1]
     body.set('class', 'calibre-pdf-toc')
 
-    process_children(toc, body[1], 0, pdf)
+    process_children(toc, body[1], 0, pdf, opts.pdf_page_number_map, evaljs)
 
     return tostring(html, pretty_print=True, include_meta_content_type=True, encoding='utf-8')

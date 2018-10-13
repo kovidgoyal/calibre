@@ -658,6 +658,7 @@ def pdf_output(container):
     g.appendChild(choices('pdf_standard_font', _('S&tandard font:'), ui_data.font_types))
     g.appendChild(int_spin('pdf_default_font_size', _('Default font si&ze:'), unit='px'))
     g.appendChild(int_spin('pdf_mono_font_size', _('Default font si&ze:'), unit='px'))
+    g.appendChild(lineedit('pdf_page_number_map', _('Page number &map:')))
     g.appendChild(checkbox('pdf_use_document_margins', _('Use page margins from the &document being converted')))
     g.appendChild(float_spin('pdf_page_margin_left', indent + _('Left page margin'), unit='pt', min=-100, max=500))
     g.appendChild(float_spin('pdf_page_margin_top', indent + _('Top page margin'), unit='pt', min=-100, max=500))

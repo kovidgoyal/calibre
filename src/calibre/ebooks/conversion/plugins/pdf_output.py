@@ -148,6 +148,10 @@ class PDFOutput(OutputFormatPlugin):
             ' This will cause the margins specified in the conversion settings to be ignored.'
             ' If the document does not specify page margins, the conversion settings will be used as a fallback.')
         ),
+        OptionRecommendation(name='pdf_page_number_map', recommended_value=None,
+            help=_('Adjust page numbers, as needed. Syntax is a JavaScript expression for the page number.'
+                ' For example, "if (n < 3) 0; else n - 3;", where n is current page number.')
+        ),
     }
 
     def specialize_options(self, log, opts, input_fmt):
