@@ -19,6 +19,7 @@ class RMF24_opinie(BasicNewsRecipe):
     __author__ = u'Tomasz D\u0142ugosz'
     no_stylesheets = True
     remove_javascript = True
+    remove_empty_feeds = True
 
     feeds = [(u'Blogi', u'http://www.rmf24.pl/opinie/blogi/feed'),
              (u'Kontrwywiad',
@@ -28,16 +29,10 @@ class RMF24_opinie(BasicNewsRecipe):
              (u'Komentarze', u'http://www.rmf24.pl/opinie/komentarze/feed')]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'box articleSingle print'}),
-        dict(name='div', attrs={
-             'class': 'box articleSingle print singleCommentary'}),
-        dict(name='div', attrs={'class': 'box articleSingle print blogSingleEntry'})]
+        dict(name='header', attrs={'class': 'article-header'}),
+        dict(name='div', attrs={'class': 'article-container'})]
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'toTop'}),
-        dict(name='div', attrs={'class': 'category'}),
-        dict(name='div', attrs={'class': 'REMOVE'}),
-        dict(name='div', attrs={'class': 'embed embedAd'})]
+    remove_tags = [dict(name='div', attrs={'id': 'ReklamaMobile'})]
 
     extra_css = '''
         h1 { font-size: 1.2em; }
