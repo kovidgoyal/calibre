@@ -21,7 +21,8 @@ class Polter(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [dict(attrs={'class': 'boxcontent'})]
-    remove_tags = [dict(id='komentarze')]
+    remove_tags = [dict(id='komentarze'),
+        dict(name='div',attrs={'class':'ostatnieArtykuly'})]
     remove_tags_after = dict(id='komentarze')
 
     feeds = [
@@ -36,8 +37,7 @@ class Polter(BasicNewsRecipe):
     (u'Gry planszowe', 'http://planszowki.polter.pl/wiesci,rss.html'),
     (u'Gry PC', 'http://gry.polter.pl/wiesci,rss.html'),
     (u'Gry konsolowe', 'http://konsole.polter.pl/wiesci,rss.html'),
-    (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html'),
-    (u'Blogi', 'http://polter.pl/blogi,rss.html')]
+    (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html')]
 
     def preprocess_html(self, soup):
         for s in soup.findAll(attrs={'style': re.compile('float: ?left')}):
@@ -65,3 +65,6 @@ class Polter(BasicNewsRecipe):
         for r in soup.findAll(name='a', href=re.compile(r'^http://www.ceneo.pl/')):
             r.extract()
         return soup
+
+    def preprocess_raw_html(self, raw_html, url):
+        return raw_html.replace('<br /><br /><h3>Czytaj również</h3>', '')
