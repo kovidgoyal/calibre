@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -25,16 +25,15 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'https://www.awin1.com/awclick.php?mid=1150&id=120917&clickref=mbhome'
-        detail_url = 'https://www.awin1.com/cread.php?awinmid=1150&awinaffid=120917&clickref=mbdetail&p='
+        url = 'https://www.millsandboon.co.uk'
 
         if external or self.config.get('open_external', False):
             if detail_item:
-                url = detail_url + detail_item
+                url = detail_item
             open_url(QUrl(url_slash_cleaner(url)))
         else:
             if detail_item:
-                detail_url = detail_url + detail_item
+                detail_url = detail_item
             else:
                 detail_url = None
             d = WebStoreDialog(self.gui, url, parent, detail_url)

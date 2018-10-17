@@ -1702,7 +1702,7 @@ class StoreMillsBoonUKStore(StoreBase):
 
     headquarters = 'UK'
     formats = ['EPUB']
-    affiliate = True
+    affiliate = False
 
 
 class StoreMobileReadStore(StoreBase):
