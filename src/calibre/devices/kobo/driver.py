@@ -1335,7 +1335,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 10, 11626)
+    max_supported_fwversion         = (4, 11, 11879)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1347,7 +1347,7 @@ class KOBOTOUCH(KOBO):
     min_auraone_fwversion           = (3, 20,  7280)
     min_fwversion_overdrive         = (4,  0,  7523)
     min_clarahd_fwversion           = (4,  8, 11090)
-    # min_forma_fwversion             = (4, 10, 11xxx) # TODO: Update when known. 
+    min_forma_fwversion             = (4, 11, 11879)
 
     has_kepubs = True
 
