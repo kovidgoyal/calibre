@@ -58,7 +58,7 @@ All the calibre python code is in the ``calibre`` package. This package contains
         * E-book editing happens using a different container object. It is
           documented in :ref:`polish_api`.
 
-    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library. 
+    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library.
 
     * Content server: ``srv`` is the calibre Content server.
 
@@ -83,7 +83,7 @@ installing Git, you can get the calibre source code with the command::
 
     git clone git://github.com/kovidgoyal/calibre.git
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`. 
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`.
 
 calibre is a very large project with a very long source control history, so the
 above can take a while (10 mins to an hour depending on your internet speed).
@@ -94,7 +94,7 @@ always available as an `archive <https://calibre-ebook.com/dist/src>`_.
 To update a branch to the latest code, use the command::
 
     git pull --no-edit
-    
+
 You can also browse the code at `GitHub <https://github.com/kovidgoyal/calibre>`_.
 
 Submitting your changes to be included
@@ -196,7 +196,11 @@ the previously checked out calibre code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the calibre commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the calibre GUI.
+calibre is the directory that contains the src and resources sub-directories.
+The calibre command line tools are found inside the calibre app bundle, in
+:file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS`
+you should add this directory to your PATH environment variable, if you want to
+run the command line tools easily.
 
 The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
@@ -337,7 +341,7 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
     cli() functions above, like this: ``set_trace(port=1234)`` and
     ``cli(port=1234)``.
 
-.. note:: 
+.. note::
     The Python debugger cannot handle multiple threads, so you have to
     call set_trace once per thread, each time with a different port number.
 
@@ -411,4 +415,3 @@ API documentation for various parts of calibre
     plugins
     db_api
     polish
-
