@@ -15,19 +15,16 @@ class OptyczneRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     oldest_article = 7
-    max_articles_per_feed = 100000
+    max_articles_per_feed = 100
     recursions = 0
 
     no_stylesheets = True
     remove_javascript = True
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'class': 'news'}))
+    keep_only_tags = dict(name='div', attrs={'class':'main-article-content'})
 
-    remove_tags = []
-    remove_tags.append(dict(name='div', attrs={'class': 'center'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'news_foto'}))
-    remove_tags.append(dict(name='div', attrs={'align': 'right'}))
+    remove_tags = [dict(name='div', attrs={'class':['banner','colored','content-panel']}),
+                dict(name='a', attrs={'class':'icon-link comments-link'})]
 
     extra_css = '''
                     body {font-family: Arial,Helvetica,sans-serif;}
@@ -38,5 +35,5 @@ class OptyczneRecipe(BasicNewsRecipe):
                     .fot{font-size: x-small; color: #666666;}
                     '''
     feeds = [
-        ('Aktualnosci', 'http://www.optyczne.pl/rss.xml'),
+        (u'Aktualności', 'http://www.optyczne.pl/rss.xml'),
     ]
