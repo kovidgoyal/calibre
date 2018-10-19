@@ -290,6 +290,7 @@ class Resources(Command):  # {{{
     sub_commands = ['kakasi', 'coffee', 'rapydscript']
 
     def run(self, opts):
+        from calibre.utils.serialize import msgpack_dumps
         scripts = {}
         for x in ('console', 'gui'):
             for name in basenames[x]:
@@ -300,7 +301,6 @@ class Resources(Command):  # {{{
         dest = self.j(self.RESOURCES, 'scripts.calibre_msgpack')
         if self.newer(dest, self.j(self.SRC, 'calibre', 'linux.py')):
             self.info('\tCreating ' + os.path.basename(dest))
-            from calibre.utils.serialize import msgpack_dumps
             with open(dest, 'wb') as f:
                 f.write(msgpack_dumps(scripts))
 
