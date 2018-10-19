@@ -222,7 +222,7 @@ class UploadInstallers(Command):  # {{{
         )
 
     def run(self, opts):
-        return upload_to_fosshub()
+        # return upload_to_fosshub()
         all_possible = set(installers())
         available = set(glob.glob('dist/*'))
         files = {
