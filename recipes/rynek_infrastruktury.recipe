@@ -26,8 +26,8 @@ class prawica_recipe(BasicNewsRecipe):
         (u'Kolej', u'http://www.rynekinfrastruktury.pl/rss/kolej.xml'),
         (u'Energetyka', u'http://www.rynekinfrastruktury.pl/rss/energetyka.xml')
         # no news in these feeds since 4 years:
-        #(u'Porty i lotniska', u'http://www.rynekinfrastruktury.pl/rss/porty-i-lotniska.xml'),
-        #(u'Komentarze', u'http://www.rynekinfrastruktury.pl/rss/komentarze-i-felietony.xml'),
+        # (u'Porty i lotniska', u'http://www.rynekinfrastruktury.pl/rss/porty-i-lotniska.xml'),
+        # (u'Komentarze', u'http://www.rynekinfrastruktury.pl/rss/komentarze-i-felietony.xml'),
     ]
 
     keep_only_tags = [

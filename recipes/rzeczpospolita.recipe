@@ -26,7 +26,8 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     keep_only_tags = []
     keep_only_tags.append(dict(name='h1', attrs={'id': 'article-title'}))
     keep_only_tags.append(dict(name='img', attrs={'class': 'img-responsive article__image'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': ['article-content', 'article__lead js-voice-read', 'article__content js-voice-read','article__image-desc','article__image-author']}))
+    keep_only_tags.append(dict(name='div', attrs={'class': ['article-content', 'article__lead js-voice-read',
+        'article__content js-voice-read','article__image-desc','article__image-author']}))
 
     remove_tags = []
     remove_tags.append(dict(name='div', attrs={'class': 'related-articles__wrapper'}))
