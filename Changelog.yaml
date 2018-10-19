@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title:
 
+- version: 3.33.0
+  date: 2018-10-19
+
+  new features:
+    - title: "Driver for the new Kobo Forma"
+
+    - title: "PDF Output: Add a new 'page number map' setting to easily modify page numbers as needed in headers/fotters and the generated inline table of contents."
+      tickets: [1796902]
+
+    - title: "Edit book: Insert image: remember size of displayed thumbnails."
+      tickets: [1795845]
+
+    - title: "Edit book: Compress images losslessly: Remember the last used compression quality for jpeg compression."
+      tickets: [1796950]
+
+  bug fixes:
+    - title: "CHM Input: Fix a regression in the previous release that broke processing of CHM files."
+      tickets: [1796889]
+
+    - title: "Fix clearing of metadata download author and tag map rules not working"
+
+    - title: 'Fix notifications from calibre being displayed as "Others" on the GNOME desktop'
+
+  improved recipes:
+    - Ambito Financiero
+    - Pagina 12
+    - stuff.co.nz
+    - The New Zealand Herald
+    - Various Polish news sources
+
 - version: 3.32.0
   date: 2018-09-28
 
