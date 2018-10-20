@@ -7,7 +7,6 @@ class Politics(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     oldest_article = 7  # days
     max_articles_per_feed = 20
-    use_embedded_content = False
 
     no_stylesheets = True
     no_javascript = True
@@ -15,7 +14,7 @@ class Politics(BasicNewsRecipe):
 
     def parse_gkt_section(self, url):
         root = self.index_to_soup(url, as_tree=True)
-        for a in root.xpath('//h1[@class="post-title"]/a[@href]'):
+        for a in root.xpath('//div[@class="post-content"]/h1/a[@href]'):
             title = self.tag_to_string(a).strip()
             url = a.get('href')
             if title and url:
@@ -26,14 +25,15 @@ class Politics(BasicNewsRecipe):
         url = 'http://www.gktoday.in/'
         root = self.index_to_soup(url, as_tree=True)
         ans = []
-        for h3 in root.xpath('//h3[@class="widget-title" and contains(text(), "Current Affairs Category")]'):
-            for a in h3.getparent().xpath('descendant::li/a[@href]'):
-                category = self.tag_to_string(a).strip()
-                url = a.get('href')
-                self.log('Found section:', category)
-                articles = list(self.parse_gkt_section(url)) + \
-                    list(self.parse_gkt_section(url + '/page/2'))
-                if articles:
-                    ans.append((category, articles))
-            break
+        h3 = root.xpath('//h3[@class="widget-title"]')[1]
+        for a in h3.getparent().xpath('descendant::li/a[@href]'):
+            category = self.tag_to_string(a).strip()
+            if 'PDF' in category:
+                continue
+            url = a.get('href')
+            self.log('Found section:', category)
+            articles = list(self.parse_gkt_section(url)) + \
+                list(self.parse_gkt_section(url + '/page/2'))
+            if articles:
+                ans.append((category, articles))
         return ans
