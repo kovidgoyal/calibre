@@ -13,14 +13,16 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     linearize_tables = True
     no_stylesheets = True
     remove_javascript = True
+    use_embedded_content = False
 
     keep_only_tags = [
         dict(id='main')
     ]
+    remove_tags_after = dict(classes='affiliate-disclosure')
     remove_tags = [
         dict(name='a', attrs={'target': ['_blank']}),
         dict(name='table', attrs={'id': ['articleTable']}),
-        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets']}),
+        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets', 'related-articles', 'comments']}),
     ]
 
     feeds = [
