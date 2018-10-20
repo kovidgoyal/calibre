@@ -444,7 +444,7 @@ class BooksView(QTableView):  # {{{
                 col_font = self._model.styled_columns.get(col)
                 m = ans.addMenu(_('Change font style for %s') % name)
                 for x, t, f in (
-                        ('normal', _('Normal font'), None), ('bold', _('Bold Font'), self._model.bold_font),
+                        ('normal', _('Normal font'), None), ('bold', _('Bold font'), self._model.bold_font),
                         ('italic', _('Italic font'), self._model.italic_font), ('bi', _('Bold and Italic font'), self._model.bi_font),
                 ):
                     a = m.addAction(t, partial(handler, action='font_' + x))

@@ -363,7 +363,7 @@ class MetadataSingleDialogBase(QDialog):
                     _("You've changed the metadata for this book."
                       " Edit book is set to update embedded metadata when opened."
                       " You need to save your changes for them to be included."),
-                    yes_text=_('&Save'), no_text=_("&Don't Save"),
+                    yes_text=_('&Save'), no_text=_("&Don't save"),
                     yes_icon='dot_green.png', no_icon='dot_red.png',
                     default_yes=True, skip_dialog_name='edit-metadata-save-before-edit-format'):
                 if self.apply_changes():
