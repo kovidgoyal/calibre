@@ -118,7 +118,7 @@ class EPUBInput(InputFormatPlugin):
                         guide_titlepage_id = idref
                         break
 
-        raster_cover_href = opf.epub3_raster_cover
+        raster_cover_href = opf.epub3_raster_cover or opf.raster_cover
         if raster_cover_href:
             self.set_guide_type(opf, 'cover', raster_cover_href, 'Cover Image')
         titlepage_id = titlepage_href = None
