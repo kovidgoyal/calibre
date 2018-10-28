@@ -97,7 +97,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.dest_fields = ['',
                             'authors', 'author_sort', 'language', 'publisher',
-                            'tags', 'title', 'title_sort']
+                            'tags', 'title', 'title_sort', 'comments']
 
         self.source_widgets = []
         self.dest_widgets = []
@@ -299,6 +299,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def ok_clicked(self):
         pb = []
+        comments_in_dests = False
         for i in range(0, len(self.source_widgets)):
             s = unicode(self.source_widgets[i].text())
             if s:
@@ -312,6 +313,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 '<br>'+str(err), show=True)
                         return
                     pb.append((s, self.dest_fields[d]))
+                    comments_in_dests = comments_in_dests or self.dest_fields[d] == 'comments'
                 else:
                     error_dialog(self, _('Invalid destination'),
                             '<p>'+_('The destination field cannot be blank'),
@@ -325,6 +327,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if len(fpb) == 0:
                     del self.current_plugboards[self.current_format]
         else:
+            if comments_in_dests and not question_dialog(self.gui, _('Plugboard modifies Comments'),
+                     _('The plugboard modifies the comments columns. '
+                       'If the comments are set to invalid HTML, it could cause problems on the device. '
+                       'Do you wish to save the plugboard?'
+                       ),
+                        skip_dialog_name='plugboard_comments_in_dests'
+                        ):
+                return 
             if self.current_format not in self.current_plugboards:
                 self.current_plugboards[self.current_format] = {}
             fpb = self.current_plugboards[self.current_format]
