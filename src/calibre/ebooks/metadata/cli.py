@@ -65,7 +65,7 @@ def config():
               help=_('Set the ISBN of the book.'))
     c.add_opt('identifiers', ['--identifier'], action='append',
               help=_('Set the identifiers for the book, can be specified multiple times.'
-                     ' For example: --identifier uri:http://acme.com --identifier isbn:12345'
+                     ' For example: --identifier uri:https://acme.com --identifier isbn:12345'
                      ' To remove an identifier, specify no value, --identifier isbn:'
                      ' Note that for EPUB files, an identifier marked as the package identifier cannot be removed.'))
     c.add_opt('tags', ['--tags'],
