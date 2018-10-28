@@ -183,7 +183,7 @@ def start_conversion():
         'book_id': conversion_data.book_id,
     }
     query = url_books_query()
-    ajax_send(f'/conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
+    ajax_send(f'conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
     current_state = 'converting'
     apply_state_to_markup()
 
