@@ -11,7 +11,7 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QAction, QApplication, QByteArray, QIcon, QInputDialog, QMimeData, QModelIndex,
+    QAction, QApplication, QByteArray, QIcon, QInputDialog, QMimeData, QModelIndex, QKeySequence,
     QObject, QPropertyAnimation, QSize, Qt, QTime, QTimer, pyqtSignal
 )
 
@@ -279,6 +279,7 @@ class EbookViewer(MainWindow):
             plugin.customize_ui(self)
         self.view.document.settings_changed.connect(self.settings_changed)
 
+        self.action_toggle_paged_mode.setShortcut(QKeySequence('Ctrl+M'))
         self.restore_state()
         self.settings_changed()
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
@@ -308,9 +309,9 @@ class EbookViewer(MainWindow):
     def toggle_paged_mode(self, checked, at_start=False):
         in_paged_mode = not self.action_toggle_paged_mode.isChecked()
         self.view.document.in_paged_mode = in_paged_mode
-        self.action_toggle_paged_mode.setToolTip(self.FLOW_MODE_TT if
-                self.action_toggle_paged_mode.isChecked() else
-                self.PAGED_MODE_TT)
+        self.action_toggle_paged_mode.setToolTip((
+            self.FLOW_MODE_TT if self.action_toggle_paged_mode.isChecked() else self.PAGED_MODE_TT) +
+            ' [%s]' % self.action_toggle_paged_mode.shortcut().toString(QKeySequence.NativeText))
         if at_start:
             return
         self.reload()
