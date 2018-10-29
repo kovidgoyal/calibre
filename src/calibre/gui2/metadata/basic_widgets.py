@@ -1625,6 +1625,9 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         self.setStyleSheet(INDICATOR_SHEET % col)
 
     def paste_identifier(self):
+        identifier_found = self.parse_clipboard_for_identifier()
+        if identifier_found:
+            return
         try:
             prefix = gprefs['paste_isbn_prefixes'][0]
         except IndexError:
@@ -1656,6 +1659,51 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
             vals['isbn'] = text
             self.current_val = vals
 
+        if not text:
+            return
+
+    def parse_clipboard_for_identifier(self):
+        from calibre.ebooks.metadata.sources.prefs import msprefs
+        from calibre.utils.formatter import EvalFormatter
+        text = unicode(QApplication.clipboard().text()).strip()
+        if not text:
+            return False
+        
+        rules = msprefs['id_link_rules']
+        if rules:
+            formatter = EvalFormatter()
+            vals = {'id' : '(?P<new_id>[^/]+)'}
+            for key in rules.keys():
+                rule = rules[key]
+                for name, template in rule:
+                    try:
+                        url_pattern = formatter.safe_format(template, vals, '', vals)
+                        new_id = re.compile(url_pattern)
+                        new_id = new_id.search(text).group('new_id')
+                        if new_id:
+                            vals = self.current_val
+                            vals[key] = new_id
+                            self.current_val = vals
+                            return True
+                    except Exception:
+                        import traceback
+                        traceback.format_exc()
+                        continue
+
+        from calibre.customize.ui import all_metadata_plugins
+
+        for plugin in all_metadata_plugins():
+            try:
+                identifier = plugin.id_from_url(text)
+                if identifier:
+                    vals = self.current_val
+                    vals[identifier[0]] = identifier[1]
+                    self.current_val = vals
+                    return True
+            except Exception:
+                pass
+
+        return False
 # }}}
 
 
