@@ -495,6 +495,16 @@ class Source(Plugin):
         that could result in a generic cover image or a not found error.
         '''
         return None
+    
+    def id_from_url(self, url):
+        '''
+        Parse a URL and return a tuple of the form:
+        (identifier_type, identifier_value).
+        If the URL does not match the pattern for the metadata source,
+        return None.
+        '''
+        return None
+
 
     def identify_results_keygen(self, title=None, authors=None,
             identifiers={}):
