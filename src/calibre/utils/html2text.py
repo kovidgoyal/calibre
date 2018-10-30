@@ -50,6 +50,7 @@ def name2cp(k):
             return int(k[2:-1])  # not in latin-1
         return ord(codecs.latin_1_decode(k)[0])
 
+
 unifiable = {'rsquo':"'", 'lsquo':"'", 'rdquo':'"', 'ldquo':'"',
 'copy':'(C)', 'mdash':'--', 'nbsp':' ', 'rarr':'->', 'larr':'<-', 'middot':'*',
 'ndash':'-', 'oelig':'oe', 'aelig':'ae',
@@ -95,6 +96,7 @@ def replaceEntities(s):
         return charref(s[1:])
     else:
         return entityref(s)
+
 
 r_unescape = re.compile(r"&(#?[xX]?(?:[0-9a-fA-F]+|\w{1,8}));")
 
@@ -150,7 +152,7 @@ def optwrap(text):
 
 
 def hn(tag):
-    if tag[0] == 'h' and len(tag) == 2:
+    if tag and tag[0] == 'h' and len(tag) == 2:
         try:
             n = int(tag[1])
             if n in range(1, 10):
@@ -364,7 +366,7 @@ class _html2text(sgmllib.SGMLParser):
 
         if not self.quiet:
             if puredata and not self.pre:
-                data = re.sub('\s+', ' ', data)
+                data = re.sub(r'\s+', ' ', data)
                 if data and data[0] == ' ':
                     self.space = 1
                     data = data[1:]
@@ -435,6 +437,7 @@ def html2text_file(html, out=wrapwrite, baseurl=''):
 def html2text(html, baseurl=''):
     return optwrap(html2text_file(html, None, baseurl))
 
+
 if __name__ == "__main__":
     baseurl = ''
     if sys.argv[1:]:
@@ -461,4 +464,3 @@ if __name__ == "__main__":
     else:
         data = sys.stdin.read().decode('utf8')
     wrapwrite(html2text(data, baseurl))
-
