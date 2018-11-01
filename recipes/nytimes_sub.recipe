@@ -148,18 +148,31 @@ class NewYorkTimes(BasicNewsRecipe):
         return soup
 
     def parse_todays_sections(self, container):
-        for h2 in container.findAll('h2', **classes('headline')):
-            title = self.tag_to_string(h2)
-            a = h2.find('a', href=True)
+        for li in container.findAll('li'):
+            desc = ''
+            h2 = li.find('h2')
+            if h2 is None:
+                a = li.find('a', href=True)
+                title = self.tag_to_string(a)
+            else:
+                title = self.tag_to_string(h2)
+                a = h2.find('a', href=True)
+                if a is None:
+                    a = h2.findParent('a', href=True)
+                    div = a.find('div', recursive=False)
+                    if div is not None:
+                        desc = self.tag_to_string(div)
+            if a is None:
+                continue
             url = a['href']
             if '?' in url:
                 url = url.split('?')[0]
-            p = h2.findParent(**classes('story-body'))
-            desc = ''
-            if p is not None:
-                s = p.find(**classes('summary'))
-                if s is not None:
-                    desc = self.tag_to_string(s)
+            if url.startswith('/'):
+                url = 'https://www.nytimes.com' + url
+            if not desc:
+                p = li.find('p')
+                if p is not None:
+                    desc = self.tag_to_string(p)
             date = ''
             d = date_from_url(url)
             if d is not None:
@@ -171,19 +184,17 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def parse_todays_page(self):
         soup = self.read_nyt_metadata()
-        section = soup.find(id=lambda x: x and x.startswith('collection-todays-new-york-times'))
+        section = soup.find(id='collection-todays-new-york-times').find('div', recursive=False)
         feeds = []
-        for i, h1 in enumerate(section.findAll('h1')):
+        for i, section in enumerate(section.findAll('section')):
+            h2 = section.find('h2')
+            section_title = self.tag_to_string(h2)
+            self.log('\nFound section:', section_title)
             if i == 0:
-                continue
-            section_title = self.tag_to_string(h1)
-            self.log('Found section:', section_title)
-            if i == 1:
-                container = h1.parent
-                articles = list(self.parse_todays_sections(container))
-                articles += list(self.parse_todays_sections(container.findNextSibling('div')))
+                for div in section.findAll('div', recursive=False):
+                    articles = list(self.parse_todays_sections(div.find('ol')))
             else:
-                articles = list(self.parse_todays_sections(h1.findNextSibling('ol')))
+                articles = list(self.parse_todays_sections(section.find('ol')))
             if articles:
                 feeds.append((section_title, articles))
         return feeds
