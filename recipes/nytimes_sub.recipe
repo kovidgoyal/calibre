@@ -191,8 +191,9 @@ class NewYorkTimes(BasicNewsRecipe):
             section_title = self.tag_to_string(h2)
             self.log('\nFound section:', section_title)
             if i == 0:
+                articles = []
                 for div in section.findAll('div', recursive=False):
-                    articles = list(self.parse_todays_sections(div.find('ol')))
+                    articles += list(self.parse_todays_sections(div.find('ol')))
             else:
                 articles = list(self.parse_todays_sections(section.find('ol')))
             if articles:
