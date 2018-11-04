@@ -348,7 +348,8 @@ class PreviewSettings(BasicSettings):
             w.setCurrentFont(QFont(val))
 
         families = {'serif':_('Serif text'), 'sans':_('Sans-serif text'), 'mono':_('Monospaced text')}
-        for fam, text in families.iteritems():
+        for fam in sorted(families):
+            text = families[fam]
             w = QFontComboBox(self)
             self('preview_%s_family' % fam, widget=w, getter=family_getter, setter=family_setter)
             l.addRow(_('Font family for &%s:') % text, w)
