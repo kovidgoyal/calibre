@@ -140,7 +140,20 @@ class NewYorkTimes(BasicNewsRecipe):
     def read_nyt_metadata(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
-        soup = self.index_to_soup(INDEX)
+        try:
+            soup = self.index_to_soup(INDEX)
+        except Exception as err:
+            if getattr(err, 'code', None) == 404:
+                try:
+                    soup = self.index_to_soup(strftime('https://www.nytimes.com/issue/todayspaper/%Y/%m/%d/todays-new-york-times'))
+                except Exception as err:
+                    if getattr(err, 'code', None) == 404:
+                        dt = datetime.datetime.today() - datetime.timedelta(days=1)
+                        soup = self.index_to_soup(dt.strftime('https://www.nytimes.com/issue/todayspaper/%Y/%m/%d/todays-new-york-times'))
+                    else:
+                        raise
+            else:
+                raise
         pdate = soup.find('meta', attrs={'name':'pdate', 'content': True})['content']
         date = strptime(pdate, '%Y%m%d', assume_utc=False, as_utc=False)
         self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(date.strftime('%Y/%m/%d'))
