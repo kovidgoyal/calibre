@@ -657,7 +657,7 @@ class BasicNewsRecipe(Recipe):
             return frozenset()
         return frozenset([(parts.netloc, (parts.path or '').rstrip('/'))])
 
-    def index_to_soup(self, url_or_raw, raw=False, as_tree=False):
+    def index_to_soup(self, url_or_raw, raw=False, as_tree=False, save_raw=None):
         '''
         Convenience method that takes an URL to the index page and returns
         a `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
@@ -692,6 +692,9 @@ class BasicNewsRecipe(Recipe):
         else:
             _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
         _raw = clean_xml_chars(_raw)
+        if save_raw:
+            with lopen(save_raw, 'wb') as f:
+                f.write(_raw.encode('utf-8'))
         if as_tree:
             from html5_parser import parse
             return parse(_raw)
