@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import datetime
 import re
+import json
+from pprint import pprint  # noqa
 
 from calibre import strftime
 from calibre.utils.date import strptime
@@ -137,7 +139,7 @@ class NewYorkTimes(BasicNewsRecipe):
             soup.find('body').contents.insert(0, h1)
         return soup
 
-    def read_nyt_metadata(self):
+    def read_todays_paper(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
         try:
@@ -154,63 +156,68 @@ class NewYorkTimes(BasicNewsRecipe):
                         raise
             else:
                 raise
+        return soup
+
+    def read_nyt_metadata(self):
+        soup = self.read_todays_paper()
         pdate = soup.find('meta', attrs={'name':'pdate', 'content': True})['content']
         date = strptime(pdate, '%Y%m%d', assume_utc=False, as_utc=False)
         self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(date.strftime('%Y/%m/%d'))
         self.timefmt = strftime(' [%d %b, %Y]', date)
         return soup
 
-    def parse_todays_sections(self, container):
-        for li in container.findAll('li'):
-            desc = ''
-            h2 = li.find('h2')
-            if h2 is None:
-                a = li.find('a', href=True)
-                title = self.tag_to_string(a)
-            else:
-                title = self.tag_to_string(h2)
-                a = h2.find('a', href=True)
-                if a is None:
-                    a = h2.findParent('a', href=True)
-                    div = a.find('div', recursive=False)
-                    if div is not None:
-                        desc = self.tag_to_string(div)
-            if a is None:
-                continue
-            url = a['href']
-            if '?' in url:
-                url = url.split('?')[0]
-            if url.startswith('/'):
-                url = 'https://www.nytimes.com' + url
-            if not desc:
-                p = li.find('p')
-                if p is not None:
-                    desc = self.tag_to_string(p)
-            date = ''
-            d = date_from_url(url)
-            if d is not None:
-                date = format_date(d)
-
-            self.log('\t', title + date, ': ', url)
-            self.log('\t\t', desc)
-            yield {'title': title, 'url': url, 'description': desc, 'date': date}
-
     def parse_todays_page(self):
         soup = self.read_nyt_metadata()
-        section = soup.find(id='collection-todays-new-york-times').find('div', recursive=False)
+        script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
+        script = type(u'')(script)
+        data = json.loads(script[script.find('{'):].strip().rstrip(';'))['initialState']
+        containers, sections = [], {}
+        article_map = {}
+        pat = re.compile(r'groupings.(\d+).containers.(\d+).relations.(\d+)')
+        for key in data:
+            if 'Article' in key:
+                adata = data[key]
+                if adata.get('__typename') == 'Article':
+                    url = adata.get('url')
+                    summary = adata.get('summary')
+                    headline = adata.get('headline')
+                    if url and headline:
+                        title = data[headline['id']]['default']
+                        article_map[adata['id']] = {
+                            'title': title, 'url': url, 'description': summary or ''}
+            elif 'Legacy' in key:
+                sdata = data[key]
+                tname = sdata.get('__typename')
+                if tname == 'LegacyCollectionContainer':
+                    containers.append(sdata['label'] or sdata['name'])
+                elif tname == 'LegacyCollectionRelation':
+                    m = pat.search(key)
+                    grouping, container, relation = map(int, m.groups())
+                    asset = sdata['asset']
+                    if asset['typename'] == 'Article' and grouping == 0:
+                        if container not in sections:
+                            sections[container] = []
+                        sections[container].append(asset['id'].split(':', 1)[1])
+
         feeds = []
-        for i, section in enumerate(section.findAll('section')):
-            h2 = section.find('h2')
-            section_title = self.tag_to_string(h2)
-            self.log('\nFound section:', section_title)
-            if i == 0:
-                articles = []
-                for div in section.findAll('div', recursive=False):
-                    articles += list(self.parse_todays_sections(div.find('ol')))
-            else:
-                articles = list(self.parse_todays_sections(section.find('ol')))
-            if articles:
-                feeds.append((section_title, articles))
+        for i, section_title in enumerate(containers):
+            if i in sections:
+                articles = sections[i]
+                if articles:
+                    self.log('\n' + section_title)
+                    feeds.append((section_title, []))
+                    for artid in articles:
+                        if artid in article_map:
+                            art = article_map[artid]
+                            feeds[-1][1].append(art)
+                            self.log('\t' + art['title'])
+
+        def skey(x):
+            name = x[0].strip()
+            if name == 'The Front Page':
+                return 0, ''
+            return 1, name.lower()
+        feeds.sort(key=skey)
         return feeds
 
     def parse_highlights(self, container):
@@ -292,8 +299,10 @@ class NewYorkTimes(BasicNewsRecipe):
         return self.get_browser()
 
     def open_novisit(self, *args, **kwargs):
-        from calibre import browser
-        br = browser()
+        from calibre import browser, random_user_agent
+        if not hasattr(self, 'rua_stored'):
+            self.rua_stored = random_user_agent(allow_ie=False)
+        br = browser(user_agent=self.rua_stored)
         response = br.open_novisit(*args, **kwargs)
         # headers = response.info()
         # if headers.get('X-PageType') == 'vi-story':
