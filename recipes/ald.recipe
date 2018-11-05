@@ -1,0 +1,37 @@
+#!/usr/bin/env  python2
+from __future__ import unicode_literals, division, absolute_import, print_function
+__license__ = 'GPL v3'
+__copyright__ = '2018, PJ Paul '
+
+'''
+Recipe for Arts and Letters Daily website https://www.aldaily.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ALD(BasicNewsRecipe):
+    title          = 'Arts and Letters Daily'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    recursions = 0
+    ignore_duplicate_articles = {'url'}
+    index = 'https://www.aldaily.com/alt/'
+    cover_url = 'https://www.aldaily.com/static/images/header.gif'
+
+    __author__ = 'https://github.com/pjpaulpj'
+    language = 'en'
+    encoding = 'utf-8'
+    
+    ## Define parser for the page
+    def parse_index(self):
+        articles = []
+        feeds = []
+        soup = self.index_to_soup(self.index)
+        for x in soup.findAll('p'):
+            if x.find('a'):
+                title = self.tag_to_string(x)
+                url = x.find('a')['href']
+                articles.append({'title':title, 'url':url, 'description': '', 'date':''})
+        feeds.append(('Articles', articles))
+        return feeds
