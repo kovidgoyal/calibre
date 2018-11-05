@@ -59,7 +59,7 @@ def multiple_text(sep, ui_sep, x):
     if not x:
         return ()
     if isinstance(x, bytes):
-        x = x.decode(preferred_encoding, 'replce')
+        x = x.decode(preferred_encoding, 'replace')
     if isinstance(x, unicode):
         x = x.split(sep)
     else:
