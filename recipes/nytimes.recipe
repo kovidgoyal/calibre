@@ -171,8 +171,9 @@ class NewYorkTimes(BasicNewsRecipe):
         script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
         script = type(u'')(script)
         data = json.loads(script[script.find('{'):].strip().rstrip(';'))['initialState']
-        containers, sections = [], {}
+        containers, sections = {}, {}
         article_map = {}
+        gc_pat = re.compile(r'groupings.(\d+).containers.(\d+)')
         pat = re.compile(r'groupings.(\d+).containers.(\d+).relations.(\d+)')
         for key in data:
             if 'Article' in key:
@@ -189,7 +190,8 @@ class NewYorkTimes(BasicNewsRecipe):
                 sdata = data[key]
                 tname = sdata.get('__typename')
                 if tname == 'LegacyCollectionContainer':
-                    containers.append(sdata['label'] or sdata['name'])
+                    m = gc_pat.search(key)
+                    containers[int(m.group(2))] = sdata['label'] or sdata['name']
                 elif tname == 'LegacyCollectionRelation':
                     m = pat.search(key)
                     grouping, container, relation = map(int, m.groups())
@@ -200,17 +202,16 @@ class NewYorkTimes(BasicNewsRecipe):
                         sections[container].append(asset['id'].split(':', 1)[1])
 
         feeds = []
-        for i, section_title in enumerate(containers):
-            if i in sections:
-                articles = sections[i]
+        for container_num in sorted(containers):
+            section_title = containers[container_num]
+            if container_num in sections:
+                articles = sections[container_num]
                 if articles:
-                    self.log('\n' + section_title)
                     feeds.append((section_title, []))
                     for artid in articles:
                         if artid in article_map:
                             art = article_map[artid]
                             feeds[-1][1].append(art)
-                            self.log('\t' + art['title'])
 
         def skey(x):
             name = x[0].strip()
@@ -218,6 +219,11 @@ class NewYorkTimes(BasicNewsRecipe):
                 return 0, ''
             return 1, name.lower()
         feeds.sort(key=skey)
+        for section, articles in feeds:
+            self.log('\n' + section)
+            for article in articles:
+                self.log(article['title'] + ' - ' + article['url'])
+        # raise SystemExit(1)
         return feeds
 
     def parse_highlights(self, container):
