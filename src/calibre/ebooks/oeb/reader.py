@@ -337,7 +337,7 @@ class OEBReader(object):
                 self.logger.warn(u'Spine item %r not found' % idref)
                 continue
             item = manifest.ids[idref]
-            if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath'):
+            if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath') and not getattr(item.data, 'tag', '').endswith('}ncx'):
                 spine.add(item, elem.get('linear'))
             else:
                 if hasattr(item.data, 'tag') and item.data.tag and item.data.tag.endswith('}html'):
