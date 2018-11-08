@@ -1668,7 +1668,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         text = unicode(QApplication.clipboard().text()).strip()
         if not text:
             return False
-        
+
         rules = msprefs['id_link_rules']
         if rules:
             formatter = EvalFormatter()
