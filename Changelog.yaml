@@ -20,6 +20,38 @@
 #   new recipes:
 #     - title:
 
+- version: 3.34.0
+  date: 2018-11-08
+
+  new features:
+    - title: "Support for the new Kindle Paperwhite 2018"
+      tickets: [1802088]
+
+    - title: "Metadata plugboards: Allow defining plugboards that modify comments metadata as well"
+
+    - title: "E-book viewer: Add a keyboard shortcut (Ctrl+M) for toggling between paged and flow mode"
+
+  bug fixes:
+    - title: "EPUB Input: Handle invalid EPUB files that have their NCX documents in the spine."
+      tickets: [1796497]
+
+    - title: "EPUB3 Input: Handle EPUB 3 files that incorrectly use EPUB 2 markup to identify cover images."
+
+    - title: "Content server: Fix --url-prefix feature not working with book conversion"
+
+  improved recipes:
+    - Business Standard
+    - Washington Post
+    - General Knowledge Today
+    - How To Geek
+
+  new recipes:
+    - title: Arts and Letters Daily
+      author: pjpaulpj
+
+    - title: Magyar Idok
+      author: pofa
+
 - version: 3.33.1
   date: 2018-10-19
 
