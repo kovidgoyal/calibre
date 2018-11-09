@@ -269,7 +269,7 @@ of articles that appear in *todays* paper. While more complex than simply using
 days paper. ``parse_index`` makes heavy use of `BeautifulSoup
 <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_ to parse
 the daily paper webpage. You can also use other, more modern parsers if you
-dislike BeatifulSoup. calibre comes with `lxml <https://lxml.de/>`_ and
+dislike BeautifulSoup. calibre comes with `lxml <https://lxml.de/>`_ and
 `html5lib <https://github.com/html5lib/html5lib-python>`_, which are the
 recommended parsers. To use them, replace the call to ``index_to_soup()`` with
 the following::
