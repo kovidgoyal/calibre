@@ -1,0 +1,15 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+
+class BasicUserRecipe1541708734(AutomaticNewsRecipe):
+    title          = 'Mandídner'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Mandídner', 'http://mandiner.hu/rss/'),
+    ]
