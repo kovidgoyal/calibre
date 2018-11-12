@@ -129,7 +129,7 @@ def check_for_conversion_status(abort_job):
     if abort_job:
         query.abort_job = '1'
     data = {}
-    ajax_send(f'/conversion/status/{conversion_data.job_id}', data, on_conversion_status, query=query)
+    ajax_send(f'conversion/status/{conversion_data.job_id}', data, on_conversion_status, query=query)
 
 
 def on_conversion_started(end_type, xhr, ev):
