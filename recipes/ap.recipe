@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 
 def classes(classes):
@@ -28,11 +29,11 @@ class AssociatedPress(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = False
     keep_only_tags = [
-        classes('topTitle articleImage articleBody'),
+        classes('CardHeadline LeadFeature Article'),
     ]
     remove_tags = [
         classes('ad-placeholder modalImageButton modalVideoButton'),
-        dict(name='button'),
+        dict(name=['button', 'svg']),
     ]
 
     def parse_index(self):
@@ -71,3 +72,11 @@ class AssociatedPress(BasicNewsRecipe):
                 articles.append({'title': title, 'url': url})
         self.log('')
         return articles
+
+    def preprocess_html(self, soup, *a):
+        for meta in soup.findAll('meta', attrs=dict(name="twitter:image:alt")):
+            for div in soup.findAll(**classes('LeadFeature')):
+                img = Tag(soup, 'img')
+                img['src'] = meta['content']
+                div.insert(0, img)
+        return soup
