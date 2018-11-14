@@ -9,11 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QLabel, QGridLayout, QLineEdit, QVBoxLayout,
-                      QDialog, QDialogButtonBox, QCheckBox)
+from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
+                      QDialog, QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
+from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 
 def wrap_msg(msg):
@@ -63,12 +65,9 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         return self._device()
 
     def validate(self):
-        if hasattr(self, 'formats'):
-            if not self.formats.validate():
-                return False
-            if not self.template.validate():
-                return False
-        return True
+        validated = super(KOBOTOUCHConfig, self).validate()
+        validated &= self.tab2.validate()
+        return validated
 
     @property
     def book_uploads_options(self):
@@ -113,6 +112,11 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['show_archived_books'] = self.show_archived_books
 
         p['update_series'] = self.update_series
+        p['update_core_metadata'] = self.update_core_metadata
+        p['update_purchased_kepubs'] = self.update_purchased_kepubs
+        p['subtitle_template'] = self.subtitle_template
+        p['update_subtitle'] = self.update_subtitle
+
         p['modify_css'] = self.modify_css
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
@@ -142,6 +146,8 @@ class Tab1Config(DeviceConfigTab):  # {{{
         self.book_uploads_options = BookUploadsGroupBox(self, device)
         self.l.addWidget(self.book_uploads_options)
         self.addDeviceWidget(self.book_uploads_options)
+
+        self.l.addStretch()
 # }}}
 
 
@@ -164,6 +170,12 @@ class Tab2Config(DeviceConfigTab):  # {{{
         self.advanced_options = AdvancedGroupBox(self, device)
         self.l.addWidget(self.advanced_options)
         self.addDeviceWidget(self.advanced_options)
+
+        self.l.addStretch()
+
+    def validate(self):
+        return self.metadata_options.validate()
+
 # }}}
 
 
@@ -199,7 +211,6 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
         self.options_layout.addWidget(self.modify_css_checkbox, 0, 0, 1, 2)
         self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
-        self.options_layout.setRowStretch(2, 1)
 
     @property
     def modify_css(self):
@@ -255,7 +266,6 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0, 1, 2)
         self.options_layout.addWidget(self.ignore_collections_names_label,    4, 0, 1, 1)
         self.options_layout.addWidget(self.ignore_collections_names_edit,     4, 1, 1, 1)
-        self.options_layout.setRowStretch(4, 1)
 
     @property
     def manage_collections(self):
@@ -306,7 +316,6 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
         self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
         self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
-        self.options_layout.setRowStretch(2, 1)
 
     @property
     def upload_covers(self):
@@ -357,7 +366,6 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.show_recommendations_checkbox, 0, 0, 1, 1)
         self.options_layout.addWidget(self.show_archived_books_checkbox,  1, 0, 1, 1)
         self.options_layout.addWidget(self.show_previews_checkbox,        2, 0, 1, 1)
-        self.options_layout.setRowStretch(3, 1)
 
     @property
     def show_recommendations(self):
@@ -411,7 +419,6 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.support_newer_firmware_checkbox,   0, 0, 1, 2)
         self.options_layout.addWidget(self.debugging_title_label,             1, 0, 1, 1)
         self.options_layout.addWidget(self.debugging_title_edit,              1, 1, 1, 1)
-        self.options_layout.setRowStretch(2, 2)
 
     @property
     def support_newer_firmware(self):
@@ -445,16 +452,135 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Enable if you wish to set series information.'),
                              device.get_pref('update_series')
                              )
-        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 1)
-        self.options_layout.setRowStretch(1, 1)
+        self.update_core_metadata_checkbox = create_checkbox(
+                             _("Update metadata on Book Details pages"),
+                             _('This will update the metadata in the device database when the device is connected. '
+                               'The metadata updated is displayed on the device in the library and the book details page. '
+                               'This is the Title, Authors, Comments/Synopsis, Series name and number, Publisher and Published Date, ISBN and Language. '
+                               'If a metadata plugboard exists for the device and book format, this will be used to set the metadata.'
+                               ),
+                             device.get_pref('update_core_metadata')
+                             )
+
+        self.update_purchased_kepubs_checkbox = create_checkbox(
+                             _("Update purchased books"),
+                             _('Update books purchased from Kobo and downloaded to the device.'
+                               ),
+                             device.get_pref('update_purchased_kepubs')
+                             )
+        self.update_subtitle_checkbox = create_checkbox(
+                             _("Subtitle"),
+                             _('Update the subtitle on the device using a template.'),
+                             device.get_pref('update_subtitle')
+                             )
+        self.subtitle_template_edit = TemplateConfig(
+                            device.get_pref('subtitle_template'),
+                            tooltip=_("Enter a template to use to set the subtitle. "
+                                      "If the template is empty, the subtitle will be cleared."
+                                      )
+                            )
+
+        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 2)
+        self.options_layout.addWidget(self.update_core_metadata_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.update_subtitle_checkbox, 2, 0, 1, 1)
+        self.options_layout.addWidget(self.subtitle_template_edit, 2, 1, 1, 1)
+        self.options_layout.addWidget(self.update_purchased_kepubs_checkbox, 3, 0, 1, 2)
+
+        self.update_core_metadata_checkbox.clicked.connect(self.update_core_metadata_checkbox_clicked)
+        self.update_subtitle_checkbox.clicked.connect(self.update_subtitle_checkbox_clicked)
+        self.update_core_metadata_checkbox_clicked(device.get_pref('update_core_metadata'))
+        self.update_subtitle_checkbox_clicked(device.get_pref('update_subtitle'))
+
+    def update_core_metadata_checkbox_clicked(self, checked):
+        self.update_series_checkbox.setEnabled(not checked)
+        self.subtitle_template_edit.setEnabled(checked)
+        self.update_subtitle_checkbox.setEnabled(checked)
+        self.update_subtitle_checkbox_clicked(self.update_subtitle)
+        self.update_purchased_kepubs_checkbox.setEnabled(checked)
+
+    def update_subtitle_checkbox_clicked(self, checked):
+        self.subtitle_template_edit.setEnabled(checked and self.update_core_metadata)
+
+    def edit_template(self):
+        t = TemplateDialog(self, self.template)
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.t.setText(t.rule[1])
+
+    def validate(self):
+        if self.update_subtitle and not self.subtitle_template_edit.validate():
+            return False
+        return True
 
     @property
     def update_series(self):
         return self.update_series_checkbox.isChecked()
 
     @property
+    def update_core_metadata(self):
+        return self.update_core_metadata_checkbox.isChecked()
+
+    @property
+    def update_purchased_kepubs(self):
+        return self.update_purchased_kepubs_checkbox.isChecked()
+
+    @property
     def update_device_metadata(self):
         return self.isChecked()
+
+    @property
+    def subtitle_template(self):
+        return self.subtitle_template_edit.template
+
+    @property
+    def update_subtitle(self):
+        return self.update_subtitle_checkbox.isChecked()
+
+
+class TemplateConfig(QWidget):  # {{{
+
+    def __init__(self, val, tooltip=None):
+        QWidget.__init__(self)
+        self.t = t = QLineEdit(self)
+        t.setText(val or '')
+        t.setCursorPosition(0)
+        self.setMinimumWidth(300)
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+        l.addWidget(t, 1, 0, 1, 1)
+        b = self.b = QPushButton(_('&Template editor'))
+        l.addWidget(b, 1, 1, 1, 1)
+        b.clicked.connect(self.edit_template)
+        self.setToolTip(tooltip)
+
+    @property
+    def template(self):
+        return unicode(self.t.text()).strip()
+
+    @template.setter
+    def template(self, template):
+        self.t.setText(template)
+
+    def edit_template(self):
+        t = TemplateDialog(self, self.template)
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.t.setText(t.rule[1])
+
+    def validate(self):
+        from calibre.utils.formatter import validation_formatter
+
+        tmpl = self.template
+        try:
+            validation_formatter.validate(tmpl)
+            return True
+        except Exception as err:
+            error_dialog(self, _('Invalid template'),
+                    '<p>'+_('The template "%s" is invalid:')%tmpl +
+                    '<br>'+unicode(err), show=True)
+
+            return False
+# }}}
 
 
 if __name__ == '__main__':
