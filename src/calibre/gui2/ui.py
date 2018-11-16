@@ -916,6 +916,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             pass
         self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
+        if self.system_tray_icon is not None and self.restart_after_quit:
+            # Needed on windows to prevent multiple systray icons
+            self.system_tray_icon.setVisible(False)
         QApplication.instance().quit()
 
     def donate(self, *args):
