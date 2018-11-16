@@ -165,7 +165,7 @@ class ISBNMerge(object):
             # Pick only the most relevant result from each source
             seen = set()
             for result in results:
-                if result.identify_plugin not in seen:
+                if msprefs['keep_dups'] or result.identify_plugin not in seen:
                     seen.add(result.identify_plugin)
                     self.results.append(result)
                     result.average_source_relevance = \
@@ -184,7 +184,7 @@ class ISBNMerge(object):
         groups = {}
         for result in self.results:
             title = lower(result.title if result.title else '')
-            key = (title, tuple([lower(x) for x in result.authors]))
+            key = (title, tuple(lower(x) for x in result.authors))
             if key not in groups:
                 groups[key] = []
             groups[key].append(result)

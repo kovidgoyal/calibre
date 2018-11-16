@@ -306,6 +306,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('fewer_tags', msprefs)
         r('find_first_edition_date', msprefs)
         self.opt_find_first_edition_date.setVisible(False)
+        r('keep_dups', msprefs)
         r('append_comments', msprefs)
 
         self.configure_plugin_button.clicked.connect(self.configure_plugin)

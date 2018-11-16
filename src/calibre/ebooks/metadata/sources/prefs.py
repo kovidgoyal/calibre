@@ -22,6 +22,7 @@ msprefs.defaults['append_comments'] = False
 msprefs.defaults['tag_map_rules'] = []
 msprefs.defaults['author_map_rules'] = []
 msprefs.defaults['id_link_rules'] = {}
+msprefs.defaults['keep_dups'] = False
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
