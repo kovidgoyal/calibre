@@ -241,7 +241,7 @@
              <item row="4" column="0" colspan="2">
               <widget class="QCheckBox" name="opt_keep_dups">
                <property name="toolTip">
-                <string>&lt;p&gt;Normally, the metadata download system will keep only a single result per metadata source. This option will cause it to keep all results returned from every metadata source. useful if you only use one or two sources and want to select individual results from them by hand. Note that result with identical title/author/identifiers are still merged.</string>
+                <string>&lt;p&gt;Normally, the metadata download system will keep only a single result per metadata source. This option will cause it to keep all results returned from every metadata source. Useful if you only use one or two sources and want to select individual results from them by hand. Note that result with identical title/author/identifiers are still merged.</string>
                </property>
                <property name="text">
                 <string>Keep more than one entry per source</string>
