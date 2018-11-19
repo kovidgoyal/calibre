@@ -93,7 +93,7 @@ def complete_names(names_data, data_conn):
     quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
-    items = frozenset(nmap.itervalues())
+    items = tuple(sorted(frozenset(nmap.itervalues()), key=numeric_sort_key))
     d = names_cache['descriptions'].get
     descriptions = {href:d(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
@@ -122,7 +122,7 @@ def complete_anchor(name, data_conn):
         file_cache[name] = data
     data = file_cache[name]
     if isinstance(data, tuple) and len(data) > 1 and isinstance(data[1], dict):
-        return frozenset(data[1]), data[1], {}
+        return tuple(sorted(frozenset(data[1]), key=numeric_sort_key)), data[1], {}
 
 
 _current_matcher = (None, None, None)
@@ -135,7 +135,7 @@ def handle_control_request(request, data_conn):
         items, descriptions, matcher_kwargs = ans
         fingerprint = hash(items)
         if fingerprint != _current_matcher[0] or matcher_kwargs != _current_matcher[1]:
-            _current_matcher = (fingerprint, matcher_kwargs, Matcher(sorted(items, key=numeric_sort_key), **matcher_kwargs))
+            _current_matcher = (fingerprint, matcher_kwargs, Matcher(items, **matcher_kwargs))
         if request.query:
             items = _current_matcher[-1](request.query, limit=50)
         else:
