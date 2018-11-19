@@ -20,6 +20,7 @@ from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
+from calibre.utils.icu import numeric_sort_key
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -123,6 +124,7 @@ def complete_anchor(name, data_conn):
     if isinstance(data, tuple) and len(data) > 1 and isinstance(data[1], dict):
         return frozenset(data[1]), data[1], {}
 
+
 _current_matcher = (None, None, None)
 
 
@@ -133,7 +135,7 @@ def handle_control_request(request, data_conn):
         items, descriptions, matcher_kwargs = ans
         fingerprint = hash(items)
         if fingerprint != _current_matcher[0] or matcher_kwargs != _current_matcher[1]:
-            _current_matcher = (fingerprint, matcher_kwargs, Matcher(items, **matcher_kwargs))
+            _current_matcher = (fingerprint, matcher_kwargs, Matcher(sorted(items, key=numeric_sort_key), **matcher_kwargs))
         if request.query:
             items = _current_matcher[-1](request.query, limit=50)
         else:
@@ -177,6 +179,8 @@ class HandleDataRequest(QObject):
             return self.result, self.tb
         finally:
             del self.result, self.tb
+
+
 handle_data_request = HandleDataRequest()
 
 control_funcs = {name:func for name, func in globals().iteritems() if getattr(func, 'function_type', None) == 'control'}
