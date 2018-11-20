@@ -353,9 +353,12 @@ class LineEdit(QLineEdit, LineEditECM):
 
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
-        if ev.type() == ev.ShortcutOverride and (
-                ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
-            ev.accept()
+        try:
+            if ev.type() == ev.ShortcutOverride and (
+                    ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
+                ev.accept()
+        except AttributeError:
+            pass
         return QLineEdit.event(self, ev)
 
     def complete(self, show_all=False, select_first=True):
