@@ -199,7 +199,7 @@ def option_parser():
     parser.add_option('-c', '--codes', default=False, action='store_true',
             help='If specified, the list of characters is interpreted as '
             'numeric unicode codes instead of characters. So to specify the '
-            'characters a,b you would use 97,98')
+            'characters a,b you would use 97,98 or U+0061,U+0062')
     parser.prog = 'subset-font'
     return parser
 
@@ -280,6 +280,7 @@ def main(args):
     with open(off, 'wb') as f:
         f.write(sf)
     prints('Subset font written to:', off)
+
 
 if __name__ == '__main__':
     try:
@@ -370,5 +371,3 @@ def all():
 
 
 # }}}
-
-
