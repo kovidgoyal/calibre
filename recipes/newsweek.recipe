@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from collections import defaultdict
 
-BASE = 'http://www.newsweek.com'
+BASE = 'https://www.newsweek.com'
 
 
 def href_to_url(a, add_piano=False):
@@ -23,15 +23,18 @@ class Newsweek(BasicNewsRecipe):
     no_stylesheets = True
     requires_version = (1, 40, 0)
 
-    keep_only_tags = class_sels(
-        'article-header', 'article-body', 'header-image')
+    keep_only_tags = [
+        dict(id='block-nw-magazine-article-header'),
+        class_sels('article-header', 'article-body')
+    ]
     remove_tags = [
-        dict(name='meta'),
+        dict(name=['aside', 'meta', 'source']),
         class_sels(
             'block-openadstream', 'block-ibtmedia-social', 'issue-next',
             'most-popular', 'ibt-media-stories', 'user-btn-group',
             'trial-link', 'trc_related_container',
             'block-ibtmedia-top-stories', 'videocontent', 'newsletter-signup',
+            'in-text-slideshows', 'content-correction', 'article-navigation'
         ),
         dict(id=['taboola-below-main-column', 'piano-root',
                  'block-nw-magazine-magazine-more-from-issue']),
@@ -46,7 +49,7 @@ class Newsweek(BasicNewsRecipe):
         a = li.xpath('descendant::a[@href]')[0]
         url = href_to_url(a, add_piano=True)
         self.timefmt = self.tag_to_string(a)
-        img = li.xpath('descendant::a[@href]/img[@src]')[0]
+        img = li.xpath('descendant::a[@href]//img[@src]')[0]
         self.cover_url = img.get('src')
         root = self.index_to_soup(url, as_tree=True)
         features = []
