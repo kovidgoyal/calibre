@@ -52,3 +52,4 @@ recipes/debug
 /.metadata/
 .idea
 /*env*/
+cmake-build-*
