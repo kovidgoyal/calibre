@@ -34,7 +34,7 @@ tokenizer_Token_dealloc(tokenizer_Token* self)
     Py_XDECREF(self->unit); self->unit = NULL;
     Py_XDECREF(self->line); self->line = NULL;
     Py_XDECREF(self->column); self->column = NULL;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 
@@ -46,7 +46,8 @@ tokenizer_Token_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self == NULL) return PyErr_NoMemory();
 
     if (!PyArg_ParseTuple(args, "OOOOOO", &(self->type), &(self->_as_css), &(self->value), &(self->unit), &(self->line), &(self->column))) {
-        self->ob_type->tp_free((PyObject*)self); return NULL;
+        Py_TYPE(self)->tp_free((PyObject *) self);
+        return NULL;
     }
     Py_INCREF(self->type); Py_INCREF(self->_as_css); Py_INCREF(self->value); Py_INCREF(self->unit); Py_INCREF(self->line); Py_INCREF(self->column);
     self->is_container = Py_False; Py_INCREF(self->is_container);
@@ -54,16 +55,25 @@ tokenizer_Token_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+#if PY_MAJOR_VERSION >= 3
+#define PyObject_Unicode_Compat(arg) PyObject_Str(arg)
+#else
+#define PyObject_Unicode_Compat(arg) PyObject_Unicode(arg)
+#endif
+
 static PyObject *
 tokenizer_Token_repr(tokenizer_Token *self) {
     PyObject *type = NULL, *line = NULL, *column = NULL, *value = NULL, *ans = NULL, *unit = NULL;
     if (!self->type || !self->line || !self->column || !self->value) 
         return PyBytes_FromString("<Token NULL fields>");
-    type = PyObject_Unicode(self->type); line = PyObject_Unicode(self->line); column = PyObject_Unicode(self->column); value = PyObject_Unicode(self->value);
+    type = PyObject_Unicode_Compat(self->type);
+    line = PyObject_Unicode_Compat(self->line);
+    column = PyObject_Unicode_Compat(self->column);
+    value = PyObject_Unicode_Compat(self->value);
     if (type && line && column && value) {
         if (self->unit != NULL && PyObject_IsTrue(self->unit)) {
-            unit = PyObject_Unicode(self->unit);
-            if (unit != NULL) 
+            unit = PyObject_Unicode_Compat(self->unit);
+            if (unit != NULL)
                 ans = PyUnicode_FromFormat("<Token %U at %U:%U %U%U>", type, line, column, value, unit);
             else
                 PyErr_NoMemory();
@@ -103,45 +113,44 @@ static PyMethodDef tokenizer_Token_methods[] = {
 };
 
 static PyTypeObject tokenizer_TokenType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "tokenizer.Token",            /*tp_name*/
-    sizeof(tokenizer_Token),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)tokenizer_Token_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)tokenizer_Token_repr,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Token",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    tokenizer_Token_methods,             /* tp_methods */
-    tokenizer_Token_members,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    tokenizer_Token_new,                 /* tp_new */
+        PyVarObject_HEAD_INIT(NULL, 0)
+        /* tp_name           */ "tokenizer.Token",
+        /* tp_basicsize      */ sizeof(tokenizer_Token),
+        /* tp_itemsize       */ 0,
+        /* tp_dealloc        */ (destructor) tokenizer_Token_dealloc,
+        /* tp_print          */ 0,
+        /* tp_getattr        */ 0,
+        /* tp_setattr        */ 0,
+        /* tp_compare        */ 0,
+        /* tp_repr           */ (reprfunc) tokenizer_Token_repr,
+        /* tp_as_number      */ 0,
+        /* tp_as_sequence    */ 0,
+        /* tp_as_mapping     */ 0,
+        /* tp_hash           */ 0,
+        /* tp_call           */ 0,
+        /* tp_str            */ 0,
+        /* tp_getattro       */ 0,
+        /* tp_setattro       */ 0,
+        /* tp_as_buffer      */ 0,
+        /* tp_flags          */ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+        /* tp_doc            */ "Token",
+        /* tp_traverse       */ 0,
+        /* tp_clear          */ 0,
+        /* tp_richcompare    */ 0,
+        /* tp_weaklistoffset */ 0,
+        /* tp_iter           */ 0,
+        /* tp_iternext       */ 0,
+        /* tp_methods        */ tokenizer_Token_methods,
+        /* tp_members        */ tokenizer_Token_members,
+        /* tp_getset         */ 0,
+        /* tp_base           */ 0,
+        /* tp_dict           */ 0,
+        /* tp_descr_get      */ 0,
+        /* tp_descr_set      */ 0,
+        /* tp_dictoffset     */ 0,
+        /* tp_init           */ 0,
+        /* tp_alloc          */ 0,
+        /* tp_new            */ tokenizer_Token_new,
 }; // }}}
 // }}}
 
@@ -170,7 +179,7 @@ tokenize_init(PyObject *self, PyObject *args) {
     Py_INCREF(COMPILED_TOKEN_REGEXPS); Py_INCREF(UNICODE_UNESCAPE); Py_INCREF(NEWLINE_UNESCAPE); Py_INCREF(SIMPLE_UNESCAPE); Py_INCREF(FIND_NEWLINES); Py_INCREF(TOKEN_DISPATCH);
     Py_INCREF(COLON); Py_INCREF(SCOLON); Py_INCREF(LPAR); Py_INCREF(RPAR); Py_INCREF(LBRACE); Py_INCREF(RBRACE); Py_INCREF(LBOX); Py_INCREF(RBOX); Py_INCREF(DELIM_TOK); Py_INCREF(INTEGER); Py_INCREF(STRING_TOK);
 
-#define SETCONST(x) x = PyInt_AsSsize_t(PyDict_GetItemString(cti, #x))
+#define SETCONST(x) x = PyLong_AsSsize_t(PyDict_GetItemString(cti, #x))
     SETCONST(BAD_COMMENT); SETCONST(BAD_STRING); SETCONST(PERCENTAGE); SETCONST(DIMENSION); SETCONST(ATKEYWORD); SETCONST(FUNCTION); SETCONST(COMMENT); SETCONST(NUMBER); SETCONST(STRING); SETCONST(IDENT); SETCONST(HASH); SETCONST(URI);
 
     Py_RETURN_NONE;
@@ -178,9 +187,6 @@ tokenize_init(PyObject *self, PyObject *args) {
 
 static int
 contains_char(PyObject *haystack, Py_UNICODE c) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     Py_ssize_t i = 0;
     Py_UNICODE *data = PyUnicode_AS_UNICODE(haystack);
     for (i = 0; i < PyUnicode_GET_SIZE(haystack); i++) {
@@ -190,35 +196,38 @@ contains_char(PyObject *haystack, Py_UNICODE c) {
 }
 
 static PyObject *unicode_to_number(PyObject *src) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     PyObject *raw = NULL, *ans = NULL;
     raw = PyUnicode_AsASCIIString(src);
     if (raw == NULL) { return NULL; }
     if (contains_char(src, '.')) {
+#if PY_MAJOR_VERSION >= 3
+        ans = PyFloat_FromString(raw);
+#else
         ans = PyFloat_FromString(raw, NULL);
+#endif
     } else {
+#if PY_MAJOR_VERSION >= 3
+        ans = PyLong_FromUnicodeObject(raw, 10);
+#else
         ans = PyInt_FromString(PyString_AS_STRING(raw), NULL, 10);
+#endif
     }
     Py_DECREF(raw);
     return ans;
 }
 
+
+// TODO Convert this to use the 3.3+ unicode API
+// doing so while preserving py2 compat would lead to a giant mess of #ifs, so
+// it's better to do it when calibre is all migrated to py3
 static void lowercase(PyObject *x) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     Py_ssize_t i = 0;
     Py_UNICODE *data = PyUnicode_AS_UNICODE(x);
     for (i = 0; i < PyUnicode_GET_SIZE(x); i++) 
         data[i] = Py_UNICODE_TOLOWER(data[i]);
 }
 
-static PyObject* clone_unicode(Py_UNICODE *x, Py_ssize_t sz) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
+static PyObject *clone_unicode(Py_UNICODE *x, Py_ssize_t sz) {
     PyObject *ans = PyUnicode_FromUnicode(NULL, sz);
     if (ans == NULL) return PyErr_NoMemory();
     memcpy(PyUnicode_AS_UNICODE(ans), x, sz * sizeof(Py_UNICODE));
@@ -227,9 +236,6 @@ static PyObject* clone_unicode(Py_UNICODE *x, Py_ssize_t sz) {
 
 static PyObject*
 tokenize_flat(PyObject *self, PyObject *args) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
     Py_UNICODE *css_source = NULL, c = 0, codepoint = 0;
     PyObject *ic = NULL, *token = NULL, *tokens = NULL, *type_name = NULL, *css_value = NULL, *value = NULL, *unit = NULL, *tries = NULL, *match = NULL, *match_func = NULL, *py_source = NULL, *item = NULL, *newlines = NULL;
     int ignore_comments = 0;
@@ -272,7 +278,7 @@ tokenize_flat(PyObject *self, PyObject *args) {
                 if (match != Py_None) {
                     css_value = PyObject_CallMethod(match, "group", NULL);
                     if (css_value == NULL) { goto error; }
-                    type_ = PyInt_AsSsize_t(PyTuple_GET_ITEM(item, 0));
+                    type_ = PyLong_AsSsize_t(PyTuple_GET_ITEM(item, 0));
                     type_name = PyTuple_GET_ITEM(item, 1);
                     Py_INCREF(type_name);
                     break;
@@ -415,17 +421,41 @@ static PyMethodDef tokenizer_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef tokenizer_module = {
+        /* m_base     */ PyModuleDef_HEAD_INIT,
+        /* m_name     */ "tokenizer",
+        /* m_doc      */ "Implementation of tokenizer in C for speed.",
+        /* m_size     */ -1,
+        /* m_methods  */ tokenizer_methods,
+        /* m_slots    */ 0,
+        /* m_traverse */ 0,
+        /* m_clear    */ 0,
+        /* m_free     */ 0,
+};
 
-CALIBRE_MODINIT_FUNC
-inittokenizer(void) {
-    PyObject *m;
+CALIBRE_MODINIT_FUNC PyInit_tokenizer(void) {
     if (PyType_Ready(&tokenizer_TokenType) < 0)
-        return;
+        INITERROR;
 
-    m = Py_InitModule3("tokenizer", tokenizer_methods,
-    "Implementation of tokenizer in C for speed."
-    );
-    if (m == NULL) return;
+    PyObject *mod = PyModule_Create(&tokenizer_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC inittokenizer(void) {
+    if (PyType_Ready(&tokenizer_TokenType) < 0)
+        INITERROR;
+
+    PyObject *mod = Py_InitModule3("tokenizer", tokenizer_methods,
+        "Implementation of tokenizer in C for speed.");
+#endif
+
+    if (mod == NULL) INITERROR;
     Py_INCREF(&tokenizer_TokenType);
-    PyModule_AddObject(m, "Token", (PyObject *)&tokenizer_TokenType);
+    PyModule_AddObject(mod, "Token", (PyObject *) &tokenizer_TokenType);
+
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
