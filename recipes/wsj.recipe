@@ -2,42 +2,24 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
-from mechanize import Request
 from urllib import quote
 
-import html5lib
-from lxml import html
+from mechanize import Request
 
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
+from css_selectors import Select
 
-
-def CSSSelect(expr):
-    expr = {
-        'div.whatsNews-simple': '''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-simple ')]''',
-        'a.mjLinkItem[href]': '''descendant-or-self::a[@class and contains(concat(' ', normalize-space(@class), ' '), ' mjLinkItem ') and (@href)]''',
-        '.meta_sectionName': '''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' meta_sectionName ')]''',
-        'p': 'descendant-or-self::p',
-        'div.whatsNews-simple.whatsNews-itp': '''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-simple ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-itp '))]''',  # noqa
-        'a[href]': 'descendant-or-self::a[@href]',
-        'span.date-date': "descendant-or-self::span[@class and contains(concat(' ', normalize-space(@class), ' '), ' date-date ')]",
-        'div.itpSectionHeaderPdf a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpSectionHeaderPdf ')]/descendant-or-self::*/a[@href]",  # noqa
-        'div.itpHeader ul.tab a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpHeader ')]/descendant-or-self::*/ul[@class and contains(concat(' ', normalize-space(@class), ' '), ' tab ')]/descendant-or-self::*/a[@href]",  # noqa
-
-    }[expr]
-    from lxml.etree import XPath
-    return XPath(expr)
+needs_subscription = True
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
 
 
 class WSJ(BasicNewsRecipe):
@@ -54,8 +36,8 @@ class WSJ(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'data-scrim']
-    needs_subscription = True
-    WSJ_ITP = 'http://online.wsj.com/itp/today'
+    needs_subscription = needs_subscription
+    WSJ_ITP = 'https://online.wsj.com/itp/today'
 
     keep_only_tags = [
         dict(classes('wsj-article-headline-wrap article_header')),
@@ -76,13 +58,6 @@ class WSJ(BasicNewsRecipe):
              'data-country-code': True, 'data-ticker-code': True}),
         dict(name='meta link'.split()),
     ]
-
-    def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(raw_html, treebuilder='lxml',
-                              namespaceHTMLElements=False)
-        raw_html = html.tostring(root)
-        # open('/t/art.html', 'w').write(raw_html)
-        return raw_html
 
     def preprocess_soup(self, soup):
         # Slideshow and expandable images need to be processed here to
@@ -106,86 +81,89 @@ class WSJ(BasicNewsRecipe):
                 return image['src']
         self.log("\nCover unavailable")
 
-    def get_browser(self):
-        # To understand the signin logic read signin.js from
-        # https://id.wsj.com/access/pages/wsj/us/signin.html
-        # This is the same login servie as used by Barrons
-        br = BasicNewsRecipe.get_browser(self, user_agent=USER_AGENT)
-        # self.wsj_itp_page = open('/t/raw.html').read()
-        # return br
-        url = 'https://id.wsj.com/access/pages/wsj/us/signin.html?mg=com-wsj&mg=id-wsj'
-        # br.set_debug_http(True)
-        br.open(url).read()
-        rurl = 'https://id.wsj.com/auth/submitlogin.json'
-        rq = Request(rurl, headers={
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Content-Type': 'application/json',
-            'Referer': url,
-            'X-HTTP-Method-Override': 'POST',
-            'X-Requested-With': 'XMLHttpRequest',
-        }, data=json.dumps({
-            'username': self.username,
-            'password': self.password,
-            'realm': 'default',
-            'savelogin': 'true',
-            'template': 'default',
-            'url': quote(self.WSJ_ITP),
-        }))
-        r = br.open(rq)
-        if r.code != 200:
-            raise ValueError('Failed to login, check username and password')
-        data = json.loads(r.read())
-        # print(data)
-        if data.get('result') != 'success':
-            raise ValueError(
-                'Failed to login (XHR failed), check username and password')
-        br.set_cookie('m', data['username'], '.wsj.com')
-        try:
-            r = br.open(data['url'])
-        except Exception:
-            self.log.error('Failed to open login url: {}'.format(data['url']))
-            raise
-        self.wsj_itp_page = raw = r.read()
-        if b'>Sign Out<' not in raw:
-            raise ValueError(
-                'Failed to login (auth URL failed), check username and password')
-        # open('/t/raw.html', 'w').write(raw)
-        return br
+    # login {{{
+    if needs_subscription:
+        def get_browser(self, *a, **kw):
+            # To understand the signin logic read signin.js from
+            # https://id.wsj.com/access/pages/wsj/us/signin.html
+            # This is the same login servie as used by Barrons
+            kw['user_agent'] = random_user_agent(allow_ie=False)
+            br = BasicNewsRecipe.get_browser(self, *a, **kw)
+            # self.wsj_itp_page = open('/t/raw.html').read()
+            # return br
+            url = 'https://id.wsj.com/access/pages/wsj/us/signin.html?mg=com-wsj&mg=id-wsj'
+            # br.set_debug_http(True)
+            br.open(url).read()
+            rurl = 'https://id.wsj.com/auth/submitlogin.json'
+            rq = Request(rurl, headers={
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Content-Type': 'application/json',
+                'Referer': url,
+                'X-HTTP-Method-Override': 'POST',
+                'X-Requested-With': 'XMLHttpRequest',
+            }, data=json.dumps({
+                'username': self.username,
+                'password': self.password,
+                'realm': 'default',
+                'savelogin': 'true',
+                'template': 'default',
+                'url': quote(self.WSJ_ITP),
+            }))
+            r = br.open(rq)
+            if r.code != 200:
+                raise ValueError('Failed to login, check username and password')
+            data = json.loads(r.read())
+            # print(data)
+            if data.get('result') != 'success':
+                raise ValueError(
+                    'Failed to login (XHR failed), check username and password')
+            br.set_cookie('m', data['username'], '.wsj.com')
+            try:
+                r = br.open(data['url'])
+            except Exception:
+                self.log.error('Failed to open login url: {}'.format(data['url']))
+                raise
+            self.wsj_itp_page = raw = r.read()
+            if b'>Sign Out<' not in raw:
+                raise ValueError(
+                    'Failed to login (auth URL failed), check username and password')
+            # open('/t/raw.html', 'w').write(raw)
+            return br
+    else:
+        def get_browser(self, *a, **kw):
+            kw['user_agent'] = random_user_agent(allow_ie=False)
+            br = BasicNewsRecipe.get_browser(self, *a, **kw)
+            self.wsj_itp_page = br.open(self.WSJ_ITP).read()
+            return br
+    # }}}
 
     def abs_wsj_url(self, href):
         if not href.startswith('http'):
-            href = 'http://online.wsj.com' + href
+            href = 'https://www.wsj.com' + href
         return href
 
     def wsj_find_articles(self, url, ahed=False):
         root = self.index_to_soup(url, as_tree=True)
-
-        for x in CSSSelect('div.whatsNews-simple')(root):
-            x.getparent().remove(x)
-
+        CSSSelect = Select(root)
         articles = []
-
-        for container in root.xpath('//li[contains(@class, "mjItemMain")]'):
-            meta = container.xpath('descendant::span[@class="meta_sectionName"]')
-            if not meta:
-                continue
-            meta = meta[0]
-            a = meta.xpath('ancestor::a')[0]
-            meta.getparent().remove(meta)
+        for container in CSSSelect('.style__grid_3gzjbqouVfPMK84Adb3MFE .article'):
+            meta = next(CSSSelect('.type', container))
+            parent = meta.getparent()
             meta = self.tag_to_string(meta)
+            title = next(CSSSelect('.title', parent))
+            a = next(CSSSelect('a', title))
             title = self.tag_to_string(a)
             if meta:
                 title += ' [%s]' % meta
             url = self.abs_wsj_url(a.get('href'))
             desc = ''
-            if container:
-                for p in container.xpath('descendant::p'):
-                    q = self.tag_to_string(p)
-                    if 'Subscriber Content' in q:
-                        continue
-                    desc += q
-                    break
+            for p in CSSSelect('p.description', container):
+                q = self.tag_to_string(p)
+                if 'Subscriber Content' in q:
+                    continue
+                desc += q
+                break
 
             articles.append({'title': title, 'url': url,
                              'description': desc, 'date': ''})
@@ -193,56 +171,36 @@ class WSJ(BasicNewsRecipe):
             self.log('\tFound article:', title)
             self.log('\t\t', desc)
 
-        if ahed:
-            for h2 in root.xpath('//li[@class="ahed_listitem"]/h2'):
-                a = h2.xpath('descendant::a')[0]
-                title = self.tag_to_string(a)
-                url = self.abs_wsj_url(a.get('href'))
-                desc = ''
-                p = h2.xpath('following-sibling::p')
-                if p:
-                    desc = self.tag_to_string(p[0])
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
-                self.log('Found article:', title)
-                self.log('\t\t', desc)
-
         return articles
 
-    def wsj_find_wn_articles(self, url):
-        root = self.index_to_soup(url, as_tree=True)
+    def wsj_find_wn_articles(self, feeds, root, CSSSelect):
         articles = []
+        for a in CSSSelect('.style__strap_2m6gCW_c_6WZKkU--eRUWv'):
+            if 'WHAT\'S NEWS' in self.tag_to_string(a).upper():
+                whats_news = a.getparent()
+                break
+        else:
+            self.log.error('Failed to find Whats News section')
+            return
+        for li in CSSSelect('li', whats_news):
+            a = next(CSSSelect('a', li))
+            if '/articles/' not in a.get('href', ''):
+                continue
+            title = self.tag_to_string(a).strip()
+            url = self.abs_wsj_url(a.get('href'))
+            desc = self.tag_to_string(li)
+            articles.append({'title': title, 'url': url,
+                                'description': desc, 'date': ''})
 
-        whats_news = CSSSelect('div.whatsNews-simple.whatsNews-itp')(root)
-        if whats_news:
-            for a in CSSSelect('a[href]')(whats_news[-1]):
-                if '/articles/' not in a.get('href', ''):
-                    continue
-                container = a.xpath('ancestor::p')
-                for meta in CSSSelect('.meta_sectionName')(a):
-                    meta.getparent().remove(meta)
-                title = self.tag_to_string(a).strip()
-                url = self.abs_wsj_url(a.get('href'))
-                desc = ''
-                if container:
-                    desc = self.tag_to_string(container[0])
-
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
-
-                self.log('\tFound WN article:', title)
-                self.log('\t\t', desc)
+            self.log('\tFound WN article:', title)
+            self.log('\t\t', desc)
 
         return articles
 
     def wsj_add_feed(self, feeds, title, url):
         self.log('Found section:', title, '[' + url + ']')
         try:
-            if url.endswith('whatsnews'):
-                articles = self.wsj_find_wn_articles(url)
-            else:
-                articles = self.wsj_find_articles(
-                    url, ahed=title == 'Front Section')
+            articles = self.wsj_find_articles(url)
         except Exception:
             self.log.exception('Failed to parse section:', title)
             articles = []
@@ -252,30 +210,22 @@ class WSJ(BasicNewsRecipe):
     def parse_index(self):
         # return self.test_wsj_index()
         root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
-        for span in CSSSelect('span.date-date')(root):
-            if span.text and span.text.strip():
-                self.timefmt = ' [%s]' % span.text.strip()
+        CSSSelect = Select(root)
+        for inp in CSSSelect('.DayPickerInput > input'):
+            if inp.get('placeholder'):
+                self.timefmt = inp.get('placeholder')
                 break
-        for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
-            self.cover_url = a.get('href')
-            break
 
         feeds = []
-        for a in CSSSelect('div.itpHeader ul.tab a[href]')(root):
-            if '/itp/' not in a.get('href', ''):
+        for a in CSSSelect('.WSJTheme__nav-container_sPVwT3FiPlWjFGtr5KH3d .WSJTheme__section-link_XGDsdx5qPlnC8BZPxQ63R'):
+            frontpage = a.get('href').endswith('frontpage')
+            title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
+            if not title:
                 continue
-            pageone = a.get('href').endswith('pageone')
-            if pageone:
-                title = 'Front Section'
-                url = self.abs_wsj_url(a.get('href'))
-                self.wsj_add_feed(feeds, title, url)
-                title = "What's News"
-                url = url.replace('pageone', 'whatsnews')
-                self.wsj_add_feed(feeds, title, url)
-            else:
-                title = self.tag_to_string(a)
-                url = self.abs_wsj_url(a.get('href'))
-                self.wsj_add_feed(feeds, title, url)
+            url = self.abs_wsj_url(a.get('href'))
+            self.wsj_add_feed(feeds, title, url)
+            if frontpage:
+                self.wsj_find_wn_articles(feeds, root, CSSSelect)
         return feeds
 
     def test_wsj_index(self):
