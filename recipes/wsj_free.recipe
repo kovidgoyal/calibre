@@ -201,6 +201,9 @@ class WSJ(BasicNewsRecipe):
         self.log('Found section:', title, '[' + url + ']')
         try:
             articles = self.wsj_find_articles(url)
+            if not articles:
+                # retry once, sometimes these pages come up empty
+                articles = self.wsj_find_articles(url)
         except Exception:
             self.log.exception('Failed to parse section:', title)
             articles = []
