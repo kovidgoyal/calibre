@@ -40,7 +40,7 @@ class WSJ(BasicNewsRecipe):
     WSJ_ITP = 'https://online.wsj.com/itp/today'
 
     keep_only_tags = [
-        dict(classes('wsj-article-headline-wrap article_header')),
+        dict(classes('wsj-article-headline-wrap article_header bigTop__hed bigTop__dek bigTop__captioncredit')),
         dict(name='span', itemprop='author', rel='author'),
         dict(name='article', id='article-contents articleBody'.split()),
         dict(name='div', id='article_story_body ncTitleArea snipper-ad-login'.split()),
@@ -232,10 +232,6 @@ class WSJ(BasicNewsRecipe):
         return [
             ('Testing', [
                 {'title': 'Article One',
-                 'url': 'http://online.wsj.com/articles/the-end-of-the-impulse-shopper-1416872108'},  # noqa
-                {'title': 'Article Two',
-                 'url': 'http://online.wsj.com/articles/ferguson-police-officer-not-charged-in-black-teens-shooting-1416882438'},  # noqa
-                {'title': 'Article Three',
-                 'url': 'http://online.wsj.com/article/SB10634695869867284248804580297251334393676.html'},  # noqa
+                 'url': 'https://www.wsj.com/articles/gms-plan-to-drop-chevy-cruze-hits-ohio-town-hard-1543314600'},  # noqa
             ]),
         ]
