@@ -152,25 +152,29 @@ class EbookIterator(BookmarksMixin):
         self.language = None
         if self.mi.languages:
             self.language = self.mi.languages[0].lower()
-        ordered = [i for i in self.opf.spine if i.is_linear] + \
-                  [i for i in self.opf.spine if not i.is_linear]
+
         self.spine = []
         Spiny = partial(SpineItem, read_anchor_map=read_anchor_map, read_links=read_links,
                 run_char_count=run_char_count, from_epub=self.book_format == 'EPUB')
-        is_comic = input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
-        for i in ordered:
-            spath = i.path
-            mt = None
-            if i.idref is not None:
-                mt = self.opf.manifest.type_for_id(i.idref)
-            if mt is None:
-                mt = guess_type(spath)[0]
-            try:
-                self.spine.append(Spiny(spath, mime_type=mt))
-                if is_comic:
-                    self.spine[-1].is_single_page = True
-            except:
-                self.log.warn('Missing spine item:', repr(spath))
+        if input_fmt.lower() == 'htmlz':
+            self.spine.append(Spiny(os.path.join(os.path.dirname(self.pathtoopf), 'index.html'), mime_type='text/html'))
+        else:
+            ordered = [i for i in self.opf.spine if i.is_linear] + \
+                    [i for i in self.opf.spine if not i.is_linear]
+            is_comic = input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
+            for i in ordered:
+                spath = i.path
+                mt = None
+                if i.idref is not None:
+                    mt = self.opf.manifest.type_for_id(i.idref)
+                if mt is None:
+                    mt = guess_type(spath)[0]
+                try:
+                    self.spine.append(Spiny(spath, mime_type=mt))
+                    if is_comic:
+                        self.spine[-1].is_single_page = True
+                except:
+                    self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
         if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2',
