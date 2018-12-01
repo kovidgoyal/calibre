@@ -78,7 +78,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 4, 0)
+    version = (2, 5, 0)
 
     dbversion = 0
     fwversion = (0,0,0)
@@ -1684,7 +1684,8 @@ class KOBOTOUCH(KOBO):
                 # print "Normalized FileName: " + path
 
                 # Collect the Kobo metadata
-                kobo_metadata = Metadata(title, [a.strip() for a in authors.split("&")])
+                authors_list = [a.strip() for a in authors.split("&")] if authors is not None else [_('Unknown')]
+                kobo_metadata = Metadata(title, authors_list)
                 kobo_metadata.series       = series
                 kobo_metadata.series_index = seriesnumber
                 kobo_metadata.comments     = Description
