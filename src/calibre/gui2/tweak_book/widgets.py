@@ -671,7 +671,21 @@ class InsertLink(Dialog):
         t.setText(self.initial_text or '')
         t.setPlaceholderText(_('The (optional) text for the link'))
 
+        self.template_edit = t = QLineEdit(self)
+        tl.addRow(_('Tem&plate:'), t)
+        from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
+        t.setText(tprefs.get('insert-hyperlink-template', None) or DEFAULT_LINK_TEMPLATE)
+
         l.addWidget(self.bb)
+
+    def accept(self):
+        from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
+        t = self.template
+        if t:
+            if t == DEFAULT_LINK_TEMPLATE:
+                t = None
+            tprefs.set('insert-hyperlink-template', self.template)
+        return Dialog.accept(self)
 
     def selected_file_changed(self, *args):
         rows = list(self.file_names.selectionModel().selectedRows())
@@ -721,6 +735,10 @@ class InsertLink(Dialog):
     @property
     def text(self):
         return unicode(self.text_edit.text()).strip()
+
+    @property
+    def template(self):
+        return self.template_edit.text().strip() or None
 
     @classmethod
     def test(cls):

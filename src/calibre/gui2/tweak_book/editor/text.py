@@ -869,9 +869,9 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             c.setPosition(left + len(text), c.KeepAnchor)
         self.setTextCursor(c)
 
-    def insert_hyperlink(self, target, text):
+    def insert_hyperlink(self, target, text, template=None):
         if hasattr(self.smarts, 'insert_hyperlink'):
-            self.smarts.insert_hyperlink(self, target, text)
+            self.smarts.insert_hyperlink(self, target, text, template=template)
 
     def insert_tag(self, tag):
         if hasattr(self.smarts, 'insert_tag'):

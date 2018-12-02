@@ -234,8 +234,8 @@ class Editor(QMainWindow):
     def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1):
         self.editor.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_aspect_ratio, width=width, height=height)
 
-    def insert_hyperlink(self, href, text):
-        self.editor.insert_hyperlink(href, text)
+    def insert_hyperlink(self, href, text, template=None):
+        self.editor.insert_hyperlink(href, text, template=template)
 
     def _build_insert_tag_button_menu(self):
         m = self.insert_tag_menu
