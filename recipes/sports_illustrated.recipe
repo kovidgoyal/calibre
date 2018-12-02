@@ -37,7 +37,6 @@ class SI(BasicNewsRecipe):
             tag.name = 'img'
             del tag.contents[:]
             tag['src'] = tag['data-src']
-            print(tag)
         return soup
 
     feeds = [
