@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.widgets2 import Dialog as BaseDialog
-from calibre.utils.icu import primary_sort_key, sort_key, primary_contains
+from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
 
@@ -706,7 +706,7 @@ class InsertLink(Dialog):
                     continue
                 text = lead_text(item, num_words=4)
                 ac.append((text, frag))
-            ac.sort(key=lambda text_frag: primary_sort_key(text_frag[0]))
+            ac.sort(key=lambda text_frag: numeric_sort_key(text_frag[0]))
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
