@@ -264,7 +264,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 l.addRow(_('&Language:'), self.le)
                 self.url = u = QLineEdit(self)
                 u.setMinimumWidth(350)
-                u.setPlaceholderText(_('For example: %s') % 'http://dictionary.com/{word}')
+                u.setPlaceholderText(_('For example: %s') % 'https://dictionary.com/{word}')
                 l.addRow(_('&URL:'), u)
                 self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
                 l.addRow(bb)
