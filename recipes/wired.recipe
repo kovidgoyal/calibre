@@ -5,8 +5,6 @@ www.wired.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import date
-import urllib2
 
 
 def classes(classes):
@@ -33,7 +31,6 @@ class WiredDailyNews(BasicNewsRecipe):
     language = 'en'
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
-    publication_type = 'newsportal'
     extra_css             = """
                             .entry-header{
                                           text-transform: uppercase;
@@ -51,27 +48,9 @@ class WiredDailyNews(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='main', attrs={'class': lambda x: x and 'article-main-component__content' in x}),
     ]
-    remove_attributes = ['srcset']
-    handle_gzip = True
-
-    def get_magazine_year_month(self, seperator):
-        monthurl = str('{:02d}'.format(date.today().month))
-        yearurl = str(date.today().year - 1992)
-        return yearurl + seperator + monthurl
-
-    def get_date_url(self):
-        '''
-        get month and year, add year modifier, append to wired magazine url,
-        :return: url
-        '''
-        baseurl = 'https://www.wired.com/tag/magazine-'
-        magazine_year_month = self.get_magazine_year_month('.')
-        # monthurl = str('{:02d}'.format(date.today().month))
-        # yearurl = str(date.today().year - 1992)
-        dateurl = baseurl + magazine_year_month + '/page/'
-        return dateurl
 
     def parse_wired_index_page(self, currenturl, seen):
+        self.log('Parsing index page', currenturl)
         soup = self.index_to_soup(currenturl)
         baseurl = 'https://www.wired.com'
         for a in soup.find("ul", {"class" : 'archive-list-component__items'}).findAll('a', href=True):
@@ -87,39 +66,14 @@ class WiredDailyNews(BasicNewsRecipe):
                         'title': title,
                         'date': date,
                         'url': baseurl+url,
-                        'description': ''
                     }
 
     def parse_index(self):
-        '''
-        get the current month's url, index first page to soup,
-        find number of pages, just keep adding to page num until
-        soup is not none instead of scraping page for :return:
-        '''
-        baseurl = self.get_date_url()
+        baseurl = 'https://www.wired.com/magazine/page/{}/'
         pagenum = 1
         articles = []
         seen = set()
-        morepages = True
-        while morepages:
-            try:
-                urllib2.urlopen(baseurl + str(pagenum))
-                currenturl = baseurl + str(pagenum)
-                res=self.parse_wired_index_page(currenturl, seen)
-                articles.extend(res)
-                if len(list(res))==0:
-                    morepages = False
-                pagenum += 1
-            except urllib2.HTTPError:
-                morepages = False
+        for pagenum in range(1, 4):
+            articles.extend(self.parse_wired_index_page(baseurl.format(pagenum), seen))
 
-        magazine_year_month = self.get_magazine_year_month('.')
-        return [('Magazine-' + magazine_year_month, articles)]
-
-    def get_cover_url(self):
-        '''
-        get the most recent magazine cover
-        :return: url
-        '''
-        soup = self.index_to_soup('https://www.wired.com/category/magazine/')
-        return soup.find(id='mag-card').find('img').get('src')
+        return [('Magazine Articles', articles)]
