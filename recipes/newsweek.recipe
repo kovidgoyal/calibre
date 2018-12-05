@@ -75,7 +75,10 @@ class Newsweek(BasicNewsRecipe):
         sections = defaultdict(list)
         for block in ('magazine-magazine-issue-story-list', 'editors-pick'):
             div = root.xpath(
-                '//div[@id="block-nw-{}"]'.format(block))[0]
+                '//div[@id="block-nw-{}"]'.format(block))
+            if not div:
+                continue
+            div = div[0]
             for a in div.xpath(href_xpath):
                 title = self.tag_to_string(a)
                 article = a.xpath('ancestor::article')[0]
