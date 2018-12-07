@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title:
 
+- version: 3.35.0
+  date: 2018-12-07
+
+  new features:
+    - title: "Edit book: Insert hyperlink: Allow specifying a template to control the markup that is inserted for the hyperlink."
+      tickets: [1804250]
+
+    - title: "Metadata download: Add an option (in Preferences->Metadata download) to keep multiple results from individual metadata sources, useful if you prefer to pick the best result by hand and use only one or two metadata sources."
+      tickets: [1802293]
+
+    - title: "Kobo driver: Add an option to directly update metadata in the Kobo device database, instead of waiting for the Kobo to update the database after disconnecting. (Preferences->Plugins->Customize the Kobo device plugin)"
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression that broke viewing of HTMLZ files"
+      tickets: [1691976]
+
+    - title: "Edit book: Fix suggestions in completion popup not being sorted."
+      tickets: [1803985]
+
+    - title: "Windows: Fix restarting calibre with system tray icon enabled causing duplicate defunct icons in the tray."
+      tickets: [1803034]
+
+  improved recipes:
+    - Wired Magazine
+    - Wall Street Journal
+    - Telepolis
+    - Yahoo News
+    - Associated Press
+    - Mother Jones
+
+  new recipes:
+    - title: Macrobusinness
+      author: 2018robert
+
+    - title: Sports Illustrated
+      author: Kovid Goyal
+
+    - title: Le Peuple Breton
+      author: Lionel Plais
+
+    - title: Mandidner
+      author: pofa
+
+
 - version: 3.34.0
   date: 2018-11-08
 
