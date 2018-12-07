@@ -934,7 +934,6 @@ class TOCView(QWidget):  # {{{
 
     def create_from_xpath(self, xpaths, remove_duplicates=True):
         toc = from_xpaths(self.ebook, xpaths)
-        print(1111111, remove_duplicates)
         if len(toc) == 0:
             return error_dialog(self, _('No items found'),
                 _('No items were found that could be added to the Table of Contents.'), show=True)
