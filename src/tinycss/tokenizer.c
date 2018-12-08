@@ -179,7 +179,9 @@ tokenize_init(PyObject *self, PyObject *args) {
     Py_INCREF(COMPILED_TOKEN_REGEXPS); Py_INCREF(UNICODE_UNESCAPE); Py_INCREF(NEWLINE_UNESCAPE); Py_INCREF(SIMPLE_UNESCAPE); Py_INCREF(FIND_NEWLINES); Py_INCREF(TOKEN_DISPATCH);
     Py_INCREF(COLON); Py_INCREF(SCOLON); Py_INCREF(LPAR); Py_INCREF(RPAR); Py_INCREF(LBRACE); Py_INCREF(RBRACE); Py_INCREF(LBOX); Py_INCREF(RBOX); Py_INCREF(DELIM_TOK); Py_INCREF(INTEGER); Py_INCREF(STRING_TOK);
 
-#define SETCONST(x) x = PyLong_AsSsize_t(PyDict_GetItemString(cti, #x))
+#define SETCONST(x) do { (x) = PyNumber_AsSsize_t(PyDict_GetItemString(cti, #x), PyExc_OverflowError); \
+                         if((x) == -1 && PyErr_Occurred() != NULL) { return NULL; } \
+                       } while(0)
     SETCONST(BAD_COMMENT); SETCONST(BAD_STRING); SETCONST(PERCENTAGE); SETCONST(DIMENSION); SETCONST(ATKEYWORD); SETCONST(FUNCTION); SETCONST(COMMENT); SETCONST(NUMBER); SETCONST(STRING); SETCONST(IDENT); SETCONST(HASH); SETCONST(URI);
 
     Py_RETURN_NONE;
@@ -278,7 +280,8 @@ tokenize_flat(PyObject *self, PyObject *args) {
                 if (match != Py_None) {
                     css_value = PyObject_CallMethod(match, "group", NULL);
                     if (css_value == NULL) { goto error; }
-                    type_ = PyLong_AsSsize_t(PyTuple_GET_ITEM(item, 0));
+                    type_ = PyNumber_AsSsize_t(PyTuple_GET_ITEM(item, 0), PyExc_OverflowError);
+                    if(type_ == -1 && PyErr_Occurred() != NULL) { goto error; }
                     type_name = PyTuple_GET_ITEM(item, 1);
                     Py_INCREF(type_name);
                     break;
@@ -392,7 +395,9 @@ tokenize_flat(PyObject *self, PyObject *args) {
             line += PyList_Size(newlines);
             item = PyObject_CallMethod(PyList_GET_ITEM(newlines, PyList_Size(newlines) - 1), "end", NULL);
             if (item == NULL) { Py_DECREF(newlines); newlines = NULL; goto error; }
-            column = length - PyInt_AsSsize_t(item) + 1;
+            column = PyNumber_AsSsize_t(item, PyExc_OverflowError);
+            if(column == -1 && PyErr_Occurred()) { Py_DECREF(newlines); newlines = NULL; goto error; }
+            column = length - column + 1;
             Py_DECREF(item); item = NULL; 
         } else column += length;
         Py_DECREF(newlines); newlines = NULL;
