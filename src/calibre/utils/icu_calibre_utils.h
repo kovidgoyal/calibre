@@ -198,14 +198,14 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
 
     if (!PyUnicode_CheckExact(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not a unicode string");
-        goto end;
+        return NULL;
     }
     if(PyUnicode_READY(obj) == -1) {
         return NULL;
     }
     sz = PyUnicode_GET_LENGTH(obj);
     ans = (UChar32*) malloc((sz+1) * sizeof(UChar32));
-    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    if (ans == NULL) { PyErr_NoMemory(); return NULL; }
 	int kind;
 	if ((kind = PyUnicode_KIND(obj)) == PyUnicode_4BYTE_KIND) {
 		memcpy(ans, PyUnicode_4BYTE_DATA(obj), sz * 4);
