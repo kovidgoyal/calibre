@@ -386,6 +386,18 @@ html_init(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static inline long number_to_long(PyObject *number) {
+#if PY_VERSION_HEX >= 0x03030000
+    return PyLong_AsLong(number);
+#else
+    if(PyInt_Check(number)) {
+        return PyInt_AS_LONG(number);
+    } else {
+        return PyLong_AsLong(number);
+    }
+#endif
+}
+
 static PyObject*
 html_check_spelling(PyObject *self, PyObject *args) {
     PyObject *ans = NULL, *temp = NULL, *items = NULL, *text = NULL, *fmt = NULL, *locale = NULL, *sfmt = NULL, *_store_locale = NULL, *t = NULL, *utmp = NULL;
@@ -410,9 +422,9 @@ html_check_spelling(PyObject *self, PyObject *args) {
 
     for (i = 0, j = 0; i < PyList_GET_SIZE(items); i++) {
         temp = PyList_GET_ITEM(items, i);
-        start = PyLong_AsLong(PyTuple_GET_ITEM(temp, 0));
+        start = number_to_long(PyTuple_GET_ITEM(temp, 0));
         if(start == -1 && PyErr_Occurred() != NULL) goto error;
-        length = PyLong_AsLong(PyTuple_GET_ITEM(temp, 1));
+        length = number_to_long(PyTuple_GET_ITEM(temp, 1));
         if(length == -1 && PyErr_Occurred() != NULL) goto error;
         temp = NULL;
 
