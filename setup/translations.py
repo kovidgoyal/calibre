@@ -727,9 +727,9 @@ class ISO639(Command):  # {{{
         if not os.path.exists(base):
             os.makedirs(base)
         if not self.newer(dest, [src, __file__]):
-            self.info('Pickled code is up to date')
+            self.info('Packed code is up to date')
             return
-        self.info('Pickling ISO-639 codes to', dest)
+        self.info('Packing ISO-639 codes to', dest)
         from lxml import etree
         root = etree.fromstring(open(src, 'rb').read())
         by_2 = {}
@@ -792,9 +792,9 @@ class ISO3166(ISO639):  # {{{
         if not os.path.exists(base):
             os.makedirs(base)
         if not self.newer(dest, [src, __file__]):
-            self.info('Pickled code is up to date')
+            self.info('Packed code is up to date')
             return
-        self.info('Pickling ISO-3166 codes to', dest)
+        self.info('Packing ISO-3166 codes to', dest)
         from lxml import etree
         root = etree.fromstring(open(src, 'rb').read())
         codes = set()
