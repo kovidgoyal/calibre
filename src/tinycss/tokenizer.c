@@ -197,7 +197,8 @@ tokenize_init(PyObject *self, PyObject *args) {
 #define PyUnicode_GET_LENGTH PyUnicode_GET_SIZE
 #define ITER_CODE_PTS(unicode_object) { \
     Py_UNICODE *_data = PyUnicode_AS_UNICODE(unicode_object); \
-    for (Py_ssize_t iteridx = 0; iteridx < PyUnicode_GET_LENGTH(unicode_object); iteridx++) { \
+    Py_ssize_t iteridx; \
+    for (iteridx = 0; iteridx < PyUnicode_GET_LENGTH(unicode_object); iteridx++) { \
         Py_UNICODE ch = _data[iteridx];
 #endif
 
