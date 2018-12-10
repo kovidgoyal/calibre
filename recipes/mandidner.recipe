@@ -5,11 +5,13 @@ from calibre.web.feeds.news import AutomaticNewsRecipe
 
 
 class BasicUserRecipe1541708734(AutomaticNewsRecipe):
-    title          = 'Mandídner'
+    title = 'Mandiner'
+    language = 'hu'
+    __author__ = 'pofa'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
-        ('Mandídner', 'http://mandiner.hu/rss/'),
+    feeds = [
+        ('Mandiner', 'http://mandiner.hu/rss/'),
     ]
