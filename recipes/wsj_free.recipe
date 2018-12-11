@@ -147,18 +147,13 @@ class WSJ(BasicNewsRecipe):
         root = self.index_to_soup(url, as_tree=True)
         CSSSelect = Select(root)
         articles = []
-        for container in CSSSelect('.style__grid_3gzjbqouVfPMK84Adb3MFE .article'):
-            meta = next(CSSSelect('.type', container))
-            parent = meta.getparent()
-            meta = self.tag_to_string(meta)
-            title = next(CSSSelect('.title', parent))
-            a = next(CSSSelect('a', title))
+        for container in root.xpath('descendant::div[contains(@class, "WSJTheme__list-item_")]'):
+            heading = next(CSSSelect('h2, h3', container))
+            a = next(CSSSelect('a', heading))
             title = self.tag_to_string(a)
-            if meta:
-                title += ' [%s]' % meta
             url = self.abs_wsj_url(a.get('href'))
             desc = ''
-            for p in CSSSelect('p.description', container):
+            for p in container.xpath('descendant::p[contains(@class, "WSJTheme__description_")]'):
                 q = self.tag_to_string(p)
                 if 'Subscriber Content' in q:
                     continue
