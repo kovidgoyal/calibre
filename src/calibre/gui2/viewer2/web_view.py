@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import os
 
 from PyQt5.Qt import (
@@ -24,6 +25,7 @@ from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import JSONConfig
 
 try:
@@ -61,6 +63,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
+        self.mathjax_tdir = self.mathjax_manifest = None
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
@@ -96,6 +99,19 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             metadata = get_data('calibre-book-metadata.json')[0]
             data = b'[' + manifest + b',' + metadata + b']'
             self.send_reply(rq, mime_type, data)
+        elif name.startswith('mathjax/'):
+            if name == 'mathjax/manifest.json':
+                from calibre.srv.books import get_mathjax_manifest
+                if self.mathjax_tdir is None:
+                    self.mathjax_tdir = PersistentTemporaryDirectory(prefix='v2mjx-')
+                    self.mathjax_manifest = json.dumps(get_mathjax_manifest(self.mathjax_tdir)['files'], encoding='utf-8')
+                self.send_reply(rq, 'application/json', self.mathjax_manifest)
+            else:
+                path = os.path.abspath(os.path.join(self.mathjax_tdir, name))
+                if path.startswith(self.mathjax_tdir):
+                    mt = guess_type(name)
+                    with lopen(path, 'rb') as f:
+                        self.send_reply(rq, mt, f.read())
 
     def send_reply(self, rq, mime_type, data):
         if sip.isdeleted(rq):
