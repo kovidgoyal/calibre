@@ -97,7 +97,7 @@ def get_mathjax_files_stage2(proceed):
         return
     for filename in get_mathjax_files_stage2.files_to_get:
         xhr = ajax(f'mathjax/{filename}', mathjax_file_received.bind(None, filename, proceed), ok_code=0)
-        xhr.responseType = 'blob' if filename.endswith('.woff') else 'text'
+        xhr.responseType = 'blob'
         xhr.send()
 
 
