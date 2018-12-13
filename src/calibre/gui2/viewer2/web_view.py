@@ -119,6 +119,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     rq.fail(rq.RequestFailed)
                     return
                 if 'MathJax.js' in name:
+                    # raw = open(os.path.expanduser('~/work/mathjax/unpacked/MathJax.js')).read()
                     raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
 
                 self.send_reply(rq, mt, raw)

@@ -25,14 +25,14 @@ function monkeypatch(mathjax_files) {
         var name = ans.replace(/^\\//g, '');
         if (name.startsWith('../fonts')) name = name.slice(3);
         ans = mathjax_files[name];
-        if (!ans) ans = '';
+        if (!ans) ans = name;
         if (typeof ans !== 'string') {
             mathjax_files[name] = window.URL.createObjectURL(ans);
             ans = mathjax_files[name];
         }
         if (ans === name && !name.startsWith('blob:')) {
-            if (ans.endsWith('.eot') || ans.endsWith('.otf')) return '';
-            console.log('WARNING: Failed to resolve MathJax file: ' + mathjax_name);
+            if (ans.endsWith('.eot') || ans.endsWith('.otf')) ans = '';
+            else console.log('WARNING: Failed to resolve MathJax file: ' + mathjax_name);
         }
         return ans;
     }
