@@ -30,7 +30,7 @@
     - title: "Metadata download: Add an option (in Preferences->Metadata download) to keep multiple results from individual metadata sources, useful if you prefer to pick the best result by hand and use only one or two metadata sources."
       tickets: [1802293]
 
-    - title: "Kobo driver: Add an option to directly update metadata in the Kobo device database, instead of waiting for the Kobo to update the database after disconnecting. (Preferences->Plugins->Customize the Kobo device plugin)"
+    - title: "KoboTouch driver: Extend the metadata updated in the Kobo device database to all metadata displayed on the device. The update is only done for books already on the device. Needs to be enabled via Preferences->Plugins->Customize the KoboTouch device plugin."
 
   bug fixes:
     - title: "E-book viewer: Fix a regression that broke viewing of HTMLZ files"
