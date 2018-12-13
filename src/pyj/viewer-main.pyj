@@ -59,9 +59,57 @@ def get_file(book, name, proceed):
         xhr.responseType = 'blob'
     xhr.send()
 
+def mathjax_file_received(name, proceed, end_type, xhr, ev):
+    if end_type is 'abort':
+        return
+    if end_type is not 'load':
+        show_error(_('Failed to load MathJax file'), _(
+            'Could not load the file: {} with error: {}').format(name, xhr.error_html))
+        return
+    if not xhr.responseType or xhr.responseType is 'text':
+        result = xhr.responseText
+    else if xhr.responseType is 'blob' or xhr.responseType is 'json':
+        result = xhr.response
+    else:
+        show_error(_('Failed to load MathJax file'), _(
+            'Could not load the file: {} unknown response type: {}')
+.format(name, xhr.responseType))
+        return
+    if name is 'manifest.json':
+        get_mathjax_files.manifest = result
+        get_mathjax_files_stage2.files_to_get = list(Object.keys(result))
+        get_mathjax_files_stage2.file_data = {}
+        get_mathjax_files_stage2(proceed)
+        return
+
+    get_mathjax_files_stage2.file_data[name] = result
+    get_mathjax_files_stage2.files_to_get.remove(name)
+    if not get_mathjax_files_stage2.files_to_get.length:
+        proceed(get_mathjax_files_stage2.file_data)
+
+def get_mathjax_manifest(proceed):
+    xhr = ajax('mathjax/manifest.json', mathjax_file_received.bind(None, 'manifest.json', proceed), ok_code=0)
+    xhr.responseType = 'json'
+    xhr.send()
+
+
+def get_mathjax_files_stage2(proceed):
+    if not get_mathjax_files_stage2.files_to_get.length:
+        proceed(get_mathjax_files_stage2.file_data)
+        return
+    for filename in get_mathjax_files_stage2.files_to_get:
+        xhr = ajax(f'mathjax/{filename}', mathjax_file_received.bind(None, filename, proceed), ok_code=0)
+        xhr.responseType = 'blob'
+        xhr.send()
+
+
 
 def get_mathjax_files(proceed):
-    proceed({})
+    if not get_mathjax_files.manifest:
+        get_mathjax_manifest(proceed)
+    else:
+        get_mathjax_files_stage2(proceed)
+
 
 
 def update_url_state(replace):

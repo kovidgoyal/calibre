@@ -15,6 +15,7 @@ def get_url(mathjax_files, name):
         ans = mathjax_files[name] = window.URL.createObjectURL(ans)
     return ans
 
+
 def monkeypatch(mathjax_files):
     StyleString = window.MathJax.Ajax.StyleString.bind(window.MathJax.Ajax)
 
@@ -72,7 +73,18 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     script = E.script(type='text/javascript')
     document.head.appendChild(script)
     if runtime.is_standalone_viewer:
-        script.src = f'{runtime.FAKE_PROTOCOL}://{runtime.FAKE_HOST}/mathjax/MathJax.js'
+        script.onload = def():
+            ev = new CustomEvent("calibre-mathjax-init", {
+                'detail': {
+                    'MathJax': m,
+                    'link_uid': link_uid,
+                    'mathjax_files': mathjax_files,
+                }
+            })
+            document.documentElement.dispatchEvent(ev)
+        document.documentElement.addEventListener("calibre-mathjax-init-done", def(ev):
+            proceed()
+        )
     else:
         m.AuthorInit = init_mathjax.bind(this, mathjax_files, link_uid, proceed)
-        script.src = get_url(mathjax_files, 'MathJax.js')
+    script.src = get_url(mathjax_files, 'MathJax.js')

@@ -62,7 +62,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
-        self.mathjax_tdir = None
+        self.mathjax_tdir = self.mathjax_manifest = None
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
@@ -99,16 +99,28 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             data = b'[' + manifest + b',' + metadata + b']'
             self.send_reply(rq, mime_type, data)
         elif name.startswith('mathjax/'):
-            if self.mathjax_tdir is None:
-                from calibre.srv.books import get_mathjax_manifest
-                self.mathjax_tdir = PersistentTemporaryDirectory(prefix='v2mjx-')
-                get_mathjax_manifest(self.mathjax_tdir)
-
+            from calibre.gui2.viewer2.mathjax import monkeypatch_mathjax
+            if name == 'mathjax/manifest.json':
+                if self.mathjax_tdir is None:
+                    import json
+                    from calibre.srv.books import get_mathjax_manifest
+                    self.mathjax_tdir = PersistentTemporaryDirectory(prefix='v2mjx-')
+                    self.mathjax_manifest = json.dumps(get_mathjax_manifest(self.mathjax_tdir)['files'])
+                    self.send_reply(rq, 'application/json', self.mathjax_manifest)
+                    return
             path = os.path.abspath(os.path.join(self.mathjax_tdir, name))
             if path.startswith(self.mathjax_tdir):
                 mt = guess_type(name)
-                with lopen(path, 'rb') as f:
-                    raw = f.read()
+                try:
+                    with lopen(path, 'rb') as f:
+                        raw = f.read()
+                except EnvironmentError as err:
+                    prints("Failed to get mathjax file: {} with error: {}".format(name, err))
+                    rq.fail(rq.RequestFailed)
+                    return
+                if 'MathJax.js' in name:
+                    raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
+
                 self.send_reply(rq, mt, raw)
 
     def send_reply(self, rq, mime_type, data):

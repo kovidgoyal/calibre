@@ -168,7 +168,7 @@ class View:
             'human_scroll': self.on_human_scroll,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
-        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'))
+        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'), runtime.FAKE_PROTOCOL, runtime.FAKE_HOST)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
