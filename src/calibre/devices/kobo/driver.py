@@ -76,13 +76,13 @@ class KOBO(USBMS):
 
     name = 'Kobo Reader Device Interface'
     gui_name = 'Kobo Reader'
-    description = _('Communicate with the Kobo Reader')
+    description = _('Communicate with the original Kobo Reader and the Kobo WiFi.')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 5, 0)
+    version = (2, 5, 1)
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 147
+    supported_dbversion = 149
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -309,7 +309,7 @@ class KOBO(USBMS):
                         bl[idx].device_collections = playlist_map.get(lpath,[])
                 else:
                     if ContentType == '6' and MimeType == 'Shortcover':
-                        book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
+                        book = self.book_class(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
                     else:
                         try:
                             if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
@@ -317,7 +317,7 @@ class KOBO(USBMS):
                             else:
                                 debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                                 title = "FILE MISSING: " + title
-                                book = Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
+                                book = self.book_class(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
 
                         except:
                             debug_print("prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors,
@@ -568,10 +568,12 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def add_books_to_metadata(self, locations, metadata, booklists):
+        debug_print("KoboTouch::add_books_to_metadata - start. metadata=%s" % metadata[0])
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             info = metadata.next()
+            debug_print("KoboTouch::add_books_to_metadata - info=%s" % info)
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             # Extract the correct prefix from the pathname. To do this correctly,
@@ -598,7 +600,7 @@ class KOBO(USBMS):
             if lpath.startswith('/') or lpath.startswith('\\'):
                 lpath = lpath[1:]
             # print "path: " + lpath
-            book = self.book_class(prefix, lpath, other=info)
+            book = self.book_class(prefix, lpath, info.title, other=info)
             if book.size is None or book.size == 0:
                 book.size = os.stat(self.normalize_path(path)).st_size
             b = booklists[blist].add_book(book, replace_metadata=True)
@@ -1340,11 +1342,11 @@ class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
     gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
     author      = 'David Forrester'
-    description = _('Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD, Touch 2, Aura ONE and Aura Edition 2 ereaders.'
+    description = _('Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2, Aura H2O Edition 2, Clara HD and Forma ereaders.'
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 147
+    supported_dbversion             = 149
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1356,7 +1358,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 11, 11879)
+    max_supported_fwversion         = (4, 12, 12111)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2426,7 +2428,7 @@ class KOBOTOUCH(KOBO):
                             category_added = False
 
                             if book.contentID is None:
-                                debug_print('    Do not know ContentID - Title="%s"'%book.title)
+                                debug_print('    Do not know ContentID - Title="%s, Authors=%s"'%(book.title, book.author))
                                 extension =  os.path.splitext(book.path)[1]
                                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
