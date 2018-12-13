@@ -71,7 +71,7 @@ class MathJax(Command):
                 zf.comment = self.h.hexdigest()
             t.seek(0)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.zip.xz'), 'wb') as f:
-                compress(t, f, level=1 if is_ci else 9)
+                compress(t, f, level=4 if is_ci else 9)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.version'), 'wb') as f:
                 f.write(zf.comment)
         finally:
