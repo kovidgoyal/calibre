@@ -170,7 +170,9 @@ class ViewerBridge(Bridge):
 class WebPage(QWebEnginePage):
 
     def __init__(self, parent):
-        QWebEnginePage.__init__(self, create_profile(), parent)
+        profile = create_profile()
+        QWebEnginePage.__init__(self, profile, parent)
+        profile.setParent(self)
         secure_webengine(self, for_viewer=True)
         self.bridge = ViewerBridge(self)
 
