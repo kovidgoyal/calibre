@@ -127,6 +127,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
     def send_reply(self, rq, mime_type, data):
         if sip.isdeleted(rq):
             return
+        # make the buf a child of rq so that it is automatically deleted when
+        # rq is deleted
         buf = QBuffer(parent=rq)
         buf.open(QBuffer.WriteOnly)
         # we have to copy data into buf as it will be garbage
@@ -134,9 +136,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         buf.write(data)
         buf.seek(0)
         buf.close()
-        buf.aboutToClose.connect(buf.deleteLater)
         rq.reply(mime_type.encode('ascii'), buf)
-
 # }}}
 
 
