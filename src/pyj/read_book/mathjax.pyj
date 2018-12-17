@@ -13,6 +13,18 @@ def get_url(mathjax_files, name):
     return ans
 
 def monkeypatch(mathjax_files):
+    StyleString = window.MathJax.Ajax.StyleString.bind(window.MathJax.Ajax)
+
+    def style_string(styles):
+        # replace the URLs in the generated stylesheet
+        return StyleString(styles).replace(/url\('?(.*?)'?\)/g, def (match, url):
+            if not url.endsWith('.woff'):
+                return match
+            url = get_url(mathjax_files, url)
+            ans = f"url('{url}')"
+            return ans
+        )
+
     orig = window.MathJax.Ajax.fileURL.bind(window.MathJax.Ajax)
     def file_url(file):
         ans = orig(file)
@@ -28,6 +40,7 @@ def monkeypatch(mathjax_files):
             print('WARNING: Failed to resolve MathJax file:', name)
         return ans
     window.MathJax.Ajax.fileURL = file_url
+    window.MathJax.Ajax.StyleString = style_string
     window.MathJax.Ajax.fileRev = def(file):
         return ''
 
