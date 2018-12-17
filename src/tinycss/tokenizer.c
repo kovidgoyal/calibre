@@ -192,7 +192,7 @@ tokenize_init(PyObject *self, PyObject *args) {
     int _kind = PyUnicode_KIND(unicode_object); \
     void *_data = PyUnicode_DATA(unicode_object); \
     for (Py_ssize_t iteridx = 0; iteridx < PyUnicode_GET_LENGTH(unicode_object); iteridx++) { \
-        Py_UCS4 ch = PyUnicode_READ(kind, data, i);
+        Py_UCS4 ch = PyUnicode_READ(_kind, _data, iteridx);
 #else
 #define PyUnicode_GET_LENGTH PyUnicode_GET_SIZE
 #define ITER_CODE_PTS(unicode_object) { \
@@ -260,7 +260,7 @@ clone_unicode(const PyObject* src, Py_ssize_t start_offset, Py_ssize_t end_offse
             data = PyUnicode_4BYTE_DATA(src) + start_offset; break;
 
     }
-    return PyUnicode_FromKindAndData(kind, data, PyUnicode_GET_LENGTH(src) - start_offset - end_offset)
+    return PyUnicode_FromKindAndData(kind, data, PyUnicode_GET_LENGTH(src) - start_offset - end_offset);
 #else
     return PyUnicode_FromUnicode(PyUnicode_AS_UNICODE(src) + start_offset, PyUnicode_GET_LENGTH(src) - start_offset - end_offset);
 #endif
@@ -308,7 +308,7 @@ tokenize_flat(PyObject *self, PyObject *args) {
 
     while (pos < source_len) {
 #if PY_VERSION_HEX >= 0x03030000
-        c = PyUnicode_READ(css_kind, css_data, pos);
+        c = PyUnicode_READ(css_kind, css_source, pos);
 #else
         c = css_source[pos];
 #endif
