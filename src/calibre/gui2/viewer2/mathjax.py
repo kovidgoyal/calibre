@@ -19,6 +19,20 @@ function postprocess_mathjax(link_uid) {
 
 function monkeypatch(mathjax_files) {
     var orig = window.MathJax.Ajax.fileURL.bind(window.MathJax.Ajax);
+    var StyleString = window.MathJax.Ajax.StyleString.bind(window.MathJax.Ajax);
+
+    window.MathJax.Ajax.StyleString = function(styles) {
+        return StyleString(styles).replace(/url\\('?(.*?)'?\\)/g, function(match, url) {
+            if (!url.endsWith('.woff')) return match;
+            url = mathjax_files[url];
+            if (!url) return match;
+            if (typeof url != "string") {
+                url = window.URL.createObjectURL(url);
+                mathjax_files[name] = url;
+            }
+            return "url('" + url + "')";
+        });
+    }
 
     window.MathJax.Ajax.fileURL = function(mathjax_name) {
         var ans = orig(mathjax_name);
@@ -30,7 +44,7 @@ function monkeypatch(mathjax_files) {
             mathjax_files[name] = window.URL.createObjectURL(ans);
             ans = mathjax_files[name];
         }
-        if (ans === name && !name.startsWith('blob:')) {
+        if (ans === name && !name.startsWith('blob:') && !name.endsWith('/eot') && !name.endsWith('/woff') && !name.endsWith('/otf')) {
             if (ans.endsWith('.eot') || ans.endsWith('.otf')) ans = '';
             else console.log('WARNING: Failed to resolve MathJax file: ' + mathjax_name);
         }
