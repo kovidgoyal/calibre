@@ -397,8 +397,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if self.shortcut_config.is_editing:
             from calibre.gui2 import info_dialog
             info_dialog(self, _('Still editing'),
-                    _('You are in the middle of editing a keyboard shortcut'
-                        ' first complete that, by clicking outside the '
+                    _('You are in the middle of editing a keyboard shortcut.'
+                        ' First complete that by clicking outside the'
                         ' shortcut editing box.'), show=True)
             return
         self.save_options(config())
