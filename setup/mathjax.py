@@ -64,10 +64,10 @@ class MathJax(Command):
             self.info('Compressing MathJax...')
             t = SpooledTemporaryFile()
             with ZipFile(t, 'w', ZIP_STORED) as zf:
-                self.add_file(zf, self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
-                self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
+                self.add_file(zf, self.j(src, 'MathJax.js'), 'MathJax.js')
+                self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY, lambda x: not x.endswith('.woff'))
                 for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
-                    self.add_tree(zf, self.j(src, 'unpacked', *d.split('/')), d)
+                    self.add_tree(zf, self.j(src, *d.split('/')), d)
 
                 zf.comment = self.h.hexdigest()
             t.seek(0)
