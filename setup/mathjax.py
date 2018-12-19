@@ -47,12 +47,13 @@ class MathJax(Command):
         with open(dest, 'wb') as f:
             f.write(raw)
 
-    def add_tree(self, base, prefix):
+    def add_tree(self, base, prefix, ignore=lambda n:False):
         for dirpath, dirnames, filenames in os.walk(base):
             for fname in filenames:
                 f = os.path.join(dirpath, fname)
                 name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
-                self.add_file(f, name)
+                if not ignore(name):
+                    self.add_file(f, name)
 
     def clean(self):
         self.mathjax_dir = self.j(self.RESOURCES, 'mathjax')
@@ -68,10 +69,11 @@ class MathJax(Command):
         try:
             src = opts.path_to_mathjax or self.download_mathjax_release(tdir, opts.mathjax_url)
             self.info('Adding MathJax...')
-            self.add_file(self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
-            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
+            unpacked = 'unpacked' if self.e(self.j(src, 'unpacked')) else ''
+            self.add_file(self.j(src, unpacked, 'MathJax.js'), 'MathJax.js')
+            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY, lambda x: not x.endswith('.woff'))
             for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
-                self.add_tree(self.j(src, 'unpacked', *d.split('/')), d)
+                self.add_tree(self.j(src, unpacked, *d.split('/')), d)
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
                 f.write(json.dumps({'etag': etag, 'files': self.mathjax_files}, indent=2).encode('utf-8'))
