@@ -33,7 +33,7 @@
 to appear as unknown if metadata management was set to manual in calibre."
       tickets: [1807914]
 
-    - title: "PDF Output: Do not fail if one of th efonts from the source document has no name metadata"
+    - title: "PDF Output: Do not fail if one of the fonts from the source document has no name metadata"
 
   improved recipes:
     - Wall Street Journal
