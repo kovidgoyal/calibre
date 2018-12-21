@@ -20,6 +20,27 @@
 #   new recipes:
 #     - title:
 
+- version: 3.36.0
+  date: 2018-12-21
+
+  new features:
+    - title: "Happy Holidays to everyone!"
+
+    - title: "Kobo driver: Add supported for newly released firmware update"
+
+  bug fixes:
+    - title: "Kobo driver: Fix a regression in the last release that caused book title
+to appear as unknown if metadata management was set to manual in calibre."
+      tickets: [1807914]
+
+    - title: "PDF Output: Do not fail if one of th efonts from the source document has no name metadata"
+
+  improved recipes:
+    - Wall Street Journal
+    - ESPN
+    - Al Jazeera (English)
+
+
 - version: 3.35.0
   date: 2018-12-07
 
