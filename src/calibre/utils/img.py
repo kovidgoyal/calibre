@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# License: GPLv3 Copyright: 2015-2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -175,7 +175,7 @@ def save_image(img, path, **kw):
         f.write(image_to_data(image_from_data(img), **kw))
 
 
-def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, data_fmt='jpeg'):
+def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, eink=False, letterbox=False, data_fmt='jpeg'):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -193,6 +193,13 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     :param minify_to: A tuple (width, height) to specify maximum target size.
         The image will be resized to fit into this target size. If None the
         value from the tweak is used.
+    :param grayscale: If True, the image is converted to grayscale,
+        if that's not already the case.
+    :param eink: If True, the image is dithered down to the 16 specific shades
+        of gray of the eInk palette.
+        Works best with formats that actually support color indexing (i.e., PNG)
+    :param letterbox: If True, in addition to fit resize_to inside minify_to,
+        the image will be letterboxed (i.e., centered on a black background).
     '''
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     if isinstance(data, QImage):
@@ -207,10 +214,16 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         img = img.scaled(resize_to[0], resize_to[1], Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     owidth, oheight = img.width(), img.height()
     nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
-    scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
-    if scaled:
-        changed = True
-        img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    if letterbox:
+        img = blend_on_canvas(img, nwidth, nheight, bgcolor='#000000')
+        # Check if we were minified
+        if oheight != nheight or owidth != nwidth:
+            changed = True
+    else:
+        scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+        if scaled:
+            changed = True
+            img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
@@ -218,6 +231,17 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         if not img.allGray():
             changed = True
             img = grayscale_image(img)
+    if eink:
+        eink_cmap = ['#000000', '#111111', '#222222', '#333333', '#444444', '#555555', '#666666', '#777777',
+                     '#888888', '#999999', '#AAAAAA', '#BBBBBB', '#CCCCCC', '#DDDDDD', '#EEEEEE', '#FFFFFF']
+        # NOTE: Keep in mind that JPG does NOT actually support indexed colors, so the JPG algorithm will then smush everything back into a 256c mess...
+        #       Thankfully, Nickel handles PNG just fine, and we generate smaller files to boot, because they're properly color indexed ;).
+        img = quantize_image(img, max_colors=16, dither=True, palette=eink_cmap)
+        '''
+        # NOTE: Neither Grayscale8 nor Indexed8 actually do any kind of dithering?... :/.
+        img = img.convertToFormat(QImage.Format_Grayscale8, [QColor(x).rgb() for x in eink_cmap], Qt.AutoColor | Qt.DiffuseDither | Qt.ThresholdAlphaDither | Qt.PreferDither)
+        '''
+        changed = True
     if path is None:
         return image_to_data(img, compression_quality, fmt) if changed else data
     with lopen(path, 'wb') as f:
