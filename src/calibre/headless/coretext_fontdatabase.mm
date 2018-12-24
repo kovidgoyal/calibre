@@ -716,71 +716,71 @@ static CTFontUIFontType fontTypeFromTheme(QPlatformTheme::Font f)
 {
     switch (f) {
     case QPlatformTheme::SystemFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::MenuFont:
     case QPlatformTheme::MenuBarFont:
     case QPlatformTheme::MenuItemFont:
-        return kCTFontMenuItemFontType;
+        return kCTFontUIFontMenuItem;
 
     case QPlatformTheme::MessageBoxFont:
-        return kCTFontEmphasizedSystemFontType;
+        return kCTFontUIFontEmphasizedSystem;
 
     case QPlatformTheme::LabelFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::TipLabelFont:
         return kCTFontToolTipFontType;
 
     case QPlatformTheme::StatusBarFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::TitleBarFont:
-        return kCTFontWindowTitleFontType;
+        return kCTFontUIFontWindowTitle;
 
     case QPlatformTheme::MdiSubWindowTitleFont:
     case QPlatformTheme::DockWidgetTitleFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::PushButtonFont:
-        return kCTFontPushButtonFontType;
+        return kCTFontUIFontPushButton;
 
     case QPlatformTheme::CheckBoxFont:
     case QPlatformTheme::RadioButtonFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::ToolButtonFont:
-        return kCTFontSmallToolbarFontType;
+        return kCTFontUIFontSmallToolbar;
 
     case QPlatformTheme::ItemViewFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::ListViewFont:
-        return kCTFontViewsFontType;
+        return kCTFontUIFontViews;
 
     case QPlatformTheme::HeaderViewFont:
-        return kCTFontSmallSystemFontType;
+        return kCTFontUIFontSmallSystem;
 
     case QPlatformTheme::ListBoxFont:
-        return kCTFontViewsFontType;
+        return kCTFontUIFontViews;
 
     case QPlatformTheme::ComboMenuItemFont:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
 
     case QPlatformTheme::ComboLineEditFont:
-        return kCTFontViewsFontType;
+        return kCTFontUIFontViews;
 
     case QPlatformTheme::SmallFont:
-        return kCTFontSmallSystemFontType;
+        return kCTFontUIFontSmallSystem;
 
     case QPlatformTheme::MiniFont:
-        return kCTFontMiniSystemFontType;
+        return kCTFontUIFontMiniSystem;
 
     case QPlatformTheme::FixedFont:
-        return kCTFontUserFixedPitchFontType;
+        return kCTFontUIFontUserFixedPitch;
 
     default:
-        return kCTFontSystemFontType;
+        return kCTFontUIFontSystem;
     }
 }
 
@@ -858,7 +858,7 @@ QFont *QCoreTextFontDatabase::themeFont(QPlatformTheme::Font f) const
 QFont QCoreTextFontDatabase::defaultFont() const
 {
     if (defaultFontName.isEmpty()) {
-        QCFType<CTFontRef> font = CTFontCreateUIFontForLanguage(kCTFontSystemFontType, 12.0, NULL);
+        QCFType<CTFontRef> font = CTFontCreateUIFontForLanguage(kCTFontUIFontSystem, 12.0, NULL);
         defaultFontName = (QString) QCFString(CTFontCopyFullName(font));
     }
 
