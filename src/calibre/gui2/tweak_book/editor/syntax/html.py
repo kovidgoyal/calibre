@@ -73,6 +73,7 @@ if _speedup is not None:
     def spell_property(sfmt, locale):
         s = QTextCharFormat(sfmt)
         s.setProperty(SPELL_LOCALE_PROPERTY, locale)
+        s.mem = locale  # ensure locale is not garbage collected
         return s
     _speedup.init(spell_property, dictionaries.recognized, split_into_words_and_positions)
     del spell_property
