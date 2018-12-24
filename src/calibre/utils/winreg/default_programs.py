@@ -85,7 +85,10 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set('PerceivedType', 'Document')
         key.set(sub_key='DefaultIcon', value=exe+',0')
         key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
-        key.set('AllowSilentDefaultTakeOver')
+        # contrary to the msdn docs, this key prevents calibre programs
+        # from appearing in the initial open with list, see
+        # https://www.mobileread.com/forums/showthread.php?t=313668
+        # key.set('AllowSilentDefaultTakeOver')
 
     with Key(r'Software\Classes\.%s\OpenWithProgIDs' % ext) as key:
         key.set(prog_id)
