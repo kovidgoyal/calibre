@@ -240,9 +240,9 @@ static void getFontDescription(CTFontDescriptorRef font, FontDescription *fd)
 
     if (styles) {
         if (CFNumberRef weightValue = (CFNumberRef) CFDictionaryGetValue(styles, kCTFontWeightTrait)) {
-            float normalizedWeight;
-            if (CFNumberGetValue(weightValue, kCFNumberFloatType, &normalizedWeight))
-                fd->weight = QCoreTextFontEngine::qtWeightFromCFWeight(normalizedWeight);
+            double normalizedWeight;
+            if (CFNumberGetValue(weightValue, kCFNumberFloat64Type, &normalizedWeight))
+                fd->weight = QCoreTextFontEngine::qtWeightFromCFWeight(float(normalizedWeight));
         }
         if (CFNumberRef italic = (CFNumberRef) CFDictionaryGetValue(styles, kCTFontSlantTrait)) {
             double d;
