@@ -67,7 +67,7 @@ static void
 Compressor_dealloc(Compressor *self)
 {
     Compressor_clear(self);
-    
+
     if (self->stream) {
         lzxc_finish(self->stream, NULL);
         self->stream = NULL;
@@ -81,7 +81,7 @@ Compressor_dealloc(Compressor *self)
         self->output.data = NULL;
     }
 
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
@@ -99,17 +99,17 @@ Compressor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->wbits = 0;
         self->blocksize = 0;
         self->flushing = 0;
-        
+
         BUFFER_INIT(self->residue);
         BUFFER_INIT(self->input);
         BUFFER_INIT(self->output);
     }
-    
+
     return (PyObject *)self;
 }
 
 static int
-get_bytes(void *context, int nbytes, void *buf) 
+get_bytes(void *context, int nbytes, void *buf)
 {
     Compressor *self = (Compressor *)context;
     unsigned char *data = (unsigned char *)buf;
@@ -130,7 +130,7 @@ get_bytes(void *context, int nbytes, void *buf)
             nbytes -= resrem;
         }
     }
-    
+
     if (inrem == 0) {
         return resrem;
     } else if (nbytes > inrem) {
@@ -143,7 +143,7 @@ get_bytes(void *context, int nbytes, void *buf)
 }
 
 static int
-at_eof(void *context) 
+at_eof(void *context)
 {
     Compressor *self = (Compressor *)context;
     return (self->flushing && (COMPRESSOR_REMAINING(self) == 0));
@@ -190,10 +190,10 @@ Compressor_init(Compressor *self, PyObject *args, PyObject *kwds)
     int retval = 0;
 
     self->reset = 1;
-    
+
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "I|b", kwlist, &wbits, &self->reset)) {
-        return -1; 
+        return -1;
     }
     /* TODO: check window size. */
 
@@ -216,7 +216,7 @@ Compressor_init(Compressor *self, PyObject *args, PyObject *kwds)
         PyErr_SetString(LZXError, "Failed to create compression stream");
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -234,12 +234,12 @@ Compressor_compress__(
     PyObject *cdata = NULL;
     PyObject *rtable = NULL;
     PyObject *result = NULL;
-    
+
     self->flushing = flush;
     input->data = data;
     input->size = inlen;
     input->offset = 0;
-    
+
     outlen = inlen;
     remainder = outlen % blocksize;
     if (remainder != 0) {
@@ -288,7 +288,7 @@ Compressor_compress__(
         self->rtable = rtable;
         return NULL;
     }
-    cdata = PyString_FromStringAndSize(output->data, output->offset);
+    cdata = PyBytes_FromStringAndSize(output->data, output->offset);
     if (cdata == NULL) {
         Py_DECREF(rtable);
         return NULL;
@@ -333,43 +333,42 @@ static PyMethodDef Compressor_methods[] = {
 };
 
 PyTypeObject CompressorType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                 /*ob_size*/
-    "lzx.Compressor",                  /*tp_name*/
-    sizeof(Compressor),                /*tp_basicsize*/
-    0,                                 /*tp_itemsize*/
-    (destructor)Compressor_dealloc,    /*tp_dealloc*/
-    0,                                 /*tp_print*/
-    0,                                 /*tp_getattr*/
-    0,                                 /*tp_setattr*/
-    0,                                 /*tp_compare*/
-    0,                                 /*tp_repr*/
-    0,                                 /*tp_as_number*/
-    0,                                 /*tp_as_sequence*/
-    0,                                 /*tp_as_mapping*/
-    0,                                 /*tp_hash */
-    0,                                 /*tp_call*/
-    0,                                 /*tp_str*/
-    0,                                 /*tp_getattro*/
-    0,                                 /*tp_setattro*/
-    0,                                 /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Compressor objects",              /* tp_doc */
-    (traverseproc)Compressor_traverse, /* tp_traverse */
-    (inquiry)Compressor_clear,         /* tp_clear */
-    0,		                       /* tp_richcompare */
-    0,		                       /* tp_weaklistoffset */
-    0,		                       /* tp_iter */
-    0,		                       /* tp_iternext */
-    Compressor_methods,                /* tp_methods */
-    Compressor_members,                /* tp_members */
-    0,                                 /* tp_getset */
-    0,                                 /* tp_base */
-    0,                                 /* tp_dict */
-    0,                                 /* tp_descr_get */
-    0,                                 /* tp_descr_set */
-    0,                                 /* tp_dictoffset */
-    (initproc)Compressor_init,         /* tp_init */
-    0,                                 /* tp_alloc */
-    Compressor_new,                    /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name             */  "lzx.Compressor",
+    /* tp_basicsize        */  sizeof(Compressor),
+    /* tp_itemsize         */  0,
+    /* tp_dealloc          */  (destructor)Compressor_dealloc,
+    /* tp_print            */  0,
+    /* tp_getattr          */  0,
+    /* tp_setattr          */  0,
+    /* tp_compare          */  0,
+    /* tp_repr             */  0,
+    /* tp_as_number        */  0,
+    /* tp_as_sequence      */  0,
+    /* tp_as_mapping       */  0,
+    /* tp_hash             */  0,
+    /* tp_call             */  0,
+    /* tp_str              */  0,
+    /* tp_getattro         */  0,
+    /* tp_setattro         */  0,
+    /* tp_as_buffer        */  0,
+    /* tp_flags            */  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+    /* tp_doc              */  "Compressor objects",
+    /* tp_traverse         */  (traverseproc)Compressor_traverse,
+    /* tp_clear            */  (inquiry)Compressor_clear,
+    /* tp_richcompare      */  0,
+    /* tp_weaklistoffset   */  0,
+    /* tp_iter             */  0,
+    /* tp_iternext         */  0,
+    /* tp_methods          */  Compressor_methods,
+    /* tp_members          */  Compressor_members,
+    /* tp_getset           */  0,
+    /* tp_base             */  0,
+    /* tp_dict             */  0,
+    /* tp_descr_get        */  0,
+    /* tp_descr_set        */  0,
+    /* tp_dictoffset       */  0,
+    /* tp_init             */  (initproc)Compressor_init,
+    /* tp_alloc            */  0,
+    /* tp_new              */  Compressor_new,
 };
