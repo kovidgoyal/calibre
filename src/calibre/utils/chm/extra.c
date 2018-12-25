@@ -29,20 +29,9 @@
 #define PyObject void
 #endif
 
-#include <stdlib.h>
-
-#ifdef _MSC_VER
-#include <stdint.h>
-#define strcasecmp stricmp
-#define strncasecmp strnicmp
-#else
 #include <inttypes.h>
+#include <stdlib.h>
 #include <strings.h>
-#endif
-
-#if defined( _MSC_VER ) && !defined( __cplusplus )
-# define inline __inline
-#endif
 
 #if defined(_WIN32) || defined(__WIN32__)
 #       if defined(_MSC_VER)
@@ -76,13 +65,13 @@
 
 #define FREE(x) free (x); x = NULL
 
-inline uint16_t
+static uint16_t
 get_uint16 (uint8_t* b) {
   return b[0] |
     b[1]<<8;
 }
 
-inline uint32_t
+static uint32_t
 get_uint32 (uint8_t* b) {
   return b[0] |
     b[1]<<8   |
@@ -90,19 +79,7 @@ get_uint32 (uint8_t* b) {
     b[3]<<24;
 }
 
-inline uint64_t
-get_uint64 (uint8_t* b) {
-  return b[0]           |
-    b[1]<<8             |
-    b[2]<<16            |
-    b[3]<<24            |
-    (uint64_t) b[4]<<32 |
-    (uint64_t) b[5]<<40 |
-    (uint64_t) b[6]<<48 |
-    (uint64_t) b[7]<<56;
-}
-
-inline uint64_t
+static uint64_t
 be_encint (unsigned char *buffer, size_t *length)
 {
   uint64_t result = 0;
@@ -123,7 +100,7 @@ be_encint (unsigned char *buffer, size_t *length)
   Finds the first unset bit in memory. Returns the number of set bits found.
   Returns -1 if the buffer runs out before we find an unset bit.
 */
-inline int
+static int
 ffus (unsigned char* byte, int* bit, size_t *length) {
   int bits = 0;
   *length = 0;
@@ -150,7 +127,7 @@ ffus (unsigned char* byte, int* bit, size_t *length) {
 }
 
 
-static inline uint64_t
+static uint64_t
 sr_int(unsigned char* byte, int* bit,
        unsigned char s, unsigned char r, size_t *length)
 {
@@ -227,7 +204,7 @@ sr_int(unsigned char* byte, int* bit,
 }
 
 
-static inline uint32_t
+static uint32_t
 get_leaf_node_offset(struct chmFile *chmfile,
                      const char *text,
                      uint32_t initial_offset,
@@ -242,7 +219,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
   char *word = NULL;
   uint32_t test_offset = 0;
   uint32_t i = sizeof(uint16_t);
-  unsigned char *buffer = (unsigned char *)malloc (buff_size);
+  unsigned char *buffer = malloc (buff_size);
 
   if (NULL == buffer)
     return 0;
@@ -267,7 +244,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
       word_len = *(buffer + i);
       pos = *(buffer + i + 1);
 
-      wrd_buf = (char*)malloc (word_len);
+      wrd_buf = malloc (word_len);
       memcpy (wrd_buf, buffer + i + 2, word_len - 1);
       wrd_buf[word_len - 1] = 0;
 
@@ -275,7 +252,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
         FREE (word);
         word = (char *) strdup (wrd_buf);
       } else {
-        word = (char*)realloc (word, word_len + pos + 1);
+        word = realloc (word, word_len + pos + 1);
         strcpy (word + pos, wrd_buf);
       }
 
@@ -300,7 +277,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
   return initial_offset;
 }
 
-static inline int
+static int
 pychm_process_wlc (struct chmFile *chmfile,
                    uint64_t wlc_count, uint64_t wlc_size,
                    uint32_t wlc_offset, unsigned char ds,
@@ -321,7 +298,7 @@ pychm_process_wlc (struct chmFile *chmfile,
   uint64_t index = 0;
   unsigned char entry[TOPICS_ENTRY_LEN];
   unsigned char combuf[COMMON_BUF_LEN];
-  unsigned char *buffer = (unsigned char *)malloc (wlc_size);
+  unsigned char *buffer = malloc (wlc_size);
   char *url = NULL;
   char *topic = NULL;
 
@@ -360,7 +337,7 @@ pychm_process_wlc (struct chmFile *chmfile,
     } else {
       combuf[COMMON_BUF_LEN - 1] = 0;
 
-      topic = strdup ((char*)combuf);
+      topic = strdup ((char *)combuf);
     }
 
     urloff = get_uint32 (entry + 8);
@@ -384,7 +361,7 @@ pychm_process_wlc (struct chmFile *chmfile,
     combuf[COMMON_BUF_LEN - 1] = 0;
 
     FREE (url);
-    url = strdup ((char*)combuf);
+    url = strdup ((char *)combuf);
 
     if (url && topic) {
 #ifdef __PYTHON__
@@ -411,7 +388,7 @@ pychm_process_wlc (struct chmFile *chmfile,
   return true;
 }
 
-int
+static int
 chm_search (struct chmFile *chmfile,
             const char *text, int whole_words,
             int titles_only, PyObject *dict)
@@ -474,7 +451,7 @@ chm_search (struct chmFile *chmfile,
 
   i = sizeof(uint16_t);
 
-  buffer = (unsigned char*)malloc (node_len);
+  buffer = malloc (node_len);
 
   node_offset = get_leaf_node_offset (chmfile, text, node_offset, node_len,
                                       tree_depth, &ui);
@@ -503,7 +480,7 @@ chm_search (struct chmFile *chmfile,
       word_len = *(buffer + i);
       pos = *(buffer + i + 1);
 
-      wrd_buf = (char*)malloc (word_len);
+      wrd_buf = malloc (word_len);
       memcpy (wrd_buf, buffer + i + 2, word_len - 1);
       wrd_buf[word_len - 1] = 0;
 
@@ -511,7 +488,7 @@ chm_search (struct chmFile *chmfile,
         FREE(word);
         word = (char *) strdup (wrd_buf);
       } else {
-        word = (char*)realloc (word, word_len + pos + 1);
+        word = realloc (word, word_len + pos + 1);
         strcpy (word + pos, wrd_buf);
       }
 
@@ -578,7 +555,7 @@ typedef struct {
   int offset;
 } Langrec;
 
-Langrec lang_files[] = {
+static Langrec lang_files[] = {
   {"/$FIftiMain",               0x7E},
   {"$WWKeywordLinks/BTree",     0x34},
   {"$WWAssociativeLinks/BTree", 0x34}
@@ -586,7 +563,7 @@ Langrec lang_files[] = {
 
 #define LANG_FILES_SIZE (sizeof(lang_files)/sizeof(Langrec))
 
-int
+static int
 chm_get_lcid (struct chmFile *chmfile) {
   struct chmUnitInfo ui;
   uint32_t lang;
@@ -705,9 +682,6 @@ IndexMethods[] = {
   {NULL, NULL, 0, NULL}
 };
 
-#ifdef __cplusplus
-extern "C"
-#endif
 CALIBRE_MODINIT_FUNC
 initchm_extra (void) {
   Py_InitModule ("chm_extra", IndexMethods);

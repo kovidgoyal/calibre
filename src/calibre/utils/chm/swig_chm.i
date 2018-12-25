@@ -44,8 +44,8 @@ my_set_callback(PyObject *dummy, PyObject *arg)
     return result;
 }
 
-int dummy_enumerator (struct chmFile *h, 
-                      struct chmUnitInfo *ui, 
+int dummy_enumerator (struct chmFile *h,
+                      struct chmUnitInfo *ui,
                       void *context) {
     PyObject *arglist;
     PyObject *result;
@@ -63,10 +63,10 @@ int dummy_enumerator (struct chmFile *h,
       result = PyEval_CallObject(my_callback, arglist);
       Py_DECREF(arglist);
       Py_DECREF(result);
-      
+
       Py_DECREF(py_h);
       Py_DECREF(py_ui);
-      
+
       if (result == NULL) {
         return 0; /* Pass error back */
       } else {

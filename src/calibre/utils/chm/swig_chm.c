@@ -551,9 +551,9 @@ static swig_type_info *swig_types[6];
 
 
 /*-----------------------------------------------
-              @(target):= chmlib.so
+              @(target):= _chmlib.so
   ------------------------------------------------*/
-#define SWIG_init    initchmlib
+#define SWIG_init    init_chmlib
 
 #define SWIG_name    "chmlib"
 

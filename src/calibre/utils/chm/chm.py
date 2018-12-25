@@ -1,13 +1,13 @@
 # Copyright (C) 2003-2006 Rubens Ramos <rubensr@users.sourceforge.net>
-
+#
 # Based on code by:
 # Copyright (C) 2003  Razvan Cojocaru <razvanco@gmx.net>
-
+#
 # pychm is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 2 of the
 # License, or (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -210,11 +210,11 @@ class CHMFile:
         such as the index file name and the topics file. It returns 1 on
         success, and 0 if it fails.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             self.CloseCHM()
 
         self.file = chmlib.chm_open(archiveName)
-        if (self.file is None):
+        if self.file is None:
             return 0
 
         self.filename = archiveName
@@ -227,7 +227,7 @@ class CHMFile:
         This function will close the CHM file, if it is open. All variables
         are also reset.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             chmlib.chm_close(self.file)
             self.file = None
             self.filename = ''
@@ -300,11 +300,9 @@ class CHMFile:
                     tmp2 = '/' + tmp + '.hhk'
                     res1, ui1 = chmlib.chm_resolve_object(self.file, tmp1)
                     res2, ui2 = chmlib.chm_resolve_object(self.file, tmp2)
-                    if (not self.topics) and \
-                           (res1 == chmlib.CHM_RESOLVE_SUCCESS):
+                    if not self.topics and res1 == chmlib.CHM_RESOLVE_SUCCESS:
                         self.topics = '/' + tmp + '.hhc'
-                    if (not self.index) and \
-                           (res2 == chmlib.CHM_RESOLVE_SUCCESS):
+                    if not self.index and res2 == chmlib.CHM_RESOLVE_SUCCESS:
                         self.index = '/' + tmp + '.hhk'
             elif (cursor == 16):
                 index += 2
@@ -329,7 +327,7 @@ class CHMFile:
         This auxiliary function reads and returns the topics tree file
         contents for the CHM archive.
         '''
-        if (self.topics is None):
+        if self.topics is None:
             return None
 
         if self.topics:
@@ -348,7 +346,7 @@ class CHMFile:
         This auxiliary function reads and returns the index tree file
         contents for the CHM archive.
         '''
-        if (self.index is None):
+        if self.index is None:
             return None
 
         if self.index:
@@ -406,7 +404,7 @@ class CHMFile:
         item being a dictionary containing the results.'''
         if text and text != '' and self.file:
             return extra.search(self.file, text, wholewords,
-                                 titleonly)
+                                titleonly)
         else:
             return None
 
@@ -453,8 +451,8 @@ class CHMFile:
         '''Internal method.
         Reads a double word (4 bytes) from a buffer.
         '''
-        result = buff[idx] + (buff[idx+1]<<8) + (buff[idx+2]<<16) + \
-                 (buff[idx+3]<<24)
+        result = buff[idx] + (buff[idx+1] << 8) + (buff[idx+2] << 16) + \
+            (buff[idx+3] << 24)
 
         if result == 0xFFFFFFFF:
             result = 0
