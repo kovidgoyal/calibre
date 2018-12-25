@@ -1,4 +1,8 @@
 %module chmlib
+%begin %{
+#define SWIG_PYTHON_STRICT_BYTE_CHAR
+%}
+
 %include "typemaps.i"
 %include "cstring.i"
 
@@ -55,7 +59,11 @@ int dummy_enumerator (struct chmFile *h,
 
     py_h  = SWIG_NewPointerObj((void *) h, SWIGTYPE_p_chmFile, 0);
     py_ui = SWIG_NewPointerObj((void *) ui, SWIGTYPE_p_chmUnitInfo, 0);
-    py_c  = PyCObject_AsVoidPtr(context);
+    /* The following was: py_c  = PyCObject_AsVoidPtr(context); which did
+       not make sense because the function takes a PyObject * and returns a
+       void *, not the reverse. This was probably never used?? In doubt,
+       replace with a call which makes sense and hope for the best... */
+    py_c = PyCapsule_New(context, "context", NULL);
 
     /* Time to call the callback */
     arglist = Py_BuildValue("(OOO)", py_h, py_ui, py_c);
@@ -66,6 +74,7 @@ int dummy_enumerator (struct chmFile *h,
 
       Py_DECREF(py_h);
       Py_DECREF(py_ui);
+      Py_DECREF(py_c);
 
       if (result == NULL) {
         return 0; /* Pass error back */
@@ -83,7 +92,7 @@ int dummy_enumerator (struct chmFile *h,
 }
 
 %typemap(in) void *context {
-  if (!($1 = PyCObject_FromVoidPtr($input, NULL))) goto fail;
+  if (!($1 = PyCapsule_New($input, "context", NULL))) goto fail;
 }
 
 %typemap(in, numinputs=0) struct chmUnitInfo *OutValue (struct chmUnitInfo *temp = (struct chmUnitInfo *) calloc(1, sizeof(struct chmUnitInfo))) {
@@ -122,7 +131,7 @@ int dummy_enumerator (struct chmFile *h,
 
 %typemap(argout,fragment="t_output_helper") unsigned char *OUTPUT {
    PyObject *o;
-   o = PyString_FromStringAndSize($1, arg5);
+   o = SWIG_FromCharPtrAndSize((const char*)$1, arg5);
    $result = t_output_helper($result,o);
 #ifdef __cplusplus
    delete [] $1;

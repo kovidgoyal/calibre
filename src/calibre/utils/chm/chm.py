@@ -26,7 +26,6 @@
 '''
 
 import array
-import string
 import sys
 import codecs
 
@@ -249,7 +248,7 @@ class CHMFile:
         self.searchable = False
         self.lcid = None
 
-        result, ui = chmlib.chm_resolve_object(self.file, '/#SYSTEM')
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#SYSTEM')
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             sys.stderr.write('GetArchiveInfo: #SYSTEM does not exist\n')
             return 0
@@ -269,17 +268,17 @@ class CHMFile:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.topics = '/' + text[index:index+cursor-1]
+                self.topics = b'/' + text[index:index+cursor-1]
             elif (cursor == 1):
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.index = '/' + text[index:index+cursor-1]
+                self.index = b'/' + text[index:index+cursor-1]
             elif (cursor == 2):
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.home = '/' + text[index:index+cursor-1]
+                self.home = b'/' + text[index:index+cursor-1]
             elif (cursor == 3):
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
@@ -296,14 +295,14 @@ class CHMFile:
                 index += 2
                 tmp = text[index:index+cursor-1]
                 if not self.topics:
-                    tmp1 = '/' + tmp + '.hhc'
-                    tmp2 = '/' + tmp + '.hhk'
+                    tmp1 = b'/' + tmp + b'.hhc'
+                    tmp2 = b'/' + tmp + b'.hhk'
                     res1, ui1 = chmlib.chm_resolve_object(self.file, tmp1)
                     res2, ui2 = chmlib.chm_resolve_object(self.file, tmp2)
                     if not self.topics and res1 == chmlib.CHM_RESOLVE_SUCCESS:
-                        self.topics = '/' + tmp + '.hhc'
+                        self.topics = b'/' + tmp + b'.hhc'
                     if not self.index and res2 == chmlib.CHM_RESOLVE_SUCCESS:
-                        self.index = '/' + tmp + '.hhk'
+                        self.index = b'/' + tmp + b'.hhk'
             elif (cursor == 16):
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
@@ -403,8 +402,7 @@ class CHMFile:
         indicating if the search results were partial, and the second
         item being a dictionary containing the results.'''
         if text and text != '' and self.file:
-            return extra.search(self.file, text, wholewords,
-                                titleonly)
+            return extra.search(self.file, text, wholewords, titleonly)
         else:
             return None
 
@@ -419,7 +417,7 @@ class CHMFile:
         found, or if it is not possible to find the encoding, None is
         returned.'''
         if self.encoding:
-            vals = string.split(self.encoding, ',')
+            vals = self.encoding.split(b',')
             if len(vals) > 2:
                 try:
                     return charset_table[int(vals[2])]
@@ -463,7 +461,7 @@ class CHMFile:
         '''Internal method.
         Retrieves a string from the #STRINGS buffer.
         '''
-        next = string.find(text, '\x00', idx)
+        next = text.find(b'\x00', idx)
         chunk = text[idx:next]
         return chunk
 
@@ -472,7 +470,7 @@ class CHMFile:
         Checks the #WINDOWS file to see if it has any info that was
         not found in #SYSTEM (topics, index or default page.
         '''
-        result, ui = chmlib.chm_resolve_object(self.file, '/#WINDOWS')
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#WINDOWS')
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             return -1
 
@@ -496,7 +494,7 @@ class CHMFile:
         idx_index = self.GetDWORD(buff, 0x64)
         dft_index = self.GetDWORD(buff, 0x68)
 
-        result, ui = chmlib.chm_resolve_object(self.file, '/#STRINGS')
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#STRINGS')
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             return -5
 
@@ -506,15 +504,15 @@ class CHMFile:
 
         if (not self.topics):
             self.topics = self.GetString(text, toc_index)
-            if not self.topics.startswith("/"):
-                self.topics = "/" + self.topics
+            if not self.topics.startswith(b"/"):
+                self.topics = b"/" + self.topics
 
         if (not self.index):
             self.index = self.GetString(text, idx_index)
-            if not self.index.startswith("/"):
-                self.index = "/" + self.index
+            if not self.index.startswith(b"/"):
+                self.index = b"/" + self.index
 
         if (dft_index != 0):
             self.home = self.GetString(text, dft_index)
-            if not self.home.startswith("/"):
-                self.home = "/" + self.home
+            if not self.home.startswith(b"/"):
+                self.home = b"/" + self.home
