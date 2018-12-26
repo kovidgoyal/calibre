@@ -336,7 +336,7 @@ class Stylizer(object):
             if size == 'smallest':
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%dpt" % self.profile.fnames[size]
+                style['font-size'] = "%.1frem" % (self.profile.fnames[size] / float(self.profile.fbase))
         if '-epub-writing-mode' in style:
             for x in ('-webkit-writing-mode', 'writing-mode'):
                 style[x] = style.get(x, style['-epub-writing-mode'])
