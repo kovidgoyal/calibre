@@ -10,13 +10,15 @@ from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.constants import iswindows, filesystem_encoding
 from calibre.utils.chm.chm import CHMFile
-from calibre.utils.chm.chmlib import (
-  CHM_RESOLVE_SUCCESS, CHM_ENUMERATE_NORMAL,
-  chm_enumerate,
-)
 
+from calibre.constants import plugins
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.chardet import xml_to_unicode
+
+
+chmlib, chmlib_err = plugins['chmlib']
+if chmlib_err:
+    raise RuntimeError('Failed to load chmlib: ' + chmlib_err)
 
 
 def match_string(s1, s2_already_lowered):
@@ -94,7 +96,7 @@ class CHMReader(CHMFile):
         if path[0] != '/':
             path = '/' + path
         res, ui = self.ResolveObject(path)
-        if res != CHM_RESOLVE_SUCCESS:
+        if res != chmlib.CHM_RESOLVE_SUCCESS:
             raise CHMError("Unable to locate '%s' within CHM file '%s'"%(path, self.filename))
         size, data = self.RetrieveObject(ui)
         if size == 0:
@@ -276,7 +278,7 @@ class CHMReader(CHMFile):
             if ui.path[-1] != '/':
                 # and make paths relative
                 paths.append(ui.path.lstrip('/'))
-        chm_enumerate(self.file, CHM_ENUMERATE_NORMAL, get_paths, None)
+        chmlib.chm_enumerate(self.file, chmlib.CHM_ENUMERATE_NORMAL, get_paths, None)
         self._contents = paths
         return self._contents
 

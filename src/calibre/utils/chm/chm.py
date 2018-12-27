@@ -26,15 +26,15 @@
 '''
 
 import array
-import sys
 import codecs
+import struct
+import sys
 
-import calibre.utils.chm.chmlib as chmlib
 from calibre.constants import plugins
 
-extra, extra_err = plugins['chm_extra']
-if extra_err:
-    raise RuntimeError('Failed to load chm.extra: '+extra_err)
+chmlib, chmlib_err = plugins['chmlib']
+if chmlib_err:
+    raise RuntimeError('Failed to load chmlib: ' + chmlib_err)
 
 charset_table = {
     0   : 'iso8859_1',  # ANSI_CHARSET
@@ -188,6 +188,19 @@ locale_table = {
 }
 
 
+def get_lcid(chm_file_obj):
+    for lang, offset in (
+            (b"/$FIftiMain",               0x7E),
+            (b"$WWKeywordLinks/BTree",     0x34),
+            (b"$WWAssociativeLinks/BTree", 0x34),
+            ):
+        result, ui = chmlib.chm_resolve_object(chm_file_obj, lang)
+        if result == chmlib.CHM_RESOLVE_SUCCESS:
+            size, text = chmlib.chm_retrieve_object(chm_file_obj, ui, offset, 4)
+            if size == 4:
+                return struct.unpack("I", text)[0]
+
+
 class CHMFile:
     "A class to manage access to CHM files."
     filename = ""
@@ -242,9 +255,6 @@ class CHMFile:
         obtain the index, home page, topics, encoding and title. It is called
         from LoadCHM.
         '''
-
-        # extra.is_searchable crashed...
-        # self.searchable = extra.is_searchable (self.file)
         self.searchable = False
         self.lcid = None
 
@@ -319,7 +329,9 @@ class CHMFile:
         self.GetWindowsInfo()
 
         if not self.lcid:
-            self.lcid = extra.get_lcid(self.file)
+            lcid = get_lcid(self.file)
+            if lcid is not None:
+                self.lcid = lcid
 
         return 1
 
@@ -393,21 +405,6 @@ class CHMFile:
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
         else:
             return (0, '')
-
-    def Search(self, text, wholewords=0, titleonly=0):
-        '''Performs full-text search on the archive.
-        The first parameter is the word to look for, the second
-        indicates if the search should be for whole words only, and
-        the third parameter indicates if the search should be
-        restricted to page titles.
-        This method will return a tuple, the first item
-        indicating if the search results were partial, and the second
-        item being a dictionary containing the results.'''
-        if text and text != '' and self.file:
-            return extra.search(self.file, text, wholewords,
-                                titleonly)
-        else:
-            return None
 
     def IsSearchable(self):
         '''Indicates if the full-text search is available for this

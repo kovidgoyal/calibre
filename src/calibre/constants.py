@@ -165,7 +165,6 @@ class Plugins(collections.Mapping):
                 'cPalmdoc',
                 'progress_indicator',
                 'chmlib',
-                'chm_extra',
                 'icu',
                 'speedup',
                 'unicode_names',
