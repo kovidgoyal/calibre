@@ -210,11 +210,11 @@ class CHMFile:
         such as the index file name and the topics file. It returns 1 on
         success, and 0 if it fails.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             self.CloseCHM()
 
         self.file = chmlib.chm_open(archiveName)
-        if (self.file is None):
+        if self.file is None:
             return 0
 
         self.filename = archiveName
@@ -227,7 +227,7 @@ class CHMFile:
         This function will close the CHM file, if it is open. All variables
         are also reset.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             chmlib.chm_close(self.file)
             self.file = None
             self.filename = ''
@@ -265,32 +265,32 @@ class CHMFile:
         while (index < size):
             cursor = buff[index] + (buff[index+1] * 256)
 
-            if (cursor == 0):
+            if cursor == 0:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.topics = '/' + text[index:index+cursor-1]
-            elif (cursor == 1):
+            elif cursor == 1:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.index = '/' + text[index:index+cursor-1]
-            elif (cursor == 2):
+            elif cursor == 2:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.home = '/' + text[index:index+cursor-1]
-            elif (cursor == 3):
+            elif cursor == 3:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.title = text[index:index+cursor-1]
-            elif (cursor == 4):
+            elif cursor == 4:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.lcid = buff[index] + (buff[index+1] * 256)
-            elif (cursor == 6):
+            elif cursor == 6:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
@@ -300,13 +300,13 @@ class CHMFile:
                     tmp2 = '/' + tmp + '.hhk'
                     res1, ui1 = chmlib.chm_resolve_object(self.file, tmp1)
                     res2, ui2 = chmlib.chm_resolve_object(self.file, tmp2)
-                    if (not self.topics) and \
-                           (res1 == chmlib.CHM_RESOLVE_SUCCESS):
+                    if not self.topics and \
+                           res1 == chmlib.CHM_RESOLVE_SUCCESS:
                         self.topics = '/' + tmp + '.hhc'
-                    if (not self.index) and \
-                           (res2 == chmlib.CHM_RESOLVE_SUCCESS):
+                    if not self.index and \
+                           res2 == chmlib.CHM_RESOLVE_SUCCESS:
                         self.index = '/' + tmp + '.hhk'
-            elif (cursor == 16):
+            elif cursor == 16:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
@@ -329,7 +329,7 @@ class CHMFile:
         This auxiliary function reads and returns the topics tree file
         contents for the CHM archive.
         '''
-        if (self.topics is None):
+        if self.topics is None:
             return None
 
         if self.topics:
@@ -338,7 +338,7 @@ class CHMFile:
                 return None
 
         size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
-        if (size == 0):
+        if size == 0:
             sys.stderr.write('GetTopicsTree: file size = 0\n')
             return None
         return text
@@ -406,7 +406,7 @@ class CHMFile:
         item being a dictionary containing the results.'''
         if text and text != '' and self.file:
             return extra.search(self.file, text, wholewords,
-                                 titleonly)
+                                titleonly)
         else:
             return None
 
@@ -453,8 +453,8 @@ class CHMFile:
         '''Internal method.
         Reads a double word (4 bytes) from a buffer.
         '''
-        result = buff[idx] + (buff[idx+1]<<8) + (buff[idx+2]<<16) + \
-                 (buff[idx+3]<<24)
+        result = buff[idx] + (buff[idx+1] << 8) + (buff[idx+2] << 16) + \
+                 (buff[idx+3] << 24)
 
         if result == 0xFFFFFFFF:
             result = 0
