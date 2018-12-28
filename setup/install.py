@@ -77,7 +77,7 @@ class Develop(Command):
         if not opts.prefix:
             opts.prefix = sys.prefix
         for x in ('prefix', 'libdir', 'bindir', 'sharedir', 'staging_root',
-                'staging_libdir', 'staging_bindir', 'staging_sharedir'):
+                'staging_libdir', 'staging_bindir', 'staging_sharedir', 'mathjax_dir'):
             o = getattr(opts, x, None)
             if o:
                 setattr(opts, x, os.path.abspath(o))
@@ -101,6 +101,7 @@ class Develop(Command):
         self.staging_sharedir = getattr(opts, 'staging_sharedir', None)
         if self.staging_sharedir is None:
             self.staging_sharedir = opts.staging_sharedir = self.j(opts.staging_root, 'share')
+        self.mathjax_dir = getattr(opts, 'mathjax_dir', None)
 
         self.staging_libdir = opts.staging_libdir = self.j(self.staging_libdir, 'calibre')
         self.staging_sharedir = opts.staging_sharedir = self.j(self.staging_sharedir, 'calibre')
@@ -239,6 +240,8 @@ class Install(Develop):
             help='Where to put the calibre binaries. Default is <root>/bin')
         parser.add_option('--staging-sharedir',
             help='Where to put the calibre data files. Default is <root>/share')
+        parser.add_option('--mathjax-dir',
+            help='Where to find debundled mathjax code. Default is bundled in sharedir')
         self.add_postinstall_options(parser)
 
     def install_files(self):
@@ -259,7 +262,10 @@ class Install(Develop):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         self.info('Installing resources to', dest)
-        shutil.copytree(self.RESOURCES, dest)
+        ignore = shutil.ignore_patterns('mathjax') if self.mathjax_dir else None
+        shutil.copytree(self.RESOURCES, dest, ignore=ignore)
+        if self.mathjax_dir:
+            os.symlink(self.mathjax_dir, self.j(dest, 'viewer', 'mathjax'))
         self.manifest.append(dest)
 
     def success(self):
