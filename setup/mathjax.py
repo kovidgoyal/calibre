@@ -27,6 +27,8 @@ class MathJax(Command):
     def add_options(self, parser):
         parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
         parser.add_option('--mathjax-url', default=self.MATH_JAX_URL, help='URL to MathJax source archive in zip format')
+        parser.add_option('--system-mathjax', default=False, action='store_true',
+                help='Treat MathJax as system copy and symlink instead of copy')
 
     def download_mathjax_release(self, tdir, url):
         self.info('Downloading MathJax:', url)
@@ -44,8 +46,11 @@ class MathJax(Command):
         base = os.path.dirname(dest)
         if not os.path.exists(base):
             os.makedirs(base)
-        with open(dest, 'wb') as f:
-            f.write(raw)
+        if self.use_symlinks:
+            os.symlink(path, dest)
+        else:
+            with open(dest, 'wb') as f:
+                f.write(raw)
 
     def add_tree(self, base, prefix, ignore=lambda n:False):
         for dirpath, dirnames, filenames in os.walk(base):
@@ -63,6 +68,7 @@ class MathJax(Command):
     def run(self, opts):
         self.h = sha1()
         self.mathjax_files = {}
+        self.use_symlinks = opts.system_mathjax
         self.clean()
         os.mkdir(self.mathjax_dir)
         tdir = mkdtemp('calibre-mathjax-build')
