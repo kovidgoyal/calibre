@@ -11,7 +11,7 @@ from math import ceil
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding
+    filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
 )
 from calibre.utils.localization import get_udc
 
@@ -38,18 +38,6 @@ def ascii_filename(orig, substitute='_'):
     return sanitize_file_name(''.join(ans), substitute=substitute)
 
 
-def supports_long_names(path):
-    t = ('a'*300)+'.txt'
-    try:
-        p = os.path.join(path, t)
-        open(p, 'wb').close()
-        os.remove(p)
-    except:
-        return False
-    else:
-        return True
-
-
 def shorten_component(s, by_what):
     l = len(s)
     if l < by_what:
@@ -60,7 +48,24 @@ def shorten_component(s, by_what):
     return s[:l] + s[-l:]
 
 
+def limit_component(x, limit=254):
+    # windows and macs use ytf-16 codepoints for length, linux uses arbitrary
+    # binary data, but we will assume utf-8
+    filename_encoding_for_length = 'utf-16' if iswindows or isosx else 'utf-8'
+
+    def encoded_length():
+        q = x if isinstance(x, bytes) else x.encode(filename_encoding_for_length)
+        return len(q)
+
+    while encoded_length() > limit:
+        delta = encoded_length() - limit
+        x = shorten_component(x, max(2, delta // 2))
+
+    return x
+
+
 def shorten_components_to(length, components, more_to_take=0, last_has_extension=True):
+    components = [limit_component(cx) for cx in components]
     filepath = os.sep.join(components)
     extra = len(filepath) - (length - more_to_take)
     if extra < 1:
