@@ -263,8 +263,8 @@ OptionRecommendation(name='level2_toc',
 OptionRecommendation(name='level3_toc',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('XPath expression that specifies all tags that should be '
-                'added to the Table of Contents at level three. Each entry '
-                'is added under the previous level two entry.'
+            'added to the Table of Contents at level three. Each entry '
+            'is added under the previous level two entry.'
             ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
