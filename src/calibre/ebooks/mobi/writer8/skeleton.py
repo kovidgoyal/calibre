@@ -59,6 +59,7 @@ def node_from_path(root, path):
         parent = parent[idx]
     return parent
 
+
 mychr = chr if ispy3 else unichr
 
 
@@ -227,6 +228,8 @@ class Chunker(object):
         attrib = {'lang':lang} if lang else {}
         if 'class' in root.attrib:
             attrib['class'] = root.attrib['class']
+        if 'style' in root.attrib:
+            attrib['style'] = root.attrib['style']
         nroot = etree.Element('html', attrib=attrib)
         nroot.text = root.text
         nroot.tail = '\n'
@@ -442,5 +445,3 @@ class Chunker(object):
                     'tool on the orig and rebuilt directories')
         else:
             self.log('Skeleton HTML before and after is identical.')
-
-
