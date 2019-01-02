@@ -23,7 +23,7 @@ class ManifestTrimmer(object):
         return cls()
 
     def __call__(self, oeb, context):
-        import cssutils
+        import css_parser
         oeb.logger.info('Trimming unused files from manifest...')
         self.opts = context
         used = set()
@@ -60,7 +60,7 @@ class ManifestTrimmer(object):
                             if found not in used:
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
-                    for href in cssutils.getUrls(item.data):
+                    for href in css_parser.getUrls(item.data):
                         href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]

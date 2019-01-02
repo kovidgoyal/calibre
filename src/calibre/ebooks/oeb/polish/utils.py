@@ -16,9 +16,9 @@ def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
 
 
-def setup_cssutils_serialization(tab_width=2):
-    import cssutils
-    prefs = cssutils.ser.prefs
+def setup_css_parser_serialization(tab_width=2):
+    import css_parser
+    prefs = css_parser.ser.prefs
     prefs.indent = tab_width * ' '
     prefs.indentClosingBrace = False
     prefs.omitLastSemicolon = False
@@ -163,7 +163,7 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
     if log_level is None:
         import logging
         log_level = logging.WARNING
-    from cssutils import CSSParser, log
+    from css_parser import CSSParser, log
     from calibre.ebooks.oeb.base import _css_logger
     log.setLevel(log_level)
     log.raiseExceptions = False

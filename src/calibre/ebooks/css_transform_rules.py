@@ -8,7 +8,7 @@ from functools import partial
 from collections import OrderedDict
 import operator
 
-from cssutils.css import Property, CSSRule
+from css_parser.css import Property, CSSRule
 
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
@@ -345,7 +345,7 @@ def export_rules(serialized_rules):
 
 def import_rules(raw_data):
     import regex
-    pat = regex.compile('\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
+    pat = regex.compile(r'\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
     current_rule = {}
 
     def sanitize(r):

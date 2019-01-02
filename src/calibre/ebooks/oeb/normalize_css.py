@@ -9,11 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from polyglot.builtins import zip
 from functools import wraps
 
-try:
-    from cssutils.css import PropertyValue
-except ImportError:
-    raise RuntimeError('You need cssutils >= 0.9.9 for calibre')
-from cssutils import profile as cssprofiles, CSSParser
+from css_parser.css import PropertyValue
+from css_parser import profile as cssprofiles, CSSParser
 from tinycss.fonts3 import parse_font, serialize_font_family
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
@@ -269,7 +266,7 @@ def condense_sheet(sheet):
 
 def test_normalization(return_tests=False):  # {{{
     import unittest
-    from cssutils import parseStyle
+    from css_parser import parseStyle
     from itertools import product
 
     class TestNormalization(unittest.TestCase):

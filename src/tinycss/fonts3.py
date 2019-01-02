@@ -50,13 +50,14 @@ def serialize_single_font_family(x):
             xl = 'sans-serif'
         return xl
     if SIMPLE_NAME_PAT.match(x) is not None and not x.lower().startswith('and'):
-        # cssutils dies if a font name starts with and
+        # css_parser dies if a font name starts with and
         return x
     return '"%s"' % x.replace('"', r'\"')
 
 
 def serialize_font_family(families):
     return ', '.join(map(serialize_single_font_family, families))
+
 
 GLOBAL_IDENTS = frozenset('inherit initial unset normal'.split())
 STYLE_IDENTS = frozenset('italic oblique'.split())

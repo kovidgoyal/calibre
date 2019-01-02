@@ -11,10 +11,10 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
+from css_parser.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
         cssproperties)
-from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
-        cssutils_log, CSSParser, profiles, replaceUrls)
+from css_parser import (profile as cssprofiles, parseString, parseStyle, log as
+        css_parser_log, CSSParser, profiles, replaceUrls)
 from calibre import force_unicode, as_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
 from tinycss.media3 import CSSMedia3Parser
 
-cssutils_log.setLevel(logging.WARN)
+css_parser_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
@@ -123,7 +123,7 @@ class Stylizer(object):
             stylesheets.append(parseString(base_css, validate=False))
         style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
 
-        # Add cssutils parsing profiles from output_profile
+        # Add css_parser parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
             cssprofiles.addProfile(profile['name'],
                                         profile['props'],

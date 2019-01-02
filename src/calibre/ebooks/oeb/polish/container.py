@@ -19,7 +19,7 @@ from io import BytesIO
 from itertools import count
 from urlparse import urlparse
 
-from cssutils import getUrls, replaceUrls
+from css_parser import getUrls, replaceUrls
 from lxml import etree
 
 from calibre import CurrentDir, walk
@@ -589,7 +589,7 @@ class Container(ContainerBase):  # {{{
 
     def parsed(self, name):
         ''' Return a parsed representation of the file specified by name. For
-        HTML and XML files an lxml tree is returned. For CSS files a cssutils
+        HTML and XML files an lxml tree is returned. For CSS files a css_parser
         stylesheet is returned. Note that parsed objects are cached for
         performance. If you make any changes to the parsed object, you must
         call :meth:`dirty` so that the container knows to update the cache. See also :meth:`replace`.'''
@@ -605,7 +605,7 @@ class Container(ContainerBase):  # {{{
     def replace(self, name, obj):
         '''
         Replace the parsed object corresponding to name with obj, which must be
-        a similar object, i.e. an lxml tree for HTML/XML or a cssutils
+        a similar object, i.e. an lxml tree for HTML/XML or a css_parser
         stylesheet for a CSS file.
         '''
         self.parsed_cache[name] = obj

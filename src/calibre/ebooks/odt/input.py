@@ -9,8 +9,8 @@ Convert an ODT file into a Open Ebook
 import os, logging
 
 from lxml import etree
-from cssutils import CSSParser
-from cssutils.css import CSSRule
+from css_parser import CSSParser
+from css_parser.css import CSSRule
 
 from odf.odf2xhtml import ODF2XHTML
 from odf.opendocument import load as odLoad
@@ -184,8 +184,8 @@ class Extract(ODF2XHTML):
                         x.set('class', orig + ' ' + ' '.join(extra))
 
     def do_filter_css(self, css):
-        from cssutils import parseString
-        from cssutils.css import CSSRule
+        from css_parser import parseString
+        from css_parser.css import CSSRule
         sheet = parseString(css, validate=False)
         rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
         sel_map = {}
@@ -301,7 +301,3 @@ class Extract(ODF2XHTML):
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)
             return os.path.abspath('metadata.opf')
-
-
-
-

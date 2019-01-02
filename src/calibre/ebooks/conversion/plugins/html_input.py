@@ -109,8 +109,8 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.html.input import get_filelist
         from calibre.ebooks.metadata import string_to_authors
         from calibre.utils.localization import canonicalize_lang
-        import cssutils, logging
-        cssutils.log.setLevel(logging.WARN)
+        import css_parser, logging
+        css_parser.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)
@@ -189,7 +189,7 @@ class HTMLInput(InputFormatPlugin):
                     if href == item.href:
                         dpath = os.path.dirname(path)
                         break
-                cssutils.replaceUrls(item.data,
+                css_parser.replaceUrls(item.data,
                         partial(self.resource_adder, base=dpath))
 
         toc = self.oeb.toc

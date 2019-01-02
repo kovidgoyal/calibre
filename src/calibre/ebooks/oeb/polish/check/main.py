@@ -50,7 +50,7 @@ def run_checks(container):
         if err.level > WARN:
             return errors
 
-    # cssutils is not thread safe
+    # css_parser is not thread safe
     for name, mt, raw in stylesheets:
         if not raw:
             errors.append(EmptyFile(name))
@@ -107,4 +107,3 @@ def fix_errors(container, errors):
                 # better to have a false positive than a false negative)
                 changed = True
     return changed
-

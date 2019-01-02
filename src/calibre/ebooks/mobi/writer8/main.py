@@ -13,8 +13,8 @@ from collections import defaultdict, namedtuple
 from io import BytesIO
 from struct import pack
 
-import cssutils
-from cssutils.css import CSSRule
+import css_parser
+from css_parser.css import CSSRule
 from lxml import etree
 
 from calibre import isbytestring, force_unicode
@@ -77,9 +77,9 @@ class KF8Writer(object):
         ''' Duplicate data so that any changes we make to markup/CSS only
         affect KF8 output and not MOBI 6 output '''
         self._data_cache = {}
-        # Suppress cssutils logging output as it is duplicated anyway earlier
+        # Suppress css_parser logging output as it is duplicated anyway earlier
         # in the pipeline
-        cssutils.log.setLevel(logging.CRITICAL)
+        css_parser.log.setLevel(logging.CRITICAL)
         for item in self.oeb.manifest:
             if item.media_type in XML_DOCS:
                 self._data_cache[item.href] = copy.deepcopy(item.data)
@@ -87,7 +87,7 @@ class KF8Writer(object):
                 # I can't figure out how to make an efficient copy of the
                 # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
                 # exception)
-                self._data_cache[item.href] = cssutils.parseString(
+                self._data_cache[item.href] = css_parser.parseString(
                         item.data.cssText, validate=False)
 
     def data(self, item):
@@ -138,9 +138,9 @@ class KF8Writer(object):
 
                 for tag in XPath('//h:style')(root):
                     if tag.text:
-                        sheet = cssutils.parseString(tag.text, validate=False)
+                        sheet = css_parser.parseString(tag.text, validate=False)
                         replacer = partial(pointer, item)
-                        cssutils.replaceUrls(sheet, replacer,
+                        css_parser.replaceUrls(sheet, replacer,
                                 ignoreImportRules=True)
                         repl = sheet.cssText
                         if isbytestring(repl):
@@ -150,7 +150,7 @@ class KF8Writer(object):
             elif item.media_type in OEB_STYLES:
                 sheet = self.data(item)
                 replacer = partial(pointer, item)
-                cssutils.replaceUrls(sheet, replacer, ignoreImportRules=True)
+                css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
 
     def extract_css_into_flows(self):
         inlines = defaultdict(list)  # Ensure identical <style>s not repeated
@@ -194,7 +194,7 @@ class KF8Writer(object):
                 if not raw or not raw.strip():
                     extract(tag)
                     continue
-                sheet = cssutils.parseString(raw, validate=False)
+                sheet = css_parser.parseString(raw, validate=False)
                 if fix_import_rules(sheet):
                     raw = force_unicode(sheet.cssText, 'utf-8')
 

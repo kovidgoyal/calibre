@@ -185,7 +185,7 @@ class OEBReader(object):
         return bad
 
     def _manifest_add_missing(self, invalid):
-        import cssutils
+        import css_parser
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
@@ -225,7 +225,7 @@ class OEBReader(object):
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
                     try:
-                        urls = list(cssutils.getUrls(data))
+                        urls = list(css_parser.getUrls(data))
                     except:
                         urls = []
                     for url in urls:

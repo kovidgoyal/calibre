@@ -217,7 +217,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
-    from cssutils import replaceUrls, log, CSSParser
+    from css_parser import replaceUrls, log, CSSParser
     log.setLevel(logging.WARN)
     log.raiseExceptions = False
 
@@ -269,7 +269,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             try:
                 stext = parser.parseStyle(text, validate=False)
             except Exception:
-                # Parsing errors are raised by cssutils
+                # Parsing errors are raised by css_parser
                 continue
             replaceUrls(stext, link_repl_func)
             repl = stext.cssText.replace('\n', ' ').replace('\r',
@@ -971,8 +971,8 @@ class Manifest(object):
             return self._parse_xhtml(convert_markdown(data, title=title))
 
         def _parse_css(self, data):
-            from cssutils import CSSParser, log, resolveImports
-            from cssutils.css import CSSRule
+            from css_parser import CSSParser, log, resolveImports
+            from css_parser.css import CSSRule
             log.setLevel(logging.WARN)
             log.raiseExceptions = False
             self.oeb.log.debug('Parsing', self.href, '...')
@@ -1011,7 +1011,7 @@ class Manifest(object):
               convert and return as an lxml.etree element in the XHTML
               namespace.
             - XML content is parsed and returned as an lxml.etree element.
-            - CSS and CSS-variant content is parsed and returned as a cssutils
+            - CSS and CSS-variant content is parsed and returned as a css_parser
               CSS DOM stylesheet.
             - All other content is returned as a :class:`str` object with no
               special parsing.

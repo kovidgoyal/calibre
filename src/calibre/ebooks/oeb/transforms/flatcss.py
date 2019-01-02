@@ -11,8 +11,8 @@ from collections import defaultdict
 from xml.dom import SyntaxErr
 
 from lxml import etree
-import cssutils
-from cssutils.css import Property
+import css_parser
+from css_parser.css import Property
 
 from calibre import guess_type
 from calibre.ebooks import unit_convert
@@ -139,7 +139,7 @@ class EmbedFontsCSSRules(object):
             iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
             rules = [x.cssText for x in self.rules]
             rules = u'\n\n'.join(rules)
-            sheet = cssutils.parseString(rules, validate=False)
+            sheet = css_parser.parseString(rules, validate=False)
             self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
                     data=sheet).href
         return self.href
@@ -203,7 +203,7 @@ class CSSFlattener(object):
             # Make all links to resources absolute, as these sheets will be
             # consolidated into a single stylesheet at the root of the document
             if item.media_type in OEB_STYLES:
-                cssutils.replaceUrls(item.data, item.abshref,
+                css_parser.replaceUrls(item.data, item.abshref,
                         ignoreImportRules=True)
 
         self.body_font_family, self.embed_font_rules = self.get_embed_font_info(
@@ -278,7 +278,7 @@ class CSSFlattener(object):
                     cfont[k] = font[k]
             rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
                 cfont.iteritems()))
-            rule = cssutils.parseString(rule)
+            rule = css_parser.parseString(rule)
             efi.append(rule)
 
         return body_font_family, efi
@@ -615,7 +615,7 @@ class CSSFlattener(object):
             if item.media_type in OEB_STYLES:
                 manifest.remove(item)
         id, href = manifest.generate('css', 'stylesheet.css')
-        sheet = cssutils.parseString(css, validate=False)
+        sheet = css_parser.parseString(css, validate=False)
         if self.transform_css_rules:
             from calibre.ebooks.css_transform_rules import transform_sheet
             transform_sheet(self.transform_css_rules, sheet)
@@ -647,7 +647,7 @@ class CSSFlattener(object):
             href = None
             if css.strip():
                 id_, href = manifest.generate('page_css', 'page_styles.css')
-                sheet = cssutils.parseString(css, validate=False)
+                sheet = css_parser.parseString(css, validate=False)
                 if self.transform_css_rules:
                     from calibre.ebooks.css_transform_rules import transform_sheet
                     transform_sheet(self.transform_css_rules, sheet)

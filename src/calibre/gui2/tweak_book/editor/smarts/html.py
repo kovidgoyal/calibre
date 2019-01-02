@@ -10,7 +10,7 @@ import sys, re
 from operator import itemgetter
 from itertools import chain
 
-from cssutils import parseStyle
+from css_parser import parseStyle
 from PyQt5.Qt import QTextEdit, Qt, QTextCursor
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode

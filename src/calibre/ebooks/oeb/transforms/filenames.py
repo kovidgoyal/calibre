@@ -25,7 +25,7 @@ class RenameFiles(object):  # {{{
         self.renamed_items_map = renamed_items_map
 
     def __call__(self, oeb, opts):
-        import cssutils
+        import css_parser
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb
@@ -35,7 +35,7 @@ class RenameFiles(object):  # {{{
             if etree.iselement(item.data):
                 rewrite_links(self.current_item.data, self.url_replacer)
             elif hasattr(item.data, 'cssText'):
-                cssutils.replaceUrls(item.data, self.url_replacer)
+                css_parser.replaceUrls(item.data, self.url_replacer)
 
         if self.oeb.guide:
             for ref in self.oeb.guide.values():
@@ -184,4 +184,3 @@ class FlatFilenames(object):  # {{{
             renamer = RenameFiles(self.rename_map, self.renamed_items_map)
             renamer(oeb, opts)
 # }}}
-

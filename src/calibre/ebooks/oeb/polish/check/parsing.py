@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
-import cssutils
+import css_parser
 
 from calibre import force_unicode, human_readable, prepare_string_for_xml
 from calibre.ebooks.chardet import replace_encoding_declarations, find_declared_encoding
@@ -432,7 +432,7 @@ class BareTextInBody(BaseError):
 
 class ErrorHandler(object):
 
-    ' Replacement logger to get useful error/warning info out of cssutils during parsing '
+    ' Replacement logger to get useful error/warning info out of css_parser during parsing '
 
     def __init__(self, name):
         # may be disabled during setting of known valid items
@@ -467,7 +467,7 @@ class ErrorHandler(object):
 
 def check_css_parsing(name, raw, line_offset=0, is_declaration=False):
     log = ErrorHandler(name)
-    parser = cssutils.CSSParser(fetcher=lambda x: (None, None), log=log)
+    parser = css_parser.CSSParser(fetcher=lambda x: (None, None), log=log)
     if is_declaration:
         parser.parseStyle(raw, validate=True)
     else:

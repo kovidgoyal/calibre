@@ -65,7 +65,7 @@ class RemoveFakeMargins(object):
 
         stylesheet = stylesheet.data
 
-        from cssutils.css import CSSRule
+        from css_parser.css import CSSRule
         for rule in stylesheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
             self.selector_map[rule.selectorList.selectorText] = rule.style
 

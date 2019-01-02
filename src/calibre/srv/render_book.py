@@ -13,8 +13,8 @@ from polyglot.builtins import map
 from urlparse import urlparse
 from urllib import quote
 
-from cssutils import replaceUrls
-from cssutils.css import CSSRule
+from css_parser import replaceUrls
+from css_parser.css import CSSRule
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks import parse_css_length

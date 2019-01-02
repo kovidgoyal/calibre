@@ -1051,8 +1051,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
             from calibre.utils.fonts.scanner import font_scanner  # noqa
-        import cssutils, logging
-        cssutils.log.setLevel(logging.WARN)
+        import css_parser, logging
+        css_parser.log.setLevel(logging.WARN)
         get_types_map()  # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:

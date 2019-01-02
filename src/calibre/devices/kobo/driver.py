@@ -2036,12 +2036,12 @@ class KOBOTOUCH(KOBO):
 
     def get_extra_css(self):
         extra_sheet = None
-        from cssutils.css import CSSRule
+        from css_parser.css import CSSRule
 
         if self.modifying_css():
             extra_css_path = os.path.join(self._main_prefix, self.KOBO_EXTRA_CSSFILE)
             if os.path.exists(extra_css_path):
-                from cssutils import parseFile as cssparseFile
+                from css_parser import parseFile as cssparseFile
                 try:
                     extra_sheet = cssparseFile(extra_css_path)
                     debug_print("KoboTouch:get_extra_css: Using extra CSS in {0} ({1} rules)".format(extra_css_path, len(extra_sheet.cssRules)))
@@ -2068,7 +2068,7 @@ class KOBOTOUCH(KOBO):
         return [r for r in sheet.cssRules.rulesOfType(css_rule)]
 
     def get_extra_css_rules_widow_orphan(self, sheet):
-        from cssutils.css import CSSRule
+        from css_parser.css import CSSRule
         return [r for r in self.get_extra_css_rules(sheet, CSSRule.STYLE_RULE)
                     if (r.style['widows'] or r.style['orphans'])]
 
@@ -2158,7 +2158,7 @@ class KOBOTOUCH(KOBO):
         return True
 
     def _modify_stylesheet(self, sheet, fileext, is_dirty=False):
-        from cssutils.css import CSSRule
+        from css_parser.css import CSSRule
 
         # if fileext in (EPUB_EXT, KEPUB_EXT):
 

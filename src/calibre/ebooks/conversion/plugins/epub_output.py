@@ -497,7 +497,7 @@ class EPUBOutput(OutputFormatPlugin):
 
             if stylesheet is not None:
                 # ADE doesn't render lists correctly if they have left margins
-                from cssutils.css import CSSRule
+                from css_parser.css import CSSRule
                 for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
                     sel = '.'+lb.get('class')
                     for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):

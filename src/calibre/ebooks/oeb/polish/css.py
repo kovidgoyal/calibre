@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 from functools import partial
 
-from cssutils.css import CSSRule, CSSStyleDeclaration
+from css_parser.css import CSSRule, CSSStyleDeclaration
 from css_selectors import parse, SelectorSyntaxError
 
 from calibre import force_unicode
@@ -208,7 +208,7 @@ def filter_declaration(style, properties=()):
 
 
 def filter_sheet(sheet, properties=()):
-    from cssutils.css import CSSRule
+    from css_parser.css import CSSRule
     changed = False
     remove = []
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):

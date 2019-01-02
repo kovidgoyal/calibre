@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import logging
 from collections import defaultdict
 
-import cssutils
+import css_parser
 from lxml import etree
 
 from calibre import guess_type
@@ -97,7 +97,7 @@ class EmbedFonts(object):
         self.sheet_cache = {}
         self.find_style_rules()
         self.find_embedded_fonts()
-        self.parser = cssutils.CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
+        self.parser = css_parser.CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
         self.warned = set()
         self.warned2 = set()
         self.newly_embedded_fonts = set()

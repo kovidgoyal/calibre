@@ -26,7 +26,7 @@ from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, create_inline_toc
-from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
+from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_css_parser_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir, add_to_recent_docs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
@@ -61,7 +61,7 @@ def get_container(*args, **kwargs):
     return container
 
 
-def setup_cssutils_serialization():
+def setup_css_parser_serialization():
     scs(tprefs['editor_tab_stop_width'])
 
 
@@ -91,7 +91,7 @@ class Boss(QObject):
         self.save_manager.check_for_completion.connect(self.check_terminal_save)
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
-        setup_cssutils_serialization()
+        setup_css_parser_serialization()
         get_boss.boss = self
         self.gui = parent
         completion_worker().result_callback = self.handle_completion_result_signal.emit
@@ -172,7 +172,7 @@ class Boss(QObject):
                         bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
         if ret == p.Accepted:
-            setup_cssutils_serialization()
+            setup_css_parser_serialization()
             self.gui.apply_settings()
             self.refresh_file_list()
         if ret == p.Accepted or p.dictionaries_changed:
