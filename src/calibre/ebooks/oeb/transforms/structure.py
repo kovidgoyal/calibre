@@ -137,7 +137,7 @@ class DetectStructure(object):
     def get_toc_parts_for_xpath(self, expr):
         # if an attribute is selected by the xpath expr then truncate it
         # from the path and instead return it as where to find the title text
-        title_attribute_regex = re.compile('/@([-\w]+)$')
+        title_attribute_regex = re.compile(r'/@([-\w]+)$')
         match = title_attribute_regex.search(expr)
         if match is not None:
             return expr[0:match.start()], match.group(1)
