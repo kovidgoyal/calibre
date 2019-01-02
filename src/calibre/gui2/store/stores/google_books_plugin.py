@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -75,7 +75,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'https://books.google.com/books'
-        if external or self.config.get('open_external', False):
+        if True or external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
