@@ -21,7 +21,7 @@
 #     - title:
 
 - version: 3.37.0
-  date: 2018-01-04
+  date: 2019-01-04
 
   bug fixes:
     - title: "calibredb: Fix adding books from directories to a remote server running on Windows not working"
