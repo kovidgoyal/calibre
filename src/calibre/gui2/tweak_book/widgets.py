@@ -760,7 +760,7 @@ class InsertLink(Dialog):
             else:
                 target = target.split('#', 1)[0]
                 target = self.container.href_to_name(target)
-            ans = ans.replace('_SOURCE_FILENAME_', self.source_name)
+            ans = ans.replace('_SOURCE_FILENAME_', self.source_name or '')
             ans = ans.replace('_DEST_FILENAME_', target or '')
             ans = ans.replace('_ANCHOR_', frag or '')
         return ans
