@@ -675,6 +675,13 @@ class InsertLink(Dialog):
         tl.addRow(_('Tem&plate:'), t)
         from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
         t.setText(tprefs.get('insert-hyperlink-template', None) or DEFAULT_LINK_TEMPLATE)
+        t.setToolTip('<p>' + _('''
+            The template to use for generating the link. In addition to {0} and {1}
+            you can also use {2}, {3} and {4} variables
+            in the template, they will be replaced by the source filename, the destination
+            filename and the anchor, respectively.
+        ''').format(
+            '_TITLE_', '_TARGET', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
 
         l.addWidget(self.bb)
 
@@ -739,6 +746,22 @@ class InsertLink(Dialog):
     @property
     def template(self):
         return self.template_edit.text().strip() or None
+
+    @property
+    def rendered_template(self):
+        ans = self.template
+        if ans:
+            target = self.href
+            frag = target.partition('#')[-1]
+            if target.startswith('#'):
+                target = ''
+            else:
+                target = target.split('#', 1)[0]
+                target = self.container.href_to_name(target)
+            ans = ans.replace('_SOURCE_FILENAME_', self.source_name)
+            ans = ans.replace('_DEST_FILENAME_', target)
+            ans = ans.replace('_ANCHOR_', frag)
+        return ans
 
     @classmethod
     def test(cls):
