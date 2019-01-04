@@ -20,6 +20,39 @@
 #   new recipes:
 #     - title:
 
+- version: 3.37.0
+  date: 2018-01-04
+
+  bug fixes:
+    - title: "calibredb: Fix adding books from directories to a remote server running on Windows not working"
+
+    - title: "Edit Book: Fix style attribute on <html> tags not being preserved when editing AZW3 files."
+      tickets: [1810193]
+
+    - title: "Get Books: Use an external browser for Google Books"
+      tickets: [1810205]
+
+    - title: "Saving to disk: Fix errors on Linux/macOS if the title/authors are long enough to make individual path components larger than 255 characters."
+      tickets: [1807525]
+
+    - title: "PDF Input: Fix non-breaking spaces represented as entities in the output of pdftohtml, which breaks some search/replace expressions"
+
+    - title: "Edit book: Fix a crash when mousing over links in an instance of the editor launched standalone on macOS Mojave"
+      tickets: [1805521]
+
+    - title: "Conversion: When converting with font size rescaling disabled, convert font size names to rem unit rather than pt units."
+      tickets: [1809671]
+
+    - title: "Windows: When registering calibre programs as possible handlers for various file types, dont set the AllowSilentDefaultTakeOver registry key"
+
+    - title: "macOS: PDF Output: Fix bold fonts not working on Mojave."
+      tickets: [1799750]
+
+    - title: "Content server: Fix strings with double quotes not being translated."
+
+  improved recipes:
+    - Il Post
+
 - version: 3.36.0
   date: 2018-12-21
 
