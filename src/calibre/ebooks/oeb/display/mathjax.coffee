@@ -9,6 +9,18 @@
 
 log = window.calibre_utils.log
 
+startswith = (string, q) ->
+    return string.substring(0, q.length) == q
+
+init_mathjax = () ->
+    orig = window.MathJax.Ajax.fileURL.bind(window.MathJax.Ajax)
+    window.MathJax.Ajax.fileURL = (mathjax_name) ->
+        ans = orig(mathjax_name)
+        if startswith(mathjax_name, '[MathJax]/../fonts')
+            ans = ans.replace('/../fonts', '/fonts')
+        return ans
+
+
 class MathJax
     # This class is a namespace to expose functions via the
     # window.mathjax object. The most important functions are:
@@ -29,7 +41,6 @@ class MathJax
             return null
 
         script = document.createElement('script')
-        scale = if is_windows then 160 else 100
 
         script.type = 'text/javascript'
         script.onerror = (ev) ->
@@ -38,14 +49,14 @@ class MathJax
         if base.substr(base.length - 1) != '/'
             base += '/'
         script.src = base + 'MathJax.js'
+        window.MathJax = {AuthorInit:  init_mathjax}
         script.text = user_config + ('''
         MathJax.Hub.signal.Interest(function (message) {if (String(message).match(/error/i)) {console.log(message)}});
         MathJax.Hub.Config({
             positionToHash: false,
             showMathMenu: false,
             extensions: ["tex2jax.js", "asciimath2jax.js", "mml2jax.js"],
-            jax: ["input/TeX","input/MathML","input/AsciiMath","output/SVG"],
-            SVG : { linebreaks : { automatic : true }, scale: __scale__ },
+            jax: ["input/TeX","input/MathML","input/AsciiMath","output/CommonHTML"],
             TeX: {
                 extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
             }
@@ -53,7 +64,7 @@ class MathJax
         MathJax.Hub.Startup.onload();
         MathJax.Hub.Register.StartupHook("End", window.mathjax.load_finished);
         window.mathjax.hub = MathJax.Hub
-        ''').replace('__scale__', scale)
+        ''')
         document.head.appendChild(script)
 
     load_finished: () =>

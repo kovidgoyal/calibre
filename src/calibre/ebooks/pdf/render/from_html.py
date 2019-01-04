@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES, current_log)
 from calibre.ebooks.pdf.render.engine import PdfDevice
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.resources import load_hyphenator_dicts
 
 
@@ -150,6 +150,7 @@ class PDFWriter(QObject):
         QObject.__init__(self)
 
         self.logger = self.log = log
+        self.mathjax_tdir = None
         current_log(log)
         self.opts = opts
         self.cover_data = cover_data
@@ -309,7 +310,12 @@ class PDFWriter(QObject):
 
     def load_mathjax(self):
         evaljs = self.view.page().mainFrame().evaluateJavaScript
-        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if self.mathjax_tdir is None:
+            self.mathjax_tdir = PersistentTemporaryDirectory('jax')
+            from calibre.srv.books import get_mathjax_manifest
+            get_mathjax_manifest(self.mathjax_tdir)
+
+        mjpath = os.path.join(self.mathjax_tdir, 'mathjax').replace(os.sep, '/')
         if iswindows:
             mjpath = u'/' + mjpath
         if bool(evaljs('''
@@ -318,6 +324,9 @@ class PDFWriter(QObject):
                     '''%(json.dumps(mjpath, ensure_ascii=False)))):
             self.log.debug('Math present, loading MathJax')
             while not bool(evaljs('mathjax.math_loaded')):
+                self.loop.processEvents(self.loop.ExcludeUserInputEvents)
+            # give the MathJax fonts time to load
+            for i in range(5):
                 self.loop.processEvents(self.loop.ExcludeUserInputEvents)
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 

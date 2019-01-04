@@ -9,6 +9,7 @@ import os
 from PyQt5.Qt import QNetworkReply, QNetworkAccessManager, QUrl, QNetworkRequest, QTimer, pyqtSignal, QByteArray
 
 from calibre import guess_type as _guess_type, prints
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, DEBUG
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.oeb.display.webview import cleanup_html, load_as_html
@@ -106,6 +107,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         self.mathjax_base = '%s://%s/%s/' % (FAKE_PROTOCOL, FAKE_HOST, self.mathjax_prefix)
         self.root = self.orig_root = os.path.dirname(P('viewer/blank.html', allow_user_override=False))
         self.mime_map, self.single_pages, self.codec_map = {}, set(), {}
+        self.mathjax_tdir = None
 
     def set_book_data(self, root, spine):
         self.orig_root = root
@@ -166,7 +168,11 @@ class NetworkAccessManager(QNetworkAccessManager):
         if operation == QNetworkAccessManager.GetOperation and qurl.host() == FAKE_HOST:
             name = qurl.path()[1:]
             if name.startswith(self.mathjax_prefix):
-                base = normpath(P('viewer/mathjax'))
+                if self.mathjax_tdir is None:
+                    self.mathjax_tdir = PersistentTemporaryDirectory('ev-jax')
+                    from calibre.srv.books import get_mathjax_manifest
+                    get_mathjax_manifest(self.mathjax_tdir)
+                base = normpath(os.path.join(self.mathjax_tdir, 'mathjax'))
                 path = normpath(os.path.join(base, name.partition('/')[2]))
             else:
                 base = self.root
