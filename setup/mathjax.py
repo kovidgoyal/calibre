@@ -9,9 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, json
 from io import BytesIO
-from zipfile import ZipFile, ZIP_STORED, ZipInfo
+from zipfile import ZipFile
 from hashlib import sha1
-from tempfile import mkdtemp, SpooledTemporaryFile
+from tempfile import mkdtemp
 
 
 from setup import Command, download_securely
@@ -54,12 +54,15 @@ class MathJax(Command):
                 name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
                 self.add_file(f, name)
 
-    def run(self, opts):
-        self.h = sha1()
+    def clean(self):
         self.mathjax_dir = self.j(self.RESOURCES, 'mathjax')
-        self.mathjax_files = {}
         if os.path.exists(self.mathjax_dir):
             shutil.rmtree(self.mathjax_dir)
+
+    def run(self, opts):
+        self.h = sha1()
+        self.mathjax_files = {}
+        self.clean()
         os.mkdir(self.mathjax_dir)
         tdir = mkdtemp('calibre-mathjax-build')
         try:
