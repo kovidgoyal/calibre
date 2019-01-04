@@ -227,33 +227,21 @@ mathjax_lock = Lock()
 mathjax_manifest = None
 
 
-def get_mathjax_manifest(tdir=None):
+def manifest_as_json():
+    return P('mathjax/manifest.json', data=True, allow_user_override=False)
+
+
+def get_mathjax_manifest():
     global mathjax_manifest
     with mathjax_lock:
         if mathjax_manifest is None:
-            mathjax_manifest = {}
-            f = decompress(P('content-server/mathjax.zip.xz', data=True, allow_user_override=False))
-            f.seek(0)
-            tdir = os.path.join(tdir, 'mathjax')
-            os.mkdir(tdir)
-            zf = ZipFile(f)
-            zf.extractall(tdir)
-            mathjax_manifest['etag'] = type('')(zf.comment)
-            mathjax_manifest['files'] = {type('')(zi.filename):zi.file_size for zi in zf.infolist()}
-            zf.close(), f.close()
-        return mathjax_manifest
-
-
-def manifest_as_json():
-    ans = jsonlib.dumps(get_mathjax_manifest(), ensure_ascii=False)
-    if not isinstance(ans, bytes):
-        ans = ans.encode('utf-8')
-    return ans
+            mathjax_manifest = jsonlib.loads(manifest_as_json())
+    return mathjax_manifest
 
 
 @endpoint('/mathjax/{+which=""}', auth_required=False)
 def mathjax(ctx, rd, which):
-    manifest = get_mathjax_manifest(rd.tdir)
+    manifest = get_mathjax_manifest()
     if not which:
         return rd.etagged_dynamic_response(manifest['etag'], manifest_as_json, content_type='application/json; charset=UTF-8')
     if which not in manifest['files']:

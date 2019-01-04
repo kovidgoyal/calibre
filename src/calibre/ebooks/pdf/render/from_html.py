@@ -150,7 +150,7 @@ class PDFWriter(QObject):
         QObject.__init__(self)
 
         self.logger = self.log = log
-        self.mathjax_tdir = None
+        self.mathjax_dir = P('mathjax', allow_user_override=False)
         current_log(log)
         self.opts = opts
         self.cover_data = cover_data
@@ -310,12 +310,7 @@ class PDFWriter(QObject):
 
     def load_mathjax(self):
         evaljs = self.view.page().mainFrame().evaluateJavaScript
-        if self.mathjax_tdir is None:
-            self.mathjax_tdir = PersistentTemporaryDirectory('jax')
-            from calibre.srv.books import get_mathjax_manifest
-            get_mathjax_manifest(self.mathjax_tdir)
-
-        mjpath = os.path.join(self.mathjax_tdir, 'mathjax').replace(os.sep, '/')
+        mjpath = self.mathjax_dir.replace(os.sep, '/')
         if iswindows:
             mjpath = u'/' + mjpath
         if bool(evaljs('''

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os, shutil, json
 from io import BytesIO
 from zipfile import ZipFile, ZIP_STORED, ZipInfo
 from hashlib import sha1
@@ -36,44 +36,42 @@ class MathJax(Command):
             zf.extractall(tdir)
             return os.path.join(tdir, 'MathJax-' + self.MATH_JAX_VERSION)
 
-    def add_file(self, zf, path, name):
+    def add_file(self, path, name):
         with open(path, 'rb') as f:
             raw = f.read()
         self.h.update(raw)
-        zi = ZipInfo(name)
-        zi.external_attr = 0o444 << 16
-        zf.writestr(zi, raw)
+        self.mathjax_files[name] = len(raw)
+        dest = self.j(self.mathjax_dir, *name.split('/'))
+        base = os.path.dirname(dest)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        with open(dest, 'wb') as f:
+            f.write(raw)
 
-    def add_tree(self, zf, base, prefix, ignore=lambda n:False):
+    def add_tree(self, base, prefix):
         for dirpath, dirnames, filenames in os.walk(base):
             for fname in filenames:
                 f = os.path.join(dirpath, fname)
                 name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
-                if not ignore(name):
-                    self.add_file(zf, f, name)
-
-    def ignore_fonts(self, name):
-        return '/fonts/' in name and self.FONT_FAMILY not in name
+                self.add_file(f, name)
 
     def run(self, opts):
-        from lzma.xz import compress
         self.h = sha1()
+        self.mathjax_dir = self.j(self.RESOURCES, 'mathjax')
+        self.mathjax_files = {}
+        if os.path.exists(self.mathjax_dir):
+            shutil.rmtree(self.mathjax_dir)
+        os.mkdir(self.mathjax_dir)
         tdir = mkdtemp('calibre-mathjax-build')
         try:
             src = opts.path_to_mathjax or self.download_mathjax_release(tdir, opts.mathjax_url)
-            self.info('Compressing MathJax...')
-            t = SpooledTemporaryFile()
-            with ZipFile(t, 'w', ZIP_STORED) as zf:
-                self.add_file(zf, self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
-                self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
-                for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
-                    self.add_tree(zf, self.j(src, 'unpacked', *d.split('/')), d)
-
-                zf.comment = self.h.hexdigest()
-            t.seek(0)
-            with open(self.j(self.RESOURCES, 'content-server', 'mathjax.zip.xz'), 'wb') as f:
-                compress(t, f, level=4 if is_ci else 9)
-            with open(self.j(self.RESOURCES, 'content-server', 'mathjax.version'), 'wb') as f:
-                f.write(zf.comment)
+            self.info('Adding MathJax...')
+            self.add_file(self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
+            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
+            for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
+                self.add_tree(self.j(src, 'unpacked', *d.split('/')), d)
+            etag = self.h.hexdigest()
+            with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
+                f.write(json.dumps({'etag': etag, 'files': self.mathjax_files}, indent=2).encode('utf-8'))
         finally:
             shutil.rmtree(tdir)
