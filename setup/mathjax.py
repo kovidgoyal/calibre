@@ -12,7 +12,6 @@ from io import BytesIO
 from zipfile import ZipFile, ZIP_STORED, ZipInfo
 from hashlib import sha1
 from tempfile import mkdtemp, SpooledTemporaryFile
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 from setup import Command, download_securely

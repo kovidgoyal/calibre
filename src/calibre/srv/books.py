@@ -8,10 +8,8 @@ from hashlib import sha1
 from functools import partial
 from threading import RLock, Lock
 from cPickle import dumps
-from zipfile import ZipFile
 import errno, os, tempfile, shutil, time, json as jsonlib
 
-from lzma.xz import decompress
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
 from calibre.srv.metadata import book_as_json

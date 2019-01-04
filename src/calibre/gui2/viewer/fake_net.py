@@ -9,7 +9,6 @@ import os
 from PyQt5.Qt import QNetworkReply, QNetworkAccessManager, QUrl, QNetworkRequest, QTimer, pyqtSignal, QByteArray
 
 from calibre import guess_type as _guess_type, prints
-from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, DEBUG
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.oeb.display.webview import cleanup_html, load_as_html

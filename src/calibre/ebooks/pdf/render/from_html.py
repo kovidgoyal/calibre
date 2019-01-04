@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES, current_log)
 from calibre.ebooks.pdf.render.engine import PdfDevice
-from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.resources import load_hyphenator_dicts
 
 
