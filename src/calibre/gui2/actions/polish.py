@@ -265,7 +265,7 @@ class Polish(QDialog):  # {{{
             self.pd.reject()
             raise
         else:
-            self.pd.set_value(num)
+            self.pd.set_value(self.pd.max - num)
             QTimer.singleShot(0, self.do_one)
 
     def do_book(self, num, book_id, formats):
