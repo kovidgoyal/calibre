@@ -256,6 +256,12 @@ class DisplayedFields(QAbstractListModel):  # {{{
             return QIcon(I('column.png'))
         return None
 
+    def toggle_all(self, show=True):
+        for i in range(self.rowCount()):
+            idx = self.index(i)
+            if idx.isValid():
+                self.setData(idx, show, Qt.CheckStateRole)
+
     def flags(self, index):
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemIsUserCheckable

@@ -55,8 +55,18 @@ class Configure(Dialog):
 
         b = self.bb.addButton(_('Restore &defaults'), self.bb.ActionRole)
         b.clicked.connect(self.restore_defaults)
+        b = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
+        b.clicked.connect(self.select_all)
+        b = self.bb.addButton(_('Select &none'), self.bb.ActionRole)
+        b.clicked.connect(self.select_none)
         self.l.addWidget(self.bb)
         self.setMinimumHeight(500)
+
+    def select_all(self):
+        self.model.toggle_all(True)
+
+    def select_none(self):
+        self.model.toggle_all(False)
 
     def restore_defaults(self):
         self.model.initialize(use_defaults=True)
