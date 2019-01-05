@@ -374,6 +374,8 @@ class ChooseLibraryAction(InterfaceAction):
                 name, loc)))
             delete_actions.append(ac)
             ac.setStatusTip(_('Remove: %s') % loc)
+            if is_prev_lib:
+                ac.setFont(f)
 
         qs_actions = []
         locations_by_frequency = locations
