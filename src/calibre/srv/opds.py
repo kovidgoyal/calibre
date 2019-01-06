@@ -491,8 +491,9 @@ def opds(ctx, rd):
         except KeyError:
             return x
 
+    fm = rc.db.field_metadata
     for category in sorted(categories, key=lambda x: sort_key(getter(x))):
-        if not rc.ctx.is_field_displayable(category):
+        if fm.is_ignorable_field(category) and not rc.ctx.is_field_displayable(category):
             continue
         if len(categories[category]) == 0:
             continue
