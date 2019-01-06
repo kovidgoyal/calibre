@@ -655,7 +655,10 @@ class BooksView(QTableView):  # {{{
         if self.is_library_view:
             for col, order in reversed(self.cleanup_sort_history(
                     saved_history, ignore_column_map=True)[:max_sort_levels]):
-                self.sort_by_named_field(col, order)
+                try:
+                    self.sort_by_named_field(col, order)
+                except KeyError:
+                    pass
         else:
             for col, order in reversed(self.cleanup_sort_history(
                     saved_history)[:max_sort_levels]):
