@@ -834,7 +834,8 @@ class CustomList(QWidget):  # {{{
 
         self.la1 = la = QLabel('<p>' + _(
             'The template below will be interpreted as HTML and all {{fields}} will be replaced'
-            ' by the actual metadata, if available. You can use {0} as a separator'
+            ' by the actual metadata, if available. For custom columns use the column lookup'
+            ' name, for example: #mytags. You can use {0} as a separator'
             ' to split a line into multiple columns.').format('|||'))
         la.setWordWrap(True)
         l.addRow(la)
