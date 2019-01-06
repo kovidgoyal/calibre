@@ -492,6 +492,8 @@ def opds(ctx, rd):
             return x
 
     for category in sorted(categories, key=lambda x: sort_key(getter(x))):
+        if not rc.ctx.is_field_displayable(category):
+            continue
         if len(categories[category]) == 0:
             continue
         if category in ('formats', 'identifiers'):
