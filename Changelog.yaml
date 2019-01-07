@@ -24,7 +24,7 @@
   date: 2019-01-04
 
   bug fixes:
-    - title: "Switch from cssutils to css_parser for parsing CSS. Fixes various minor long, standing bugs"
+    - title: "Switch from cssutils to css_parser for parsing CSS. Fixes various minor, long standing bugs"
 
     - title: "calibredb: Fix adding books from directories to a remote server running on Windows not working"
 
