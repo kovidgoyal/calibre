@@ -1,0 +1,77 @@
+#!/usr/bin/env python2
+
+from collections import defaultdict
+from calibre.web.feeds.news import BasicNewsRecipe
+
+BASE = 'https://www.nature.com'
+
+
+def absurl(url):
+    if url.startswith('/'):
+        url = BASE + url
+    elif url.startswith('http://'):
+        url = 'https' + url[4:]
+    return url
+
+
+def check_words(words):
+    return lambda x: x and frozenset(words.split()).intersection(x.split())
+
+
+class Nature(BasicNewsRecipe):
+    title = 'Nature'
+    __author__ = 'Jose Ortiz'
+    description = ('Nature is a weekly international multidisciplinary scientific journal'
+                   ' publishing peer-reviewed research in all fields of science and'
+                   ' technology on the basis of its originality, importance,'
+                   ' interdisciplinary interest, timeliness, accessibility, elegance and'
+                   ' surprising conclusions. Nature also provides rapid, authoritative,'
+                   ' insightful and arresting news and interpretation of topical and coming'
+                   ' trends affecting science, scientists and the wider public.')
+    language = 'en'
+    encoding = 'UTF-8'
+    no_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+        dict(name='div',attrs={'data-component' : check_words('article-container')})
+    ]
+
+    remove_tags = [
+        dict(attrs={'class' : check_words('hide-print')})
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup(BASE + '/nature/current-issue')
+        self.cover_url = 'https:' + soup.find('img',attrs={'data-test' : 'issue-cover-image'})['src']
+        section_tags = soup.find('div', {'data-container-type' : check_words('issue-section-list')})
+        section_tags = section_tags.findAll('div', {'class' : check_words('article-section')})
+
+        sections = defaultdict(list)
+        ordered_sec_titles = []
+        index = []
+
+        for sec in section_tags:
+            sec_title = self.tag_to_string(sec.find('h2'))
+            ordered_sec_titles.append(sec_title)
+            for article in sec.findAll('article'):
+                title = self.tag_to_string(article.find('h3', {'itemprop' : check_words('name headline')}))
+                date = ' [' + self.tag_to_string(article.find('time', {'itemprop' : check_words('datePublished')})) + ']'
+                author = self.tag_to_string(article.find('li', {'itemprop' : check_words('creator')}))
+                url =  absurl(article.find('a',{'itemprop' : check_words('url')})['href'])
+                label = self.tag_to_string(article.find(attrs={'data-test' : check_words('article.type')}))
+                description = label + ': ' + self.tag_to_string(article.find('div', attrs={'itemprop' : check_words('description')}))
+                sections[sec_title].append(
+                    {'title' : title, 'url' : url, 'description' : description, 'date' : date, 'author' : author})
+
+        for k in ordered_sec_titles:
+            index.append((k, sections[k]))
+        return index
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img',{'data-src' : True}):
+            if img['data-src'].startswith('//'):
+                img['src'] = 'https:' + img['data-src']
+            else:
+                img['src'] = img['data-src']
+        return soup
