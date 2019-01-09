@@ -2,7 +2,6 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.date import now
 from css_selectors import Select
 
 
@@ -10,6 +9,7 @@ def absurl(url):
     if url.startswith('/'):
         url = 'http://www.scientificamerican.com' + url
     return url
+
 
 keep_classes = {'article-header', 'article-content',
                 'article-media', 'article-author', 'article-text'}
@@ -55,18 +55,8 @@ class ScientificAmerican(BasicNewsRecipe):
         root = self.index_to_soup(
             'http://www.scientificamerican.com/sciammag/', as_tree=True)
         select = Select(root)
-        for a in select('#sa_body .store-listing__img a[href]'):
-            url = absurl(a.get('href'))
-            month = int(filter(None, url.split('/'))[-1].partition('-')[0])
-            if month > now().month:
-                continue
-            for source in a.xpath('descendant::source'):
-                self.cover_url = absurl(source.get('srcset').split()[0])
-                break
-            break
-        else:
-            raise ValueError(
-                'The Scientific American website has changed, this recipe needs to be updated')
+        url = [x.get('content', '') for x in select('html > head  meta') if x.get('property',None) == "og:url"][0]
+        self.cover_url = [x.get('src', '') for x in select('main .product-detail__image picture img')][0]
 
         # Now parse the actual issue to get the list of articles
         select = Select(self.index_to_soup(url, as_tree=True))
