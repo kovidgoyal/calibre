@@ -12,7 +12,7 @@ from collections import OrderedDict
 from operator import itemgetter
 from functools import partial
 
-from calibre.utils.icu import safe_chr
+from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
 
@@ -105,16 +105,20 @@ def pdf_subset(sfnt, glyphs):
                 'or PostScript outlines')
 
 
+def safe_ord(x):
+    return ord_string(unicode(x))[0]
+
+
 def subset(raw, individual_chars, ranges=(), warnings=None):
     warn = partial(do_warn, warnings)
 
-    chars = set(map(ord, individual_chars))
+    chars = set(map(safe_ord, individual_chars))
     for r in ranges:
-        chars |= set(xrange(ord(r[0]), ord(r[1])+1))
+        chars |= set(xrange(safe_ord(r[0]), safe_ord(r[1])+1))
 
     # Always add the space character for ease of use from the command line
-    if ord(' ') not in chars:
-        chars.add(ord(' '))
+    if safe_ord(' ') not in chars:
+        chars.add(safe_ord(' '))
 
     sfnt = Sfnt(raw)
     old_sizes = sfnt.sizes()
