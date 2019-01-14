@@ -1021,7 +1021,7 @@ class CatalogBuilder(object):
         if self.excluded_tags:
             search_terms = []
             for tag in self.excluded_tags:
-                search_terms.append("tag:=%s" % tag)
+                search_terms.append('tags:"=%s"' % tag)
             search_phrase = "not (%s)" % " or ".join(search_terms)
 
         # If a list of ids are provided, don't use search_text
