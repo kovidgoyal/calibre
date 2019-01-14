@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import unittest
 from polyglot.builtins import map
 
-from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key
+from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
 
 
 class Tests(unittest.TestCase):
@@ -95,6 +95,40 @@ class Tests(unittest.TestCase):
 
         ]:
             self.assertEqual(p.parse_path(raw), (path, leftover))
+
+    def test_cfi_decode(self):
+        from calibre.ebooks.oeb.polish.parsing import parse
+        root = parse('''
+<html>
+<head></head>
+<body id="body01">
+        <p>…</p>
+        <p>…</p>
+        <p>…</p>
+        <p>…</p>
+        <p id="para05">xxx<em>yyy</em>0123456789</p>
+        <p>…</p>
+        <p>…</p>
+        <img id="svgimg" src="foo.svg" alt="…"/>
+        <p>…</p>
+        <p><span>hello</span><span>goodbye</span>text here<em>adieu</em>text there</p>
+    </body>
+</html>
+''', line_numbers=True, linenumber_attribute='data-lnum')
+        body = root[-1]
+
+        def test(cfi, expected):
+            self.assertIs(decode_cfi(root, cfi), expected)
+
+        for cfi in '/4 /4[body01] /900[body01] /2[body01]'.split():
+            test(cfi, body)
+
+        for i in range(len(body)):
+            test('/4/{}'.format((i + 1)*2), body[i])
+
+        p = body[4]
+        test('/4/999[para05]', p)
+        test('/4/999[para05]/2', p[0])
 
 
 def find_tests():

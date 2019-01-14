@@ -1404,6 +1404,24 @@ class Boss(QObject):
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.sync_to_editor(name, ed.current_tag())
 
+    def show_partial_cfi_in_editor(self, name, cfi):
+        editor = self.edit_file(name, 'html')
+        if not editor or not editor.has_line_numbers:
+            return False
+        from calibre.ebooks.oeb.polish.parsing import parse
+        from calibre.ebooks.epub.cfi.parse import decode_cfi
+        root = parse(
+            editor.get_raw_data(), decoder=lambda x: x.decode('utf-8'),
+            line_numbers=True, linenumber_attribute='data-lnum')
+        node = decode_cfi(root, cfi)
+        if node is not None:
+            lnum = node.get('data-lnum')
+            if lnum:
+                lnum = int(lnum)
+                editor.current_line = lnum
+                return True
+        return False
+
     def goto_style_declaration(self, data):
         name = data['name']
         editor = self.edit_file(name, syntax=data['syntax'])
