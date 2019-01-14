@@ -581,7 +581,7 @@ class CatalogBuilder(object):
         # Compare the record to each rule looking for a match
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
-            if rule['field'].lower() == 'tags':
+            if rule['field'].lower() == 'tags' or rule['field'] == _('Tags'):
                 if rule['pattern'].lower() in map(unicode.lower, record['tags']):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
