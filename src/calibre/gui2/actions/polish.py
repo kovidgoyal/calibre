@@ -258,14 +258,14 @@ class Polish(QDialog):  # {{{
             self.jobs = []
             self.pd.reject()
             return
-        num, book_id = self.queue.pop()
+        num, book_id = self.queue.pop(0)
         try:
             self.do_book(num, book_id, self.book_id_map[book_id])
         except:
             self.pd.reject()
             raise
         else:
-            self.pd.set_value(self.pd.max - num)
+            self.pd.set_value(num)
             QTimer.singleShot(0, self.do_one)
 
     def do_book(self, num, book_id, formats):
@@ -291,7 +291,7 @@ class Polish(QDialog):  # {{{
 
         desc = ngettext(_('Polish %s')%mi.title,
                         _('Polish book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            nums=num, tot=len(self.book_id_map),
+                            nums=self.pd.max - num, tot=len(self.book_id_map),
                             title=mi.title), len(self.book_id_map))
         if hasattr(self, 'pd'):
             self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
