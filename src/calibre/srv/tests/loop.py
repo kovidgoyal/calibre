@@ -131,14 +131,11 @@ class LoopTest(BaseTest):
         with TestServer(lambda data:(data.path[0] + data.read()), listen_on='::') as server:
             self.ae(server.address[0], '::')
             self.ae(server.loop.socket.getsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY), 0)
-            for interface in ('::1', '127.0.0.1'):
-                conn = server.connect(interface=interface)
-                conn.request('GET', '/test', 'body')
-                r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
-                self.ae(r.read(), b'testbody')
-                r.close()
-                conn.close()
+            conn = server.connect(interface='127.0.0.1')
+            conn.request('GET', '/test', 'body')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK)
+            self.ae(r.read(), b'testbody')
 
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
