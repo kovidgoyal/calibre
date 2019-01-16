@@ -18,8 +18,8 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
-from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp, collation_order
+from calibre.utils.config import tweaks, prefs
+from calibre.utils.icu import sort_key, lower, strcmp, collation_order, primary_strcmp, primary_contains, contains
 from calibre.library.field_metadata import category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
@@ -1460,6 +1460,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.path_found = None
         if start_path is None:
             start_path = []
+        if prefs['use_primary_find_in_search']:
+            final_strcmp = primary_strcmp
+            final_contains = primary_contains
+        else:
+            final_strcmp = strcmp
+            final_contains = contains
 
         def process_tag(depth, tag_index, tag_item, start_path):
             path = self.path_for_index(tag_index)
@@ -1469,8 +1475,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             if tag is None:
                 return False
             name = tag.original_name
-            if (equals_match and strcmp(name, txt) == 0) or \
-                    (not equals_match and lower(name).find(txt) >= 0):
+            if (equals_match and final_strcmp(name, txt) == 0) or \
+                    (not equals_match and final_contains(txt, name)):
                 self.path_found = path
                 return True
             for i,c in enumerate(tag_item.children):
