@@ -28,6 +28,7 @@ from calibre.utils.mdns import get_external_ip
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
+IPPROTO_IPV6 = getattr(socket, "IPPROTO_IPV6", 41)
 
 
 class ReadBuffer(object):  # {{{
@@ -485,8 +486,7 @@ class ServerLoop(object):
         if (hasattr(socket, 'AF_INET6') and self.socket.family == socket.AF_INET6 and
                 self.bind_address[0] in ('::', '::0', '::0.0.0.0')):
             try:
-                self.socket.setsockopt(
-                    socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+                self.socket.setsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
             except (AttributeError, socket.error):
                 # Apparently, the socket option is not available in
                 # this machine's TCP stack
