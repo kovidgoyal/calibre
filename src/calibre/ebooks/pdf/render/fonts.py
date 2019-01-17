@@ -108,6 +108,10 @@ class CMap(Stream):
         for m in maps:
             meat = '\n'.join('%s %s'%(k, v) for k, v in m.iteritems())
             mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
+        try:
+            name = name.encode('ascii').decode('ascii')
+        except Exception:
+            name = uuid4()
         self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
 
 
