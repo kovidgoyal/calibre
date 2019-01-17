@@ -25,6 +25,7 @@ from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.zipfile import ZipFile
+from calibre.utils.localization import get_lang, lang_as_iso639_1
 
 
 class Formatter(TemplateFormatter):
@@ -4014,19 +4015,22 @@ class CatalogBuilder(object):
         """
 
         self.update_progress_full_step(_("Generating OPF"))
+        lang = get_lang() or 'en'
+        if lang_as_iso639_1(lang):
+            lang = lang_as_iso639_1(lang)
 
         header = '''
             <?xml version="1.0" encoding="UTF-8"?>
             <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
                 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf"
                         xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <dc:language>en-US</dc:language>
+                    <dc:language>LANG</dc:language>
                 </metadata>
                 <manifest></manifest>
                 <spine toc="ncx"></spine>
                 <guide></guide>
             </package>
-            '''
+            '''.replace('LANG', lang)
         # Add the supplied metadata tags
         soup = BeautifulStoneSoup(header, selfClosingTags=['item', 'itemref', 'meta', 'reference'])
         metadata = soup.find('metadata')
