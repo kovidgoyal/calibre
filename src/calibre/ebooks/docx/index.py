@@ -59,9 +59,11 @@ def make_block(expand, style, parent, pos):
 
 
 def add_xe(xe, t, expand):
-    text = xe.get('text', '')
+    run = t.getparent()
+    idx = run.index(t)
+    t.text = xe.get('text') or ' '
     pt = xe.get('page-number-text', None)
-    t.text = text or ' '
+
     if pt:
         p = t.getparent().getparent()
         r = p.makeelement(expand('w:r'))
@@ -70,7 +72,9 @@ def add_xe(xe, t, expand):
         t2.set(expand('xml:space'), 'preserve')
         t2.text = ' [%s]' % pt
         r.append(t2)
-    return xe['anchor'], t.getparent()
+    # put separate entries on separate lines
+    run.insert(idx + 1, run.makeelement(expand('w:br')))
+    return xe['anchor'], run
 
 
 def process_index(field, index, xe_fields, log, XPath, expand):
@@ -138,6 +142,7 @@ def split_up_block(block, a, text, parts, ldict):
     parent.append(span)
     span.append(a)
     ldict[span]    = len(prefix)
+
 
 """
 The merge algorithm is a little tricky.
@@ -255,6 +260,9 @@ def polish_index_markup(index, blocks):
             span.append(a[0])
             ldict[span] = 0
 
+        for br in block.xpath('descendant::br'):
+            br.tail = None
+
     # We want a single block for each main entry
     prev_block = blocks[0]
     for block in blocks[1:]:
@@ -263,4 +271,3 @@ def polish_index_markup(index, blocks):
             merge_blocks(prev_block, block, 0, 0, pn, ldict)
         else:
             prev_block = block
-
