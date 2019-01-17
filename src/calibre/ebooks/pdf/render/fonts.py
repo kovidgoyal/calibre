@@ -188,7 +188,6 @@ class Font(object):
         try:
             name = self.metrics.postscript_name
         except KeyError:
-            from calibre.utils.short_uuid import uuid4
             name = uuid4()
         cmap = CMap(name, self.metrics.glyph_map, compress=self.compress)
         self.font_dict['ToUnicode'] = objects.add(cmap)
