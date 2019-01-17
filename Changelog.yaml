@@ -65,7 +65,7 @@
 
   bug fixes:
     - title: "Kobo driver: Fix a regression in the last release that caused book title
-to appear as unknown if metadata management was set to manual in calibre."
+to appear as Unknown if metadata management was set to manual in calibre."
       tickets: [1807914]
 
     - title: "PDF Output: Do not fail if one of the fonts from the source document has no name metadata"
@@ -313,7 +313,7 @@ to appear as unknown if metadata management was set to manual in calibre."
     - title: "Content server: When defining a color scheme for the in browser viewer allow specifying the link color as well as the foreground and background."
       tickets: [1735904]
 
-    - title: "Edit book: Show a popup after a fix all html/beautify all files so the user can easily see what was changed, if needed."
+    - title: "Edit book: Show a popup after a fix all HTML/Beautify all files so the user can easily see what was changed, if needed."
       tickets: [1785482]
 
     - title: "Kindle driver: Create cover thumbnails on the device when transferring KFX format books"
