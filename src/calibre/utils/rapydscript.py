@@ -211,12 +211,7 @@ def compile_srv():
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with lopen(rb, 'rb') as f:
         rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
-    try:
-        mathjax_version = P('content-server/mathjax.version', data=True, allow_user_override=False).decode('utf-8')
-    except EnvironmentError as e:
-        if e.errno != errno.ENOENT:
-            raise
-        mathjax_version = '0'
+    mathjax_version = json.loads(P('mathjax/manifest.json', data=True, allow_user_override=False))['etag']
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:

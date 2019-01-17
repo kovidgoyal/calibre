@@ -244,7 +244,7 @@ def mathjax(ctx, rd, which):
         return rd.etagged_dynamic_response(manifest['etag'], manifest_as_json, content_type='application/json; charset=UTF-8')
     if which not in manifest['files']:
         raise HTTPNotFound('No MathJax file named: %s' % which)
-    path = os.path.abspath(os.path.join(rd.tdir, 'mathjax', which))
-    if not path.startswith(rd.tdir):
+    path = os.path.abspath(P('mathjax/' + which, allow_user_override=False))
+    if not path.startswith(P('mathjax', allow_user_override=False)):
         raise HTTPNotFound('No MathJax file named: %s' % which)
     return rd.filesystem_file_with_constant_etag(lopen(path, 'rb'), manifest['etag'])
