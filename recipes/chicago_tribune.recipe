@@ -21,6 +21,8 @@ class ChicagoTribune(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
+    compress_news_images = True
+    compress_news_images_auto_size = 5
 
     keep_only_tags = [
         dict(name='h1'),
