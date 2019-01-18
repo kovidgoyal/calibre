@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.38.0
+- version: 3.38.1
   date: 2019-01-18
 
   new features:
@@ -59,6 +59,8 @@
 
     - title: "PDF Output: Fix conversion failing when fonts with non-English names are used."
       tickets: [1812218]
+
+    - title: "3.38.1 fixes a typo in 3.38.0 that caused the Polish books function to not work when polishing small numbers of books"
 
   improved recipes:
     - Chicago Tribune
