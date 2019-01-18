@@ -289,9 +289,13 @@ class Polish(QDialog):  # {{{
                 db.copy_format_to(book_id, fmt, f, index_is_id=True)
                 data['files'].append(f.name)
 
+        nums = num
+        if hasattr(self, 'pd'):
+            nums = self.pd.max - num
+
         desc = ngettext(_('Polish %s')%mi.title,
                         _('Polish book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            nums=self.pd.max - num, tot=len(self.book_id_map),
+                            nums=nums, tot=len(self.book_id_map),
                             title=mi.title), len(self.book_id_map))
         if hasattr(self, 'pd'):
             self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
