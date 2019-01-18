@@ -8,6 +8,7 @@ import os, re, textwrap
 from functools import partial
 
 from sphinx.util.console import bold
+from sphinx.util.logging import getLogger
 
 from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
@@ -16,6 +17,10 @@ from latex import LaTeXHelpBuilder
 
 def substitute(app, doctree):
     pass
+
+
+def info(*a):
+    getLogger(__name__).info(*a)
 
 
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
@@ -205,7 +210,7 @@ def update_cli_doc(name, raw, app):
                     path, path)
             for line in lines:
                 print(line)
-        app.builder.info('creating '+os.path.splitext(os.path.basename(path))[0])
+        info('creating '+os.path.splitext(os.path.basename(path))[0])
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
@@ -271,7 +276,6 @@ def get_cli_docs():
 
 
 def cli_docs(app):
-    info = app.builder.info
     info(bold('creating CLI documentation...'))
     documented_cmds, undocumented_cmds = get_cli_docs()
 

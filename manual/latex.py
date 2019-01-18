@@ -9,6 +9,11 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.util.logging import getLogger
+
+
+def info(*a):
+    getLogger(__name__).info(*a)
 
 
 class LaTeXHelpBuilder(LaTeXBuilder):
@@ -16,7 +21,7 @@ class LaTeXHelpBuilder(LaTeXBuilder):
 
     def finish(self):
         LaTeXBuilder.finish(self)
-        self.info('Fixing Cyrillic characters...')
+        info('Fixing Cyrillic characters...')
         tex = os.path.join(self.outdir, 'calibre.tex')
         with open(tex, 'r+b') as f:
             raw = f.read().decode('utf-8')
