@@ -1417,8 +1417,13 @@ class Boss(QObject):
         if node is not None:
             lnum = node.get('data-lnum')
             if lnum:
+                tags_before = []
+                for tag in root.xpath('//*[data-lnum="%s"]' % lnum):
+                    tags_before.append(tag)
+                    if tag is node:
+                        break
                 lnum = int(lnum)
-                editor.current_line = lnum
+                editor.goto_sourceline(lnum, tags_before, attribute='id' if node.get('id') else None)
                 return True
         return False
 
