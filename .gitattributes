@@ -45,6 +45,7 @@ resources/coffee-script.js linguist-vendored=true
 resources/csscolorparser.js linguist-vendored=true
 resources/viewer/hyphen* linguist-vendored=true
 resources/viewer/jquery* linguist-vendored=true
+src/hunspell linguist-vendored=true
 
 # Mark generated files
 resources/content-server/index-generated.html linguist-generated=true
