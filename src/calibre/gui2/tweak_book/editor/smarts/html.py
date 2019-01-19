@@ -531,7 +531,7 @@ class Smarts(NullSmarts):
         ud = block.userData()
         all_tags = [] if ud is None else [t for t in ud.tags if (t.is_start and not t.closing)]
         tag_names = [t.name for t in all_tags]
-        if tag_names[:len(tags)] == tags:
+        if all_tags and tag_names[:len(tags)] == tags:
             c.setPosition(block.position() + all_tags[len(tags)-1].offset)
             found_tag = True
         else:
