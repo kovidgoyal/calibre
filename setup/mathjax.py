@@ -27,6 +27,8 @@ class MathJax(Command):
     def add_options(self, parser):
         parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
         parser.add_option('--mathjax-url', default=self.MATH_JAX_URL, help='URL to MathJax source archive in zip format')
+        parser.add_option('--system-mathjax', default=False, action='store_true',
+                help='Treat MathJax as system copy and symlink instead of copy')
 
     def download_mathjax_release(self, tdir, url):
         self.info('Downloading MathJax:', url)
@@ -44,15 +46,19 @@ class MathJax(Command):
         base = os.path.dirname(dest)
         if not os.path.exists(base):
             os.makedirs(base)
-        with open(dest, 'wb') as f:
-            f.write(raw)
+        if self.use_symlinks:
+            os.symlink(path, dest)
+        else:
+            with open(dest, 'wb') as f:
+                f.write(raw)
 
-    def add_tree(self, base, prefix):
+    def add_tree(self, base, prefix, ignore=lambda n:False):
         for dirpath, dirnames, filenames in os.walk(base):
             for fname in filenames:
                 f = os.path.join(dirpath, fname)
                 name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
-                self.add_file(f, name)
+                if not ignore(name):
+                    self.add_file(f, name)
 
     def clean(self):
         self.mathjax_dir = self.j(self.RESOURCES, 'mathjax')
@@ -62,16 +68,18 @@ class MathJax(Command):
     def run(self, opts):
         self.h = sha1()
         self.mathjax_files = {}
+        self.use_symlinks = opts.system_mathjax
         self.clean()
         os.mkdir(self.mathjax_dir)
         tdir = mkdtemp('calibre-mathjax-build')
         try:
             src = opts.path_to_mathjax or self.download_mathjax_release(tdir, opts.mathjax_url)
             self.info('Adding MathJax...')
-            self.add_file(self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
-            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
+            unpacked = 'unpacked' if self.e(self.j(src, 'unpacked')) else ''
+            self.add_file(self.j(src, unpacked, 'MathJax.js'), 'MathJax.js')
+            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY, lambda x: not x.endswith('.woff'))
             for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
-                self.add_tree(self.j(src, 'unpacked', *d.split('/')), d)
+                self.add_tree(self.j(src, unpacked, *d.split('/')), d)
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
                 f.write(json.dumps({'etag': etag, 'files': self.mathjax_files}, indent=2).encode('utf-8'))
