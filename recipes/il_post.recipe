@@ -21,8 +21,7 @@ sections = [
     ("Mondo", "https://www.ilpost.it/mondo/"),
     ("Politica", "https://www.ilpost.it/politica/"),
     ("Tecnologia", "https://www.ilpost.it/tecnologia/"),
-    ("Internet",
-     "https://www.ilpost.it/internet/"),
+    ("Internet", "https://www.ilpost.it/internet/"),
     ("Scienza", "https://www.ilpost.it/scienza/"),
     ("Cultura", "https://www.ilpost.it/cultura/"),
     ("Economia", "https://www.ilpost.it/economia/"),
@@ -49,9 +48,11 @@ class IlPost(BasicNewsRecipe):
 
     title = "Il Post"
     language = "it"
-    description = ('Puoi decidere quali sezioni scaricare modificando la ricetta.'
-            ' Di default le immagini sono convertite in scala di grigio per risparmiare spazio,'
-            ' la ricetta puo\' essere configurata per tenerle a colori')
+    description = (
+        'Puoi decidere quali sezioni scaricare modificando la ricetta.'
+        ' Di default le immagini sono convertite in scala di grigio per risparmiare spazio,'
+        ' la ricetta puo\' essere configurata per tenerle a colori'
+    )
     tags = "news"
     cover_url = "https://www.ilpost.it/wp-content/themes/ilpost/images/ilpost.svg"
     ignore_duplicate_articles = {"title", "url"}
@@ -103,3 +104,9 @@ class IlPost(BasicNewsRecipe):
                 img.type = "GrayscaleType"
                 img.save(iurl)
             return soup
+
+    def preprocess_html(self, soup):
+        galleryItems = soup.findAll("figure", {"class": "gallery-item"})
+        if galleryItems:
+            self.abort_article()
+        return soup
