@@ -1422,9 +1422,10 @@ class Boss(QObject):
                     tags_before.append(tag)
                     if tag is node:
                         break
+                else:
+                    tags_before.append(node)
                 lnum = int(lnum)
-                editor.goto_sourceline(lnum, tags_before, attribute='id' if node.get('id') else None)
-                return True
+                return editor.goto_sourceline(lnum, tags_before, attribute='id' if node.get('id') else None)
         return False
 
     def goto_style_declaration(self, data):
