@@ -527,6 +527,7 @@ class Smarts(NullSmarts):
         block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
         if not block.isValid():
             return found_tag
+        editor.highlighter.join()
         c = editor.textCursor()
         ud = block.userData()
         all_tags = [] if ud is None else [t for t in ud.tags if (t.is_start and not t.closing)]
