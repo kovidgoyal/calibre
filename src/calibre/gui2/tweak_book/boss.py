@@ -1414,16 +1414,20 @@ class Boss(QObject):
             editor.get_raw_data(), decoder=lambda x: x.decode('utf-8'),
             line_numbers=True, linenumber_attribute='data-lnum')
         node = decode_cfi(root, cfi)
+
+        def barename(x):
+            return x.tag.partition('}')[-1]
+
         if node is not None:
             lnum = node.get('data-lnum')
             if lnum:
                 tags_before = []
                 for tag in root.xpath('//*[data-lnum="%s"]' % lnum):
-                    tags_before.append(tag)
+                    tags_before.append(barename(tag))
                     if tag is node:
                         break
                 else:
-                    tags_before.append(node)
+                    tags_before.append(barename(node))
                 lnum = int(lnum)
                 return editor.goto_sourceline(lnum, tags_before, attribute='id' if node.get('id') else None)
         return False
