@@ -503,6 +503,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.pubdate_cw = CalendarWidget(self.pubdate)
         self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format == 'iso':
+            pubdate_format = 'yyyy-MM-ddTHH:mm:ss'
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))

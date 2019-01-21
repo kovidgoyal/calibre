@@ -308,6 +308,8 @@ class DateTime(Base):
         format_ = cm['display'].get('date_format','')
         if not format_:
             format_ = 'dd MMM yyyy hh:mm'
+        elif format_ == 'iso':
+            format_ = 'yyyy-MM-ddTHH:mm:ss'
         w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
@@ -1027,6 +1029,8 @@ class BulkDateTime(BulkBase):
         format = cm['display'].get('date_format','')
         if not format:
             format = 'dd MMM yyyy'
+        elif format == 'iso':
+            format = 'yyyy-MM-ddTHH:mm:ss'
         w.setDisplayFormat(format)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
