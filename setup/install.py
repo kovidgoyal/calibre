@@ -259,7 +259,7 @@ class Install(Develop):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         self.info('Installing resources to', dest)
-        shutil.copytree(self.RESOURCES, dest)
+        shutil.copytree(self.RESOURCES, dest, symlinks=True)
         self.manifest.append(dest)
 
     def success(self):
