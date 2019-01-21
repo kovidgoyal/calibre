@@ -1422,7 +1422,7 @@ class Boss(QObject):
             lnum = node.get('data-lnum')
             if lnum:
                 tags_before = []
-                for tag in root.xpath('//*[data-lnum="%s"]' % lnum):
+                for tag in root.xpath('//*[@data-lnum="%s"]' % lnum):
                     tags_before.append(barename(tag))
                     if tag is node:
                         break
