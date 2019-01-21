@@ -308,6 +308,8 @@ class DateTime(Base):
         format_ = cm['display'].get('date_format','')
         if not format_:
             format_ = 'dd MMM yyyy hh:mm'
+        elif format_ == 'iso':
+            format_ = 'yyyy-MM-ddTHH:mm:ss'
         w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
@@ -1024,10 +1026,12 @@ class BulkDateTime(BulkBase):
         l.addStretch(2)
 
         w = self.main_widget
-        format = cm['display'].get('date_format','')
-        if not format:
-            format = 'dd MMM yyyy'
-        w.setDisplayFormat(format)
+        format_ = cm['display'].get('date_format','')
+        if not format_:
+            format_ = 'dd MMM yyyy'
+        elif format_ == 'iso':
+            format_ = 'yyyy-MM-ddTHH:mm:ss'
+        w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))

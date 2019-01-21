@@ -1838,6 +1838,8 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
         fmt = tweaks[self.TWEAK]
         if fmt is None:
             fmt = self.FMT
+        elif fmt == 'iso':
+            fmt = 'yyyy-MM-ddTHH:mm:ss'
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)

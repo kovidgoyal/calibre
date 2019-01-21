@@ -111,13 +111,15 @@ class UpdateEditorGeometry(object):
 
 class DateTimeEdit(QDateTimeEdit):  # {{{
 
-    def __init__(self, parent, format):
+    def __init__(self, parent, format_):
         QDateTimeEdit.__init__(self, parent)
         self.setFrame(False)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.setCalendarPopup(True)
-        self.setDisplayFormat(format)
+        if format_ == 'iso':
+            format_ = 'yyyy-MM-ddTHH:mm:ss'
+        self.setDisplayFormat(format_)
 
     def contextMenuEvent(self, ev):
         m = QMenu(self)
