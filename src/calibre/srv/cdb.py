@@ -140,9 +140,15 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             data = json_loads(raw)
         else:
             raise HTTPBadRequest('Only JSON or msgpack requests are supported')
-        changes, loaded_book_ids = data['changes'], frozenset(map(int, data['loaded_book_ids']))
     except Exception:
         raise HTTPBadRequest('Invalid encoded data')
+    try:
+        changes, loaded_book_ids = data['changes'], frozenset(map(int, data.get('loaded_book_ids', ())))
+        if not isinstance(changes, dict):
+            raise TypeError('changes must be a dict')
+    except Exception:
+        raise HTTPBadRequest(
+        '''Data must be of the form {'changes': {'title': 'New Title', ...}, 'loaded_book_ids':[book_id1, book_id2, ...]'}''')
     dirtied = set()
     cdata = changes.pop('cover', False)
     if cdata is not False:
