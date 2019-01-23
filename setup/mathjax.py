@@ -60,15 +60,27 @@ class MathJax(Command):
                 if not ignore(name):
                     self.add_file(f, name)
 
+    @property
+    def mathjax_dir(self):
+        return self.j(self.RESOURCES, 'mathjax')
+
+    def already_present(self):
+        manifest = self.j(self.mathjax_dir, 'manifest.json')
+        if os.path.exists(manifest):
+            with open(manifest, 'rb') as f:
+                return json.load(f).get('version') == self.MATH_JAX_VERSION
+        return False
+
     def clean(self):
-        self.mathjax_dir = self.j(self.RESOURCES, 'mathjax')
         if os.path.exists(self.mathjax_dir):
             shutil.rmtree(self.mathjax_dir)
 
     def run(self, opts):
+        if not opts.system_mathjax and self.already_present():
+            self.info('MathJax already present in the resources directory, not downloading')
+        self.use_symlinks = opts.system_mathjax
         self.h = sha1()
         self.mathjax_files = {}
-        self.use_symlinks = opts.system_mathjax
         self.clean()
         os.mkdir(self.mathjax_dir)
         tdir = mkdtemp('calibre-mathjax-build')
@@ -77,11 +89,14 @@ class MathJax(Command):
             self.info('Adding MathJax...')
             unpacked = 'unpacked' if self.e(self.j(src, 'unpacked')) else ''
             self.add_file(self.j(src, unpacked, 'MathJax.js'), 'MathJax.js')
-            self.add_tree(self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY, lambda x: not x.endswith('.woff'))
+            self.add_tree(
+                self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'),
+                'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY,
+                lambda x: not x.endswith('.woff'))
             for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
                 self.add_tree(self.j(src, unpacked, *d.split('/')), d)
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
-                f.write(json.dumps({'etag': etag, 'files': self.mathjax_files}, indent=2).encode('utf-8'))
+                f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.MATH_JAX_VERSION}, indent=2).encode('utf-8'))
         finally:
             shutil.rmtree(tdir)
