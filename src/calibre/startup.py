@@ -199,7 +199,7 @@ if not _run_once:
                             ident = getattr(self, "ident", None)
                             if ident is not None:
                                 pthread_setname_np(ident, name[:15])
-                    except Exception:
+                    except:
                         pass  # Don't care about failure to set name
                 threading.Thread.start = new_start
 
