@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, hashlib, errno, sys
+import os, platform, shutil, uuid, json, glob, time, hashlib, errno, sys
 from functools import partial
 
 import apsw
@@ -53,6 +53,21 @@ Differences in semantics from pysqlite:
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
+
+
+if platform.system == 'Windows':
+    def symlink_ms(source, dest):
+        import ctypes
+        csl = ctypes.windll.kernel32.CreateSymbolicLinkW
+        csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_unit32)
+        csl.restype = ctypes.c_ubyte
+        flags = 1 if os.path.isdir(source) else 0
+        try:
+            if csl(dest, source.replace('/', '\\'), flags) == 0:
+                raise ctypes.WinError()
+        except:
+            pass
+    os.symlink = symlink_ms(source, dest)
 
 
 class DynamicFilter(object):  # {{{
@@ -1491,8 +1506,6 @@ class DB(object):
                             wam.close_handles()
 
     def add_format(self, book_id, fmt, stream, title, author, path, current_name, mtime=None, no_copy=False):
-        from os import symlink, fstat
-
         fmt = ('.' + fmt.lower()) if fmt else ''
         fname = self.construct_file_name(book_id, title, author, len(fmt))
         path = os.path.join(self.library_path, path)
@@ -1519,8 +1532,8 @@ class DB(object):
 
         if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
             if no_copy:
-                symlink(stream.name, dest)
-                size = fstat(stream.fileno()).st_size
+                os.symlink(stream.name, dest)
+                size = os.fstat(stream.fileno()).st_size
             else:
                 with lopen(dest, 'wb') as f:
                     shutil.copyfileobj(stream, f)
