@@ -1359,7 +1359,7 @@ class Cache(object):
             raise
         return dirtied
 
-    def _do_add_format(self, book_id, fmt, stream, name=None, mtime=None):
+    def _do_add_format(self, book_id, fmt, stream, name=None, mtime=None, no_copy=False):
         path = self._field_for('path', book_id)
         if path is None:
             # Theoretically, this should never happen, but apparently it
@@ -1374,11 +1374,11 @@ class Cache(object):
         except IndexError:
             author = _('Unknown')
 
-        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name, mtime=mtime)
+        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name, mtime=mtime, no_copy=no_copy)
         return size, fname
 
     @api
-    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None, no_copy=False):
         '''
         Add a format to the specified book. Return True if the format was added successfully.
 
@@ -1409,7 +1409,8 @@ class Cache(object):
                 return False
 
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-            size, fname = self._do_add_format(book_id, fmt, stream, name)
+            size, fname = self._do_add_format(book_id, fmt, stream, name, no_copy=no_copy)
+
             del stream
 
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
@@ -1534,6 +1535,7 @@ class Cache(object):
             mi.tags = list(mi.tags)
         if apply_import_tags:
             _add_newbook_tag(mi)
+
         if not add_duplicates and self._has_book(mi):
             return
         series_index = (self._get_next_series_num_for(mi.series) if mi.series_index is None else mi.series_index)
@@ -1580,7 +1582,7 @@ class Cache(object):
         return book_id
 
     @api
-    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
+    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None, no_copy=False):
         '''
         Add the specified books to the library. Books should be an iterable of
         2-tuples, each 2-tuple of the form :code:`(mi, format_map)` where mi is a
@@ -1600,7 +1602,7 @@ class Cache(object):
             else:
                 ids.append(book_id)
                 for fmt, stream_or_path in format_map.iteritems():
-                    if self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks):
+                    if self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks, no_copy=no_copy):
                         fmt_map[fmt.lower()] = getattr(stream_or_path, 'name', stream_or_path) or '<stream>'
             run_plugins_on_postadd(dbapi or self, book_id, fmt_map)
         return ids, duplicates

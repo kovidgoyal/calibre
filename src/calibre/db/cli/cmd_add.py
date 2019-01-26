@@ -35,7 +35,7 @@ def empty(db, notify_changes, is_remote, args):
 
 
 def book(db, notify_changes, is_remote, args):
-    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages = args
+    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages, no_copy=args
     with add_ctx(), TemporaryDirectory('add-single') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
             with lopen(os.path.join(tdir, fname), 'wb') as f:
@@ -67,7 +67,7 @@ def book(db, notify_changes, is_remote, args):
             mi.cover_data = ocover
 
         ids, duplicates = db.add_books(
-            [(mi, {fmt: path})], add_duplicates=add_duplicates, run_hooks=False)
+           [(mi, {fmt: path})], add_duplicates=add_duplicates, run_hooks=False, no_copy=no_copy)
 
     if is_remote:
         notify_changes(books_added(ids))
@@ -76,7 +76,7 @@ def book(db, notify_changes, is_remote, args):
 
 
 def format_group(db, notify_changes, is_remote, args):
-    formats, add_duplicates = args
+    formats, add_duplicates, no_copy = args
     with add_ctx(), TemporaryDirectory('add-multiple') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
             paths = []
@@ -90,7 +90,7 @@ def format_group(db, notify_changes, is_remote, args):
         mi = metadata_from_formats(paths)
         if mi.title is None:
             return None, set(), False
-        ids, dups = db.add_books([(mi, create_format_map(paths))], add_duplicates=add_duplicates, run_hooks=False)
+        ids, dups = db.add_books([(mi, create_format_map(paths))], add_duplicates=add_duplicates, run_hooks=False, no_copy=no_copy)
         if is_remote:
             notify_changes(books_added(ids))
         db.dump_metadata()
@@ -138,7 +138,7 @@ def add_ctx():
 def do_add(
     dbctx, paths, one_book_per_directory, recurse, add_duplicates, otitle, oauthors,
     oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages,
-    compiled_rules
+    compiled_rules, no_copy
 ):
     with add_ctx():
         files, dirs = [], []
@@ -158,11 +158,13 @@ def do_add(
             fmt = fmt[1:] if fmt else None
             if not fmt:
                 continue
+
             ids, dups, book_title = dbctx.run(
                 'add', 'book', dbctx.path(book), os.path.basename(book), fmt, add_duplicates,
                 otitle, oauthors, oisbn, otags, oseries, oseries_index, serialize_cover(ocover) if ocover else None,
-                oidentifiers, olanguages
+                oidentifiers, olanguages, no_copy
             )
+
             added_ids |= set(ids)
             if dups:
                 file_duplicates.append((book_title, book))
@@ -172,7 +174,7 @@ def do_add(
         for dpath in dirs:
             for formats in scanner(dpath, one_book_per_directory, compiled_rules):
                 book_title, ids, dups = dbctx.run(
-                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates)
+                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates, no_copy)
                 if book_title is not None:
                     added_ids |= set(ids)
                     if dups:
@@ -310,6 +312,13 @@ the directory related options below.
         default=False,
         help=_('Process directories recursively')
     )
+    g.add_option(
+        '-n',
+        '--no-copy',
+        action='store_true',
+        default=False,
+        help=_('Don\'t copy files into the Calibre database')
+    )
 
     def fadd(opt, action, help):
         g.add_option(
@@ -363,6 +372,6 @@ def main(opts, args, dbctx):
     do_add(
         dbctx, args, opts.one_book_per_directory, opts.recurse, opts.duplicates,
         opts.title, aut, opts.isbn, tags, opts.series, opts.series_index, opts.cover,
-        identifiers, lcodes, opts.filters
+        identifiers, lcodes, opts.filters, opts.no_copy
     )
     return 0

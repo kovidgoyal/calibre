@@ -1490,7 +1490,9 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
-    def add_format(self, book_id, fmt, stream, title, author, path, current_name, mtime=None):
+    def add_format(self, book_id, fmt, stream, title, author, path, current_name, mtime=None, no_copy=False):
+        from os import symlink, fstat
+
         fmt = ('.' + fmt.lower()) if fmt else ''
         fname = self.construct_file_name(book_id, title, author, len(fmt))
         path = os.path.join(self.library_path, path)
@@ -1516,9 +1518,13 @@ class DB(object):
                         traceback.print_exc()
 
         if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
-            with lopen(dest, 'wb') as f:
-                shutil.copyfileobj(stream, f)
-                size = f.tell()
+            if no_copy:
+                symlink(stream.name, dest)
+                size = fstat(stream.fileno()).st_size
+            else:
+                with lopen(dest, 'wb') as f:
+                    shutil.copyfileobj(stream, f)
+                    size = f.tell()
             if mtime is not None:
                 os.utime(dest, (mtime, mtime))
         elif os.path.exists(dest):
