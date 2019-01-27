@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <pthread.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
@@ -492,6 +491,9 @@ speedup_iso_8601(PyObject *self, PyObject *args) {
     return Py_BuildValue("NOi", PyDateTime_FromDateAndTime(year, month, day, hour, minute, second, usecond), (tzhour == 1000) ? Py_False : Py_True, tzsign*60*(tzhour*60 + tzminute));
 }
 
+#ifndef _MSC_VER
+#include <pthread.h>
+#endif
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #define FREEBSD_SET_NAME
 #endif
