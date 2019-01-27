@@ -1,10 +1,12 @@
 #define UNICODE
 #include <Python.h>
 #include <datetime.h>
+#include <errno.h>
 
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <pthread.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
@@ -42,7 +44,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     year = strtol(raw, &end, 10);
     if ((end - raw) != 4) Py_RETURN_NONE;
     raw += 5;
-    
+
 
     month = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
@@ -51,7 +53,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     day = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
     raw += 3;
-    
+
     hour = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
     raw += 3;
@@ -88,7 +90,7 @@ static PyObject*
 speedup_pdf_float(PyObject *self, PyObject *args) {
     double f = 0.0, a = 0.0;
     char *buf = "0", *dot;
-    void *free_buf = NULL; 
+    void *free_buf = NULL;
     int precision = 6, l = 0;
     PyObject *ret;
 
@@ -215,7 +217,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
         }
     }
 
-    // Create the texture in PPM (P6) format 
+    // Create the texture in PPM (P6) format
     memcpy(ppm, header, strlen(header));
     t = ppm + strlen(header);
     for (i = 0, j = 0; j < width * height; i += 3, j += 1) {
@@ -340,7 +342,7 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     for (; i < PyUnicode_GET_SIZE(text); i++) {
         ch = PyUnicode_AS_UNICODE(text)[i];
 #ifdef Py_UNICODE_WIDE
-        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff)) 
+        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff))
             buf[j++] = ch;
 #else
         if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xd000 <= ch && ch <= 0xfffd)) {
@@ -349,7 +351,7 @@ clean_xml_chars(PyObject *self, PyObject *text) {
                 if (ch <= 0xdbff && i + 1 < PyUnicode_GET_SIZE(text) && 0xdc00 <= PyUnicode_AS_UNICODE(text)[i + 1] && PyUnicode_AS_UNICODE(text)[i+1] <= 0xdfff) {
                     buf[j++] = ch; buf[j++] = PyUnicode_AS_UNICODE(text)[++i];
                 }
-            } else 
+            } else
                 buf[j++] = ch;
         }
 #endif
@@ -490,6 +492,48 @@ speedup_iso_8601(PyObject *self, PyObject *args) {
     return Py_BuildValue("NOi", PyDateTime_FromDateAndTime(year, month, day, hour, minute, second, usecond), (tzhour == 1000) ? Py_False : Py_True, tzsign*60*(tzhour*60 + tzminute));
 }
 
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#define FREEBSD_SET_NAME
+#endif
+#if defined(__APPLE__)
+// I cant figure out how to get pthread.h to include this definition on macOS. MACOSX_DEPLOYMENT_TARGET does not work.
+extern int pthread_setname_np(const char *name);
+#elif defined(FREEBSD_SET_NAME)
+// Function has a different name on FreeBSD
+void pthread_set_name_np(pthread_t tid, const char *name);
+#else
+// Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
+extern int pthread_setname_np(pthread_t, const char *name);
+#endif
+
+
+static PyObject*
+set_thread_name(PyObject *self, PyObject *args) {
+	(void)(self); (void)(args);
+#if defined(_MSC_VER)
+	PyErr_SetString(PyExc_OSError, "Setting thread names not supported on windows");
+	return NULL;
+#else
+	char *name;
+	int ret;
+	if (!PyArg_ParseTuple(args, "s", &name)) return NULL;
+	while (1) {
+		errno = 0;
+#if defined(__APPLE__)
+		ret = pthread_setname_np(name);
+#elif defined(FREEBSD_SET_NAME)
+		pthread_set_name_np(pthread_self(), name);
+		ret = 0;
+#else
+		ret = pthread_setname_np(pthread_self(), name);
+#endif
+		if (ret != 0 && (errno == EINTR || errno == EAGAIN)) continue;
+		break;
+	}
+    if (ret != 0) { PyErr_SetFromErrno(PyExc_OSError); return NULL; }
+	Py_RETURN_NONE;
+#endif
+}
 
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
@@ -533,6 +577,10 @@ static PyMethodDef speedup_methods[] = {
     {"clean_xml_chars", clean_xml_chars, METH_O,
         "clean_xml_chars(unicode_object)\n\nRemove codepoints in unicode_object that are not allowed in XML"
     },
+
+	{"set_thread_name", set_thread_name, METH_VARARGS,
+		"set_thread_name(name)\n\nWrapper for pthread_setname_np"
+	},
 
     {NULL, NULL, 0, NULL}
 };

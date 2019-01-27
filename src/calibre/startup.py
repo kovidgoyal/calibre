@@ -17,7 +17,7 @@ __builtin__.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 __builtin__.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG, isfreebsd
 
 _run_once = False
 winutil = winutilerror = None
@@ -172,36 +172,28 @@ if not _run_once:
         bound_signal.connect(slot, **kw)
     __builtin__.__dict__['connect_lambda'] = connect_lambda
 
-    if islinux:
+    if islinux or isosx or isfreebsd:
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
-        import ctypes, ctypes.util, threading
-        libpthread_path = ctypes.util.find_library("pthread")
-        if libpthread_path:
-            libpthread = ctypes.CDLL(libpthread_path)
-            if hasattr(libpthread, "pthread_setname_np"):
-                pthread_setname_np = libpthread.pthread_setname_np
-                pthread_setname_np.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-                pthread_setname_np.restype = ctypes.c_int
-                orig_start = threading.Thread.start
+        import threading
 
-                def new_start(self):
-                    orig_start(self)
-                    try:
+        orig_start = threading.Thread.start
+
+        def new_start(self):
+            orig_start(self)
+            try:
+                name = self.name
+                if not name or name.startswith('Thread-'):
+                    name = self.__class__.__name__
+                    if name == 'Thread':
                         name = self.name
-                        if not name or name.startswith('Thread-'):
-                            name = self.__class__.__name__
-                            if name == 'Thread':
-                                name = self.name
-                        if name:
-                            if isinstance(name, unicode):
-                                name = name.encode('ascii', 'replace')
-                            ident = getattr(self, "ident", None)
-                            if ident is not None:
-                                pthread_setname_np(ident, name[:15])
-                    except Exception:
-                        pass  # Don't care about failure to set name
-                threading.Thread.start = new_start
+                if name:
+                    if isinstance(name, unicode):
+                        name = name.encode('ascii', 'replace').decode('ascii')
+                    plugins['speedup'][0].set_thread_name(name[:15])
+            except Exception:
+                pass  # Don't care about failure to set name
+        threading.Thread.start = new_start
 
 
 def test_lopen():
