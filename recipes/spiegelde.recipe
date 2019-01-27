@@ -1,43 +1,221 @@
 #!/usr/bin/env  python2
-
-__license__ = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
-'''
-spiegel.de
-'''
+# License: 'CC-BY-4.0'
+# Copyright: '2019, vohe Based on the recipe by Darko Miletic <darko.miletic at gmail.com>'
+from datetime import datetime
 
 from calibre.web.feeds.news import BasicNewsRecipe
+'''
+spiegel germany free newsfeed
+its free, read here: http://www.spiegel.de/dienste/besser-surfen-auf-spiegel-online-so-funktioniert-rss-a-1040321.html
+this: ... Sie können unsere Nachrichten-Feeds kostenlos abonnieren - ...
+'''
+'''
+feel free to modify this to your own needs
+'''
 
 
-class Spiegel_ger(BasicNewsRecipe):
-    title = 'Spiegel Online - German'
-    __author__ = 'Darko Miletic'
-    description = "Immer die neueste Meldung auf dem Schirm, sekundenaktuell und uebersichtlich: Mit dem RSS-Angebot von SPIEGEL ONLINE entgeht Ihnen keine wichtige Meldung mehr, selbst wenn Sie keinen Internet-Browser geoeffnet haben. Sie koennen unsere Nachrichten-Feeds ganz einfach abonnieren - unkompliziert, kostenlos und nach Ihren persoenlichen Themen-Vorlieben."  # noqa
-    publisher = 'SPIEGEL ONLINE Gmbh'
-    category = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'
+class Spiegel_DE_all(BasicNewsRecipe):
+    # Titel of the Recipe
+    title = u'Spiegel Online RSS - German alle Themen'
+    # Author
+    __author__ = u'Volker Heggemann, VoHe'
+    # oldes article to download (in days) 									---- can be edit by user
+    # be careful, if there is a lot of news, the file size exceeds!
     oldest_article = 7
+    # describes itself, 						 							---- can be edit by user
     max_articles_per_feed = 100
+    # speed up the download on fast computers be carefull (I test max.20)
+    # ---- can be edit by user
+    simultaneous_downloads = 10
+    # description, some Reader show this in titlepage
+    # add date to description so for dayly downloads you can find them easier
+    # ---- can be edit by user
+    # description = (
+    # "Ständig die neueste Meldung auf dem Schirm, sekundenaktuell und übersichtlich: Mit unserem RSS-Angebot entgeht Ihnen keine wichtige Meldung,"
+    # "selbst wenn Sie keinen Internet-Browser geöffnet haben. Sie können unsere Nachrichten-Feeds kostenlos abonnieren - nach Ihren Themenvorlieben.")
+    # above a long description, but we use a shorter one
+    description = u'Spiegel Online RSS News'
+    # add fetching date to the description
+    description = description + ' fetched: ' + datetime.now(
+            ).strftime("%Y-%m-%d")  # %H:%M:%S")
+    # Who published the content?
+    publisher = u'SPIEGEL ONLINE Gmbh'
+    cover_url = 'https://de.m.wikipedia.org/wiki/Datei:Spiegel_Online_logo.svg'
+    # What is the content of?
+    category = 'SPIEGEL ONLINE RSS'
+    # describes itself, 						 							---- can be edit by user
     language = 'de'
     lang = 'de-DE'
     no_stylesheets = True
+    # describes itself, 						 							---- can be edit by user
     use_embedded_content = False
+    # encoding of content. e.g. utf-8, None, ...
+    # ---- can be edit by user
     encoding = 'UTF-8'  # AGe 2016-05-09 old: cp1252
+    # Removes javascript- why keep this, we only want static content
+    remove_javascript = True
+    # Removes empty feeds - why keep them!?
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    # remove the rubbish (in ebook)
+    auto_cleanup = True
+    # now the content description and URL follows
+    # feel free to add, wipe out what you need	 							---- can be edit by user
+    #
+    # Make some tests, may you first comment all of them out, and step by step you add what you'll need?
+    #
+    '''
     keep_only_tags = [
         dict(name='h2', attrs={'class': 'article-title'}),
         dict(id=['js-article-top-wide-asset', 'js-article-column']),
     ]
+    '''
     remove_tags = [
         dict(attrs={'class': lambda x: x and 'asset-html-box' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'article-social-bookmark' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'article-newsfeed-box' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'article-comments-box' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'article-functions-bottom' in x.split()}),
+        dict(attrs={
+            'class': lambda x: x and 'article-social-bookmark' in x.split()
+        }),
+        dict(attrs={
+            'class': lambda x: x and 'article-newsfeed-box' in x.split()
+        }),
+        dict(attrs={
+            'class': lambda x: x and 'article-comments-box' in x.split()
+        }),
+        dict(attrs={
+            'class': lambda x: x and 'article-functions-bottom' in x.split()
+        }),
     ]
 
+    # omit articles already linked in Schlagzeilen feed
+    ignore_duplicate_articles = {'title', 'url'}
+
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': lang
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': lang
     }
 
-    feeds = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]
+    feeds = [  # Content / Inhalt
+        # Add or Remove the '#' symbol in front of line, to get or discard this rss-feed
+        # de: lösche oder füge am Anfang jeder Zeile das # Zeichen. Damit wird die Zeile entfernt oder
+        #     hinugefügt und damit der Inhalt im Text erscheinen.
+        #
+        # ---- each line can be edit by user
+        # de: jede Zeile kann verändert werden.
+        #
+        # Sample:
+        # Theme of the following news
+        # (u'Alle Ressort',u'http://www.spiegel.de/schlagzeilen/index.rss'),
+        # Beispiel
+        # Theme of the following news
+        # (u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss'),
+        #
+        #
+        # "Alles" enthält die Themen Politik, Wirtschaft, Panorama , uws....
+        # wenn Sie alles und die Unterthemen wählen, dann erscheinen News doppelt.
+        #
+        # Alles
+        # (u'Spiegel Online alle Schlagzeilen', u'http://www.spiegel.de/schlagzeilen/index.rss'),
+        # (u'Spiegel Online nur Topnews',u'http://www.spiegel.de/schlagzeilen/tops/index.rss'),
+        # (u'Spiegel Online nur Eilmeldungen', u'http://www.spiegel.de/schlagzeilen/eilmeldungen/index.rss'),
+        # (u'Spiegel Online alle Videos',u'http://www.spiegel.de/video/index.rss'),
+        # Politik / Politics
+        # (u'Politics global',u'http://www.spiegel.de/politik/index.rss'),
+        (u'Politics foreign countries',
+         u'http://www.spiegel.de/politik/ausland/index.rss'),
+        (u'Politik DE',
+         u'http://www.spiegel.de/politik/deutschland/index.rss'),
+        # Wirtschaft / economy
+        # (u'Wirtschaft alles', u'http://www.spiegel.de/wirtschaft/index.rss'),
+        (u'Wirtschaft Verbraucher und Service',
+         u'http://www.spiegel.de/wirtschaft/service/index.rss'),
+        (u'Wirtschaft Unternehmen und Märkte',
+         u'http://www.spiegel.de/wirtschaft/unternehmen/index.rss'),
+        (u'Wirtschaft Staat und Soziales',
+         u'http://www.spiegel.de/wirtschaft/soziales/index.rss'),
+        (u'Wirtschaft Videos aus Politik und Wirtschaft',
+         u'http://www.spiegel.de/video/politik_wirtschaft/index.rss'),
+        # Panorama / panorama (overview)
+        # (u'Panorama alles', u'http://www.spiegel.de/panorama/index.rss'),
+        (u'Panorama Justiz',
+         u'http://www.spiegel.de/panorama/justiz/index.rss'),
+        (u'Panorama Gesellschaft',
+         u'http://www.spiegel.de/panorama/gesellschaft/index.rss'),
+        (u'Panorama Leute', u'http://www.spiegel.de/panorama/leute/index.rss'),
+        (u'Panorama Videos aus Panorama',
+         u'http://www.spiegel.de/video/panorama/index.rss'),
+        # Sport / Sports
+        (u'Sport alles', u'http://www.spiegel.de/sport/index.rss'),
+        # (u'Sport Fußball', u'http://www.spiegel.de/sport/fussball/index.rss'),
+        # (u'Sport Formel1', u'http://www.spiegel.de/sport/formel1/index.rss'),
+        # (u'Sport Videos', u'http://www.spiegel.de/video/sport/index.rss'),
+        # Kultur / culture
+        # (u'Kultur alles', u'http://www.spiegel.de/kultur/index.rss'),
+        (u'Kultur Kino', u'http://www.spiegel.de/kultur/kino/index.rss'),
+        (u'Kultur Musik', u'http://www.spiegel.de/kultur/musik/index.rss'),
+        (u'Kultur TV', u'http://www.spiegel.de/kultur/tv/index.rss'),
+        (u'Kultur Literatur',
+         u'http://www.spiegel.de/kultur/literatur/index.rss'),
+        (u'Kultur Videos zu Kino',
+         u'http://www.spiegel.de/video/kino/index.rss'),
+        (u'Kultur Videos zu Kultur',
+         u'http://www.spiegel.de/video/kultur/index.rss'),
+        # Netzwelt / TheNet
+        # (u'Netzwelt alles', u'http://www.spiegel.de/netzwelt/index.rss'),
+        (u'Netzwelt Politk',
+         u'http://www.spiegel.de/netzwelt/netzpolitik/index.rss'),
+        (u'Netzwelt TheWeb', u'http://www.spiegel.de/netzwelt/web/index.rss'),
+        (u'Netzwelt Gadgets',
+         u'http://www.spiegel.de/netzwelt/gadgets/index.rss'),
+        (u'Netzwelt Games', u'http://www.spiegel.de/netzwelt/games/index.rss'),
+        (u'Videos zu Wissenschaft und Technik',
+         u'http://www.spiegel.de/video/wissenschaft_technik/index.rss'),
+        # Foto
+        (u'Fotografie', u'http://www.spiegel.de/thema/fotografie/index.rss'),
+        # Wissenschaft / Technologie
+        # (u'Wissenschaft alles', u'http://www.spiegel.de/wissenschaft/index.rss'),
+        (u'Wissenschaft Mensch',
+         u'http://www.spiegel.de/wissenschaft/mensch/index.rss'),
+        (u'Wissenschaft Natur',
+         u'http://www.spiegel.de/wissenschaft/natur/index.rss'),
+        (u'Wissenschaft Technik',
+         u'http://www.spiegel.de/wissenschaft/technik/index.rss'),
+        (u'Wissenschaft Weltall',
+         u'http://www.spiegel.de/wissenschaft/weltall/index.rss'),
+        (u'Wissenschaft Medizin',
+         u'http://www.spiegel.de/wissenschaft/medizin/index.rss'),
+        (u'Videos zu Wissenschaft',
+         u'http://www.spiegel.de/video/wissenschaft_technik/index.rss'),
+        # Gesundheit / Health
+        # (u'Gesundheit alles', u'http://www.spiegel.de/gesundheit/index.rss'),
+        (u'Gesundheit Diagnose und Therapie',
+         u'http://www.spiegel.de/gesundheit/diagnose/index.rss'),
+        (u'Gesundheit Ernährung und Fitness',
+         u'http://www.spiegel.de/gesundheit/ernaehrung/index.rss'),
+        (u'Gesundheit Psychologie',
+         u'http://www.spiegel.de/gesundheit/psychologie/index.rss'),
+        (u'Gesundheit Sex und Partnerschaft',
+         u'http://www.spiegel.de/gesundheit/sex/index.rss'),
+        (u'Gesundheit Schwangerschaft und Kind',
+         u'http://www.spiegel.de/gesundheit/schwangerschaft/index.rss'),
+        # Karriere / Career
+        # (u'Karriere alles', u'http://www.spiegel.de/karriere/index.rss'),
+        (u'Karriere Berufsstart',
+         u'http://www.spiegel.de/karriere/berufsstart/index.rss'),
+        (u'Karriere Beruf',
+         u'http://www.spiegel.de/karriere/berufsleben/index.rss'),
+        (u'Karriere Ausland',
+         u'http://www.spiegel.de/karriere/ausland/index.rss'),
+        # Uni und Schule
+        (u'Uni und Schule', u'http://www.spiegel.de/unispiegel/index.rss'),
+        # Reise / Travel
+        # (u'Reise alles', u'http://www.spiegel.de/reise/index.rss'),
+        (u'Reise Städte', u'http://www.spiegel.de/reise/staedte/index.rss'),
+        (u'Reise Detuschland',
+         u'http://www.spiegel.de/reise/deutschland/index.rss'),
+        (u'Reise Europa', u'http://www.spiegel.de/reise/europa/index.rss'),
+        (u'Reise Fernweh', u'http://www.spiegel.de/reise/fernweh/index.rss'),
+        # Auto
+        (u'Auto', u'http://www.spiegel.de/auto/index.rss'),
+    ]
