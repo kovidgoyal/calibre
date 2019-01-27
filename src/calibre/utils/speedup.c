@@ -493,7 +493,6 @@ speedup_iso_8601(PyObject *self, PyObject *args) {
 
 #ifndef _MSC_VER
 #include <pthread.h>
-#endif
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #define FREEBSD_SET_NAME
 #endif
@@ -506,6 +505,7 @@ void pthread_set_name_np(pthread_t tid, const char *name);
 #else
 // Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
 extern int pthread_setname_np(pthread_t, const char *name);
+#endif
 #endif
 
 
