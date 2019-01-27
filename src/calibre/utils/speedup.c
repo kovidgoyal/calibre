@@ -513,7 +513,7 @@ static PyObject*
 set_thread_name(PyObject *self, PyObject *args) {
 	(void)(self); (void)(args);
 #if defined(_MSC_VER)
-	PyErr_SetString(PyExc_OSError, "Setting thread names not supported on windows");
+	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on Windows");
 	return NULL;
 #else
 	char *name;
