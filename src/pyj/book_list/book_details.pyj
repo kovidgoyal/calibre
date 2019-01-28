@@ -6,13 +6,14 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax, encode_query_component
-from book_list.delete_book import start_delete_book
+from ajax import ajax, ajax_send, encode_query_component
+from book_list.delete_book import refresh_after_delete, start_delete_book
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
-    book_metadata, cover_url, current_library_id, current_virtual_library,
-    download_url, library_data, load_status, set_book_metadata
+    all_libraries, book_metadata, cover_url, current_library_id,
+    current_virtual_library, download_url, library_data, load_status,
+    set_book_metadata
 )
 from book_list.router import back, home, open_book, report_a_load_failure
 from book_list.theme import get_color, get_font_size
@@ -20,8 +21,8 @@ from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_tit
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
-from dom import add_extra_css, build_rule, clear, svgicon
-from modals import create_custom_dialog, error_dialog
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
+from modals import create_custom_dialog, error_dialog, warning_dialog
 from session import get_interface_data
 from utils import (
     conditional_timeout, debounce, fmt_sidx, human_readable, parse_url_params,
@@ -33,6 +34,7 @@ bd_counter = 0
 
 CLASS_NAME = 'book-details-panel'
 SEARCH_INTERNET_CLASS = 'book-details-search-internet'
+COPY_TO_LIBRARY_CLASS = 'book-details-copy-to-library'
 FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
@@ -384,6 +386,9 @@ add_extra_css(def():
     style += build_rule(sel, margin='1ex 1em')
     style += build_rule(sel + ' ul > li', list_style_type='none')
     style += build_rule(sel + ' ul > li > a', padding='2ex 1em', display='block', width='100%')
+
+    sel = '.' + COPY_TO_LIBRARY_CLASS
+    style += build_rule(sel, margin='1ex 1em')
     return style
 )
 
@@ -611,7 +616,13 @@ def create_more_actions_panel(container_id):
                     action=def():
                         show_subsequent_panel('search_internet', replace=True)
         ),
+
         create_item(title, subtitle=subtitle, action=toggle_fields),
+
+        create_item(_('Copy to library'), subtitle=_('Copy or move this book to another calibre library'),
+                    action=def():
+                        show_subsequent_panel('copy_to_library', replace=True)
+        ),
     ]
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
@@ -663,9 +674,99 @@ def search_internet(container_id):
     ))
 
 
+def do_copy_to_library(book_id, target_library_id, target_library_name):
+
+    def handle_result(move, close_func, end_type, xhr, ev):
+        close_func()
+        title = book_metadata(book_id).title
+        return_to_book_details()
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}" click "Show details" for more information.').format(title),
+                xhr.error_html)
+            return
+        try:
+            response = JSON.parse(xhr.responseText)[book_id]
+            if not response:
+                raise Exception('bad')
+        except:
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}" got an invalid response from calibre').format(title))
+            return
+        if not response.ok:
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}" click "Show details" for more information.').format(title),
+                response.payload
+            )
+            return
+        if response.action is 'duplicate':
+            warning_dialog(_('Book already exists'), _(
+                'Could not copy as a book with the same title and authors already exists in the {} library').format(target_library_name))
+
+        elif response.action is 'automerge':
+            warning_dialog(_('Book merged'), _(
+                'The files from the book were merged into a book with the same title and authors in the {} library').format(target_library_name))
+        if move:
+            refresh_after_delete(book_id, current_library_id())
+
+
+    def trigger_copy(container_id, move, close_func):
+        data = {'book_ids':v'[book_id]', 'move': move}
+        container = document.getElementById(container_id)
+        clear(container)
+        container.appendChild(E.div(
+            _('Contacting calibre to copy book, please wait...')))
+        ajax_send(f'cdb/copy-to-library/{target_library_id}/{current_library_id()}',
+                  data, handle_result.bind(None, move, close_func))
+
+    create_custom_dialog(_('Copy to library'), def (container, close_func):
+        mi = book_metadata(book_id)
+        container_id = ensure_id(container)
+        container.appendChild(E.div(
+            E.div(_(
+                'Copy "{title}" to the library "{target_library_name}"?').format(
+                    title=mi.title, target_library_name=target_library_name)
+            ),
+            E.div(
+                class_='button-box',
+                create_button(_('Copy'), None, trigger_copy.bind(None, container_id, False, close_func), highlight=True),
+                '\xa0',
+                create_button(_('Move'), None, trigger_copy.bind(None, container_id, True, close_func)),
+                '\xa0',
+                create_button(_('Cancel'), None, close_func),
+            )
+        ))
+    )
+
+
+def copy_to_library(container_id):
+    if not render_book.book_id or not book_metadata(render_book.book_id):
+        return return_to_book_details()
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Copy to library'), action=back, icon='close')
+    libraries = all_libraries()
+    container.appendChild(E.div(class_=COPY_TO_LIBRARY_CLASS))
+    container = container.lastChild
+    if libraries.length < 2:
+        container.appendChild(E.div(_('There are no other calibre libraries available to copy the book to')))
+        return
+    container.appendChild(E.h2(_('Choose the library to copy to below')))
+    items = []
+    for library_id, library_name in libraries:
+        if library_id is current_library_id():
+            continue
+        items.push(create_item(library_name, action=do_copy_to_library.bind(None, render_book.book_id, library_id, library_name)))
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
+
+
+
 def delete_book():
     start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
 set_panel_handler('book_details', init)
 set_panel_handler('book_details^more_actions', create_more_actions_panel)
 set_panel_handler('book_details^search_internet', search_internet)
+set_panel_handler('book_details^copy_to_library', copy_to_library)

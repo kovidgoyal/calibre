@@ -124,24 +124,28 @@ def cdb_set_cover(ctx, rd, book_id, library_id):
     return tuple(dirtied)
 
 
+def load_payload_data(rd):
+    raw = rd.read()
+    ct = rd.inheaders.get('Content-Type', all=True)
+    ct = {x.lower().partition(';')[0] for x in ct}
+    try:
+        if MSGPACK_MIME in ct:
+            return msgpack_loads(raw)
+        elif 'application/json' in ct:
+            return json_loads(raw)
+        else:
+            raise HTTPBadRequest('Only JSON or msgpack requests are supported')
+    except Exception:
+        raise HTTPBadRequest('Invalid encoded data')
+
+
 @endpoint('/cdb/set-fields/{book_id}/{library_id=None}', types={'book_id': int},
           needs_db_write=True, postprocess=msgpack_or_json, methods=receive_data_methods, cache_control='no-cache')
 def cdb_set_fields(ctx, rd, book_id, library_id):
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the set fields interface with a user who has per library restrictions')
-    raw = rd.read()
-    ct = rd.inheaders.get('Content-Type', all=True)
-    ct = {x.lower().partition(';')[0] for x in ct}
-    try:
-        if MSGPACK_MIME in ct:
-            data = msgpack_loads(raw)
-        elif 'application/json' in ct:
-            data = json_loads(raw)
-        else:
-            raise HTTPBadRequest('Only JSON or msgpack requests are supported')
-    except Exception:
-        raise HTTPBadRequest('Invalid encoded data')
+    data = load_payload_data(rd)
     try:
         changes, loaded_book_ids = data['changes'], frozenset(map(int, data.get('loaded_book_ids', ())))
         all_dirtied = bool(data.get('all_dirtied'))
@@ -172,3 +176,47 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     all_ids = dirtied if all_dirtied else (dirtied & loaded_book_ids)
     all_ids |= {book_id}
     return {bid: book_as_json(db, book_id) for bid in all_ids}
+
+
+@endpoint('/cdb/copy-to-library/{target_library_id}/{library_id=None}', needs_db_write=True,
+        postprocess=msgpack_or_json, methods=receive_data_methods, cache_control='no-cache')
+def cdb_copy_to_library(ctx, rd, target_library_id, library_id):
+    db_src = get_db(ctx, rd, library_id)
+    db_dest = get_db(ctx, rd, target_library_id)
+    if ctx.restriction_for(rd, db_src) or ctx.restriction_for(rd, db_dest):
+        raise HTTPForbidden('Cannot use the copy to library interface with a user who has per library restrictions')
+    data = load_payload_data(rd)
+    try:
+        book_ids = {int(x) for x in data['book_ids']}
+        move_books = bool(data.get('move', False))
+        preserve_date = bool(data.get('preserve_date', True))
+        duplicate_action = data.get('duplicate_action') or 'add'
+        automerge_action = data.get('automerge_action') or 'overwrite'
+    except Exception:
+        raise HTTPBadRequest('Invalid encoded data, must be of the form: {book_ids: [id1, id2, ..]}')
+    if duplicate_action not in ('add', 'add_formats_to_existing'):
+        raise HTTPBadRequest('duplicate_action must be one of: add, add_formats_to_existing')
+    if automerge_action not in ('overwrite', 'ignore', 'new record'):
+        raise HTTPBadRequest('automerge_action must be one of: overwrite, ignore, new record')
+    response = {}
+    identical_books_data = None
+    if duplicate_action != 'add':
+        identical_books_data = db_dest.data_for_find_identical_books()
+    to_remove = set()
+    from calibre.db.copy_to_library import copy_one_book
+    for book_id in book_ids:
+        try:
+            rdata = copy_one_book(
+                    book_id, db_src, db_dest, duplicate_action=duplicate_action, automerge_action=automerge_action,
+                    preserve_uuid=move_books, preserve_date=preserve_date, identical_books_data=identical_books_data)
+            if move_books:
+                to_remove.add(book_id)
+            response[book_id] = {'ok': True, 'payload': rdata}
+        except Exception:
+            import traceback
+            response[book_id] = {'ok': False, 'payload': traceback.format_exc()}
+
+    if to_remove:
+        db_src.remove_books(to_remove, permanent=True)
+
+    return response

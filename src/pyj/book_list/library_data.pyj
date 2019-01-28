@@ -19,6 +19,12 @@ def current_library_id():
     return q.library_id or get_interface_data().default_library_id
 
 
+def all_libraries():
+    interface_data = get_interface_data()
+    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
+    return [(lid, interface_data.library_map[lid]) for lid in lids]
+
+
 def current_virtual_library():
     q = parse_url_params()
     return q.vl or ''
