@@ -194,8 +194,8 @@ def cdb_copy_to_library(ctx, rd, target_library_id, library_id):
         automerge_action = data.get('automerge_action') or 'overwrite'
     except Exception:
         raise HTTPBadRequest('Invalid encoded data, must be of the form: {book_ids: [id1, id2, ..]}')
-    if duplicate_action not in ('add', 'add_formats_to_existing'):
-        raise HTTPBadRequest('duplicate_action must be one of: add, add_formats_to_existing')
+    if duplicate_action not in ('add', 'add_formats_to_existing', 'ignore'):
+        raise HTTPBadRequest('duplicate_action must be one of: add, add_formats_to_existing, ignore')
     if automerge_action not in ('overwrite', 'ignore', 'new record'):
         raise HTTPBadRequest('automerge_action must be one of: overwrite, ignore, new record')
     response = {}

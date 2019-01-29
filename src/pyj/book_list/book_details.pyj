@@ -21,7 +21,7 @@ from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_tit
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
-from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
 from modals import create_custom_dialog, error_dialog, warning_dialog
 from session import get_interface_data
 from utils import (
@@ -674,6 +674,8 @@ def search_internet(container_id):
     ))
 
 
+# Copy to library {{{
+
 def do_copy_to_library(book_id, target_library_id, target_library_name):
 
     def handle_result(move, close_func, end_type, xhr, ev):
@@ -713,7 +715,14 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
 
 
     def trigger_copy(container_id, move, close_func):
-        data = {'book_ids':v'[book_id]', 'move': move}
+        try:
+            choice = document.querySelector(f'#{dupes_id} input[name="dupes"]:checked').value
+        except:
+            choice = document.querySelector(f'#{dupes_id} input[name="dupes"]').value
+        sd.set('copy_to_library_dupes', choice)
+        duplicate_action, automerge_action = choice.split(';', 2)
+
+        data = {'book_ids':v'[book_id]', 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
         container = document.getElementById(container_id)
         clear(container)
         container.appendChild(E.div(
@@ -721,13 +730,27 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
         ajax_send(f'cdb/copy-to-library/{target_library_id}/{current_library_id()}',
                   data, handle_result.bind(None, move, close_func))
 
-    create_custom_dialog(_('Copy to library'), def (container, close_func):
-        mi = book_metadata(book_id)
+    def radio(value, text):
+        return E.div(style='margin-top: 1rem', E.input(type='radio', name='dupes', value=value, checked=value is saved_value), '\xa0', E.span(text))
+
+    title = book_metadata(book_id).title
+    dupes_id = unique_id()
+    sd = get_session_data()
+    saved_value = sd.get('copy_to_library_dupes')
+    create_custom_dialog(_(
+        'Copy book to "{target_library_name}"').format(target_library_name=target_library_name),
+    def (container, close_func):
         container_id = ensure_id(container)
         container.appendChild(E.div(
-            E.div(_(
-                'Copy "{title}" to the library "{target_library_name}"?').format(
-                    title=mi.title, target_library_name=target_library_name)
+            E.div(_('Copying: {}').format(title)),
+            E.div(id=dupes_id,
+                E.p(_('If there are already existing books in "{}" with the same title and authors,'
+                      ' how would you like to handle them?').format(target_library_name)),
+                radio('add;overwrite', _('Copy anyway')),
+                radio('ignore;overwrite', _('Do not copy')),
+                radio('add_formats_to_existing;overwrite', _('Merge into existing books, overwriting existing files')),
+                radio('add_formats_to_existing;ignore', _('Merge into existing books, keeping existing files')),
+                radio('add_formats_to_existing;new record', _('Merge into existing books, putting conflicting files into a new book record')),
             ),
             E.div(
                 class_='button-box',
@@ -738,6 +761,9 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
                 create_button(_('Cancel'), None, close_func),
             )
         ))
+        if not container.querySelector(f'#{dupes_id} input[name="dupes"]:checked'):
+            container.querySelector(f'#{dupes_id} input[name="dupes"]').checked = True
+
     )
 
 
@@ -760,7 +786,7 @@ def copy_to_library(container_id):
         items.push(create_item(library_name, action=do_copy_to_library.bind(None, render_book.book_id, library_id, library_name)))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
-
+# }}}
 
 
 def delete_book():

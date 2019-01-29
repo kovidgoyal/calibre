@@ -13,6 +13,7 @@ defaults = {
     'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
     'last_sort_order': {},
     'show_all_metadata': False, # show all metadata fields in the book details panel
+    'copy_to_library_dupes': 'add;overwrite',
 
     # Tag Browser settings
     'partition_method': 'first letter',  # other choices: 'disable', 'partition'
