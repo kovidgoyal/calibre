@@ -175,7 +175,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     all_ids = dirtied if all_dirtied else (dirtied & loaded_book_ids)
     all_ids |= {book_id}
-    return {bid: book_as_json(db, book_id) for bid in all_ids}
+    return {bid: book_as_json(db, bid) for bid in all_ids}
 
 
 @endpoint('/cdb/copy-to-library/{target_library_id}/{library_id=None}', needs_db_write=True,
