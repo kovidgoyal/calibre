@@ -25,7 +25,7 @@ def add_properties(item, *props):
 def fix_font_mime_types(container):
     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
         mt = item.get('media-type') or ''
-        if mt.lower() not in OEB_FONTS:
+        if mt.lower() in OEB_FONTS:
             name = container.href_to_name(item.get('href'), container.opf_name)
             item.set('media-type', container.guess_type(name))
 
