@@ -302,8 +302,6 @@ def render_metadata(mi, table, book_id):  # {{{
             if hp is 'side':
                 add_row(name, val, is_html=True)
                 return
-            if hp is 'above':
-                val = E.h3(name).outerHTML + val
             comments.push(v'[field, val]')
             return
         func = None
