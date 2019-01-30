@@ -131,7 +131,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
     with db.safe_read_lock:
-        fm = db.format_metadata(book_id, fmt)
+        fm = db.format_metadata(book_id, fmt, allow_cache=False)
         if not fm:
             raise HTTPNotFound('No %s format for the book (id:%s) in the library: %s' % (fmt, book_id, library_id))
         size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
