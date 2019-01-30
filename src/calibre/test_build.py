@@ -113,6 +113,8 @@ class BuildTest(unittest.TestCase):
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
         self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), type(u''))
+        large = b'x' * (100 * 1024 * 1024)
+        msgpack_loads(msgpack_dumps(large))
 
     @unittest.skipUnless(isosx, 'FSEvents only present on OS X')
     def test_fsevents(self):
