@@ -65,7 +65,7 @@ def main(args=sys.argv):
         print('\nWhere command is one of:')
         print()
         for x in sorted(commands.__all__):
-            print('%-20s -' % x, end=' ')
+            print('{:20} -'.format(x), end=' ')
             c = getattr(commands, x)
             desc = getattr(c, 'short_description', c.description)
             print(desc)
@@ -85,7 +85,7 @@ def main(args=sys.argv):
     parser = option_parser()
     command.add_all_options(parser)
     parser.set_usage(
-        'Usage: python setup.py %s [options]\n\n' % args[1] + command.description)
+        'Usage: python setup.py {} [options]\n\n'.format(args[1]) + command.description)
 
     opts, args = parser.parse_args(args)
 
