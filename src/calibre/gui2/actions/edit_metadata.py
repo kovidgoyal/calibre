@@ -650,7 +650,7 @@ class EditMetadataAction(InterfaceAction):
                     dest_mi.comments = unicode(dest_mi.comments) + u'\n\n' + unicode(src_mi.comments)
             if src_mi.title and (not dest_mi.title or dest_mi.title == _('Unknown')):
                 dest_mi.title = src_mi.title
-            if src_mi.title and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
+            if (src_mi.authors and src_mi.authors[0] != _('Unknown')) and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
                 dest_mi.authors = src_mi.authors
                 dest_mi.author_sort = src_mi.author_sort
             if src_mi.tags:
