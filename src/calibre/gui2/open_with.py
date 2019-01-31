@@ -104,7 +104,7 @@ if iswindows:
         ans = choose_files(
             parent, 'choose-open-with-program-manually-win',
             _('Choose a program to open %s files') % filetype.upper(),
-            filters=[(_('Executable files'), ['exe', 'bat', 'com'])], select_only_single_file=True)
+            filters=[(_('Executable files'), ['exe', 'bat', 'com', 'cmd'])], select_only_single_file=True)
         if ans:
             ans = os.path.abspath(ans[0])
             if not os.access(ans, os.X_OK):
