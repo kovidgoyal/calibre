@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.39.0
+- version: 3.39.1
   date: 2019-02-01
 
   new features:
@@ -51,6 +51,9 @@
 
     - title: "Fix editing of dates not working is the date format is set to iso."
       tickets: [1812560]
+
+    - title: "Version 3.39.1 fixes a bug in 3.39.0 that broke copy to library for books that have saved conversion options"
+      tickets: [1814279]
 
   improved recipes:
     - Spiegel Online
