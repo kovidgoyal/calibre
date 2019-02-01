@@ -58,9 +58,9 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
         if link_map:
             newdb.set_link_for_authors(link_map)
 
-    co = db.conversion_options(book_id, 'PIPE')
+    co = db.conversion_options(book_id)
     if co is not None:
-        newdb.set_conversion_options(new_book_id, 'PIPE', co)
+        newdb.set_conversion_options({new_book_id:co})
     if identical_books_data is not None and duplicate_action != 'add':
         newdb.update_data_for_find_identical_books(new_book_id, identical_books_data)
 
