@@ -78,6 +78,7 @@ class MathJax(Command):
     def run(self, opts):
         if not opts.system_mathjax and self.already_present():
             self.info('MathJax already present in the resources directory, not downloading')
+            return
         self.use_symlinks = opts.system_mathjax
         self.h = sha1()
         self.mathjax_files = {}
