@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title:
 
+- version: 3.39.0
+  date: 2019-02-01
+
+  new features:
+    - title: "Content server: Implement the \"Copy to library\" function. To use it click the three dots in the top right corner of a book's page and choose \"Copy to library\""
+      tickets: [1810486]
+
+    - title: "Content server: Add Next/Previous buttons to the book details page"
+
+  bug fixes:
+    - title: "Content server: Fix editing metadata that affects multiple books causing all the metadata for all the books to become the same."
+      tickets: [1812781]
+
+    - title: "Open With: Fix using .bat files as the program not working."
+      tickets: [1811045]
+
+    - title: "ZIP Output: Fix an error when building the ToC on macOS for some books with non-ASCII ToC entries"
+      tickets: [1813905]
+
+    - title: "Edit book: Check book: Follow recent releases of epubcheck in expecting .ttf files to have the mime-type application/vnd.ms-opentype in EPUB 3 books"
+
+    - title: "Fix font mime-types not being auto-corrected when upgrading EPUBs from 2 to 3"
+
+    - title: "Content server: Try to detect if a book file has been edited outside of calibre and serve the updated copy"
+
+    - title: "Fix merging books not updating author if the source book has no title"
+
+    - title: "Content server: Fix heading for custom comments columns being duplicated in the book details page"
+
+    - title: "Fix editing of dates not working is the date format is set to iso."
+      tickets: [1812560]
+
+  improved recipes:
+    - Spiegel Online
+    - Il Post
+
+  new recipes:
+    - title: BSI News
+      author: Volker Heggemann
+
+    - title: Science Advances
+      author: Jose Ortiz
+
 - version: 3.38.1
   date: 2019-01-18
 
