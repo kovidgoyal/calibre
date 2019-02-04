@@ -140,18 +140,17 @@ class PluginWidget(QWidget,Ui_Form):
             # Skip disabled and incomplete rules
             if not rule['enabled']:
                 continue
-            elif not rule['field'] or not rule['pattern']:
+            if not rule['field'] or not rule['pattern']:
                 continue
-            elif 'prefix' in rule and rule['prefix'] is None:
+            if 'prefix' in rule and rule['prefix'] is None:
                 continue
-            else:
-                if rule['field'] != _('Tags'):
-                    # Look up custom column friendly name
-                    rule['field'] = self.eligible_custom_fields[rule['field']]['field']
-                    if rule['pattern'] in [_('any value'),_('any date')]:
-                        rule['pattern'] = '.*'
-                    elif rule['pattern'] == _('unspecified'):
-                        rule['pattern'] = 'None'
+            if rule['field'] != _('Tags'):
+                # Look up custom column friendly name
+                rule['field'] = self.eligible_custom_fields[rule['field']]['field']
+                if rule['pattern'] in [_('any value'),_('any date')]:
+                    rule['pattern'] = '.*'
+                elif rule['pattern'] == _('unspecified'):
+                    rule['pattern'] = 'None'
             if 'prefix' in rule:
                 pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
             else:
