@@ -2107,7 +2107,7 @@ class CatalogBuilder(object):
                                 new_book = None
                                 if key == normalized_tag:
                                     for book in existing_genre[key]:
-                                        if book['title'] == this_book['title']:
+                                        if (book['title'], book['author']) == (this_book['title'], this_book['author']):
                                             new_book = False
                                             break
                                     else:
