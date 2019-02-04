@@ -4807,6 +4807,8 @@ class CatalogBuilder(object):
                     field_contents = self.db.get_field(record['id'],
                                                 field,
                                                 index_is_id=True)
+                    if field_contents == '':
+                        field_contents = None
 
                     if (self.db.metadata_for_field(field)['datatype'] == 'bool' and
                         field_contents is None):
@@ -4839,6 +4841,10 @@ class CatalogBuilder(object):
                         else:
                             if record not in filtered_data_set:
                                 filtered_data_set.append(record)
+                    elif field_contents is None and pat == 'None':
+                        exclusion_set.append(record)
+                        if record in filtered_data_set:
+                            filtered_data_set.remove(record)
                     else:
                         if (record not in filtered_data_set and
                             record not in exclusion_set):
