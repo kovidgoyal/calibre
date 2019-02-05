@@ -57,6 +57,21 @@ def get_data(name):
     return None, None
 
 
+def send_reply(rq, mime_type, data):
+    if sip.isdeleted(rq):
+        return
+    # make the buf a child of rq so that it is automatically deleted when
+    # rq is deleted
+    buf = QBuffer(parent=rq)
+    buf.open(QBuffer.WriteOnly)
+    # we have to copy data into buf as it will be garbage
+    # collected by python
+    buf.write(data)
+    buf.seek(0)
+    buf.close()
+    rq.reply(mime_type.encode('ascii'), buf)
+
+
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def __init__(self, parent=None):
@@ -88,7 +103,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                self.send_reply(rq, mime_type, data)
+                send_reply(rq, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -97,7 +112,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             manifest, mime_type = get_data('calibre-book-manifest.json')
             metadata = get_data('calibre-book-metadata.json')[0]
             data = b'[' + manifest + b',' + metadata + b']'
-            self.send_reply(rq, mime_type, data)
+            send_reply(rq, mime_type, data)
         elif name.startswith('mathjax/'):
             from calibre.gui2.viewer2.mathjax import monkeypatch_mathjax
             if name == 'mathjax/manifest.json':
@@ -105,7 +120,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     import json
                     from calibre.srv.books import get_mathjax_manifest
                     self.mathjax_manifest = json.dumps(get_mathjax_manifest()['files'])
-                    self.send_reply(rq, 'application/json', self.mathjax_manifest)
+                    send_reply(rq, 'application/json', self.mathjax_manifest)
                     return
             path = os.path.abspath(os.path.join(self.mathjax_dir, '..', name))
             if path.startswith(self.mathjax_dir):
@@ -121,21 +136,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     # raw = open(os.path.expanduser('~/work/mathjax/unpacked/MathJax.js')).read()
                     raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
 
-                self.send_reply(rq, mt, raw)
+                send_reply(rq, mt, raw)
 
-    def send_reply(self, rq, mime_type, data):
-        if sip.isdeleted(rq):
-            return
-        # make the buf a child of rq so that it is automatically deleted when
-        # rq is deleted
-        buf = QBuffer(parent=rq)
-        buf.open(QBuffer.WriteOnly)
-        # we have to copy data into buf as it will be garbage
-        # collected by python
-        buf.write(data)
-        buf.seek(0)
-        buf.close()
-        rq.reply(mime_type.encode('ascii'), buf)
 # }}}
 
 

@@ -14,8 +14,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QHBoxLayout, QIcon, QMenu, QSize, QTimer,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QByteArray, QHBoxLayout, QIcon, QMenu, QSize, QTimer, QToolBar,
+    QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -30,6 +30,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
+from calibre.gui2.viewer2.web_view import send_reply
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
@@ -39,12 +40,6 @@ from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.builtins import unicode_type
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
-
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
-
 
 shutdown = object()
 
@@ -203,24 +198,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                self.send_reply(rq, mime_type, data)
+                send_reply(rq, mime_type, data)
         except Exception:
             import traceback
             traceback.print_exc()
             rq.fail(rq.RequestFailed)
-
-    def send_reply(self, rq, mime_type, data):
-        if sip.isdeleted(rq):
-            return
-        buf = QBuffer(parent=rq)
-        buf.open(QBuffer.WriteOnly)
-        # we have to copy data into buf as it will be garbage
-        # collected by python
-        buf.write(data)
-        buf.seek(0)
-        buf.close()
-        buf.aboutToClose.connect(buf.deleteLater)
-        rq.reply(mime_type.encode('ascii'), buf)
 
     def check_for_parse(self):
         remove = []
@@ -230,7 +212,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 if not isinstance(data, bytes):
                     data = data.encode('utf-8')
                 for mime_type, rq in requests:
-                    self.send_reply(rq, mime_type, data)
+                    send_reply(rq, mime_type, data)
                 remove.append(name)
         for name in remove:
             del self.requests[name]
