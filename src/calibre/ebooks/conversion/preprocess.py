@@ -531,9 +531,6 @@ class HTMLPreProcessor(object):
             rules = []
 
         start_rules = []
-        if is_pdftohtml:
-            # Remove non breaking spaces
-            start_rules.append((re.compile(unicode(r'\u00a0')), lambda match : ' '))
 
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
