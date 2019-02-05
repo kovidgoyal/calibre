@@ -20,9 +20,11 @@ if is_py3:
             value = None
             tb = None
 
-    zip = __builtins__['zip']
-    map = __builtins__['map']
-    filter = __builtins__['filter']
+    import builtins
+
+    zip = builtins.__dict__['zip']
+    map = builtins.__dict__['map']
+    filter = builtins.__dict__['filter']
 
     def iteritems(d):
         return iter(d.items())
@@ -42,6 +44,7 @@ else:
 """)
 
     from future_builtins import zip, map, filter  # noqa
+    import __builtin__ as builtins
 
     def iteritems(d):
         return d.iteritems()
