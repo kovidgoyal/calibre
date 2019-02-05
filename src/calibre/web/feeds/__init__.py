@@ -6,7 +6,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, traceback, copy, re
+import time, traceback, copy, sys, re
+
+# for compatibility with code that expects to import from calibre.web.feeds
+import feedparser
+sys.modules['calibre.web.feeds.feedparser'] = sys.modules['feedparser']
 
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime, force_unicode
