@@ -7,9 +7,11 @@ Code for the conversion of ebook formats and the reading of metadata
 from various formats.
 '''
 
-import traceback, os, re
+import traceback, sys, os, re
 from calibre import CurrentDir, prints
 
+import markdown
+sys.modules['calibre.ebooks.markdown'] = sys.modules['markdown']
 
 class ConversionError(Exception):
 

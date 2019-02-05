@@ -6,11 +6,13 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+import pkgutil
 
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+import markdown
 
-MD_EXTENSIONS = {
+KNOWN_MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
     'admonition': _('Support admonitions'),
     'attr_list': _('Add attribute to HTML tags'),
@@ -25,6 +27,10 @@ MD_EXTENSIONS = {
     'wikilinks': _('Wiki style links'),
 }
 
+MD_EXTENSIONS = {}
+for importer, modname, ispkg in pkgutil.iter_modules(markdown.extensions.__path__):
+    if modname in KNOWN_MD_EXTENSIONS:
+        MD_EXTENSIONS[modname] = KNOWN_MD_EXTENSIONS[modname]
 
 class TXTInput(InputFormatPlugin):
 
