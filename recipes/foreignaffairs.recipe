@@ -9,6 +9,12 @@ def select_form(form):
     return form.attrs.get('id', None) == 'user-login'
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class ForeignAffairsRecipe(BasicNewsRecipe):
 
     ''' there are three modifications:
@@ -37,7 +43,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     remove_javascript = True
     needs_subscription = True
 
-    INDEX = 'http://www.foreignaffairs.com'
+    INDEX = 'https://www.foreignaffairs.com'
     FRONTPAGE = INDEX + '/magazine'
 
     keep_only_tags = [
@@ -50,36 +56,39 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         answer = []
-        soup = self.index_to_soup(html.tostring(self.clean_fa_html(
-            self.index_to_soup(self.FRONTPAGE, as_tree=True))))
+        soup = self.index_to_soup(self.FRONTPAGE)
         div = soup.find(
-            'div', attrs={'class': 'magazine-hero__image image_auto_width'})
-        self.cover_url = div.find('img')['src']
+            'div', attrs={'class': 'magazine-actions'})
+        self.cover_url = div.find('img')['ng-src']
         # get dates
-        date = re.split('\s\|\s', self.tag_to_string(
+        date = re.split(r'\s\|\s', self.tag_to_string(
             soup.head.title.string))[0]
         self.title = "Foreign Affairs ({})".format(date)
         self.timefmt = u' [%s]' % date
 
-        for section in soup.findAll(attrs={'class':lambda x: x and 'magazine-list' in x.split()}):
+        # Fetching article list does not work as site uses javascript
+        # to load articles dynamically
+        for section in soup.findAll('section', attrs={'class':lambda x: x and 'magazine-list' in x.split()}):
             articles = []
-            section_title = self.tag_to_string(section.find('h1'))
-            for h2 in section.findAll('h2'):
-                a = h2.parent
-                if a.get('href'):
-                    title = self.tag_to_string(h2)
-                    url = a['href']
-                    atr = a.findNextSibling(attrs={'class':'author'})
-                    author = self.tag_to_string(atr) if atr else ''
-                    desc = a.findNextSibling(attrs={'class': 'deck'})
-                    if desc is not None:
-                        description = self.tag_to_string(desc)
-                    else:
-                        description = ''
-                    articles.append({'title': title, 'url': url,
-                                     'description': description, 'author': author})
-                    self.log(title)
-                    self.log('\t' + url)
+            section_title = self.tag_to_string(section.find('h2'))
+            if 'special_section.title' in section_title:
+                section_title = 'Special'
+            self.log('\nSection:', section_title)
+            for h3 in section.findAll(attrs={'class': lambda x: x and 'magazine-title' in x.split()}):
+                a = h3.findParent('a', href=True)
+                title = self.tag_to_string(h3)
+                url = a['href']
+                atr = a.findNextSibling(attrs={'class':'author'})
+                author = self.tag_to_string(atr) if atr else ''
+                desc = a.findNextSibling(attrs={'class': 'deck'})
+                if desc is not None:
+                    description = self.tag_to_string(desc)
+                else:
+                    description = ''
+                articles.append({'title': title, 'url': url,
+                                    'description': description, 'author': author})
+                self.log(title)
+                self.log('\t' + url)
             if articles:
                 answer.append((section_title, articles))
         return answer
@@ -98,10 +107,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         return html.tostring(root)
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src': True}):
-            if not img['src'].startswith('http'):
-                img['src'] = self.INDEX + img['src']
-
+        for img in soup.findAll('img', attrs={'ng-src': True}):
+            img['src'] = img['ng-src']
         return soup
 
     def get_browser(self):
