@@ -18,6 +18,7 @@ from read_book.globals import runtime, ui_operations
 from read_book.iframe import main as iframe_main
 from read_book.view import View
 from session import session_defaults
+from utils import encode_query_with_path
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
 
@@ -113,7 +114,12 @@ def get_mathjax_files(proceed):
 
 
 def update_url_state(replace):
-    pass  # TODO: Implement this
+    if view and view.currently_showing:
+        bookpos = view.currently_showing.bookpos
+        if bookpos:
+            query = {'bookpos': bookpos}
+            query = encode_query_with_path(query)
+            window.history.pushState(None, '', query)
 
 
 def show_error(title, msg, details):

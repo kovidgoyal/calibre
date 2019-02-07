@@ -239,6 +239,7 @@ class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         self._host_widget = None
+        self.current_cfi = None
         RestartingWebEngineView.__init__(self, parent)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
@@ -251,10 +252,19 @@ class WebView(RestartingWebEngineView):
         self.setPage(self._page)
         self.setAcceptDrops(False)
         self.clear()
+        self.urlChanged.connect(self.url_changed)
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
             # QTimer.singleShot(300, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(650)))
+
+    def url_changed(self, url):
+        if url.hasFragment():
+            frag = url.fragment(url.FullyDecoded)
+            if frag and frag.startswith('bookpos='):
+                cfi = frag[len('bookpos='):]
+                if cfi:
+                    self.current_cfi = cfi
 
     @property
     def host_widget(self):
