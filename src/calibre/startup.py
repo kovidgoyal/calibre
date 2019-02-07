@@ -38,6 +38,19 @@ if not _run_once:
 
         sys.meta_path.insert(0, PyQt4Ban())
 
+    class DeVendor(object):
+
+        def find_module(self, fullname, path=None):
+            if fullname == 'calibre.web.feeds.feedparser':
+                return self
+
+        def load_module(self, fullname):
+            if fullname == 'calibre.web.feeds.feedparser':
+                from importlib import import_module
+                return import_module('feedparser')
+
+    sys.meta_path.insert(0, DeVendor())
+
     #
     # Platform specific modules
     if iswindows:
