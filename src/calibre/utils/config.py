@@ -412,7 +412,7 @@ class JSONConfig(XMLConfig):
         return json.loads(raw.decode('utf-8'), object_hook=from_json)
 
     def to_raw(self):
-        return json.dumps(self, indent=2, default=to_json)
+        return json.dumps(self, indent=2, default=to_json, sort_keys=True)
 
     def __getitem__(self, key):
         try:
