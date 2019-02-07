@@ -76,7 +76,7 @@ def book(db, notify_changes, is_remote, args):
 
 
 def format_group(db, notify_changes, is_remote, args):
-    formats, add_duplicates = args
+    formats, add_duplicates, cover_data = args
     with add_ctx(), TemporaryDirectory('add-multiple') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
             paths = []
@@ -90,6 +90,8 @@ def format_group(db, notify_changes, is_remote, args):
         mi = metadata_from_formats(paths)
         if mi.title is None:
             return None, set(), False
+        if cover_data and not mi.cover_data or not mi.cover_data[1]:
+            mi.cover_data = 'jpeg', cover_data
         ids, dups = db.add_books([(mi, create_format_map(paths))], add_duplicates=add_duplicates, run_hooks=False)
         if is_remote:
             notify_changes(books_added(ids))
@@ -171,8 +173,22 @@ def do_add(
         scanner = cdb_recursive_find if recurse else cdb_find_in_dir
         for dpath in dirs:
             for formats in scanner(dpath, one_book_per_directory, compiled_rules):
+                cover_data = None
+                for fmt in formats:
+                    if fmt.lower().endswith('.opf'):
+                        with lopen(fmt, 'rb') as f:
+                            mi = get_metadata(f, stream_type='opf')
+                            if mi.cover_data and mi.cover_data[1]:
+                                cover_data = mi.cover_data[1]
+                            elif mi.cover:
+                                try:
+                                    with lopen(mi.cover, 'rb') as f:
+                                        cover_data = f.read()
+                                except EnvironmentError:
+                                    pass
+
                 book_title, ids, dups = dbctx.run(
-                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates)
+                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates, cover_data)
                 if book_title is not None:
                     added_ids |= set(ids)
                     if dups:
