@@ -41,13 +41,14 @@ if not _run_once:
     class DeVendor(object):
 
         def find_module(self, fullname, path=None):
-            if fullname == 'calibre.web.feeds.feedparser':
+            if fullname == 'calibre.web.feeds.feedparser' or fullname.startswith('calibre.ebooks.markdown'):
                 return self
 
         def load_module(self, fullname):
+            from importlib import import_module
             if fullname == 'calibre.web.feeds.feedparser':
-                from importlib import import_module
                 return import_module('feedparser')
+            return import_module(fullname[len('calibre.ebooks.'):])
 
     sys.meta_path.insert(0, DeVendor())
 
