@@ -37,7 +37,7 @@ iso3166 = ISO3166()
 from setup.build import Build
 build = Build()
 
-from setup.mathjax import MathJax
+from setup.revendor import MathJax
 mathjax = MathJax()
 
 from setup.install import Develop, Install, Sdist, Bootstrap

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, json
 from io import BytesIO
-from zipfile import ZipFile
+import tarfile
 from hashlib import sha1
 from tempfile import mkdtemp
 
@@ -17,32 +17,32 @@ from tempfile import mkdtemp
 from setup import Command, download_securely
 
 
-class MathJax(Command):
+class ReVendor(Command):
 
-    description = 'Create the MathJax bundle'
-    MATH_JAX_VERSION = '2.7.5'
-    MATH_JAX_URL = 'https://github.com/mathjax/MathJax/archive/%s.zip' % MATH_JAX_VERSION
-    FONT_FAMILY = 'TeX'
+    # NAME = TAR_NAME = VERSION = DOWNLOAD_URL = ''
 
     def add_options(self, parser):
-        parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
-        parser.add_option('--mathjax-url', default=self.MATH_JAX_URL, help='URL to MathJax source archive in zip format')
-        parser.add_option('--system-mathjax', default=False, action='store_true',
-                help='Treat MathJax as system copy and symlink instead of copy')
+        parser.add_option('--path-to-%s' % self.NAME, help='Path to the extracted %s source' % self.TAR_NAME)
+        parser.add_option('--%s-url' % self.NAME, default=self.DOWNLOAD_URL,
+                help='URL to %s source archive in zip format' % self.TAR_NAME)
+        parser.add_option('--system-%s' % self.NAME, default=False, action='store_true',
+                help='Treat %s as system copy and symlink instead of copy' % self.TAR_NAME)
 
-    def download_mathjax_release(self, tdir, url):
-        self.info('Downloading MathJax:', url)
+    def download_vendor_release(self, tdir, url):
+        self.info('Downloading %s:' % self.TAR_NAME, url)
         raw = download_securely(url)
-        with ZipFile(BytesIO(raw)) as zf:
-            zf.extractall(tdir)
-            return os.path.join(tdir, 'MathJax-' + self.MATH_JAX_VERSION)
+        with tarfile.open(fileobj=BytesIO(raw)) as tf:
+            tf.extractall(tdir)
+            return os.path.join(tdir, '%s-%s' % (self.TAR_NAME, self.VERSION))
+
+    def add_file_pre(self, name, raw):
+        pass
 
     def add_file(self, path, name):
         with open(path, 'rb') as f:
             raw = f.read()
-        self.h.update(raw)
-        self.mathjax_files[name] = len(raw)
-        dest = self.j(self.mathjax_dir, *name.split('/'))
+        self.add_file_pre(name, raw)
+        dest = self.j(self.vendored_dir, *name.split('/'))
         base = os.path.dirname(dest)
         if not os.path.exists(base):
             os.makedirs(base)
@@ -60,20 +60,35 @@ class MathJax(Command):
                 if not ignore(name):
                     self.add_file(f, name)
 
-    @property
-    def mathjax_dir(self):
-        return self.j(self.RESOURCES, 'mathjax')
 
-    def already_present(self):
-        manifest = self.j(self.mathjax_dir, 'manifest.json')
-        if os.path.exists(manifest):
-            with open(manifest, 'rb') as f:
-                return json.load(f).get('version') == self.MATH_JAX_VERSION
-        return False
+    @property
+    def vendored_dir(self):
+        return self.j(self.RESOURCES, self.NAME)
 
     def clean(self):
-        if os.path.exists(self.mathjax_dir):
-            shutil.rmtree(self.mathjax_dir)
+        if os.path.exists(self.vendored_dir):
+            shutil.rmtree(self.vendored_dir)
+
+
+class MathJax(ReVendor):
+
+    description = 'Create the MathJax bundle'
+    NAME = 'mathjax'
+    TAR_NAME = 'MathJax'
+    VERSION = '2.7.5'
+    DOWNLOAD_URL = 'https://github.com/mathjax/MathJax/archive/%s.tar.gz' % VERSION
+    FONT_FAMILY = 'TeX'
+
+    def add_file_pre(self, name, raw):
+        self.h.update(raw)
+        self.mathjax_files[name] = len(raw)
+
+    def already_present(self):
+        manifest = self.j(self.vendored_dir, 'manifest.json')
+        if os.path.exists(manifest):
+            with open(manifest, 'rb') as f:
+                return json.load(f).get('version') == self.VERSION
+        return False
 
     def run(self, opts):
         if not opts.system_mathjax and self.already_present():
@@ -83,10 +98,10 @@ class MathJax(Command):
         self.h = sha1()
         self.mathjax_files = {}
         self.clean()
-        os.mkdir(self.mathjax_dir)
+        os.mkdir(self.vendored_dir)
         tdir = mkdtemp('calibre-mathjax-build')
         try:
-            src = opts.path_to_mathjax or self.download_mathjax_release(tdir, opts.mathjax_url)
+            src = opts.path_to_mathjax or self.download_vendor_release(tdir, opts.mathjax_url)
             self.info('Adding MathJax...')
             unpacked = 'unpacked' if self.e(self.j(src, 'unpacked')) else ''
             self.add_file(self.j(src, unpacked, 'MathJax.js'), 'MathJax.js')
@@ -98,6 +113,6 @@ class MathJax(Command):
                 self.add_tree(self.j(src, unpacked, *d.split('/')), d)
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
-                f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.MATH_JAX_VERSION}, indent=2).encode('utf-8'))
+                f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.VERSION}, indent=2).encode('utf-8'))
         finally:
             shutil.rmtree(tdir)
