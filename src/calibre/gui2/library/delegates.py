@@ -300,7 +300,7 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         elif is_date_undefined(val):
-            val = QDate(2000, 1, 1)
+            val = QDate.currentDate()
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
