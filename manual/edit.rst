@@ -175,6 +175,12 @@ book, by right clicking on the file again and choosing :guilabel:`Replace with
 file...` which will allow you to replace the file in the book with
 the previously exported file.
 
+You can also copy files between multiple editor instances. Select
+the files you want to copy in the :guilabel:`File browser`, then right click
+and choose, :guilabel:`Copy selected files to another editor instance`. Then,
+in the other editor instance, right click in the :guilabel:`File browser`
+and choose :guilabel:`Paste file from other editor instance`.
+
 Adding new images/fonts/etc. or creating new blank files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -726,7 +732,7 @@ Checking external links
 
 You can use this tool to check all links in your book that point to external
 websites. The tool will try to visit every externally linked website, and
-if the visit fails, it will report all broken links in a convenient format for 
+if the visit fails, it will report all broken links in a convenient format for
 you to fix.
 
 

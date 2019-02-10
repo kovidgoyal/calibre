@@ -1,55 +1,76 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import tempfile, shutil, sys, os, errno
+import errno
+import os
+import shutil
+import sys
+import tempfile
 from functools import partial, wraps
 from urlparse import urlparse
 
 from PyQt5.Qt import (
-    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCheckBox,
-    QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal, QVBoxLayout)
+    QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
+    QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QUrl, QVBoxLayout,
+    pyqtSignal
+)
 
-from calibre import prints, isbytestring
+from calibre import isbytestring, prints
 from calibre.constants import cache_dir, iswindows
-from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
-from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage, set_cover
+from calibre.ebooks.oeb.polish.container import (
+    OEB_DOCS, OEB_STYLES, clone_container, get_container as _gc, guess_type
+)
+from calibre.ebooks.oeb.polish.cover import (
+    mark_as_cover, mark_as_titlepage, set_cover
+)
 from calibre.ebooks.oeb.polish.css import filter_css
+from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
-from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
-from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
-from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, create_inline_toc
-from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_css_parser_serialization as scs
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir, add_to_recent_docs
+from calibre.ebooks.oeb.polish.replace import (
+    get_recommended_folders, rationalize_folders, rename_files, replace_file
+)
+from calibre.ebooks.oeb.polish.split import AbortError, merge, multisplit, split
+from calibre.ebooks.oeb.polish.toc import create_inline_toc, remove_names_from_toc
+from calibre.ebooks.oeb.polish.utils import (
+    link_stylesheets, setup_css_parser_serialization as scs
+)
+from calibre.gui2 import (
+    add_to_recent_docs, choose_dir, choose_files, choose_save_file, error_dialog,
+    info_dialog, open_url, question_dialog
+)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
-    set_current_container, current_container, tprefs, actions, editors,
-    set_book_locale, dictionaries, editor_name)
+    actions, current_container, dictionaries, editor_name, editors, set_book_locale,
+    set_current_container, tprefs
+)
 from calibre.gui2.tweak_book.completion.worker import completion_worker
-from calibre.gui2.tweak_book.undo import GlobalUndoHistory
-from calibre.gui2.tweak_book.file_list import NewFileDialog
-from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
-from calibre.gui2.tweak_book.preview import parse_worker
-from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
-from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
+from calibre.gui2.tweak_book.editor.insert_resource import NewBook, get_resource_data
+from calibre.gui2.tweak_book.file_list import FILE_COPY_MIME, NewFileDialog
 from calibre.gui2.tweak_book.preferences import Preferences
-from calibre.gui2.tweak_book.search import validate_search_request, run_search
-from calibre.gui2.tweak_book.spell import find_next as find_next_word, find_next_error
+from calibre.gui2.tweak_book.preview import parse_worker
+from calibre.gui2.tweak_book.save import (
+    SaveManager, find_first_existing_ancestor, save_container
+)
+from calibre.gui2.tweak_book.search import run_search, validate_search_request
+from calibre.gui2.tweak_book.spell import (
+    find_next as find_next_word, find_next_error
+)
+from calibre.gui2.tweak_book.toc import TOCEditor
+from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.widgets import (
-    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
-    InsertSemantics, BusyCursor, InsertTag, FilterCSS, AddCover)
+    AddCover, BusyCursor, FilterCSS, ImportForeign, InsertLink, InsertSemantics,
+    InsertTag, MultiSplit, QuickOpen, RationalizeFolders
+)
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
+from polyglot.builtins import iteritems
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -115,6 +136,8 @@ class Boss(QObject):
         fl.export_requested.connect(self.export_requested)
         fl.replace_requested.connect(self.replace_requested)
         fl.link_stylesheets_requested.connect(self.link_stylesheets_requested)
+        fl.initiate_file_copy.connect(self.copy_files_to_clipboard)
+        fl.initiate_file_paste.connect(self.paste_files_from_clipboard)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -1325,6 +1348,37 @@ class Boss(QObject):
                     if err.errno != errno.EEXIST:
                         raise
             self.export_file(name, dest)
+
+    @in_thread_job
+    def copy_files_to_clipboard(self, names):
+        names = tuple(names)
+        for name in names:
+            if name in editors and not editors[name].is_synced_to_container:
+                self.commit_editor_to_container(name)
+        container = current_container()
+        md = QMimeData()
+        url_map = {
+            name:container.get_file_path_for_processing(name, allow_modification=False)
+            for name in names
+        }
+        md.setUrls(list(map(QUrl.fromLocalFile, url_map.values())))
+        import json
+        md.setData(FILE_COPY_MIME, json.dumps({
+            name: (url_map[name], container.mime_map.get(name)) for name in names
+        }))
+        QApplication.instance().clipboard().setMimeData(md)
+
+    @in_thread_job
+    def paste_files_from_clipboard(self):
+        md = QApplication.instance().clipboard().mimeData()
+        if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
+            import json
+            name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
+            container = current_container()
+            for name, (path, mt) in iteritems(name_map):
+                with lopen(path, 'rb') as f:
+                    container.add_file(name, f.read(), media_type=mt)
+            self.apply_container_update_to_gui()
 
     def export_file(self, name, path):
         if name in editors and not editors[name].is_synced_to_container:

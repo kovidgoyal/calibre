@@ -12,15 +12,12 @@ from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 
 from PyQt5.Qt import (
-    QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QGridLayout, QIcon,
-    QInputDialog, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMenu, QPainter,
-    QPixmap, QRadioButton, QScrollArea, QSize, QSpinBox, QStyle, QStyledItemDelegate,
-    Qt, QTimer, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout,
+    QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
+    QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal
 )
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
 
 from calibre import human_readable, plugins, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
@@ -42,7 +39,15 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import iteritems
 
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
+
+
+FILE_COPY_MIME = 'application/calibre-edit-book-files'
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
 CATEGORY_ROLE = NAME_ROLE + 1
@@ -194,6 +199,8 @@ class FileList(QTreeWidget):
     export_requested = pyqtSignal(object, object)
     replace_requested = pyqtSignal(object, object, object, object)
     link_stylesheets_requested = pyqtSignal(object, object, object)
+    initiate_file_copy = pyqtSignal(object)
+    initiate_file_paste = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -228,13 +235,13 @@ class FileList(QTreeWidget):
         self.rendered_emblem_cache = {}
         self.top_level_pixmap_cache = {
             name : QIcon(I(icon)).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
-            for name, icon in {
+            for name, icon in iteritems({
                 'text':'keyboard-prefs.png',
                 'styles':'lookfeel.png',
                 'fonts':'font.png',
                 'misc':'mimetypes/dir.png',
                 'images':'view-image.png',
-            }.iteritems()}
+            })}
         self.itemActivated.connect(self.item_double_clicked)
 
     def mimeTypes(self):
@@ -527,6 +534,9 @@ class FileList(QTreeWidget):
                 '&Copy the selected file to another editor instance',
                 '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
             m.addSeparator()
+        md = QApplication.instance().clipboard().mimeData()
+        if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
+            m.addAction(_('Paste files from other editor instance'), self.paste_from_other_instance)
 
         selected_map = defaultdict(list)
         for item in sel:
@@ -648,7 +658,10 @@ class FileList(QTreeWidget):
         return ans
 
     def copy_selected_files(self):
-        pass
+        self.initiate_file_copy.emit(self.selected_names)
+
+    def paste_from_other_instance(self):
+        self.initiate_file_paste.emit()
 
     def request_delete(self):
         names = self.selected_names
