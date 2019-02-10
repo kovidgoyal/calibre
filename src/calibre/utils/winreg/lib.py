@@ -281,7 +281,7 @@ class Key(object):
 
     def set(self, name=None, value=None, sub_key=None, has_expansions=False):
         ''' Set a value for this key (with optional sub-key). If name is None,
-        the Default value is set. value can be an integer, a string or a list
+        the Default value is set. value can be an integer, a string, bytes or a list
         of strings. If you want to use expansions, set has_expansions=True. '''
         value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)
         RegSetKeyValue(self.hkey, sub_key, name, dtype, value, size)
