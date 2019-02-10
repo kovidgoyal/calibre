@@ -271,7 +271,7 @@ class BuildTest(unittest.TestCase):
     def test_markdown(self):
         from calibre.ebooks.txt.processor import create_markdown_object
         from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
-        create_markdown_object(MD_EXTENSIONS)
+        create_markdown_object(sorted(MD_EXTENSIONS))
         from calibre.library.comments import sanitize_comments_html
         sanitize_comments_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
 
