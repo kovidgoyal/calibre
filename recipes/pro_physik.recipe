@@ -13,16 +13,14 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_empty_feeds = True
     language = 'de_DE'
 
-    cover_url = 'http://www.pro-physik.de/prophy/images/bg_logo_prophy.gif'
-
     extra_css = '''
-                        h1 {font-size: 1.6em; text-align: left}
-                        h2, h3 {font-size: 1.3em;text-align: left}
-                        h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
-                        h4, h5, h6 {font-size: 1em;text-align: left}
-                        .flex-caption {font-size: .75em; font-weight: normal;margin-bottom: .75em}
-                        .slides {list-style-type: none}
-                      '''
+        h1 {font-size: 1.6em; text-align: left}
+        h2, h3 {font-size: 1.3em;text-align: left}
+        h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
+        h4, h5, h6 {font-size: 1em;text-align: left}
+        .flex-caption {font-size: .75em; font-weight: normal;margin-bottom: .75em}
+        .slides {list-style-type: none}
+    '''
     # .slides: get rid of <ul><li> list dot in front of pictures
 
     keep_only_tags = [
