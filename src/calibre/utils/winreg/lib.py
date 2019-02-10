@@ -42,6 +42,7 @@ def default_errcheck(result, func, args):
         raise ctypes.WinError(result)
     return args
 
+
 null = object()
 
 
@@ -62,6 +63,7 @@ def cwrap(name, restype, *args, **kw):
     func.errcheck = kw.get('errcheck', default_errcheck)
     return func
 
+
 RegOpenKey = cwrap(
     'RegOpenKeyExW', LONG, a('key', HKEY), a('sub_key', LPCWSTR), a('options', DWORD, 0), a('access', ULONG, KEY_READ), a('result', PHKEY, in_arg=False))
 RegCreateKey = cwrap(
@@ -78,6 +80,8 @@ def enum_value_errcheck(result, func, args):
     if result == winerror.ERROR_NO_MORE_ITEMS:
         raise StopIteration()
     raise ctypes.WinError(result)
+
+
 RegEnumValue = cwrap(
     'RegEnumValueW', LONG, a('key', HKEY), a('index', DWORD), a('value_name', LPWSTR), a('value_name_size', LPDWORD), a('reserved', LPDWORD),
     a('value_type', LPDWORD), a('data', LPBYTE), a('data_size', LPDWORD), errcheck=enum_value_errcheck)
@@ -87,6 +91,8 @@ def last_error_errcheck(result, func, args):
     if result == 0:
         raise ctypes.WinError()
     return args
+
+
 ExpandEnvironmentStrings = cwrap(
     'ExpandEnvironmentStringsW', DWORD, a('src', LPCWSTR), a('dest', LPWSTR), a('size', DWORD), errcheck=last_error_errcheck, lib=ctypes.windll.kernel32)
 
@@ -113,6 +119,9 @@ def convert_to_registry_data(value, has_expansions=False):
             raw = struct.pack(str('Q'), value), win32con.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
+    if isinstance(value, bytes):
+        buf = ctypes.create_string_buffer(value)
+        return buf, winreg.REG_BINARY, len(buf)
     raise ValueError('Unknown data type: %r' % value)
 
 
@@ -138,6 +147,7 @@ def convert_registry_data(raw, size, dtype):
         return ctypes.cast(raw, ctypes.POINTER(ctypes.c_uint64)).contents.value
     raise ValueError('Unsupported data type: %r' % dtype)
 
+
 try:
     RegSetKeyValue = cwrap(
         'RegSetKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None),
@@ -153,6 +163,8 @@ def delete_value_errcheck(result, func, args):
     if result != 0:
         raise ctypes.WinError(result)
     return args
+
+
 RegDeleteKeyValue = cwrap(
     'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None), errcheck=delete_value_errcheck)
 RegDeleteTree = cwrap(
@@ -171,6 +183,8 @@ def get_value_errcheck(result, func, args):
     if result == winerror.ERROR_FILE_NOT_FOUND:
         raise KeyError('No such value found')
     raise ctypes.WinError(result)
+
+
 RegGetValue = cwrap(
     'RegGetValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('value_name', LPCWSTR, None), a('flags', DWORD, RRF_RT_ANY),
     a('data_type', LPDWORD, 0), a('data', ctypes.c_void_p, 0), a('size', LPDWORD, 0), errcheck=get_value_errcheck
@@ -340,6 +354,7 @@ class Key(object):
 
     def __del__(self):
         self.close()
+
 
 if __name__ == '__main__':
     from pprint import pprint
