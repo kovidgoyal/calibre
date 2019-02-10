@@ -4,47 +4,39 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     title = u'Pro Physik'
-    __author__ = 'schuster, Armin Geller'  # AGE Upd. 2012-11-28
+    __author__ = 'schuster, Armin Geller'  # AGE Upd. 2012-11-28, # AGe Upd 2019-02-09
     oldest_article = 4
     max_articles_per_feed = 100
 
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
-    language = 'de'
+    language = 'de_DE'
 
     cover_url = 'http://www.pro-physik.de/prophy/images/bg_logo_prophy.gif'
 
+    extra_css = '''
+                        h1 {font-size: 1.6em; text-align: left}
+                        h2, h3 {font-size: 1.3em;text-align: left}
+                        h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
+                        h4, h5, h6 {font-size: 1em;text-align: left}
+                        .flex-caption {font-size: .75em; font-weight: normal;margin-bottom: .75em}
+                        .slides {list-style-type: none}
+                      '''
+    # .slides: get rid of <ul><li> list dot in front of pictures
+
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['leftColRight']})
+        dict(name='div', attrs={'class': ['news-item view-mode-default']})
     ]
 
     remove_tags = [
-        dict(name='div', attrs={
-             'class': ["withMargin socialWrapper addthis_toolbox addthis_default_style"]}),
-        # AGe: If you don't like to see further informations for the article
-        #      and additional links please remove # in belows next line
-        #                    dict(name='div', attrs={'class':["insideBox"]}),
+        #   dict(name='div', attrs={'class':["withMargin socialWrapper addthis_toolbox addthis_default_style"]}),
+        #   dict(name='div', attrs={'class':["insideBox"]}),
     ]
 
     feeds = [
-        (u'Nachrichten', u'http://www.pro-physik.de/graphicalrss/prophy/newsFeed.xml'),
-        (u'Forschung', u'http://www.pro-physik.de/graphicalrss/prophy/newsforschungFeed.xml'),
-        (u'Techologie', u'http://www.pro-physik.de/graphicalrss/prophy/newstechnologieFeed.xml'),
-        (u'Industrie', u'http://www.pro-physik.de/graphicalrss/prophy/newsindustrieFeed.xml'),
-        (u'Hochschule', u'http://www.pro-physik.de/graphicalrss/prophy/newshochschuleFeed.xml'),
-        (u'Panorama', u'http://www.pro-physik.de/graphicalrss/prophy/newspanoramaFeed.xml'),
-        (u'DPG', u'http://www.pro-physik.de/graphicalrss/prophy/newsdpgFeed.xml'),
-        (u'Physik Jornal',
-         u'http://www.pro-physik.de/graphicalrss/prophy/pjnewsFeed.xml'),
-        (u'Veranstaltungen', u'http://www.pro-physik.de/rss/prophy/eventsFeed.xml'),
-
-        # AGe if you like to see job offers please remove # on next lines below
-
-        #              (u'Stellenmarkt', u'http://www.pro-physik.de/rss/prophy/jobsFeed.xml'),
-        #              (u'Industrie Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsindustrieFeed.xml'),
-        #              (u'PhD Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsphdFeed.xml'),
-        #              (u'PostDoc Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobspostdocFeed.xml'),
-        #              (u'Öffentlicher Dienst Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsdienstFeed.xml'),
-        #              (u'Hochschule Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobshochschuleFeed.xml'),
+        (u'Nachrichten',
+         u'https://www.pro-physik.de/rss/news.xml'),  # AGe 2019-02-09
+        (u'Veranstaltungen',
+         u'https://www.pro-physik.de/rss/events.xml'),  # AGe 2019-02-09
     ]
