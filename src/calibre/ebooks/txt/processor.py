@@ -102,25 +102,26 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
 
 
-def convert_markdown(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
-    from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+def create_markdown_object(extensions):
     from calibre.ebooks.markdown import Markdown
-    extensions = ['calibre.ebooks.markdown.extensions.' + x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
+    from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+    extensions = [x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
     md = Markdown(extensions=extensions)
+    return md
+
+
+def convert_markdown(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
+    md = create_markdown_object(extensions)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
 
 def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
-    from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
-    from calibre.ebooks.markdown import Markdown
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.date import parse_only_date
     from calibre.db.write import get_series_values
-    extensions = ['calibre.ebooks.markdown.extensions.' + x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
-    meta_ext = 'calibre.ebooks.markdown.extensions.meta'
-    if meta_ext not in extensions:
-        extensions.append(meta_ext)
-    md = Markdown(extensions=extensions)
+    if 'meta' not in extensions:
+        extensions.append('meta')
+    md = create_markdown_object(extensions)
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
     m = md.Meta
