@@ -19,6 +19,7 @@ class E1843(BasicNewsRecipe):
     language = 'en'
     no_stylesheets = True
     remove_javascript = True
+    oldest_article = 365
     encoding = 'utf-8'
     feeds = [
         'https://www.1843magazine.com/rss/content',
