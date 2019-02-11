@@ -185,6 +185,14 @@ class FB2MLizer(object):
             if key not in ('author', 'cover', 'sequence', 'keywords', 'year', 'publisher', 'isbn'):
                 metadata[key] = prepare_string_for_xml(value)
 
+        try:
+            comments = self.oeb_book.metadata['description'][0]
+        except Exception:
+            metadata['comments'] = ''
+        else:
+            from calibre.utils.html2text import html2text
+            metadata['comments'] = '<annotation>{}</annotation>'.format(prepare_string_for_xml(html2text(comments.value.strip())))
+
         return textwrap.dedent(u'''
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <description>
@@ -196,6 +204,7 @@ class FB2MLizer(object):
                         <lang>%(lang)s</lang>
                         %(keywords)s
                         %(sequence)s
+                        %(comments)s
                     </title-info>
                     <document-info>
                         %(author)s
