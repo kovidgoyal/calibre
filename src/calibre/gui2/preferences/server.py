@@ -5,6 +5,7 @@
 import errno
 import json
 import os
+import sys
 import textwrap
 import time
 
@@ -14,12 +15,9 @@ from PyQt5.Qt import (
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
     QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
 
 from calibre import as_unicode
+from calibre.constants import isportable, iswindows
 from calibre.gui2 import (
     choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog,
     open_url, warning_dialog
@@ -33,6 +31,81 @@ from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
 from calibre.utils.icu import primary_sort_key
+
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
+
+
+if iswindows and not isportable:
+    def get_exe():
+        exe_base = os.path.abspath(os.path.dirname(sys.executable))
+        exe = os.path.join(exe_base, 'calibre.exe')
+        if isinstance(exe, bytes):
+            exe = exe.decode('mbcs')
+        return exe
+
+    def startup_shortcut_path():
+        from win32com.shell import shell, shellcon
+        startup_path = shell.SHGetFolderPath(0, shellcon.CSIDL_STARTUP, 0, 0)
+        return os.path.join(startup_path, "calibre.lnk")
+
+    class Shortcut(object):
+
+        def __enter__(self):
+            import pythoncom
+            from win32com.shell import shell
+            pythoncom.CoInitialize()
+            self.instance = pythoncom.CoCreateInstance(shell.CLSID_ShellLink, None, pythoncom.CLSCTX_INPROC_SERVER, shell.IID_IShellLink)
+            self.persist_file = self.instance.QueryInterface(pythoncom.IID_IPersistFile)
+            return self
+
+        def __exit__(self, *a):
+            import pythoncom
+            del self.instance
+            del self.persist_file
+            pythoncom.CoUninitialize()
+
+        def create_at(self, shortcut_path, target, description, *args):
+            shortcut = self.instance
+            shortcut.SetPath(target)
+            shortcut.SetIconLocation(target, 0)
+            shortcut.SetDescription(description)
+            if args:
+                quoted_args = []
+                for arg in args:
+                    quoted_args.append('"{}"'.format(arg))
+                shortcut.SetArguments(' '.join(quoted_args))
+            self.persist_file.Save(shortcut_path, 0)
+
+        def exists_at(self, shortcut_path, target):
+            if not os.access(shortcut_path, os.R_OK):
+                return False
+            self.persist_file.Load(shortcut_path)
+            name = self.instance.GetPath(8)[0]
+            return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(get_exe()))
+
+    def set_run_at_startup(run_at_startup=True):
+        if run_at_startup:
+            with Shortcut() as shortcut:
+                shortcut.create_at(startup_shortcut_path(), get_exe(), 'calibre - E-book management', '--start-in-tray')
+        else:
+            shortcut_path = startup_shortcut_path()
+            if os.path.exists(shortcut_path):
+                os.remove(shortcut_path)
+
+    def is_set_to_run_at_startup():
+        try:
+            with Shortcut() as shortcut:
+                return shortcut.exists_at(startup_shortcut_path(), get_exe())
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+else:
+    set_run_at_startup = is_set_to_run_at_startup = None
+
 
 # Advanced {{{
 
@@ -294,7 +367,30 @@ class MainTab(QWidget):  # {{{
         get_gui().iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
         l.addSpacing(10)
         l.addWidget(self.ip_info)
+        if set_run_at_startup is not None:
+            self.run_at_start_button = b = QPushButton('', self)
+            self.set_run_at_start_text()
+            b.clicked.connect(self.toggle_run_at_startup)
+            l.addSpacing(10)
+            l.addWidget(b)
+        l.addSpacing(10)
+
         l.addStretch(10)
+
+    def set_run_at_start_text(self):
+        is_autostarted = is_set_to_run_at_startup()
+        self.run_at_start_button.setText(
+            _('Do not start calibre automatically when computer is started') if is_autostarted else
+            _('Start calibre when the computer is started')
+        )
+        self.run_at_start_button.setToolTip('<p>' + (
+            _('''Currently calibre is set to run automatically when the
+            computer starts.  Use this button to disable that.''') if is_autostarted else
+            _('''Start calibre in the system tray automatically when the computer starts''')))
+
+    def toggle_run_at_startup(self):
+        set_run_at_startup(not is_set_to_run_at_startup())
+        self.set_run_at_start_text()
 
     def update_ip_info(self):
         from calibre.gui2.ui import get_gui
