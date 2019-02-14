@@ -502,6 +502,8 @@ extern int pthread_setname_np(const char *name);
 #elif defined(FREEBSD_SET_NAME)
 // Function has a different name on FreeBSD
 void pthread_set_name_np(pthread_t tid, const char *name);
+#elif defined(__NetBSD__)
+// pthread.h provides the symbol
 #else
 // Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
 extern int pthread_setname_np(pthread_t, const char *name);
@@ -526,6 +528,8 @@ set_thread_name(PyObject *self, PyObject *args) {
 #elif defined(FREEBSD_SET_NAME)
 		pthread_set_name_np(pthread_self(), name);
 		ret = 0;
+#elif defined(__NetBSD__)
+		ret = pthread_setname_np(pthread_self(), "%s", name);
 #else
 		ret = pthread_setname_np(pthread_self(), name);
 #endif
