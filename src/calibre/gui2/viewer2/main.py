@@ -11,9 +11,10 @@ import sys
 from threading import Thread
 
 from PyQt5.Qt import QIcon, QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 
 from calibre import as_unicode, prints
-from calibre.constants import VIEWER_APP_UID, islinux, iswindows
+from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
 from calibre.gui2 import (
     Application, error_dialog, set_app_uid, setup_gui_option_parser
 )
@@ -125,6 +126,10 @@ def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
+    scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
+    scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
+    scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+    QWebEngineUrlScheme.registerScheme(scheme)
     if iswindows:
         # Ensure that all ebook viewer instances are grouped together in the task
         # bar. This prevents them from being grouped with the editor process when

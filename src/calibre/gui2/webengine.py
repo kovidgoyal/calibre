@@ -6,8 +6,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 
-from PyQt5.Qt import QObject, Qt, QWebEnginePage, pyqtSignal
-from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineView
+from PyQt5.Qt import QObject, Qt, pyqtSignal
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView
 
 from calibre import prints
 from calibre.utils.monotonic import monotonic
