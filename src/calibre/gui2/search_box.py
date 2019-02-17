@@ -608,10 +608,10 @@ class SavedSearchBoxMixin(object):  # {{{
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 
-    def get_saved_search_text(self):
+    def get_saved_search_text(self, search_name=None):
         db = self.current_db
         try:
-            current_search = self.search.currentText()
+            current_search = search_name if search_name else self.search.currentText()
             if not current_search.startswith('search:'):
                 raise ValueError()
             # This strange expression accounts for the four ways a search can be written:
