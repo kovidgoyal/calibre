@@ -457,6 +457,7 @@ class TagBrowserBar(QWidget):  # {{{
             self.toggle_search_button.setVisible(True)
             self.search_button.setVisible(False)
             self.item_search.setVisible(False)
+
 # }}}
 
 
@@ -477,7 +478,6 @@ class TagBrowserWidget(QFrame):  # {{{
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
-        self.item_search.lineEdit().returnPressed.connect(self.do_find)
         self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
         self.item_search.activated[str].connect(self.do_find)
 
@@ -587,10 +587,14 @@ class TagBrowserWidget(QFrame):  # {{{
         self.current_find_position = None
         self.find()
 
+    @property
+    def find_text(self):
+        return unicode(self.item_search.currentText()).strip()
+
     def find(self):
         model = self.tags_view.model()
         model.clear_boxed()
-        txt = unicode(self.item_search.currentText()).strip()
+        txt = self.find_text
 
         if txt.startswith('*'):
             model.set_categories_filter(txt[1:])
@@ -635,5 +639,13 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return) and self.find_text:
+            self.find()
+            ev.accept()
+            return
+        return QFrame.keyPressEvent(self, ev)
+
 
 # }}}
