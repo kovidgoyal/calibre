@@ -149,6 +149,7 @@ class TagsView(QTreeView):  # {{{
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
         self.search_icon = QIcon(I('search.png'))
+        self.search_copy_icon = QIcon(I("search_copy_saved.png"))
         self.user_category_icon = QIcon(I('tb_folder.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
@@ -413,6 +414,10 @@ class TagsView(QTreeView):  # {{{
             if action == 'search':
                 self._toggle(index, set_to=search_state)
                 return
+            if action == "raw_search":
+                from calibre.gui2.ui import get_gui
+                get_gui().get_saved_search_text(search_name='search:' + key)
+                return
             if action == 'add_to_category':
                 tag = index.tag
                 if len(index.children) > 0:
@@ -589,6 +594,11 @@ class TagsView(QTreeView):  # {{{
                                 partial(self.context_menu_handler, action='search',
                                         search_state=TAG_SEARCH_STATES['mark_minus'],
                                         index=index))
+                        self.context_menu.addAction(self.search_copy_icon,
+                                _('Search using saved search expression'),
+                                partial(self.context_menu_handler, action='raw_search',
+                                        key=tag.name))
+
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:
