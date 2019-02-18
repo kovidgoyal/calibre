@@ -226,16 +226,19 @@ class NewYorkTimes(BasicNewsRecipe):
         # raise SystemExit(1)
         return feeds
 
-    def parse_highlights(self, container):
-        for article in container.findAll('article', **classes('story')):
+    def parse_article_group(self, container):
+        for li in container.findAll('li'):
+            article = li.find('article')
             h2 = article.find('h2')
             if h2 is not None:
                 title = self.tag_to_string(h2)
                 a = h2.find('a', href=True)
                 if a is not None:
                     url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://www.nytimes.com' + url
                     desc = ''
-                    p = article.find(**classes('summary'))
+                    p = h2.findNextSibling('p')
                     if p is not None:
                         desc = self.tag_to_string(p)
                     date = ''
@@ -257,18 +260,13 @@ class NewYorkTimes(BasicNewsRecipe):
                 self.log('\t\t', article['description'])
 
         container = soup.find(itemtype='http://schema.org/CollectionPage')
-        highlights = container.find('section', **classes('highlights'))
-        if highlights is not None:
-            for article in self.parse_highlights(highlights):
-                log(article)
-                yield article
-        extra = container.find('section', attrs={'data-collection-type': True})
-        if extra is not None:
-            title = self.tag_to_string(extra.find('h2'))
-            for article in self.parse_highlights(extra):
-                article['title'] = '{}: {}'.format(title, article['title'])
-                log(article)
-                yield article
+        container.find('header').extract()
+        div = container.find('div')
+        for section in div.findAll('section'):
+            for ol in section.findAll('ol'):
+                for article in self.parse_article_group(ol):
+                    log(article)
+                    yield article
 
     def parse_web_sections(self):
         self.read_nyt_metadata()
