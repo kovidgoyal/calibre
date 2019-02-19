@@ -287,7 +287,7 @@ class RapydScript(Command):  # {{{
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi', 'coffee', 'mathjax', 'rapydscript']
+    sub_commands = ['kakasi', 'coffee', 'mathjax', 'rapydscript', 'liberation_fonts']
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps

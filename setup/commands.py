@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
-        'build', 'mathjax', 'man_pages',
+        'build', 'liberation_fonts', 'mathjax', 'man_pages',
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
@@ -37,7 +37,8 @@ iso3166 = ISO3166()
 from setup.build import Build
 build = Build()
 
-from setup.revendor import MathJax
+from setup.revendor import MathJax, LiberationFonts
+liberation_fonts = LiberationFonts()
 mathjax = MathJax()
 
 from setup.install import Develop, Install, Sdist, Bootstrap

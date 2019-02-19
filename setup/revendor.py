@@ -116,3 +116,36 @@ class MathJax(ReVendor):
                 f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.VERSION}, indent=2).encode('utf-8'))
         finally:
             shutil.rmtree(tdir)
+
+class LiberationFonts(ReVendor):
+
+    description = 'Create the default fonts bundle'
+    NAME = 'liberation-fonts'
+    TAR_NAME = 'liberation-fonts-ttf'
+    VERSION = '2.00.4'
+    DOWNLOAD_URL = 'https://github.com/liberationfonts/{n}/files/2579281/{tn}-{v}.tar.gz'.format(n=NAME, tn=TAR_NAME, v=VERSION)
+
+    @property
+    def vendored_dir(self):
+        return self.j(self.RESOURCES, 'fonts', 'liberation')
+
+    def already_present(self):
+        from glob import glob
+        if glob(self.j(self.vendored_dir, '*.ttf')):
+            return True
+        return False
+
+    def run(self, opts):
+        if not opts.system_liberation_fonts and self.already_present():
+            self.info('Liberation Fonts already present in the resources directory, not downloading')
+            return
+        self.use_symlinks = opts.system_liberation_fonts
+        self.clean()
+        os.mkdir(self.vendored_dir)
+        tdir = mkdtemp('calibre-liberation-fonts-build')
+        try:
+            src = opts.path_to_liberation_fonts or self.download_vendor_release(tdir, opts.liberation_fonts_url)
+            self.info('Adding Liberation Fonts...')
+            self.add_tree(src, '', lambda x: not ('Liberation' in x and x.endswith('.ttf')))
+        finally:
+            shutil.rmtree(tdir)
