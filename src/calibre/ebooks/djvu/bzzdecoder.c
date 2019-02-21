@@ -23,7 +23,7 @@
 
 typedef uint8_t bool;
 
-typedef struct Table { 
+typedef struct Table {
     uint16_t p;
     uint16_t m;
     uint8_t  up;
@@ -315,11 +315,11 @@ static Table default_ztable[256] = // {{{
 
 #define MIN(x, y) ((x < y) ? x : y)
 
-#define ffz(ffzt, x) ((x>=0xff00) ? (ffzt[x&0xff]+8) : (ffzt[(x>>8)&0xff])) 
+#define ffz(ffzt, x) ((x>=0xff00) ? (ffzt[x&0xff]+8) : (ffzt[(x>>8)&0xff]))
 
 #define TRUE 1
 #define FALSE 0
-#define MAXBLOCK 4096 
+#define MAXBLOCK 4096
 #define FREQMAX  4
 #define CTXIDS  3
 
@@ -397,7 +397,7 @@ static inline int32_t decode_sub_simple(State *state, int32_t mps, uint32_t z) {
         }
         state->fence = MIN(state->code, 0x7fff);
         return mps ^ 1;
-    } 
+    }
 
     /* MPS renormalization */
     state->scount -= 1;
@@ -543,10 +543,10 @@ static bool decode(State *state, uint8_t *ctx) {
 
         ctxid = 2 * CTXIDS;
         for (j = 1; j < 8; j++) {
-            if (zpcodec_decode(state, ctx, ctxid)) { 
-                mtfno = (1 << j) + decode_binary(state, ctx, ctxid, j); 
-                state->buf[i] = mtf[mtfno]; 
-                goto rotate; 
+            if (zpcodec_decode(state, ctx, ctxid)) {
+                mtfno = (1 << j) + decode_binary(state, ctx, ctxid, j);
+                state->buf[i] = mtf[mtfno];
+                goto rotate;
             }
             ctxid += 1 << j;
         }
@@ -571,7 +571,7 @@ static bool decode(State *state, uint8_t *ctx) {
         // Relocate new char according to new freq
         fc = fadd;
         if (mtfno < FREQMAX) fc += freq[mtfno];
-        for (k=mtfno; k>=FREQMAX; k--) 
+        for (k=mtfno; k>=FREQMAX; k--)
             mtf[k] = mtf[k-1];
         for (; k>0 && fc>=freq[k-1]; k--) {
             mtf[k] = mtf[k-1];
@@ -585,7 +585,7 @@ static bool decode(State *state, uint8_t *ctx) {
     if (markerpos<1 || (uint32_t)markerpos>=state->xsize) { CORRUPT; goto end; }
     // Allocate pointers
     // Fill count buffer
-    for (i=0; i<(uint32_t)markerpos; i++) 
+    for (i=0; i<(uint32_t)markerpos; i++)
     {
         c = state->buf[i];
         posn[i] = (c<<24) | (count[c] & 0xffffff);
@@ -632,7 +632,11 @@ bzz_decompress(PyObject *self, PyObject *args) {
     size_t buflen = 0, blocksize = MAXBLOCK * 1024;
     PyObject *ans = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "y#", &(state.raw), &input_len))
+#else
     if (!PyArg_ParseTuple(args, "s#", &(state.raw), &input_len))
+#endif
 		return NULL;
     state.end = state.raw + input_len - 1;
 
@@ -682,8 +686,10 @@ end:
     if (PyErr_Occurred()) return NULL;
     return ans;
 }
- 
-static PyMethodDef bzzdecmethods[] = {
+
+static char bzzdec_doc[] = "Decompress BZZ encoded strings (used in DJVU)";
+
+static PyMethodDef bzzdec_methods[] = {
     {"decompress", bzz_decompress, METH_VARARGS,
     "decompress(bytestring) -> decompressed bytestring\n\n"
     		"Decompress a BZZ compressed byte string. "
@@ -692,15 +698,32 @@ static PyMethodDef bzzdecmethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&bzzdec_module)
+static struct PyModuleDef bzzdec_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "bzzdec",
+    /* m_doc      */ bzzdec_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ bzzdec_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_bzzdec(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("bzzdec", bzzdec_methods, bzzdec_doc)
+CALIBRE_MODINIT_FUNC initbzzdec(void) {
+#endif
 
-
-CALIBRE_MODINIT_FUNC
-initbzzdec(void) {
-    PyObject *m;
-    m = Py_InitModule3("bzzdec", bzzdecmethods,
-    "Decompress BZZ encoded strings (used in DJVU)"
-    );
-    if (m == NULL) return;
+    PyObject *m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
-
-
