@@ -633,10 +633,11 @@ bzz_decompress(PyObject *self, PyObject *args) {
     PyObject *ans = NULL;
 
 #if PY_MAJOR_VERSION >= 3
-    if (!PyArg_ParseTuple(args, "y#", &(state.raw), &input_len))
+#define BYTES_FMT "y#"
 #else
-    if (!PyArg_ParseTuple(args, "s#", &(state.raw), &input_len))
+#define BYTES_FMT "s#"
 #endif
+    if (!PyArg_ParseTuple(args, BYTES_FMT, &(state.raw), &input_len))
 		return NULL;
     state.end = state.raw + input_len - 1;
 
@@ -680,7 +681,7 @@ end:
         for (i = 0; i < 3; i++) {
             buflen <<= 8; buflen += (uint8_t)buf[i];
         }
-        ans = Py_BuildValue("s#", buf + 3, MIN(buflen, pos - buf));
+        ans = Py_BuildValue(BYTES_FMT, buf + 3, MIN(buflen, pos - buf));
     }
     if (buf != NULL) free(buf);
     if (PyErr_Occurred()) return NULL;
