@@ -237,13 +237,15 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.current_db
-        data = db.new_api.get_categories()
-        if category in data:
-            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
-        else:
-            result = None
-        if result is None:
-            return
+
+        def get_book_ids(use_virtual_library):
+            book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
+            data = db.new_api.get_categories(book_ids=book_ids)
+            if category in data:
+                result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+            else:
+                result = None
+            return result
 
         if category == 'series':
             key = lambda x:sort_key(title_sort(x))
@@ -251,7 +253,7 @@ class TagBrowserMixin(object):  # {{{
             key = sort_key
 
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
-                          tag_to_match=tag, data=result, sorter=key)
+                          tag_to_match=tag, get_book_ids=get_book_ids, sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name

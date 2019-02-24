@@ -91,7 +91,7 @@ class EditColumnDelegate(QItemDelegate):
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, cat_name, tag_to_match, data, sorter):
+    def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -113,15 +113,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             pass
 
         # initialization
-        self.to_rename = {}
-        self.to_delete = set([])
-        self.all_tags = {}
-        self.original_names = {}
-
-        for k,v,count in data:
-            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v, 'is_deleted': False}
-            self.original_names[k] = v
-        self.ordered_tags = sorted(self.all_tags.keys(), key=sorter)
+        self.ordered_tags = []
+        self.sorter = sorter
+        self.get_book_ids = get_book_ids
 
         # Set up the column headings
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
@@ -140,7 +134,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setItemDelegate(EditColumnDelegate(self.table))
 
         # Add the data
-        select_item = self.fill_in_table(self.ordered_tags, tag_to_match)
+        select_item = self.fill_in_table(None, tag_to_match)
 
         # Scroll to the selected item if there is one
         if select_item is not None:
@@ -160,6 +154,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.search_button.clicked.connect(self.all_matching_clicked)
         self.search_button.setDefault(True)
 
+        self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
+
         self.table.setEditTriggers(QTableWidget.EditKeyPressed)
 
         try:
@@ -171,7 +167,23 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         except:
             pass
 
+    def vl_box_changed(self):
+        self.fill_in_table(None, None)
+
     def fill_in_table(self, tags, tag_to_match):
+        self.to_rename = {}
+        self.to_delete = set([])
+        self.all_tags = {}
+        self.original_names = {}
+
+        data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
+        for k,v,count in data:
+            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v, 'is_deleted': False}
+            self.original_names[k] = v
+        self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
+        if tags is None:
+            tags = self.ordered_tags
+
         select_item = None
         self.table.blockSignals(True)
         self.table.clear()
@@ -220,7 +232,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.all_tags[tag]['is_deleted'] = item.is_deleted
         search_for = icu_lower(unicode(self.search_box.text()))
         if len(search_for) == 0:
-            self.fill_in_table(self.ordered_tags, None)
+            self.fill_in_table(None, None)
         result = []
         for k in self.ordered_tags:
             if search_for in icu_lower(unicode(self.all_tags[k]['cur_name'])):
@@ -252,10 +264,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, _('Item is blank'),
-                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.initial_text())
-                return
+            error_dialog(self, _('Item is blank'), _(
+                'An item cannot be set to nothing. Delete it instead.'), show=True)
+            item.setText(item.initial_text())
+            return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
             self.to_rename[id_] = unicode(item.text())
@@ -272,9 +284,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
 
         if not confirm(
-                _('Do you really want to undo your changes?'),
-                'tag_list_editor_undo'):
-                return
+            _('Do you really want to undo your changes?'),
+            'tag_list_editor_undo'):
+            return
         self.table.blockSignals(True)
         for idx in indexes:
             row = idx.row()
