@@ -4,7 +4,7 @@
 # kate: encoding utf-8; syntax python;
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2017, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2019, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org - paid subscription/ printed issue articles
 This recipe only get's article's published in text format
@@ -69,15 +69,14 @@ class Harpers_full(BasicNewsRecipe):
     def parse_index(self):
         # find current issue
         soup = self.index_to_soup('https://harpers.org/')
-        currentIssue = soup.find('div', attrs={'class': 'mainNavi'}).find(
-            'li', attrs={'class': 'curentIssue'})
-        currentIssue_url = self.tag_to_string(currentIssue.a['href'])
+        currentIssue = soup.find('a', attrs={'id':'header-menu-dropdown-1'})
+        currentIssue_url = self.tag_to_string(currentIssue['href'])
         self.log(currentIssue_url)
 
         # go to the current issue
         soup1 = self.index_to_soup(currentIssue_url)
         currentIssue_title = self.tag_to_string(soup1.head.title.string)
-        date = re.split('\s\|\s', currentIssue_title)[0]
+        date = re.split(r'\s\|\s', currentIssue_title)[0]
         self.timefmt = u' [%s]' % date
 
         # get cover
