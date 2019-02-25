@@ -123,7 +123,7 @@ static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, uns
 static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
     PyObject *ans = NULL;
 
-    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:L, s:O}", 
+    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:L, s:O}",
             "name", nf->filename,
             "id", (unsigned long)nf->item_id,
             "parent_id", (unsigned long)nf->parent_id,
@@ -184,7 +184,7 @@ Device_dealloc(Device* self)
     Py_XDECREF(self->serial_number); self->serial_number = NULL;
     Py_XDECREF(self->device_version); self->device_version = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -225,9 +225,9 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
     }
 
     if (rawdevs != NULL) free(rawdevs);
-    if (dev == NULL) { 
-        if (tried_count == 0) PyErr_Format(MTPError, "No device with busnum=%lu and devnum=%u found", busnum, devnum); 
-        else PyErr_Format(MTPError, "Unable to open MTP device with busnum=%lu and devnum=%u, tried %d such devices", busnum, devnum, tried_count); 
+    if (dev == NULL) {
+        if (tried_count == 0) PyErr_Format(MTPError, "No device with busnum=%lu and devnum=%u found", busnum, devnum);
+        else PyErr_Format(MTPError, "Unable to open MTP device with busnum=%lu and devnum=%u, tried %d such devices", busnum, devnum, tried_count);
         return -1;
     }
 
@@ -341,8 +341,8 @@ Device_storage_info(Device *self, void *closure) {
         // Check if read only storage
         if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM || (storage->id & 0x0000FFFFU) == 0x00000000U || storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) ro = 1;
 
-        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s,s:O}", 
-                "id", (unsigned long)storage->id, 
+        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s,s:O}",
+                "id", (unsigned long)storage->id,
                 "removable", ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
                 "capacity", (unsigned long long)storage->MaxCapacity,
                 "freespace_bytes", (unsigned long long)storage->FreeSpaceInBytes,
@@ -352,7 +352,7 @@ Device_storage_info(Device *self, void *closure) {
                 "rw", (ro) ? Py_False : Py_True
         );
 
-        if (loc == NULL) return NULL; 
+        if (loc == NULL) return NULL;
         if (PyList_Append(ans, loc) != 0) return NULL;
         Py_DECREF(loc);
 
@@ -382,12 +382,12 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
             recurse = (r != NULL && PyObject_IsTrue(r)) ? 1 : 0;
             Py_XDECREF(r);
             if (PyList_Append(ans, entry) != 0) { ok = 0; }
-            Py_DECREF(entry); 
+            Py_DECREF(entry);
         }
 
         if (ok && recurse && f->filetype == LIBMTP_FILETYPE_FOLDER) {
             if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback, level+1)) {
-                ok = 0; 
+                ok = 0;
             }
         }
     }
@@ -409,7 +409,7 @@ Device_get_filesystem(Device *self, PyObject *args) {
 
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
-    if (!PyArg_ParseTuple(args, "kO", &storage_id, &callback)) return NULL; 
+    if (!PyArg_ParseTuple(args, "kO", &storage_id, &callback)) return NULL;
     if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback is not a callable"); return NULL; }
     ans = PyList_New(0);
     errs = PyList_New(0);
@@ -439,7 +439,7 @@ Device_get_file(Device *self, PyObject *args) {
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
 
-    if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL; 
+    if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL;
     errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
@@ -451,7 +451,7 @@ Device_get_file(Device *self, PyObject *args) {
     PyEval_RestoreThread(cb.state);
     Py_XDECREF(callback); Py_DECREF(stream);
 
-    if (ret != 0) { 
+    if (ret != 0) {
         dump_errorstack(self->device, errs);
     }
     Py_XDECREF(PyObject_CallMethod(stream, "flush", NULL));
@@ -472,7 +472,7 @@ Device_put_file(Device *self, PyObject *args) {
 
     ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
 
-    if (!PyArg_ParseTuple(args, "kksOK|O", &storage_id, &parent_id, &name, &stream, &filesize, &callback)) return NULL; 
+    if (!PyArg_ParseTuple(args, "kksOK|O", &storage_id, &parent_id, &name, &stream, &filesize, &callback)) return NULL;
     errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
@@ -569,32 +569,32 @@ static PyMethodDef Device_methods[] = {
 };
 
 static PyGetSetDef Device_getsetters[] = {
-    {(char *)"friendly_name", 
+    {(char *)"friendly_name",
      (getter)Device_friendly_name, NULL,
      (char *)"The friendly name of this device, can be None.",
      NULL},
 
-    {(char *)"manufacturer_name", 
+    {(char *)"manufacturer_name",
      (getter)Device_manufacturer_name, NULL,
      (char *)"The manufacturer name of this device, can be None.",
      NULL},
 
-    {(char *)"model_name", 
+    {(char *)"model_name",
      (getter)Device_model_name, NULL,
      (char *)"The model name of this device, can be None.",
      NULL},
 
-    {(char *)"serial_number", 
+    {(char *)"serial_number",
      (getter)Device_serial_number, NULL,
      (char *)"The serial number of this device, can be None.",
      NULL},
 
-    {(char *)"device_version", 
+    {(char *)"device_version",
      (getter)Device_device_version, NULL,
      (char *)"The device version of this device, can be None.",
      NULL},
 
-    {(char *)"ids", 
+    {(char *)"ids",
      (getter)Device_ids, NULL,
      (char *)"The ids of the device (busnum, devnum, vendor_id, product_id, usb_serialnum)",
      NULL},
@@ -719,7 +719,7 @@ initlibmtp(void) {
     DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&DeviceType) < 0)
         return;
-    
+
     m = Py_InitModule3("libmtp", libmtp_methods, "Interface to libmtp.");
     if (m == NULL) return;
 

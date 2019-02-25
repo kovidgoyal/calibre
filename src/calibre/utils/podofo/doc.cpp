@@ -14,7 +14,7 @@ static void
 PDFDoc_dealloc(PDFDoc* self)
 {
     if (self->doc != NULL) delete self->doc;
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject *
