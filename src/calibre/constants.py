@@ -189,6 +189,7 @@ class Plugins(collections.Mapping):
             plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:
             plugins.append('usbobserver')
+            plugins.append('cocoa')
         if isfreebsd or ishaiku or islinux or isosx:
             plugins.append('libusb')
             plugins.append('libmtp')

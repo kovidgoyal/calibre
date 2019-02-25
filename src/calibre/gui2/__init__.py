@@ -894,6 +894,14 @@ class Application(QApplication):
             # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
             self.aboutToQuit.connect(self.flush_clipboard)
 
+        if isosx:
+            cocoa, err = plugins['cocoa']
+            if err:
+                raise RuntimeError('Failed to load cocoa plugin with error: {}'.format(err))
+            cft = cocoa.cursor_blink_time()
+            if cft >= 0:
+                self.setCursorFlashTime(int(cft))
+
     def setup_ui_font(self):
         f = QFont(QApplication.font())
         q = (f.family(), f.pointSize())
