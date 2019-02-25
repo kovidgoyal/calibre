@@ -48,7 +48,11 @@ PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
     indices = PyTuple_New(glyphs.count());
     if (indices == NULL) { Py_DECREF(points); return PyErr_NoMemory(); }
     for (int i = 0; i < glyphs.count(); i++) {
+#if PY_MAJOR_VERSION >= 3
+        temp = PyLong_FromLong((long)glyphs[i]);
+#else
         temp = PyInt_FromLong((long)glyphs[i]);
+#endif
         if (temp == NULL) { Py_DECREF(indices); Py_DECREF(points); return PyErr_NoMemory(); }
         PyTuple_SET_ITEM(indices, i, temp); temp = NULL;
     }
@@ -74,10 +78,13 @@ PyObject* get_glyph_map(const QTextItem &text_item) {
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
         ti.fontEngine->stringToCMap(&ch, 1, &glyphs, &nglyphs, QFontEngine::GlyphIndicesOnly);
+#if PY_MAJOR_VERSION >= 3
+        t = PyLong_FromLong(glyphs.glyphs[0]);
+#else
         t = PyInt_FromLong(glyphs.glyphs[0]);
+#endif
         if (t == NULL) { Py_DECREF(ans); return PyErr_NoMemory(); }
         PyTuple_SET_ITEM(ans, uc, t); t = NULL;
     }
     return ans;
 }
-
