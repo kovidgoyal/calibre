@@ -343,7 +343,11 @@ error:
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
     int pages = self->doc->GetPageCount();
+#if PY_MAJOR_VERSION >= 3
+    PyObject *ans = PyLong_FromLong(static_cast<long>(pages));
+#else
     PyObject *ans = PyInt_FromLong(static_cast<long>(pages));
+#endif
     if (ans != NULL) Py_INCREF(ans);
     return ans;
 }
