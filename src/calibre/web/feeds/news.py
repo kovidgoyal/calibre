@@ -407,7 +407,7 @@ class BasicNewsRecipe(Recipe):
         :param url: The URL to be followed
         :param tag: The tag from which the URL was derived
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_extra_css(self):
         '''
