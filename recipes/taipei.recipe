@@ -27,6 +27,7 @@ class TN(BasicNewsRecipe):
     ]
 
     feeds = [
+        ('Front Page', 'http://www.taipeitimes.com/xml/front.rss'),
         ('Editorials', 'http://www.taipeitimes.com/xml/editorials.rss'),
         ('Taiwan', 'http://www.taipeitimes.com/xml/taiwan.rss'),
         ('Features', 'http://www.taipeitimes.com/xml/feat.rss'),
