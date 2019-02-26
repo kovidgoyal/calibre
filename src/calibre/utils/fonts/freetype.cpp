@@ -10,7 +10,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include <ft2build.h> 
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 static PyObject *FreeTypeError = NULL;
@@ -47,7 +47,7 @@ Face_dealloc(Face* self)
     Py_XDECREF(self->data);
     self->data = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -84,12 +84,12 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
 static PyObject *
 family_name(Face *self, void *closure) {
     return Py_BuildValue("s", self->face->family_name);
-} 
+}
 
 static PyObject *
 style_name(Face *self, void *closure) {
     return Py_BuildValue("s", self->face->style_name);
-} 
+}
 
 static PyObject*
 supports_text(Face *self, PyObject *args) {
@@ -124,12 +124,12 @@ glyph_id(Face *self, PyObject *args) {
 }
 
 static PyGetSetDef Face_getsetters[] = {
-    {(char *)"family_name", 
+    {(char *)"family_name",
      (getter)family_name, NULL,
      (char *)"The family name of this font.",
      NULL},
 
-    {(char *)"style_name", 
+    {(char *)"style_name",
      (getter)style_name, NULL,
      (char *)"The style name of this font.",
      NULL},
@@ -160,7 +160,7 @@ dealloc(FreeType* self)
     }
     self->library = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -288,7 +288,7 @@ static PyTypeObject FreeTypeType = { // {{{
     0,                 /* tp_new */
 }; // }}}
 
-static 
+static
 PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}
 };
@@ -319,4 +319,3 @@ initfreetype(void) {
     PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
     PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
 }
-

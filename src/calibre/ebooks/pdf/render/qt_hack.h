@@ -7,14 +7,14 @@
 
 #pragma once
 
+// Per python C-API docs, Python.h must always be the first header
+#include <Python.h>
 #include <QGlyphRun>
 #include <QTextItem>
 #include <QPointF>
-#include <Python.h>
 
 PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item);
 
 PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name);
 
 PyObject* get_glyph_map(const QTextItem &text_item);
-

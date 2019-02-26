@@ -87,7 +87,7 @@ else:
         filesystem_encoding = 'utf-8'
 
 
-DEBUG = b'CALIBRE_DEBUG' in os.environ
+DEBUG = 'CALIBRE_DEBUG' in os.environ
 
 
 def debug():
