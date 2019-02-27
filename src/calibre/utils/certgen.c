@@ -61,10 +61,10 @@ static PyObject* create_rsa_keypair(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS;
     if (!ret) { set_error("RSA_generate_key_ex"); goto error; }
 
-    ans = PyCapsule_New(KeyPair, NULL, free_rsa_keypair);  
+    ans = PyCapsule_New(KeyPair, NULL, free_rsa_keypair);
     if (ans == NULL) { PyErr_NoMemory(); goto error; }
 error:
-    if(BigNumber) BN_free(BigNumber); 
+    if(BigNumber) BN_free(BigNumber);
     if (!ans && KeyPair) RSA_free(KeyPair);
     return ans;
 }
@@ -192,7 +192,7 @@ static int certificate_set_serial(X509 *cert)
         (sno = BN_to_ASN1_INTEGER(bn,sno)) != NULL &&
         X509_set_serialNumber(cert, sno) == 1)
         rv = 1;
-    else 
+    else
         set_error("X509_set_serialNumber");
     BN_free(bn);
     ASN1_INTEGER_free(sno);
@@ -270,8 +270,8 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     ok = 1;
 
 error:
-    if (!ok) { 
-        if (Cert) X509_free(Cert); 
+    if (!ok) {
+        if (Cert) X509_free(Cert);
     }
     return ans;
 }

@@ -164,15 +164,15 @@ static PyTypeObject html_StateType;
 typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
-    PyObject *tag_being_defined; 
-    PyObject *tags; 
-    PyObject *is_bold; 
-    PyObject *is_italic; 
+    PyObject *tag_being_defined;
+    PyObject *tags;
+    PyObject *is_bold;
+    PyObject *is_italic;
     PyObject *current_lang;
-    PyObject *parse; 
-    PyObject *css_formats; 
-    PyObject *sub_parser_state; 
-    PyObject *default_lang; 
+    PyObject *parse;
+    PyObject *css_formats;
+    PyObject *sub_parser_state;
+    PyObject *default_lang;
     PyObject *attribute_name;
 
 } html_State;
@@ -213,7 +213,7 @@ html_State_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->default_lang = NULL;
     self->attribute_name = NULL;
 
-    if (!PyArg_ParseTuple(args, "|OOOOOOOOOO", 
+    if (!PyArg_ParseTuple(args, "|OOOOOOOOOO",
             &(self->tag_being_defined),
             &(self->tags),
             &(self->is_bold),
@@ -401,7 +401,7 @@ static inline long number_to_long(PyObject *number) {
 static PyObject*
 html_check_spelling(PyObject *self, PyObject *args) {
     PyObject *ans = NULL, *temp = NULL, *items = NULL, *text = NULL, *fmt = NULL, *locale = NULL, *sfmt = NULL, *_store_locale = NULL, *t = NULL, *utmp = NULL;
-    long text_len = 0, start = 0, length = 0, ppos = 0; 
+    long text_len = 0, start = 0, length = 0, ppos = 0;
     int store_locale = 0, ok = 0;
     Py_ssize_t i = 0, j = 0;
 
@@ -409,7 +409,7 @@ html_check_spelling(PyObject *self, PyObject *args) {
     store_locale = PyObject_IsTrue(_store_locale);
     temp = PyObject_GetAttrString(locale, "langcode");
     if (temp == NULL) goto error;
-    items = PyObject_CallFunctionObjArgs(split, text, temp, NULL); 
+    items = PyObject_CallFunctionObjArgs(split, text, temp, NULL);
     Py_DECREF(temp); temp = NULL;
     if (items == NULL) goto error;
     ans = PyTuple_New((2 * PyList_GET_SIZE(items)) + 1);
@@ -466,7 +466,7 @@ html_check_spelling(PyObject *self, PyObject *args) {
 error:
     Py_XDECREF(ans); ans = NULL;
 end:
-    Py_XDECREF(items); Py_XDECREF(temp); 
+    Py_XDECREF(items); Py_XDECREF(temp);
     return ans;
 }
 

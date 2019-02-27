@@ -70,7 +70,7 @@ static unsigned int read_border_row(const QImage &img, const unsigned int width,
 		row = reinterpret_cast<const QRgb*>(img.constScanLine(r));
         red_average = 0; green_average = 0; blue_average = 0;
 		for (c = 0, pixel = row; c < width; c++, pixel++) {
-            reds[c] = qRed(*pixel) / 255.0; greens[c] = qGreen(*pixel) / 255.0; blues[c] = qBlue(*pixel) / 255.0; 
+            reds[c] = qRed(*pixel) / 255.0; greens[c] = qGreen(*pixel) / 255.0; blues[c] = qBlue(*pixel) / 255.0;
             red_average += reds[c]; green_average += greens[c]; blue_average += blues[c];
 		}
         red_average /= MAX(1, width); green_average /= MAX(1, width); blue_average /= MAX(1, width);
@@ -106,7 +106,7 @@ QImage remove_borders(const QImage &image, double fuzz) {
         if (bottom_border < height - 1) {
             transpose.rotate(90);
             timg = img.transformed(transpose);
-            if (timg.isNull()) bad_alloc = true; 
+            if (timg.isNull()) bad_alloc = true;
             else {
                 left_border = read_border_row(timg, height, width, buf, fuzz, true);
                 if (left_border < width - 1) {
@@ -555,7 +555,7 @@ static inline void hull(const int x_offset, const int y_offset, const int w, con
             *dest = e; \
     }
 
-QImage despeckle(const QImage &image) {  
+QImage despeckle(const QImage &image) {
     ScopedGILRelease PyGILRelease;
     int length, x, y, j, i;
     QRgb *dest;
@@ -580,7 +580,7 @@ QImage despeckle(const QImage &image) {
 }
 // }}}
 
-// overlay() {{{ 
+// overlay() {{{
 static inline unsigned int BYTE_MUL(unsigned int x, unsigned int a) {
     quint64 t = (((quint64(x)) | ((quint64(x)) << 24)) & 0x00ff00ff00ff00ffULL) * a;
     t = (t + ((t >> 8) & 0xff00ff00ff00ffULL) + 0x80008000800080ULL) >> 8;
@@ -588,7 +588,7 @@ static inline unsigned int BYTE_MUL(unsigned int x, unsigned int a) {
     return ((unsigned int)(t)) | ((unsigned int)(t >> 24));
 }
 
-void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top) { 
+void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top) {
     ScopedGILRelease PyGILRelease;
     QImage img(image);
     unsigned int cw = canvas.width(), ch = canvas.height(), iw = img.width(), ih = img.height(), r, c, right = 0, bottom = 0, height, width, s;
@@ -618,7 +618,7 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
                 // Since the canvas has no transparency
                 // the composite pixel is: canvas*(1-alpha) + src * alpha
                 // but src is pre-multiplied, so it is:
-                // canvas*(1-alpha) + src 
+                // canvas*(1-alpha) + src
                 s = src[c];
                 if (s >= 0xff000000) dest[left+c] = s;
                 else if (s != 0) dest[left+c] = s + BYTE_MUL(dest[left+c], qAlpha(~s));

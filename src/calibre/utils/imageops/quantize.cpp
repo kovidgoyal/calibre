@@ -2,7 +2,7 @@
  * quantize.cpp
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * octree based image quantization. 
+ * octree based image quantization.
  * See https://www.microsoft.com/msj/archive/S3F1.aspx for a simple to follow
  * writeup on this algorithm
  *
@@ -112,10 +112,10 @@ public:
     }
 
     // Adding colors to the tree {{{
-    
+
     inline Node* create_child(const size_t level, const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         Node *c = node_pool.checkout();
-        if (level == depth) { 
+        if (level == depth) {
             c->is_leaf = true;
             (*leaf_count)++;
         } else {
@@ -150,12 +150,12 @@ public:
     // }}}
 
     // Tree reduction {{{
-    
+
     inline uint64_t total_error() const {
         Node *child = NULL;
         uint64_t ans = 0;
         for (int i = 0; i < MAX_DEPTH; i++) {
-            if ((child = this->children[i]) != NULL) 
+            if ((child = this->children[i]) != NULL)
                 ans += child->error_sum.red + child->error_sum.green + child->error_sum.blue;
         }
         return ans;
@@ -215,7 +215,7 @@ public:
         int i;
         Node *child;
         if (this->is_leaf) {
-            color_table[*index] = qRgb(this->avg.red, this->avg.green, this->avg.blue); 
+            color_table[*index] = qRgb(this->avg.red, this->avg.green, this->avg.blue);
             this->index = (*index)++;
         } else {
             for (i = 0; i < MAX_DEPTH; i++) {
@@ -224,7 +224,7 @@ public:
                     child->set_palette_colors(color_table, index, compute_parent_averages);
                     if (compute_parent_averages) {
                         this->pixel_count += child->pixel_count;
-                        this->sum.red     += child->pixel_count * child->avg.red; 
+                        this->sum.red     += child->pixel_count * child->avg.red;
                         this->sum.green   += child->pixel_count * child->avg.green;
                         this->sum.blue    += child->pixel_count * child->avg.blue;
                     }
@@ -372,12 +372,12 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, c
 
     maximum_colors = MAX(2, MIN(MAX_COLORS, maximum_colors));
     if (img.hasAlphaChannel()) throw std::out_of_range("Cannot quantize image with transparency");
-    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8) { 
-        img = img.convertToFormat(QImage::Format_RGB32); 
+    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8) {
+        img = img.convertToFormat(QImage::Format_RGB32);
         if (img.isNull()) throw std::bad_alloc();
-    } 
+    }
     // There can be no more than MAX_LEAVES * 8 nodes. Add 1 in case there is an off by 1 error somewhere.
-    Pool<Node> node_pool((MAX_LEAVES + 1) * 8);  
+    Pool<Node> node_pool((MAX_LEAVES + 1) * 8);
     if (palette.size() > 0) {
         // Quantizing to fixed palette
         leaf_count = read_colors(palette, root, depth, reducible_nodes, node_pool);

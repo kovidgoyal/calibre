@@ -12,7 +12,7 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Python extension to scan the system for USB devices on OS X machines.
  * To use
  * >>> import usbobserver
@@ -98,7 +98,7 @@ usbobserver_get_iokit_number_property(io_service_t dev, CFStringRef prop) {
     if (PropRef) {
         CFNumberGetValue((CFNumberRef)PropRef, kCFNumberLongType, &val);
         CFRelease(PropRef);
-    } 
+    }
 
     return PyLong_FromLong(val);
 }
@@ -106,7 +106,7 @@ usbobserver_get_iokit_number_property(io_service_t dev, CFStringRef prop) {
 
 static PyObject *
 usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
-  
+
     CFMutableDictionaryRef matchingDict;
     kern_return_t kr;
     PyObject *devices, *device;
@@ -164,7 +164,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
         NUKE(vendor); NUKE(product); NUKE(bcd); NUKE(manufacturer);
         NUKE(productn); NUKE(serial);
     }
-    
+
     if (iter) IOObjectRelease(iter);
 
     return devices;
@@ -184,14 +184,14 @@ usbobserver_get_bsd_path(io_object_t dev) {
 
     if (!CFStringGetCString(PropRef,
                         cpath + dev_path_length,
-                        MAXPATHLEN - dev_path_length, 
+                        MAXPATHLEN - dev_path_length,
                         kCFStringEncodingUTF8)) return NULL;
 
     return PyUnicode_DecodeUTF8(cpath, strlen(cpath), "replace");
 
 }
 
-static PyObject* 
+static PyObject*
 usbobserver_find_prop(io_registry_entry_t e, CFStringRef key, int is_string )
 {
     char buf[500]; long val = 0;
@@ -212,7 +212,7 @@ usbobserver_find_prop(io_registry_entry_t e, CFStringRef key, int is_string )
 
     CFRelease(PropRef);
     return ans;
-} 
+}
 
 static PyObject*
 usbobserver_get_usb_drives(PyObject *self, PyObject *args) {
@@ -289,7 +289,7 @@ usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
     }
 	num += 10;  // In case the number of volumes has increased
     buf = PyMem_New(fsstat, num);
-    if (buf == NULL) return PyErr_NoMemory(); 
+    if (buf == NULL) return PyErr_NoMemory();
 
     num = getfsstat(buf, num*sizeof(fsstat), MNT_NOWAIT);
     if (num == -1) {
@@ -458,25 +458,25 @@ end:
 }
 
 static PyMethodDef usbobserver_methods[] = {
-    {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
+    {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS,
      "Get list of connected USB devices. Returns a list of tuples. Each tuple is of the form (vendor_id, product_id, bcd, manufacturer, product, serial number)."
     },
-    {"get_usb_drives", usbobserver_get_usb_drives, METH_VARARGS, 
+    {"get_usb_drives", usbobserver_get_usb_drives, METH_VARARGS,
      "Get list of mounted drives. Returns a list of tuples, each of the form (name, bsd_path)."
     },
-    {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS, 
+    {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS,
      "Get mapping of mounted filesystems. Mapping is from BSD name to mount point."
     },
-    {"send2trash", usbobserver_send2trash, METH_VARARGS, 
+    {"send2trash", usbobserver_send2trash, METH_VARARGS,
      "send2trash(unicode object) -> Send specified file/dir to trash"
     },
-    {"user_locale", usbobserver_user_locale, METH_VARARGS, 
+    {"user_locale", usbobserver_user_locale, METH_VARARGS,
      "user_locale() -> The name of the current user's locale or None if an error occurred"
     },
-    {"date_format", usbobserver_date_fmt, METH_VARARGS, 
+    {"date_format", usbobserver_date_fmt, METH_VARARGS,
      "date_format() -> The (short) date format used by the user's current locale"
     },
-    {"is_mtp_device", usbobserver_is_mtp, METH_VARARGS, 
+    {"is_mtp_device", usbobserver_is_mtp, METH_VARARGS,
      "is_mtp_device(vendor_id, product_id, bcd, serial) -> Return True if the specified device has an MTP interface"
     },
 

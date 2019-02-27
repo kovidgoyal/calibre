@@ -39,10 +39,10 @@ class GenericUnixServices : public QGenericUnixServices {
      * Qt will try to query the nativeInterface() without checking if it exists
      * leading to a segfault.  For example, defaultHintStyleFromMatch() queries
      * the nativeInterface() without checking that it is NULL. See
-     * https://bugreports.qt-project.org/browse/QTBUG-40946 
-     * This is no longer strictly neccessary since we implement our own fontconfig database 
+     * https://bugreports.qt-project.org/browse/QTBUG-40946
+     * This is no longer strictly neccessary since we implement our own fontconfig database
      * (a patched version of the Qt fontconfig database). However, it is probably a good idea to
-     * keep it unknown, since the headless QPA is used in contexts where a desktop environment 
+     * keep it unknown, since the headless QPA is used in contexts where a desktop environment
      * does not make sense anyway.
      */
     QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }

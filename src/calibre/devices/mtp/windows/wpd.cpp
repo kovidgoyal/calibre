@@ -49,8 +49,8 @@ wpd_init(PyObject *self, PyObject *args) {
 
         if (FAILED(hr)) {
             portable_device_manager = NULL;
-            PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ? 
-                "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." : 
+            PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ?
+                "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." :
                 "Failed to create the WPD device manager interface");
             return NULL;
         }
@@ -116,7 +116,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
                 PyTuple_SET_ITEM(ans, i, temp);
             }
         }
-    } else { 
+    } else {
         hresult_set_exc("Failed to get list of portable devices", hr);
     }
 
@@ -189,7 +189,7 @@ initwpd(void) {
     wpd::DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&wpd::DeviceType) < 0)
         return;
- 
+
     m = Py_InitModule3("wpd", wpd_methods, "Interface to the WPD windows service.");
     if (m == NULL) return;
 

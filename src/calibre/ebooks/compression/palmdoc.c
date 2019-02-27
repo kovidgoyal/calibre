@@ -52,7 +52,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
     input = (Byte *) PyMem_Malloc(sizeof(Byte)*input_len);
     if (input == NULL) return PyErr_NoMemory();
     // Map chars to bytes
-    for (j = 0; j < input_len; j++) 
+    for (j = 0; j < input_len; j++)
         input[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
     output = (char *)PyMem_Malloc(sizeof(char)*(MAX(BUFFER, 8*input_len)));
     if (output == NULL) return PyErr_NoMemory();
@@ -64,7 +64,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
 
         else if (c <= 0x7F)  // 0, 09-7F = self
             output[o++] = (char)c;
-        
+
         else if (c >= 0xC0) { // space + ASCII char
             output[o++] = ' ';
             output[o++] = c ^ 0x80;
@@ -72,7 +72,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
         else { // 80-BF repeat sequences
             c = (c << 8) + input[i++];
             di = (c & 0x3FFF) >> 3;
-            for ( n = (c & 7) + 3; n--; ++o ) 
+            for ( n = (c & 7) + 3; n--; ++o )
                 output[o] = output[o - di];
         }
     }
@@ -82,7 +82,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
     return ans;
 }
 
-static bool 
+static bool
 cpalmdoc_memcmp( Byte *a, Byte *b, Py_ssize_t len) {
     Py_ssize_t i;
     for (i = 0; i < len; i++) if (a[i] != b[i]) return false;
@@ -92,7 +92,7 @@ cpalmdoc_memcmp( Byte *a, Byte *b, Py_ssize_t len) {
 static Py_ssize_t
 cpalmdoc_rfind(Byte *data, Py_ssize_t pos, Py_ssize_t chunk_length) {
     Py_ssize_t i;
-    for (i = pos - chunk_length; i > -1; i--) 
+    for (i = pos - chunk_length; i > -1; i--)
         if (cpalmdoc_memcmp(data+i, data+pos, chunk_length)) return i;
     return pos;
 }
@@ -105,7 +105,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
     Byte c, n;
     bool found;
     char *head;
-    buffer temp; 
+    buffer temp;
     head = output;
     temp.data = (Byte *)PyMem_Malloc(sizeof(Byte)*8); temp.len = 0;
     if (temp.data == NULL) return 0;
@@ -167,7 +167,7 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     b.data = (Byte *)PyMem_Malloc(sizeof(Byte)*input_len);
     if (b.data == NULL) return PyErr_NoMemory();
     // Map chars to bytes
-    for (j = 0; j < input_len; j++) 
+    for (j = 0; j < input_len; j++)
         b.data[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
     b.len = input_len;
     // Make the output buffer larger than the input as sometimes

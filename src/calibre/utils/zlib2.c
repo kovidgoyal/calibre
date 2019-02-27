@@ -362,16 +362,16 @@ zlib_crc32(PyObject *self, PyObject *args)
         while ((size_t)len > UINT_MAX) {
             value = crc32(value, buf, UINT_MAX);
             buf += (size_t) UINT_MAX;
-            len -= (size_t) UINT_MAX; 
-        }   
+            len -= (size_t) UINT_MAX;
+        }
         signed_val = crc32(value, buf, (unsigned int)len);
         Py_END_ALLOW_THREADS
     } else {
         signed_val = crc32(value, buf, len);
-    } 
+    }
     if (indata.obj) PyBuffer_Release(&indata);
     return PyLong_FromUnsignedLong(signed_val & 0xffffffffU);
-}   
+}
 
 static PyMethodDef methods[] = {
 	{"crc32", zlib_crc32, METH_VARARGS,
@@ -389,7 +389,7 @@ initzlib2(void) {
     Comptype.tp_new = PyType_GenericNew;
     if (PyType_Ready(&Comptype) < 0)
         return;
- 
+
     m = Py_InitModule3("zlib2", methods,
     "Implementation of zlib compression with support for the buffer protocol, which is missing in Python2. Code taken from the Python3 zlib module"
     );
@@ -422,5 +422,5 @@ initzlib2(void) {
     if (ZlibError != NULL) {
         Py_INCREF(ZlibError);
         PyModule_AddObject(m, "error", ZlibError);
-    }   
+    }
 }

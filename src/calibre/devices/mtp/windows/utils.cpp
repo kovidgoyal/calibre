@@ -9,7 +9,7 @@
 
 using namespace wpd;
 
-PyObject *wpd::hresult_set_exc(const char *msg, HRESULT hr) { 
+PyObject *wpd::hresult_set_exc(const char *msg, HRESULT hr) {
     PyObject *o = NULL, *mess;
     LPWSTR desc = NULL;
 
@@ -55,7 +55,7 @@ int wpd::pump_waiting_messages() {
 	UINT firstMsg = 0, lastMsg = 0;
     MSG msg;
 	int result = 0;
-	// Read all of the messages in this next loop, 
+	// Read all of the messages in this next loop,
 	// removing each message as we read it.
 	while (PeekMessage(&msg, NULL, firstMsg, lastMsg, PM_REMOVE)) {
 		// If it's a quit message, we're out of here.
@@ -64,7 +64,7 @@ int wpd::pump_waiting_messages() {
 			break;
 		}
 		// Otherwise, dispatch the message.
-		DispatchMessage(&msg); 
+		DispatchMessage(&msg);
 	} // End of PeekMessage while loop
 
     return result;

@@ -43,4 +43,3 @@ pdf::podofo_convert_pystring_single_byte(PyObject *py) {
     if (ans == NULL) PyErr_NoMemory();
     return ans;
 }
-

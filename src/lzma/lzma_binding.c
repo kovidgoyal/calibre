@@ -102,7 +102,7 @@ delta_decode(PyObject *self, PyObject *args) {
     datalen = PyBytes_GET_SIZE(array);
 
     for (i = 0; i < datalen; i++) {
-        data[i] += history[(unsigned char)(pos + distance)]; 
+        data[i] += history[(unsigned char)(pos + distance)];
         history[pos--] = data[i];
     }
     return Py_BuildValue("B", pos);
@@ -122,7 +122,7 @@ decompress2(PyObject *self, PyObject *args) {
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
 
     if (!PyArg_ParseTuple(args, "OOOBk", &read, &seek, &write, &props, &bufsize)) return NULL;
-    
+
     Lzma2Dec_Construct(&state);
     res = Lzma2Dec_Allocate(&state, (Byte)props, &allocator);
     if (res == SZ_ERROR_MEM) { PyErr_NoMemory(); return NULL; }
@@ -158,7 +158,7 @@ decompress2(PyObject *self, PyObject *args) {
             if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA2 block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
-        } 
+        }
     }
     leftover = inbuf_len - inbuf_pos;
     if (leftover > 0) {
@@ -232,7 +232,7 @@ decompress(PyObject *self, PyObject *args) {
             if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
-        } 
+        }
     }
     leftover = inbuf_len - inbuf_pos;
     if (leftover > 0) {
@@ -386,7 +386,7 @@ exit:
 }
 
 // }}}
- 
+
 static PyMethodDef lzma_binding_methods[] = {
     {"decompress2", decompress2, METH_VARARGS,
         "Decompress an LZMA2 encoded block, of unknown compressed size (reads till LZMA2 EOS marker)"

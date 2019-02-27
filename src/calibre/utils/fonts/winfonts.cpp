@@ -57,7 +57,7 @@ static PyObject* logfont_to_dict(const ENUMLOGFONTEX *lf, const TEXTMETRIC *tm, 
     full_name = wchar_to_unicode(lf->elfFullName);
     style = wchar_to_unicode(lf->elfStyle);
     script = wchar_to_unicode(lf->elfScript);
-    
+
     return Py_BuildValue("{s:N, s:N, s:N, s:N, s:O, s:O, s:O, s:O, s:l}",
         "name", name,
         "full_name", full_name,
@@ -204,7 +204,7 @@ static PyObject* remove_system_font(PyObject *self, PyObject *args) {
     return Py_BuildValue("O", ok);
 }
 
-static 
+static
 PyMethodDef winfonts_methods[] = {
     {"enum_font_families", enum_font_families, METH_VARARGS,
     "enum_font_families()\n\n"

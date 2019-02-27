@@ -93,7 +93,7 @@ static PyObject* get_devices(PyObject *self, PyObject *args) {
         if (t == NULL) {
             t = read_string_data(dev, desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
             if (t == NULL) { Py_DECREF(d); break; }
-            PyDict_SetItem(cache, d, t); 
+            PyDict_SetItem(cache, d, t);
             Py_DECREF(t);
         }
 
@@ -129,7 +129,7 @@ initlibusb(void) {
 
     // We deliberately use the default context. This is the context used by
     // libmtp and we want to ensure that the busnum/devnum numbers are the same
-    // here and for libmtp. 
+    // here and for libmtp.
     if(libusb_init(NULL) != 0) return;
 
     Error = PyErr_NewException("libusb.Error", NULL, NULL);

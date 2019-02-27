@@ -13,7 +13,7 @@
 #include <hunspell.hxx>
 
 typedef struct {
-	PyObject_HEAD 
+	PyObject_HEAD
     Hunspell *handle;
     char *encoding;
 } Dictionary;

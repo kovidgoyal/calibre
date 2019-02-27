@@ -31,7 +31,7 @@ class OutputDevice : public PdfOutputDevice {
         }
 
     public:
-        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) { 
+        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) {
 #define GA(f, a) { if((f = PyObject_GetAttrString(file, a)) == NULL) throw pyerr(); }
             GA(tell_func, "tell");
             GA(seek_func, "seek");
@@ -39,7 +39,7 @@ class OutputDevice : public PdfOutputDevice {
             GA(write_func, "write");
             GA(flush_func, "flush");
         }
-        ~OutputDevice() { 
+        ~OutputDevice() {
             NUKE(tell_func); NUKE(seek_func); NUKE(read_func); NUKE(write_func); NUKE(flush_func);
         }
 
@@ -64,7 +64,7 @@ class OutputDevice : public PdfOutputDevice {
 
             buf = new (std::nothrow) char[lBytes+1];
             if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
-            
+
             // Note: PyOS_vsnprintf produces broken output on windows
             res = vsnprintf(buf, lBytes, pszFormat, args);
 
@@ -184,7 +184,7 @@ PyObject* pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
     } catch (...) {
-        if (PyErr_Occurred() == NULL) 
+        if (PyErr_Occurred() == NULL)
             PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to write the pdf to the file object");
         return NULL;
     }
