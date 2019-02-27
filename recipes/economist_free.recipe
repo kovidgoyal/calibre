@@ -167,12 +167,12 @@ class Economist(BasicNewsRecipe):
         # with open('/t/raw.html', 'wb') as f:
         #     f.write(raw)
         soup = self.index_to_soup(raw)
-        nav = soup.find(attrs={'class':'navigation__wrapper'})
-        if nav is not None:
-            a = nav.find('a', href=lambda x: x and '/printedition/' in x)
-            if a is not None:
-                self.log('Following nav link to current edition', a['href'])
-                soup = self.index_to_soup(process_url(a['href']))
+        # nav = soup.find(attrs={'class':'navigation__wrapper'})
+        # if nav is not None:
+        #     a = nav.find('a', href=lambda x: x and '/printedition/' in x)
+        #     if a is not None:
+        #         self.log('Following nav link to current edition', a['href'])
+        #         soup = self.index_to_soup(process_url(a['href']))
         ans = self.economist_parse_index(soup)
         if not ans:
             raise NoArticles(
