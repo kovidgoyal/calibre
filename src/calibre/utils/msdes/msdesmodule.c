@@ -9,7 +9,7 @@
 
 #include <d3des.h>
 
-static char msdes_doc[] = 
+static char msdes_doc[] =
 "Provide LIT-specific DES en/decryption.";
 
 static PyObject *MsDesError = NULL;
@@ -33,10 +33,10 @@ msdes_deskey(PyObject *self, PyObject *args)
     if ((edf != EN0) && (edf != DE1)) {
         PyErr_SetString(MsDesError, "En/decryption direction invalid");
         return NULL;
-    }    
+    }
 
     deskey(key, edf);
-    
+
     Py_RETURN_NONE;
 }
 
@@ -59,16 +59,16 @@ msdes_des(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    retval = PyString_FromStringAndSize(NULL, len);
+    retval = PyBytes_FromStringAndSize(NULL, len);
     if (retval == NULL) {
         return NULL;
     }
-    outbuf = (unsigned char *)PyString_AS_STRING(retval);
+    outbuf = (unsigned char *)PyBytes_AS_STRING(retval);
 
     for (off = 0; off < len; off += 8) {
         des((inbuf + off), (outbuf + off));
     }
-    
+
     return retval;
 }
 
