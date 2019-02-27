@@ -78,21 +78,44 @@ static PyMethodDef msdes_methods[] = {
     { NULL, NULL }
 };
 
-CALIBRE_MODINIT_FUNC
-initmsdes(void)
-{
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&msdes_module)
+static struct PyModuleDef msdes_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "msdes",
+    /* m_doc      */ msdes_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ msdes_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_msdes(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("msdes", msdes_methods, msdes_doc)
+CALIBRE_MODINIT_FUNC initmsdes(void) {
+#endif
+
     PyObject *m;
 
-    m = Py_InitModule3("msdes", msdes_methods, msdes_doc);
+    m = INITMODULE;
     if (m == NULL) {
-        return;
+        INITERROR;
     }
-    
+
     MsDesError = PyErr_NewException("msdes.MsDesError", NULL, NULL);
     Py_INCREF(MsDesError);
     PyModule_AddObject(m, "MsDesError", MsDesError);
+#if PY_MAJOR_VERSION >= 3
+    PyModule_AddObject(m, "EN0", PyLong_FromLong(EN0));
+    PyModule_AddObject(m, "DE1", PyLong_FromLong(DE1));
+
+    return m;
+#else
     PyModule_AddObject(m, "EN0", PyInt_FromLong(EN0));
     PyModule_AddObject(m, "DE1", PyInt_FromLong(DE1));
-    
-    return;
+#endif
 }
