@@ -220,7 +220,7 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
     LPWSTR temp;
     ULONG ti;
     PyObject *t, *ans = NULL, *storage = NULL;
-    char *type;
+    const char *type = NULL;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
@@ -302,7 +302,11 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
             default:
                 type = "unknown";
         }
+#if PY_MAJOR_VERSION >= 3
+        t = PyUnicode_FromString(type);
+#else
         t = PyString_FromString(type);
+#endif
         if (t != NULL) {
             PyDict_SetItemString(ans, "type", t); Py_DECREF(t);
         }
