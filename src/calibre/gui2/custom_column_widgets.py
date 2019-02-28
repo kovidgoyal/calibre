@@ -13,7 +13,7 @@ from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
         QPushButton, QMessageBox, QToolButton, Qt, QPlainTextEdit)
 
-from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc
+from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
@@ -309,7 +309,7 @@ class DateTime(Base):
         if not format_:
             format_ = 'dd MMM yyyy hh:mm'
         elif format_ == 'iso':
-            format_ = 'yyyy-MM-ddTHH:mm:ss'
+            format_ = internal_iso_format_string()
         w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
@@ -1030,7 +1030,7 @@ class BulkDateTime(BulkBase):
         if not format_:
             format_ = 'dd MMM yyyy'
         elif format_ == 'iso':
-            format_ = 'yyyy-MM-ddTHH:mm:ss'
+            format_ = internal_iso_format_string()
         w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)

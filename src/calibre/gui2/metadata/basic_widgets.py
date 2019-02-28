@@ -29,7 +29,7 @@ from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
     local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined,
-    utcfromtimestamp, parse_only_date)
+    utcfromtimestamp, parse_only_date, internal_iso_format_string)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -1839,7 +1839,7 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
         if fmt is None:
             fmt = self.FMT
         elif fmt == 'iso':
-            fmt = 'yyyy-MM-ddTHH:mm:ss'
+            fmt = internal_iso_format_string()
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)
