@@ -1,27 +1,40 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue, threading, glob, signal
+import glob
+import os
+import Queue
+import signal
+import sys
+import threading
 from contextlib import contextmanager
-from threading import RLock, Lock
-from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
-from PyQt5.Qt import (
-    QFileInfo, QObject, QBuffer, Qt, QByteArray, QTranslator, QSocketNotifier,
-    QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime, QFontMetrics,
-    QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon, QStringListModel,
-    QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo, QT_VERSION)
+from threading import Lock, RLock
 
-from calibre import prints, as_unicode
-from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx, is_running_from_develop,
-        plugins, config_dir, filesystem_encoding, isxp, DEBUG, __version__, __appname__ as APP_UID)
-from calibre.ptempfile import base_dir
-from calibre.gui2.linux_file_dialogs import check_for_linux_native_dialogs, linux_native_dialog
-from calibre.gui2.qt_file_dialogs import FileDialog
-from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
+from PyQt5.Qt import (
+    QT_VERSION, QApplication, QBuffer, QByteArray, QCoreApplication, QDateTime,
+    QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo,
+    QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QObject,
+    QSettings, QSocketNotifier, QStringListModel, Qt, QThread, QTimer, QTranslator,
+    QUrl, pyqtSignal
+)
+from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
+
+from calibre import as_unicode, prints
+from calibre.constants import (
+    DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
+    is_running_from_develop, isbsd, isfrozen, islinux, isosx, iswindows, isxp,
+    plugins
+)
 from calibre.ebooks.metadata import MetaInformation
+from calibre.gui2.linux_file_dialogs import (
+    check_for_linux_native_dialogs, linux_native_dialog
+)
+from calibre.gui2.qt_file_dialogs import FileDialog
+from calibre.ptempfile import base_dir
+from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.date import UNDEFINED_DATE
-from calibre.utils.localization import get_lang
 from calibre.utils.file_type_icons import EXT_MAP
+from calibre.utils.localization import get_lang
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -1036,11 +1049,15 @@ class Application(QApplication):
 
     def setup_unix_signals(self):
         import fcntl
-        read_fd, write_fd = os.pipe()
-        cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
-        for fd in (read_fd, write_fd):
-            flags = fcntl.fcntl(fd, fcntl.F_GETFD)
-            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+        if hasattr(os, 'pipe2'):
+            read_fd, write_fd = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
+        else:
+            read_fd, write_fd = os.pipe()
+            cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
+            for fd in (read_fd, write_fd):
+                flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+                fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)
