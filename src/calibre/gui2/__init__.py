@@ -830,6 +830,8 @@ class Application(QApplication):
         QApplication.setOrganizationDomain(QApplication.organizationName())
         QApplication.setApplicationVersion(__version__)
         QApplication.setApplicationName(APP_UID)
+        if override_program_name and hasattr(QApplication, 'setDesktopFileName'):
+            QApplication.setDesktopFileName(override_program_name)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
