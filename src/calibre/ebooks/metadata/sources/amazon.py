@@ -83,9 +83,12 @@ def parse_details_page(url, log, timeout, browser, domain):
     if domain == 'jp':
         for a in root.xpath('//a[@href]'):
             if 'black-curtain-redirect.html' in a.get('href'):
-                url = 'https://amazon.co.jp' + a.get('href')
-                log('Black curtain redirect found, following')
-                return parse_details_page(url, log, timeout, browser, domain)
+                url = a.get('href')
+                if url:
+                    if url.startswith('/'):
+                        url = 'https://amazon.co.jp' + a.get('href')
+                    log('Black curtain redirect found, following')
+                    return parse_details_page(url, log, timeout, browser, domain)
 
     errmsg = root.xpath('//*[@id="errorMessage"]')
     if errmsg:
@@ -839,7 +842,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 4)
+    version = (1, 2, 5)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
