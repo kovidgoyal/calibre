@@ -191,9 +191,9 @@ class TextEdit(PlainTextEdit):
             return
         if md.hasImage():
             img = md.imageData()
-            if img is not None and img.isValid():
+            if img is not None and not img.isNull():
                 data = image_to_data(img, fmt='PNG')
-                name = add_file(get_name('dropped_image.png', data))
+                name = add_file(get_name('dropped_image.png'), data)
                 self.insert_image(get_href(name))
                 self.ensureCursorVisible()
                 return
