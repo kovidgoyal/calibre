@@ -24,7 +24,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.srv.code import custom_list_template as default_custom_list_template
-from calibre.srv.embedded import custom_list_template
+from calibre.srv.embedded import custom_list_template, search_the_net_urls
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import (
@@ -364,7 +364,9 @@ class MainTab(QWidget):  # {{{
         self.ip_info = QLabel(self)
         self.update_ip_info()
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
+        gui = get_gui()
+        if gui is not None:
+            gui.iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
         l.addSpacing(10)
         l.addWidget(self.ip_info)
         if set_run_at_startup is not None:
@@ -394,9 +396,11 @@ class MainTab(QWidget):  # {{{
 
     def update_ip_info(self):
         from calibre.gui2.ui import get_gui
-        t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
-        t = t.strip().strip('[]')
-        self.ip_info.setText(_('Content server listening at: %s') % t)
+        gui = get_gui()
+        if gui is not None:
+            t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
+            t = t.strip().strip('[]')
+            self.ip_info.setText(_('Content server listening at: %s') % t)
 
     def genesis(self):
         opts = server_config()
@@ -428,12 +432,13 @@ class MainTab(QWidget):  # {{{
     def update_button_state(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        is_running = gui.content_server is not None and gui.content_server.is_running
-        self.ip_info.setVisible(is_running)
-        self.update_ip_info()
-        self.start_server_button.setEnabled(not is_running)
-        self.stop_server_button.setEnabled(is_running)
-        self.test_server_button.setEnabled(is_running)
+        if gui is not None:
+            is_running = gui.content_server is not None and gui.content_server.is_running
+            self.ip_info.setVisible(is_running)
+            self.update_ip_info()
+            self.start_server_button.setEnabled(not is_running)
+            self.stop_server_button.setEnabled(is_running)
+            self.test_server_button.setEnabled(is_running)
 
     @property
     def settings(self):
@@ -1019,6 +1024,191 @@ class CustomList(QWidget):  # {{{
 # }}}
 
 
+# Search the internet {{{
+
+class URLItem(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, as_dict, parent=None):
+        QWidget.__init__(self, parent)
+        self.changed_signal.connect(parent.changed_signal)
+        self.l = l = QFormLayout(self)
+        self.type_widget = t = QComboBox(self)
+        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        t.addItems([_('Book'), _('Author')])
+        l.addRow(_('URL type:'), t)
+        self.name_widget = n = QLineEdit(self)
+        n.setClearButtonEnabled(True)
+        l.addRow(_('Name:'), n)
+        self.url_widget = w = QLineEdit(self)
+        w.setClearButtonEnabled(True)
+        l.addRow(_('URL:'), w)
+        if as_dict:
+            self.name = as_dict['name']
+            self.url = as_dict['url']
+            self.url_type = as_dict['type']
+        self.type_widget.currentIndexChanged.connect(self.changed_signal)
+        self.name_widget.textChanged.connect(self.changed_signal)
+        self.url_widget.textChanged.connect(self.changed_signal)
+
+    @property
+    def is_empty(self):
+        return not self.name or not self.url
+
+    @property
+    def url_type(self):
+        return 'book' if self.type_widget.currentIndex() == 0 else 'author'
+
+    @url_type.setter
+    def url_type(self, val):
+        self.type_widget.setCurrentIndex(1 if val == 'author' else 0)
+
+    @property
+    def name(self):
+        return self.name_widget.text().strip()
+
+    @name.setter
+    def name(self, val):
+        self.name_widget.setText((val or '').strip())
+
+    @property
+    def url(self):
+        return self.url_widget.text().strip()
+
+    @url.setter
+    def url(self, val):
+        self.url_widget.setText((val or '').strip())
+
+    @property
+    def as_dict(self):
+        return {'name': self.name, 'url': self.url, 'type': self.url_type}
+
+    def validate(self):
+        if self.is_empty:
+            return True
+        if '{author}' not in self.url:
+            error_dialog(self.parent(), _('Missing author placeholder'), _(
+                'The URL {0} does not contain the {1} placeholder').format(self.url, '{author}'), show=True)
+            return False
+        if self.url_type == 'book' and '{title}' not in self.url:
+            error_dialog(self.parent(), _('Missing title placeholder'), _(
+                'The URL {0} does not contain the {1} placeholder').format(self.url, '{title}'), show=True)
+            return False
+        return True
+
+
+class SearchTheInternet(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.sa = QScrollArea(self)
+        self.lw = QWidget(self)
+        self.l = QVBoxLayout(self.lw)
+        self.sa.setWidget(self.lw), self.sa.setWidgetResizable(True)
+        self.gl = gl = QVBoxLayout(self)
+        self.la = QLabel(_(
+            'Add new locations to search for books or authors using the "Search the internet" feature'
+            ' of the Content server. The URLs should contain {author} which will be'
+            ' replaced by the author name and, for book URLs, {title} which will'
+            ' be replaced by the book title.'))
+        self.la.setWordWrap(True)
+        gl.addWidget(self.la)
+
+        self.h = QHBoxLayout()
+        gl.addLayout(self.h)
+        self.add_url_button = b = QPushButton(QIcon(I('plus.png')), _('&Add URL'))
+        b.clicked.connect(self.add_url)
+        self.h.addWidget(b)
+        self.export_button = b = QPushButton(_('Export URLs'))
+        b.clicked.connect(self.export_urls)
+        self.h.addWidget(b)
+        self.import_button = b = QPushButton(_('Import URLs'))
+        b.clicked.connect(self.import_urls)
+        self.h.addWidget(b)
+        self.clear_button = b = QPushButton(_('Clear'))
+        b.clicked.connect(self.clear)
+        self.h.addWidget(b)
+
+        self.h.addStretch(10)
+        gl.addWidget(self.sa, stretch=10)
+        self.items = []
+
+    def genesis(self):
+        self.current_urls = search_the_net_urls() or []
+
+    @property
+    def current_urls(self):
+        return [item.as_dict for item in self.items if not item.is_empty]
+
+    def append_item(self, item_as_dict):
+        self.items.append(URLItem(item_as_dict, self))
+        self.l.addWidget(self.items[-1])
+
+    def clear(self):
+        [(self.l.removeWidget(w), w.setParent(None), w.deleteLater()) for w in self.items]
+        self.items = []
+        self.changed_signal.emit()
+
+    @current_urls.setter
+    def current_urls(self, val):
+        self.clear()
+        for entry in val:
+            self.append_item(entry)
+
+    def add_url(self):
+        self.items.append(URLItem(None, self))
+        self.l.addWidget(self.items[-1])
+        QTimer.singleShot(100, self.scroll_to_bottom)
+
+    def scroll_to_bottom(self):
+        sb = self.sa.verticalScrollBar()
+        if sb:
+            sb.setValue(sb.maximum())
+        self.items[-1].name_widget.setFocus(Qt.OtherFocusReason)
+
+    @property
+    def serialized_urls(self):
+        return json.dumps(self.current_urls, indent=2)
+
+    def commit(self):
+        for item in self.items:
+            if not item.validate():
+                return False
+        cu = self.current_urls
+        if cu:
+            with lopen(search_the_net_urls.path, 'wb') as f:
+                f.write(self.serialized_urls)
+        else:
+            try:
+                os.remove(search_the_net_urls.path)
+            except EnvironmentError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+        return True
+
+    def export_urls(self):
+        path = choose_save_file(
+            self, 'search-net-urls', _('Choose URLs file'),
+            filters=[(_('URL files'), ['json'])], initial_filename='search-urls.json')
+        if path:
+            with lopen(path, 'wb') as f:
+                f.write(self.serialized_urls)
+
+    def import_urls(self):
+        paths = choose_files(self, 'search-net-urls', _('Choose URLs file'),
+            filters=[(_('URL files'), ['json'])], all_files=False, select_only_single_file=True)
+        if paths:
+            with lopen(paths[0], 'rb') as f:
+                items = json.loads(f.read())
+                [self.append_item(x) for x in items]
+                self.changed_signal.emit()
+
+# }}}
+
+
 class ConfigWidget(ConfigWidgetBase):
 
     def __init__(self, *args, **kw):
@@ -1044,6 +1234,9 @@ class ConfigWidget(ConfigWidgetBase):
         sa = QScrollArea(self)
         sa.setWidget(clt), sa.setWidgetResizable(True)
         t.addTab(sa, _('Book &list template'))
+        self.search_net_tab = SearchTheInternet(self)
+        t.addTab(self.search_net_tab, _('&Search the internet'))
+
         for tab in self.tabs:
             if hasattr(tab, 'changed_signal'):
                 tab.changed_signal.connect(self.changed_signal.emit)
@@ -1201,6 +1394,8 @@ class ConfigWidget(ConfigWidgetBase):
                 return False
         if not self.custom_list_tab.commit():
             return False
+        if not self.search_net_tab.commit():
+            return False
         ConfigWidgetBase.commit(self)
         change_settings(**settings)
         UserManager().user_data = users
@@ -1222,6 +1417,7 @@ class ConfigWidget(ConfigWidgetBase):
         if self.server:
             self.server.user_manager.refresh()
             self.server.ctx.custom_list_template = custom_list_template()
+            self.server.ctx.search_the_net_urls = search_the_net_urls()
 
 
 if __name__ == '__main__':

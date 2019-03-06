@@ -67,8 +67,11 @@ class Server(object):
             access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
         if opts.custom_list_template:
-            with lopen(opts.custom_list_template, 'rb') as f:
+            with lopen(os.path.expanduser(opts.custom_list_template), 'rb') as f:
                 self.handler.router.ctx.custom_list_template = json.load(f)
+        if opts.search_the_net_urls:
+            with lopen(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
+                self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour())
@@ -117,6 +120,14 @@ libraries that the main calibre program knows about will be used.
             ' Sharing over the net-> Book list template in calibre, create the'
             ' template and export it.'
     ))
+    parser.add_option(
+        '--search-the-net-urls', help=_(
+            'Path to a JSON file containing URLs for the "Search the internet" feature.'
+            ' The easiest way to create such a file is to go to Preferences->'
+            ' Sharing over the net->Search the internet in calibre, create the'
+            ' URLs and export them.'
+    ))
+
     if not iswindows and not isosx:
         # Does not work on macOS because if we fork() we cannot connect to Core
         # Serives which is needed by the QApplication() constructor, which in

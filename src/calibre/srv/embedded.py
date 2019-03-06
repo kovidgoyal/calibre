@@ -24,9 +24,9 @@ def log_paths():
     )
 
 
-def custom_list_template():
+def read_json(path):
     try:
-        with lopen(custom_list_template.path, 'rb') as f:
+        with lopen(path, 'rb') as f:
             raw = f.read()
     except EnvironmentError as err:
         if err.errno != errno.ENOENT:
@@ -35,7 +35,16 @@ def custom_list_template():
     return json.loads(raw)
 
 
+def custom_list_template():
+    return read_json(custom_list_template.path)
+
+
+def search_the_net_urls():
+    return read_json(search_the_net_urls.path)
+
+
 custom_list_template.path = os.path.join(config_dir, 'server-custom-list-template.json')
+search_the_net_urls.path = os.path.join(config_dir, 'server-search-the-net.json')
 
 
 class Server(object):
@@ -62,6 +71,7 @@ class Server(object):
         self.log, self.access_log = log, access_log
         self.handler.set_log(self.log)
         self.handler.router.ctx.custom_list_template = custom_list_template()
+        self.handler.router.ctx.search_the_net_urls = search_the_net_urls()
 
     @property
     def ctx(self):

@@ -665,25 +665,38 @@ def search_internet(container_id):
     create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
     mi = book_metadata(render_book.book_id)
     data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
+    interface_data = get_interface_data()
 
     def link_for(name, template):
         return E.a(name, class_='simple-link', href=url_for(template, data), target="_blank")
 
+    author_links = E.ul()
+    book_links = E.ul()
+
+    if interface_data.search_the_net_urls:
+        for entry in interface_data.search_the_net_urls:
+            links = book_links if entry.type is 'book' else author_links
+            links.appendChild(E.li(link_for(entry.name, entry.url)))
+    for name, url in [
+        (_('Goodreads'), 'https://www.goodreads.com/book/author/{author}'),
+        (_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}'),
+        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22'),
+    ]:
+        author_links.appendChild(E.li(link_for(name, url)))
+
+    for name, url in [
+        (_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books'),
+        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22'),
+        (_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}'),
+    ]:
+        book_links.appendChild(E.li(link_for(name, url)))
+
     container.appendChild(E.div(class_=SEARCH_INTERNET_CLASS,
         safe_set_inner_html(E.h2(), _('Search for the author <i>{}</i> at:').format(data.author)),
-        E.ul(
-            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/book/author/{author}')),
-            E.li(link_for(_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}')),
-            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22')),
-        ),
+        author_links,
         E.hr(),
         safe_set_inner_html(E.h2(), _('Search for the book <i>{}</i> at:').format(data.title)),
-        E.ul(
-            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books')),
-            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22')),
-            E.li(link_for(_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}')),
-        ),
-
+        book_links,
     ))
 
 

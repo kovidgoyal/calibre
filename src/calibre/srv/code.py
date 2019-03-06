@@ -148,6 +148,7 @@ def basic_interface_data(ctx, rd):
         'icon_map': icon_map(),
         'icon_path': ctx.url_for('/icon', which=''),
         'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
+        'search_the_net_urls': getattr(ctx, 'search_the_net_urls', None) or [],
         'num_per_page': rd.opts.num_per_page,
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
