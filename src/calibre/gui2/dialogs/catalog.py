@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, importlib
+import os, sys, importlib, weakref
 
 from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea
 
@@ -47,6 +47,7 @@ class Catalog(QDialog, Ui_Dialog):
                 try:
                     catalog_widget = importlib.import_module('calibre.gui2.catalog.'+name)
                     pw = catalog_widget.PluginWidget()
+                    pw.parent_ref = weakref.ref(self)
                     pw.initialize(name, db)
                     pw.ICON = I('forward.png')
                     self.widgets.append(pw)
