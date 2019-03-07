@@ -684,6 +684,7 @@ class LayoutMixin(object):  # {{{
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
         self.book_details.manage_category.connect(self.manage_category_triggerred)
+        self.book_details.edit_identifiers.connect(self.edit_identifiers_triggerred)
         self.book_details.compare_specific_format.connect(self.compare_format)
 
         m = self.library_view.model()
@@ -692,6 +693,17 @@ class LayoutMixin(object):  # {{{
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
+
+    def edit_identifiers_triggerred(self):
+        book_id = self.library_view.current_book
+        db = self.current_db.new_api
+        identifiers = db.field_for('identifiers', book_id, default_value={})
+        from calibre.gui2.metadata.basic_widgets import Identifiers
+        d = Identifiers(identifiers, self)
+        if d.exec_() == d.Accepted:
+            identifiers = d.get_identifiers()
+            db.set_field('identifiers', {book_id: identifiers})
+            self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})
 
     def manage_category_triggerred(self, field, value):
         if field and value:

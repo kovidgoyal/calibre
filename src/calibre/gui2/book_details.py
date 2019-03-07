@@ -289,9 +289,11 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 except Exception:
                     field = value = book_id = None
                 if field:
-                    if author is None and (
-                            field in ('tags', 'series', 'publisher') or is_category(field)):
-                        menu.addAction(init_manage_action(book_info.manage_action, field, value))
+                    if author is None:
+                        if field in ('tags', 'series', 'publisher') or is_category(field):
+                            menu.addAction(init_manage_action(book_info.manage_action, field, value))
+                        elif field == 'identifiers':
+                            menu.addAction(book_info.edit_identifiers_action)
                     ac = book_info.remove_item_action
                     ac.data = (field, value, book_id)
                     ac.setText(_('Remove %s from this book') % value)
@@ -547,6 +549,7 @@ class BookInfo(QWebView):
     manage_category = pyqtSignal(object, object)
     open_fmt_with = pyqtSignal(int, object, object)
     edit_book = pyqtSignal(int, object)
+    edit_identifiers = pyqtSignal()
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -575,6 +578,8 @@ class BookInfo(QWebView):
         self.manage_action = QAction(self)
         self.manage_action.current_fmt = self.manage_action.current_url = None
         self.manage_action.triggered.connect(self.manage_action_triggered)
+        self.edit_identifiers_action = QAction(QIcon(I('identifiers.png')), _('Edit identifiers for this book'), self)
+        self.edit_identifiers_action.triggered.connect(self.edit_identifiers)
         self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
@@ -768,6 +773,7 @@ class BookDetails(QWidget):  # {{{
     cover_removed = pyqtSignal(object)
     view_device_book = pyqtSignal(object)
     manage_category = pyqtSignal(object, object)
+    edit_identifiers = pyqtSignal()
     open_fmt_with = pyqtSignal(int, object, object)
     edit_book = pyqtSignal(int, object)
 
@@ -846,6 +852,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.compare_format.connect(self.compare_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
         self.book_info.manage_category.connect(self.manage_category)
+        self.book_info.edit_identifiers.connect(self.edit_identifiers)
         self.setCursor(Qt.PointingHandCursor)
 
     def search_internet(self, data):
