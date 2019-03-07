@@ -118,10 +118,11 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
             msg = '%s' % '\n'.join(res)
             warning_dialog(parent, _('Could not convert some books'),
-                ngettext(
-                    'Could not convert the book because no supported source format was found',
-                    'Could not convert {num} of {tot} books, because no supported source formats were found.',
-                    len(res)).format(num=len(res), tot=total),
+                (
+                    _('Could not convert the book because no supported source format was found')
+                    if len(res) == 1 else
+                    _('Could not convert {num} of {tot} books, because no supported source formats were found.'),
+                ).format(num=len(res), tot=total),
                 msg).exec_()
 
     return jobs, changed, bad

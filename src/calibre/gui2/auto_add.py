@@ -316,7 +316,7 @@ class AutoAdder(QObject):
         if count > 0:
             m.books_added(count)
             gui.status_bar.show_message(
-                ngettext('Added a book automatically from {src}', 'Added {num} books automatically from {src}', count).format(
+                (_('Added a book automatically from {src}') if count == 1 else _('Added {num} books automatically from {src}')).format(
                     num=count, src=self.worker.path), 2000)
             gui.refresh_cover_browser()
 
