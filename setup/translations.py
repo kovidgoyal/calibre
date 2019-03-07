@@ -138,7 +138,7 @@ class POT(Command):  # {{{
     def get_website_strings(self):
         self.info('Generating translation template for website')
         self.wn_path = os.path.expanduser('~/work/srv/main/static/generate.py')
-        data = subprocess.check_output([self.wn_path, '--pot'])
+        data = subprocess.check_output([self.wn_path, '--pot', '/tmp/wn'])
         bdir = os.path.join(self.TRANSLATIONS, 'website')
         if not os.path.exists(bdir):
             os.makedirs(bdir)
