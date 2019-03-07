@@ -9,9 +9,9 @@ import os
 from functools import partial
 from collections import defaultdict
 
-from PyQt5.Qt import QPixmap, QTimer
+from PyQt5.Qt import QPixmap, QTimer, QApplication
 
-from calibre import as_unicode
+from calibre import as_unicode, guess_type
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
         warning_dialog, info_dialog, gprefs)
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
@@ -78,6 +78,8 @@ class AddAction(InterfaceAction):
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut='Shift+A')
+        ma('add-formats-clipboard', _('Add files to selected book records from clipboard'),
+                triggered=self.add_formats_from_clipboard, shortcut='Shift+Alt+A')
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add an empty file to selected book records'))
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
         for fmt in sorted(valid_empty_formats):
@@ -100,16 +102,64 @@ class AddAction(InterfaceAction):
             initial_plugin=('Import/Export', 'Adding'),
             close_after_initial=True)
 
-    def add_formats(self, *args):
-        if self.gui.stack.currentIndex() != 0:
-            return
+    def _check_add_formats_ok(self):
+        if self.gui.current_view() is not self.gui.library_view:
+            return []
         view = self.gui.library_view
         rows = view.selectionModel().selectedRows()
         if not rows:
-            return error_dialog(self.gui, _('No books selected'),
+            error_dialog(self.gui, _('No books selected'),
                     _('Cannot add files as no books are selected'), show=True)
         ids = [view.model().id(r) for r in rows]
+        return ids
 
+    def add_formats_from_clipboard(self):
+        ids = self._check_add_formats_ok()
+        if not ids:
+            return
+        md = QApplication.instance().clipboard().mimeData()
+        files_to_add = []
+        images = []
+        if md.hasUrls():
+            for url in md.urls():
+                if url.isLocalFile():
+                    path = url.toLocalFile()
+                    if os.access(path, os.R_OK):
+                        mt = guess_type(path)[0]
+                        if mt.startswith('image/'):
+                            images.append(path)
+                        else:
+                            files_to_add.append(path)
+        if not files_to_add and not images:
+            return error_dialog(self.gui, _('No files in clipboard'),
+                    _('No files have been copied to the clipboard'), show=True)
+        if files_to_add:
+            self._add_formats(files_to_add, ids)
+        if images:
+            if len(ids) > 1 and not question_dialog(
+                    self.gui,
+                    _('Are you sure?'),
+                    _('Are you sure you want to set the same'
+                    ' cover for all %d books?')%len(ids)):
+                return
+            with lopen(images[0], 'rb') as f:
+                cdata = f.read()
+            self.gui.current_db.new_api.set_cover({book_id: cdata for book_id in ids})
+            self.gui.refresh_cover_browser()
+            m = self.gui.library_view.model()
+            current = self.gui.library_view.currentIndex()
+            m.current_changed(current, current)
+
+    def add_formats(self, *args):
+        ids = self._check_add_formats_ok()
+        if not ids:
+            return
+        books = choose_files(self.gui, 'add formats dialog dir',
+                _('Select book files'), filters=get_filters())
+        if books:
+            self._add_formats(books, ids)
+
+    def _add_formats(self, paths, ids):
         if len(ids) > 1 and not question_dialog(
                 self.gui,
                 _('Are you sure?'),
@@ -118,17 +168,12 @@ class AddAction(InterfaceAction):
                   ' already exists for a book, it will be replaced.')%len(ids)):
             return
 
-        books = choose_files(self.gui, 'add formats dialog dir',
-                _('Select book files'), filters=get_filters())
-        if not books:
-            return
-
-        db = view.model().db
+        db = self.gui.current_db
         if len(ids) == 1:
             formats = db.formats(ids[0], index_is_id=True)
             if formats:
                 formats = {x.upper() for x in formats.split(',')}
-                nformats = {f.rpartition('.')[-1].upper() for f in books}
+                nformats = {f.rpartition('.')[-1].upper() for f in paths}
                 override = formats.intersection(nformats)
                 if override:
                     title = db.title(ids[0], index_is_id=True)
@@ -139,7 +184,7 @@ class AddAction(InterfaceAction):
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 
-        fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in books}
+        fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in paths}
 
         for id_ in ids:
             for fmt, fpath in fmt_map.iteritems():
@@ -148,7 +193,7 @@ class AddAction(InterfaceAction):
                         notify=True)
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
-            view.model().current_changed(current_idx, current_idx)
+            self.gui.library_view.model().current_changed(current_idx, current_idx)
 
     def add_empty_format(self, format_):
         if self.gui.stack.currentIndex() != 0:
