@@ -483,9 +483,11 @@ class CopyToLibraryAction(InterfaceAction):
             return
 
         if delete_after:
-            donemsg = ngettext('Moved the book to {loc}', 'Moved {num} books to {loc}', len(self.worker.processed))
+            donemsg = _('Moved the book to {loc}') if len(self.worker.processed) == 1 else _(
+                'Moved {num} books to {loc}')
         else:
-            donemsg = ngettext('Copied the book to {loc}', 'Copied {num} books to {loc}', len(self.worker.processed))
+            donemsg = _('Copied the book to {loc}') if len(self.worker.processed) == 1 else _(
+                'Copied {num} books to {loc}')
 
         self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:

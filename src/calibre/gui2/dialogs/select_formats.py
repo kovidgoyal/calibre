@@ -36,8 +36,8 @@ class Formats(QAbstractListModel):
         if role == Qt.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return ngettext('There is one book with the {fmt} format',
-                            'There are {count} books with the {fmt} format', count).format(
+            return _('There is one book with the {} format').format(fmt.upper()) if count == 1 else _(
+                'There are {count} books with the {fmt} format', count).format(
                                 count=count, fmt=fmt.upper())
         return None
 
