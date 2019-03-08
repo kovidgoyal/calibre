@@ -438,7 +438,7 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif _format == 'iso':
             self.format = internal_iso_format_string()
         else:
-            self.format = format
+            self.format = _format
 
     def displayText(self, val, locale):
         d = qt_to_dt(val)
