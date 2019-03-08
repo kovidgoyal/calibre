@@ -7,9 +7,13 @@ __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 
 ''' http://www.derstandard.at - Austrian Newspaper '''
 
-import re
-import random
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class DerStandardRecipe(BasicNewsRecipe):
@@ -32,8 +36,8 @@ class DerStandardRecipe(BasicNewsRecipe):
 
     feeds = [
         (u'Newsroom', u'http://derStandard.at/?page=rss&ressort=Seite1'),
-        (u'Inland', u'http://derstandard.at/?page=rss&ressort=InnenPolitik'),
-        (u'International', u'http://derstandard.at/?page=rss&ressort=InternationalPolitik'),
+        (u'International', u'http://derstandard.at/?page=rss&ressort=International'),
+        (u'Inland', u'http://derstandard.at/?page=rss&ressort=Inland'),
         (u'Wirtschaft', u'http://derStandard.at/?page=rss&ressort=Wirtschaft'),
         (u'Web', u'http://derStandard.at/?page=rss&ressort=Web'),
         (u'Sport', u'http://derStandard.at/?page=rss&ressort=Sport'),
@@ -47,16 +51,16 @@ class DerStandardRecipe(BasicNewsRecipe):
         (u'Lifestyle', u'http://derStandard.at/?page=rss&ressort=Lifestyle'),
         (u'Reisen', u'http://derStandard.at/?page=rss&ressort=Reisen'),
         (u'Familie', u'http://derstandard.at/?page=rss&ressort=Familie'),
-        (u'Greenlife', u'http://derStandard.at/?page=rss&ressort=Greenlife'),
+        (u'Meinung', u'http://derStandard.at/?page=rss&ressort=Meinung'),
+        (u'User', u'http://derStandard.at/?page=rss&ressort=User'),
         (u'Karriere', u'http://derStandard.at/?page=rss&ressort=Karriere'),
         (u'Immobilien', u'http://derstandard.at/?page=rss&ressort=Immobilien'),
         (u'Automobil', u'http://derstandard.at/?page=rss&ressort=Automobil'),
-        (u'dieStandard', u'http://dieStandard.at/?page=rss&ressort=diestandard'),
-        (u'daStandard', u'http://daStandard.at/?page=rss&ressort=dastandard')
+        (u'dieStandard', u'http://derStandard.at/?page=rss&ressort=diestandard'),
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile('^artikel')})
+        classes('article-header article-body'),
     ]
 
     remove_tags = [
@@ -70,38 +74,3 @@ class DerStandardRecipe(BasicNewsRecipe):
     ]
 
     remove_attributes = ['width', 'height']
-
-    preprocess_regexps = [
-        (re.compile(r'\[[\d]*\]', re.DOTALL |
-                    re.IGNORECASE), lambda match: ''),
-        (re.compile(r'bgcolor="#\w{3,6}"',
-                    re.DOTALL | re.IGNORECASE), lambda match: '')
-    ]
-
-    filter_regexps = [r'/r[1-9]*']
-
-    def get_article_url(self, article):
-        matchObj = re.search(re.compile(
-            r'/r' + '[1-9]*', flags=0), article.link, flags=0)
-
-        if matchObj:
-            return None
-
-        return article.link
-
-    def preprocess_html(self, soup):
-        if soup.find('div', {'class': re.compile('^artikel')}) is None:
-            self.abort_article()
-        for t in soup.findAll(['ul', 'li']):
-            t.name = 'div'
-        return soup
-
-    def get_cover_url(self):
-        base_url = 'https://epaper.derstandard.at/'
-        url = base_url + 'shelf.act?s=' + str(random.random() * 10000)
-        soup = self.index_to_soup(url)
-        img = soup.find(
-            'img', {'class': re.compile('^thumbnailBig'), 'src': True})
-        if img and img['src']:
-            cover_url = base_url + img['src']
-            return cover_url
