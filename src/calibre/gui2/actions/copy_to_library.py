@@ -499,17 +499,16 @@ class CopyToLibraryAction(InterfaceAction):
                         'controlled by the Auto-merge option in '
                         'Preferences->Import/export->Adding books.'), det_msg=books,
                     show=True)
-        if delete_after and self.worker.processed:
+        done_ids = frozenset(self.worker.processed) - frozenset(self.worker.duplicate_ids)
+        if delete_after and done_ids:
             v = self.gui.library_view
             ci = v.currentIndex()
             row = None
             if ci.isValid():
                 row = ci.row()
 
-            v.model().delete_books_by_id(self.worker.processed,
-                    permanent=True)
-            self.gui.iactions['Remove Books'].library_ids_deleted(
-                    self.worker.processed, row)
+            v.model().delete_books_by_id(done_ids, permanent=True)
+            self.gui.iactions['Remove Books'].library_ids_deleted(done_ids, row)
 
         if self.worker.failed_books:
             def fmt_err(book_id):
