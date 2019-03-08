@@ -20,6 +20,82 @@
 #   new recipes:
 #     - title:
 
+- version: 3.40.0
+  date: 2019-03-08
+
+  new features:
+    - title: "TXT Input: Use markdown 3.0 with support for new extensions such as code highlighting and smarten punctuation."
+
+    - title: "Book details panel: Allow editing the identifiers for the book by right clicking on the existing Ids."
+      tickets: [1815005]
+
+    - title: "Content server: Allow specifying custom URLs for the 'Search the internet' feature via Preferences->Sharing over the net->Search the internet."
+      tickets: [1810923]
+
+    - title: "Tag browser: Category editor: Add a checkbox to restrict the entries shown to only those present in the current Virtual library"
+
+    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected books from clipboard"
+      tickets: [1815419]
+
+    - title: "Tag browser: When right clicking on a saved search add a menu option to search using the raw search expression."
+      tickets: [1816274]
+
+    - title: "Tag browser: Have pressing the Enter key find the next match."
+      tickets: [1816276]
+
+    - title: "Windows: Add a button to Preferences->Sharing over the net to set calibre to run when the computer starts"
+
+  bug fixes:
+    - title: "Fix a regression in the previous release that broke Copy to library and delete after when copying a duplicated book."
+      tickets: [1816224]
+
+    - title: "Edit book: Fix pasting of image from clipboard using (Ctrl-V) not working"
+
+    - title: "Content server: Fix {id} not working in the custom list template"
+      tickets: [1818308]
+
+    - title: "EPUB/MOBI Catalogs: Fix presets not saving title and format information."
+      tickets: [1818838]
+
+    - title: "macOS: Respect the system setting for text insertion cursor blink time"
+
+    - title: "FB2 Output: Fix comments from the input document not present in the output."
+      tickets: [1815357]
+
+    - title: "calibredb: Fix adding books with an OPF file to a remote server not picking up the cover specified in the OPF file"
+
+    - title: "TXT Input: Fix option to remove indents at the start of lines breaking conversion of markdown documents."
+      tickets: [1814989]
+
+    - title: "EPUB/MOBI Catalog generation: Allow matching empty fields in exclusion rules."
+      tickets: [1814458]
+
+    - title: "EPUB/MOBI Catalogs: Fix multiple books with the same title but different authors in a genre not being listed."
+      tickets: [1415990]
+
+    - title: "Update the Get Books and metadata Amazon.com plugins to handle changes to the markup on the Amazon results page"
+
+  improved recipes:
+    - Scientific American
+    - Taipei Times
+    - Harpers Magazine
+    - General Knowledge Today
+    - Granma
+    - South China Morning Post
+    - New York Times (Web)
+    - China Daily
+    - "1843"
+    - Pro Physik
+    - Caravan Magazine
+    - Spektrum der Wissenchaft
+
+  new recipes:
+    - title: Quanta Magazine
+      author: lui1
+
+    - title: El Periodico Mediterraneo
+      author: benages
+
 - version: 3.39.1
   date: 2019-02-01
 
