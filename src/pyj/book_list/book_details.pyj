@@ -472,7 +472,7 @@ def render_book(container_id, book_id):
         if next_book_id:
             q = parse_url_params()
             q.book_id = next_book_id + ''
-            show_panel('book_details', query=q)
+            show_panel('book_details', query=q, replace=True)
 
     md.appendChild(E.div(
         style='margin-top: 1.5ex',
