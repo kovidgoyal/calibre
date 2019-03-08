@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.40.0
+- version: 3.40.1
   date: 2019-03-08
 
   new features:
@@ -74,6 +74,8 @@
       tickets: [1415990]
 
     - title: "Update the Get Books and metadata Amazon.com plugins to handle changes to the markup on the Amazon results page"
+
+    - title: "Version 3.40.1 fixes a bug in 3.40 that could prevent calibre starting when using a custom date column"
 
   improved recipes:
     - Scientific American
