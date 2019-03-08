@@ -6,6 +6,7 @@ from book_list.theme import get_color, get_font_size
 from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
+from session import get_interface_data
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'
@@ -50,6 +51,7 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
     if icon is 'heart':
         if not tooltip:
             tooltip = _('Donate to support calibre development')
+    interface_data = get_interface_data()
 
     for i, bar in enumerate(bars):
         left = bar.firstChild
@@ -66,7 +68,7 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                     animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
                 )
                 set_css(a.firstChild, color=get_color('heart'))
-                a.setAttribute('href', 'https://calibre-ebook.com/donate')
+                a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
             if action is not None:
                 a.addEventListener('click', def(event): event.preventDefault(), action();)

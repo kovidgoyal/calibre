@@ -170,6 +170,7 @@ default_interface_data = {
     'default_library_id': None,
     'library_map': None,
     'search_the_net_urls': [],
+    'donate_link': 'https://calibre-ebook.com/donate',
     'icon_map': {},
     'icon_path': '',
     'custom_list_template': None,

@@ -47,11 +47,11 @@ from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.utils.icu import sort_key, ord_string
 from calibre.utils.unicode_names import character_name_from_code
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import localize_user_manual_link, localize_website_link
 
 
 def open_donate():
-    open_url(QUrl('https://calibre-ebook.com/donate'))
+    open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
 
 class Central(QStackedWidget):  # {{{

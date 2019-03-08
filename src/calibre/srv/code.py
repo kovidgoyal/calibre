@@ -27,7 +27,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key, numeric_sort_key
-from calibre.utils.localization import get_lang, lang_map_for_ui
+from calibre.utils.localization import get_lang, lang_map_for_ui, localize_website_link
 from calibre.utils.search_query_parser import ParseException
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
@@ -150,6 +150,7 @@ def basic_interface_data(ctx, rd):
         'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
         'search_the_net_urls': getattr(ctx, 'search_the_net_urls', None) or [],
         'num_per_page': rd.opts.num_per_page,
+        'donate_link': localize_website_link('https://calibre-ebook.com/donate')
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     return ans
