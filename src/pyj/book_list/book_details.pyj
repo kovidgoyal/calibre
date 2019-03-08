@@ -436,11 +436,12 @@ def render_book(container_id, book_id):
     render_book.title = metadata.title
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
-    alt = _('{} by {}').format(metadata.title, authors)
+    alt = _('{} by {}\nClick to read').format(metadata.title, authors)
     imgdiv = E.div(
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
-            style='border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
+            onclick=read_book.bind(None, book_id),
+            style='cursor: pointer; border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
         ))
     )
     imgdiv.firstChild.onerror = on_img_err
