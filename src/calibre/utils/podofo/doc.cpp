@@ -83,7 +83,7 @@ static PyObject *
 PDFDoc_save(PDFDoc *self, PyObject *args) {
     char *buffer;
 
-    if (PyArg_ParseTuple(args, BYTES_FMT, &buffer)) {
+    if (PyArg_ParseTuple(args, "s", &buffer)) {
         try {
             self->doc->Write(buffer);
         } catch(const PdfError & err) {

@@ -12,8 +12,8 @@ from threading import RLock
 from collections import namedtuple
 from functools import partial
 
-from calibre import prints, as_unicode
-from calibre.constants import plugins, islinux, isosx
+from calibre import prints, as_unicode, force_unicode
+from calibre.constants import plugins, islinux, isosx, ispy3
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
@@ -166,8 +166,12 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def create_device(self, connected_device):
         d = connected_device
+        man, prod = d.manufacturer, d.prod
+        if ispy3:
+            man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
+            prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
         return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
-                d.product_id, d.manufacturer, d.product, d.serial)
+                d.product_id, man, prod, d.serial)
 
     @synchronous
     def eject(self):
