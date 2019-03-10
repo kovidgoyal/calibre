@@ -17,6 +17,7 @@ from lxml import etree
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type
 
 TAGS = {
     'b': '\\b',
@@ -75,7 +76,7 @@ def txt2rtf(text):
     text = text.replace('}', r'\'7d')
     text = text.replace('\\', r'\'5c')
 
-    if not isinstance(text, unicode):
+    if not isinstance(text, unicode_type):
         return text
 
     buf = cStringIO.StringIO()
@@ -119,7 +120,7 @@ class RTFMLizer(object):
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub(u'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
+            content = re.sub(u'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode_type), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = etree.fromstring(content)

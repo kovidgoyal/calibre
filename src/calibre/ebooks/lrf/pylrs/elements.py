@@ -1,5 +1,7 @@
 """ elements.py -- replacements and helpers for ElementTree """
 
+from polyglot.builtins import unicode_type
+
 
 class ElementWriter(object):
 
@@ -21,9 +23,9 @@ class ElementWriter(object):
         return text
 
     def _writeAttribute(self, f, name, value):
-        f.write(u' %s="' % unicode(name))
+        f.write(u' %s="' % unicode_type(name))
         if not isinstance(value, basestring):
-            value = unicode(value)
+            value = unicode_type(value)
         value = self._encodeCdata(value)
         value = value.replace('"', '&quot;')
         f.write(value)
@@ -34,7 +36,7 @@ class ElementWriter(object):
         f.write(text)
 
     def _write(self, f, e):
-        f.write(u'<' + unicode(e.tag))
+        f.write(u'<' + unicode_type(e.tag))
 
         attributes = e.items()
         attributes.sort()
@@ -72,6 +74,3 @@ class ElementWriter(object):
             f.write(u'<?xml version="1.0" encoding="%s"?>\n' % self.outputEncodingName)
 
         self._write(f, self.e)
-
-
-

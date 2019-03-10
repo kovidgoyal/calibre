@@ -38,6 +38,7 @@ from calibre.utils.filenames import ascii_filename as sanitize, shorten_componen
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
 from calibre.utils.socket_inheritance import set_socket_inherit
+from polyglot.builtins import unicode_type
 
 
 def synchronous(tlockname):
@@ -397,7 +398,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if isinstance(a, dict):
                         printable = {}
                         for k,v in a.iteritems():
-                            if isinstance(v, (str, unicode)) and len(v) > 50:
+                            if isinstance(v, (str, unicode_type)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
                                 printable[k] = v
@@ -418,14 +419,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
         if dinfo.get('device_name') is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['prefix'] = self.PREFIX
         return dinfo
@@ -478,7 +479,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.library.save_to_disk import get_components
         from calibre.library.save_to_disk import config
         opts = config().parse()
-        if not isinstance(template, unicode):
+        if not isinstance(template, unicode_type):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
@@ -726,7 +727,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.utils.date import now, parse_date
         try:
             key = self._make_metadata_cache_key(uuid, ext_or_lpath)
-            if isinstance(lastmod, unicode):
+            if isinstance(lastmod, unicode_type):
                 if lastmod == 'None':
                     return None
                 lastmod = parse_date(lastmod)

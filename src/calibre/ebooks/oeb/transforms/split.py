@@ -20,6 +20,7 @@ from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
         urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
+from polyglot.builtins import unicode_type
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -294,7 +295,7 @@ class FlowSplitter(object):
         if body is None:
             return False
         txt = re.sub(u'\\s+|\\xa0', '',
-                etree.tostring(body, method='text', encoding=unicode))
+                etree.tostring(body, method='text', encoding=unicode_type))
         if len(txt) > 1:
             return False
         for img in root.xpath('//h:img', namespaces=NAMESPACES):

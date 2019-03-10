@@ -18,6 +18,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
+from polyglot.builtins import unicode_type
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -75,7 +76,7 @@ class MTP_DEVICE(BASE):
 
     def is_folder_ignored(self, storage_or_storage_id, path,
                           ignored_folders=None):
-        storage_id = unicode(getattr(storage_or_storage_id, 'object_id',
+        storage_id = unicode_type(getattr(storage_or_storage_id, 'object_id',
                              storage_or_storage_id))
         lpath = tuple(icu_lower(name) for name in path)
         if ignored_folders is None:
@@ -166,14 +167,14 @@ class MTP_DEVICE(BASE):
                 traceback.print_exc()
                 dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
         if dinfo.get('device_name', None) is None:
             dinfo['device_name'] = self.current_friendly_name
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = json.dumps(dinfo, default=to_json)

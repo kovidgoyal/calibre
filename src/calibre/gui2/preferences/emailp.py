@@ -17,6 +17,7 @@ from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
 from calibre.gui2 import gprefs
 from calibre.utils.smtp import config as smtp_prefs
+from polyglot.builtins import unicode_type
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
@@ -30,12 +31,12 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.sorted_on = (0, True)
         self.account_order = self.accounts.keys()
         self.do_sort()
-        self.headers  = map(unicode, [_('Email'), _('Formats'), _('Subject'),
+        self.headers  = map(unicode_type, [_('Email'), _('Formats'), _('Subject'),
             _('Auto send'), _('Alias'), _('Auto send only tags')])
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = (self.default_font)
-        self.tooltips =[None] + list(map(unicode, map(textwrap.fill,
+        self.tooltips =[None] + list(map(unicode_type, map(textwrap.fill,
             [_('Formats to email. The first matching format will be sent.'),
              _('Subject of the email to use when sending. When left blank '
                'the title will be used for the subject. Also, the same '
@@ -136,21 +137,21 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         if col == 3:
             self.accounts[account][1] ^= True
         elif col == 2:
-            self.subjects[account] = unicode(value or '')
+            self.subjects[account] = unicode_type(value or '')
         elif col == 4:
             self.aliases.pop(account, None)
-            aval = unicode(value or '').strip()
+            aval = unicode_type(value or '').strip()
             if aval:
                 self.aliases[account] = aval
         elif col == 5:
             self.tags.pop(account, None)
-            aval = unicode(value or '').strip()
+            aval = unicode_type(value or '').strip()
             if aval:
                 self.tags[account] = aval
         elif col == 1:
-            self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', unicode(value or '').upper()))
+            self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', unicode_type(value or '').upper()))
         elif col == 0:
-            na = unicode(value or '')
+            na = unicode_type(value or '')
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
             if not addr:

@@ -12,6 +12,8 @@ import dbus
 
 from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
+from polyglot.builtins import unicode_type
+
 
 def log(*args, **kw):
     kw['file'] = sys.stderr
@@ -145,7 +147,7 @@ def set_X_window_properties(win_id, **properties):
     for name, val in properties.iteritems():
         atom = atoms[name].reply().atom
         type_atom = xcb.xproto.Atom.STRING
-        if isinstance(val, unicode):
+        if isinstance(val, unicode_type):
             if utf8_string_atom is None:
                 utf8_string_atom = conn.core.InternAtom(True, len(b'UTF8_STRING'), b'UTF8_STRING').reply().atom
             type_atom = utf8_string_atom

@@ -13,6 +13,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
 from calibre.constants import filesystem_encoding
+from polyglot.builtins import unicode_type
 
 block_level_tags = (
       'address',
@@ -225,8 +226,8 @@ class EPUBOutput(OutputFormatPlugin):
         identifiers = oeb.metadata['identifier']
         uuid = None
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
-                uuid = unicode(x).split(':')[-1]
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
+                uuid = unicode_type(x).split(':')[-1]
                 break
         encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
 
@@ -241,7 +242,7 @@ class EPUBOutput(OutputFormatPlugin):
             # for some absurd reason, or it will throw a hissy fit and refuse
             # to use the obfuscated fonts.
             for x in identifiers:
-                if unicode(x) == uuid:
+                if unicode_type(x) == uuid:
                     x.content = 'urn:uuid:'+uuid
 
         with TemporaryDirectory(u'_epub_output') as tdir:
@@ -325,7 +326,7 @@ class EPUBOutput(OutputFormatPlugin):
             fonts = []
             for uri in list(uris.keys()):
                 path = uris[uri]
-                if isinstance(path, unicode):
+                if isinstance(path, unicode_type):
                     path = path.encode(filesystem_encoding)
                 if not os.path.exists(path):
                     uris.pop(uri)
@@ -339,7 +340,7 @@ class EPUBOutput(OutputFormatPlugin):
                             f.write(chr(ord(data[i]) ^ key[i%16]))
                     else:
                         self.log.warn('Font', path, 'is invalid, ignoring')
-                if not isinstance(uri, unicode):
+                if not isinstance(uri, unicode_type):
                     uri = uri.decode('utf-8')
                 fonts.append(u'''
                 <enc:EncryptedData>

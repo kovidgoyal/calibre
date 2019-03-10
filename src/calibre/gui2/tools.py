@@ -22,6 +22,7 @@ from calibre.ebooks.conversion.config import (
         GuiRecommendations, load_defaults, load_specifics, save_specifics,
         get_input_format_for_book, NoSupportedInputFormats)
 from calibre.gui2.convert import bulk_defaults_for_input_format
+from polyglot.builtins import unicode_type
 
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
@@ -64,7 +65,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                 temp_files = [in_file]
 
                 try:
-                    dtitle = unicode(mi.title)
+                    dtitle = unicode_type(mi.title)
                 except:
                     dtitle = repr(mi.title)
                 desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
@@ -225,7 +226,7 @@ class QueueBulk(QProgressDialog):
                 if x[0] == 'debug_pipeline':
                     lrecs.remove(x)
             try:
-                dtitle = unicode(mi.title)
+                dtitle = unicode_type(mi.title)
             except:
                 dtitle = repr(mi.title)
             if len(dtitle) > 50:

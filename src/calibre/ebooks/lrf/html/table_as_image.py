@@ -11,6 +11,8 @@ from PyQt5.Qt import QUrl, QApplication, QSize, QEventLoop, \
                      QPainter, QImage, QObject, Qt
 from PyQt5.QtWebKitWidgets import QWebPage
 
+from polyglot.builtins import unicode_type
+
 
 class HTMLTableRenderer(QObject):
 
@@ -67,7 +69,7 @@ class HTMLTableRenderer(QObject):
 def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     head = ''
     for e in soup.findAll(['link', 'style']):
-        head += unicode(e)+'\n\n'
+        head += unicode_type(e)+'\n\n'
     style = ''
     for key, val in css.items():
         style += key + ':%s;'%val
@@ -83,7 +85,7 @@ def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
         %s
     </body>
 </html>
-    '''%(head, width-10, style, unicode(table))
+    '''%(head, width-10, style, unicode_type(table))
     images, tdir = do_render(html, base_dir, width, height, dpi, factor)
     atexit.register(shutil.rmtree, tdir)
     return images

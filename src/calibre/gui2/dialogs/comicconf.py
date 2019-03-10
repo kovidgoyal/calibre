@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QDialog
 from calibre.gui2.dialogs.comicconf_ui import Ui_Dialog
 from calibre.ebooks.lrf.comic.convert_from import config, PROFILES
+from polyglot.builtins import unicode_type
 
 
 def set_conversion_defaults(window):
@@ -81,9 +82,9 @@ class ComicConf(QDialog, Ui_Dialog):
             elif hasattr(g, 'value'):
                 val = g.value()
             elif hasattr(g, 'itemText'):
-                val = unicode(g.itemText(g.currentIndex()))
+                val = unicode_type(g.itemText(g.currentIndex()))
             elif hasattr(g, 'text'):
-                val = unicode(g.text())
+                val = unicode_type(g.text())
             else:
                 raise Exception('Bad coding')
             self.config.set(opt.name, val)

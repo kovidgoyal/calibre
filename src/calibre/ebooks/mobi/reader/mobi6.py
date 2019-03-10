@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type
 
 
 class TopazError(ValueError):
@@ -297,7 +298,7 @@ class MobiReader(object):
         with open('styles.css', 'wb') as s:
             s.write(self.base_css_rules + '\n\n')
             for cls, rule in self.tag_css_rules.items():
-                if isinstance(rule, unicode):
+                if isinstance(rule, unicode_type):
                     rule = rule.encode('utf-8')
                 s.write('.%s { %s }\n\n' % (cls, rule))
 

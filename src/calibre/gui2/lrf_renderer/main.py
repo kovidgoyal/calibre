@@ -17,6 +17,7 @@ from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.lrf_renderer.document import Document
 from calibre.gui2.search_box import SearchBox2
+from polyglot.builtins import unicode_type
 
 
 class RenderWorker(QThread):
@@ -200,7 +201,7 @@ class Main(MainWindow, Ui_MainWindow):
             print('Error rendering document', file=sys.stderr)
             print(exception, file=sys.stderr)
             print(self.renderer.formatted_traceback, file=sys.stderr)
-            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode_type(str(exception), 'utf8', 'replace') + u'</p>'
             msg += u'<p>Failed to render document</p>'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'

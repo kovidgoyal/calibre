@@ -27,6 +27,7 @@ from calibre.gui2.widgets import LineEditECM
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type
 
 
 class PageAction(QAction):  # {{{
@@ -214,13 +215,13 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         col = QColorDialog.getColor(Qt.black, self,
                 _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
-            self.exec_command('foreColor', unicode(col.name()))
+            self.exec_command('foreColor', unicode_type(col.name()))
 
     def background_color(self):
         col = QColorDialog.getColor(Qt.white, self,
                 _('Choose background color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
-            self.exec_command('hiliteColor', unicode(col.name()))
+            self.exec_command('hiliteColor', unicode_type(col.name()))
 
     def insert_hr(self, *args):
         self.exec_command('insertHTML', '<hr>')
@@ -231,7 +232,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
             return
         url = self.parse_link(link)
         if url.isValid():
-            url = unicode(url.toString(NO_URL_FORMATTING))
+            url = unicode_type(url.toString(NO_URL_FORMATTING))
             self.setFocus(Qt.OtherFocusReason)
             if is_image:
                 self.exec_command('insertHTML',
@@ -293,7 +294,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         d.resize(d.sizeHint())
         link, name, is_image = None, None, False
         if d.exec_() == d.Accepted:
-            link, name = unicode(d.url.text()).strip(), unicode(d.name.text()).strip()
+            link, name = unicode_type(d.url.text()).strip(), unicode_type(d.name.text()).strip()
             is_image = d.treat_as_image.isChecked()
         return link, name, is_image
 
@@ -327,7 +328,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         frame = self.page().mainFrame()
         if arg is not None:
             js = 'document.execCommand("%s", false, %s);' % (cmd,
-                    json.dumps(unicode(arg)))
+                    json.dumps(unicode_type(arg)))
         else:
             js = 'document.execCommand("%s", false, null);' % cmd
         frame.evaluateJavaScript(js)
@@ -343,10 +344,10 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
             try:
                 if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
                     # Bypass cleanup if special meta tag exists
-                    return unicode(self.page().mainFrame().toHtml())
-                check = unicode(self.page().mainFrame().toPlainText()).strip()
-                raw = unicode(self.page().mainFrame().toHtml())
-                raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                    return unicode_type(self.page().mainFrame().toHtml())
+                check = unicode_type(self.page().mainFrame().toPlainText()).strip()
+                raw = unicode_type(self.page().mainFrame().toHtml())
+                raw = xml_to_unicode_type(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
                 raw = self.comments_pat.sub('', raw)
                 if not check and '<img' not in raw.lower():
@@ -361,7 +362,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
                 for body in root.xpath('//body'):
                     if body.text:
                         elems.append(body.text)
-                    elems += [html.tostring(x, encoding=unicode) for x in body if
+                    elems += [html.tostring(x, encoding=unicode_type) for x in body if
                         x.tag not in ('script', 'style')]
 
                 if len(elems) > 1:
@@ -395,13 +396,13 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
             return
         mf = self.page().mainFrame()
         mf.evaluateJavaScript('document.execCommand("selectAll", false, null)')
-        mf.evaluateJavaScript('document.execCommand("insertHTML", false, %s)' % json.dumps(unicode(val)))
+        mf.evaluateJavaScript('document.execCommand("insertHTML", false, %s)' % json.dumps(unicode_type(val)))
         self.set_font_style()
 
     def set_font_style(self):
         fi = QFontInfo(QApplication.font(self))
         f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-        fam = unicode(fi.family()).strip().replace('"', '')
+        fam = unicode_type(fi.family()).strip().replace('"', '')
         if not fam:
             fam = 'sans-serif'
         style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
@@ -781,7 +782,7 @@ class Editor(QWidget):  # {{{
                 self.wyswyg_dirty = False
         elif index == 0:  # changing to wyswyg
             if self.source_dirty:
-                self.editor.html = unicode(self.code_edit.toPlainText())
+                self.editor.html = unicode_type(self.code_edit.toPlainText())
                 self.source_dirty = False
 
     @dynamic_property

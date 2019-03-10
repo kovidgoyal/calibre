@@ -11,7 +11,7 @@ import re
 from urlparse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from operator import itemgetter
 
 from lxml import etree
@@ -143,7 +143,7 @@ def add_from_navpoint(container, navpoint, parent, ncx_name):
         text = ''
         for txt in child_xpath(nl, 'text'):
             text += etree.tostring(txt, method='text',
-                    encoding=unicode, with_tail=False)
+                    encoding=unicode_type, with_tail=False)
     content = child_xpath(navpoint, 'content')
     if content:
         content = content[0]
@@ -170,11 +170,11 @@ def parse_ncx(container, ncx_name):
     toc_root.lang = toc_root.uid = None
     for attr, val in root.attrib.iteritems():
         if attr.endswith('lang'):
-            toc_root.lang = unicode(val)
+            toc_root.lang = unicode_type(val)
             break
     for uid in root.xpath('//*[calibre:lower-case(local-name()) = "meta" and @name="dtb:uid"]/@content'):
         if uid:
-            toc_root.uid = unicode(uid)
+            toc_root.uid = unicode_type(uid)
             break
     for pl in root.xpath('//*[calibre:lower-case(local-name()) = "pagelist"]'):
         for pt in pl.xpath('descendant::*[calibre:lower-case(local-name()) = "pagetarget"]'):
@@ -191,7 +191,7 @@ def parse_ncx(container, ncx_name):
 def add_from_li(container, li, parent, nav_name):
     dest = frag = text = None
     for x in li.iterchildren(XHTML('a'), XHTML('span')):
-        text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+        text = etree.tostring(x, method='text', encoding=unicode_type, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
         href = x.get('href')
         if href:
             dest = nav_name if href.startswith('#') else container.href_to_name(href, base=nav_name)
@@ -226,7 +226,7 @@ def parse_nav(container, nav_name):
             if ol is not None:
                 process_nav_node(container, ol, toc_root, nav_name)
                 for h in nav.iterchildren(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
-                    text = etree.tostring(h, method='text', encoding=unicode, with_tail=False) or h.get('title')
+                    text = etree.tostring(h, method='text', encoding=unicode_type, with_tail=False) or h.get('title')
                     if text:
                         toc_root.toc_title = text
                         break
@@ -324,7 +324,7 @@ def get_nav_landmarks(container):
                     for a in li.iterdescendants(XHTML('a')):
                         href, rtype = a.get('href'), a.get(et)
                         if href:
-                            title = etree.tostring(a, method='text', encoding=unicode, with_tail=False).strip()
+                            title = etree.tostring(a, method='text', encoding=unicode_type, with_tail=False).strip()
                             href, frag = href.partition('#')[::2]
                             name = container.href_to_name(href, nav)
                             if container.has_name(name):
@@ -579,7 +579,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
         nsmap={None: NCX_NS})
     head = etree.SubElement(ncx, NCX('head'))
     etree.SubElement(head, NCX('meta'),
-        name='dtb:uid', content=unicode(uid))
+        name='dtb:uid', content=unicode_type(uid))
     etree.SubElement(head, NCX('meta'),
         name='dtb:depth', content=str(toc.depth))
     generator = ''.join(['calibre (', __version__, ')'])

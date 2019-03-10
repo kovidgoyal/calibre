@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
+from polyglot.builtins import unicode_type
 
 
 def wrap_msg(msg):
@@ -340,11 +341,11 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                     if hasattr(self.opt_extra_customization[i], 'isChecked'):
                         ec.append(self.opt_extra_customization[i].isChecked())
                     elif hasattr(self.opt_extra_customization[i], 'currentText'):
-                        ec.append(unicode(self.opt_extra_customization[i].currentText()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].currentText()).strip())
                     else:
-                        ec.append(unicode(self.opt_extra_customization[i].text()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].text()).strip())
             else:
-                ec = unicode(self.opt_extra_customization.text()).strip()
+                ec = unicode_type(self.opt_extra_customization.text()).strip()
                 if not ec:
                     ec = None
 

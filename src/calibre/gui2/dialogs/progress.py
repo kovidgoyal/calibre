@@ -9,6 +9,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import elided_text
 from calibre.gui2.progress_indicator import ProgressIndicator
+from polyglot.builtins import unicode_type
 
 
 class ProgressDialog(QDialog):
@@ -102,7 +103,7 @@ class ProgressDialog(QDialog):
             return self.title_label.text()
 
         def fset(self, val):
-            self.title_label.setText(unicode(val or ''))
+            self.title_label.setText(unicode_type(val or ''))
         return property(fget=fget, fset=fset)
 
     @dynamic_property
@@ -111,7 +112,7 @@ class ProgressDialog(QDialog):
             return self.message.text()
 
         def fset(self, val):
-            val = unicode(val or '')
+            val = unicode_type(val or '')
             self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
         return property(fget=fget, fset=fset)
 

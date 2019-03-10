@@ -20,6 +20,7 @@ from calibre.ebooks.pdf.render.common import inch, A4, fmtnum
 from calibre.ebooks.pdf.render.graphics import convert_path, Graphics
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
+from polyglot.builtins import codepoint_to_chr
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
@@ -258,7 +259,7 @@ class PdfEngine(QPaintEngine):
         ans.ignore_glyphs = set()
         for uc, glyph_id in enumerate(glyph_map):
             if glyph_id not in gm:
-                gm[glyph_id] = unichr(uc)
+                gm[glyph_id] = codepoint_to_chr(uc)
                 if uc in (0xad, 0x200b):
                     ans.ignore_glyphs.add(glyph_id)
         ans.full_glyph_map = gm

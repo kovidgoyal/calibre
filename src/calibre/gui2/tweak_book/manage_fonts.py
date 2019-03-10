@@ -22,6 +22,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
+from polyglot.builtins import unicode_type
 
 
 def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
@@ -179,7 +180,7 @@ class ChangeFontFamily(Dialog):
 
     @property
     def family(self):
-        return unicode(self._family.text())
+        return unicode_type(self._family.text())
 
     @property
     def normalized_family(self):

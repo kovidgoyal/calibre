@@ -15,6 +15,7 @@ from calibre import prints
 from calibre.constants import isosx
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
+from polyglot.builtins import unicode_type
 
 
 def menu_action_unique_name(plugin, unique_name):
@@ -162,7 +163,7 @@ class InterfaceAction(QObject):
             action = QAction(text, self.gui)
         if attr == 'qaction':
             mt = (action.text() if self.action_menu_clone_qaction is True else
-                    unicode(self.action_menu_clone_qaction))
+                    unicode_type(self.action_menu_clone_qaction))
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
             ma.triggered.connect(action.trigger)
         for a in ((action, ma) if attr == 'qaction' else (action,)):
@@ -179,7 +180,7 @@ class InterfaceAction(QObject):
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
             if shortcut_name is None and spec[0]:
-                shortcut_name = unicode(spec[0])
+                shortcut_name = unicode_type(spec[0])
 
             if shortcut_name and self.action_spec[0] and not (
                     attr == 'qaction' and self.popup_type == QToolButton.InstantPopup):
@@ -190,7 +191,7 @@ class InterfaceAction(QObject):
                         group=self.action_spec[0])
                 except NameConflict as e:
                     try:
-                        prints(unicode(e))
+                        prints(unicode_type(e))
                     except:
                         pass
                     shortcut_action.setShortcuts([QKeySequence(key,
@@ -240,7 +241,7 @@ class InterfaceAction(QObject):
 
         '''
         if shortcut_name is None:
-            shortcut_name = unicode(text)
+            shortcut_name = unicode_type(text)
         ac = menu.addAction(text)
         if icon is not None:
             if not isinstance(icon, QIcon):

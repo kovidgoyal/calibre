@@ -31,6 +31,7 @@ from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
+from polyglot.builtins import unicode_type
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -235,7 +236,7 @@ class KF8Writer(object):
             root = self.data(item)
 
             for svg in XPath('//svg:svg')(root):
-                raw = etree.tostring(svg, encoding=unicode, with_tail=False)
+                raw = etree.tostring(svg, encoding=unicode_type, with_tail=False)
                 idx = len(self.flows)
                 self.flows.append(raw)
                 p = svg.getparent()
@@ -333,7 +334,7 @@ class KF8Writer(object):
         self.flows[0] = chunker.text
 
     def create_text_records(self):
-        self.flows = [x.encode('utf-8') if isinstance(x, unicode) else x for x
+        self.flows = [x.encode('utf-8') if isinstance(x, unicode_type) else x for x
                 in self.flows]
         text = b''.join(self.flows)
         self.text_length = len(text)

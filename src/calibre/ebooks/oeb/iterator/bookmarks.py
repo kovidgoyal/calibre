@@ -11,6 +11,7 @@ import os
 from io import BytesIO
 
 from calibre.utils.zipfile import safe_replace
+from polyglot.builtins import unicode_type
 
 BM_FIELD_SEP = u'*|!|?|*'
 BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
@@ -59,10 +60,10 @@ class BookmarksMixin(object):
             else:
                 pos = bm['pos']
                 if isinstance(pos, (int, float)):
-                    pos = unicode(pos)
+                    pos = unicode_type(pos)
                 else:
                     pos = pos.replace(u'^', BM_LEGACY_ESC)
-                rec = BM_FIELD_SEP.join([bm['title'], unicode(bm['spine']), pos])
+                rec = BM_FIELD_SEP.join([bm['title'], unicode_type(bm['spine']), pos])
             dat.append(rec)
         return (u'\n'.join(dat) +u'\n')
 
@@ -102,5 +103,3 @@ class BookmarksMixin(object):
 
     def set_bookmarks(self, bookmarks):
         self.bookmarks = bookmarks
-
-

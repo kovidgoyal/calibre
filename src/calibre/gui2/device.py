@@ -34,6 +34,7 @@ from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
+from polyglot.builtins import unicode_type
 # }}}
 
 
@@ -105,7 +106,7 @@ class DeviceJob(BaseJob):  # {{{
             call_job_done = True
         self._aborted = True
         self.failed = True
-        self._details = unicode(err)
+        self._details = unicode_type(err)
         self.exception = err
         if call_job_done:
             self.job_done()
@@ -561,7 +562,7 @@ class DeviceManager(Thread):  # {{{
             self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
-                if isinstance(f, unicode):
+                if isinstance(f, unicode_type):
                     ext = f.rpartition('.')[-1].lower()
                     cpb = find_plugboard(
                             device_name_for_plugboards(self.connected_device),
@@ -928,7 +929,7 @@ class DeviceMixin(object):  # {{{
         d.show()
 
     def auto_convert_question(self, msg, autos):
-        autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
+        autos = u'\n'.join(map(unicode_type, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
@@ -1026,7 +1027,7 @@ class DeviceMixin(object):  # {{{
 
         try:
             if 'Could not read 32 bytes on the control bus.' in \
-                    unicode(job.details):
+                    unicode_type(job.details):
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
@@ -1347,7 +1348,7 @@ class DeviceMixin(object):  # {{{
             names = []
             for mi in metadata:
                 prefix = ascii_filename(mi.title)
-                if not isinstance(prefix, unicode):
+                if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
@@ -1428,7 +1429,7 @@ class DeviceMixin(object):  # {{{
             names = []
             for mi in metadata:
                 prefix = ascii_filename(mi.title)
-                if not isinstance(prefix, unicode):
+                if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
@@ -1507,7 +1508,7 @@ class DeviceMixin(object):  # {{{
                 if not a:
                     a = _('Unknown')
                 prefix = ascii_filename(t+' - '+a)
-                if not isinstance(prefix, unicode):
+                if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
@@ -1639,7 +1640,7 @@ class DeviceMixin(object):  # {{{
                 d.exec_()
             elif isinstance(job.exception, WrongDestinationError):
                 error_dialog(self, _('Incorrect destination'),
-                        unicode(job.exception), show=True)
+                        unicode_type(job.exception), show=True)
             else:
                 self.device_job_exception(job)
             return

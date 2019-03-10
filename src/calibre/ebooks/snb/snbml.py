@@ -12,6 +12,7 @@ import os
 import re
 
 from lxml import etree
+from polyglot.builtins import unicode_type
 
 
 def ProcessFileName(fileName):
@@ -84,7 +85,7 @@ class SNBMLizer(object):
         from calibre.ebooks.oeb.stylizer import Stylizer
         output = [u'']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
-        content = unicode(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode))
+        content = unicode_type(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode_type))
 #        content = self.remove_newlines(content)
         trees = {}
         for subitem, subtitle in self.subitems:
@@ -127,7 +128,7 @@ class SNBMLizer(object):
                     else:
                         prefix = u''
                     etree.SubElement(bodyTree, "text").text = \
-                        etree.CDATA(unicode(prefix + line))
+                        etree.CDATA(unicode_type(prefix + line))
                 if self.opts and self.opts.snb_insert_empty_line:
                     etree.SubElement(bodyTree, "text").text = \
                         etree.CDATA(u'')

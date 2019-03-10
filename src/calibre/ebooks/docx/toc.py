@@ -13,6 +13,7 @@ from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
+from polyglot.builtins import unicode_type
 
 
 def from_headings(body, log, namespace):
@@ -93,7 +94,7 @@ def link_to_txt(a, styles, object_map):
                 if rs.css.get('display', None) == 'none':
                     a.remove(child)
 
-    return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
+    return tostring(a, method='text', with_tail=False, encoding=unicode_type).strip()
 
 
 def from_toc(docx, link_map, styles, object_map, log, namespace):

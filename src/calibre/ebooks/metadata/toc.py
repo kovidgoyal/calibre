@@ -15,6 +15,7 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
+from polyglot.builtins import unicode_type
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
 CALIBRE_NS = "http://calibre.kovidgoyal.net/2009/metadata"
@@ -194,7 +195,7 @@ class TOC(list):
                 text = u''
                 for txt in txt_path(nl):
                     text += etree.tostring(txt, method='text',
-                            encoding=unicode, with_tail=False)
+                            encoding=unicode_type, with_tail=False)
                 content = content_path(np)
                 if content and text:
                     content = content[0]
@@ -229,7 +230,7 @@ class TOC(list):
                 fragment = fragment.strip()
             href = href.strip()
 
-            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+            txt = ''.join([unicode_type(s).strip() for s in a.findAll(text=True)])
             add = True
             for i in self.flat():
                 if i.href == href and i.fragment == fragment:
@@ -264,7 +265,7 @@ class TOC(list):
             text = clean_xml_chars(text)
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
-                    E.content(src=unicode(np.href)+(('#' + unicode(np.fragment))
+                    E.content(src=unicode_type(np.href)+(('#' + unicode_type(np.fragment))
                         if np.fragment else '')),
                     id=item_id,
                     playOrder=str(np.play_order)

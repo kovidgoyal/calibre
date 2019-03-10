@@ -18,6 +18,7 @@ from calibre.gui2.tweak_book import editors, actions, tprefs
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from css_selectors import parse, SelectorError
+from polyglot.builtins import unicode_type
 
 
 class Heading(QWidget):  # {{{
@@ -474,7 +475,7 @@ class LiveCSS(QWidget):
     def read_data(self, sourceline, tags):
         mf = self.preview.view.page().mainFrame()
         tags = [x.lower() for x in tags]
-        result = unicode(mf.evaluateJavaScript(
+        result = unicode_type(mf.evaluateJavaScript(
             'window.calibre_preview_integration.live_css(%s, %s)' % (
                 json.dumps(sourceline), json.dumps(tags))) or '')
         try:

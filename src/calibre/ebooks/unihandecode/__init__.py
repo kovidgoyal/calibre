@@ -19,6 +19,8 @@ Tranliterate the string from unicode characters to ASCII in Chinese and others.
 '''
 import unicodedata
 
+from calibre.constants import ispy3
+
 
 class Unihandecoder(object):
     preferred_encoding = None
@@ -41,8 +43,7 @@ class Unihandecoder(object):
             self.decoder = Unidecoder()
 
     def decode(self, text):
-        try:
-            unicode  # python2
+        if not ispy3:
             if not isinstance(text, unicode):
                 try:
                     text = unicode(text)
@@ -51,8 +52,6 @@ class Unihandecoder(object):
                         text = text.decode(self.preferred_encoding)
                     except:
                         text = text.decode('utf-8', 'replace')
-        except:  # python3, str is unicode
-            pass
         # at first unicode normalize it. (see Unicode standards)
         ntext = unicodedata.normalize('NFKC', text)
         return self.decoder.decode(ntext)

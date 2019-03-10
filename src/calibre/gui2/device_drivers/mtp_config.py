@@ -20,6 +20,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
+from polyglot.builtins import unicode_type
 
 
 class FormatsConfig(QWidget):  # {{{
@@ -50,7 +51,7 @@ class FormatsConfig(QWidget):  # {{{
 
     @property
     def format_map(self):
-        return [unicode(self.f.item(i).data(Qt.UserRole) or '') for i in
+        return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
                 xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def validate(self):
@@ -97,7 +98,7 @@ class TemplateConfig(QWidget):  # {{{
 
     @property
     def template(self):
-        return unicode(self.t.text()).strip()
+        return unicode_type(self.t.text()).strip()
 
     def edit_template(self):
         t = TemplateDialog(self, self.template)
@@ -114,7 +115,7 @@ class TemplateConfig(QWidget):  # {{{
         except Exception as err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl +
-                    '<br>'+unicode(err), show=True)
+                    '<br>'+unicode_type(err), show=True)
 
             return False
 # }}}
@@ -155,7 +156,7 @@ class SendToConfig(QWidget):  # {{{
 
     @property
     def value(self):
-        ans = [x.strip() for x in unicode(self.t.text()).strip().split(',')]
+        ans = [x.strip() for x in unicode_type(self.t.text()).strip().split(',')]
         return [x for x in ans if x]
 
 # }}}
@@ -187,13 +188,13 @@ class IgnoredDevices(QWidget):  # {{{
 
     @property
     def blacklist(self):
-        return [unicode(self.f.item(i).data(Qt.UserRole) or '') for i in
+        return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
                 xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def ignore_device(self, snum):
         for i in xrange(self.f.count()):
             i = self.f.item(i)
-            c = unicode(i.data(Qt.UserRole) or '')
+            c = unicode_type(i.data(Qt.UserRole) or '')
             if c == snum:
                 i.setCheckState(Qt.Checked)
                 break
@@ -264,10 +265,10 @@ class Rule(QWidget):
 
     @property
     def rule(self):
-        folder = unicode(self.folder.text()).strip()
+        folder = unicode_type(self.folder.text()).strip()
         if folder:
             return (
-                unicode(self.fmt.itemData(self.fmt.currentIndex()) or ''),
+                unicode_type(self.fmt.itemData(self.fmt.currentIndex()) or ''),
                 folder
                 )
         return None

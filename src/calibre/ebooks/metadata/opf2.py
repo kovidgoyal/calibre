@@ -25,6 +25,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
+from polyglot.builtins import unicode_type
 
 pretty_print_opf = False
 
@@ -82,7 +83,7 @@ class Resource(object):  # {{{
                 self._href = href_or_path
             else:
                 pc = url[2]
-                if isinstance(pc, unicode):
+                if isinstance(pc, unicode_type):
                     pc = pc.encode('utf-8')
                 pc = pc.decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
@@ -103,7 +104,7 @@ class Resource(object):  # {{{
                 basedir = os.getcwdu()
         if self.path is None:
             return self._href
-        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
         frag = '#'+f if self.fragment else ''
         if self.path == basedir:
             return ''+frag
@@ -111,7 +112,7 @@ class Resource(object):  # {{{
             rpath = os.path.relpath(self.path, basedir)
         except ValueError:  # On windows path and basedir could be on different drives
             rpath = self.path
-        if isinstance(rpath, unicode):
+        if isinstance(rpath, unicode_type):
             rpath = rpath.encode('utf-8')
         return rpath.replace(os.sep, '/')+frag
 
@@ -206,10 +207,10 @@ class ManifestItem(Resource):  # {{{
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return unicode_type(self).encode('utf-8')
 
     def __repr__(self):
-        return unicode(self)
+        return unicode_type(self)
 
     def __getitem__(self, index):
         if index == 0:
@@ -410,7 +411,7 @@ class Guide(ResourceCollection):  # {{{
 class MetadataField(object):
 
     def __init__(self, name, is_dc=True, formatter=None, none_is=None,
-            renderer=lambda x: unicode(x)):
+            renderer=lambda x: unicode_type(x)):
         self.name      = name
         self.is_dc     = is_dc
         self.formatter = formatter
@@ -791,7 +792,7 @@ class OPF(object):  # {{{
     def unquote_urls(self):
         def get_href(item):
             raw = unquote(item.get('href', ''))
-            if not isinstance(raw, unicode):
+            if not isinstance(raw, unicode_type):
                 raw = raw.decode('utf-8')
             return raw
         for item in self.itermanifest():
@@ -820,7 +821,7 @@ class OPF(object):  # {{{
                 titles = ()
             if val:
                 title = titles[0] if titles else self.create_metadata_element('title')
-                title.text = re.sub(r'\s+', ' ', unicode(val))
+                title.text = re.sub(r'\s+', ' ', unicode_type(val))
 
         return property(fget=fget, fset=fset)
 
@@ -869,7 +870,7 @@ class OPF(object):  # {{{
                 for key in matches[0].attrib:
                     if key.endswith('file-as'):
                         matches[0].attrib.pop(key)
-                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
+                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode_type(val))
 
         return property(fget=fget, fset=fset)
 
@@ -889,7 +890,7 @@ class OPF(object):  # {{{
                 tag.getparent().remove(tag)
             for tag in val:
                 elem = self.create_metadata_element('subject')
-                self.set_text(elem, unicode(tag))
+                self.set_text(elem, unicode_type(tag))
 
         return property(fget=fget, fset=fset)
 
@@ -900,7 +901,7 @@ class OPF(object):  # {{{
             ans = None
             for match in self.pubdate_path(self.metadata):
                 try:
-                    val = parse_date(etree.tostring(match, encoding=unicode,
+                    val = parse_date(etree.tostring(match, encoding=unicode_type,
                         method='text', with_tail=False).strip())
                 except:
                     continue
@@ -912,7 +913,7 @@ class OPF(object):  # {{{
             least_val = least_elem = None
             for match in self.pubdate_path(self.metadata):
                 try:
-                    cval = parse_date(etree.tostring(match, encoding=unicode,
+                    cval = parse_date(etree.tostring(match, encoding=unicode_type,
                         method='text', with_tail=False).strip())
                 except:
                     match.getparent().remove(match)
@@ -962,7 +963,7 @@ class OPF(object):  # {{{
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
                 matches = [self.create_metadata_element('identifier',
                                                         attrib=attrib)]
-            self.set_text(matches[0], unicode(val))
+            self.set_text(matches[0], unicode_type(val))
 
         return property(fget=fget, fset=fset)
 
@@ -975,7 +976,7 @@ class OPF(object):  # {{{
             for attr, val in x.attrib.iteritems():
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
-                    val = etree.tostring(x, with_tail=False, encoding=unicode,
+                    val = etree.tostring(x, with_tail=False, encoding=unicode_type,
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
                         if typ == 'isbn' and val.lower().startswith('urn:isbn:'):
@@ -984,7 +985,7 @@ class OPF(object):  # {{{
                     found_scheme = True
                     break
             if not found_scheme:
-                val = etree.tostring(x, with_tail=False, encoding=unicode,
+                val = etree.tostring(x, with_tail=False, encoding=unicode_type,
                             method='text').strip()
                 if val.lower().startswith('urn:isbn:'):
                     val = check_isbn(val.split(':')[-1])
@@ -1017,7 +1018,7 @@ class OPF(object):  # {{{
         for typ, val in identifiers.iteritems():
             attrib = {'{%s}scheme'%self.NAMESPACES['opf']: typ.upper()}
             self.set_text(self.create_metadata_element(
-                'identifier', attrib=attrib), unicode(val))
+                'identifier', attrib=attrib), unicode_type(val))
 
     @dynamic_property
     def application_id(self):
@@ -1041,7 +1042,7 @@ class OPF(object):  # {{{
             if uuid_id and uuid_id in removed_ids:
                 attrib['id'] = uuid_id
             self.set_text(self.create_metadata_element(
-                'identifier', attrib=attrib), unicode(val))
+                'identifier', attrib=attrib), unicode_type(val))
 
         return property(fget=fget, fset=fset)
 
@@ -1058,7 +1059,7 @@ class OPF(object):  # {{{
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
                 matches = [self.create_metadata_element('identifier',
                                                         attrib=attrib)]
-            self.set_text(matches[0], unicode(val))
+            self.set_text(matches[0], unicode_type(val))
 
         return property(fget=fget, fset=fset)
 
@@ -1095,7 +1096,7 @@ class OPF(object):  # {{{
 
             for lang in val:
                 l = self.create_metadata_element('language')
-                self.set_text(l, unicode(lang))
+                self.set_text(l, unicode_type(lang))
 
         return property(fget=fget, fset=fset)
 
@@ -1118,7 +1119,7 @@ class OPF(object):  # {{{
             if not matches:
                 matches = [self.create_metadata_element('contributor')]
                 matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
-            self.set_text(matches[0], unicode(val))
+            self.set_text(matches[0], unicode_type(val))
         return property(fget=fget, fset=fset)
 
     def identifier_iter(self):
@@ -1701,7 +1702,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     metadata[-1].tail = '\n' +(' '*4)
 
     if mi.cover:
-        if not isinstance(mi.cover, unicode):
+        if not isinstance(mi.cover, unicode_type):
             mi.cover = mi.cover.decode(filesystem_encoding)
         guide.text = '\n'+(' '*8)
         r = guide.makeelement(OPF('reference'),

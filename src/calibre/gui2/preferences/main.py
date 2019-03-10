@@ -21,6 +21,7 @@ from calibre.gui2 import (gprefs, min_available_height, available_width,
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
+from polyglot.builtins import unicode_type
 
 ICON_SIZE = 32
 
@@ -293,8 +294,8 @@ class Preferences(QDialog):
                 if isinstance(g, QLabel):
                     buddy = g.buddy()
                     if buddy is not None and hasattr(buddy, 'toolTip'):
-                        htext = unicode(buddy.toolTip()).strip()
-                        etext = unicode(g.toolTip()).strip()
+                        htext = unicode_type(buddy.toolTip()).strip()
+                        etext = unicode_type(g.toolTip()).strip()
                         if htext and not etext:
                             g.setToolTip(htext)
                             g.setWhatsThis(htext)

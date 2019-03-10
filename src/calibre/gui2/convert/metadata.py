@@ -21,6 +21,7 @@ from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type
 
 
 def create_opf_file(db, book_id, opf_file=None):
@@ -73,7 +74,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.cover_data = data
 
     def deduce_author_sort(self, *args):
-        au = unicode(self.author.currentText())
+        au = unicode_type(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
@@ -155,30 +156,30 @@ class MetadataWidget(Widget, Ui_Form):
         self.publisher.update_items_cache([x[1] for x in all_publishers])
 
     def get_title_and_authors(self):
-        title = unicode(self.title.text()).strip()
+        title = unicode_type(self.title.text()).strip()
         if not title:
             title = _('Unknown')
-        authors = unicode(self.author.text()).strip()
+        authors = unicode_type(self.author.text()).strip()
         authors = string_to_authors(authors) if authors else [_('Unknown')]
         return title, authors
 
     def get_metadata(self):
         title, authors = self.get_title_and_authors()
         mi = MetaInformation(title, authors)
-        publisher = unicode(self.publisher.text()).strip()
+        publisher = unicode_type(self.publisher.text()).strip()
         if publisher:
             mi.publisher = publisher
-        author_sort = unicode(self.author_sort.text()).strip()
+        author_sort = unicode_type(self.author_sort.text()).strip()
         if author_sort:
             mi.author_sort = author_sort
         comments = self.comment.html
         if comments:
             mi.comments = comments
         mi.series_index = float(self.series_index.value())
-        series = unicode(self.series.currentText()).strip()
+        series = unicode_type(self.series.currentText()).strip()
         if series:
             mi.series = series
-        tags = [t.strip() for t in unicode(self.tags.text()).strip().split(',')]
+        tags = [t.strip() for t in unicode_type(self.tags.text()).strip().split(',')]
         if tags:
             mi.tags = tags
 
@@ -186,7 +187,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def select_cover(self):
         files = choose_images(self, 'change cover dialog',
-                             _('Choose cover for ') + unicode(self.title.text()))
+                             _('Choose cover for ') + unicode_type(self.title.text()))
         if not files:
             return
         _file = files[0]

@@ -14,6 +14,7 @@ from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
+from polyglot.builtins import unicode_type
 
 
 def XPath(x):
@@ -123,7 +124,7 @@ class DetectStructure(object):
                 elem = matches[0]
                 eid = elem.get('id', None)
                 if not eid:
-                    eid = u'start_reading_at_'+unicode(uuid.uuid4()).replace(u'-', u'')
+                    eid = u'start_reading_at_'+unicode_type(uuid.uuid4()).replace(u'-', u'')
                     elem.set('id', eid)
                 if u'text' in self.oeb.guide:
                     self.oeb.guide.remove(u'text')

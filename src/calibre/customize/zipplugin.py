@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -216,7 +216,7 @@ class PluginLoader(object):
             if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
                     'The plugin at %s needs a version of calibre >= %s' %
-                    (as_unicode(path_to_zip_file), '.'.join(map(unicode,
+                    (as_unicode(path_to_zip_file), '.'.join(map(unicode_type,
                         ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
@@ -231,7 +231,7 @@ class PluginLoader(object):
             raise
 
     def _locate_code(self, zf, path_to_zip_file):
-        names = [x if isinstance(x, unicode) else x.decode('utf-8') for x in
+        names = [x if isinstance(x, unicode_type) else x.decode('utf-8') for x in
                 zf.namelist()]
         names = [x[1:] if x[0] == '/' else x for x in names]
 

@@ -18,6 +18,7 @@ from PyQt5.QtWebKit import QWebSettings
 from calibre import prints
 from calibre.constants import DEBUG, FAKE_PROTOCOL, FAKE_HOST
 from calibre.ebooks.oeb.display.webview import load_html
+from polyglot.builtins import unicode_type
 
 
 class FootnotesPage(QWebPage):
@@ -60,7 +61,7 @@ class FootnotesPage(QWebPage):
 
     def javaScriptConsoleMessage(self, msg, lineno, source_id):
         if DEBUG:
-            prints('FootnoteView:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
+            prints('FootnoteView:%s:%s:'%(unicode_type(source_id), lineno), unicode_type(msg))
 
 
 class FootnotesView(QWidget):

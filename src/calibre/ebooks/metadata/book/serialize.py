@@ -10,10 +10,11 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type
 
 
 def ensure_unicode(obj, enc=preferred_encoding):
-    if isinstance(obj, unicode):
+    if isinstance(obj, unicode_type):
         return obj
     if isinstance(obj, bytes):
         return obj.decode(enc, 'replace')

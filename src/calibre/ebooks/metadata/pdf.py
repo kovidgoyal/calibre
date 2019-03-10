@@ -12,6 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from polyglot.builtins import unicode_type
 
 
 def get_tools():
@@ -88,8 +89,8 @@ def page_images(pdfpath, outputdir, first=1, last=1):
         import win32process as w
         args['creationflags'] = w.HIGH_PRIORITY_CLASS | w.CREATE_NO_WINDOW
     try:
-        subprocess.check_call([pdftoppm, '-cropbox', '-jpeg', '-f', unicode(first),
-                               '-l', unicode(last), pdfpath,
+        subprocess.check_call([pdftoppm, '-cropbox', '-jpeg', '-f', unicode_type(first),
+                               '-l', unicode_type(last), pdfpath,
                                os.path.join(outputdir, 'page-images')], **args)
     except subprocess.CalledProcessError as e:
         raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)

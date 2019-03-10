@@ -5,6 +5,7 @@ from PyQt5.Qt import QDialog, QTreeWidgetItem, QIcon, QModelIndex
 
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDialog
+from polyglot.builtins import unicode_type
 
 
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
@@ -48,6 +49,5 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
         return self._format
 
     def accept(self):
-        self._format = unicode(self.formats.currentItem().text(0))
+        self._format = unicode_type(self.formats.currentItem().text(0))
         return QDialog.accept(self)
-

@@ -20,6 +20,7 @@ from calibre import prints
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
+from polyglot.builtins import unicode_type
 
 
 class TestEmail(QDialog):
@@ -68,7 +69,7 @@ class TestEmail(QDialog):
 
     def run_test(self):
         try:
-            tb = self.test_func(unicode(self.to.text())) or _('Email successfully sent')
+            tb = self.test_func(unicode_type(self.to.text())) or _('Email successfully sent')
         except Exception:
             import traceback
             tb = traceback.format_exc()
@@ -130,7 +131,7 @@ class RelaySetup(QDialog):
         self.service = service
 
     def accept(self):
-        un = unicode(self.username.text())
+        un = unicode_type(self.username.text())
         if self.service.get('at_in_username', False) and '@' not in un:
             return error_dialog(self, _('Incorrect username'),
                     _('%s needs the full email address as your username') %
@@ -263,14 +264,14 @@ class SendEmail(QWidget, Ui_Form):
         self.relay_tls.setChecked(True)
 
     def set_email_settings(self, to_set):
-        from_ = unicode(self.email_from.text()).strip()
+        from_ = unicode_type(self.email_from.text()).strip()
         if to_set and not from_:
             error_dialog(self, _('Bad configuration'),
                          _('You must set the From email address')).exec_()
             return False
-        username = unicode(self.relay_username.text()).strip()
-        password = unicode(self.relay_password.text()).strip()
-        host = unicode(self.relay_host.text()).strip()
+        username = unicode_type(self.relay_username.text()).strip()
+        password = unicode_type(self.relay_password.text()).strip()
+        host = unicode_type(self.relay_host.text()).strip()
         enc_method = ('TLS' if self.relay_tls.isChecked() else 'SSL'
                 if self.relay_ssl.isChecked() else 'NONE')
         if host:

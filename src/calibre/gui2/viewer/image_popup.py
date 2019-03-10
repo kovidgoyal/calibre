@@ -12,6 +12,7 @@ from PyQt5.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
         Qt, QTransform, QSvgRenderer, QImage, QPainter)
 
 from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING, max_available_height
+from polyglot.builtins import unicode_type
 
 
 def render_svg(widget, path):
@@ -122,7 +123,7 @@ class ImageView(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         try:
-            self.current_image_name = unicode(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
+            self.current_image_name = unicode_type(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
         except AttributeError:
             self.current_image_name = self.current_url
         title = _('View image: %s')%self.current_image_name

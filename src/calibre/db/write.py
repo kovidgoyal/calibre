@@ -10,17 +10,14 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
-from polyglot.builtins import zip
+from polyglot.builtins import unicode_type, zip
 
-from calibre.constants import preferred_encoding, ispy3
+from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import (
     parse_only_date, parse_date, UNDEFINED_DATE, isoformat, is_date_undefined)
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
-
-if ispy3:
-    unicode = str
 
 # Convert data into values suitable for the db {{{
 
@@ -32,7 +29,7 @@ def sqlite_datetime(x):
 def single_text(x):
     if x is None:
         return x
-    if not isinstance(x, unicode):
+    if not isinstance(x, unicode_type):
         x = x.decode(preferred_encoding, 'replace')
     x = x.strip()
     return x if x else None
@@ -60,7 +57,7 @@ def multiple_text(sep, ui_sep, x):
         return ()
     if isinstance(x, bytes):
         x = x.decode(preferred_encoding, 'replace')
-    if isinstance(x, unicode):
+    if isinstance(x, unicode_type):
         x = x.split(sep)
     else:
         x = (y.decode(preferred_encoding, 'replace') if isinstance(y, bytes)
@@ -72,7 +69,7 @@ def multiple_text(sep, ui_sep, x):
 
 
 def adapt_datetime(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
     if x and is_date_undefined(x):
         x = UNDEFINED_DATE
@@ -80,7 +77,7 @@ def adapt_datetime(x):
 
 
 def adapt_date(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         x = parse_only_date(x)
     if x is None or is_date_undefined(x):
         x = UNDEFINED_DATE
@@ -90,14 +87,14 @@ def adapt_date(x):
 def adapt_number(typ, x):
     if x is None:
         return None
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         if not x or x.lower() == 'none':
             return None
     return typ(x)
 
 
 def adapt_bool(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         x = x.lower()
         if x == 'true':
             x = True

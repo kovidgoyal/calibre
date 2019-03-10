@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
+from polyglot.builtins import unicode_type
 from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
 
 
@@ -84,16 +85,16 @@ class PluginWidget(QWidget):
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            item.setCheckState(Qt.Checked if unicode(item.data(Qt.UserRole)) in fields else Qt.Unchecked)
+            item.setCheckState(Qt.Checked if unicode_type(item.data(Qt.UserRole)) in fields else Qt.Unchecked)
 
     def options(self):
         # Save the currently activated fields
         fields, all_fields = [], []
         for x in xrange(self.db_fields.count()):
             item = self.db_fields.item(x)
-            all_fields.append(unicode(item.data(Qt.UserRole)))
+            all_fields.append(unicode_type(item.data(Qt.UserRole)))
             if item.checkState() == Qt.Checked:
-                fields.append(unicode(item.data(Qt.UserRole)))
+                fields.append(unicode_type(item.data(Qt.UserRole)))
         set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget

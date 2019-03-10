@@ -22,6 +22,7 @@ from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
 from calibre import plugins
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
@@ -110,7 +111,7 @@ def read_utf8_char(bytes, pos):
                 raise LitError(
                     'Invalid UTF8 character: %s' % repr(bytes[pos:pos+i]))
             c = (c << 6) | (b & 0x3F)
-    return unichr(c), pos+elsize
+    return codepoint_to_chr(c), pos+elsize
 
 
 def consume_sized_utf8_string(bytes, zpad=False):
@@ -125,7 +126,7 @@ def consume_sized_utf8_string(bytes, zpad=False):
 
 
 def encode(string):
-    return unicode(string).encode('ascii', 'xmlcharrefreplace')
+    return unicode_type(string).encode('ascii', 'xmlcharrefreplace')
 
 
 class UnBinary(object):
@@ -243,9 +244,9 @@ class UnBinary(object):
                     else:
                         dynamic_tag += 1
                         errors += 1
-                        tag_name = '?'+unichr(tag)+'?'
+                        tag_name = '?'+codepoint_to_chr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
-                        print('WARNING: tag %s unknown' % unichr(tag))
+                        print('WARNING: tag %s unknown' % codepoint_to_chr(tag))
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
@@ -947,4 +948,3 @@ class LitReader(OEBReader):
                 item.media_type = 'application/xhtml+xml'
                 item.data = item._parse_xhtml(etree.tostring(item.data))
         super(LitReader, self)._spine_from_opf(opf)
-

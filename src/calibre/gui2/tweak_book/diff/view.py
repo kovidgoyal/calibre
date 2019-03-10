@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import zip
+from polyglot.builtins import unicode_type, zip
 
 import regex
 from PyQt5.Qt import (
@@ -66,7 +66,7 @@ def beautify_text(raw, syntax):
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
-    return etree.tostring(root, encoding=unicode)
+    return etree.tostring(root, encoding=unicode_type)
 
 
 class LineNumberMap(dict):  # {{{
@@ -79,7 +79,7 @@ class LineNumberMap(dict):  # {{{
         return self
 
     def __setitem__(self, k, v):
-        v = unicode(v)
+        v = unicode_type(v)
         dict.__setitem__(self, k, v)
         self.max_width = max(self.max_width, len(v))
 
@@ -166,7 +166,7 @@ class TextBrowser(PlainTextEdit):  # {{{
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction
-        i = unicode(self.textCursor().selectedText()).rstrip('\0')
+        i = unicode_type(self.textCursor().selectedText()).rstrip('\0')
         if i:
             a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.Copy)
 
@@ -215,7 +215,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         headers = dict(self.headers)
         if lnum in headers:
             cpos = self.search_header_pos
-        lines = unicode(self.toPlainText()).splitlines()
+        lines = unicode_type(self.toPlainText()).splitlines()
         for hn, text in self.headers:
             lines[hn] = text
         prefix, postfix = lines[lnum][:cpos], lines[lnum][cpos:]
@@ -306,7 +306,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         while block.isValid() and top <= ev.rect().bottom():
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
-                text = unicode(self.line_number_map.get(num, ''))
+                text = unicode_type(self.line_number_map.get(num, ''))
                 is_start = text != '-' and num in change_starts
                 if is_start:
                     painter.save()

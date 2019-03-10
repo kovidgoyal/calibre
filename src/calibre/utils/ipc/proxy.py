@@ -16,6 +16,7 @@ from functools import partial
 from calibre import as_unicode, prints
 from calibre.constants import iswindows, DEBUG
 from calibre.utils.ipc import eintr_retry_call
+from polyglot.builtins import unicode_type
 
 
 def _encode(msg):
@@ -160,10 +161,8 @@ class Server(Thread):
                     import traceback
                     # Try to tell the client process what error happened
                     try:
-                        eintr_retry_call(conn.send_bytes, (_encode(('failed', (unicode(e),
+                        eintr_retry_call(conn.send_bytes, (_encode(('failed', (unicode_type(e),
                             as_unicode(traceback.format_exc()))))))
                     except:
                         pass
                 raise
-
-

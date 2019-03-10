@@ -24,8 +24,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
-string_length = lambda x: strlen(unicode(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key_J
 MODIFIER = Qt.META if isosx else Qt.CTRL
 
@@ -94,7 +95,7 @@ escape = unescape = None
 def escape_funcs():
     global escape, unescape
     if escape is None:
-        escapem = {('\\' + x):unichr(i+1) for i, x in enumerate('\\${}')}
+        escapem = {('\\' + x):codepoint_to_chr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         escape = lambda x: escape_pat.sub(lambda m: escapem[m.group()], x.replace(r'\\', '\x01'))
         unescapem = {v:k[1] for k, v in escapem.iteritems()}
@@ -103,7 +104,7 @@ def escape_funcs():
     return escape, unescape
 
 
-class TabStop(unicode):
+class TabStop(unicode_type):
 
     def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):
         if raw.endswith('}'):
@@ -114,7 +115,7 @@ class TabStop(unicode):
             for c in child_stops:
                 c.parent = self
             tab_stops.extend(child_stops)
-            self = unicode.__new__(self, uraw)
+            self = unicode_type.__new__(self, uraw)
             if num.endswith('*'):
                 self.takes_selection = True
                 num = num[:-1]
@@ -122,7 +123,7 @@ class TabStop(unicode):
                 self.takes_selection = False
             self.num = int(num)
         else:
-            self = unicode.__new__(self, '')
+            self = unicode_type.__new__(self, '')
             self.num = int(raw[1:])
             self.takes_selection = False
         self.start = start_offset
@@ -134,7 +135,7 @@ class TabStop(unicode):
 
     def __repr__(self):
         return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
-            unicode.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
+            unicode_type.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
 
 
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):

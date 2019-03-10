@@ -21,6 +21,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 
 def is_basic_recipe(src):
@@ -118,14 +119,14 @@ def py3_repr(x):
     ans = repr(x)
     if isinstance(x, bytes) and not ans.startswith('b'):
         ans = 'b' + ans
-    if isinstance(x, unicode) and ans.startswith('u'):
+    if isinstance(x, unicode_type) and ans.startswith('u'):
         ans = ans[1:]
     return ans
 
 
 def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
     classname = 'BasicUserRecipe%d' % int(time.time())
-    title = unicode(title).strip() or classname
+    title = unicode_type(title).strip() or classname
     indent = ' ' * 8
     if feeds:
         if len(feeds[0]) == 1:
@@ -593,8 +594,8 @@ class CustomRecipes(Dialog):
         if not items:
             return
         item = items[-1]
-        id_ = unicode(item.data(Qt.UserRole) or '')
-        title = unicode(item.data(Qt.DisplayRole) or '').rpartition(' [')[0]
+        id_ = unicode_type(item.data(Qt.UserRole) or '')
+        title = unicode_type(item.data(Qt.DisplayRole) or '').rpartition(' [')[0]
         src = get_builtin_recipe_by_id(id_, download_recipe=True)
         if src is None:
             raise Exception('Something weird happened')

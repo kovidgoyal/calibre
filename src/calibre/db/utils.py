@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, cPickle, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -19,7 +19,7 @@ from calibre.utils.localization import canonicalize_lang
 
 
 def force_to_bool(val):
-    if isinstance(val, (str, unicode)):
+    if isinstance(val, (str, unicode_type)):
         try:
             val = icu_lower(val)
             if not val:

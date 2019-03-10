@@ -12,6 +12,7 @@ from PyQt5.Qt import QTimer, QApplication, Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
 
 
 class MarkBooksAction(InterfaceAction):
@@ -120,7 +121,7 @@ class MarkBooksAction(InterfaceAction):
 
     def clear_all_marked(self):
         self.gui.current_db.data.set_marked_ids(())
-        if unicode(self.gui.search.text()).startswith('marked:'):
+        if unicode_type(self.gui.search.text()).startswith('marked:'):
             self.gui.search.set_search_string('')
 
     def mark_field(self, field, add):

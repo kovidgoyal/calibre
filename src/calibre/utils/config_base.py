@@ -13,6 +13,7 @@ from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE
+from polyglot.builtins import unicode_type
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
@@ -198,7 +199,7 @@ class OptionSet(object):
         options = {'cPickle':cPickle}
         if src is not None:
             try:
-                if not isinstance(src, unicode):
+                if not isinstance(src, unicode_type):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
                 exec(src, options)
@@ -306,7 +307,7 @@ class Config(ConfigInterface):
             src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
             f.seek(0)
             f.truncate()
-            if isinstance(src, unicode):
+            if isinstance(src, unicode_type):
                 src = src.encode('utf-8')
             f.write(src)
 

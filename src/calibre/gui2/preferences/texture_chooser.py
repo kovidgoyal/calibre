@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 def texture_dir():
@@ -84,7 +85,7 @@ class TextureChooser(QDialog):
         self.update_remove_state()
 
         if initial:
-            existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+            existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -115,7 +116,7 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {unicode(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+        existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)
@@ -134,7 +135,7 @@ class TextureChooser(QDialog):
     @property
     def selected_fname(self):
         try:
-            return unicode(self.selected_item.data(Qt.UserRole) or '')
+            return unicode_type(self.selected_item.data(Qt.UserRole) or '')
         except (AttributeError, TypeError):
             pass
 
@@ -144,7 +145,7 @@ class TextureChooser(QDialog):
         if self.selected_fname.startswith(':'):
             return error_dialog(self, _('Cannot remove'),
                                 _('Cannot remove builtin textures'), show=True)
-        os.remove(unicode(self.selected_item.data(Qt.UserRole+1) or ''))
+        os.remove(unicode_type(self.selected_item.data(Qt.UserRole+1) or ''))
         self.images.takeItem(self.images.row(self.selected_item))
 
 

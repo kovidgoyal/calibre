@@ -24,6 +24,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.constants import islinux
+from polyglot.builtins import unicode_type
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -170,7 +171,7 @@ class PRST1(USBMS):
 
         with closing(sqlite.connect(dbpath)) as connection:
             # Replace undecodable characters in the db instead of erroring out
-            connection.text_factory = lambda x: unicode(x, "utf-8", "replace")
+            connection.text_factory = lambda x: unicode_type(x, "utf-8", "replace")
 
             cursor = connection.cursor()
             # Query collections

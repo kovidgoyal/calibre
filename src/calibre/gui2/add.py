@@ -11,7 +11,7 @@ from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
 from io import BytesIO
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -271,7 +271,7 @@ class Adder(QObject):
             except Failure as err:
                 error_dialog(self.pd, _('Cannot add books'), _(
                 'Failed to add some books, click "Show details" for more information.'),
-                det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+                det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
                 self.pd.canceled = True
             else:
                 # All tasks completed

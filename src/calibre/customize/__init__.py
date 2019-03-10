@@ -7,6 +7,7 @@ import os, sys, zipfile, importlib
 
 from calibre.constants import numeric_version, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import unicode_type
 
 platform = 'linux'
 if iswindows:
@@ -195,7 +196,7 @@ class Plugin(object):  # {{{
             config_dialog.exec_()
 
             if config_dialog.result() == QDialog.Accepted:
-                sc = unicode(sc.text()).strip()
+                sc = unicode_type(sc.text()).strip()
                 customize_plugin(self, sc)
 
         geom = bytearray(config_dialog.saveGeometry())

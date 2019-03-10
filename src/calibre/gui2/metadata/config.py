@@ -14,6 +14,7 @@ from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class FieldsModel(FM):  # {{{
@@ -126,10 +127,10 @@ class ConfigWidget(QWidget):
             if isinstance(w, (QSpinBox, QDoubleSpinBox)):
                 val = w.value()
             elif isinstance(w, QLineEdit):
-                val = unicode(w.text())
+                val = unicode_type(w.text())
             elif isinstance(w, QCheckBox):
                 val = w.isChecked()
             elif isinstance(w, QComboBox):
                 idx = w.currentIndex()
-                val = unicode(w.itemData(idx) or '')
+                val = unicode_type(w.itemData(idx) or '')
             self.plugin.prefs[w.opt.name] = val

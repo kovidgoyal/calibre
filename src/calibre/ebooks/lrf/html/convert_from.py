@@ -36,6 +36,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.devices.interface import DevicePlugin as Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import unicode_type
 
 
 def update_css(ncss, ocss):
@@ -54,10 +55,10 @@ def munge_paths(basepath, url):
     if not path:
         path = basepath
     elif not os.path.isabs(path):
-        if isinstance(path, unicode):
+        if isinstance(path, unicode_type):
             path = path.encode(sys.getfilesystemencoding())
         dn = os.path.dirname(basepath)
-        if isinstance(dn, unicode):
+        if isinstance(dn, unicode_type):
             dn = dn.encode(sys.getfilesystemencoding())
         path = os.path.join(dn, path)
     return os.path.normpath(path), fragment
@@ -272,7 +273,7 @@ class HTMLConverter(object):
                 update_css(npcss, self.override_pcss)
 
         paths = [os.path.abspath(path) for path in paths]
-        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode) else path for path in paths]
+        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode_type) else path for path in paths]
 
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
@@ -336,7 +337,7 @@ class HTMLConverter(object):
                          markupMassage=nmassage)
         except ConversionError as err:
             if 'Failed to coerce to unicode' in str(err):
-                raw = unicode(raw, 'utf8', 'replace')
+                raw = unicode_type(raw, 'utf8', 'replace')
                 soup = BeautifulSoup(raw,
                          convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
@@ -359,7 +360,7 @@ class HTMLConverter(object):
                 os.makedirs(tdir)
             try:
                 dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
-                dump.write(unicode(soup).encode('utf-8'))
+                dump.write(unicode_type(soup).encode('utf-8'))
                 self.log.info(_('Written preprocessed HTML to ')+dump.name)
                 dump.close()
             except:
@@ -394,7 +395,7 @@ class HTMLConverter(object):
         self.log.info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
-        if not isinstance(path, unicode):
+        if not isinstance(path, unicode_type):
             path = path.decode(sys.getfilesystemencoding())
         self.target_prefix = path
         self.previous_text = '\n'
@@ -589,7 +590,7 @@ class HTMLConverter(object):
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue
             if isinstance(c, NavigableString):
-                text += unicode(c)
+                text += unicode_type(c)
             elif isinstance(c, Tag):
                 if c.name.lower() == 'img' and c.has_key('alt'):  # noqa
                     alt_text += c['alt']
@@ -644,7 +645,7 @@ class HTMLConverter(object):
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
             ascii_text = text
 
-            if not isinstance(path, unicode):
+            if not isinstance(path, unicode_type):
                 path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
@@ -1323,7 +1324,7 @@ class HTMLConverter(object):
             bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
             if 'em' in tag_css['text-indent']:
                 bl = '10pt'
-            indent = self.unit_convert(unicode(tag_css['text-indent']), pts=True, base_length=bl)
+            indent = self.unit_convert(unicode_type(tag_css['text-indent']), pts=True, base_length=bl)
             if not indent:
                 indent = 0
             if indent > 0 and indent < 10 * self.minimum_indent:
@@ -1482,7 +1483,7 @@ class HTMLConverter(object):
                         enc = sys.getfilesystemencoding()
                         if not enc:
                             enc = 'utf8'
-                        if isinstance(path, unicode):
+                        if isinstance(path, unicode_type):
                             path = path.encode(enc, 'replace')
                         if os.access(path, os.R_OK) and os.path.isfile(path):
                             if ext in ['png', 'jpg', 'bmp', 'jpeg']:
@@ -1526,7 +1527,7 @@ class HTMLConverter(object):
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
-                    text = ''.join([unicode(i) for i in tag.findAll(text=True)])
+                    text = ''.join([unicode_type(i) for i in tag.findAll(text=True)])
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
@@ -1559,7 +1560,7 @@ class HTMLConverter(object):
                 if tag.contents:
                     c = tag.contents[0]
                     if isinstance(c, NavigableString):
-                        c = unicode(c).replace('\r\n', '\n').replace('\r', '\n')
+                        c = unicode_type(c).replace('\r\n', '\n').replace('\r', '\n')
                         if c.startswith('\n'):
                             c = c[1:]
                             tag.contents[0] = NavigableString(c)
@@ -1759,7 +1760,7 @@ class HTMLConverter(object):
                     except Exception as err:
                         self.log.warning(_('An error occurred while processing a table: %s. Ignoring table markup.')%repr(err))
                         self.log.exception('')
-                        self.log.debug(_('Bad table:\n%s')%unicode(tag)[:300])
+                        self.log.debug(_('Bad table:\n%s')%unicode_type(tag)[:300])
                         self.in_table = False
                         self.process_children(tag, tag_css, tag_pseudo_css)
                     finally:
@@ -1810,7 +1811,7 @@ class HTMLConverter(object):
 
 
 def process_file(path, options, logger):
-    if not isinstance(path, unicode):
+    if not isinstance(path, unicode_type):
         path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
@@ -1857,9 +1858,9 @@ def process_file(path, options, logger):
 
     for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
         val = getattr(options, prop, None)
-        if val and not isinstance(val, unicode):
+        if val and not isinstance(val, unicode_type):
             soup = BeautifulSoup(val)
-            setattr(options, prop, unicode(soup))
+            setattr(options, prop, unicode_type(soup))
 
     title = (options.title, options.title_sort)
     author = (options.author, options.author_sort)
@@ -1903,7 +1904,7 @@ def process_file(path, options, logger):
     options.force_page_break = fpb
     options.link_exclude = le
     options.page_break = pb
-    if not isinstance(options.chapter_regex, unicode):
+    if not isinstance(options.chapter_regex, unicode_type):
         options.chapter_regex = options.chapter_regex.decode(preferred_encoding)
     options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
     fpba = options.force_page_break_attr.split(',')

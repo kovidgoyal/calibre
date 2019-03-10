@@ -11,6 +11,7 @@ import os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.constants import numeric_version
 from calibre import walk
+from polyglot.builtins import unicode_type
 
 
 class RecipeDisabled(Exception):
@@ -161,6 +162,6 @@ class RecipeInput(InputFormatPlugin):
 
     def save_download(self, zf):
         raw = self.recipe_source
-        if isinstance(raw, unicode):
+        if isinstance(raw, unicode_type):
             raw = raw.encode('utf-8')
         zf.writestr('download.recipe', raw)

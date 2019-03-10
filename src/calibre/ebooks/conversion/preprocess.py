@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import functools, re, json
 
 from calibre import entity_to_unicode, as_unicode
+from polyglot.builtins import unicode_type
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -218,8 +219,8 @@ class Dehyphenator(object):
             wraptags = match.group('wraptags')
         except:
             wraptags = ''
-        hyphenated = unicode(firsthalf) + "-" + unicode(secondhalf)
-        dehyphenated = unicode(firsthalf) + unicode(secondhalf)
+        hyphenated = unicode_type(firsthalf) + "-" + unicode_type(secondhalf)
+        dehyphenated = unicode_type(firsthalf) + unicode_type(secondhalf)
         if self.suffixes.match(secondhalf) is None:
             lookupword = self.removesuffixes.sub('', dehyphenated)
         else:
@@ -315,7 +316,7 @@ class CSSPreProcessor(object):
         # are commented lines before the first @import or @charset rule. Since
         # the conversion will remove all stylesheets anyway, we don't lose
         # anything
-        data = re.sub(unicode(r'/\*.*?\*/'), u'', data, flags=re.DOTALL)
+        data = re.sub(unicode_type(r'/\*.*?\*/'), u'', data, flags=re.DOTALL)
 
         ans, namespaced = [], False
         for line in data.splitlines():

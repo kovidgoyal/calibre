@@ -11,6 +11,7 @@ Transform OEB content into plain text
 import re
 
 from lxml import etree
+from polyglot.builtins import unicode_type
 
 
 BLOCK_TAGS = [
@@ -72,7 +73,7 @@ class TXTMLizer(object):
             for x in item.data.iterdescendants(etree.Comment):
                 if x.text and '--' in x.text:
                     x.text = x.text.replace('--', '__')
-            content = unicode(etree.tostring(item.data, encoding=unicode))
+            content = unicode_type(etree.tostring(item.data, encoding=unicode_type))
             content = self.remove_newlines(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)

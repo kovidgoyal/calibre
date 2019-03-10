@@ -41,6 +41,7 @@ from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.db import SPOOL_SIZE
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
+from polyglot.builtins import unicode_type
 
 OK_COLOR = 'rgba(0, 255, 0, 12%)'
 ERR_COLOR = 'rgba(255, 0, 0, 12%)'
@@ -228,7 +229,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
     def current_val(self):
 
         def fget(self):
-            title = clean_text(unicode(self.text()))
+            title = clean_text(unicode_type(self.text()))
             if not title:
                 title = self.get_default()
             return title.strip()
@@ -419,7 +420,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
     def current_val(self):
 
         def fget(self):
-            au = clean_text(unicode(self.text()))
+            au = clean_text(unicode_type(self.text()))
             if not au:
                 au = self.get_default()
             return string_to_authors(au)
@@ -488,7 +489,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
     def current_val(self):
 
         def fget(self):
-            return clean_text(unicode(self.text()))
+            return clean_text(unicode_type(self.text()))
 
         def fset(self, val):
             if not val:
@@ -510,7 +511,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         return self.db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
 
     def update_state(self, *args):
-        au = unicode(self.authors_edit.text())
+        au = unicode_type(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.author_sort_from_authors(string_to_authors(au))
 
@@ -537,13 +538,13 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
             self.authors_edit.current_val = ans
 
     def auto_generate(self, *args):
-        au = unicode(self.authors_edit.text())
+        au = unicode_type(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.current_val = self.author_sort_from_authors(authors)
 
     def author_to_sort(self, *args):
-        au = unicode(self.authors_edit.text())
+        au = unicode_type(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         if au:
             self.current_val = au
@@ -616,7 +617,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
     def current_val(self):
 
         def fget(self):
-            return clean_text(unicode(self.currentText()))
+            return clean_text(unicode_type(self.currentText()))
 
         def fset(self, val):
             if not val:
@@ -1392,7 +1393,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return [clean_text(x) for x in unicode(self.text()).split(',')]
+            return [clean_text(x) for x in unicode_type(self.text()).split(',')]
 
         def fset(self, val):
             if not val:
@@ -1564,7 +1565,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     @dynamic_property
     def current_val(self):
         def fget(self):
-            raw = unicode(self.text()).strip()
+            raw = unicode_type(self.text()).strip()
             parts = [clean_text(x) for x in raw.split(',')]
             ans = {}
             for x in parts:
@@ -1638,14 +1639,14 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         if prefix == 'isbn':
             self.paste_isbn()
         else:
-            text = unicode(QApplication.clipboard().text()).strip()
+            text = unicode_type(QApplication.clipboard().text()).strip()
             if text:
                 vals = self.current_val
                 vals[prefix] = text
                 self.current_val = vals
 
     def paste_isbn(self):
-        text = unicode(QApplication.clipboard().text()).strip()
+        text = unicode_type(QApplication.clipboard().text()).strip()
         if not text or not check_isbn(text):
             d = ISBNDialog(self, text)
             if not d.exec_():
@@ -1665,7 +1666,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     def parse_clipboard_for_identifier(self):
         from calibre.ebooks.metadata.sources.prefs import msprefs
         from calibre.utils.formatter import EvalFormatter
-        text = unicode(QApplication.clipboard().text()).strip()
+        text = unicode_type(QApplication.clipboard().text()).strip()
         if not text:
             return False
 
@@ -1733,7 +1734,7 @@ class ISBNDialog(QDialog):  # {{{
         self.resize(sz)
 
     def accept(self):
-        isbn = unicode(self.line_edit.text())
+        isbn = unicode_type(self.line_edit.text())
         if not check_isbn(isbn):
             return error_dialog(self, _('Invalid ISBN'),
                     _('The ISBN you entered is not valid. Try again.'),
@@ -1741,7 +1742,7 @@ class ISBNDialog(QDialog):  # {{{
         QDialog.accept(self)
 
     def checkText(self, txt):
-        isbn = unicode(txt)
+        isbn = unicode_type(txt)
         if not isbn:
             col = 'none'
             extra = ''
@@ -1755,7 +1756,7 @@ class ISBNDialog(QDialog):  # {{{
         self.line_edit.setStyleSheet(INDICATOR_SHEET % col)
 
     def text(self):
-        return check_isbn(unicode(self.line_edit.text()))
+        return check_isbn(unicode_type(self.line_edit.text()))
 
 # }}}
 
@@ -1781,7 +1782,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     def current_val(self):
 
         def fget(self):
-            return clean_text(unicode(self.currentText()))
+            return clean_text(unicode_type(self.currentText()))
 
         def fset(self, val):
             if not val:

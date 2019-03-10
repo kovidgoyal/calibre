@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key
 from calibre.utils.iso8601 import UNDEFINED_DATE
+from polyglot.builtins import unicode_type
 
 
 class TableItem(QTableWidgetItem):
@@ -42,7 +43,7 @@ class TableItem(QTableWidgetItem):
             # self is not None and other is None therefore self >= other
             return True
 
-        if isinstance(self.sort, (str, unicode)):
+        if isinstance(self.sort, (str, unicode_type)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
         else:
@@ -65,7 +66,7 @@ class TableItem(QTableWidgetItem):
             # self is not None therefore self > other
             return False
 
-        if isinstance(self.sort, (str, unicode)):
+        if isinstance(self.sort, (str, unicode_type)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
         else:
@@ -406,7 +407,7 @@ class Quickview(QDialog, Ui_Quickview):
     def item_selected(self, txt):
         if self.no_valid_items:
             return
-        self.fill_in_books_box(unicode(txt))
+        self.fill_in_books_box(unicode_type(txt))
         self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
 
     def refresh(self, idx):
@@ -455,9 +456,9 @@ class Quickview(QDialog, Ui_Quickview):
             self.no_valid_items = False
             if self.fm[key]['datatype'] == 'rating':
                 if self.fm[key]['display'].get('allow_half_stars', False):
-                    vals = unicode(vals/2.0)
+                    vals = unicode_type(vals/2.0)
                 else:
-                    vals = unicode(vals/2)
+                    vals = unicode_type(vals/2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)

@@ -27,10 +27,11 @@ from calibre import force_unicode
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
+from polyglot.builtins import unicode_type
 
 
 def hexlify(x):
-    if isinstance(x, unicode):
+    if isinstance(x, unicode_type):
         x = x.encode('utf-8')
     return binascii.hexlify(x)
 
@@ -210,9 +211,9 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                                     fm['is_multiple']['ui_to_list'],
                                     joinval=fm['is_multiple']['list_to_ui']))))
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
-                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode_type(val))))
             else:
-                extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
+                extra.append('%s: %s<br />'%(xml(name), xml(unicode_type(val))))
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)

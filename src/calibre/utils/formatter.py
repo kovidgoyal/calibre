@@ -13,6 +13,7 @@ import re, string, traceback
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions
+from polyglot.builtins import unicode_type
 
 
 class _Parser(object):
@@ -213,7 +214,7 @@ class TemplateFormatter(string.Formatter):
             except:
                 raise ValueError(
                     _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        return unicode(('{0:'+fmt+'}').format(val))
+        return unicode_type(('{0:'+fmt+'}').format(val))
 
     def _explode_format_string(self, fmt):
         try:
@@ -272,7 +273,7 @@ class TemplateFormatter(string.Formatter):
         # ensure we are dealing with a string.
         if isinstance(val, (int, float)):
             if val:
-                val = unicode(val)
+                val = unicode_type(val)
             else:
                 val = ''
         # Handle conditional text

@@ -14,6 +14,7 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 # TODO:
 #   Support decoded entities with unifiable.
 
+from polyglot.builtins import codepoint_to_chr
 import re, sys, urllib, htmlentitydefs, codecs
 import sgmllib
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
@@ -75,7 +76,7 @@ def charref(name):
     if not UNICODE_SNOB and c in unifiable_n.keys():
         return unifiable_n[c]
     else:
-        return unichr(c)
+        return codepoint_to_chr(c)
 
 
 def entityref(c):
@@ -87,7 +88,7 @@ def entityref(c):
         except KeyError:
             return "&" + c
         else:
-            return unichr(name2cp(c))
+            return codepoint_to_chr(name2cp(c))
 
 
 def replaceEntities(s):

@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from polyglot.builtins import unicode_type
+
 
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
@@ -24,7 +26,7 @@ def create_encoder(for_json=False):
 
     def encoder(obj):
         if isinstance(obj, datetime):
-            return encoded(0, unicode(obj.isoformat()), ExtType)
+            return encoded(0, unicode_type(obj.isoformat()), ExtType)
         if isinstance(obj, (set, frozenset)):
             return encoded(1, tuple(obj), ExtType)
         if getattr(obj, '__calibre_serializable__', False):

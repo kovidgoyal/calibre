@@ -21,6 +21,7 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from polyglot.builtins import unicode_type
 
 
 def is_image(ss):
@@ -223,7 +224,7 @@ class MetadataUpdater(object):
 
     def create_exth(self, new_title=None, exth=None):
         # Add an EXTH block to record 0, rewrite the stream
-        if isinstance(new_title, unicode):
+        if isinstance(new_title, unicode_type):
             new_title = new_title.encode(self.codec, 'replace')
 
         # Fetch the existing title

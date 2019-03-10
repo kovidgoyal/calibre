@@ -14,6 +14,7 @@ from lxml import etree, html
 from calibre import xml_replace_entities, force_unicode
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
+from polyglot.builtins import unicode_type
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -116,7 +117,7 @@ def _html4_parse(data, prefer_soup=False):
     for elem in data.iter(tag=etree.Comment):
         if elem.text:
             elem.text = elem.text.strip('-')
-    data = etree.tostring(data, encoding=unicode)
+    data = etree.tostring(data, encoding=unicode_type)
 
     # Setting huge_tree=True causes crashes in windows with large files
     parser = etree.XMLParser(no_network=True)
@@ -173,7 +174,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
 
     filename = force_unicode(filename, enc=filesystem_encoding)
 
-    if not isinstance(data, unicode):
+    if not isinstance(data, unicode_type):
         if decoder is not None:
             data = decoder(data)
         else:
@@ -258,7 +259,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         nroot = etree.fromstring('<html></html>')
         has_body = False
         for child in list(data):
-            if isinstance(child.tag, (unicode, str)) and barename(child.tag) == 'body':
+            if isinstance(child.tag, (unicode_type, str)) and barename(child.tag) == 'body':
                 has_body = True
                 break
         parent = nroot
@@ -277,7 +278,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     if not namespace(data.tag):
         log.warn('Forcing', filename, 'into XHTML namespace')
         data.attrib['xmlns'] = XHTML_NS
-        data = etree.tostring(data, encoding=unicode)
+        data = etree.tostring(data, encoding=unicode_type)
 
         try:
             data = etree.fromstring(data, parser=parser)

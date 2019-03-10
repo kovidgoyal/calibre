@@ -23,6 +23,7 @@ from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import unicode_type
 
 
 class SearchDialog(QDialog, Ui_Dialog):
@@ -66,7 +67,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
-        if isinstance(query, (str, unicode)):
+        if isinstance(query, (str, unicode_type)):
             self.search_edit.setText(query)
         elif isinstance(query, dict):
             if 'author' in query:
@@ -184,11 +185,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Don't start a search if there is nothing to search for.
         query = []
         if self.search_title.text():
-            query.append(u'title2:"~%s"' % unicode(self.search_title.text()).replace('"', ' '))
+            query.append(u'title2:"~%s"' % unicode_type(self.search_title.text()).replace('"', ' '))
         if self.search_author.text():
-            query.append(u'author2:"%s"' % unicode(self.search_author.text()).replace('"', ' '))
+            query.append(u'author2:"%s"' % unicode_type(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
-            query.append(unicode(self.search_edit.text()))
+            query.append(unicode_type(self.search_edit.text()))
         query = " ".join(query)
         if not query.strip():
             error_dialog(self, _('No query'),
@@ -410,7 +411,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.searching = False
         else:
             self.searching = True
-            if unicode(self.search.text()) != self.STOP_TEXT:
+            if unicode_type(self.search.text()) != self.STOP_TEXT:
                 self.search.setText(self.STOP_TEXT)
             if not self.pi.isAnimated():
                 self.pi.startAnimation()
@@ -434,7 +435,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.save_state()
 
     def exec_(self):
-        if unicode(self.search_edit.text()).strip() or unicode(self.search_title.text()).strip() or unicode(self.search_author.text()).strip():
+        if unicode_type(self.search_edit.text()).strip() or unicode_type(self.search_title.text()).strip() or unicode_type(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec_(self)
 

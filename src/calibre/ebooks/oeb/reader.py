@@ -30,6 +30,7 @@ from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre import guess_type, xml_replace_entities
+from polyglot.builtins import unicode_type
 
 __all__ = ['OEBReader']
 
@@ -429,7 +430,7 @@ class OEBReader(object):
                     'descendant::calibre:meta[@name = "description"]')
             if descriptionElement:
                 description = etree.tostring(descriptionElement[0],
-                method='text', encoding=unicode).strip()
+                method='text', encoding=unicode_type).strip()
                 if not description:
                     description = None
             else:
@@ -454,7 +455,7 @@ class OEBReader(object):
         ncx = item.data
         title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
         title = COLLAPSE_RE.sub(' ', title.strip())
-        title = title or unicode(self.oeb.metadata.title[0])
+        title = title or unicode_type(self.oeb.metadata.title[0])
         toc = self.oeb.toc
         toc.title = title
         navmaps = xpath(ncx, 'ncx:navMap')
@@ -641,7 +642,7 @@ class OEBReader(object):
 
     def _locate_cover_image(self):
         if self.oeb.metadata.cover:
-            id = unicode(self.oeb.metadata.cover[0])
+            id = unicode_type(self.oeb.metadata.cover[0])
             item = self.oeb.manifest.ids.get(id, None)
             if item is not None and item.media_type in OEB_IMAGES:
                 return item

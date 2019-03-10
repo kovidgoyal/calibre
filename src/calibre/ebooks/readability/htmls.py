@@ -5,6 +5,7 @@ import lxml.html
 
 from calibre.ebooks.readability.cleaners import normalize_spaces, clean_attributes
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import unicode_type
 
 
 def build_doc(page):
@@ -119,6 +120,5 @@ def shorten_title(doc):
 
 def get_body(doc):
     [elem.drop_tree() for elem in doc.xpath('.//script | .//link | .//style')]
-    raw_html = unicode(tostring(doc.body or doc))
+    raw_html = unicode_type(tostring(doc.body or doc))
     return clean_attributes(raw_html)
-

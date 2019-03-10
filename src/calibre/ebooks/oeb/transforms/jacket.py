@@ -22,6 +22,7 @@ from calibre.utils.date import is_date_undefined, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
+from polyglot.builtins import unicode_type
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -104,17 +105,17 @@ class Jacket(Base):
         self.log('Inserting metadata into book...')
 
         try:
-            tags = map(unicode, self.oeb.metadata.subject)
+            tags = map(unicode_type, self.oeb.metadata.subject)
         except:
             tags = []
 
         try:
-            comments = unicode(self.oeb.metadata.description[0])
+            comments = unicode_type(self.oeb.metadata.description[0])
         except:
             comments = ''
 
         try:
-            title = unicode(self.oeb.metadata.title[0])
+            title = unicode_type(self.oeb.metadata.title[0])
         except:
             title = _('Unknown')
 
@@ -171,7 +172,7 @@ def get_rating(rating, rchar, e_rchar):
     return ans
 
 
-class Series(unicode):
+class Series(unicode_type):
 
     def __new__(self, series, series_index):
         if series and series_index is not None:
@@ -181,7 +182,7 @@ class Series(unicode):
                 escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
             combined = roman = escape(series or u'')
-        s = unicode.__new__(self, combined)
+        s = unicode_type.__new__(self, combined)
         s.roman = roman
         s.name = escape(series or u'')
         s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
@@ -189,11 +190,11 @@ class Series(unicode):
         return s
 
 
-class Tags(unicode):
+class Tags(unicode_type):
 
     def __new__(self, tags, output_profile):
         tags = [escape(x) for x in tags or ()]
-        t = unicode.__new__(self, ', '.join(tags))
+        t = unicode_type.__new__(self, ', '.join(tags))
         t.alphabetical = ', '.join(sorted(tags, key=sort_key))
         t.tags_list = tags
         return t

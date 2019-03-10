@@ -13,6 +13,7 @@ from PyQt5.Qt import Qt
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type
 
 
 class LookAndFeelWidget(Widget, Ui_Form):
@@ -54,7 +55,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
-            ans = unicode(g.itemData(g.currentIndex()) or '')
+            ans = unicode_type(g.itemData(g.currentIndex()) or '')
             return ans
         if g is self.opt_filter_css:
             ans = set()
@@ -63,10 +64,10 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 if w.isChecked():
                     ans = ans.union(item)
             ans = ans.union({x.strip().lower() for x in
-                unicode(self.filter_css_others.text()).split(',')})
+                unicode_type(self.filter_css_others.text()).split(',')})
             return ','.join(ans) if ans else None
         if g is self.opt_font_size_mapping:
-            val = unicode(g.text()).strip()
+            val = unicode_type(g.text()).strip()
             val = [x.strip() for x in val.split(',' if ',' in val else ' ') if x.strip()]
             return ', '.join(val) or None
         if g is self.opt_transform_css_rules:
@@ -76,7 +77,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
     def set_value_handler(self, g, val):
         if g is self.opt_change_justification:
             for i in range(g.count()):
-                c = unicode(g.itemData(i) or '')
+                c = unicode_type(g.itemData(i) or '')
                 if val == c:
                     g.setCurrentIndex(i)
                     break
@@ -113,7 +114,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser
         d = FontKeyChooser(self, self.opt_base_font_size.value(),
-                unicode(self.opt_font_size_mapping.text()).strip())
+                unicode_type(self.opt_font_size_mapping.text()).strip())
         if d.exec_() == d.Accepted:
             self.opt_font_size_mapping.setText(', '.join(['%.1f'%x for x in
                 d.fsizes]))

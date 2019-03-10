@@ -11,6 +11,7 @@ from urllib import unquote
 from lxml import etree
 from calibre import guess_type
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type
 
 
 class CoverManager(object):
@@ -90,14 +91,14 @@ class CoverManager(object):
             return None
         self.log('Generating default cover')
         m = self.oeb.metadata
-        title = unicode(m.title[0])
-        authors = [unicode(x) for x in m.creator if x.role == 'aut']
+        title = unicode_type(m.title[0])
+        authors = [unicode_type(x) for x in m.creator if x.role == 'aut']
         try:
             from calibre.ebooks.covers import create_cover
             series = series_index = None
             if m.series:
                 try:
-                    series, series_index = unicode(m.series[0]), m.series_index[0]
+                    series, series_index = unicode_type(m.series[0]), m.series_index[0]
                 except IndexError:
                     pass
             img_data = create_cover(title, authors, series, series_index)

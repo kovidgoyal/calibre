@@ -18,6 +18,7 @@ from calibre.constants import numeric_version
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
+from polyglot.builtins import unicode_type
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -143,7 +144,7 @@ def update_custom_recipes(script_ids):
             fname = custom_recipe_filename(id_, title)
         else:
             fname = existing[1]
-        if isinstance(script, unicode):
+        if isinstance(script, unicode_type):
             script = script.encode('utf-8')
 
         custom_recipes[id_] = (title, fname)
@@ -172,7 +173,7 @@ def add_custom_recipes(script_map):
             fid = str(id_)
 
             fname = custom_recipe_filename(fid, title)
-            if isinstance(script, unicode):
+            if isinstance(script, unicode_type):
                 script = script.encode('utf-8')
 
             custom_recipes[fid] = (title, fname)
@@ -548,8 +549,8 @@ class SchedulerConfig(object):
                         username, password = c[k]
                     except:
                         username = password = ''
-                    self.set_account_info(urn, unicode(username),
-                            unicode(password))
+                    self.set_account_info(urn, unicode_type(username),
+                            unicode_type(password))
                 except:
                     continue
         del c

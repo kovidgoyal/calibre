@@ -30,6 +30,7 @@ from calibre.gui2 import gprefs, config, rating_font, empty_index
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
+from polyglot.builtins import unicode_type
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
@@ -242,7 +243,7 @@ def paths_from_event(self, event):
     md = event.mimeData()
     if md.hasFormat('text/uri-list') and not \
             md.hasFormat('application/calibre+from_library'):
-        urls = [unicode(u.toLocalFile()) for u in md.urls()]
+        urls = [unicode_type(u.toLocalFile()) for u in md.urls()]
         return [u for u in urls if os.path.splitext(u)[1] and os.path.exists(u)]
 
 
@@ -463,7 +464,7 @@ class CoverDelegate(QStyledItemDelegate):
                 if fm and fm['datatype'] == 'rating':
                     ans = rating_to_stars(val, fm['display'].get('allow_half_stars', False))
                     is_stars = True
-            return ('' if ans is None else unicode(ans)), is_stars
+            return ('' if ans is None else unicode_type(ans)), is_stars
         except Exception:
             if DEBUG:
                 import traceback

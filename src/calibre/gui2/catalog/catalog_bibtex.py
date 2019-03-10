@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
+from polyglot.builtins import unicode_type
 from PyQt5.Qt import QWidget, QListWidgetItem
 
 
@@ -49,7 +50,7 @@ class PluginWidget(QWidget, Ui_Form):
         # Restore the activated db_fields from last use
         for x in xrange(self.db_fields.count()):
             item = self.db_fields.item(x)
-            item.setSelected(unicode(item.text()) in fields)
+            item.setSelected(unicode_type(item.text()) in fields)
         self.bibfile_enc.clear()
         self.bibfile_enc.addItems(['utf-8', 'cp1252', 'ascii/LaTeX'])
         self.bibfile_enctag.clear()
@@ -74,12 +75,12 @@ class PluginWidget(QWidget, Ui_Form):
         for x in xrange(self.db_fields.count()):
             item = self.db_fields.item(x)
             if item.isSelected():
-                fields.append(unicode(item.text()))
+                fields.append(unicode_type(item.text()))
         gprefs.set(self.name+'_db_fields', fields)
 
         # Dictionary currently activated fields
         if len(self.db_fields.selectedItems()):
-            opts_dict = {'fields':[unicode(i.text()) for i in self.db_fields.selectedItems()]}
+            opts_dict = {'fields':[unicode_type(i.text()) for i in self.db_fields.selectedItems()]}
         else:
             opts_dict = {'fields':['all']}
 
@@ -92,7 +93,7 @@ class PluginWidget(QWidget, Ui_Form):
             elif opt[0] in ['impcit', 'addfiles'] :
                 opt_value = getattr(self, opt[0]).isChecked()
             else :
-                opt_value = unicode(getattr(self, opt[0]).text())
+                opt_value = unicode_type(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
 
             opts_dict[opt[0]] = opt_value

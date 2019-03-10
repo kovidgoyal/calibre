@@ -15,6 +15,7 @@ from calibre.constants import DEBUG
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
+from polyglot.builtins import unicode_type
 
 '''
 Notes on collections:
@@ -113,7 +114,7 @@ class KINDLE(USBMS):
             match = cls.WIRELESS_FILE_NAME_PATTERN.match(os.path.basename(path))
             if match is not None:
                 mi.title = match.group('title')
-                if not isinstance(mi.title, unicode):
+                if not isinstance(mi.title, unicode_type):
                     mi.title = mi.title.decode(sys.getfilesystemencoding(),
                                                'replace')
         return mi
@@ -291,9 +292,9 @@ class KINDLE(USBMS):
                     hrTag['class'] = 'annotations_divider'
                     user_notes_soup.insert(0, hrTag)
 
-                mi.comments += unicode(user_notes_soup.prettify())
+                mi.comments += unicode_type(user_notes_soup.prettify())
             else:
-                mi.comments = unicode(user_notes_soup.prettify())
+                mi.comments = unicode_type(user_notes_soup.prettify())
             # Update library comments
             db.set_comment(db_id, mi.comments)
 
@@ -547,7 +548,7 @@ class KINDLE2(KINDLE):
                 cust_col_name = opts.extra_customization[self.OPT_APNX_METHOD_COL]
                 if cust_col_name:
                     try:
-                        temp = unicode(metadata.get(cust_col_name)).lower()
+                        temp = unicode_type(metadata.get(cust_col_name)).lower()
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:

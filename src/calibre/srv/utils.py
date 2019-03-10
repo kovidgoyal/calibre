@@ -13,7 +13,7 @@ from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from urllib import quote as urlquote
 from binascii import hexlify, unhexlify
 
@@ -287,7 +287,7 @@ def encode_path(*components):
 
 def encode_name(name):
     'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
-    if isinstance(name, unicode):
+    if isinstance(name, unicode_type):
         name = name.encode('utf-8')
     return hexlify(name)
 

@@ -9,6 +9,7 @@ import os
 from hashlib import sha1
 
 from calibre.ebooks import BOOK_EXTENSIONS
+from polyglot.builtins import unicode_type
 
 
 def find_folders_under(root, db, add_root=True,  # {{{
@@ -105,7 +106,7 @@ class FormatCollection(object):  # {{{
 
 def books_in_folder(folder, one_per_folder,  # {{{
         cancel_callback=lambda : False):
-    assert not isinstance(folder, unicode)
+    assert not isinstance(folder, unicode_type)
 
     dirpath = os.path.abspath(folder)
     if one_per_folder:

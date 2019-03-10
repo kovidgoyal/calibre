@@ -19,6 +19,7 @@ except ImportError:
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
+from polyglot.builtins import unicode_type
 
 
 class RevealBar(QWidget):  # {{{
@@ -303,7 +304,7 @@ class ToolBar(QToolBar):  # {{{
 
         mime = 'application/calibre+from_device'
         if data.hasFormat(mime):
-            paths = [unicode(u.toLocalFile()) for u in data.urls()]
+            paths = [unicode_type(u.toLocalFile()) for u in data.urls()]
             if paths:
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)

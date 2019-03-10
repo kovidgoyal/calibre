@@ -24,6 +24,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -63,7 +64,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         text = index.data(Qt.DisplayRole)
         hover = option.state & style.State_MouseOver
         if hover or gprefs['tag_browser_show_counts']:
-            count = unicode(index.data(COUNT_ROLE))
+            count = unicode_type(index.data(COUNT_ROLE))
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
             r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
@@ -377,7 +378,7 @@ class TagsView(QTreeView):  # {{{
                         with open(os.path.join(d, 'icon_' + sanitize_file_name_unicode(key)+'.png'), 'wb') as f:
                             f.write(pixmap_to_data(p, format='PNG'))
                             path = os.path.basename(f.name)
-                        self._model.set_custom_category_icon(key, unicode(path))
+                        self._model.set_custom_category_icon(key, unicode_type(path))
                         self.recount()
                 except:
                     import traceback
@@ -504,7 +505,7 @@ class TagsView(QTreeView):  # {{{
                 if not item.category_key.startswith('@'):
                     while item.parent != self._model.root_item:
                         item = item.parent
-                category = unicode(item.name or '')
+                category = unicode_type(item.name or '')
                 key = item.category_key
                 # Verify that we are working with a field that we know something about
                 if key not in self.db.field_metadata:

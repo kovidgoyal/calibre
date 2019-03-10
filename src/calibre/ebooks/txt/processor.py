@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
+from polyglot.builtins import unicode_type
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
@@ -59,7 +60,7 @@ def split_txt(txt, epub_split_size_kb=0):
     '''
     # Takes care if there is no point to split
     if epub_split_size_kb > 0:
-        if isinstance(txt, unicode):
+        if isinstance(txt, unicode_type):
             txt = txt.encode('utf-8')
         length_byte = len(txt)
         # Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)

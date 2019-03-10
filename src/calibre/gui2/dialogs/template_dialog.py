@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 
 class ParenPosition:
@@ -134,7 +135,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 i = regex.indexIn(text, i + length)
 
         if self.generate_paren_positions:
-            t = unicode(text)
+            t = unicode_type(text)
             i = 0
             foundQuote = False
             while i < len(t):
@@ -392,15 +393,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def color_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
-        c.setText(unicode(self.color_name.color))
+        c.setText(unicode_type(self.color_name.color))
 
     def icon_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
-        c.setText(unicode(self.icon_files.currentText()))
+        c.setText(unicode_type(self.icon_files.currentText()))
 
     def textbox_changed(self):
-        cur_text = unicode(self.textbox.toPlainText())
+        cur_text = unicode_type(self.textbox.toPlainText())
         if self.last_text != cur_text:
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
@@ -412,7 +413,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()
         position = cursor.position()
-        t = unicode(self.textbox.toPlainText())
+        t = unicode_type(self.textbox.toPlainText())
         if position > 0 and position <= len(t):
             block_number = cursor.blockNumber()
             pos_in_block = cursor.positionInBlock() - 1
@@ -420,7 +421,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                                               pos_in_block)
 
     def function_changed(self, toWhat):
-        name = unicode(toWhat)
+        name = unicode_type(toWhat)
         self.source_code.clear()
         self.documentation.clear()
         if name in self.funcs:
@@ -431,7 +432,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.source_code.setPlainText(self.funcs[name].program_text)
 
     def accept(self):
-        txt = unicode(self.textbox.toPlainText()).rstrip()
+        txt = unicode_type(self.textbox.toPlainText()).rstrip()
         if self.coloring:
             if self.colored_field.currentIndex() == -1:
                 error_dialog(self, _('No column chosen'),
@@ -442,12 +443,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     _('The template box cannot be empty'), show=True)
                 return
 
-            self.rule = (unicode(self.colored_field.itemData(
+            self.rule = (unicode_type(self.colored_field.itemData(
                                 self.colored_field.currentIndex()) or ''), txt)
         elif self.iconing:
-            rt = unicode(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
+            rt = unicode_type(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
             self.rule = (rt,
-                         unicode(self.icon_field.itemData(
+                         unicode_type(self.icon_field.itemData(
                                 self.icon_field.currentIndex()) or ''),
                          txt)
         elif self.embleming:

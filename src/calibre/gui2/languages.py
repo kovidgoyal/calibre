@@ -11,6 +11,7 @@ from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map_for_ui
 from calibre.utils.icu import sort_key, lower
+from polyglot.builtins import unicode_type
 
 
 class LanguagesEdit(EditWithComplete):
@@ -53,7 +54,7 @@ class LanguagesEdit(EditWithComplete):
 
     @property
     def vals(self):
-        raw = unicode(self.lineEdit().text())
+        raw = unicode_type(self.lineEdit().text())
         for k, v in self.comma_map.iteritems():
             raw = raw.replace(k, v)
         parts = [x.strip() for x in raw.split(',')]

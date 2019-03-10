@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE, XHTML
+from polyglot.builtins import unicode_type
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -444,7 +445,7 @@ class ErrorHandler(object):
     info = debug = setLevel = getEffectiveLevel = addHandler = removeHandler = __noop
 
     def __handle(self, level, *args):
-        msg = ' '.join(map(unicode, args))
+        msg = ' '.join(map(unicode_type, args))
         line = col = None
         for pat in pos_pats:
             m = pat.search(msg)

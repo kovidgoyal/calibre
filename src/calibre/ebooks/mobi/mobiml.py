@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.ebooks.mobi.utils import convert_color_for_font_tag
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 
@@ -151,7 +152,7 @@ class MobiMLizer(object):
         return "%dem" % int(round(ptsize / embase))
 
     def preize_text(self, text, pre_wrap=False):
-        text = unicode(text)
+        text = unicode_type(text)
         if pre_wrap:
             # Replace n consecutive spaces with n-1 NBSP + space
             text = re.sub(r' {2,}', lambda m:(u'\xa0'*(len(m.group())-1) + u' '), text)
@@ -228,7 +229,7 @@ class MobiMLizer(object):
                 while vspace > 0:
                     wrapper.addprevious(etree.Element(XHTML('br')))
                     vspace -= 1
-            if istate.halign != 'auto' and isinstance(istate.halign, (str, unicode)):
+            if istate.halign != 'auto' and isinstance(istate.halign, (str, unicode_type)):
                 para.attrib['align'] = istate.halign
         istate.rendered = True
         pstate = bstate.istate

@@ -11,6 +11,7 @@ from operator import itemgetter
 from lxml import etree
 
 from calibre.utils.icu import partition_by_first_letter, sort_key
+from polyglot.builtins import unicode_type
 
 
 def get_applicable_xe_fields(index, xe_fields, XPath, expand):
@@ -246,7 +247,7 @@ def polish_index_markup(index, blocks):
         a = block.xpath('descendant::a[1]')
         text = ''
         if a:
-            text = etree.tostring(a[0], method='text', with_tail=False, encoding=unicode).strip()
+            text = etree.tostring(a[0], method='text', with_tail=False, encoding=unicode_type).strip()
         if ':' in text:
             path_map[block] = parts = filter(None, (x.strip() for x in text.split(':')))
             if len(parts) > 1:

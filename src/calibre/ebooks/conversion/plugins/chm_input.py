@@ -8,6 +8,7 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import filesystem_encoding
+from polyglot.builtins import unicode_type
 
 
 class CHMInput(InputFormatPlugin):
@@ -34,7 +35,7 @@ class CHMInput(InputFormatPlugin):
 
         log.debug('Processing CHM...')
         with TemporaryDirectory('_chm2oeb') as tdir:
-            if not isinstance(tdir, unicode):
+            if not isinstance(tdir, unicode_type):
                 tdir = tdir.decode(filesystem_encoding)
             html_input = plugin_for_input_format('html')
             for opt in html_input.options:
@@ -125,7 +126,7 @@ class CHMInput(InputFormatPlugin):
         base = os.path.dirname(os.path.abspath(htmlpath))
 
         def unquote(x):
-            if isinstance(x, unicode):
+            if isinstance(x, unicode_type):
                 x = x.encode('utf-8')
             return _unquote(x).decode('utf-8')
 

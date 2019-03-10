@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
+from polyglot.builtins import unicode_type
 
 
 class DuplicatesQuestion(QDialog):
@@ -144,10 +145,10 @@ class DuplicatesQuestion(QDialog):
         for i in xrange(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             check = '✓' if x.checkState(0) == Qt.Checked else '✗'
-            title = '%s %s' % (check, unicode(x.text(0)))
+            title = '%s %s' % (check, unicode_type(x.text(0)))
             dups = []
             for child in (x.child(j) for j in xrange(x.childCount())):
-                dups.append('\t' + unicode(child.text(0)))
+                dups.append('\t' + unicode_type(child.text(0)))
             entries.append(title + '\n' + '\n'.join(dups))
         return '\n\n'.join(entries)
 

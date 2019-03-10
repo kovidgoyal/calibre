@@ -22,6 +22,7 @@ from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
+from polyglot.builtins import unicode_type
 
 
 def containsq(x, prefix):
@@ -37,7 +38,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.current_prefix = ''
 
     def set_items(self, items):
-        items = [unicode(x.strip()) for x in items]
+        items = [unicode_type(x.strip()) for x in items]
         items = [x for x in items if x]
         items = tuple(sorted(items, key=self.sort_func))
         self.beginResetModel()
@@ -111,7 +112,7 @@ class Completer(QListView):  # {{{
             return
         self.hide()
         text = self.model().data(index, Qt.DisplayRole)
-        self.item_selected.emit(unicode(text))
+        self.item_selected.emit(unicode_type(text))
 
     def set_items(self, items):
         self.model().set_items(items)
@@ -389,7 +390,7 @@ class LineEdit(QLineEdit, LineEditECM):
     def update_completions(self):
         ' Update the list of completions '
         self.original_cursor_pos = cpos = self.cursorPosition()
-        text = unicode(self.text())
+        text = unicode_type(self.text())
         prefix = text[:cpos]
         complete_prefix = prefix.lstrip()
         if self.sep:
@@ -406,7 +407,7 @@ class LineEdit(QLineEdit, LineEditECM):
                 cursor_pos = self.cursorPosition()
             self.original_cursor_pos = None
             # Split text
-            curtext = unicode(self.text())
+            curtext = unicode_type(self.text())
             before_text = curtext[:cursor_pos]
             after_text = curtext[cursor_pos:].rstrip()
             # Remove the completion prefix from the before text
@@ -426,7 +427,7 @@ class LineEdit(QLineEdit, LineEditECM):
             return before_text + completed_text, after_text
 
     def completion_selected(self, text):
-        before_text, after_text = self.get_completed_text(unicode(text))
+        before_text, after_text = self.get_completed_text(unicode_type(text))
         self.setText(before_text + after_text)
         self.setCursorPosition(len(before_text))
         self.item_selected.emit(text)
@@ -466,7 +467,7 @@ class EditWithComplete(EnComboBox):
         self.lineEdit().set_add_separator(what)
 
     def show_initial_value(self, what):
-        what = unicode(what) if what else u''
+        what = unicode_type(what) if what else u''
         self.setText(what)
         self.lineEdit().selectAll()
 
@@ -490,7 +491,7 @@ class EditWithComplete(EnComboBox):
     # }}}
 
     def text(self):
-        return unicode(self.lineEdit().text())
+        return unicode_type(self.lineEdit().text())
 
     def selectAll(self):
         self.lineEdit().selectAll()

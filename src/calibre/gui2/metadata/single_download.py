@@ -40,6 +40,7 @@ from calibre import force_unicode
 from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
+from polyglot.builtins import unicode_type
 # }}}
 
 
@@ -153,7 +154,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
 
     def data_as_text(self, book, col):
         if col == 0:
-            return unicode(book.gui_rank+1)
+            return unicode_type(book.gui_rank+1)
         if col == 1:
             t = book.title if book.title else _('Unknown')
             a = authors_to_string(book.authors) if book.authors else ''
@@ -343,12 +344,12 @@ class Comments(QWebView):  # {{{
             if col.isValid():
                 col = col.toRgb()
                 if col.isValid():
-                    ans = unicode(col.name())
+                    ans = unicode_type(col.name())
             return ans
 
         fi = QFontInfo(QApplication.font(self.parent()))
         f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
-        fam = unicode(fi.family()).strip().replace('"', '')
+        fam = unicode_type(fi.family()).strip().replace('"', '')
         if not fam:
             fam = 'sans-serif'
 
@@ -513,7 +514,7 @@ class IdentifyWidget(QWidget):  # {{{
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: %s' % identifiers['isbn']
         self.query.setText(simple_desc)
-        self.log(unicode(self.query.text()))
+        self.log(unicode_type(self.query.text()))
 
         self.worker = IdentifyWorker(self.log, self.abort, title,
                 authors, identifiers, self.caches)
@@ -842,7 +843,7 @@ class CoversView(QListView):  # {{{
             pmap = self.model().cc
         if pmap is not None:
             from calibre.gui2.viewer.image_popup import ImageView
-            d = ImageView(self, pmap, unicode(idx.data(Qt.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
+            d = ImageView(self, pmap, unicode_type(idx.data(Qt.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
 
     def copy_cover(self):

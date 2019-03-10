@@ -13,6 +13,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
 from calibre.utils.html2text import html2text
+from polyglot.builtins import unicode_type
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
@@ -49,7 +50,7 @@ def comments_to_html(comments):
     '''
     if not comments:
         return u'<p></p>'
-    if not isinstance(comments, unicode):
+    if not isinstance(comments, unicode_type):
         comments = comments.decode(preferred_encoding, 'replace')
 
     if comments.lstrip().startswith('<'):
@@ -128,7 +129,7 @@ def comments_to_html(comments):
         p['class'] = 'description'
 
     for t in result.findAll(text=True):
-        t.replaceWith(prepare_string_for_xml(unicode(t)))
+        t.replaceWith(prepare_string_for_xml(unicode_type(t)))
 
     return result.renderContents(encoding=None)
 

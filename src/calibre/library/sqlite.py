@@ -1,5 +1,4 @@
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import print_function, with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -23,6 +22,7 @@ from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import sort_key
 from calibre import prints
+from polyglot.builtins import unicode_type
 
 from dateutil.tz import tzoffset
 
@@ -321,7 +321,7 @@ class DatabaseException(Exception):
     def __init__(self, err, tb):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
         try:
-            msg = unicode(err) +'\n' + tb
+            msg = unicode_type(err) +'\n' + tb
         except:
             msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
@@ -342,7 +342,7 @@ def proxy(fn):
             ok, res = self.proxy.results.get()
             if not ok:
                 if isinstance(res[0], IntegrityError):
-                    raise IntegrityError(unicode(res[0]))
+                    raise IntegrityError(unicode_type(res[0]))
                 raise DatabaseException(*res)
             return res
     return run

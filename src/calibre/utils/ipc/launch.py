@@ -12,6 +12,7 @@ from functools import partial
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from polyglot.builtins import unicode_type
 
 if iswindows:
     import win32process
@@ -92,13 +93,13 @@ class Worker(object):
         for key in os.environ:
             try:
                 val = os.environ[key]
-                if isinstance(val, unicode):
+                if isinstance(val, unicode_type):
                     # On windows subprocess cannot handle unicode env vars
                     try:
                         val = val.encode(filesystem_encoding)
                     except ValueError:
                         val = val.encode('utf-8')
-                if isinstance(key, unicode):
+                if isinstance(key, unicode_type):
                     key = key.encode('ascii')
                 env[key] = val
             except:
@@ -156,9 +157,9 @@ class Worker(object):
         # Windows cannot handle unicode env vars
         for k, v in env.iteritems():
             try:
-                if isinstance(k, unicode):
+                if isinstance(k, unicode_type):
                     k = k.encode('ascii')
-                if isinstance(v, unicode):
+                if isinstance(v, unicode_type):
                     try:
                         v = v.encode(filesystem_encoding)
                     except:
@@ -231,6 +232,3 @@ class Worker(object):
 
         self.log_path = ret
         return ret
-
-
-

@@ -19,6 +19,7 @@ from calibre.gui2.tag_mapper import (
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 
 class RuleEdit(QWidget):  # {{{
@@ -133,14 +134,14 @@ class RuleEdit(QWidget):  # {{{
     def rule(self, rule):
         def sc(name):
             c = getattr(self, name)
-            idx = c.findData(unicode(rule.get(name, '')))
+            idx = c.findData(unicode_type(rule.get(name, '')))
             if idx < 0:
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.property.setText(unicode(rule.get('property', '')).strip())
-        self.query.setText(unicode(rule.get('query', '')).strip())
-        self.action_data.setText(unicode(rule.get('action_data', '')).strip())
+        self.property.setText(unicode_type(rule.get('property', '')).strip())
+        self.query.setText(unicode_type(rule.get('query', '')).strip())
+        self.action_data.setText(unicode_type(rule.get('action_data', '')).strip())
         self.update_state()
 
     def validate(self):

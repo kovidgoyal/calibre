@@ -8,6 +8,7 @@ from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class NameTableWidgetItem(QTableWidgetItem):
@@ -55,10 +56,10 @@ class NameTableWidgetItem(QTableWidgetItem):
         QTableWidgetItem.setText(self, txt)
 
     def __ge__(self, other):
-        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
 
     def __lt__(self, other):
-        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
 
 
 class CountTableWidgetItem(QTableWidgetItem):
@@ -230,12 +231,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             tag = item.initial_text()
             self.all_tags[tag]['cur_name'] = item.text()
             self.all_tags[tag]['is_deleted'] = item.is_deleted
-        search_for = icu_lower(unicode(self.search_box.text()))
+        search_for = icu_lower(unicode_type(self.search_box.text()))
         if len(search_for) == 0:
             self.fill_in_table(None, None)
         result = []
         for k in self.ordered_tags:
-            if search_for in icu_lower(unicode(self.all_tags[k]['cur_name'])):
+            if search_for in icu_lower(unicode_type(self.all_tags[k]['cur_name'])):
                 result.append(k)
         self.fill_in_table(result, None)
 
@@ -270,7 +271,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode(item.text())
+            self.to_rename[id_] = unicode_type(item.text())
             orig = self.table.item(item.row(), 2)
             self.table.blockSignals(True)
             orig.setData(Qt.DisplayRole, item.initial_text())
@@ -336,13 +337,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             else:
                 to_del.append(item)
         if to_del:
-            ct = ', '.join([unicode(item.text()) for item in to_del])
+            ct = ', '.join([unicode_type(item.text()) for item in to_del])
             if not confirm(
                 '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct,
                 'tag_list_editor_delete'):
                 return
         if to_undel:
-            ct = ', '.join([unicode(item.text()) for item in to_undel])
+            ct = ', '.join([unicode_type(item.text()) for item in to_undel])
             if not confirm(
                 '<p>'+_('Are you sure you want to undelete the following items?')+'<br>'+ct,
                 'tag_list_editor_undelete'):

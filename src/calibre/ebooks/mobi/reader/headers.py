@@ -16,6 +16,7 @@ from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.config_base import tweaks
+from polyglot.builtins import unicode_type
 
 NULL_INDEX = 0xffffffff
 
@@ -239,7 +240,7 @@ class BookHeader(object):
 
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
-            if not isinstance(self.title, unicode):
+            if not isinstance(self.title, unicode_type):
                 self.title = self.title.decode(self.codec, 'replace')
             if self.exth_flag & 0x40:
                 try:

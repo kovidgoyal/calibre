@@ -18,6 +18,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type
 
 
 class InvalidKFX(ValueError):
@@ -356,4 +357,4 @@ if __name__ == '__main__':
     from calibre import prints
     with open(sys.argv[-1], 'rb') as f:
         mi = read_metadata_kfx(f)
-        prints(unicode(mi))
+        prints(unicode_type(mi))

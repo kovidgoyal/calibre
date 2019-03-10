@@ -16,6 +16,7 @@ from calibre.gui2.book_details import css, details_context_menu_event, render_ht
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog
+from polyglot.builtins import unicode_type
 
 
 class Configure(Dialog):
@@ -154,9 +155,9 @@ class BookInfo(QDialog):
         self.ps = QShortcut(QKeySequence('Alt+Left'), self)
         self.ps.activated.connect(self.previous)
         self.next_button.setToolTip(_('Next [%s]')%
-                unicode(self.ns.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ns.key().toString(QKeySequence.NativeText)))
         self.previous_button.setToolTip(_('Previous [%s]')%
-                unicode(self.ps.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ps.key().toString(QKeySequence.NativeText)))
 
         geom = QCoreApplication.instance().desktop().availableGeometry(self)
         screen_height = geom.height() - 100
@@ -179,7 +180,7 @@ class BookInfo(QDialog):
                     self.refresh(self.current_row, mi=mi)
 
     def link_clicked(self, qurl):
-        link = unicode(qurl.toString(NO_URL_FORMATTING))
+        link = unicode_type(qurl.toString(NO_URL_FORMATTING))
         self.link_delegate(link)
 
     def done(self, r):

@@ -6,6 +6,7 @@ __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 import sys
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import unicode_type
 
 MAGIC = ['\x00\x01BOOKDOUG', '\x00\x02BOOKDOUG']
 
@@ -43,6 +44,6 @@ def get_metadata(stream):
         if category:
             mi.category = category
     except Exception as err:
-        msg = u'Couldn\'t read metadata from imp: %s with error %s'%(mi.title, unicode(err))
+        msg = u'Couldn\'t read metadata from imp: %s with error %s'%(mi.title, unicode_type(err))
         print(msg.encode('utf8'), file=sys.stderr)
     return mi

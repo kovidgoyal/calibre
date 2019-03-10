@@ -10,6 +10,8 @@ import sys, os
 
 from lxml import etree
 
+from polyglot.builtins import unicode_type
+
 
 class Font(object):
 
@@ -73,10 +75,10 @@ class Text(Element):
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
-                encoding=unicode)
+                encoding=unicode_type)
         self.raw = text.text if text.text else u''
         for x in text.iterchildren():
-            self.raw += etree.tostring(x, method='xml', encoding=unicode)
+            self.raw += etree.tostring(x, method='xml', encoding=unicode_type)
         self.average_character_width = self.width/len(self.text_as_string)
 
     def coalesce(self, other, page_number):
@@ -695,7 +697,3 @@ class PDFDocument(object):
         raw = (u'\n'.join(html)).replace('</strong><strong>', '')
         with open('index.html', 'wb') as f:
             f.write(raw.encode('utf-8'))
-
-
-
-

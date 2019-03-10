@@ -10,6 +10,7 @@ import sys, os
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.customize.conversion import OptionRecommendation
+from polyglot.builtins import unicode_type
 
 
 class LRFOptions(object):
@@ -17,7 +18,7 @@ class LRFOptions(object):
     def __init__(self, output, opts, oeb):
         def f2s(f):
             try:
-                return unicode(f[0])
+                return unicode_type(f[0])
             except:
                 return ''
         m = oeb.metadata
@@ -31,13 +32,13 @@ class LRFOptions(object):
         self.title_sort = self.author_sort = ''
         for x in m.creator:
             if x.role == 'aut':
-                self.author = unicode(x)
-                fa = unicode(getattr(x, 'file_as', ''))
+                self.author = unicode_type(x)
+                fa = unicode_type(getattr(x, 'file_as', ''))
                 if fa:
                     self.author_sort = fa
         for x in m.title:
-            if unicode(x.file_as):
-                self.title_sort = unicode(x.file_as)
+            if unicode_type(x.file_as):
+                self.title_sort = unicode_type(x.file_as)
         self.freetext = f2s(m.description)
         self.category = f2s(m.subject)
         self.cover = None

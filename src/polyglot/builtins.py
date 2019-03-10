@@ -26,6 +26,9 @@ if is_py3:
     map = builtins.__dict__['map']
     filter = builtins.__dict__['filter']
 
+    codepoint_to_chr = chr
+    unicode_type = str
+
     def iteritems(d):
         return iter(d.items())
 
@@ -45,6 +48,9 @@ else:
 
     from future_builtins import zip, map, filter  # noqa
     import __builtin__ as builtins
+
+    codepoint_to_chr = unichr
+    unicode_type = unicode
 
     def iteritems(d):
         return d.iteritems()

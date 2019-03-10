@@ -15,6 +15,7 @@ from functools import partial
 from threading import Lock
 
 from calibre import isbytestring, force_unicode, as_unicode, prints
+from polyglot.builtins import unicode_type
 
 
 class Stream(object):
@@ -106,7 +107,7 @@ class UnicodeHTMLStream(HTMLStream):
         for arg in args:
             if isbytestring(arg):
                 arg = force_unicode(arg)
-            elif not isinstance(arg, unicode):
+            elif not isinstance(arg, unicode_type):
                 arg = as_unicode(arg)
             self.data.append(arg+sep)
             self.plain_text.append(arg+sep)
