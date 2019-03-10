@@ -19,6 +19,7 @@ from calibre.web.feeds.recipes.collection import \
         update_custom_recipes, add_custom_recipe, add_custom_recipes, \
         remove_custom_recipe, get_custom_recipe, get_builtin_recipe
 from calibre.utils.search_query_parser import ParseException
+from polyglot.builtins import unicode_type
 
 
 class NewsTreeItem(object):
@@ -296,7 +297,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def search(self, query):
         results = []
         try:
-            query = unicode(query).strip()
+            query = unicode_type(query).strip()
             if query:
                 results = self.parse(query)
                 if not results:
@@ -413,6 +414,3 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
             for recipe in self.scheduler_config.iter_recipes():
                 ans.append(recipe.get('id'))
         return ans
-
-
-

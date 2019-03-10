@@ -11,7 +11,7 @@ import sys
 import time
 from threading import Thread
 
-from polyglot.builtins import reraise
+from polyglot.builtins import reraise, unicode_type
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
@@ -84,7 +84,7 @@ def save_initial_dir(name, title, ans, no_save_dir, is_file=False):
 
 
 def encode_arg(title):
-    if isinstance(title, unicode):
+    if isinstance(title, unicode_type):
         try:
             title = title.encode(preferred_encoding)
         except UnicodeEncodeError:

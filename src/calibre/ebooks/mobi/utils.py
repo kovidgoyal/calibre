@@ -14,6 +14,7 @@ from io import BytesIO
 from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
+from polyglot.builtins import unicode_type
 from tinycss.color3 import parse_color_string
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
@@ -317,7 +318,7 @@ def utf8_text(text):
     '''
     if text and text.strip():
         text = text.strip()
-        if not isinstance(text, unicode):
+        if not isinstance(text, unicode_type):
             text = text.decode('utf-8', 'replace')
         text = normalize(text).encode('utf-8')
     else:
@@ -625,7 +626,7 @@ def is_guide_ref_start(ref):
 
 
 def convert_color_for_font_tag(val):
-    rgba = parse_color_string(unicode(val or ''))
+    rgba = parse_color_string(unicode_type(val or ''))
     if rgba is None or rgba == 'currentColor':
         return val
     clamp = lambda x: min(x, max(0, x), 1)

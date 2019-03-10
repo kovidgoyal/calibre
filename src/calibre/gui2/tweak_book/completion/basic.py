@@ -21,6 +21,7 @@ from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
 from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import unicode_type
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -66,10 +67,10 @@ def get_data(data_conn, data_type, data=None):
     return result
 
 
-class Name(unicode):
+class Name(unicode_type):
 
     def __new__(self, name, mime_type, spine_names):
-        ans = unicode.__new__(self, name)
+        ans = unicode_type.__new__(self, name)
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
         return ans

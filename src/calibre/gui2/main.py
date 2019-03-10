@@ -28,6 +28,7 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import unicode_type
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -129,7 +130,7 @@ def get_default_library_path():
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
-    if isinstance(fname, unicode):
+    if isinstance(fname, unicode_type):
         try:
             fname = fname.encode(filesystem_encoding)
         except:
@@ -149,7 +150,7 @@ def get_library_path(gui_runner):
         base = os.path.expanduser('~')
         if not base or not os.path.exists(base):
             from PyQt5.Qt import QDir
-            base = unicode(QDir.homePath()).replace('/', os.sep)
+            base = unicode_type(QDir.homePath()).replace('/', os.sep)
         candidate = gui_runner.choose_dir(base)
         if not candidate:
             candidate = os.path.join(base, 'Calibre Library')
@@ -583,6 +584,6 @@ if __name__ == '__main__':
             log = open(logfile).read().decode('utf-8', 'ignore')
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(unicode(err),
-                    unicode(tb).replace('\n', '<br>'),
+                '%s<b>Log:</b><br>%s')%(unicode_type(err),
+                    unicode_type(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))

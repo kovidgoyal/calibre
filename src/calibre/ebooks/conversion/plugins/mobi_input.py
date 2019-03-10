@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
+from polyglot.builtins import unicode_type
 
 
 class MOBIInput(InputFormatPlugin):
@@ -49,7 +50,7 @@ class MOBIInput(InputFormatPlugin):
 
         raw = parse_cache.pop('calibre_raw_mobi_markup', False)
         if raw:
-            if isinstance(raw, unicode):
+            if isinstance(raw, unicode_type):
                 raw = raw.encode('utf-8')
             open(u'debug-raw.html', 'wb').write(raw)
         from calibre.ebooks.oeb.base import close_self_closing_tags

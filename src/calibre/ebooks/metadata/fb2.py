@@ -18,6 +18,7 @@ from calibre.utils.imghdr import identify
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import unicode_type
 
 
 NAMESPACES = {
@@ -26,7 +27,7 @@ NAMESPACES = {
     'xlink' :   'http://www.w3.org/1999/xlink'
 }
 
-tostring = partial(etree.tostring, method='text', encoding=unicode)
+tostring = partial(etree.tostring, method='text', encoding=unicode_type)
 
 
 def XLINK(tag):
@@ -112,9 +113,9 @@ def get_metadata(stream):
 
     # fallback for book_title
     if book_title:
-        book_title = unicode(book_title)
+        book_title = unicode_type(book_title)
     else:
-        book_title = force_unicode(os.path.splitext(
+        book_title = force_unicode_type(os.path.splitext(
             os.path.basename(getattr(stream, 'name',
                 _('Unknown'))))[0])
     mi = MetaInformation(book_title, authors)
@@ -249,7 +250,7 @@ def _parse_tags(root, mi, ctx):
         # -- i18n Translations-- ?
         tags = ctx.XPath('//fb:%s/fb:genre/text()' % genre_sec)(root)
         if tags:
-            mi.tags = list(map(unicode, tags))
+            mi.tags = list(map(unicode_type, tags))
             break
 
 
@@ -447,7 +448,7 @@ def ensure_namespace(doc):
                 break
     if bare_tags:
         import re
-        raw = etree.tostring(doc, encoding=unicode)
+        raw = etree.tostring(doc, encoding=unicode_type)
         raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
         doc = etree.fromstring(raw)
     return doc

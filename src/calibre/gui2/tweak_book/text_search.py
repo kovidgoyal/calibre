@@ -17,6 +17,7 @@ from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.search import get_search_regex, InvalidRegex, initialize_search_request
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
+from polyglot.builtins import unicode_type
 
 # UI {{{
 
@@ -182,7 +183,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
             else:
                 root = current_container().parsed(fname)
                 if hasattr(root, 'xpath'):
-                    raw = tostring(root, method='text', encoding=unicode, with_tail=True)
+                    raw = tostring(root, method='text', encoding=unicode_type, with_tail=True)
                 else:
                     raw = current_container().raw_data(fname)
                 if pat.search(raw) is not None:

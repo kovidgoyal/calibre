@@ -12,6 +12,7 @@ from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
         TABLE, TD, TR
 
 from calibre import strftime, isbytestring
+from polyglot.builtins import unicode_type
 
 
 def CLASS(*args, **kwargs):  # class is a reserved word in Python
@@ -73,7 +74,7 @@ class EmbeddedContent(Template):
         self.root = HTML(head,
                 BODY(H2(article.title), DIV()))
         div = self.root.find('body').find('div')
-        if elements and isinstance(elements[0], unicode):
+        if elements and isinstance(elements[0], unicode_type):
             div.text = elements[0]
             elements = list(elements)[1:]
         for elem in elements:

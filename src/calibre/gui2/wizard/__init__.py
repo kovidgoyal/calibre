@@ -25,6 +25,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import choose_dir, error_dialog
+from polyglot.builtins import unicode_type
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -503,14 +504,14 @@ class KindlePage(QWizardPage, KindleUI):
             self.to_address.setText(accs[0][0])
 
         def x():
-            t = unicode(self.to_address.text())
+            t = unicode_type(self.to_address.text())
             if t.strip():
                 return t.strip()
 
         self.send_email_widget.initialize(x)
 
     def commit(self):
-        x = unicode(self.to_address.text()).strip()
+        x = unicode_type(self.to_address.text()).strip()
         parts = x.split('@')
 
         if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
@@ -571,7 +572,7 @@ class StanzaPage(QWizardPage, StanzaUI):
             for p in range(8080, 8100):
                 try:
                     s.bind(('0.0.0.0', p))
-                    t = unicode(self.instructions.text())
+                    t = unicode_type(self.instructions.text())
                     t = re.sub(r':\d+', ':'+str(p), t)
                     self.instructions.setText(t)
                     return p
@@ -720,7 +721,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             return False
 
     def validatePage(self):
-        newloc = unicode(self.location.text())
+        newloc = unicode_type(self.location.text())
         if not self.is_library_dir_suitable(newloc):
             self.show_library_dir_error(newloc)
             return False
@@ -750,11 +751,11 @@ class LibraryPage(QWizardPage, LibraryUI):
                 self.show_library_dir_error(x)
 
     def show_library_dir_error(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, unicode_type):
             try:
                 x = x.decode(filesystem_encoding)
             except:
-                x = unicode(repr(x))
+                x = unicode_type(repr(x))
         error_dialog(self, _('Bad location'),
             _('You must choose an empty folder for '
                 'the calibre library. %s is not empty.')%x, show=True)
@@ -788,7 +789,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def isComplete(self):
         try:
-            lp = unicode(self.location.text())
+            lp = unicode_type(self.location.text())
             ans = bool(lp) and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp,
                     os.W_OK)
         except:
@@ -796,7 +797,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         return ans
 
     def commit(self):
-        newloc = unicode(self.location.text())
+        newloc = unicode_type(self.location.text())
         try:
             dln = self.default_library_name
             if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc != dln):
@@ -887,8 +888,8 @@ class Wizard(QWizard):
         QWizard.accept(self)
 
     def set_finish_text(self, *args):
-        bt = unicode("<em>" + self.buttonText(self.FinishButton) + "</em>").replace('&', '')
-        t = unicode(self.finish_page.finish_text.text())
+        bt = unicode_type("<em>" + self.buttonText(self.FinishButton) + "</em>").replace('&', '')
+        t = unicode_type(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t%bt)
 

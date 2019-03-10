@@ -11,6 +11,7 @@ from zlib import compress, decompress
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre import isbytestring
+from polyglot.builtins import unicode_type
 
 
 class Concatenate(object):
@@ -45,7 +46,7 @@ class Connection(sqlite.Connection):
 
 
 def _connect(path):
-    if isinstance(path, unicode):
+    if isinstance(path, unicode_type):
         path = path.encode('utf-8')
     conn =  sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)

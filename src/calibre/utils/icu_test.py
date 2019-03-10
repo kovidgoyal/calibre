@@ -10,6 +10,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
+from polyglot.builtins import unicode_type
 
 
 @contextmanager
@@ -164,7 +165,7 @@ class TestICU(unittest.TestCase):
         ' Test the break iterator '
         from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
-            self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+            self.ae(split(unicode_type(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
         self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
         self.ae(split(u'-one two-'), ['-one', 'two-'])

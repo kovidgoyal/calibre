@@ -15,6 +15,7 @@ from calibre.constants import iswindows, isosx
 from calibre.ebooks.mobi.utils import (utf8_text, to_base)
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.ebooks.metadata import authors_to_sort_string
+from polyglot.builtins import unicode_type
 
 EXTH_CODES = {
     'creator': 100,
@@ -62,14 +63,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         items = metadata[term]
         if term == 'creator':
             if prefer_author_sort:
-                creators = [authors_to_sort_string([unicode(c)]) for c in
+                creators = [authors_to_sort_string([unicode_type(c)]) for c in
                             items]
             else:
-                creators = [unicode(c) for c in items]
+                creators = [unicode_type(c) for c in items]
             items = creators
         elif term == 'rights':
             try:
-                rights = utf8_text(unicode(metadata.rights[0]))
+                rights = utf8_text(unicode_type(metadata.rights[0]))
             except:
                 rights = b'Unknown'
             exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
@@ -78,7 +79,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             continue
 
         for item in items:
-            data = unicode(item)
+            data = unicode_type(item)
             if term != 'description':
                 data = COLLAPSE_RE.sub(' ', data)
             if term == 'identifier':
@@ -102,14 +103,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     from calibre.ebooks.oeb.base import OPF
     for x in metadata['identifier']:
         if (x.get(OPF('scheme'), None).lower() == 'uuid' or
-                unicode(x).startswith('urn:uuid:')):
-            uuid = unicode(x).split(':')[-1]
+                unicode_type(x).startswith('urn:uuid:')):
+            uuid = unicode_type(x).split(':')[-1]
             break
     if uuid is None:
         from uuid import uuid4
         uuid = str(uuid4())
 
-    if isinstance(uuid, unicode):
+    if isinstance(uuid, unicode_type):
         uuid = uuid.encode('utf-8')
     if not share_not_sync:
         exth.write(pack(b'>II', 113, len(uuid) + 8))

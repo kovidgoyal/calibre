@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
+from polyglot.builtins import unicode_type
 
 
 class Icon(QWidget):
@@ -162,9 +163,9 @@ class MessageBox(QDialog):  # {{{
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
                 'calibre, version %s\n%s: %s\n\n%s' %
-                (__version__, unicode(self.windowTitle()),
-                    unicode(self.msg.text()),
-                    unicode(self.det_msg.toPlainText())))
+                (__version__, unicode_type(self.windowTitle()),
+                    unicode_type(self.msg.text()),
+                    unicode_type(self.det_msg.toPlainText())))
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
@@ -418,13 +419,13 @@ class JobError(QDialog):  # {{{
         QApplication.clipboard().setText(
                 u'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
                 (__version__, sys.platform, isfrozen,
-                    unicode(self.windowTitle()), unicode(d.toPlainText()),
-                    unicode(self.det_msg.toPlainText())))
+                    unicode_type(self.windowTitle()), unicode_type(d.toPlainText()),
+                    unicode_type(self.det_msg.toPlainText())))
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
     def toggle_det_msg(self, *args):
-        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
+        vis = unicode_type(self.det_msg_toggle.text()) == self.hide_det_msg
         self.det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)

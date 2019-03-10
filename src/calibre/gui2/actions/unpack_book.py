@@ -17,6 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
 from calibre.utils.config import prefs, tweaks
+from polyglot.builtins import unicode_type
 
 
 class UnpackBook(QDialog):
@@ -34,7 +35,7 @@ class UnpackBook(QDialog):
             index_is_id=True))
 
         button = self.fmt_choice_buttons[0]
-        button_map = {unicode(x.text()):x for x in self.fmt_choice_buttons}
+        button_map = {unicode_type(x.text()):x for x in self.fmt_choice_buttons}
         of = prefs['output_format'].upper()
         df = tweaks.get('default_tweak_format', None)
         lf = gprefs.get('last_tweak_format', None)
@@ -281,7 +282,7 @@ class UnpackBook(QDialog):
     def current_format(self):
         for b in self.fmt_choice_buttons:
             if b.isChecked():
-                return unicode(b.text())
+                return unicode_type(b.text())
 
 
 class UnpackBookAction(InterfaceAction):

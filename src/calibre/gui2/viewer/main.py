@@ -33,6 +33,7 @@ from calibre.utils.config import Config, JSONConfig, StringConfig
 from calibre.utils.ipc import RC, viewer_socket_address
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import BadZipfile
+from polyglot.builtins import unicode_type
 
 try:
     from calibre.utils.monotonic import monotonic
@@ -672,11 +673,11 @@ class EbookViewer(MainWindow):
         tt = '%(action)s [%(sc)s]\n'+_('Current magnification: %(mag).1f')
         sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Font larger'))
         self.action_font_size_larger.setToolTip(
-                tt %dict(action=unicode(self.action_font_size_larger.text()),
+                tt %dict(action=unicode_type(self.action_font_size_larger.text()),
                          mag=val, sc=sc))
         sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Font smaller'))
         self.action_font_size_smaller.setToolTip(
-                tt %dict(action=unicode(self.action_font_size_smaller.text()),
+                tt %dict(action=unicode_type(self.action_font_size_smaller.text()),
                          mag=val, sc=sc))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
@@ -703,10 +704,10 @@ class EbookViewer(MainWindow):
         self.load_path(self.iterator.spine[index])
 
     def find_next(self):
-        self.find(unicode(self.search.text()), repeat=True)
+        self.find(unicode_type(self.search.text()), repeat=True)
 
     def find_previous(self):
-        self.find(unicode(self.search.text()), repeat=True, backwards=True)
+        self.find(unicode_type(self.search.text()), repeat=True, backwards=True)
 
     def do_search(self, text, backwards):
         self.pending_search = None
@@ -725,7 +726,7 @@ class EbookViewer(MainWindow):
             self.history.add(self.pos.value())
             path = self.iterator.spine[self.iterator.spine.index(path)]
             if url.hasFragment():
-                frag = unicode(url.fragment())
+                frag = unicode_type(url.fragment())
             if path != self.current_page:
                 self.pending_anchor = frag
                 self.load_path(path)
@@ -931,7 +932,7 @@ class EbookViewer(MainWindow):
             num += 1
         title, ok = QInputDialog.getText(self, _('Add bookmark'),
                 _('Enter title for bookmark:'), text=bm)
-        title = unicode(title).strip()
+        title = unicode_type(title).strip()
         if ok and title:
             bm = self.view.bookmark()
             bm['spine'] = self.current_index

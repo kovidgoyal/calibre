@@ -22,6 +22,7 @@ import weakref, re
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 
 '''
@@ -55,7 +56,7 @@ class SavedSearchQueries(object):
             db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, unicode_type):
             x = x.decode(preferred_encoding, 'replace')
         return x
 
@@ -143,15 +144,15 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(u'\\"()'))
+    REPLACEMENTS = tuple((u'\\' + x, codepoint_to_chr(i + 1)) for i, x in enumerate(u'\\"()'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (unicode(r'[()]'), lambda x,t: (Parser.OPCODE, t)),
-            (unicode(r'@.+?:[^")\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
-            (unicode(r'[^"()\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
-            (unicode(r'".*?((?<!\\)")'), lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (unicode(r'\s+'),              None)
+            (unicode_type(r'[()]'), lambda x,t: (Parser.OPCODE, t)),
+            (unicode_type(r'@.+?:[^")\s]+'), lambda x,t: (Parser.WORD, unicode_type(t))),
+            (unicode_type(r'[^"()\s]+'), lambda x,t: (Parser.WORD, unicode_type(t))),
+            (unicode_type(r'".*?((?<!\\)")'), lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (unicode_type(r'\s+'),              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):

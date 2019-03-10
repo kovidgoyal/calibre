@@ -8,6 +8,7 @@ import re, cStringIO, codecs
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -75,7 +76,7 @@ def detect_codepage(stream):
 
 
 def encode(unistr):
-    if not isinstance(unistr, unicode):
+    if not isinstance(unistr, unicode_type):
         unistr = force_unicode(unistr)
     return ''.join([str(c) if ord(c) < 128 else '\\u' + str(ord(c)) + '?' for c in unistr])
 
@@ -88,7 +89,7 @@ def decode(raw, codec):
         raw = raw.decode(codec)
 
     def uni(match):
-        return unichr(int(match.group(1)))
+        return codepoint_to_chr(int(match.group(1)))
     raw = re.sub(r'\\u([0-9]{3,4}).', uni, raw)
     return raw
 
@@ -232,4 +233,3 @@ def set_metadata(stream, options):
         stream.truncate()
         stream.write(src)
         stream.write(after)
-

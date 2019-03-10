@@ -22,6 +22,7 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import safe_chr as chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
+from polyglot.builtins import unicode_type
 
 ROOT = QModelIndex()
 
@@ -766,7 +767,7 @@ class CharSelect(Dialog):
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
-        text = unicode(self.search.text()).strip()
+        text = unicode_type(self.search.text()).strip()
         if not text:
             return self.clear_search()
         with BusyCursor():

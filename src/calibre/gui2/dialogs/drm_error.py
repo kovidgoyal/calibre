@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import QDialog
 from calibre.gui2.dialogs.drm_error_ui import Ui_Dialog
+from polyglot.builtins import unicode_type
 
 
 class DRMErrorMessage(QDialog, Ui_Dialog):
@@ -16,7 +17,6 @@ class DRMErrorMessage(QDialog, Ui_Dialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         if title is not None:
-            t = unicode(self.msg.text())
+            t = unicode_type(self.msg.text())
             self.msg.setText('<h2>%s</h2>%s'%(title, t))
         self.resize(self.sizeHint())
-

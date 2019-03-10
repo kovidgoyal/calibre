@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from functools import partial
 from itertools import product
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 from PyQt5.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
@@ -273,7 +273,7 @@ class Main(MainWindow):
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
         self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
-        la.base_template = unicode(la.text())
+        la.base_template = unicode_type(la.text())
         self.status_bar.addWidget(la)
         f = self.status_bar.font()
         f.setBold(True)
@@ -324,7 +324,7 @@ class Main(MainWindow):
             if isinstance(keys, type('')):
                 keys = (keys,)
             self.keyboard.register_shortcut(
-                sid, unicode(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
+                sid, unicode_type(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
 
@@ -622,7 +622,7 @@ class Main(MainWindow):
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
-            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode(x.text()))):
+            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode_type(x.text()))):
                 e.addAction(ac)
 
         e = b.addMenu(_('&Help'))
@@ -674,7 +674,7 @@ class Main(MainWindow):
                     bar.addAction(actions[ac])
                 except KeyError:
                     if DEBUG:
-                        prints('Unknown action for toolbar %r: %r' % (unicode(bar.objectName()), ac))
+                        prints('Unknown action for toolbar %r: %r' % (unicode_type(bar.objectName()), ac))
 
         for x in tprefs['global_book_toolbar']:
             add(self.global_bar, x)

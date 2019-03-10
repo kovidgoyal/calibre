@@ -18,6 +18,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
+from polyglot.builtins import unicode_type
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -345,7 +346,7 @@ class CreateNewTheme(Dialog):
 
     @property
     def theme_name(self):
-        return unicode(self._name.text()).strip()
+        return unicode_type(self._name.text()).strip()
 
     def accept(self):
         if not self.theme_name:
@@ -474,7 +475,7 @@ class Property(QWidget):
         l.addStretch(1)
 
     def us_changed(self):
-        self.data['underline'] = unicode(self.underline.currentText()) or None
+        self.data['underline'] = unicode_type(self.underline.currentText()) or None
         self.changed.emit()
 
 # Help text {{{
@@ -618,7 +619,7 @@ class ThemeEditor(Dialog):
             data[k] = dict(THEMES[default_theme()][k]._asdict())
             for nk, nv in data[k].iteritems():
                 if isinstance(nv, QBrush):
-                    data[k][nk] = unicode(nv.color().name())
+                    data[k][nk] = unicode_type(nv.color().name())
         if extra or missing:
             tprefs['custom_themes'][name] = data
         return data
@@ -632,7 +633,7 @@ class ThemeEditor(Dialog):
             c.setParent(None)
             c.deleteLater()
         self.properties = []
-        name = unicode(self.theme.currentText())
+        name = unicode_type(self.theme.currentText())
         if not name:
             return
         data = self.update_theme(name)
@@ -649,7 +650,7 @@ class ThemeEditor(Dialog):
 
     @property
     def theme_name(self):
-        return unicode(self.theme.currentText())
+        return unicode_type(self.theme.currentText())
 
     def changed(self):
         name = self.theme_name
@@ -660,7 +661,7 @@ class ThemeEditor(Dialog):
         d = CreateNewTheme(self)
         if d.exec_() == d.Accepted:
             name = '*' + d.theme_name
-            base = unicode(d.base.currentText())
+            base = unicode_type(d.base.currentText())
             theme = {}
             for key, val in THEMES[base].iteritems():
                 theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().iteritems()}

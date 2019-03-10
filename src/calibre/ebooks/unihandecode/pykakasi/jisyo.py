@@ -4,6 +4,8 @@
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>
 from zlib import decompress
 
+from calibre.constants import ispy3
+
 
 class jisyo (object):
     kanwadict = None
@@ -32,10 +34,9 @@ class jisyo (object):
                 P('localization/pykakasi/kanadict2.calibre_msgpack', data=True))
 
     def load_jisyo(self, char):
-        try:  # python2
-            key = "%04x"%ord(unicode(char))
-        except:  # python3
-            key = "%04x"%ord(char)
+        if not ispy3:
+            char = unicode(char)
+        key = "%04x"%ord(char)
 
         try:  # already exist?
             table = self.jisyo_table[key]

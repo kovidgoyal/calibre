@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, binascii, cPickle, ssl, json
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
@@ -56,7 +56,7 @@ def get_newest_version():
     except UnicodeDecodeError:
         version = u''
     ans = NO_CALIBRE_UPDATE
-    m = re.match(unicode(r'(\d+)\.(\d+).(\d+)$'), version)
+    m = re.match(unicode_type(r'(\d+)\.(\d+).(\d+)$'), version)
     if m is not None:
         ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
     return ans
@@ -195,7 +195,7 @@ class UpdateMixin(object):
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
         version_url = binascii.hexlify(cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
-        calibre_version = u'.'.join(map(unicode, calibre_version))
+        calibre_version = u'.'.join(map(unicode_type, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
@@ -246,7 +246,7 @@ class UpdateMixin(object):
             plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
     def update_link_clicked(self, url):
-        url = unicode(url)
+        url = unicode_type(url)
         if url.startswith('update:'):
             calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)

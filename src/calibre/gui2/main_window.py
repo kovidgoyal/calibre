@@ -12,6 +12,7 @@ from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
 from calibre import prints
+from polyglot.builtins import unicode_type
 
 
 def option_parser(usage='''\
@@ -144,7 +145,7 @@ class MainWindow(QMainWindow):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
-            msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
+            msg = '<b>%s</b>:'%type.__name__ + unicode_type(str(value), 'utf8', 'replace')
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:

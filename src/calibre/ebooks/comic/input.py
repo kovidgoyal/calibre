@@ -16,6 +16,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
+from polyglot.builtins import unicode_type
 
 # If the specified screen has either dimension larger than this value, no image
 # rescaling is done (we assume that it is a tablet output profile)
@@ -27,7 +28,7 @@ def extract_comic(path_to_comic_file):
     Un-archive the comic file.
     '''
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
-    if not isinstance(tdir, unicode):
+    if not isinstance(tdir, unicode_type):
         # Needed in case the zip file has wrongly encoded unicode file/dir
         # names
         tdir = tdir.decode(filesystem_encoding)
@@ -273,6 +274,3 @@ def process_pages(pages, opts, update, tdir):
         ans += pages
         failures += failures_
     return ans, failures
-
-
-

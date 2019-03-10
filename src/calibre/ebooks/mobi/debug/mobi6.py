@@ -20,6 +20,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
+from polyglot.builtins import unicode_type
 
 
 class TagX(object):  # {{{
@@ -564,7 +565,7 @@ class TBSIndexing(object):  # {{{
 
     def get_index(self, idx):
         for i in self.indices:
-            if i.index in {idx, unicode(idx)}:
+            if i.index in {idx, unicode_type(idx)}:
                 return i
         raise IndexError('Index %d not found'%idx)
 
@@ -844,5 +845,3 @@ def inspect_mobi(mobi_file, ddir):
 
 
 # }}}
-
-

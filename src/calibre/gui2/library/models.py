@@ -30,6 +30,7 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
+from polyglot.builtins import unicode_type
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -942,7 +943,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
                 values = cc.get('enum_values', [])
-                txt = unicode(index.data(Qt.DisplayRole) or '')
+                txt = unicode_type(index.data(Qt.DisplayRole) or '')
                 if len(colors) > 0 and txt in values:
                     try:
                         color = QColor(colors[values.index(txt)])
@@ -1055,10 +1056,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
         if typ in ('text', 'comments'):
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             val = val if val else None
         elif typ == 'enumeration':
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             if not val:
                 val = None
         elif typ == 'bool':
@@ -1069,7 +1070,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if value == 0:
                 val = '0'
             else:
-                val = unicode(value or '').strip()
+                val = unicode_type(value or '').strip()
             if not val:
                 val = None
         elif typ == 'datetime':
@@ -1081,7 +1082,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             if val:
                 pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
@@ -1095,7 +1096,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
-            tmpl = unicode(value or '').strip()
+            tmpl = unicode_type(value or '').strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display=disp,
@@ -1151,7 +1152,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(u'\\s', u' ', unicode(value or '').strip()))
+                    else re.sub(u'\\s', u' ', unicode_type(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = {id}
             if column == 'rating':
@@ -1714,7 +1715,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             cname = self.column_map[col]
             if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             idx = self.map[row]
             if cname == 'collections':
                 tags = [i.strip() for i in val.split(',')]

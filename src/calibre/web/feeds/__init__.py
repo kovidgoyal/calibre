@@ -12,6 +12,7 @@ from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
+from polyglot.builtins import unicode_type
 
 
 class Article(object):
@@ -33,16 +34,16 @@ class Article(object):
         self.url = url
         self.author = author
         self.toc_thumbnail = None
-        if author and not isinstance(author, unicode):
+        if author and not isinstance(author, unicode_type):
             author = author.decode('utf-8', 'replace')
-        if summary and not isinstance(summary, unicode):
+        if summary and not isinstance(summary, unicode_type):
             summary = summary.decode('utf-8', 'replace')
         summary = clean_xml_chars(summary) if summary else summary
         self.summary = summary
         if summary and '<' in summary:
             try:
                 s = html.fragment_fromstring(summary, create_parent=True)
-                summary = html.tostring(s, method='text', encoding=unicode)
+                summary = html.tostring(s, method='text', encoding=unicode_type)
             except:
                 print('Failed to process article summary, deleting:')
                 print(summary.encode('utf-8'))
@@ -66,7 +67,7 @@ class Article(object):
             return self._formatted_date
 
         def fset(self, val):
-            if isinstance(val, unicode):
+            if isinstance(val, unicode_type):
                 self._formatted_date = val
 
         return property(fget=fget, fset=fset)
@@ -75,7 +76,7 @@ class Article(object):
     def title(self):
         def fget(self):
             t = self._title
-            if not isinstance(t, unicode) and hasattr(t, 'decode'):
+            if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
                 t = t.decode('utf-8', 'replace')
             return t
 
@@ -143,7 +144,7 @@ class Feed(object):
 
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
                            max_articles_per_feed=100):
-        self.title      = unicode(title if title else _('Unknown feed'))
+        self.title      = unicode_type(title if title else _('Unknown feed'))
         self.description = ''
         self.image_url  = None
         self.articles   = []
@@ -208,7 +209,7 @@ class Feed(object):
         author = item.get('author', None)
 
         content = [i.value for i in item.get('content', []) if i.value]
-        content = [i if isinstance(i, unicode) else i.decode('utf-8', 'replace')
+        content = [i if isinstance(i, unicode_type) else i.decode('utf-8', 'replace')
                 for i in content]
         content = u'\n'.join(content)
         if not content.strip():
@@ -224,7 +225,7 @@ class Feed(object):
                 self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
                                   (title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
             except UnicodeDecodeError:
-                if not isinstance(title, unicode):
+                if not isinstance(title, unicode_type):
                     title = title.decode('utf-8', 'replace')
                 self.logger.debug('Skipping article %s as it is too old'%title)
 

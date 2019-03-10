@@ -15,6 +15,7 @@ from calibre.gui2.tag_mapper import (
     Tester as TesterBase
 )
 from calibre.utils.config import JSONConfig
+from polyglot.builtins import unicode_type
 
 author_maps = JSONConfig('author-mapping-rules')
 
@@ -66,13 +67,13 @@ class RuleEdit(RuleEditBase):
     def rule(self, rule):
         def sc(name):
             c = getattr(self, name)
-            idx = c.findData(unicode(rule.get(name, '')))
+            idx = c.findData(unicode_type(rule.get(name, '')))
             if idx < 0:
                 idx = 0
             c.setCurrentIndex(idx)
         sc('match_type'), sc('action')
-        self.query.setText(unicode(rule.get('query', '')).strip())
-        self.replace.setText(unicode(rule.get('replace', '')).strip())
+        self.query.setText(unicode_type(rule.get('query', '')).strip())
+        self.replace.setText(unicode_type(rule.get('replace', '')).strip())
 
 
 class RuleEditDialog(RuleEditDialogBase):

@@ -21,6 +21,7 @@ from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import unicode_type
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -265,7 +266,7 @@ class CSSFlattener(object):
 
             cfont = {
                     u'font-family':u'"%s"'%font['font-family'],
-                    u'panose-1': u' '.join(map(unicode, font['panose'])),
+                    u'panose-1': u' '.join(map(unicode_type, font['panose'])),
                     u'src': u'url(%s)'%item.href,
             }
 

@@ -34,6 +34,7 @@ from calibre.gui2.dnd import (
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
+from polyglot.builtins import unicode_type
 
 _css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
@@ -57,7 +58,7 @@ def css():
         val = P('templates/book_details.css', data=True).decode('utf-8')
         col = QApplication.instance().palette().color(QPalette.Link).name()
         val = val.replace('LINK_COLOR', col)
-        _css = re.sub(unicode(r'/\*.*?\*/'), u'', val, flags=re.DOTALL)
+        _css = re.sub(unicode_type(r'/\*.*?\*/'), u'', val, flags=re.DOTALL)
     return _css
 
 
@@ -114,12 +115,12 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         if col.isValid():
             col = col.toRgb()
             if col.isValid():
-                ans = unicode(col.name())
+                ans = unicode_type(col.name())
         return ans
 
     fi = QFontInfo(QApplication.font(widget))
     f = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-    fam = unicode(fi.family()).strip().replace('"', '')
+    fam = unicode_type(fi.family()).strip().replace('"', '')
     if not fam:
         fam = 'sans-serif'
 
@@ -195,7 +196,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
     p = view.page()
     mf = p.mainFrame()
     r = mf.hitTestContent(ev.pos())
-    url = unicode(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
+    url = unicode_type(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
     menu = p.createStandardContextMenu()
     ca = view.pageAction(p.Copy)
     for action in list(menu.actions()):
@@ -264,7 +265,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
         else:
             el = r.linkElement()
             data = el.attribute('data-item')
-            author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
+            author = el.toPlainText() if unicode_type(el.attribute('calibre-data')) == u'authors' else None
             if url and not url.startswith('search:'):
                 for a, t in [('copy', _('&Copy link')),
                 ]:
@@ -623,9 +624,9 @@ class BookInfo(QWebView):
 
     def link_activated(self, link):
         self._link_clicked = True
-        if unicode(link.scheme()) in ('http', 'https'):
+        if unicode_type(link.scheme()) in ('http', 'https'):
             return open_url(link)
-        link = unicode(link.toString(NO_URL_FORMATTING))
+        link = unicode_type(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
     def turnoff_scrollbar(self, *args):

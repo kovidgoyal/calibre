@@ -13,6 +13,7 @@ from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
+from polyglot.builtins import unicode_type
 
 
 def browser_item(f, parent):
@@ -200,11 +201,11 @@ class IgnoredFolders(QDialog):
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.Checked:
                     continue
-                path = unicode(node.data(0, Qt.UserRole) or '')
+                path = unicode_type(node.data(0, Qt.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))
-            ans[unicode(w.storage.storage_id)] = list(folders)
+            ans[unicode_type(w.storage.storage_id)] = list(folders)
         return ans
 
 

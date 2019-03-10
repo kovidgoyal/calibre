@@ -11,6 +11,7 @@ from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
+from polyglot.builtins import unicode_type
 from tinycss.fonts3 import parse_font_family
 
 
@@ -35,7 +36,7 @@ def get_font_properties(rule, default=None):
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):
             val = None if q in {'src', 'font-family'} else default
         if q in {'font-weight', 'font-stretch', 'font-style'}:
-            val = unicode(val).lower() if (val or val == 0) else val
+            val = unicode_type(val).lower() if (val or val == 0) else val
             if val == 'inherit':
                 val = default
         if q == 'font-weight':
@@ -236,7 +237,7 @@ class SubsetFonts(object):
         no match is found (can happen if no family matches).
         '''
         ff = style.get('font-family', [])
-        lnames = {unicode(x).lower() for x in ff}
+        lnames = {unicode_type(x).lower() for x in ff}
         matching_set = []
 
         # Filter on font-family
@@ -314,6 +315,3 @@ class SubsetFonts(object):
             chars = self.find_chars(elem)
             if chars:
                 font['chars'] |= chars
-
-
-

@@ -6,6 +6,7 @@ import struct, array, zlib, cStringIO, collections, re
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre import entity_to_unicode, prepare_string_for_xml
 from calibre.ebooks.lrf.tags import Tag
+from polyglot.builtins import unicode_type
 
 ruby_tags = {
         0xF575: ['rubyAlignAndAdjust', 'W'],
@@ -88,10 +89,10 @@ class LRFObject(object):
             yield i
 
     def __unicode__(self):
-        return unicode(self.__class__.__name__)
+        return unicode_type(self.__class__.__name__)
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return unicode_type(self).encode('utf-8')
 
 
 class LRFContentObject(LRFObject):
@@ -255,7 +256,7 @@ class Color(object):
         return u'0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
 
     def __str__(self):
-        return unicode(self)
+        return unicode_type(self)
 
     def __len__(self):
         return 4
@@ -274,7 +275,7 @@ class EmptyPageElement(object):
             yield i
 
     def __str__(self):
-        return unicode(self)
+        return unicode_type(self)
 
 
 class PageDiv(EmptyPageElement):
@@ -429,12 +430,12 @@ class Page(LRFStream):
     def __unicode__(self):
         s = u'\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
         for i in self:
-            s += unicode(i)
+            s += unicode_type(i)
         s += '\n</Page>\n'
         return s
 
     def __str__(self):
-        return unicode(self)
+        return unicode_type(self)
 
     def to_html(self):
         s = u''
@@ -619,7 +620,7 @@ class Block(LRFStream, TextCSS):
             s += '%s="%s" '%(attr, self.attrs[attr])
         if self.name != 'ImageBlock':
             s = s.rstrip()+'>\n'
-            s += unicode(self.content)
+            s += unicode_type(self.content)
             s += '</%s>\n'%(self.name,)
             return s
         return s.rstrip() + ' />\n'
@@ -717,7 +718,7 @@ class Text(LRFStream):
     lineposition_map = {1:'before', 2:'after'}
 
     def add_text(self, text):
-        s = unicode(text, "utf-16-le")
+        s = unicode_type(text, "utf-16-le")
         if s:
             s = s.translate(self.text_map)
             self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
@@ -888,7 +889,7 @@ class Text(LRFStream):
                     p = open_containers.pop()
                     s += u'</%s>'%(p.name,)
             else:
-                s += unicode(c)
+                s += unicode_type(c)
                 if not c.self_closing:
                     open_containers.append(c)
 
@@ -1001,7 +1002,7 @@ class Canvas(LRFStream):
             s += '%s="%s" '%(attr, self.attrs[attr])
         s = s.rstrip() + '>\n'
         for po in self:
-            s += unicode(po) + '\n'
+            s += unicode_type(po) + '\n'
         s += '</%s>\n'%(self.__class__.__name__,)
         return s
 
@@ -1198,7 +1199,7 @@ class BookAttr(StyleObject, LRFObject):
         s += u'<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
         (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth)
         for font in self._document.font_map.values():
-            s += unicode(font)
+            s += unicode_type(font)
         s += '</BookStyle>\n'
         return s
 
@@ -1239,7 +1240,7 @@ class TOCObject(LRFStream):
     def __unicode__(self):
         s = u'<TOC>\n'
         for i in self:
-            s += unicode(i)
+            s += unicode_type(i)
         return s + '</TOC>\n'
 
 
@@ -1288,5 +1289,3 @@ def get_object(document, stream, id, offset, size, scramble_key):
         return object_map[obj_type](document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
 
     raise LRFParseError("Unknown object type: %02X!" % obj_type)
-
-

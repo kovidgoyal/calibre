@@ -26,6 +26,7 @@ from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
+from polyglot.builtins import unicode_type
 
 
 class UpdateEditorGeometry(object):
@@ -193,7 +194,7 @@ def get_val_for_textlike_columns(index_):
         ct = ''
     else:
         ct = index_.data(Qt.DisplayRole) or ''
-    return unicode(ct)
+    return unicode_type(ct)
 
 # }}}
 
@@ -611,7 +612,7 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setModelData(self, editor, model, index):
-        val = unicode(editor.currentText())
+        val = unicode_type(editor.currentText())
         if not val:
             val = None
         model.setData(index, (val), Qt.EditRole)

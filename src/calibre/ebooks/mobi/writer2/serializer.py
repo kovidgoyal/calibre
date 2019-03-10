@@ -13,6 +13,7 @@ from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
+from polyglot.builtins import unicode_type
 
 from collections import defaultdict
 from urlparse import urldefrag
@@ -220,7 +221,7 @@ class Serializer(object):
                 buf.write('<div> <div height="1em"></div>')
             else:
                 t = tocref.title
-                if isinstance(t, unicode):
+                if isinstance(t, unicode_type):
                     t = t.encode('utf-8')
                 buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
                           '</b></font></h2> <div height="1em"></div>')
@@ -240,7 +241,7 @@ class Serializer(object):
                 buf.write('0000000000')
                 buf.write(' ><font size="+1"><b><u>')
                 t = tocitem.title
-                if isinstance(t, unicode):
+                if isinstance(t, unicode_type):
                     t = t.encode('utf-8')
                 buf.write(t)
                 buf.write('</u></b></font></a></li>')
@@ -358,7 +359,7 @@ class Serializer(object):
         text = text.replace(u'\u00AD', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        if isinstance(text, unicode):
+        if isinstance(text, unicode_type):
             text = unicodedata.normalize('NFC', text)
         self.buf.write(text.encode('utf-8'))
 
@@ -384,5 +385,3 @@ class Serializer(object):
                 for hoff in hoffs:
                     buf.seek(hoff)
                     buf.write(b'%010d' % ioff)
-
-

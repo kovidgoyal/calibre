@@ -12,6 +12,7 @@ from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.customize.ui import input_profiles, output_profiles
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type
 
 
 class ProfileModel(QAbstractListModel):
@@ -60,13 +61,13 @@ class PageSetupWidget(Widget, Ui_Form):
             x.setMouseTracking(True)
             x.entered[(QModelIndex)].connect(self.show_desc)
         self.initialize_options(get_option, get_help, db, book_id)
-        it = unicode(self.opt_input_profile.toolTip())
+        it = unicode_type(self.opt_input_profile.toolTip())
         self.opt_input_profile.setToolTip('<p>'+it.replace('t.','t.\n<br>'))
-        it = unicode(self.opt_output_profile.toolTip())
+        it = unicode_type(self.opt_output_profile.toolTip())
         self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
 
     def show_desc(self, index):
-        desc = unicode(index.model().data(index, Qt.StatusTipRole) or '')
+        desc = unicode_type(index.model().data(index, Qt.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
     def connect_gui_obj_handler(self, g, slot):

@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -128,7 +128,7 @@ class BuildTest(unittest.TestCase):
         winutil = plugins['winutil'][0]
 
         def au(x, name):
-            self.assertTrue(isinstance(x, unicode), name + '() did not return a unicode string')
+            self.assertTrue(isinstance(x, unicode_type), name + '() did not return a unicode string')
         for x in winutil.argv():
             au(x, 'argv')
         for x in 'username temp_path locale_name'.split():
@@ -139,7 +139,7 @@ class BuildTest(unittest.TestCase):
         for k, v in d.iteritems():
             au(v, k)
         for k in os.environ.keys():
-            au(winutil.getenv(unicode(k)), 'getenv-' + k)
+            au(winutil.getenv(unicode_type(k)), 'getenv-' + k)
         os.environ['XXXTEST'] = 'YYY'
         self.assertEqual(winutil.getenv(u'XXXTEST'), u'YYY')
         del os.environ['XXXTEST']
@@ -149,7 +149,7 @@ class BuildTest(unittest.TestCase):
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
-            self.assertEqual(unicode(time.strftime(fmt.replace('%e', '%#d'), t)), x)
+            self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
 
     def test_sqlite(self):
         import sqlite3
@@ -173,7 +173,7 @@ class BuildTest(unittest.TestCase):
         # it should just work because the hard-coded paths of the Qt
         # installation should work. If they do not, then it is a distro
         # problem.
-        fmts = set(map(unicode, QImageReader.supportedImageFormats()))
+        fmts = set(map(unicode_type, QImageReader.supportedImageFormats()))
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = P('images/blank.png', allow_user_override=False, data=True)

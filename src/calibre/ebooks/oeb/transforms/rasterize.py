@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
 KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
@@ -222,11 +223,11 @@ class SVGRasterizer(object):
         covers = self.oeb.metadata.cover
         if not covers:
             return
-        if unicode(covers[0]) not in self.oeb.manifest.ids:
+        if unicode_type(covers[0]) not in self.oeb.manifest.ids:
             self.oeb.logger.warn('Cover not in manifest, skipping.')
             self.oeb.metadata.clear('cover')
             return
-        cover = self.oeb.manifest.ids[unicode(covers[0])]
+        cover = self.oeb.manifest.ids[unicode_type(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
         width = (self.profile.width / 72) * self.profile.dpi

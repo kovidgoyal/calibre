@@ -504,8 +504,6 @@ class Table(object):
 
     def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
         cs = CellStyle(self.namespace)
-        # from lxml.etree import tostring
-        # txt = tostring(tc, method='text', encoding=unicode)
         for o in overrides:
             if o in self.overrides:
                 ovr = self.overrides[o]
@@ -699,4 +697,3 @@ class Tables(object):
         table = self.para_map.get(p, None)
         if table is not None:
             return table.style_map.get(p, (None, None))[1]
-

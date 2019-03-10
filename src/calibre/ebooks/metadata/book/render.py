@@ -20,6 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
+from polyglot.builtins import unicode_type
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')
 
@@ -163,7 +164,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 path = force_unicode(mi.path, filesystem_encoding)
                 scheme = u'devpath' if isdevice else u'path'
                 url = prepare_string_for_xml(path if isdevice else
-                        unicode(book_id), True)
+                        unicode_type(book_id), True)
                 pathstr = _('Click to open')
                 extra = ''
                 if isdevice:

@@ -18,6 +18,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
+from polyglot.builtins import unicode_type
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -794,7 +795,7 @@ OptionRecommendation(name='search_replace',
     def unarchive(self, path, tdir):
         extract(path, tdir)
         files = list(walk(tdir))
-        files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
+        files = [f if isinstance(f, unicode_type) else f.decode(filesystem_encoding)
                 for f in files]
         from calibre.customize.ui import available_input_formats
         fmts = set(available_input_formats())
@@ -915,7 +916,7 @@ OptionRecommendation(name='search_replace',
                     try:
                         val = parse_date(val, assume_utc=x=='timestamp')
                     except:
-                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode(val))
+                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode_type(val))
                         continue
                 setattr(mi, x, val)
 

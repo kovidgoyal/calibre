@@ -22,6 +22,7 @@ from calibre.gui2 import min_available_height, error_dialog
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
+from polyglot.builtins import unicode_type
 
 
 def config(defaults=None):
@@ -197,7 +198,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 _('Choose a name for this theme'))
         if not ok:
             return
-        themename = unicode(themename).strip()
+        themename = unicode_type(themename).strip()
         if not themename:
             return
         c = config('')
@@ -380,7 +381,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             col = QColorDialog.getColor(initial, self,
                     title, QColorDialog.ShowAlphaChannel)
             if col.isValid():
-                name = unicode(col.name())
+                name = unicode_type(col.name())
                 setattr(self, 'current_%s_color'%which, name)
         self.update_sample_colors()
 
@@ -405,15 +406,15 @@ class ConfigDialog(QDialog, Ui_Dialog):
         return QDialog.accept(self, *args)
 
     def save_options(self, c):
-        c.set('serif_family', unicode(self.serif_family.currentFont().family()))
-        c.set('sans_family', unicode(self.sans_family.currentFont().family()))
-        c.set('mono_family', unicode(self.mono_family.currentFont().family()))
+        c.set('serif_family', unicode_type(self.serif_family.currentFont().family()))
+        c.set('sans_family', unicode_type(self.sans_family.currentFont().family()))
+        c.set('mono_family', unicode_type(self.mono_family.currentFont().family()))
         c.set('default_font_size', self.default_font_size.value())
         c.set('minimum_font_size', self.minimum_font_size.value())
         c.set('mono_font_size', self.mono_font_size.value())
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[
             self.standard_font.currentIndex()])
-        c.set('user_css', unicode(self.css.toPlainText()))
+        c.set('user_css', unicode_type(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('fit_images', self.opt_fit_images.isChecked())
         c.set('max_fs_width', int(self.max_fs_width.value()))

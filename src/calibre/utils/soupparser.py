@@ -6,6 +6,7 @@ __all__ = ["fromstring", "parse", "convert_tree"]
 from lxml import etree, html
 from calibre.ebooks.BeautifulSoup import \
      BeautifulSoup, Tag, Comment, ProcessingInstruction, NavigableString
+from polyglot.builtins import codepoint_to_chr
 
 
 def fromstring(data, beautifulsoup=None, makeelement=None, **bsargs):
@@ -127,7 +128,7 @@ def unescape(string):
 
     def unescape_entity(m):
         try:
-            return unichr(name2codepoint[m.group(1)])
+            return codepoint_to_chr(name2codepoint[m.group(1)])
         except KeyError:
             return m.group(0)  # use as is
     return handle_entities(unescape_entity, string)

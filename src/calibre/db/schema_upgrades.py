@@ -11,6 +11,7 @@ import os
 
 from calibre import prints
 from calibre.utils.date import isoformat, DEFAULT_DATE
+from polyglot.builtins import unicode_type
 
 
 class SchemaUpgrade(object):
@@ -601,7 +602,7 @@ class SchemaUpgrade(object):
                 id_ = str(id_)
                 fname = custom_recipe_filename(id_, title)
                 custom_recipes[id_] = (title, fname)
-                if isinstance(script, unicode):
+                if isinstance(script, unicode_type):
                     script = script.encode('utf-8')
                 with open(os.path.join(bdir, fname), 'wb') as f:
                     f.write(script)

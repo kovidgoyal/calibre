@@ -12,6 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
+from polyglot.builtins import unicode_type
 
 
 class ShareConnMenu(QMenu):  # {{{
@@ -54,7 +55,7 @@ class ShareConnMenu(QMenu):  # {{{
             gr = ConnectShareAction.action_spec[0]
             for attr in ('folder', ):
                 ac = getattr(self, 'connect_to_%s_action'%attr)
-                r(prefix + attr, unicode(ac.text()), action=ac,
+                r(prefix + attr, unicode_type(ac.text()), action=ac,
                         group=gr)
             r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)

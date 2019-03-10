@@ -5,6 +5,7 @@ from PyQt5.Qt import Qt, QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
 from calibre.gui2 import question_dialog, error_dialog
+from polyglot.builtins import unicode_type
 
 
 class ListWidgetItem(QListWidgetItem):
@@ -90,7 +91,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
                 return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode(item.text())
+            self.to_rename[id_] = unicode_type(item.text())
 
     def rename_tag(self):
         item = self.available_tags.currentItem()
@@ -109,7 +110,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
             error_dialog(self, _('No items selected'),
                          _('You must select at least one item from the list.')).exec_()
             return
-        ct = ', '.join([unicode(item.text()) for item in deletes])
+        ct = ', '.join([unicode_type(item.text()) for item in deletes])
         if not question_dialog(self, _('Are you sure?'),
             '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct):
             return

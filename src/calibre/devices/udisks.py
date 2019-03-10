@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
+from polyglot.builtins import unicode_type
 
 def node_mountpoint(node):
 
@@ -48,7 +49,7 @@ class UDisks(object):
     def mount(self, device_node_path):
         d = self.device(device_node_path)
         try:
-            return unicode(d.FilesystemMount('',
+            return unicode_type(d.FilesystemMount('',
                 ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
                  'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
         except:
@@ -131,7 +132,7 @@ class UDisks2(object):
         mount_options = ['rw', 'noexec', 'nosuid',
                 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
         try:
-            return unicode(d.Mount(
+            return unicode_type(d.Mount(
                 {
                     'auth.no_user_interaction':True,
                     'options':','.join(mount_options)

@@ -19,6 +19,7 @@ from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
+from polyglot.builtins import unicode_type
 
 
 def comparable_price(text):
@@ -291,7 +292,7 @@ class Matches(QAbstractItemModel):
             return
         descending = order == Qt.DescendingOrder
         self.all_matches.sort(None,
-            lambda x: sort_key(unicode(self.data_as_text(x, col))),
+            lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
             descending)
         self.reorder_matches()
         if reset:

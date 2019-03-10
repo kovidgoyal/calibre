@@ -14,6 +14,7 @@ from lxml import etree
 
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
+from polyglot.builtins import unicode_type
 
 TAG_MAP = {
     'b'       : 'B',
@@ -134,7 +135,7 @@ class PMLMLizer(object):
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
-            content = unicode(etree.tostring(item.data, encoding=unicode))
+            content = unicode_type(etree.tostring(item.data, encoding=unicode_type))
             content = self.prepare_text(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
@@ -174,7 +175,7 @@ class PMLMLizer(object):
 
     def prepare_text(self, text):
         # Replace empty paragraphs with \c pml codes used to denote emtpy lines.
-        text = re.sub(unicode(r'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>'), '\\c\n\\c', text)
+        text = re.sub(unicode_type(r'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>'), '\\c\n\\c', text)
         return text
 
     def clean_text(self, text):
@@ -188,7 +189,7 @@ class PMLMLizer(object):
             text = text.replace('\\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(unicode(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), '\\g<t>\\g<a>\\g<b>\\g<t>', text)
+        text = re.sub(unicode_type(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), '\\g<t>\\g<a>\\g<b>\\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')

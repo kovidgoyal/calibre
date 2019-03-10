@@ -24,6 +24,7 @@ from calibre.utils.logging import Log
 from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.web.fetch.utils import rescale_image
+from polyglot.builtins import unicode_type
 
 
 class AbortArticle(Exception):
@@ -90,7 +91,7 @@ def save_soup(soup, target):
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = unicode_path(relpath(path, selfdir).replace(os.sep, '/'))
 
-    html = unicode(soup)
+    html = unicode_type(soup)
     with open(target, 'wb') as f:
         f.write(html.encode('utf-8'))
 
@@ -120,7 +121,7 @@ class RecursiveFetcher(object):
 
     def __init__(self, options, log, image_map={}, css_map={}, job_info=None):
         bd = options.dir
-        if not isinstance(bd, unicode):
+        if not isinstance(bd, unicode_type):
             bd = bd.decode(filesystem_encoding)
 
         self.base_dir = os.path.abspath(os.path.expanduser(bd))
@@ -254,7 +255,7 @@ class RecursiveFetcher(object):
         delta = time.time() - self.last_fetch_at
         if delta < self.delay:
             time.sleep(self.delay - delta)
-        if isinstance(url, unicode):
+        if isinstance(url, unicode_type):
             url = url.encode('utf-8')
         # Not sure is this is really needed as I think mechanize
         # handles quoting automatically, but leaving it
@@ -401,7 +402,7 @@ class RecursiveFetcher(object):
                     continue
             c += 1
             fname = ascii_filename('img'+str(c))
-            if isinstance(fname, unicode):
+            if isinstance(fname, unicode_type):
                 fname = fname.encode('ascii', 'replace')
             data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
             if data is None:
@@ -529,7 +530,7 @@ class RecursiveFetcher(object):
                         self.process_stylesheets(soup, newbaseurl)
 
                     _fname = basename(iurl)
-                    if not isinstance(_fname, unicode):
+                    if not isinstance(_fname, unicode_type):
                         _fname.decode('latin1', 'replace')
                     _fname = _fname.encode('ascii', 'replace').replace('%', '').replace(os.sep, '')
                     _fname = ascii_filename(_fname)

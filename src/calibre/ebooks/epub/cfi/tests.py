@@ -10,6 +10,7 @@ import unittest
 from polyglot.builtins import map
 
 from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
+from polyglot.builtins import unicode_type
 
 
 class Tests(unittest.TestCase):
@@ -60,7 +61,7 @@ class Tests(unittest.TestCase):
             if after is not None:
                 ta['after'] = after
             if params:
-                ta['params'] = {unicode(k):(v,) if isinstance(v, unicode) else v for k, v in params.iteritems()}
+                ta['params'] = {unicode_type(k):(v,) if isinstance(v, unicode_type) else v for k, v in params.iteritems()}
             if ta:
                 step['text_assertion'] = ta
             return ans

@@ -14,6 +14,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
+from polyglot.builtins import unicode_type
 
 
 class Book(Book_):
@@ -95,7 +96,7 @@ class Book(Book_):
         ans = [u"Kobo metadata:"]
 
         def fmt(x, y):
-            ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
+            ans.append(u'%-20s: %s'%(unicode_type(x), unicode_type(y)))
 
         if self.contentID:
             fmt('Content ID', self.contentID)

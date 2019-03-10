@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import zip
+from polyglot.builtins import unicode_type, zip
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -528,14 +528,14 @@ class Cache(object):
     @read_api
     def get_item_id(self, field, item_name):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
-        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode) else item_name, None)
+        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
+        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode_type) else item_name, None)
 
     @read_api
     def get_item_ids(self, field, item_names):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
-        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode) else name, None) for name in item_names}
+        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
+        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode_type) else name, None) for name in item_names}
 
     @read_api
     def author_data(self, author_ids=None):

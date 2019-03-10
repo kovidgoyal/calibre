@@ -12,7 +12,7 @@ from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely
-from polyglot.builtins import itervalues, iteritems
+from polyglot.builtins import codepoint_to_chr, itervalues, iteritems
 
 
 def get_opts_from_parser(parser):
@@ -173,7 +173,7 @@ class Kakasi(Command):  # {{{
                 continue
             if re.match(r"^$",line):
                 continue
-            pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
+            pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:codepoint_to_chr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
         from calibre.utils.serialize import msgpack_dumps
         with open(dst, 'wb') as f:

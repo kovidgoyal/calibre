@@ -15,6 +15,7 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import codepoint_to_chr
 
 
 class Tokenize:
@@ -93,7 +94,7 @@ class Tokenize:
             uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
-            uni_char = unichr(uni_char).encode('ascii', 'xmlcharrefreplace')
+            uni_char = codepoint_to_chr(uni_char).encode('ascii', 'xmlcharrefreplace')
             self.__uc_char = self.__uc_value[-1]
             # there is only an unicode char
             if len(token)<= uni_len:

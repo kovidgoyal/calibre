@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
+from polyglot.builtins import unicode_type
 
 
 class CreateCustomColumn(QDialog):
@@ -112,7 +113,7 @@ class CreateCustomColumn(QDialog):
             self.column_type_box.addItem(self.column_types[t]['text'])
         self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
 
-        all_colors = [unicode(s) for s in list(QColor.colorNames())]
+        all_colors = [unicode_type(s) for s in list(QColor.colorNames())]
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
 
         if not self.editing_col:
@@ -185,7 +186,7 @@ class CreateCustomColumn(QDialog):
         self.exec_()
 
     def shortcut_activated(self, url):  # {{{
-        which = unicode(url).split(':')[-1]
+        which = unicode_type(url).split(':')[-1]
         self.column_type_box.setCurrentIndex({
             'yesno': self.column_types_map['bool'],
             'tags' : self.column_types_map['*text'],
@@ -464,7 +465,7 @@ class CreateCustomColumn(QDialog):
         self.allow_half_stars.setVisible(col_type == 'rating')
 
     def accept(self):
-        col = unicode(self.column_name_box.text()).strip()
+        col = unicode_type(self.column_name_box.text()).strip()
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
         if col.startswith('#'):
@@ -475,7 +476,7 @@ class CreateCustomColumn(QDialog):
         if col.endswith('_index'):
             return self.simple_error('', _('Lookup names cannot end with _index, '
                     'because these names are reserved for the index of a series column.'))
-        col_heading = unicode(self.column_heading_box.text()).strip()
+        col_heading = unicode_type(self.column_heading_box.text()).strip()
         coldef = self.column_types[self.column_type_box.currentIndex()]
         col_type = coldef['datatype']
         if col_type[0] == '*':
@@ -511,33 +512,33 @@ class CreateCustomColumn(QDialog):
         display_dict = {}
 
         if col_type == 'datetime':
-            if unicode(self.format_box.text()).strip():
-                display_dict = {'date_format':unicode(self.format_box.text()).strip()}
+            if unicode_type(self.format_box.text()).strip():
+                display_dict = {'date_format':unicode_type(self.format_box.text()).strip()}
             else:
                 display_dict = {'date_format': None}
         elif col_type == 'composite':
-            if not unicode(self.composite_box.text()).strip():
+            if not unicode_type(self.composite_box.text()).strip():
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
-            display_dict = {'composite_template':unicode(self.composite_box.text()).strip(),
+            display_dict = {'composite_template':unicode_type(self.composite_box.text()).strip(),
                             'composite_sort': ['text', 'number', 'date', 'bool']
                                         [self.composite_sort_by.currentIndex()],
                             'make_category': self.composite_make_category.isChecked(),
                             'contains_html': self.composite_contains_html.isChecked(),
                         }
         elif col_type == 'enumeration':
-            if not unicode(self.enum_box.text()).strip():
+            if not unicode_type(self.enum_box.text()).strip():
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
-            l = [v.strip() for v in unicode(self.enum_box.text()).split(',') if v.strip()]
+            l = [v.strip() for v in unicode_type(self.enum_box.text()).split(',') if v.strip()]
             l_lower = [v.lower() for v in l]
             for i,v in enumerate(l_lower):
                 if v in l_lower[i+1:]:
                     return self.simple_error('', _('The value "{0}" is in the '
                     'list more than once, perhaps with different case').format(l[i]))
-            c = unicode(self.enum_colors.text())
+            c = unicode_type(self.enum_colors.text())
             if c:
-                c = [v.strip() for v in unicode(self.enum_colors.text()).split(',')]
+                c = [v.strip() for v in unicode_type(self.enum_colors.text()).split(',')]
             else:
                 c = []
             if len(c) != 0 and len(c) != len(l):
@@ -552,8 +553,8 @@ class CreateCustomColumn(QDialog):
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
         elif col_type in ['int', 'float']:
-            if unicode(self.format_box.text()).strip():
-                display_dict = {'number_format':unicode(self.format_box.text()).strip()}
+            if unicode_type(self.format_box.text()).strip():
+                display_dict = {'number_format':unicode_type(self.format_box.text()).strip()}
             else:
                 display_dict = {'number_format': None}
         elif col_type == 'comments':

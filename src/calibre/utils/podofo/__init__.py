@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import print_function, with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,6 +12,7 @@ from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from polyglot.builtins import unicode_type
 
 
 def get_podofo():
@@ -25,7 +25,7 @@ def get_podofo():
 def prep(val):
     if not val:
         return u''
-    if not isinstance(val, unicode):
+    if not isinstance(val, unicode_type):
         val = val.decode(preferred_encoding, 'replace')
     return val.strip()
 

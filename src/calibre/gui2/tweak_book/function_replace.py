@@ -23,12 +23,13 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
 
 def compile_code(src, name='<string>'):
-    if not isinstance(src, unicode):
+    if not isinstance(src, unicode_type):
         match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1) if match else 'utf-8'
         src = src.decode(enc)

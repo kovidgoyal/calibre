@@ -18,6 +18,7 @@ from calibre.gui2.bars import BarsManager
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
+from polyglot.builtins import unicode_type
 
 
 class LocationManager(QObject):  # {{{
@@ -128,7 +129,7 @@ class LocationManager(QObject):  # {{{
         had_device = self.has_device
         if cp is None:
             cp = (None, None)
-        if isinstance(cp, (str, unicode)):
+        if isinstance(cp, (str, unicode_type)):
             cp = (cp, None)
         if len(fs) < 3:
             fs = list(fs) + [0]

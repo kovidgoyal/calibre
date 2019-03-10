@@ -25,6 +25,7 @@ from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.resources import load_hyphenator_dicts
+from polyglot.builtins import unicode_type
 
 
 def get_page_size(opts, for_comic=False):  # {{{
@@ -91,10 +92,10 @@ class Page(QWebPage):  # {{{
         self.longjs_counter = 0
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
-        self.log.debug(u'JS:', unicode(msg))
+        self.log.debug(u'JS:', unicode_type(msg))
 
     def javaScriptAlert(self, frame, msg):
-        self.log(unicode(msg))
+        self.log(unicode_type(msg))
 
     @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
@@ -128,19 +129,19 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
 
 class PDFWriter(QObject):
 
-    @pyqtSlot(result=unicode)
+    @pyqtSlot(result=unicode_type)
     def title(self):
         return self.doc_title
 
-    @pyqtSlot(result=unicode)
+    @pyqtSlot(result=unicode_type)
     def author(self):
         return self.doc_author
 
-    @pyqtSlot(result=unicode)
+    @pyqtSlot(result=unicode_type)
     def section(self):
         return self.current_section
 
-    @pyqtSlot(result=unicode)
+    @pyqtSlot(result=unicode_type)
     def tl_section(self):
         return self.current_tl_section
 
@@ -280,7 +281,7 @@ class PDFWriter(QObject):
             self.loop.exit(1)
 
     def render_next(self):
-        item = unicode(self.render_queue.pop(0))
+        item = unicode_type(self.render_queue.pop(0))
 
         self.logger.debug('Processing %s...' % item)
         self.current_item = item

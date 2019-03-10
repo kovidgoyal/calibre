@@ -10,7 +10,7 @@ Perform various initialization tasks.
 import locale, sys
 
 # Default translation is NOOP
-from polyglot.builtins import builtins
+from polyglot.builtins import builtins, unicode_type
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
@@ -58,7 +58,7 @@ if not _run_once:
         winutil, winutilerror = plugins['winutil']
         if not winutil:
             raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode):
+        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode_type):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
     #
@@ -75,7 +75,7 @@ if not _run_once:
     if isosx:
         enc = 'utf-8'
     for i in range(1, len(sys.argv)):
-        if not isinstance(sys.argv[i], unicode):
+        if not isinstance(sys.argv[i], unicode_type):
             sys.argv[i] = sys.argv[i].decode(enc, 'replace')
 
     #
@@ -202,7 +202,7 @@ if not _run_once:
                     if name == 'Thread':
                         name = self.name
                 if name:
-                    if isinstance(name, unicode):
+                    if isinstance(name, unicode_type):
                         name = name.encode('ascii', 'replace').decode('ascii')
                     plugins['speedup'][0].set_thread_name(name[:15])
             except Exception:

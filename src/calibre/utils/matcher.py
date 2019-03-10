@@ -15,7 +15,7 @@ from collections import OrderedDict
 from itertools import islice
 
 from itertools import izip
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
@@ -97,7 +97,7 @@ class Matcher(object):
                 w = [Worker(requests, results) for i in range(max(1, cpu_count()))]
                 [x.start() for x in w]
                 workers.extend(w)
-        items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
+        items = map(lambda x: normalize('NFC', unicode_type(x)), filter(None, items))
         self.items = items = tuple(items)
         tasks = split(items, len(workers))
         self.task_maps = [{j: i for j, (i, _) in enumerate(task)} for task in tasks]
@@ -108,7 +108,7 @@ class Matcher(object):
         self.sort_keys = None
 
     def __call__(self, query, limit=None):
-        query = normalize('NFC', unicode(query))
+        query = normalize('NFC', unicode_type(query))
         with wlock:
             for i, scorer in enumerate(self.scorers):
                 workers[0].requests.put((i, scorer, query))
@@ -265,7 +265,7 @@ class CScorer(object):
         self.m = speedup.Matcher(
             items,
             primary_collator().capsule,
-            unicode(level1), unicode(level2), unicode(level3)
+            unicode_type(level1), unicode_type(level2), unicode_type(level3)
         )
 
     def __call__(self, query):

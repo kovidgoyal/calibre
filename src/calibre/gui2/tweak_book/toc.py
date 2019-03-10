@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
 from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
+from polyglot.builtins import unicode_type
 
 
 class TOCEditor(QDialog):
@@ -192,8 +193,8 @@ class TOCViewer(QWidget):
     def emit_navigate(self, *args):
         item = self.view.currentItem()
         if item is not None:
-            dest = unicode(item.data(0, DEST_ROLE) or '')
-            frag = unicode(item.data(0, FRAG_ROLE) or '')
+            dest = unicode_type(item.data(0, DEST_ROLE) or '')
+            frag = unicode_type(item.data(0, FRAG_ROLE) or '')
             if not frag:
                 frag = TOP
             self.navigate_requested.emit(dest, frag)

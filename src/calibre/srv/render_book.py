@@ -9,7 +9,7 @@ from base64 import standard_b64encode, standard_b64decode
 from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from urlparse import urlparse
 from urllib import quote
 
@@ -325,7 +325,7 @@ class Container(ContainerBase):
                     frag = urlunquote(frag)
                     url = resource_template.format(encode_url(name, frag))
                 else:
-                    if isinstance(name, unicode):
+                    if isinstance(name, unicode_type):
                         name = name.encode('utf-8')
                     url = 'missing:' + force_unicode(quote(name), 'utf-8')
                 changed.add(base)

@@ -12,6 +12,7 @@ from functools import partial
 from contextlib import closing
 
 from setup import iswindows
+from polyglot.builtins import unicode_type
 
 if iswindows:
     from ctypes import windll, Structure, POINTER, c_size_t
@@ -52,7 +53,7 @@ def run_worker(job, decorate=True):
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except Exception as err:
-        return False, human_text, unicode(err)
+        return False, human_text, unicode_type(err)
     stdout, stderr = p.communicate()
     if stdout:
         stdout = stdout.decode('utf-8')

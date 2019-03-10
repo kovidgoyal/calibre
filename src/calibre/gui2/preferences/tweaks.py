@@ -19,6 +19,7 @@ from calibre import isbytestring
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
+from polyglot.builtins import unicode_type
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QStyledItemDelegate, QStyle, QStyleOptionViewItem,
@@ -99,7 +100,7 @@ class Tweak(object):  # {{{
             val = self.custom_values.get(key, val)
             ans.append('%s = %r'%(key, val))
         ans = '\n'.join(ans)
-        if isinstance(ans, unicode):
+        if isinstance(ans, unicode_type):
             ans = ans.encode('utf-8')
         return ans
 
@@ -489,7 +490,7 @@ class ConfigWidget(ConfigWidgetBase):
         if d.exec_() == d.Accepted:
             g, l = {}, {}
             try:
-                exec(unicode(d.edit.toPlainText()), g, l)
+                exec(unicode_type(d.edit.toPlainText()), g, l)
             except:
                 import traceback
                 return error_dialog(self, _('Failed'),
@@ -530,7 +531,7 @@ class ConfigWidget(ConfigWidgetBase):
         if idx.isValid():
             l, g = {}, {}
             try:
-                exec(unicode(self.edit_tweak.toPlainText()), g, l)
+                exec(unicode_type(self.edit_tweak.toPlainText()), g, l)
             except:
                 import traceback
                 error_dialog(self.gui, _('Failed'),
@@ -586,7 +587,7 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx,
-                unicode(self.search.currentText()))
+                unicode_type(self.search.currentText()))
         self.highlight_index(idx)
 
     def find_previous(self, *args):
@@ -594,7 +595,7 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx,
-            unicode(self.search.currentText()), backwards=True)
+            unicode_type(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
 

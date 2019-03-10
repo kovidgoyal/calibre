@@ -22,6 +22,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
+from polyglot.builtins import unicode_type
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -376,7 +377,7 @@ def xml2unicode(root, pretty_print=False):
 
 
 def xml2text(elem):
-    return etree.tostring(elem, method='text', encoding=unicode, with_tail=False)
+    return etree.tostring(elem, method='text', encoding=unicode_type, with_tail=False)
 
 
 def escape_cdata(root):
@@ -398,11 +399,11 @@ def serialize(data, media_type, pretty_print=False):
             # incorrectly by some browser based renderers
             ans = close_self_closing_tags(ans)
         return ans
-    if isinstance(data, unicode):
+    if isinstance(data, unicode_type):
         return data.encode('utf-8')
     if hasattr(data, 'cssText'):
         data = data.cssText
-        if isinstance(data, unicode):
+        if isinstance(data, unicode_type):
             data = data.encode('utf-8')
         return data + b'\n'
     return bytes(data)
@@ -421,7 +422,7 @@ def urlquote(href):
     That is, this function returns valid IRIs not valid URIs. In particular,
     IRIs can contain non-ascii characters.  """
     result = []
-    unsafe = 0 if isinstance(href, unicode) else 1
+    unsafe = 0 if isinstance(href, unicode_type) else 1
     unsafe = URL_UNSAFE[unsafe]
     for char in href:
         if char in unsafe:
@@ -435,7 +436,7 @@ def urlunquote(href, error_handling='strict'):
     # If it runs on a unicode object, it returns a double encoded unicode
     # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
     # and the latter is correct
-    want_unicode = isinstance(href, unicode)
+    want_unicode = isinstance(href, unicode_type)
     if want_unicode:
         href = href.encode('utf-8')
     href = unquote(href)
@@ -555,7 +556,7 @@ class DirContainer(object):
         # If it runs on a unicode object, it returns a double encoded unicode
         # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
         # and the latter is correct
-        if isinstance(path, unicode):
+        if isinstance(path, unicode_type):
             path = path.encode('utf-8')
         return urlunquote(path).decode('utf-8')
 
@@ -593,13 +594,13 @@ class DirContainer(object):
     def namelist(self):
         names = []
         base = self.rootdir
-        if isinstance(base, unicode):
+        if isinstance(base, unicode_type):
             base = base.encode(filesystem_encoding)
         for root, dirs, files in os.walk(base):
             for fname in files:
                 fname = os.path.join(root, fname)
                 fname = fname.replace('\\', '/')
-                if not isinstance(fname, unicode):
+                if not isinstance(fname, unicode_type):
                     try:
                         fname = fname.decode(filesystem_encoding)
                     except:
@@ -745,7 +746,7 @@ class Metadata(object):
                 % (barename(self.term), self.value, self.attrib)
 
         def __str__(self):
-            return unicode(self.value).encode('ascii', 'xmlcharrefreplace')
+            return unicode_type(self.value).encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
             return as_unicode(self.value)
@@ -914,7 +915,7 @@ class Manifest(object):
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
             if href:
-                href = unicode(href)
+                href = unicode_type(href)
             self.oeb = oeb
             self.id = id
             self.href = self.path = urlnormalize(href)
@@ -964,7 +965,7 @@ class Manifest(object):
 
             title = self.oeb.metadata.title
             if title:
-                title = unicode(title[0])
+                title = unicode_type(title[0])
             else:
                 title = _('Unknown')
 
@@ -997,7 +998,7 @@ class Manifest(object):
                 self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
                 return (None, None)
             data = item.data.cssText
-            enc = None if isinstance(data, unicode) else 'utf-8'
+            enc = None if isinstance(data, unicode_type) else 'utf-8'
             return (enc, data)
 
         # }}}
@@ -1081,11 +1082,11 @@ class Manifest(object):
             data = self.data
             if isinstance(data, etree._Element):
                 return xml2unicode(data, pretty_print=self.oeb.pretty_print)
-            if isinstance(data, unicode):
+            if isinstance(data, unicode_type):
                 return data
             if hasattr(data, 'cssText'):
                 return data.cssText
-            return unicode(data)
+            return unicode_type(data)
 
         def __eq__(self, other):
             return id(self) == id(other)
@@ -1203,7 +1204,7 @@ class Manifest(object):
             while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
-        return id, unicode(href)
+        return id, unicode_type(href)
 
     def __iter__(self):
         for item in self.items:
@@ -1436,7 +1437,7 @@ class Guide(object):
     def add(self, type, title, href):
         """Add a new reference to the `Guide`."""
         if href:
-            href = unicode(href)
+            href = unicode_type(href)
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
@@ -1707,7 +1708,7 @@ class PageList(object):
         TYPES = {'front', 'normal', 'special'}
 
         def __init__(self, name, href, type='normal', klass=None, id=None):
-            self.name = unicode(name)
+            self.name = unicode_type(name)
             self.href = urlnormalize(href)
             self.type = type if type in self.TYPES else 'normal'
             self.id = id
@@ -1845,7 +1846,7 @@ class OEBBook(object):
         """Automatically decode :param:`data` into a `unicode` object."""
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
-        if isinstance(data, unicode):
+        if isinstance(data, unicode_type):
             return fix_data(data)
         bom_enc = None
         if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
@@ -1923,14 +1924,14 @@ class OEBBook(object):
         return
 
     def _to_ncx(self):
-        lang = unicode(self.metadata.language[0])
+        lang = unicode_type(self.metadata.language[0])
         lang = lang.replace('_', '-')
         ncx = etree.Element(NCX('ncx'),
             attrib={'version': '2005-1', XML('lang'): lang},
             nsmap={None: NCX_NS})
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'),
-            name='dtb:uid', content=unicode(self.uid))
+            name='dtb:uid', content=unicode_type(self.uid))
         etree.SubElement(head, NCX('meta'),
             name='dtb:depth', content=str(self.toc.depth()))
         generator = ''.join(['calibre (', __version__, ')'])
@@ -1942,7 +1943,7 @@ class OEBBook(object):
             name='dtb:maxPageNumber', content='0')
         title = etree.SubElement(ncx, NCX('docTitle'))
         text = etree.SubElement(title, NCX('text'))
-        text.text = unicode(self.metadata.title[0])
+        text.text = unicode_type(self.metadata.title[0])
         navmap = etree.SubElement(ncx, NCX('navMap'))
         self.toc.to_ncx(navmap)
         if len(self.pages) > 0:

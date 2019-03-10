@@ -18,10 +18,11 @@ from calibre.ebooks.oeb.transforms.subset import get_font_properties, find_font_
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.ebooks.oeb.polish.embed import font_key
+from polyglot.builtins import unicode_type
 
 
 def font_families_from_style(style):
-    return [unicode(f) for f in style.get('font-family', []) if unicode(f).lower() not in {
+    return [unicode_type(f) for f in style.get('font-family', []) if unicode_type(f).lower() not in {
         'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
 
 
@@ -39,7 +40,7 @@ def used_font(style, embedded_fonts):
     ff = font_families_from_style(style)
     if not ff:
         return False, None
-    lnames = {unicode(x).lower() for x in ff}
+    lnames = {unicode_type(x).lower() for x in ff}
 
     matching_set = []
 

@@ -20,6 +20,7 @@ import xml.dom.minidom as dom
 from functools import wraps
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import unicode_type
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
@@ -195,8 +196,8 @@ class xml_field(object):
 
         if not val:
             val = u''
-        if type(val).__name__ != 'unicode':
-            val = unicode(val, 'utf-8')
+        if isinstance(val, unicode_type):
+            val = unicode_type(val, 'utf-8')
 
         elems = document.getElementsByTagName(self.tag_name)
         elem = None

@@ -14,6 +14,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
+from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -192,7 +193,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = unicode(self.opt_columns.item(idx, 0).data(Qt.UserRole) or '')
+        col = unicode_type(self.opt_columns.item(idx, 0).data(Qt.UserRole) or '')
         if col not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
@@ -221,7 +222,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
-            key = unicode(self.opt_columns.item(row, 0).data(Qt.UserRole))
+            key = unicode_type(self.opt_columns.item(row, 0).data(Qt.UserRole))
         except:
             key = ''
         CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
@@ -234,12 +235,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        config_cols = [unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = {unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        hidden_cols = {unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())
                  if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked}
         hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols

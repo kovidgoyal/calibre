@@ -28,6 +28,7 @@ from calibre.ebooks.conversion.plumber import create_dummy_plumber
 from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
+from polyglot.builtins import unicode_type
 
 
 class GroupModel(QAbstractListModel):
@@ -107,11 +108,11 @@ class Config(QDialog, Ui_Dialog):
 
     @property
     def input_format(self):
-        return unicode(self.input_formats.currentText()).lower()
+        return unicode_type(self.input_formats.currentText()).lower()
 
     @property
     def output_format(self):
-        return unicode(self.output_formats.currentText()).lower()
+        return unicode_type(self.output_formats.currentText()).lower()
 
     @property
     def manually_fine_tune_toc(self):
@@ -131,7 +132,7 @@ class Config(QDialog, Ui_Dialog):
                 self.plumber.get_option_help, self.db, self.book_id)
 
         self.mw = widget_factory(MetadataWidget)
-        self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
+        self.setWindowTitle(_('Convert')+ ' ' + unicode_type(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
         hw = widget_factory(HeuristicsWidget)
         sr = widget_factory(SearchAndReplaceWidget)
@@ -186,9 +187,9 @@ class Config(QDialog, Ui_Dialog):
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.input_formats.addItems(list(map(unicode, [x.upper() for x in
+        self.input_formats.addItems(list(map(unicode_type, [x.upper() for x in
             input_formats])))
-        self.output_formats.addItems(list(map(unicode, [x.upper() for x in
+        self.output_formats.addItems(list(map(unicode_type, [x.upper() for x in
             output_formats])))
         self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))

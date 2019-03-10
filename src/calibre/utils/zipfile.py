@@ -11,6 +11,7 @@ from tempfile import SpooledTemporaryFile
 from calibre import sanitize_file_name2
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
+from polyglot.builtins import unicode_type
 
 try:
     import zlib  # We may need its compression method
@@ -142,7 +143,7 @@ _CD64_OFFSET_START_CENTDIR = 9
 
 
 def decode_arcname(name):
-    if not isinstance(name, unicode):
+    if not isinstance(name, unicode_type):
         try:
             name = name.decode('utf-8')
         except:
@@ -390,7 +391,7 @@ class ZipInfo (object):
         return header + filename + extra
 
     def _encodeFilenameFlags(self):
-        if isinstance(self.filename, unicode):
+        if isinstance(self.filename, unicode_type):
             return self.filename.encode('utf-8'), self.flag_bits | 0x800
         else:
             return self.filename, self.flag_bits
@@ -1211,7 +1212,7 @@ class ZipFile:
         arcname = os.path.normpath(os.path.splitdrive(arcname)[1])
         while arcname[0] in (os.sep, os.altsep):
             arcname = arcname[1:]
-        if not isinstance(arcname, unicode):
+        if not isinstance(arcname, unicode_type):
             arcname = arcname.decode(filesystem_encoding)
         if isdir and not arcname.endswith('/'):
             arcname += '/'
@@ -1287,7 +1288,7 @@ class ZipFile:
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
         if not isinstance(zinfo_or_arcname, ZipInfo):
-            if not isinstance(zinfo_or_arcname, unicode):
+            if not isinstance(zinfo_or_arcname, unicode_type):
                 zinfo_or_arcname = zinfo_or_arcname.decode(filesystem_encoding)
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
@@ -1495,7 +1496,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
         ztemp = ZipFile(temp, 'w')
         for obj in z.infolist():
-            if isinstance(obj.filename, unicode):
+            if isinstance(obj.filename, unicode_type):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
             if obj.filename in names:
                 ztemp.writestr(obj, rbytes(obj.filename))

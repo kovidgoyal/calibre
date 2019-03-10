@@ -13,6 +13,7 @@ from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
 from calibre.utils.formatter import validation_formatter
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from polyglot.builtins import unicode_type
 
 
 class SaveTemplate(QWidget, Ui_Form):
@@ -82,6 +83,6 @@ class SaveTemplate(QWidget, Ui_Form):
         self.opt_template.set_value(val)
 
     def save_settings(self, config, name):
-        val = unicode(self.opt_template.text())
+        val = unicode_type(self.opt_template.text())
         config.set(name, val)
         self.opt_template.save_history(self.option_name+'_template_history')

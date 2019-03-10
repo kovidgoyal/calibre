@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -45,7 +45,7 @@ def all_links(html):
     return ans
 
 
-class SpineItem(unicode):
+class SpineItem(unicode_type):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
             run_char_count=True, from_epub=False, read_links=True):
@@ -149,5 +149,3 @@ def create_indexing_data(spine, toc):
             start = i.anchor if i.spine_pos == spine_pos else None
             end = i.end_anchor if i.spine_pos == spine_pos else None
             spine_item.index_entries.append(ie(i, start, end))
-
-

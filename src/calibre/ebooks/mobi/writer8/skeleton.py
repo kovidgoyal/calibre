@@ -17,6 +17,7 @@ from lxml import etree
 from calibre.ebooks.oeb.base import XHTML_NS, extract
 from calibre.constants import ispy3
 from calibre.ebooks.mobi.utils import to_base
+from polyglot.builtins import unicode_type
 
 CHUNK_SIZE = 8192
 
@@ -72,7 +73,7 @@ def tostring(raw, **kwargs):
 
     xml_declaration = kwargs.pop('xml_declaration', False)
     encoding = kwargs.pop('encoding', 'UTF-8')
-    kwargs['encoding'] = unicode
+    kwargs['encoding'] = unicode_type
     kwargs['xml_declaration'] = False
     ans = etree.tostring(raw, **kwargs)
     if xml_declaration:

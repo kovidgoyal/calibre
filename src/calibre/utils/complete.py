@@ -14,6 +14,8 @@ completion.
 
 import sys, os, shlex, glob, re
 
+from polyglot.builtins import unicode_type
+
 
 def prints(*args, **kwargs):
     '''
@@ -28,7 +30,7 @@ def prints(*args, **kwargs):
     enc = 'utf-8'
     safe_encode = kwargs.get('safe_encode', False)
     for i, arg in enumerate(args):
-        if isinstance(arg, unicode):
+        if isinstance(arg, unicode_type):
             try:
                 arg = arg.encode(enc)
             except UnicodeEncodeError:
@@ -39,8 +41,8 @@ def prints(*args, **kwargs):
             try:
                 arg = str(arg)
             except ValueError:
-                arg = unicode(arg)
-            if isinstance(arg, unicode):
+                arg = unicode_type(arg)
+            if isinstance(arg, unicode_type):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:

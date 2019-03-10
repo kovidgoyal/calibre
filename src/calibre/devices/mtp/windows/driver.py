@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time, threading, traceback
 from functools import wraps, partial
-from polyglot.builtins import zip
+from polyglot.builtins import unicode_type, zip
 from itertools import chain
 
 from calibre import as_unicode, prints, force_unicode
@@ -264,7 +264,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         break
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True, 'can_delete':False, 'is_system':True}
-                self._currently_getting_sid = unicode(storage_id)
+                self._currently_getting_sid = unicode_type(storage_id)
                 id_map = self.dev.get_filesystem(storage_id, partial(
                         self._filesystem_callback, {}))
                 for x in id_map.itervalues():
@@ -441,5 +441,3 @@ class MTP_DEVICE(MTPDeviceBase):
         ans = self.dev.put_file(pid, name, stream, size, callback)
         ans['storage_id'] = sid
         return parent.add_child(ans)
-
-

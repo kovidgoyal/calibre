@@ -14,11 +14,12 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 URL = \
 "http://ww2.kdl.org/libcat/WhatsNext.asp?AuthorLastName={0}&AuthorFirstName=&SeriesName=&BookTitle={1}&CategoryID=0&cmdSearch=Search&Search=1&grouping="
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = u'\'"'+u''.join(codepoint_to_chr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
 
 
 def get_series(title, authors, timeout=60):
@@ -28,7 +29,7 @@ def get_series(title, authors, timeout=60):
     title = re.sub(r'^(A|The|An)\s+', '', title).strip()
     if not title:
         return mi
-    if isinstance(title, unicode):
+    if isinstance(title, unicode_type):
         title = title.encode('utf-8')
 
     title = urllib.quote_plus(title)
@@ -73,7 +74,7 @@ def get_series(title, authors, timeout=60):
         mi.series = series
     ns = ss.nextSibling
     if ns.contents:
-        raw = unicode(ns.contents[0])
+        raw = unicode_type(ns.contents[0])
         raw = raw.partition('.')[0].strip()
         try:
             mi.series_index = int(raw)
@@ -85,4 +86,3 @@ def get_series(title, authors, timeout=60):
 if __name__ == '__main__':
     import sys
     print(get_series(sys.argv[-2], [sys.argv[-1]]))
-

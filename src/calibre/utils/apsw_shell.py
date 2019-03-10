@@ -13,6 +13,8 @@ import time
 import codecs
 import base64
 
+from polyglot.builtins import unicode_type
+
 if sys.platform=="win32":
     _win_colour=False
     try:
@@ -722,7 +724,7 @@ Enter SQL statements terminated with a ";"
             intro=intro.lstrip()
         if self.interactive and intro:
             if sys.version_info<(3,0):
-                intro=unicode(intro)
+                intro=unicode_type(intro)
             c=self.colour
             self.write(self.stdout, c.intro+intro+c.intro_)
 
@@ -1639,7 +1641,7 @@ Enter SQL statements terminated with a ";"
 
         # Ensure all values are utf8 not unicode
         for k,v in dialect.items():
-            if isinstance(v, unicode):
+            if isinstance(v, unicode_type):
                 dialect[k]=v.encode("utf8")
         for line in csv.reader(thefile, **dialect):
             # back to unicode again
@@ -2419,8 +2421,8 @@ Enter SQL statements terminated with a ";"
         def write(self, dest, text):
             """Writes text to dest.  dest will typically be one of self.stdout or self.stderr."""
             # ensure text is unicode to catch codeset issues here
-            if type(text)!=unicode:
-                text=unicode(text)
+            if type(text)!=unicode_type:
+                text=unicode_type(text)
             try:
                 dest.write(text)
             except UnicodeEncodeError:
@@ -2465,7 +2467,7 @@ Enter SQL statements terminated with a ";"
                 line=self.stdin.readline()  # includes newline unless last line of file doesn't have one
             self.input_line_number+=1
             if sys.version_info<(3,0):
-                if type(line)!=unicode:
+                if type(line)!=unicode_type:
                     enc=getattr(self.stdin, "encoding", self.encoding[0])
                     if not enc:
                         enc=self.encoding[0]

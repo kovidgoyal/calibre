@@ -15,6 +15,8 @@ from calibre import relpath, guess_type, remove_bracketed_text, prints, force_un
 
 from calibre.utils.config_base import tweaks
 
+from polyglot.builtins import codepoint_to_chr, unicode_type
+
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
 except:
@@ -134,7 +136,7 @@ def get_title_sort_pat(lang=None):
     return ans
 
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in
+_ignore_starts = u'\'"'+u''.join(codepoint_to_chr(x) for x in
         range(0x2018, 0x201e)+[0x2032, 0x2033])
 
 
@@ -227,7 +229,7 @@ class Resource(object):
                 self._href = href_or_path
             else:
                 pc = url[2]
-                if isinstance(pc, unicode):
+                if isinstance(pc, unicode_type):
                     pc = pc.encode('utf-8')
                 pc = unquote(pc).decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
@@ -249,7 +251,7 @@ class Resource(object):
                 basedir = os.getcwdu()
         if self.path is None:
             return self._href
-        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
         frag = '#'+quote(f) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
@@ -257,7 +259,7 @@ class Resource(object):
             rpath = relpath(self.path, basedir)
         except OSError:  # On windows path and basedir could be on different drives
             rpath = self.path
-        if isinstance(rpath, unicode):
+        if isinstance(rpath, unicode_type):
             rpath = rpath.encode('utf-8')
         return quote(rpath.replace(os.sep, '/'))+frag
 

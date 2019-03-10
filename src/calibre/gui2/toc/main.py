@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os, textwrap
 from threading import Thread
 from functools import partial
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog, QCheckBox,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
@@ -77,7 +77,7 @@ class XPathDialog(QDialog):  # {{{
         name, ok = QInputDialog.getText(self, _('Choose name'),
                 _('Choose a name for these settings'))
         if ok:
-            name = unicode(name).strip()
+            name = unicode_type(name).strip()
             if name:
                 saved = self.prefs.get('xpath_toc_settings', {})
                 # in JSON all keys have to be strings
@@ -340,7 +340,7 @@ class ItemView(QFrame):  # {{{
 
     def populate_item_pane(self):
         item = self.current_item
-        name = unicode(item.data(0, Qt.DisplayRole) or '')
+        name = unicode_type(item.data(0, Qt.DisplayRole) or '')
         self.item_pane.heading.setText('<h2>%s</h2>'%name)
         self.icon_label.setPixmap(item.data(0, Qt.DecorationRole
                                             ).pixmap(32, 32))
@@ -584,33 +584,33 @@ class TreeWidget(QTreeWidget):  # {{{
         self.push_history()
         from calibre.utils.titlecase import titlecase
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            t = unicode_type(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, titlecase(t))
 
     def upper_case(self):
         self.push_history()
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            t = unicode_type(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, icu_upper(t))
 
     def lower_case(self):
         self.push_history()
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            t = unicode_type(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, icu_lower(t))
 
     def swap_case(self):
         self.push_history()
         from calibre.utils.icu import swapcase
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            t = unicode_type(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, swapcase(t))
 
     def capitalize(self):
         self.push_history()
         from calibre.utils.icu import capitalize
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            t = unicode_type(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, capitalize(t))
 
     def bulk_rename(self):
@@ -648,7 +648,7 @@ class TreeWidget(QTreeWidget):  # {{{
         item = self.currentItem()
 
         def key(k):
-            sc = unicode(QKeySequence(k | Qt.CTRL).toString(QKeySequence.NativeText))
+            sc = unicode_type(QKeySequence(k | Qt.CTRL).toString(QKeySequence.NativeText))
             return ' [%s]'%sc
 
         if item is not None:
@@ -657,7 +657,7 @@ class TreeWidget(QTreeWidget):  # {{{
             m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
             m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
             m.addSeparator()
-            ci = unicode(item.data(0, Qt.DisplayRole) or '')
+            ci = unicode_type(item.data(0, Qt.DisplayRole) or '')
             p = item.parent() or self.invisibleRootItem()
             idx = p.indexOfChild(item)
             if idx > 0:
@@ -758,12 +758,12 @@ class TOCView(QWidget):  # {{{
 
     def event(self, e):
         if e.type() == e.StatusTip:
-            txt = unicode(e.tip()) or self.default_msg
+            txt = unicode_type(e.tip()) or self.default_msg
             self.hl.setText(txt)
         return super(TOCView, self).event(e)
 
     def item_title(self, item):
-        return unicode(item.data(0, Qt.DisplayRole) or '')
+        return unicode_type(item.data(0, Qt.DisplayRole) or '')
 
     def del_items(self):
         self.tocw.del_items()
@@ -818,7 +818,7 @@ class TOCView(QWidget):  # {{{
     def data_changed(self, top_left, bottom_right):
         for r in xrange(top_left.row(), bottom_right.row()+1):
             idx = self.tocw.model().index(r, 0, top_left.parent())
-            new_title = unicode(idx.data(Qt.DisplayRole) or '').strip()
+            new_title = unicode_type(idx.data(Qt.DisplayRole) or '').strip()
             toc = idx.data(Qt.UserRole)
             if toc is not None:
                 toc.title = new_title or _('(Untitled)')
@@ -910,7 +910,7 @@ class TOCView(QWidget):  # {{{
         def process_node(parent, toc_parent):
             for i in xrange(parent.childCount()):
                 item = parent.child(i)
-                title = unicode(item.data(0, Qt.DisplayRole) or '').strip()
+                title = unicode_type(item.data(0, Qt.DisplayRole) or '').strip()
                 toc = item.data(0, Qt.UserRole)
                 dest, frag = toc.dest, toc.frag
                 toc = toc_parent.add(title, dest, frag)

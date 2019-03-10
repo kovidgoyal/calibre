@@ -16,6 +16,7 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class NoFonts(ValueError):
@@ -266,7 +267,7 @@ class FontScanner(Thread):
         '''
         from calibre.utils.fonts.utils import (supports_text,
                 panose_to_css_generic_family, get_printable_characters)
-        if not isinstance(text, unicode):
+        if not isinstance(text, unicode_type):
             raise TypeError(u'%r is not unicode'%text)
         text = get_printable_characters(text)
         found = {}

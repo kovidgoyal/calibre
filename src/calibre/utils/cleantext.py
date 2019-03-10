@@ -3,7 +3,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
-from polyglot.builtins import map
+from polyglot.builtins import codepoint_to_chr, map
 from calibre.constants import plugins, preferred_encoding
 
 try:
@@ -32,12 +32,12 @@ def clean_ascii_chars(txt, charlist=None):
         chars.add(127)
         for x in (9, 10, 13):
             chars.remove(x)
-        _ascii_pat = re.compile(u'|'.join(map(unichr, chars)))
+        _ascii_pat = re.compile(u'|'.join(map(codepoint_to_chr, chars)))
 
     if charlist is None:
         pat = _ascii_pat
     else:
-        pat = re.compile(u'|'.join(map(unichr, charlist)))
+        pat = re.compile(u'|'.join(map(codepoint_to_chr, charlist)))
     return pat.sub('', txt)
 
 
@@ -72,15 +72,15 @@ def unescape(text, rm=False, rchar=u''):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return codepoint_to_chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return codepoint_to_chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = codepoint_to_chr(htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

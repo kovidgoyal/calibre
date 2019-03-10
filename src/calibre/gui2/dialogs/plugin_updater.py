@@ -24,6 +24,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
+from polyglot.builtins import unicode_type
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
@@ -267,7 +268,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def set_filter_text(self, filter_text_value):
-        self.filter_text = icu_lower(unicode(filter_text_value))
+        self.filter_text = icu_lower(unicode_type(filter_text_value))
         self.invalidateFilter()
 
 
@@ -276,7 +277,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
-        self.headers = map(unicode, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
+        self.headers = map(unicode_type, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
                                       _('Available'), _('Released'), _('calibre'), _('Author')])
 
     def rowCount(self, *args):
@@ -726,7 +727,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 plugin = add_plugin(zip_path)
             except NameConflict as e:
                 return error_dialog(self.gui, _('Already exists'),
-                        unicode(e), show=True)
+                        unicode_type(e), show=True)
             # Check for any toolbars to add to.
             widget = ConfigWidget(self.gui)
             widget.gui = self.gui
@@ -841,7 +842,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                     continue
                 if heading_node.text_content().lower().find('version history') != -1:
                     div_node = spoiler_node.xpath('div')[0]
-                    text = html.tostring(div_node, method='html', encoding=unicode)
+                    text = html.tostring(div_node, method='html', encoding=unicode_type)
                     return re.sub('<div\s.*?>', '<div>', text)
             except:
                 if DEBUG:

@@ -2,12 +2,12 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import print_function
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = u'calibre'
 numeric_version = (3, 40, 1)
-__version__   = u'.'.join(map(unicode, numeric_version))
+__version__   = u'.'.join(map(unicode_type, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
 '''
@@ -300,7 +300,7 @@ def get_portable_base():
 
 def get_unicode_windows_env_var(name):
     getenv = plugins['winutil'][0].getenv
-    return getenv(unicode(name))
+    return getenv(unicode_type(name))
 
 
 def get_windows_username():

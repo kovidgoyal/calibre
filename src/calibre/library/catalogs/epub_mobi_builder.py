@@ -26,6 +26,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.zipfile import ZipFile
 from calibre.utils.localization import get_lang, lang_as_iso639_1
+from polyglot.builtins import unicode_type
 
 
 class Formatter(TemplateFormatter):
@@ -583,7 +584,7 @@ class CatalogBuilder(object):
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags' or rule['field'] == _('Tags'):
-                if rule['pattern'].lower() in map(unicode.lower, record['tags']):
+                if rule['pattern'].lower() in map(unicode_type.lower, record['tags']):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
                                (rule['prefix'], record['title'],
@@ -613,7 +614,7 @@ class CatalogBuilder(object):
                         # locale version
                         field_contents = _(repr(field_contents))
                     try:
-                        if re.search(rule['pattern'], unicode(field_contents),
+                        if re.search(rule['pattern'], unicode_type(field_contents),
                                 re.IGNORECASE) is not None:
                             if self.DEBUG:
                                 _log_prefix_rule_match_info(rule, record, field_contents)
@@ -685,14 +686,14 @@ class CatalogBuilder(object):
                     if icu_upper(c[0]) != last_c:
                         last_c = icu_upper(c[0])
                         if last_c in exceptions.keys():
-                            last_c = exceptions[unicode(last_c)]
+                            last_c = exceptions[unicode_type(last_c)]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
                 else:
                     if last_ordnum != ordnum:
                         last_c = icu_upper(c[0:ordlen])
                         if last_c in exceptions.keys():
-                            last_c = exceptions[unicode(last_c)]
+                            last_c = exceptions[unicode_type(last_c)]
                         last_ordnum = ordnum
                     else:
                         last_c = cl_list[idx-1]
@@ -702,7 +703,7 @@ class CatalogBuilder(object):
                 if last_ordnum != ordnum:
                     last_c = icu_upper(c[0:ordlen])
                     if last_c in exceptions.keys():
-                        last_c = exceptions[unicode(last_c)]
+                        last_c = exceptions[unicode_type(last_c)]
                     last_ordnum = ordnum
                 else:
                     last_c = cl_list[idx-1]
@@ -1325,7 +1326,7 @@ class CatalogBuilder(object):
         """
         # Kindle TOC descriptions won't render certain characters
         # Fix up
-        massaged = unicode(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
+        massaged = unicode_type(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
 
         # Replace '&' with '&#38;'
         massaged = re.sub("&", "&#38;", massaged)
@@ -4473,7 +4474,7 @@ class CatalogBuilder(object):
         Return:
          (str): legal XHTML anchor string of unicode character name
         """
-        fullname = u''.join(unicodedata.name(unicode(cc)) for cc in c)
+        fullname = u''.join(unicodedata.name(unicode_type(cc)) for cc in c)
         terms = fullname.split()
         return "_".join(terms)
 
@@ -4648,7 +4649,7 @@ class CatalogBuilder(object):
                                                         lost_cr.group(2),
                                                         lost_cr.group(3)))
         # Extract pre-built elements - annotations, etc.
-        if not isinstance(comments, unicode):
+        if not isinstance(comments, unicode_type):
             comments = comments.decode('utf-8', 'replace')
         soup = BeautifulSoup(comments)
         elems = soup.findAll('div')
@@ -4822,7 +4823,7 @@ class CatalogBuilder(object):
                             # locale version
                             field_contents = _(repr(field_contents))
 
-                        matched = re.search(pat, unicode(field_contents),
+                        matched = re.search(pat, unicode_type(field_contents),
                                 re.IGNORECASE)
                         if matched is not None:
                             if self.opts.verbose:

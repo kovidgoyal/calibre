@@ -11,6 +11,7 @@ License: http://www.opensource.org/licenses/mit-license.php
 import re
 
 from calibre.utils.icu import capitalize, upper
+from polyglot.builtins import unicode_type
 
 __all__ = ['titlecase']
 __version__ = '0.5'
@@ -21,7 +22,7 @@ PUNCT = r"""!"#$%&'‘’()*+,\-‒–—―./:;?@[\\\]_`{|}~"""
 SMALL_WORDS = re.compile(r'^(%s)$' % SMALL, re.I)
 INLINE_PERIOD = re.compile(r'[a-z][.][a-z]', re.I)
 UC_ELSEWHERE = re.compile(r'[%s]*?[a-zA-Z]+[A-Z]+?' % PUNCT)
-CAPFIRST = re.compile(unicode(r"^[%s]*?(\w)" % PUNCT), flags=re.UNICODE)
+CAPFIRST = re.compile(unicode_type(r"^[%s]*?(\w)" % PUNCT), flags=re.UNICODE)
 SMALL_FIRST = re.compile(r'^([%s]*)(%s)\b' % (PUNCT, SMALL), re.I|re.U)
 SMALL_LAST = re.compile(r'\b(%s)[%s]?$' % (SMALL, PUNCT), re.I|re.U)
 SMALL_AFTER_NUM = re.compile(r'(\d+\s+)(a|an|the)\b', re.I|re.U)

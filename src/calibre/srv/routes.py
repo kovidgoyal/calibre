@@ -14,6 +14,7 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
+from polyglot.builtins import unicode_type
 
 default_methods = frozenset(('HEAD', 'GET'))
 
@@ -201,9 +202,9 @@ class Route(object):
             raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
 
         def quoted(x):
-            if not isinstance(x, unicode) and not isinstance(x, bytes):
-                x = unicode(x)
-            if isinstance(x, unicode):
+            if not isinstance(x, unicode_type) and not isinstance(x, bytes):
+                x = unicode_type(x)
+            if isinstance(x, unicode_type):
                 x = x.encode('utf-8')
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}

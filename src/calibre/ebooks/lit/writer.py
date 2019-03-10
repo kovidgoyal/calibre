@@ -31,6 +31,7 @@ import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 __all__ = ['LitWriter']
 
@@ -163,9 +164,9 @@ class ReBinary(object):
         for value in values:
             if isinstance(value, (int, long)):
                 try:
-                    value = unichr(value)
+                    value = codepoint_to_chr(value)
                 except OverflowError:
-                    self.logger.warn('Unicode overflow for integer:', value)
+                    self.logger.warn('unicode_type overflow for integer:', value)
                     value = u'?'
             self.buf.write(value.encode('utf-8'))
 
@@ -216,9 +217,9 @@ class ReBinary(object):
                 path, frag = urldefrag(value)
                 if self.item:
                     path = self.item.abshref(path)
-                prefix = unichr(3)
+                prefix = codepoint_to_chr(3)
                 if path in self.manifest.hrefs:
-                    prefix = unichr(2)
+                    prefix = codepoint_to_chr(2)
                     value = self.manifest.hrefs[path].id
                     if frag:
                         value = '#'.join((value, frag))
@@ -281,9 +282,9 @@ class ReBinary(object):
             self.logger.warn("More than six anchors in file %r. "
                 "Some links may not work properly." % self.item.href)
         data = StringIO()
-        data.write(unichr(len(self.anchors)).encode('utf-8'))
+        data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
-            data.write(unichr(len(anchor)).encode('utf-8'))
+            data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
             data.write(anchor)
             data.write(pack('<I', offset))
         return data.getvalue()
@@ -313,7 +314,7 @@ class LitWriter(object):
         oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
         if oeb.metadata.cover:
-            id = unicode(oeb.metadata.cover[0])
+            id = unicode_type(oeb.metadata.cover[0])
             cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
@@ -485,7 +486,7 @@ class LitWriter(object):
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
-            elif isinstance(data, unicode):
+            elif isinstance(data, unicode_type):
                 data = data.encode('utf-8')
             elif hasattr(data, 'cssText'):
                 data = str(item)
@@ -521,9 +522,9 @@ class LitWriter(object):
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [unichr(len(id)), unicode(id),
-                         unichr(len(href)), unicode(href),
-                         unichr(len(media_type)), unicode(media_type)]
+                entry = [codepoint_to_chr(len(id)), unicode_type(id),
+                         codepoint_to_chr(len(href)), unicode_type(href),
+                         codepoint_to_chr(len(media_type)), unicode_type(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
                 data.write('\0')

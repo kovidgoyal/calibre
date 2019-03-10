@@ -11,6 +11,7 @@ import textwrap, os, glob
 
 from calibre.customize import FileTypePlugin
 from calibre.constants import numeric_version
+from polyglot.builtins import unicode_type
 
 
 class HTML2ZIP(FileTypePlugin):
@@ -114,10 +115,9 @@ every time you add an HTML file to the library.\
         config_dialog.exec_()
 
         if config_dialog.result() == QDialog.Accepted:
-            sc = unicode(sc.text()).strip()
+            sc = unicode_type(sc.text()).strip()
             if bf.isChecked():
                 sc += '|bf'
             customize_plugin(self, sc)
 
         return config_dialog.result()
-

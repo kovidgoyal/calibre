@@ -14,6 +14,7 @@ from calibre.utils.chm.chm import CHMFile
 from calibre.constants import plugins
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import unicode_type
 
 
 chmlib, chmlib_err = plugins['chmlib']
@@ -48,7 +49,7 @@ class CHMReader(CHMFile):
 
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
-        if isinstance(input, unicode):
+        if isinstance(input, unicode_type):
             input = input.encode(filesystem_encoding)
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
@@ -113,7 +114,7 @@ class CHMReader(CHMFile):
             enc = 'cp1252'
         for path in self.Contents():
             fpath = path
-            if not isinstance(path, unicode):
+            if not isinstance(path, unicode_type):
                 fpath = path.decode(enc)
             lpath = os.path.join(output_dir, fpath)
             self._ensure_dir(lpath)
@@ -146,7 +147,7 @@ class CHMReader(CHMFile):
             with open(lpath, 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
-                if isinstance(data, unicode):
+                if isinstance(data, unicode_type):
                     data = data.encode('utf-8')
                 f.seek(0)
                 f.truncate()

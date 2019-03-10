@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
+from polyglot.builtins import unicode_type
 
 
 def update_internal_links(mobi8_reader, log):
@@ -130,7 +131,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
             flows.append(flow)
             continue
 
-        if not isinstance(flow, unicode):
+        if not isinstance(flow, unicode_type):
             try:
                 flow = flow.decode(mr.header.codec)
             except UnicodeDecodeError:

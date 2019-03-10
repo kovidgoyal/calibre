@@ -20,6 +20,7 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
         align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
+from polyglot.builtins import unicode_type
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
@@ -52,7 +53,7 @@ class MobiWriter(object):
         self.log = oeb.log
         pt = None
         if oeb.metadata.publication_type:
-            x = unicode(oeb.metadata.publication_type[0]).split(':')
+            x = unicode_type(oeb.metadata.publication_type[0]).split(':')
             if len(x) > 1:
                 pt = x[1].lower()
         self.publication_type = pt
@@ -239,7 +240,7 @@ class MobiWriter(object):
             0  # Unused
         ))  # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
-        title = normalize(unicode(metadata.title[0])).encode('utf-8')
+        title = normalize(unicode_type(metadata.title[0])).encode('utf-8')
 
         # 0x0 - 0x3
         record0.write(b'MOBI')
@@ -459,7 +460,7 @@ class MobiWriter(object):
         '''
         Write the PalmDB header
         '''
-        title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
+        title = ascii_filename(unicode_type(self.oeb.metadata.title[0])).replace(
                 ' ', '_')[:31]
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
@@ -476,5 +477,3 @@ class MobiWriter(object):
     def write_content(self):
         for record in self.records:
             self.write(record)
-
-

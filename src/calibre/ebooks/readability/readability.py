@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import re, sys
 from collections import defaultdict
 
-from polyglot.builtins import reraise
+from polyglot.builtins import reraise, unicode_type
 
 from lxml.etree import tostring
 from lxml.html import (fragment_fromstring, document_fromstring,
@@ -17,7 +17,7 @@ from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
 
 
 def tounicode(tree_or_node, **kwargs):
-    kwargs['encoding'] = unicode
+    kwargs['encoding'] = unicode_type
     return htostring(tree_or_node, **kwargs)
 
 
@@ -315,7 +315,7 @@ class Document:
     def transform_misused_divs_into_paragraphs(self):
         for elem in self.tags(self.html, 'div'):
             # transform <div>s that do not contain other block elements into <p>s
-            if not REGEXES['divToPElementsRe'].search(unicode(''.join(map(tostring, list(elem))))):
+            if not REGEXES['divToPElementsRe'].search(unicode_type(''.join(map(tostring, list(elem))))):
                 # self.debug("Altering %s to p" % (describe(elem)))
                 elem.tag = "p"
                 # print "Fixed element "+describe(elem)

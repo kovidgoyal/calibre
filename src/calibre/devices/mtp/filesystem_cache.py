@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, sys, json
 from collections import deque
 from operator import attrgetter
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
@@ -74,7 +74,7 @@ class FileOrFolder(object):
     def __repr__(self):
         name = 'Folder' if self.is_folder else 'File'
         try:
-            path = unicode(self.full_path)
+            path = unicode_type(self.full_path)
         except:
             path = ''
         datum = 'size=%s'%(self.size)
@@ -250,5 +250,3 @@ class FilesystemCache(object):
             return self.id_map[object_id]
         except KeyError:
             raise ValueError('No object found with MTP path: %s'%path)
-
-

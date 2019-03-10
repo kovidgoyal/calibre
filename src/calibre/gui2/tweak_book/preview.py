@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, textwrap, json
 from bisect import bisect_right
 from base64 import b64encode
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from threading import Thread
 from Queue import Queue, Empty
 from functools import partial
@@ -278,7 +278,7 @@ class WebPage(QWebPage):
         self.init_javascript()
 
     def javaScriptConsoleMessage(self, msg, lineno, source_id):
-        prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
+        prints('preview js:%s:%s:'%(unicode_type(source_id), lineno), unicode_type(msg))
 
     def init_javascript(self):
         if not hasattr(self, 'js'):
@@ -294,7 +294,7 @@ class WebPage(QWebPage):
     @pyqtSlot(str, str, str)
     def request_sync(self, tag_name, href, sourceline_address):
         try:
-            self.sync_requested.emit(unicode(tag_name), unicode(href), json.loads(unicode(sourceline_address)))
+            self.sync_requested.emit(unicode_type(tag_name), unicode_type(href), json.loads(unicode_type(sourceline_address)))
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 
@@ -305,7 +305,7 @@ class WebPage(QWebPage):
     @pyqtSlot(str, str)
     def request_split(self, loc, totals):
         actions['split-in-preview'].setChecked(False)
-        loc, totals = json.loads(unicode(loc)), json.loads(unicode(totals))
+        loc, totals = json.loads(unicode_type(loc)), json.loads(unicode_type(totals))
         if not loc or not totals:
             return error_dialog(self.view(), _('Invalid location'),
                                 _('Cannot split on the body tag'), show=True)
@@ -400,7 +400,7 @@ class WebView(QWebView):
         p = self.page()
         mf = p.mainFrame()
         r = mf.hitTestContent(ev.pos())
-        url = unicode(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
+        url = unicode_type(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
         ca = self.pageAction(QWebPage.Copy)
         if ca.isEnabled():
             menu.addAction(ca)
@@ -483,7 +483,7 @@ class Preview(QWidget):
             self.bar.addAction(ac)
 
     def find(self, direction):
-        text = unicode(self.search.text())
+        text = unicode_type(self.search.text())
         self.view.findText(text, QWebPage.FindWrapsAroundDocument | (
             QWebPage.FindBackward if direction == 'prev' else QWebPage.FindFlags(0)))
 

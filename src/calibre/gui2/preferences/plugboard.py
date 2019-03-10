@@ -24,6 +24,7 @@ from calibre.library.save_to_disk import plugboard_any_format_value, \
 from calibre.srv.content import plugboard_content_server_value, plugboard_content_server_formats
 from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
+from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -153,7 +154,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
-        self.current_device = unicode(txt)
+        self.current_device = unicode_type(txt)
         fpb = self.current_plugboards.get(self.current_format, None)
         if fpb is None:
             print('edit_device_changed: none format!')
@@ -176,7 +177,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
-        txt = unicode(txt)
+        txt = unicode_type(txt)
         fpb = self.current_plugboards.get(txt, None)
         if fpb is None:
             print('edit_format_changed: none editable format!')
@@ -208,7 +209,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(edit_boxes=False)
             return
         self.clear_fields(edit_boxes=True)
-        self.current_device = unicode(txt)
+        self.current_device = unicode_type(txt)
 
         if self.current_format in self.current_plugboards and \
                 self.current_device in self.current_plugboards[self.current_format]:
@@ -292,7 +293,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.new_device.setCurrentIndex(0)
         if txt:
             self.clear_fields(edit_boxes=True)
-            self.current_format = unicode(txt)
+            self.current_format = unicode_type(txt)
             self.check_if_writer_disabled(self.current_format)
         else:
             self.clear_fields(edit_boxes=False)
@@ -301,7 +302,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         pb = []
         comments_in_dests = False
         for i in range(0, len(self.source_widgets)):
-            s = unicode(self.source_widgets[i].text())
+            s = unicode_type(self.source_widgets[i].text())
             if s:
                 d = self.dest_widgets[i].currentIndex()
                 if d != 0:

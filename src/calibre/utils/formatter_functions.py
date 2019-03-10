@@ -23,6 +23,7 @@ from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+from polyglot.builtins import unicode_type
 
 
 class FormatterFunctions(object):
@@ -131,12 +132,12 @@ class FormatterFunction(object):
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
         ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-        if isinstance(ret, (str, unicode)):
+        if isinstance(ret, (str, unicode_type)):
             return ret
         if isinstance(ret, list):
             return ','.join(ret)
         if isinstance(ret, (int, float, bool)):
-            return unicode(ret)
+            return unicode_type(ret)
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -246,7 +247,7 @@ class BuiltinAdd(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode(x + y)
+        return unicode_type(x + y)
 
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -258,7 +259,7 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode(x - y)
+        return unicode_type(x - y)
 
 
 class BuiltinMultiply(BuiltinFormatterFunction):
@@ -270,7 +271,7 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode(x * y)
+        return unicode_type(x * y)
 
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -282,7 +283,7 @@ class BuiltinDivide(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return unicode(x / y)
+        return unicode_type(x / y)
 
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -374,7 +375,7 @@ class BuiltinRawField(BuiltinFormatterFunction):
             if fm is None:
                 return ', '.join(res)
             return fm['is_multiple']['list_to_ui'].join(res)
-        return unicode(res)
+        return unicode_type(res)
 
 
 class BuiltinRawList(BuiltinFormatterFunction):
@@ -726,7 +727,7 @@ class BuiltinCount(BuiltinFormatterFunction):
             'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
-        return unicode(len([v for v in val.split(sep) if v]))
+        return unicode_type(len([v for v in val.split(sep) if v]))
 
 
 class BuiltinListitem(BuiltinFormatterFunction):

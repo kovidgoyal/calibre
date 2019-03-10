@@ -9,6 +9,7 @@ import sys
 
 from calibre import prints
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from polyglot.builtins import unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -52,6 +53,6 @@ def main(opts, args, dbctx):
         mi = OPFCreator(os.getcwdu(), mi)
         mi.render(sys.stdout)
     else:
-        prints(unicode(mi))
+        prints(unicode_type(mi))
 
     return 0

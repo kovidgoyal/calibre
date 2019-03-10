@@ -22,6 +22,7 @@ from calibre.ebooks.oeb.base import (
     XHTML, XHTML_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
+from polyglot.builtins import unicode_type
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 
@@ -46,7 +47,7 @@ class OEB2HTML(object):
         self.log.info('Converting OEB book to HTML...')
         self.opts = opts
         try:
-            self.book_title = unicode(oeb_book.metadata.title[0])
+            self.book_title = unicode_type(oeb_book.metadata.title[0])
         except Exception:
             self.book_title = _('Unknown')
         self.links = {}

@@ -22,6 +22,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
+from polyglot.builtins import unicode_type
 
 
 class AdaptSQP(SearchQueryParser):
@@ -271,7 +272,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx,
-                unicode(self.search.currentText()))
+                unicode_type(self.search.currentText()))
         self.highlight_index(idx)
 
     def find_previous(self, *args):
@@ -279,7 +280,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx,
-            unicode(self.search.currentText()), backwards=True)
+            unicode_type(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
     def toggle_plugin(self, *args):
@@ -317,7 +318,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 plugin = add_plugin(path)
             except NameConflict as e:
                 return error_dialog(self, _('Already exists'),
-                        unicode(e), show=True)
+                        unicode_type(e), show=True)
             self._plugin_model.beginResetModel()
             self._plugin_model.populate()
             self._plugin_model.endResetModel()
@@ -339,7 +340,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         index = self.plugin_view.currentIndex()
         if index.isValid():
             if not index.parent().isValid():
-                name = unicode(index.data() or '')
+                name = unicode_type(index.data() or '')
                 return error_dialog(self, _('Error'), '<p>'+
                         _('Select an actual plugin under <b>%s</b> to customize')%name,
                         show=True, show_copy_button=False)

@@ -17,6 +17,7 @@ from lxml import etree
 
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 Group = namedtuple('Group', 'title feeds')
 
@@ -125,7 +126,7 @@ class ImportOPML(QDialog):
             self.path.setText(opml_files[0])
 
     def accept(self):
-        path = unicode(self.path.text())
+        path = unicode_type(self.path.text())
         if not path:
             return error_dialog(self, _('Path not specified'), _(
                 'You must specify the path to the OPML file to import'), show=True)

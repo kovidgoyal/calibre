@@ -7,6 +7,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import unicode_type
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -367,7 +368,7 @@ class EPUBInput(InputFormatPlugin):
         def add_from_li(li, parent):
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
-                text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+                text = etree.tostring(x, method='text', encoding=unicode_type, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
                 href = x.get('href')
                 if href:
                     if href.startswith('#'):

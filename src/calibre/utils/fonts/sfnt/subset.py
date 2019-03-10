@@ -15,6 +15,7 @@ from functools import partial
 from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
+from polyglot.builtins import unicode_type
 
 # TrueType outlines {{{
 
@@ -106,7 +107,7 @@ def pdf_subset(sfnt, glyphs):
 
 
 def safe_ord(x):
-    return ord_string(unicode(x))[0]
+    return ord_string(unicode_type(x))[0]
 
 
 def subset(raw, individual_chars, ranges=(), warnings=None):
@@ -343,12 +344,12 @@ def all():
                 print('No glyphs!')
                 continue
             except UnsupportedFont as e:
-                unsupported.append((font['full_name'], font['path'], unicode(e)))
+                unsupported.append((font['full_name'], font['path'], unicode_type(e)))
                 print ('Unsupported!')
                 continue
             except Exception as e:
                 print ('Failed!')
-                failed.append((font['full_name'], font['path'], unicode(e)))
+                failed.append((font['full_name'], font['path'], unicode_type(e)))
             else:
                 averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues()) * 100)
                 print ('Reduced to:', '%.1f'%averages[-1] , '%')

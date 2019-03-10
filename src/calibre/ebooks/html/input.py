@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
+from polyglot.builtins import unicode_type
 
 
 class Link(object):
@@ -46,7 +47,7 @@ class Link(object):
         :param base: The base directory that relative URLs are with respect to.
                      Must be a unicode string.
         '''
-        assert isinstance(url, unicode) and isinstance(base, unicode)
+        assert isinstance(url, unicode_type) and isinstance(base, unicode_type)
         self.url         = url
         self.parsed_url  = urlparse(self.url)
         self.is_local    = self.parsed_url.scheme in ('', 'file')
@@ -248,6 +249,3 @@ def get_filelist(htmlfile, dir, opts, log):
         for f in filelist:
             log.debug('\t\t', f)
     return filelist
-
-
-

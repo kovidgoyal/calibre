@@ -14,6 +14,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import choose_save_file, choose_files
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class BookmarksList(QListWidget):
@@ -146,7 +147,7 @@ class BookmarkManager(QWidget):
 
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
-        title = unicode(item.data(Qt.DisplayRole))
+        title = unicode_type(item.data(Qt.DisplayRole))
         if not title:
             title = _('Unknown')
             item.setData(Qt.DisplayRole, title)

@@ -25,6 +25,7 @@ from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.progress_indicator import WaitLayout
+from polyglot.builtins import unicode_type
 
 
 class CoverDelegate(QStyledItemDelegate):
@@ -88,9 +89,9 @@ class PDFCovers(QDialog):
     @property
     def cover_path(self):
         for item in self.covers.selectedItems():
-            return unicode(item.data(Qt.UserRole) or '')
+            return unicode_type(item.data(Qt.UserRole) or '')
         if self.covers.count() > 0:
-            return unicode(self.covers.item(0).data(Qt.UserRole) or '')
+            return unicode_type(self.covers.item(0).data(Qt.UserRole) or '')
 
     def cleanup(self):
         try:

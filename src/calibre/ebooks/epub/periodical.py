@@ -11,6 +11,7 @@ import time
 from calibre.constants import __appname__, __version__
 from calibre import strftime, prepare_string_for_xml as xml
 from calibre.utils.date import parse_date
+from polyglot.builtins import unicode_type
 
 SONY_METADATA = u'''\
 <?xml version="1.0" encoding="utf-8"?>
@@ -81,21 +82,21 @@ SONY_ATOM_ENTRY = u'''\
 
 def sony_metadata(oeb):
     m = oeb.metadata
-    title = short_title = unicode(m.title[0])
+    title = short_title = unicode_type(m.title[0])
     publisher = __appname__ + ' ' + __version__
     try:
-        pt = unicode(oeb.metadata.publication_type[0])
+        pt = unicode_type(oeb.metadata.publication_type[0])
         short_title = u':'.join(pt.split(':')[2:])
     except:
         pass
 
     try:
-        date = parse_date(unicode(m.date[0]),
+        date = parse_date(unicode_type(m.date[0]),
                 as_utc=False).strftime('%Y-%m-%d')
     except:
         date = strftime('%Y-%m-%d')
     try:
-        language = unicode(m.language[0]).replace('_', '-')
+        language = unicode_type(m.language[0]).replace('_', '-')
     except:
         language = 'en'
     short_title = xml(short_title, True)
@@ -113,7 +114,7 @@ def sony_metadata(oeb):
                 return True
 
     try:
-        base_id = unicode(list(filter(cal_id, m.identifier))[0])
+        base_id = unicode_type(list(filter(cal_id, m.identifier))[0])
     except:
         base_id = str(uuid4())
 
@@ -128,7 +129,7 @@ def sony_metadata(oeb):
         for x in toc:
             section.nodes.append(x)
         toc = TOC(klass='periodical', href=oeb.spine[2].href,
-                    title=unicode(oeb.metadata.title[0]))
+                    title=unicode_type(oeb.metadata.title[0]))
         toc.nodes.append(section)
 
     entries = []
@@ -188,4 +189,3 @@ def sony_metadata(oeb):
             id=xml(base_id)).encode('utf-8')
 
     return metadata, atom
-
