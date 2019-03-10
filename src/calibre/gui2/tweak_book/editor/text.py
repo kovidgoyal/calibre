@@ -155,7 +155,10 @@ class TextEdit(PlainTextEdit):
         base = self.highlighter.doc_name or None
 
         def get_name(name):
-            return get_recommended_folders(current_container(), (name,))[name] + '/' + name
+            folder = get_recommended_folders(current_container(), (name,))[name] or ''
+            if folder:
+                folder += '/'
+            return folder + name
 
         def get_href(name):
             return current_container().name_to_href(name, base)
