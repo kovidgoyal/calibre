@@ -32,12 +32,18 @@ PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 // }}}
 
+#if PY_MAJOR_VERSION >= 3
+    #define BYTES_FMT "y#"
+#else
+    #define BYTES_FMT "s#"
+#endif
+
 // Loading/Opening of PDF files {{{
 static PyObject *
 PDFDoc_load(PDFDoc *self, PyObject *args) {
     char *buffer; Py_ssize_t size;
 
-    if (PyArg_ParseTuple(args, "s#", &buffer, &size)) {
+    if (PyArg_ParseTuple(args, BYTES_FMT, &buffer, &size)) {
         try {
 #if PODOFO_VERSION <= 0x000905
             self->doc->Load(buffer, (long)size);
@@ -77,7 +83,7 @@ static PyObject *
 PDFDoc_save(PDFDoc *self, PyObject *args) {
     char *buffer;
 
-    if (PyArg_ParseTuple(args, "s", &buffer)) {
+    if (PyArg_ParseTuple(args, BYTES_FMT, &buffer)) {
         try {
             self->doc->Write(buffer);
         } catch(const PdfError & err) {
@@ -284,7 +290,7 @@ PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
             if ((str = metadata->GetStream()) != NULL) {
                 str->GetFilteredCopy(&buf, &len);
                 if (buf != NULL) {
-                    ans = Py_BuildValue("s#", buf, len);
+                    ans = Py_BuildValue(BYTES_FMT, buf, len);
                     free(buf); buf = NULL;
                     if (ans == NULL) goto error;
                 }
@@ -312,7 +318,7 @@ PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     TVecFilters compressed(1);
     compressed[0] = ePdfFilter_FlateDecode;
 
-    if (!PyArg_ParseTuple(args, "s#", &raw, &len)) return NULL;
+    if (!PyArg_ParseTuple(args, BYTES_FMT, &raw, &len)) return NULL;
     try {
         if ((metadata = self->doc->GetMetadata()) != NULL) {
             if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
@@ -343,7 +349,11 @@ error:
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
     int pages = self->doc->GetPageCount();
+#if PY_MAJOR_VERSION >= 3
+    PyObject *ans = PyLong_FromLong(static_cast<long>(pages));
+#else
     PyObject *ans = PyInt_FromLong(static_cast<long>(pages));
+#endif
     if (ans != NULL) Py_INCREF(ans);
     return ans;
 }
@@ -595,45 +605,43 @@ static PyMethodDef PDFDoc_methods[] = {
 
 // Type definition {{{
 PyTypeObject pdf::PDFDocType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "podofo.PDFDoc",             /*tp_name*/
-    sizeof(PDFDoc), /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)PDFDoc_dealloc,                         /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
-    "PDF Documents",           /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    PDFDoc_methods,             /* tp_methods */
-    0,             /* tp_members */
-    PDFDoc_getsetters,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    PDFDoc_new,                 /* tp_new */
-
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "podofo.PDFDoc",
+    /* tp_basicsize      */ sizeof(PDFDoc),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)PDFDoc_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT,
+    /* tp_doc            */ "PDF Documents",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ PDFDoc_methods,
+    /* tp_members        */ 0,
+    /* tp_getset         */ PDFDoc_getsetters,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ 0,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ PDFDoc_new,
 };
 // }}}

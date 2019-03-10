@@ -165,7 +165,11 @@ static PyObject* add_font(PyObject *self, PyObject *args) {
     Py_ssize_t sz;
     DWORD num = 0;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "y#", &data, &sz)) return NULL;
+#else
     if (!PyArg_ParseTuple(args, "s#", &data, &sz)) return NULL;
+#endif
 
     AddFontMemResourceEx(data, (DWORD)sz, NULL, &num);
 
@@ -260,4 +264,3 @@ initwinfonts(void) {
     PyModule_AddIntMacro(m, FW_HEAVY);
     PyModule_AddIntMacro(m, FW_BLACK);
 }
-

@@ -97,7 +97,11 @@ class OutputDevice : public PdfOutputDevice {
             char *buf = NULL;
             Py_ssize_t len = 0;
 
+#if PY_MAJOR_VERSION >= 3
+            if ((temp = PyLong_FromSize_t(lLen)) == NULL) throw pyerr();
+#else
             if ((temp = PyInt_FromSize_t(lLen)) == NULL) throw pyerr();
+#endif
             ret = PyObject_CallFunctionObjArgs(read_func, temp, NULL);
             NUKE(temp);
             if (ret != NULL) {
@@ -118,7 +122,11 @@ class OutputDevice : public PdfOutputDevice {
 
         void Seek(size_t offset) {
             PyObject *ret, *temp;
+#if PY_MAJOR_VERSION >= 3
+            if ((temp = PyLong_FromSize_t(offset)) == NULL) throw pyerr();
+#else
             if ((temp = PyInt_FromSize_t(offset)) == NULL) throw pyerr();
+#endif
             ret = PyObject_CallFunctionObjArgs(seek_func, temp, NULL);
             NUKE(temp);
             if (ret == NULL) {
@@ -144,7 +152,11 @@ class OutputDevice : public PdfOutputDevice {
                 PyErr_SetString(PyExc_Exception, "tell() method did not return a number");
                 throw pyerr();
             }
+#if PY_MAJOR_VERSION >= 3
+            ans = PyLong_AsUnsignedLongMask(ret);
+#else
             ans = PyInt_AsUnsignedLongMask(ret);
+#endif
             Py_DECREF(ret);
             if (PyErr_Occurred() != NULL) throw pyerr();
 
@@ -191,4 +203,3 @@ PyObject* pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
 
     Py_RETURN_NONE;
 }
-

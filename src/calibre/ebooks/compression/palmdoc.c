@@ -42,12 +42,20 @@ typedef struct {
 
 #define CHAR(x) (( (x) > 127 ) ? (x)-256 : (x))
 
+#if PY_MAJOR_VERSION >= 3
+    #define BUFFER_FMT "y*"
+    #define BYTES_FMT "y#"
+#else
+    #define BUFFER_FMT "t#"
+    #define BYTES_FMT "s#"
+#endif
+
 static PyObject *
 cpalmdoc_decompress(PyObject *self, PyObject *args) {
     const char *_input = NULL; Py_ssize_t input_len = 0;
     Byte *input; char *output; Byte c; PyObject *ans;
     Py_ssize_t i = 0, o = 0, j = 0, di, n;
-    if (!PyArg_ParseTuple(args, "t#", &_input, &input_len))
+    if (!PyArg_ParseTuple(args, BUFFER_FMT, &_input, &input_len))
 		return NULL;
     input = (Byte *) PyMem_Malloc(sizeof(Byte)*input_len);
     if (input == NULL) return PyErr_NoMemory();
@@ -76,7 +84,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
                 output[o] = output[o - di];
         }
     }
-    ans = Py_BuildValue("s#", output, o);
+    ans = Py_BuildValue(BYTES_FMT, output, o);
     if (output != NULL) PyMem_Free(output);
     if (input != NULL) PyMem_Free(input);
     return ans;
@@ -162,7 +170,7 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     char *output; PyObject *ans;
     Py_ssize_t j = 0;
     buffer b;
-    if (!PyArg_ParseTuple(args, "t#", &_input, &input_len))
+    if (!PyArg_ParseTuple(args, BUFFER_FMT, &_input, &input_len))
 		return NULL;
     b.data = (Byte *)PyMem_Malloc(sizeof(Byte)*input_len);
     if (b.data == NULL) return PyErr_NoMemory();
@@ -176,7 +184,7 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     if (output == NULL) return PyErr_NoMemory();
     j = cpalmdoc_do_compress(&b, output);
     if ( j == 0) return PyErr_NoMemory();
-    ans = Py_BuildValue("s#", output, j);
+    ans = Py_BuildValue(BYTES_FMT, output, j);
     PyMem_Free(output);
     PyMem_Free(b.data);
     return ans;
@@ -203,4 +211,3 @@ initcPalmdoc(void) {
     );
     if (m == NULL) return;
 }
-

@@ -58,6 +58,12 @@ static PyObject *LZMAError = NULL;
 // Utils {{{
 static UInt64 crc64_table[256];
 
+#if PY_MAJOR_VERSION >= 3
+    #define BYTES_FMT "y#"
+#else
+    #define BYTES_FMT "s#"
+#endif
+
 static void init_crc_table() {
     static const UInt64 poly64 = (UInt64)(0xC96C5795D7870F42);
     size_t i, j;
@@ -79,7 +85,7 @@ crc64(PyObject *self, PyObject *args) {
     Py_ssize_t size = 0;
     UInt64 crc = 0;
     size_t i;
-    if (!PyArg_ParseTuple(args, "s#|K", &data, &size, &crc)) return NULL;
+    if (!PyArg_ParseTuple(args, BYTES_FMT "|K", &data, &size, &crc)) return NULL;
     crc = ~crc;
     for (i = 0; i < (size_t)size; ++i)
         crc = crc64_table[data[i] ^ (crc & 0xFF)] ^ (crc >> 8);
@@ -142,7 +148,7 @@ decompress2(PyObject *self, PyObject *args) {
         } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
         if (res != SZ_OK) { SET_ERROR(res); goto exit; }
         if (bytes_written > 0) {
-            if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+            if(!PyObject_CallFunction(write, BYTES_FMT, outbuf, bytes_written)) goto exit;
         }
         if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
             SET_ERROR(SZ_ERROR_DATA); goto exit;
@@ -188,7 +194,7 @@ decompress(PyObject *self, PyObject *args) {
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
     ELzmaFinishMode finish_mode = LZMA_FINISH_ANY;
 
-    if(!PyArg_ParseTuple(args, "OOOKs#k", &read, &seek, &write, &decompressed_size, &header, &header_size, &bufsize)) return NULL;
+    if(!PyArg_ParseTuple(args, "OOOK" BYTES_FMT "k", &read, &seek, &write, &decompressed_size, &header, &header_size, &bufsize)) return NULL;
     size_known = (decompressed_size != (UInt64)(Int64)-1);
     if (header_size != 13) { PyErr_SetString(LZMAError, "Header must be exactly 13 bytes long"); return NULL; }
     if (!decompressed_size) { PyErr_SetString(LZMAError, "Cannot decompress empty file"); return NULL; }
@@ -214,7 +220,7 @@ decompress(PyObject *self, PyObject *args) {
         } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
         if (res != SZ_OK) { SET_ERROR(res); goto exit; }
         if (bytes_written > 0) {
-            if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+            if(!PyObject_CallFunction(write, BYTES_FMT, outbuf, bytes_written)) goto exit;
             total_written += bytes_written;
         }
         if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
@@ -296,7 +302,7 @@ static size_t owrite(void *p, const void *buf, size_t size) {
     PyObject *res = NULL;
     if (!size) return 0;
     ACQUIRE_GIL
-    res = PyObject_CallFunction(self->write, "s#", (char*)buf, size);
+    res = PyObject_CallFunction(self->write, BYTES_FMT, (char*)buf, size);
     if (res == NULL) return 0;
     Py_DECREF(res);
     RELEASE_GIL
@@ -332,7 +338,7 @@ get_lzma2_properties(int preset) {
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
     if (PyErr_Occurred()) return NULL;
-    return Py_BuildValue("s#", &props_out, 1);
+    return Py_BuildValue(BYTES_FMT, &props_out, 1);
 }
 
 
@@ -382,7 +388,7 @@ compress(PyObject *self, PyObject *args) {
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
     if (PyErr_Occurred()) return NULL;
-    return Py_BuildValue("s#", &props_out, 1);
+    return Py_BuildValue(BYTES_FMT, &props_out, 1);
 }
 
 // }}}
