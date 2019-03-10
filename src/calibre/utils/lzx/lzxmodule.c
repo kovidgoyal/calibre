@@ -157,7 +157,11 @@ decompress(PyObject *self, PyObject *args)
     memory_file dest;
     PyObject *retval = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "y#I", &inbuf, &inlen, &outlen)) {
+#else
     if (!PyArg_ParseTuple(args, "s#I", &inbuf, &inlen, &outlen)) {
+#endif
         return NULL;
     }
 

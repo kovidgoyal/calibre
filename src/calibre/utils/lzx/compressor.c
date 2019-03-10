@@ -310,7 +310,11 @@ Compressor_compress(Compressor *self, PyObject *args, PyObject *kwds)
     int flush = 0;
 
     if (!PyArg_ParseTupleAndKeywords(
+#if PYTHON_MAJOR_VERSION >= 3
+            args, kwds, "y#|b", kwlist, &data, &inlen, &flush)) {
+#else
             args, kwds, "s#|b", kwlist, &data, &inlen, &flush)) {
+#endif
         return NULL;
     }
 

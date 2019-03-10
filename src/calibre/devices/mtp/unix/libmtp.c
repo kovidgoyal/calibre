@@ -86,7 +86,11 @@ static uint16_t data_to_python(void *params, void *priv, uint32_t sendlen, unsig
     cb = (ProgressCallback *)priv;
     *putlen = sendlen;
     PyEval_RestoreThread(cb->state);
+#if PY_MAJOR_VERSION >= 3
+    res = PyObject_CallMethod(cb->extra, "write", "y#", data, (Py_ssize_t)sendlen);
+#else
     res = PyObject_CallMethod(cb->extra, "write", "s#", data, (Py_ssize_t)sendlen);
+#endif
     if (res == NULL) {
         ret = LIBMTP_HANDLER_RETURN_ERROR;
         *putlen = 0;
