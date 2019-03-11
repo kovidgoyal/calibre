@@ -35,32 +35,46 @@ class DerStandardRecipe(BasicNewsRecipe):
     masthead_url = 'http://images.derstandard.at/2012/06/19/derStandardat_1417x274.gif'
 
     feeds = [
-        (u'Newsroom', u'http://derStandard.at/?page=rss&ressort=Seite1'),
-        (u'International', u'http://derstandard.at/?page=rss&ressort=International'),
-        (u'Inland', u'http://derstandard.at/?page=rss&ressort=Inland'),
-        (u'Wirtschaft', u'http://derStandard.at/?page=rss&ressort=Wirtschaft'),
-        (u'Web', u'http://derStandard.at/?page=rss&ressort=Web'),
-        (u'Sport', u'http://derStandard.at/?page=rss&ressort=Sport'),
-        (u'Panorama', u'http://derStandard.at/?page=rss&ressort=Panorama'),
-        (u'Etat', u'http://derStandard.at/?page=rss&ressort=Etat'),
-        (u'Kultur', u'http://derStandard.at/?page=rss&ressort=Kultur'),
-        (u'Wissenschaft', u'http://derStandard.at/?page=rss&ressort=Wissenschaft'),
-        (u'Gesundheit', u'http://derStandard.at/?page=rss&ressort=Gesundheit'),
-        (u'Bildung', u'http://derStandard.at/?page=rss&ressort=Bildung'),
-        (u'Meinung', u'http://derStandard.at/?page=rss&ressort=Meinung'),
-        (u'Lifestyle', u'http://derStandard.at/?page=rss&ressort=Lifestyle'),
-        (u'Reisen', u'http://derStandard.at/?page=rss&ressort=Reisen'),
-        (u'Familie', u'http://derstandard.at/?page=rss&ressort=Familie'),
-        (u'Meinung', u'http://derStandard.at/?page=rss&ressort=Meinung'),
-        (u'User', u'http://derStandard.at/?page=rss&ressort=User'),
-        (u'Karriere', u'http://derStandard.at/?page=rss&ressort=Karriere'),
-        (u'Immobilien', u'http://derstandard.at/?page=rss&ressort=Immobilien'),
-        (u'Automobil', u'http://derstandard.at/?page=rss&ressort=Automobil'),
-        (u'dieStandard', u'http://derStandard.at/?page=rss&ressort=diestandard'),
+        (u'Newsroom', u'https://derStandard.at/?page=rss&ressort=Seite1'),
+        (u'International', u'https://derstandard.at/?page=rss&ressort=International'),
+        (u'Inland', u'https://derstandard.at/?page=rss&ressort=Inland'),
+        (u'Wirtschaft', u'https://derStandard.at/?page=rss&ressort=Wirtschaft'),
+        (u'Web', u'https://derStandard.at/?page=rss&ressort=Web'),
+        (u'Sport', u'https://derStandard.at/?page=rss&ressort=Sport'),
+        (u'Panorama', u'https://derStandard.at/?page=rss&ressort=Panorama'),
+        (u'Etat', u'https://derStandard.at/?page=rss&ressort=Etat'),
+        (u'Kultur', u'https://derStandard.at/?page=rss&ressort=Kultur'),
+        (u'Wissenschaft', u'https://derStandard.at/?page=rss&ressort=Wissenschaft'),
+        (u'Gesundheit', u'https://derStandard.at/?page=rss&ressort=Gesundheit'),
+        (u'Bildung', u'https://derStandard.at/?page=rss&ressort=Bildung'),
+        (u'Meinung', u'https://derStandard.at/?page=rss&ressort=Meinung'),
+        (u'Lifestyle', u'https://derStandard.at/?page=rss&ressort=Lifestyle'),
+        (u'Reisen', u'https://derStandard.at/?page=rss&ressort=Reisen'),
+        (u'Familie', u'https://derstandard.at/?page=rss&ressort=Familie'),
+        (u'Meinung', u'https://derStandard.at/?page=rss&ressort=Meinung'),
+        (u'User', u'https://derStandard.at/?page=rss&ressort=User'),
+        (u'Karriere', u'https://derStandard.at/?page=rss&ressort=Karriere'),
+        (u'Immobilien', u'https://derstandard.at/?page=rss&ressort=Immobilien'),
+        (u'Automobil', u'https://derstandard.at/?page=rss&ressort=Automobil'),
+        (u'dieStandard', u'https://derStandard.at/?page=rss&ressort=diestandard'),
     ]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json; charset=UTF-8',
+            'DNT': '1',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+        }
+        import mechanize
+        req =   mechanize.Request(url='https://derstandard.at/privacyprotection/api/agree', data=None, headers=headers, method='POST')
+        br.open(req)
+        return br
+
     keep_only_tags = [
-        classes('article-header article-body'),
+        classes('artikel'),
     ]
 
     remove_tags = [
