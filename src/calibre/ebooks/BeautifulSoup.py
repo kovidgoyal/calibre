@@ -76,8 +76,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE, DAMMIT.
 
 """
-from __future__ import generators
-from __future__ import print_function
+from __future__ import generators, print_function
 
 __author__ = "Leonard Richardson (leonardr@segfault.org)"
 __version__ = "3.0.5"
@@ -90,6 +89,7 @@ import types
 import re
 import calibre.ebooks.sgmllib as sgmllib
 from htmlentitydefs import name2codepoint
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 #This hack makes Beautiful Soup able to parse XML with namespaces
 sgmllib.tagfind = re.compile('[a-zA-Z][-_.:a-zA-Z0-9]*')
@@ -178,7 +178,7 @@ class PageElement:
 
     def insert(self, position, newChild):
         if (isinstance(newChild, basestring)
-            or isinstance(newChild, unicode)) \
+            or isinstance(newChild, unicode_type)) \
             and not isinstance(newChild, NavigableString):
             newChild = NavigableString(newChild)
 
@@ -383,19 +383,19 @@ class PageElement:
     def toEncoding(self, s, encoding=None):
         """Encodes an object to a string in some encoding, or to Unicode.
         ."""
-        if isinstance(s, unicode):
+        if isinstance(s, unicode_type):
             if encoding:
                 s = s.encode(encoding)
         elif isinstance(s, str):
             if encoding:
                 s = s.encode(encoding)
             else:
-                s = unicode(s)
+                s = unicode_type(s)
         else:
             if encoding:
                 s  = self.toEncoding(str(s), encoding)
             else:
-                s = unicode(s)
+                s = unicode_type(s)
         return s
 
     BARE_AMPERSAND_OR_BRACKET = re.compile("([<>]|"
@@ -408,7 +408,7 @@ class PageElement:
         return "&" + self.XML_SPECIAL_CHARS_TO_ENTITIES[x.group(0)[0]] + ";"
 
 
-class NavigableString(unicode, PageElement):
+class NavigableString(unicode_type, PageElement):
 
     def __getnewargs__(self):
         return (NavigableString.__str__(self),)
@@ -423,7 +423,7 @@ class NavigableString(unicode, PageElement):
             raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, attr))
 
     def __unicode__(self):
-        return unicode(str(self), DEFAULT_OUTPUT_ENCODING) # Changed by Kovid
+        return unicode_type(str(self), DEFAULT_OUTPUT_ENCODING) # Changed by Kovid
 
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
         # Substitute outgoing XML entities.
@@ -479,7 +479,7 @@ class Tag(PageElement):
         escaped."""
         x = match.group(1)
         if self.convertHTMLEntities and x in name2codepoint:
-            return unichr(name2codepoint[x])
+            return codepoint_to_chr(name2codepoint[x])
         elif x in self.XML_ENTITIES_TO_SPECIAL_CHARS:
             if self.convertXMLEntities:
                 return self.XML_ENTITIES_TO_SPECIAL_CHARS[x]
@@ -488,9 +488,9 @@ class Tag(PageElement):
         elif len(x) > 0 and x[0] == '#':
             # Handle numeric entities
             if len(x) > 1 and x[1] == 'x':
-                return unichr(int(x[2:], 16))
+                return codepoint_to_chr(int(x[2:], 16))
             else:
-                return unichr(int(x[1:]))
+                return codepoint_to_chr(int(x[1:]))
 
         elif self.escapeUnrecognizedEntities:
             return u'&amp;%s;' % x
@@ -899,7 +899,7 @@ class SoupStrainer:
             if isinstance(markup, Tag):
                 markup = markup.name
             if markup and not isString(markup):
-                markup = unicode(markup)
+                markup = unicode_type(markup)
             #Now we know that chunk is either a string, or None.
             if hasattr(matchAgainst, 'match'):
                 # It's a regexp object.
@@ -909,8 +909,8 @@ class SoupStrainer:
             elif hasattr(matchAgainst, 'items'):
                 result = markup.has_key(matchAgainst)
             elif matchAgainst and isString(markup):
-                if isinstance(markup, unicode):
-                    matchAgainst = unicode(matchAgainst)
+                if isinstance(markup, unicode_type):
+                    matchAgainst = unicode_type(matchAgainst)
                 else:
                     matchAgainst = str(matchAgainst)
 
@@ -937,7 +937,7 @@ def isString(s):
     """Convenience method that works with all 2.x versions of Python
     to determine whether or not something is stringlike."""
     try:
-        return isinstance(s, unicode) or isinstance(s, basestring)
+        return isinstance(s, unicode_type) or isinstance(s, basestring)
     except NameError:
         return isinstance(s, str)
 
@@ -1088,7 +1088,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     def _feed(self, inDocumentEncoding=None):
         # Convert the document to Unicode.
         markup = self.markup
-        if isinstance(markup, unicode):
+        if isinstance(markup, unicode_type):
             if not hasattr(self, 'originalEncoding'):
                 self.originalEncoding = None
         else:
@@ -1328,7 +1328,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             if ref.lower().startswith('x'): #
                 ref = int(ref[1:], 16)      # Added by Kovid to handle hex numeric entities
             try:
-                data = unichr(int(ref))
+                data = codepoint_to_chr(int(ref))
             except ValueError: # Bad numerical entity. Added by Kovid
                 data = u''
         else:
@@ -1342,7 +1342,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         data = None
         if self.convertHTMLEntities:
             try:
-                data = unichr(name2codepoint[ref])
+                data = codepoint_to_chr(name2codepoint[ref])
             except KeyError:
                 pass
 
@@ -1689,9 +1689,9 @@ class UnicodeDammit:
         self.smartQuotesTo = smartQuotesTo
         self.triedEncodings = []
 
-        if markup == '' or isinstance(markup, unicode):
+        if markup == '' or isinstance(markup, unicode_type):
             self.originalEncoding = None
-            self.unicode = unicode(markup)
+            self.unicode = unicode_type(markup)
             return
 
         u = None
@@ -1704,7 +1704,7 @@ class UnicodeDammit:
                 if u: break
 
         # If no luck and we have auto-detection library, try that:
-        if not u and chardet and not isinstance(self.markup, unicode):
+        if not u and chardet and not isinstance(self.markup, unicode_type):
             u = self._convertFrom(chardet.detect(self.markup)['encoding'])
 
         # As a last resort, try utf-8 and windows-1252:
@@ -1777,7 +1777,7 @@ class UnicodeDammit:
             encoding = 'utf-32le'
             data = data[4:]
 
-        newdata = unicode(data, encoding)
+        newdata = unicode_type(data, encoding)
 
         return newdata
 
