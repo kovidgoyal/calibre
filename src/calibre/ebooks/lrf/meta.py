@@ -13,9 +13,8 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct, zlib, sys, os
+import io, struct, zlib, sys, os
 from shutil import copyfileobj
-from cStringIO import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
 
@@ -238,7 +237,7 @@ def insert_into_file(fileobj, data, start, end):
     @param end:     The position in fileobj of data that must not be overwritten
     @return:        C{start + len(data) - end}
     """
-    buffer = StringIO()
+    buffer = io.BytesIO()
     fileobj.seek(end)
     copyfileobj(fileobj, buffer, -1)
     buffer.flush()

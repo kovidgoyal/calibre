@@ -5,7 +5,7 @@
 """
 import struct
 import zlib
-import StringIO
+import io
 import codecs
 import os
 
@@ -473,7 +473,7 @@ class LrfTagStream(LrfStreamBase):
 
     def getStreamTags(self, encoding,
             optimizeTags=False, optimizeCompression=False):
-        stream = StringIO.StringIO()
+        stream = io.BytesIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
 
@@ -587,7 +587,7 @@ class LrfToc(LrfObject):
         self.tags.extend(stream.getStreamTags())
 
     def _makeTocStream(self, toc, se):
-        stream = StringIO.StringIO()
+        stream = io.BytesIO()
         nEntries = len(toc)
 
         writeDWord(stream, nEntries)
@@ -770,4 +770,3 @@ class LrfWriter(object):
     def writeObjectTable(self, lrf):
         for tableEntry in self.objectTable:
             tableEntry.write(lrf)
-

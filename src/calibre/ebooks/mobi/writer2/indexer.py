@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 from struct import pack
-from cStringIO import StringIO
+import io
 from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
@@ -166,7 +166,7 @@ class IndexEntry(object):
 
     @property
     def bytestring(self):
-        buf = StringIO()
+        buf = io.BytesIO()
         if isinstance(self.index, numbers.Integral):
             buf.write(encode_number_as_hex(self.index))
         else:
@@ -294,7 +294,7 @@ class TBS(object):  # {{{
                 self.book_tbs(data, first)
 
     def periodical_tbs(self, data, first, depth_map):
-        buf = StringIO()
+        buf = io.BytesIO()
 
         has_section_start = (depth_map[1] and
                 set(depth_map[1]).intersection(set(data['starts'])))
@@ -496,7 +496,7 @@ class Indexer(object):  # {{{
 
     def create_index_record(self, secondary=False):  # {{{
         header_length = 192
-        buf = StringIO()
+        buf = io.BytesIO()
         indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
 
         # Write index entries
@@ -539,7 +539,7 @@ class Indexer(object):  # {{{
     # }}}
 
     def create_header(self, secondary=False):  # {{{
-        buf = StringIO()
+        buf = io.BytesIO()
         if secondary:
             tagx_block = TAGX().secondary
         else:

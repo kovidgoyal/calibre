@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
+import re, sys, unittest, functools, os, uuid, glob, io, json, copy
 from urllib import unquote
 from urlparse import urlparse
 
@@ -1723,7 +1723,6 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
 def test_m2o():
     from calibre.utils.date import now as nowf
-    from cStringIO import StringIO
     mi = MetaInformation('test & title', ['a"1', "a'2"])
     mi.title_sort = 'a\'"b'
     mi.author_sort = 'author sort'
@@ -1742,7 +1741,7 @@ def test_m2o():
     mi.cover = os.path.abspath('asd.jpg')
     opf = metadata_to_opf(mi)
     print(opf)
-    newmi = MetaInformation(OPF(StringIO(opf)))
+    newmi = MetaInformation(OPF(io.BytesIO(opf)))
     for attr in ('author_sort', 'title_sort', 'comments',
                     'publisher', 'series', 'series_index', 'rating',
                     'isbn', 'tags', 'cover_data', 'application_id',
@@ -1760,7 +1759,7 @@ def test_m2o():
 class OPFTest(unittest.TestCase):
 
     def setUp(self):
-        self.stream = cStringIO.StringIO(
+        self.stream = io.BytesIO(
 '''\
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
@@ -1814,10 +1813,10 @@ class OPFTest(unittest.TestCase):
 
     def testCreator(self):
         opf = OPFCreator(os.getcwdu(), self.opf)
-        buf = cStringIO.StringIO()
+        buf = io.BytesIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwdu()))
+        self.testReading(opf=OPF(io.BytesIO(raw), os.getcwdu()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1833,7 +1832,6 @@ def test():
 
 
 def test_user_metadata():
-    from cStringIO import StringIO
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
         '#myseries': {'#value#': u'test series\xe4', 'datatype':'text',
@@ -1846,12 +1844,12 @@ def test_user_metadata():
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
     opfc = OPFCreator(os.getcwdu(), other=mi)
-    out = StringIO()
+    out = io.BytesIO()
     opfc.render(out)
     raw2 = out.getvalue()
-    f = StringIO(raw)
+    f = io.BytesIO(raw)
     opf = OPF(f)
-    f2 = StringIO(raw2)
+    f2 = io.BytesIO(raw2)
     opf2 = OPF(f2)
     assert um == opf._user_metadata_
     assert um == opf2._user_metadata_

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, cStringIO
+import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
 from polyglot.builtins import unicode_type
@@ -129,14 +129,14 @@ def get_all_translators():
         for lang in available_translations():
             mpath = get_lc_messages_path(lang)
             if mpath is not None:
-                buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
                 yield lang, GNUTranslations(buf)
 
 
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = cStringIO.StringIO(zf.read(mpath + '/%s.mo' % which))
+        buf = io.BytesIO(zf.read(mpath + '/%s.mo' % which))
         return GNUTranslations(buf)
 
 
@@ -185,14 +185,14 @@ lcdata = {
 
 def load_po(path):
     from calibre.translations.msgfmt import make
-    buf = cStringIO.StringIO()
+    buf = io.BytesIO()
     try:
         make(path, buf)
     except Exception:
         print (('Failed to compile translations file: %s, ignoring') % path)
         buf = None
     else:
-        buf = cStringIO.StringIO(buf.getvalue())
+        buf = io.BytesIO(buf.getvalue())
     return buf
 
 
@@ -216,12 +216,12 @@ def set_translators():
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:
-                    buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                    buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
                 if mpath == 'nds':
                     mpath = 'de'
                 isof = mpath + '/iso639.mo'
                 try:
-                    iso639 = cStringIO.StringIO(zf.read(isof))
+                    iso639 = io.BytesIO(zf.read(isof))
                 except:
                     pass  # No iso639 translations for this lang
                 if buf is not None:

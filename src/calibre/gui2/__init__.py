@@ -1261,7 +1261,7 @@ def form_to_compiled_form(form):
 
 
 def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
-    import re, cStringIO
+    import re, io
     from PyQt5.uic import compileUi
     forms = find_forms(srcdir)
     if info is None:
@@ -1286,7 +1286,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
         if force_compile or not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
             if not summary:
                 info('\tCompiling form', form)
-            buf = cStringIO.StringIO()
+            buf = io.BytesIO()
             compileUi(form, buf)
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')

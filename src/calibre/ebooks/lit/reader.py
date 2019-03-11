@@ -8,9 +8,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
-import struct, os, functools, re
+import io, struct, os, functools, re
 from urlparse import urldefrag
-from cStringIO import StringIO
 from urllib import unquote as urlunquote
 
 from lxml import etree
@@ -143,7 +142,7 @@ class UnBinary(object):
         self.is_html = map is HTML_MAP
         self.tag_atoms, self.attr_atoms = atoms
         self.dir = os.path.dirname(path)
-        buf = StringIO()
+        buf = io.BytesIO()
         self.binary_to_text(bin, buf)
         self.raw = buf.getvalue().lstrip()
         self.escape_reserved()

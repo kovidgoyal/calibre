@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
 import os
-from cStringIO import StringIO
+import io
 from struct import unpack
 
 
@@ -51,7 +51,7 @@ class Bookmark():  # {{{
         if self.bookmark_extension == 'mbp':
             MAGIC_MOBI_CONSTANT = 150
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.timestamp, = unpack('>I', data[0x24:0x28])
                 bpar_offset, = unpack('>I', data[0x4e:0x52])
@@ -148,7 +148,7 @@ class Bookmark():  # {{{
                 # This will find the first instance of a clipping only
                 book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
                 with lopen(book_fs,'rb') as f2:
-                    stream = StringIO(f2.read())
+                    stream = io.BytesIO(f2.read())
                     mi = get_topaz_metadata(stream)
                 my_clippings = self.path
                 split = my_clippings.find('documents') + len('documents/')
@@ -179,7 +179,7 @@ class Bookmark():  # {{{
             MAGIC_TOPAZ_CONSTANT = 33.33
             self.timestamp = os.path.getmtime(self.path)
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
                 self.last_read_location = self.last_read/MAGIC_TOPAZ_CONSTANT + 1
@@ -220,7 +220,7 @@ class Bookmark():  # {{{
         elif self.bookmark_extension == 'pdr':
             self.timestamp = os.path.getmtime(self.path)
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
                 entries, = unpack('>I', data[9:13])
@@ -289,7 +289,7 @@ class Bookmark():  # {{{
             # Read the book len from the header
             try:
                 with lopen(book_fs,'rb') as f:
-                    self.stream = StringIO(f.read())
+                    self.stream = io.BytesIO(f.read())
                     self.data = StreamSlicer(self.stream)
                     self.nrecs, = unpack('>H', self.data[76:78])
                     record0 = self.record(0)

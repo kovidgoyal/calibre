@@ -13,7 +13,7 @@ Die Zeit EPUB
 import os
 import zipfile
 import re
-import cStringIO
+import io
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import walk
@@ -272,7 +272,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             with closing(browser.open(cover_url)) as r:
                 cdata = r.read()
             from calibre.ebooks.metadata.pdf import get_metadata
-            stream = cStringIO.StringIO(cdata)
+            stream = io.BytesIO(cdata)
             cdata = None
             mi = get_metadata(stream)
             if mi.cover_data and mi.cover_data[1]:

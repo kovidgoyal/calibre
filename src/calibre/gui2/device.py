@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, cStringIO, re, sys, weakref
+import os, traceback, Queue, time, io, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt5.Qt import (
@@ -113,7 +113,7 @@ class DeviceJob(BaseJob):  # {{{
 
     @property
     def log_file(self):
-        return cStringIO.StringIO(self._details.encode('utf-8'))
+        return io.BytesIO(self._details.encode('utf-8'))
 
     # }}}
 

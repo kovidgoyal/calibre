@@ -126,10 +126,10 @@ def _get_cover(soup, rdr):
                 ans = None
         if ans is not None:
             from PIL import Image
-            from cStringIO import StringIO
-            buf = StringIO()
+            import io
+            buf = io.BytesIO()
             try:
-                Image.open(StringIO(ans)).convert('RGB').save(buf, 'JPEG')
+                Image.open(io.BytesIO(ans)).convert('RGB').save(buf, 'JPEG')
                 ans = buf.getvalue()
             except:
                 ans = None

@@ -6,8 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os, re, posixpath
-from cStringIO import StringIO
+import io, os, re, posixpath
 from contextlib import closing
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
@@ -151,7 +150,7 @@ class OCFZipReader(OCFReader):
     def open(self, name, mode='r'):
         if isinstance(self.archive, LocalZipFile):
             return self.archive.open(name)
-        return StringIO(self.archive.read(name))
+        return io.BytesIO(self.archive.read(name))
 
     def read_bytes(self, name):
         return self.archive.read(name)
@@ -324,5 +323,3 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             os.remove(replacements[cpath].name)
     except:
         pass
-
-

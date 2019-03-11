@@ -7,7 +7,7 @@ chron.com
 '''
 from datetime import datetime, timedelta
 from lxml import html, etree
-from StringIO import StringIO
+import io
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import urllib2
 from collections import OrderedDict
@@ -31,7 +31,7 @@ def get_article_parsed(this_url):
     page = urllib2.urlopen(req)
     content = page.read()
     parser = etree.HTMLParser()
-    parsed = html.parse(StringIO(content), parser)
+    parsed = html.parse(io.BytesIO(bytes(content)), parser)
     return parsed
 
 

@@ -4,7 +4,7 @@ a zip archive, detecting filename encoding, updating zip files, etc.
 """
 from __future__ import print_function
 import struct, os, time, sys, shutil, stat, re, io
-import binascii, cStringIO
+import binascii
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
@@ -835,7 +835,7 @@ class ZipFile:
         self.start_dir = offset_cd + concat
         fp.seek(self.start_dir, 0)
         data = fp.read(size_cd)
-        fp = cStringIO.StringIO(data)
+        fp = io.BytesIO(data)
         total = 0
         while total < size_cd:
             centdir = fp.read(sizeCentralDir)

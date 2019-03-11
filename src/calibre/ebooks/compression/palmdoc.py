@@ -5,7 +5,7 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cStringIO import StringIO
+import io
 from struct import pack
 
 from calibre.constants import plugins
@@ -50,7 +50,7 @@ def test():
 
 
 def py_compress_doc(data):
-    out = StringIO()
+    out = io.BytesIO()
     i = 0
     ldata = len(data)
     while i < ldata:

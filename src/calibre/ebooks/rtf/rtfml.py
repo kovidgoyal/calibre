@@ -10,7 +10,7 @@ Transform OEB content into RTF markup
 
 import os
 import re
-import cStringIO
+import io
 
 from lxml import etree
 
@@ -79,15 +79,15 @@ def txt2rtf(text):
     if not isinstance(text, unicode_type):
         return text
 
-    buf = cStringIO.StringIO()
+    buf = io.StringIO()
     for x in text:
         val = ord(x)
         if val == 160:
-            buf.write('\\~')
+            buf.write(u'\\~')
         elif val <= 127:
-            buf.write(x)
+            buf.write(unicode_type(x))
         else:
-            c = r'\u{0:d}?'.format(val)
+            c = unicode_type(r'\u{0:d}?'.format(val))
             buf.write(c)
     return buf.getvalue()
 

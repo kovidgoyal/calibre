@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 _count = 0
 
-import time, cStringIO
+import time, io
 from Queue import Queue, Empty
 
 from calibre import prints
@@ -146,7 +146,7 @@ class BaseJob(object):
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return cStringIO.StringIO(_('No details available.').encode('utf-8',
+        return io.BytesIO(_('No details available.').encode('utf-8',
             'replace'))
 
     @property
@@ -159,6 +159,3 @@ class ParallelJob(BaseJob):
     def __init__(self, name, description, done, args=[], kwargs={}):
         self.name, self.args, self.kwargs = name, args, kwargs
         BaseJob.__init__(self, description, done)
-
-
-

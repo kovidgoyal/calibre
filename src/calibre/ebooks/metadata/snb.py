@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 
 import os
-from StringIO import StringIO
+import io
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
 from lxml import etree
@@ -19,7 +19,7 @@ def get_metadata(stream, extract_cover=True):
 
     try:
         if not hasattr(stream, 'write'):
-            snbFile.Parse(StringIO(stream), True)
+            snbFile.Parse(io.BytesIO(stream), True)
         else:
             stream.seek(0)
             snbFile.Parse(stream, True)
