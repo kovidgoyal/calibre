@@ -100,7 +100,7 @@ class Ozon(Source):
         qItems.discard('')
         searchText = u' '.join(qItems).strip()
 
-        if isinstance(searchText, unicode):
+        if isinstance(searchText, type(u'')):
             searchText = searchText.encode('utf-8')
         if not searchText:
             return None
@@ -148,7 +148,7 @@ class Ozon(Source):
             else:
                 # Redirect page: trying to extract ozon_id from javascript data
                 h = HTMLParser()
-                entry_string = (h.unescape(etree.tostring(doc, pretty_print=True, encoding=unicode)))
+                entry_string = (h.unescape(etree.tostring(doc, pretty_print=True, encoding='unicode')))
                 json_pat = re.compile(r'dataLayer\s*=\s*(.+)?;')
                 json_info = re.search(json_pat, entry_string)
                 jsondata = json_info.group(1) if json_info else None
@@ -198,16 +198,16 @@ class Ozon(Source):
 
         reRemoveFromTitle = re.compile(r'[?!:.,;+-/&%"\'=]')
 
-        title = unicode(title).upper() if title else ''
+        title = type(u'')(title).upper() if title else ''
         if reRemoveFromTitle:
             title = reRemoveFromTitle.sub('', title)
         authors = map(_normalizeAuthorNameWithInitials,
-                      map(unicode.upper, map(unicode, authors))) if authors else None
+                      map(type(u'').upper, map(type(u''), authors))) if authors else None
 
         ozon_id = identifiers.get('ozon', None)
         # log.debug(u'ozonid: ', ozon_id)
 
-        unk = unicode(_('Unknown')).upper()
+        unk = type(u'')(_('Unknown')).upper()
 
         if title == unk:
             title = None
@@ -226,7 +226,7 @@ class Ozon(Source):
         def calc_source_relevance(mi):  # {{{
             relevance = 0
             if title:
-                mititle = unicode(mi.title).upper() if mi.title else ''
+                mititle = type(u'')(mi.title).upper() if mi.title else ''
 
                 if reRemoveFromTitle:
                     mititle = reRemoveFromTitle.sub('', mititle)
@@ -240,7 +240,7 @@ class Ozon(Source):
                 relevance += 1
 
             if authors:
-                miauthors = map(unicode.upper, map(unicode, mi.authors)) if mi.authors else []
+                miauthors = map(type(u'').upper, map(type(u''), mi.authors)) if mi.authors else []
                 # log.debug('Authors %s vs miauthors %s'%(','.join(authors), ','.join(miauthors)))
 
                 if (in_authors(authors, miauthors)):
@@ -320,13 +320,13 @@ class Ozon(Source):
     # }}}
 
     def to_metadata(self, log, entry):  # {{{
-        title = unicode(entry.xpath(u'normalize-space(.//div[@itemprop="name"][1]/text())'))
+        title = type(u'')(entry.xpath(u'normalize-space(.//div[@itemprop="name"][1]/text())'))
         # log.debug(u'Title: -----> %s' % title)
 
-        author = unicode(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
+        author = type(u'')(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
         # log.debug(u'Author: -----> %s' % author)
 
-        norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
+        norm_authors = map(_normalizeAuthorNameWithInitials, map(type(u'').strip, type(u'')(author).split(u',')))
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.get('data-href').split('/')[-2]
@@ -524,7 +524,7 @@ class Ozon(Source):
         # comments, from Javascript data
         beginning = fullString.find(u'FirstBlock')
         end = fullString.find(u'}', beginning)
-        comments = unicode(fullString[beginning + 75:end - 1]).decode("unicode-escape")
+        comments = type(u'')(fullString[beginning + 75:end - 1]).decode("unicode-escape")
         metadata.comments = replace_entities(comments, 'utf-8')
         # }}}
 
@@ -603,7 +603,7 @@ def _format_isbn(log, isbn):  # {{{
 
 
 def _translageLanguageToCode(displayLang):  # {{{
-    displayLang = unicode(displayLang).strip() if displayLang else None
+    displayLang = type(u'')(displayLang).strip() if displayLang else None
     langTbl = {None: 'ru',
                u'Русский': 'ru',
                u'Немецкий': 'de',
@@ -627,9 +627,9 @@ def _normalizeAuthorNameWithInitials(name):  # {{{
     if name:
         re1 = r'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
         re2 = r'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
-        matcher = re.match(re1, unicode(name), re.UNICODE)
+        matcher = re.match(re1, type(u'')(name), re.UNICODE)
         if not matcher:
-            matcher = re.match(re2, unicode(name), re.UNICODE)
+            matcher = re.match(re2, type(u'')(name), re.UNICODE)
 
         if matcher:
             d = matcher.groupdict()
@@ -653,7 +653,7 @@ def toPubdate(log, yearAsString):  # {{{
 # }}}
 
 def _listToUnicodePrintStr(lst):  # {{{
-    return u'[' + u', '.join(unicode(x) for x in lst) + u']'
+    return u'[' + u', '.join(type(u'')(x) for x in lst) + u']'
 
 
 # }}}

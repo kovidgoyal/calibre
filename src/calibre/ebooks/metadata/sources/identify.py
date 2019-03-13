@@ -471,7 +471,7 @@ def identify(log, abort,  # {{{
         for r in presults:
             log('\n\n---')
             try:
-                log(unicode(r))
+                log(type(u'')(r))
             except TypeError:
                 log(repr(r))
         if plog:

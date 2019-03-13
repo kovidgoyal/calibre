@@ -21,6 +21,7 @@ prefs = JSONConfig('plugins/interface_demo')
 # Set defaults
 prefs.defaults['hello_world_msg'] = 'Hello, World!'
 
+
 class ConfigWidget(QWidget):
 
     def __init__(self):
@@ -37,5 +38,4 @@ class ConfigWidget(QWidget):
         self.label.setBuddy(self.msg)
 
     def save_settings(self):
-        prefs['hello_world_msg'] = unicode(self.msg.text())
-
+        prefs['hello_world_msg'] = self.msg.text()

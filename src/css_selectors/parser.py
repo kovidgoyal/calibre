@@ -15,20 +15,17 @@ import operator
 import string
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
+from polyglot.builtins import unicode_type, codepoint_to_chr
 
-if sys.version_info[0] < 3:
-    _unicode = unicode
-    _unichr = unichr
-else:
-    _unicode = str
-    _unichr = chr
 
 tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 utab = {c:c+32 for c in range(ord('A'), ord('Z')+1)}
 
+
 def ascii_lower(string):
     """Lower-case, but only in the ASCII range."""
-    return string.translate(utab if isinstance(string, _unicode) else tab)
+    return string.translate(utab if isinstance(string, unicode_type) else tab)
+
 
 def urepr(x):
     if isinstance(x, list):
@@ -37,6 +34,7 @@ def urepr(x):
     if ans.startswith("u'") or ans.startswith('u"'):
         ans = ans[1:]
     return ans
+
 
 # Parsed objects
 
@@ -385,6 +383,7 @@ def parse_selector_group(stream):
         else:
             break
 
+
 def parse_selector(stream):
     result, pseudo_element = parse_simple_selector(stream)
     while 1:
@@ -461,7 +460,7 @@ def parse_simple_selector(stream, inside_negation=False):
                                  'before', 'after'):
                 # Special case: CSS 2.1 pseudo-elements can have a single ':'
                 # Any new pseudo-element must have two.
-                pseudo_element = _unicode(ident)
+                pseudo_element = unicode_type(ident)
                 continue
             if stream.peek() != ('DELIM', '('):
                 result = Pseudo(result, ident)
@@ -626,11 +625,13 @@ class TokenMacros:
     nmchar = '[_a-z0-9-]|%s|%s' % (escape, nonascii)
     nmstart = '[_a-z]|%s|%s' % (escape, nonascii)
 
+
 def _compile(pattern):
     return re.compile(pattern % vars(TokenMacros), re.IGNORECASE).match
 
+
 _match_whitespace = _compile(r'[ \t\r\n\f]+')
-_match_number = _compile('[+-]?(?:[0-9]*\.[0-9]+|[0-9]+)')
+_match_number = _compile(r'[+-]?(?:[0-9]*\.[0-9]+|[0-9]+)')
 _match_hash = _compile('#(?:%(nmchar)s)+')
 _match_ident = _compile('-?(?:%(nmstart)s)(?:%(nmchar)s)*')
 _match_string_by_quote = {
@@ -650,11 +651,12 @@ else:
     def _replace_simple(match):
         return match.group(1)
 
+
 def _replace_unicode(match):
     codepoint = int(match.group(1), 16)
     if codepoint > sys.maxunicode:
         codepoint = 0xFFFD
-    return _unichr(codepoint)
+    return codepoint_to_chr(codepoint)
 
 
 def unescape_ident(value):

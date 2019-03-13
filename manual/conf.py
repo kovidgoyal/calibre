@@ -168,7 +168,7 @@ def sort_languages(x):
     lc, name = x
     if lc == language:
         return ''
-    return sort_key(unicode(name))
+    return sort_key(type(u'')(name))
 
 
 html_context['other_languages'].sort(key=sort_languages)

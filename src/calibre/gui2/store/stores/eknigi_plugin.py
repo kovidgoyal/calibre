@@ -49,7 +49,7 @@ class eKnigiStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         # check for cyrillic symbols before performing search
-        uquery = unicode(query.strip(), 'utf-8')
+        uquery = type(u'')(query.strip(), 'utf-8')
         reObj = re.search(u'^[а-яА-Я\\d\\s]{2,}$', uquery)
         if not reObj:
             return

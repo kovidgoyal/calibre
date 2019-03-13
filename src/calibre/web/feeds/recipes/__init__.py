@@ -9,7 +9,7 @@ from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, codepoint_to_chr
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)
@@ -44,7 +44,9 @@ def compile_recipe(src):
             'BasicNewsRecipe':BasicNewsRecipe,
             'AutomaticNewsRecipe':AutomaticNewsRecipe,
             'time':time, 're':re,
-            'BeautifulSoup':BeautifulSoup
+            'BeautifulSoup':BeautifulSoup,
+            'unicode': unicode_type,
+            'unichr': codepoint_to_chr,
     }
     exec(src, namespace)
 

@@ -29,7 +29,7 @@ def make_NCName(arg):
     return arg
 
 def cnv_anyURI(attribute, arg, element):
-    return unicode(arg)
+    return type(u'')(arg)
 
 def cnv_boolean(attribute, arg, element):
     if arg.lower() in ("false","no"):
@@ -85,13 +85,13 @@ def cnv_family(attribute, arg, element):
 def __save_prefix(attribute, arg, element):
     prefix = arg.split(':',1)[0]
     if prefix == arg:
-        return unicode(arg)
+        return type(u'')(arg)
     namespace = element.get_knownns(prefix)
     if namespace is None:
         #raise ValueError, "'%s' is an unknown prefix" % str(prefix)
-        return unicode(arg)
+        return type(u'')(arg)
     p = element.get_nsprefix(namespace)
-    return unicode(arg)
+    return type(u'')(arg)
 
 def cnv_formula(attribute, arg, element):
     """ A string containing a formula. Formulas do not have a predefined syntax, but the string should
@@ -218,7 +218,7 @@ def cnv_positiveInteger(attribute, arg, element):
     return str(arg)
 
 def cnv_string(attribute, arg, element):
-    return unicode(arg)
+    return type(u'')(arg)
 
 def cnv_textnoteclass(attribute, arg, element):
     if str(arg) not in ("footnote", "endnote"):
@@ -1480,5 +1480,4 @@ class AttrConverters:
             conversion = attrconverters.get((attribute, None), None)
             if conversion is not None:
                 return conversion(attribute, value, element)
-        return unicode(value)
-
+        return type(u'')(value)

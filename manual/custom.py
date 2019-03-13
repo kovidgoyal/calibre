@@ -198,7 +198,7 @@ def generate_ebook_convert_help(preamble, app):
 
 
 def update_cli_doc(name, raw, app):
-    if isinstance(raw, unicode):
+    if isinstance(raw, type(u'')):
         raw = raw.encode('utf-8')
     path = 'generated/%s/%s.rst' % (app.config.language, name)
     old_raw = open(path, 'rb').read() if os.path.exists(path) else ''

@@ -26,7 +26,7 @@ Result = namedtuple('Result', 'url title cached_url')
 
 
 def tostring(elem):
-    return etree.tostring(elem, encoding=unicode, method='text', with_tail=False)
+    return etree.tostring(elem, encoding='unicode', method='text', with_tail=False)
 
 
 def browser():

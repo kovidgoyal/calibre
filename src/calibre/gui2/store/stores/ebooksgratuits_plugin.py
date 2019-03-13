@@ -22,10 +22,9 @@ class EbooksGratuitsStore(BasicStoreConfig, OpenSearchOPDSStore):
         return ascii_text(s)
 
     def search(self, query, max_results=10, timeout=60):
-        query = self.strip_accents(unicode(query))
+        query = self.strip_accents(type(u'')(query))
         for s in OpenSearchOPDSStore.search(self, query, max_results, timeout):
             if s.downloads:
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.price = '$0.00'
                 yield s
-

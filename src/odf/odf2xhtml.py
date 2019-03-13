@@ -55,6 +55,7 @@ if False:  # Added by Kovid
 # character etc. styles Since CSS2 has no scope we use a prefix. (Not elegant)
 # In ODF a style can have a parent, these parents can be chained.
 
+
 class StyleToCSS:
 
     """ The purpose of the StyleToCSS class is to contain the rules to convert
@@ -317,12 +318,14 @@ class TagStack:
             if attr in attrs:
                 return attrs[attr]
         return None
+
     def count_tags(self, tag):
         c = 0
         for ttag, tattrs in self.stack:
             if ttag == tag:
                 c = c + 1
         return c
+
 
 special_styles = {
    'S-Emphasis':'em',
@@ -352,6 +355,8 @@ special_styles = {
 # ODFCONTENTHANDLER
 #
 # -----------------------------------------------------------------------------
+
+
 class ODF2XHTML(handler.ContentHandler):
 
     """ The ODF2XHTML parses an ODF file and produces XHTML"""
@@ -624,9 +629,6 @@ class ODF2XHTML(handler.ContentHandler):
             # Changed by Kovid
             self.anchors[name] = "anchor%d" % (len(self.anchors) + 1)
         return self.anchors.get(name)
-
-
-# --------------------------------------------------
 
     def purgedata(self):
         self.data = []
@@ -1457,7 +1459,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 #        self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
         # marker is reused in the source. Therefore we force numeric markers
-        self.writeout(unicode(self.currentnote))
+        self.writeout(type(u'')(self.currentnote))
         self.closetag('a')
         self.closetag('sup')
 
@@ -1566,12 +1568,11 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.writedata()
         self.purgedata()
 
-
-# -----------------------------------------------------------------------------
-#
-# Reading the file
-#
-# -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    #
+    # Reading the file
+    #
+    # -----------------------------------------------------------------------------
 
     def load(self, odffile):
         """ Loads a document into the parser and parses it.
@@ -1593,7 +1594,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self._walknode(c)
             self.endElementNS(node.qname, node.tagName)
         if node.nodeType == Node.TEXT_NODE or node.nodeType == Node.CDATA_SECTION_NODE:
-            self.characters(unicode(node))
+            self.characters(type(u'')(node))
 
     def odf2xhtml(self, odffile):
         """ Load a file and return the XHTML

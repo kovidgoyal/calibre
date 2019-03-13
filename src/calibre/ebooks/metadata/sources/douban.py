@@ -203,7 +203,7 @@ class Douban(Source):
                     build_term('author', author_tokens))
             t = 'search'
         q = q.strip()
-        if isinstance(q, unicode):
+        if isinstance(q, type(u'')):
             q = q.encode('utf-8')
         if not q:
             return None

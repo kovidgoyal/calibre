@@ -128,11 +128,11 @@ class Textile(object):
 
     pnct = r'[-!"#$%&()*+,/:;<=>?@\'\[\\\]\.^_`{|}~]'
     # urlch = r'[\w"$\-_.+!*\'(),";/?:@=&%#{}|\\^~\[\]`]'
-    urlch = '[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
+    urlch = r'[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
 
     url_schemes = ('http', 'https', 'ftp', 'mailto')
 
-    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', 'fn\d+', 'p')
+    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', r'fn\d+', 'p')
     btag_lite = ('bq', 'bc', 'p')
 
     macro_defaults = [
@@ -292,7 +292,7 @@ class Textile(object):
         """
         self.html_type = html_type
 
-        # text = unicode(text)
+        # text = type(u'')(text)
         text = _normalize_newlines(text)
 
         if self.restricted:

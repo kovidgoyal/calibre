@@ -22,7 +22,7 @@ class CacheUpdateThread(Thread, QObject):
 
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
-    update_details = pyqtSignal(unicode)
+    update_details = pyqtSignal(type(u''))
 
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)

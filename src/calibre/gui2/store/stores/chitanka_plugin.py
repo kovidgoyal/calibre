@@ -43,7 +43,9 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         # check for cyrillic symbols before performing search
-        uquery = unicode(query.strip(), 'utf-8')
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
+        uquery = query.strip()
         reObj = re.search(u'^[а-яА-Я\\d\\s]{3,}$', uquery)
         if not reObj:
             return
@@ -56,7 +58,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
         br = browser()
         try:
             with closing(br.open(url, timeout=timeout)) as f:
-                f = unicode(f.read(), 'utf-8')
+                f = f.read().decode('utf-8')
                 doc = html.fromstring(f)
 
                 for data in doc.xpath('//ul[@class="superlist booklist"]/li'):
@@ -98,7 +100,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
                 if counter <= 0:
                     break
-                f = unicode(f.read(), 'utf-8')
+                f = f.read().decode('utf-8')
                 doc2 = html.fromstring(f)
 
                 # search for book title

@@ -46,7 +46,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 cover_url = None
 
             for p in select('p.title', item):
-                title = etree.tostring(p, method='text', encoding=unicode).strip()
+                title = etree.tostring(p, method='text', encoding='unicode').strip()
                 for a in select('a[href]', p):
                     url = a.get('href')
                     break
@@ -58,11 +58,11 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 
             authors = []
             for a in select('p.contributor-list a.contributor-name', item):
-                authors.append(etree.tostring(a, method='text', encoding=unicode).strip())
+                authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
             authors = authors_to_string(authors)
 
             for p in select('p.price', item):
-                price = etree.tostring(p, method='text', encoding=unicode).strip()
+                price = etree.tostring(p, method='text', encoding='unicode').strip()
                 break
             else:
                 price = None

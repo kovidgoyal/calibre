@@ -88,7 +88,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         authors = data.xpath('.//title-info/author/first-name/text()|'
         './/title-info/author/middle-name/text()|'
         './/title-info/author/last-name/text()')
-        sRes.author = u' '.join(map(unicode, authors))
+        sRes.author = u' '.join(map(type(u''), authors))
         sRes.price = data.xpath(xp_template.format('price'))
         # cover vs cover_preview
         sRes.cover_url = data.xpath(xp_template.format('cover_preview'))
@@ -107,7 +107,7 @@ def format_price_in_RUR(price):
     @return: formatted price if possible otherwise original value
     @rtype: unicode
     '''
-    if price and re.match("^\d*?\.\d*?$", price):
+    if price and re.match(r"^\d*?\.\d*?$", price):
         try:
             price = u'{:,.2F} руб.'.format(float(price))
             price = price.replace(',', ' ').replace('.', ',', 1)

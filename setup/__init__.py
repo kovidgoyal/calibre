@@ -139,7 +139,7 @@ else:
         enc = preferred_encoding
         safe_encode = kwargs.get('safe_encode', False)
         for i, arg in enumerate(args):
-            if isinstance(arg, unicode):
+            if isinstance(arg, type(u'')):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:
@@ -150,8 +150,8 @@ else:
                 try:
                     arg = str(arg)
                 except ValueError:
-                    arg = unicode(arg)
-                if isinstance(arg, unicode):
+                    arg = type(u'')(arg)
+                if isinstance(arg, type(u'')):
                     try:
                         arg = arg.encode(enc)
                     except UnicodeEncodeError:

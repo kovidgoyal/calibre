@@ -93,7 +93,7 @@ def parse_details_page(url, log, timeout, browser, domain):
     errmsg = root.xpath('//*[@id="errorMessage"]')
     if errmsg:
         msg = 'Failed to parse amazon details page: %r' % url
-        msg += tostring(errmsg, method='text', encoding=unicode).strip()
+        msg += tostring(errmsg, method='text', encoding='unicode').strip()
         log.error(msg)
         return
 
@@ -466,7 +466,7 @@ class Worker(Thread):  # Get details {{{
             self.result_queue.put(mi)
 
     def totext(self, elem):
-        return self.tostring(elem, encoding=unicode, method='text').strip()
+        return self.tostring(elem, encoding='unicode', method='text').strip()
 
     def parse_title(self, root):
         h1 = root.xpath('//h1[@id="title"]')
@@ -478,10 +478,10 @@ class Worker(Thread):  # Get details {{{
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
-            title = self.tostring(actual_title[0], encoding=unicode,
+            title = self.tostring(actual_title[0], encoding='unicode',
                                   method='text').strip()
         else:
-            title = self.tostring(tdiv, encoding=unicode,
+            title = self.tostring(tdiv, encoding='unicode',
                                   method='text').strip()
         ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
         if not ans:
@@ -508,7 +508,7 @@ class Worker(Thread):  # Get details {{{
                     ''')
         for x in aname:
             x.tail = ''
-        authors = [self.tostring(x, encoding=unicode, method='text').strip() for x
+        authors = [self.tostring(x, encoding='unicode', method='text').strip() for x
                    in aname]
         authors = [a for a in authors if a]
         return authors
@@ -559,7 +559,7 @@ class Worker(Thread):  # Get details {{{
         for a in desc.xpath('descendant::a[@href]'):
             del a.attrib['href']
             a.tag = 'span'
-        desc = self.tostring(desc, method='html', encoding=unicode).strip()
+        desc = self.tostring(desc, method='html', encoding='unicode').strip()
 
         # Encoding bug in Amazon data U+fffd (replacement char)
         # in some examples it is present in place of '
@@ -626,14 +626,14 @@ class Worker(Thread):  # Get details {{{
             spans = series.xpath('./span')
             if spans:
                 raw = self.tostring(
-                    spans[0], encoding=unicode, method='text', with_tail=False).strip()
+                    spans[0], encoding='unicode', method='text', with_tail=False).strip()
                 m = re.search(r'\s+([0-9.]+)$', raw.strip())
                 if m is not None:
                     series_index = float(m.group(1))
                     s = series.xpath('./a[@id="series-page-link"]')
                     if s:
                         series = self.tostring(
-                            s[0], encoding=unicode, method='text', with_tail=False).strip()
+                            s[0], encoding='unicode', method='text', with_tail=False).strip()
                         if series:
                             ans = (series, series_index)
         # This is found on Kindle edition pages on amazon.com
@@ -646,7 +646,7 @@ class Worker(Thread):  # Get details {{{
                     a = span.xpath('./a[@href]')
                     if a:
                         series = self.tostring(
-                            a[0], encoding=unicode, method='text', with_tail=False).strip()
+                            a[0], encoding='unicode', method='text', with_tail=False).strip()
                         if series:
                             ans = (series, series_index)
         # This is found on newer Kindle edition pages on amazon.com
@@ -659,14 +659,14 @@ class Worker(Thread):  # Get details {{{
                     a = b.getparent().xpath('./a[@href]')
                     if a:
                         series = self.tostring(
-                            a[0], encoding=unicode, method='text', with_tail=False).partition('(')[0].strip()
+                            a[0], encoding='unicode', method='text', with_tail=False).partition('(')[0].strip()
                         if series:
                             ans = series, series_index
 
         if ans == (None, None):
             desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
             if desc:
-                raw = self.tostring(desc[0], method='text', encoding=unicode)
+                raw = self.tostring(desc[0], method='text', encoding='unicode')
                 raw = re.sub(r'\s+', ' ', raw)
                 match = self.series_pat.search(raw)
                 if match is not None:
@@ -1161,7 +1161,7 @@ class Amazon(Source):
         if not result_links:
             result_links = root.xpath(r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]')
         for a in result_links:
-            title = tostring(a, method='text', encoding=unicode)
+            title = tostring(a, method='text', encoding='unicode')
             if title_ok(title):
                 url = a.get('href')
                 if url.startswith('/'):
@@ -1177,7 +1177,7 @@ class Amazon(Source):
                     # New amazon markup
                     links = div.xpath('descendant::h3/a[@href]')
                 for a in links:
-                    title = tostring(a, method='text', encoding=unicode)
+                    title = tostring(a, method='text', encoding='unicode')
                     if title_ok(title):
                         url = a.get('href')
                         if url.startswith('/'):
@@ -1192,7 +1192,7 @@ class Amazon(Source):
             for td in root.xpath(
                     r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
                 for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
-                    title = tostring(a, method='text', encoding=unicode)
+                    title = tostring(a, method='text', encoding='unicode')
                     if title_ok(title):
                         url = a.get('href')
                         if url.startswith('/'):

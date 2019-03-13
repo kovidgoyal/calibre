@@ -1795,41 +1795,41 @@ class UnicodeDammit:
             elif xml_data[:4] == '\x00\x3c\x00\x3f':
                 # UTF-16BE
                 sniffed_xml_encoding = 'utf-16be'
-                #xml_data = unicode(xml_data, 'utf-16be').encode('utf-8')
+                #xml_data = type(u'')(xml_data, 'utf-16be').encode('utf-8')
             elif (len(xml_data) >= 4) and (xml_data[:2] == '\xfe\xff') \
                      and (xml_data[2:4] != '\x00\x00'):
                 # UTF-16BE with BOM
                 sniffed_xml_encoding = 'utf-16be'
-                #xml_data = unicode(xml_data[2:], 'utf-16be').encode('utf-8')
+                #xml_data = type(u'')(xml_data[2:], 'utf-16be').encode('utf-8')
             elif xml_data[:4] == '\x3c\x00\x3f\x00':
                 # UTF-16LE
                 sniffed_xml_encoding = 'utf-16le'
-                #xml_data = unicode(xml_data, 'utf-16le').encode('utf-8')
+                #xml_data = type(u'')(xml_data, 'utf-16le').encode('utf-8')
             elif (len(xml_data) >= 4) and (xml_data[:2] == '\xff\xfe') and \
                      (xml_data[2:4] != '\x00\x00'):
                 # UTF-16LE with BOM
                 sniffed_xml_encoding = 'utf-16le'
-                #xml_data = unicode(xml_data[2:], 'utf-16le').encode('utf-8')
+                #xml_data = type(u'')(xml_data[2:], 'utf-16le').encode('utf-8')
             elif xml_data[:4] == '\x00\x00\x00\x3c':
                 # UTF-32BE
                 sniffed_xml_encoding = 'utf-32be'
-                #xml_data = unicode(xml_data, 'utf-32be').encode('utf-8')
+                #xml_data = type(u'')(xml_data, 'utf-32be').encode('utf-8')
             elif xml_data[:4] == '\x3c\x00\x00\x00':
                 # UTF-32LE
                 sniffed_xml_encoding = 'utf-32le'
-                #xml_data = unicode(xml_data, 'utf-32le').encode('utf-8')
+                #xml_data = type(u'')(xml_data, 'utf-32le').encode('utf-8')
             elif xml_data[:4] == '\x00\x00\xfe\xff':
                 # UTF-32BE with BOM
                 sniffed_xml_encoding = 'utf-32be'
-                #xml_data = unicode(xml_data[4:], 'utf-32be').encode('utf-8')
+                #xml_data = type(u'')(xml_data[4:], 'utf-32be').encode('utf-8')
             elif xml_data[:4] == '\xff\xfe\x00\x00':
                 # UTF-32LE with BOM
                 sniffed_xml_encoding = 'utf-32le'
-                #xml_data = unicode(xml_data[4:], 'utf-32le').encode('utf-8')
+                #xml_data = type(u'')(xml_data[4:], 'utf-32le').encode('utf-8')
             elif xml_data[:3] == '\xef\xbb\xbf':
                 # UTF-8 with BOM
                 sniffed_xml_encoding = 'utf-8'
-                #xml_data = unicode(xml_data[3:], 'utf-8').encode('utf-8')
+                #xml_data = type(u'')(xml_data[3:], 'utf-8').encode('utf-8')
             else:
                 sniffed_xml_encoding = 'ascii'
                 pass

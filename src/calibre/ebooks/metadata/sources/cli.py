@@ -99,7 +99,7 @@ def main(args=sys.argv):
     log = buf.getvalue()
 
     result = (metadata_to_opf(result) if opts.opf else
-                    unicode(result).encode('utf-8'))
+                    type(u'')(result).encode('utf-8'))
 
     if opts.verbose:
         print (log, file=sys.stderr)

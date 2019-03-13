@@ -40,7 +40,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.restore_state()
 
     def do_search(self):
-        self.results_view.model().search(unicode(self.search_query.text()))
+        self.results_view.model().search(type(u'')(self.search_query.text()))
 
     def open_store(self, index):
         result = self.results_view.model().get_book(index)

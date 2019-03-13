@@ -21,7 +21,9 @@ class BiblioStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     def search(self, query, max_results=10, timeout=60):
         # check for cyrillic symbols before performing search
-        uquery = unicode(query.strip(), 'utf-8')
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
+        uquery = query.strip()
         reObj = re.search(u'^[а-яА-Я\\d\\s]{3,}$', uquery)
         if not reObj:
             return
