@@ -393,6 +393,8 @@ exit:
 
 // }}}
 
+static char lzma_binding_doc[] = "Bindings to the LZMA (de)compression C code";
+
 static PyMethodDef lzma_binding_methods[] = {
     {"decompress2", decompress2, METH_VARARGS,
         "Decompress an LZMA2 encoded block, of unknown compressed size (reads till LZMA2 EOS marker)"
@@ -417,24 +419,54 @@ static PyMethodDef lzma_binding_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&lzma_binding_module)
+static struct PyModuleDef lzma_binding_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "lzma_binding",
+    /* m_doc      */ lzma_binding_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ lzma_binding_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_lzma_binding(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("lzma_binding", lzma_binding_methods, lzma_binding_doc)
+CALIBRE_MODINIT_FUNC initlzma_binding(void) {
+#endif
 
-CALIBRE_MODINIT_FUNC
-initlzma_binding(void) {
     PyObject *m = NULL, *preset_map = NULL, *temp = NULL;
     int i = 0;
     init_crc_table();
     LZMAError = PyErr_NewException("lzma_binding.error", NULL, NULL);
-    if (!LZMAError) return;
-    m = Py_InitModule3("lzma_binding", lzma_binding_methods, "Bindings to the LZMA (de)compression C code");
-    if (m == NULL) return;
+    if (!LZMAError) {
+        INITERROR;
+    }
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
     preset_map = PyTuple_New(10);
-    if (preset_map == NULL) return;
+    if (preset_map == NULL) {
+        INITERROR;
+    }
     for (i = 0; i < 10; i++) {
         temp = get_lzma2_properties(i);
-        if (temp == NULL) return;
+        if (temp == NULL) {
+            INITERROR;
+        }
         PyTuple_SET_ITEM(preset_map, i, temp);
     }
     PyModule_AddObject(m, "preset_map", preset_map);
     Py_INCREF(LZMAError);
     PyModule_AddObject(m, "error", LZMAError);
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
