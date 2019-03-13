@@ -22,7 +22,7 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import safe_chr as chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 ROOT = QModelIndex()
 
@@ -427,7 +427,7 @@ class CategoryModel(QAbstractItemModel):
                     return (_('Favorites'), list(tprefs['charmap_favorites']))
             else:
                 item = self.categories[pid - 1][1][index.row()]
-                return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
+                return (item[0], list(range(item[1][0], item[1][1] + 1)))
 
     def get_char_info(self, char_code):
         ipos = bisect(self.starts, char_code) - 1

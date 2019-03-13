@@ -14,6 +14,7 @@ from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 from calibre import sanitize_file_name_unicode
+from polyglot.builtins import range
 
 
 class GenerateCatalogAction(InterfaceAction):
@@ -34,7 +35,7 @@ class GenerateCatalogAction(InterfaceAction):
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:
-            rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
+            rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
         ids = map(self.gui.library_view.model().id, rows)
 
         if not ids:

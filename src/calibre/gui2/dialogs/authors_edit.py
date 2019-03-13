@@ -16,7 +16,7 @@ from calibre.utils.config_base import tweaks
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.ebooks.metadata import string_to_authors
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class ItemDelegate(QStyledItemDelegate):
@@ -84,7 +84,7 @@ class List(QListWidget):
             self.mark_as_editable()
 
     def mark_as_editable(self):
-        for i in xrange(self.count()):
+        for i in range(self.count()):
             item = self.item(i)
             item.setFlags(item.flags() | Qt.ItemIsEditable)
 
@@ -92,7 +92,7 @@ class List(QListWidget):
         item = self.item(i)
         q = unicode_type(item.text())
         remove = []
-        for j in xrange(self.count()):
+        for j in range(self.count()):
             if i != j and unicode_type(self.item(j).text()) == q:
                 remove.append(j)
         for x in sorted(remove, reverse=True):
@@ -177,7 +177,7 @@ class AuthorsEdit(QDialog):
     @property
     def authors(self):
         ans = []
-        for i in xrange(self.al.count()):
+        for i in range(self.al.count()):
             ans.append(unicode_type(self.al.item(i).text()))
         return ans or [_('Unknown')]
 

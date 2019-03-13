@@ -16,7 +16,7 @@ from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
 from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class TOCEditor(QDialog):
@@ -184,7 +184,7 @@ class TOCViewer(QWidget):
     def iteritems(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
-        for i in xrange(parent.childCount()):
+        for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
             for gc in self.iteritems(parent=child):

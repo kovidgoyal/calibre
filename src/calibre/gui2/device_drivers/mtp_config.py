@@ -20,7 +20,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class FormatsConfig(QWidget):  # {{{
@@ -52,7 +52,7 @@ class FormatsConfig(QWidget):  # {{{
     @property
     def format_map(self):
         return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
-                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def validate(self):
         if not self.format_map:
@@ -189,10 +189,10 @@ class IgnoredDevices(QWidget):  # {{{
     @property
     def blacklist(self):
         return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
-                xrange(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
 
     def ignore_device(self, snum):
-        for i in xrange(self.f.count()):
+        for i in range(self.f.count()):
             i = self.f.item(i)
             c = unicode_type(i.data(Qt.UserRole) or '')
             if c == snum:

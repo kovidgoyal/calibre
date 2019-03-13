@@ -22,7 +22,7 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOCView, TOCSearch
 from calibre.gui2.viewer.footnote import FootnotesView
 from calibre.utils.localization import is_rtl
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
@@ -187,7 +187,7 @@ class History(list):  # {{{
 
 def test_history():
     h = History()
-    for i in xrange(4):
+    for i in range(4):
         h.add(i)
     for i in reversed(h):
         h.back(i)

@@ -13,7 +13,7 @@ from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def browser_item(f, parent):
@@ -165,7 +165,7 @@ class IgnoredFolders(QDialog):
 
     def iterchildren(self, node):
         ' Iterate over all descendants of node '
-        for i in xrange(node.childCount()):
+        for i in range(node.childCount()):
             child = node.child(i)
             yield child
             for gc in self.iterchildren(child):
@@ -183,13 +183,13 @@ class IgnoredFolders(QDialog):
 
     def select_all(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Checked)
 
     def select_none(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Unchecked)
 

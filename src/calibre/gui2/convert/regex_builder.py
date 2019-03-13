@@ -17,7 +17,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -107,7 +107,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = len(self.match_locs) - 1
-            for i in xrange(len(self.match_locs) - 1, -1, -1):
+            for i in range(len(self.match_locs) - 1, -1, -1):
                 loc = self.match_locs[i][1]
                 if pos > loc:
                     match_loc = i
@@ -118,7 +118,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = 0
-            for i in xrange(len(self.match_locs)):
+            for i in range(len(self.match_locs)):
                 loc = self.match_locs[i][0]
                 if pos < loc:
                     match_loc = i

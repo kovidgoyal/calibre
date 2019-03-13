@@ -67,7 +67,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
-            for i in xrange(self.results_view.model().columnCount()):
+            for i in range(self.results_view.model().columnCount()):
                 self.results_view.resizeColumnToContents(i)
 
         self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)

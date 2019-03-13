@@ -28,7 +28,7 @@ from calibre.ebooks.conversion.plumber import create_dummy_plumber
 from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class GroupModel(QAbstractListModel):
@@ -116,7 +116,7 @@ class Config(QDialog, Ui_Dialog):
 
     @property
     def manually_fine_tune_toc(self):
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             w = self.stack.widget(i)
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()

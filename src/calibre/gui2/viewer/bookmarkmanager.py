@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import choose_save_file, choose_files
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class BookmarksList(QListWidget):
@@ -142,7 +142,7 @@ class BookmarkManager(QWidget):
                 l.scrollToItem(item)
 
     def __iter__(self):
-        for i in xrange(self.bookmarks_list.count()):
+        for i in range(self.bookmarks_list.count()):
             yield self.item_to_bm(self.bookmarks_list.item(i))
 
     def item_changed(self, item):

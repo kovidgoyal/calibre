@@ -40,7 +40,7 @@ from calibre import force_unicode
 from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 # }}}
 
 
@@ -704,7 +704,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return 1
             return pmap.width()*pmap.height()
         dcovers = sorted(self.covers[1:], key=keygen, reverse=True)
-        cmap = {i:self.plugin_for_index(i) for i in xrange(len(self.covers))}
+        cmap = {i:self.plugin_for_index(i) for i in range(len(self.covers))}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
@@ -751,7 +751,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
             for rows in self.plugin_map.itervalues():
-                for i in xrange(len(rows)):
+                for i in range(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1
             self.plugin_map[plugin].insert(-1, last_row)

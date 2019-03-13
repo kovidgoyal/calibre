@@ -21,7 +21,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def is_basic_recipe(src):
@@ -383,7 +383,7 @@ class BasicRecipe(QWidget):  # {{{
 
         def fget(self):
             title = self.title.text().strip()
-            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in xrange(self.feeds.count())]
+            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in range(self.feeds.count())]
             return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
         def fset(self, src):
