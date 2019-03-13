@@ -12,7 +12,7 @@ from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def get_podofo():
@@ -110,7 +110,7 @@ def delete_all_but(path, pages):
     p.load(raw)
     total = p.page_count()
     pages = {total + x if x < 0 else x for x in pages}
-    for page in xrange(total-1, -1, -1):
+    for page in range(total-1, -1, -1):
         if page not in pages:
             p.delete_page(page)
 
@@ -144,7 +144,7 @@ def test_outline(src):
     p.load(raw)
     total = p.page_count()
     root = p.create_outline(u'Table of Contents')
-    for i in xrange(0, total):
+    for i in range(0, total):
         root.create(u'Page %d'%i, i, True)
     raw = p.write()
     out = '/tmp/outlined.pdf'

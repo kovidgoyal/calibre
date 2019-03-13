@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, range
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -431,8 +431,8 @@ def serialize(data, media_type, pretty_print=False):
     return bytes(data)
 
 
-ASCII_CHARS   = set(chr(x) for x in xrange(128))
-UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
+ASCII_CHARS   = set(chr(x) for x in range(128))
+UNIBYTE_CHARS = set(chr(x) for x in range(256))
 URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                     'abcdefghijklmnopqrstuvwxyz'
                     '0123456789' '_.-/~')
@@ -1338,7 +1338,7 @@ class Spine(object):
         item.linear = self._linear(linear)
         item.spine_position = index
         self.items.insert(index, item)
-        for i in xrange(index, len(self.items)):
+        for i in range(index, len(self.items)):
             self.items[i].spine_position = i
         return item
 
@@ -1346,7 +1346,7 @@ class Spine(object):
         """Remove :param:`item` from the `Spine`."""
         index = item.spine_position
         self.items.pop(index)
-        for i in xrange(index, len(self.items)):
+        for i in range(index, len(self.items)):
             self.items[i].spine_position = i
         item.spine_position = None
 
@@ -2044,7 +2044,7 @@ def rel_href(base_href, href):
     target, frag = urldefrag(href)
     target = target.split('/')
     index = 0
-    for index in xrange(min(len(base), len(target))):
+    for index in range(min(len(base), len(target))):
         if base[index] != target[index]:
             break
     else:

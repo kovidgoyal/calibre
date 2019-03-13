@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
 
 
@@ -90,7 +90,7 @@ class PluginWidget(QWidget):
     def options(self):
         # Save the currently activated fields
         fields, all_fields = [], []
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             all_fields.append(unicode_type(item.data(Qt.UserRole)))
             if item.checkState() == Qt.Checked:

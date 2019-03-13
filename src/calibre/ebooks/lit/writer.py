@@ -31,7 +31,7 @@ import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range
 
 __all__ = ['LitWriter']
 
@@ -49,7 +49,7 @@ ALL_MS_COVER_TYPES = [
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
-    tags = dict((tags[i], i) for i in xrange(len(tags)))
+    tags = dict((tags[i], i) for i in range(len(tags)))
     dattrs = dict((v, k) for k, v in dattrs.items())
     tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
     for map in tattrs:
@@ -135,7 +135,7 @@ def decint(value):
 
 
 def randbytes(n):
-    return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
+    return ''.join(chr(random.randint(0, 255)) for x in range(n))
 
 
 def warn(x):
@@ -332,7 +332,7 @@ class LitWriter(object):
         self._oeb = oeb
         self._logger = oeb.logger
         self._stream = stream
-        self._sections = [StringIO() for i in xrange(4)]
+        self._sections = [StringIO() for i in range(4)]
         self._directory = []
         self._meta = None
         self._litize_oeb()
@@ -363,7 +363,7 @@ class LitWriter(object):
             1, PRIMARY_SIZE, 5, SECONDARY_SIZE))
         self._write(packguid(LITFILE_GUID))
         offset = self._tell()
-        pieces = list(xrange(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
+        pieces = list(range(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
         self._write((5 * PIECE_SIZE) * '\0')
         aoli1 = len(dchunks) if ichunk else ULL_NEG1
         last = len(dchunks) - 1
@@ -662,7 +662,7 @@ class LitWriter(object):
             hash.update(data)
         digest = hash.digest()
         key = [0] * 8
-        for i in xrange(0, len(digest)):
+        for i in range(0, len(digest)):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
 

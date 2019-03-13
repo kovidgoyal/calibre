@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 from PyQt5.Qt import QWidget, QListWidgetItem
 
 
@@ -48,7 +48,7 @@ class PluginWidget(QWidget, Ui_Form):
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated db_fields from last use
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             item.setSelected(unicode_type(item.text()) in fields)
         self.bibfile_enc.clear()
@@ -72,7 +72,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Save the currently activated fields
         fields = []
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             if item.isSelected():
                 fields.append(unicode_type(item.text()))

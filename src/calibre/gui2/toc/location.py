@@ -19,7 +19,7 @@ from PyQt5.QtWebKit import QWebElement
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.gui2 import error_dialog, question_dialog, gprefs, secure_web_page
 from calibre.utils.logging import default_log
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class Page(QWebPage):  # {{{
@@ -259,7 +259,7 @@ class ItemEdit(QWidget):
                 self.name.setCursorPosition(0)
             toc = item.data(0, Qt.UserRole)
             if toc.dest:
-                for i in xrange(self.dest_list.count()):
+                for i in range(self.dest_list.count()):
                     litem = self.dest_list.item(i)
                     if unicode_type(litem.data(Qt.DisplayRole) or '') == toc.dest:
                         dest_index = i

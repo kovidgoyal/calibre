@@ -9,6 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import struct, copy
+from polyglot.builtins import range
 
 # ======================================================================
 # Bit-Manipulation helpers
@@ -170,7 +171,7 @@ class mssha1(object):
         D = self.H3
         E = self.H4
 
-        for t in xrange(0, 80):
+        for t in range(0, 80):
             TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t/20]
             E = D
             D = C
@@ -341,7 +342,7 @@ if __name__ == '__main__':
             data = file.read(16384)
         file.close()
         digest = context.hexdigest().upper()
-        for i in xrange(0, 40, 8):
+        for i in range(0, 40, 8):
             print(digest[i:i+8], end=' ')
         print()
     main()

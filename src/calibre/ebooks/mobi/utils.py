@@ -14,7 +14,7 @@ from io import BytesIO
 from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 from tinycss.color3 import parse_color_string
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
@@ -242,7 +242,7 @@ def encode_fvwi(val, flags, flag_size=4):
     bytestring.
     '''
     ans = val << flag_size
-    for i in xrange(flag_size):
+    for i in range(flag_size):
         ans |= (flags & (1 << i))
     return encint(ans)
 
@@ -254,7 +254,7 @@ def decode_fvwi(byts, flag_size=4):
     arg, consumed = decint(bytes(byts))
     val = arg >> flag_size
     flags = 0
-    for i in xrange(flag_size):
+    for i in range(flag_size):
         flags |= (arg & (1 << i))
     return val, flags, consumed
 
@@ -462,7 +462,7 @@ def read_font_record(data, extent=1040):
         extent = len(font_data) if extent is None else extent
         extent = min(extent, len(font_data))
 
-        for n in xrange(extent):
+        for n in range(extent):
             buf[n] ^= key[n%xor_len]  # XOR of buf and key
 
         font_data = bytes(buf)
@@ -506,7 +506,7 @@ def write_font_record(data, obfuscate=True, compress=True):
         xor_key = os.urandom(key_len)
         key = bytearray(xor_key)
         data = bytearray(data)
-        for i in xrange(1040):
+        for i in range(1040):
             data[i] ^= key[i%key_len]
         data = bytes(data)
 
