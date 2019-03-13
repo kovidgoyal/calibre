@@ -54,10 +54,10 @@ def build_manual(language, base):
         return p.wait()
     try:
         if not skip_pdf:
-            for i in xrange(3):
+            for i in range(3):
                 run_cmd(['pdflatex', '-interaction=nonstopmode', 'calibre.tex'])
             run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
-            for i in xrange(2):
+            for i in range(2):
                 run_cmd(['pdflatex', '-interaction=nonstopmode', 'calibre.tex'])
             if not os.path.exists('calibre.pdf'):
                 print('Failed to build pdf file, see calibre.log in the latex directory', file=sys.stderr)

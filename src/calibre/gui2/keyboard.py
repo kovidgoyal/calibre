@@ -26,7 +26,7 @@ from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 ROOT = QModelIndex()
 
@@ -270,7 +270,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         for node in self.all_shortcuts:
             s = node.data
             s['keys'] = tuple(keys_map[s['unique_name']])
-        for r in xrange(self.rowCount()):
+        for r in range(self.rowCount()):
             group = self.index(r, 0)
             num = self.rowCount(group)
             if num > 0:

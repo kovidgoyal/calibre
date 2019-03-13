@@ -1194,7 +1194,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         htmlattrs = {}
         if c:
             htmlattrs['class'] = "TC-%s" % c.replace(".","_")
-        for x in xrange(repeated):
+        for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
 
@@ -1580,8 +1580,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         """
         self.lines = []
         self._wfunc = self._wlines
-        if isinstance(odffile, (bytes, type(u'')) \
-                or hasattr(odffile, 'read'):  # Added by Kovid
+        if isinstance(odffile, (bytes, type(u''))) or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = load(odffile)
         else:
             self.document = odffile

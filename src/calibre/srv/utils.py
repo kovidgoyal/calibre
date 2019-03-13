@@ -13,7 +13,7 @@ from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, range
 from urllib import quote as urlquote
 from binascii import hexlify, unhexlify
 
@@ -370,7 +370,7 @@ class RotatingStream(object):
         if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
-        for i in xrange(self.history - 1, 0, -1):
+        for i in range(self.history - 1, 0, -1):
             src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
             self.rename(src, dest)
         self.rename(self.filename, '%s.%d' % (self.filename, 1))

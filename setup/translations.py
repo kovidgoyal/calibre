@@ -13,7 +13,7 @@ from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file
 from setup.parallel_build import parallel_check_output
-from polyglot.builtins import codepoint_to_chr, iteritems
+from polyglot.builtins import codepoint_to_chr, iteritems, range
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -121,7 +121,7 @@ class POT(Command):  # {{{
                 self.tx(['set', '-r', 'calibre.' + slug, '--source', '-l', 'en', '-t', 'PO', dest])
                 with open(self.j(self.d(tbase), '.tx/config'), 'r+b') as f:
                     lines = f.read().splitlines()
-                    for i in xrange(len(lines)):
+                    for i in range(len(lines)):
                         line = lines[i]
                         if line == '[calibre.%s]' % slug:
                             lines.insert(i+1, 'file_filter = manual/<lang>/%s.po' % bname)

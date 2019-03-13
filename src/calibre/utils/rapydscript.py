@@ -23,7 +23,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-
+from polyglot.builtins import range
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 
@@ -372,12 +372,12 @@ class Repl(Thread):
                     self.from_repl.put(val[0])
             except Exception as e:
                 if isinstance(e, JSError):
-                    print (e.stack or e.message, file=sys.stderr)
+                    print(e.stack or e.message, file=sys.stderr)
                 else:
                     import traceback
                     traceback.print_exc()
 
-                for i in xrange(100):
+                for i in range(100):
                     # Do this many times to ensure we dont deadlock
                     self.from_repl.put(None)
 

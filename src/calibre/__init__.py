@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import builtins, codepoint_to_chr, unicode_type
+from polyglot.builtins import builtins, codepoint_to_chr, unicode_type, range
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
@@ -113,7 +113,7 @@ def confirm_config_name(name):
 
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
-    u'"', u':', u'>', u'+', u'/'] + list(map(codepoint_to_chr, xrange(32))))
+    u'"', u':', u'>', u'+', u'/'] + list(map(codepoint_to_chr, range(32))))
 
 
 def sanitize_file_name(name, substitute='_', as_unicode=False):

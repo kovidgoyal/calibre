@@ -23,7 +23,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndica
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     image_extensions, dnd_has_extension, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 history = XMLConfig('history')
 
@@ -84,7 +84,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         # Get all items in the combobox. If we are reseting
         # to defaults we don't want to lose what the user
         # has added.
-        val_hist = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in xrange(self.re.count())]
+        val_hist = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
         self.re.clear()
 
         if defaults:
@@ -163,7 +163,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         prefs['filename_pattern'] = pat
 
         history = []
-        history_pats = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in xrange(self.re.count())]
+        history_pats = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
         for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:

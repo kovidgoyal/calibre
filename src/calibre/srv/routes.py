@@ -14,7 +14,7 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 default_methods = frozenset(('HEAD', 'GET'))
 
@@ -259,8 +259,8 @@ class Router(object):
             lsz = max(len(r.matchers) for r in self)
         except ValueError:
             lsz = 0
-        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in xrange(lsz + 1)}
-        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in xrange(lsz + 1)}
+        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in range(lsz + 1)}
+        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in range(lsz + 1)}
         self.soak_routes = sorted(frozenset(r for r in self if r.soak_up_extra), key=attrgetter('min_size'), reverse=True)
 
     def find_route(self, path):

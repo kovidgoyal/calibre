@@ -15,7 +15,7 @@ from collections import OrderedDict
 from itertools import islice
 
 from itertools import izip
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, range
 
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
@@ -194,7 +194,7 @@ def process_item(ctx, haystack, needle):
         key = (hidx, nidx, last_idx)
         mem = ctx.memory.get(key, None)
         if mem is None:
-            for i in xrange(nidx, len(needle)):
+            for i in range(nidx, len(needle)):
                 n = needle[i]
                 if (len(haystack) - hidx < len(needle) - i):
                     score = 0
@@ -295,12 +295,12 @@ def test(return_tests=False):
                 m('one')
 
             start = memory()
-            for i in xrange(10):
+            for i in range(10):
                 doit(str(i))
             gc.collect()
             used10 = memory() - start
             start = memory()
-            for i in xrange(100):
+            for i in range(100):
                 doit(str(i))
             gc.collect()
             used100 = memory() - start

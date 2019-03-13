@@ -22,7 +22,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, range
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -411,7 +411,7 @@ class EditPrograms(Dialog):  # {{{
         register_keyboard_shortcuts(finalize=True)
 
     def update_stored_config(self):
-        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in xrange(self.plist.count())]
+        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in range(self.plist.count())]
         oprefs['entries'][self.file_type] = entries
         oprefs['entries'] = oprefs['entries']
 

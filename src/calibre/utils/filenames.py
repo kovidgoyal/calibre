@@ -14,7 +14,7 @@ from calibre.constants import (
     filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
 )
 from calibre.utils.localization import get_udc
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def ascii_text(orig):
@@ -501,7 +501,7 @@ def atomic_rename(oldpath, newpath):
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
     or may not exist. If it exists, it is replaced. '''
     if iswindows:
-        for i in xrange(10):
+        for i in range(10):
             try:
                 rename_file(oldpath, newpath)
                 break

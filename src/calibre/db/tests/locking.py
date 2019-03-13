@@ -10,6 +10,7 @@ import time, random
 from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
+from polyglot.builtins import range
 
 
 class TestLock(BaseTest):
@@ -155,7 +156,7 @@ class TestLock(BaseTest):
         done = []
 
         def lots_of_acquires():
-            for _ in xrange(1000):
+            for _ in range(1000):
                 shared = random.choice([True,False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
@@ -167,7 +168,7 @@ class TestLock(BaseTest):
                 lock.release()
                 lock.release()
             done.append(True)
-        threads = [Thread(target=lots_of_acquires) for _ in xrange(10)]
+        threads = [Thread(target=lots_of_acquires) for _ in range(10)]
         for t in threads:
             t.daemon = True
             t.start()

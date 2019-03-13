@@ -13,6 +13,7 @@ from threading import Lock
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
         isnetbsd)
+from polyglot.builtins import range
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
@@ -22,7 +23,7 @@ if iswindows:
     def drive_is_ok(letter, max_tries=10, debug=False):
         import win32file
         with drive_ok_lock:
-            for i in xrange(max_tries):
+            for i in range(max_tries):
                 try:
                     win32file.GetDiskFreeSpaceEx(letter+':\\')
                     return True
@@ -87,9 +88,9 @@ class LibUSBScanner(object):
         memory()
         for num in (1, 10, 100):
             start = memory()
-            for i in xrange(num):
+            for i in range(num):
                 self()
-            for i in xrange(3):
+            for i in range(3):
                 gc.collect()
             print('Mem consumption increased by:', memory() - start, 'MB', end=' ')
             print('after', num, 'repeats')
@@ -219,17 +220,17 @@ def test_for_mem_leak():
     scanner = DeviceScanner()
     scanner.scan()
     memory()  # load the psutil library
-    for i in xrange(3):
+    for i in range(3):
         gc.collect()
 
     for reps in (1, 10, 100, 1000):
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         h1 = gc_histogram()
         startmem = memory()
-        for i in xrange(reps):
+        for i in range(reps):
             scanner.scan()
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,

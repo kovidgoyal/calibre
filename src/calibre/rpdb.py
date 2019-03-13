@@ -11,6 +11,7 @@ import pdb, socket, inspect, sys, select, os, atexit, time
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 from calibre.constants import cache_dir
+from polyglot.builtins import range
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -96,7 +97,7 @@ def set_trace(port=4444, skip=None):
 def cli(port=4444):
     prints('Connecting to remote debugger on port %d...' % port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    for i in xrange(20):
+    for i in range(20):
         try:
             sock.connect(('127.0.0.1', port))
             break
@@ -146,6 +147,7 @@ def cli(port=4444):
             eintr_retry_call(sock.send, raw)
     except KeyboardInterrupt:
         pass
+
 
 if __name__ == '__main__':
     cli()

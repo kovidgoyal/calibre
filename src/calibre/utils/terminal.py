@@ -11,6 +11,7 @@ import os, sys, re
 from itertools import izip
 
 from calibre.constants import iswindows
+from polyglot.builtins import range
 
 if iswindows:
     import ctypes.wintypes
@@ -30,7 +31,7 @@ def fmt(code):
 
 
 RATTRIBUTES = dict(
-        izip(xrange(1, 9), (
+        izip(range(1, 9), (
             'bold',
             'dark',
             '',
@@ -45,7 +46,7 @@ ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
-        izip(xrange(41, 48), (
+        izip(range(41, 48), (
             'red',
             'green',
             'yellow',
@@ -58,7 +59,7 @@ RBACKGROUNDS = dict(
 BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
 
 RCOLORS = dict(
-        izip(xrange(31, 38), (
+        izip(range(31, 38), (
             'red',
             'green',
             'yellow',

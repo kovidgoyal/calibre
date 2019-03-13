@@ -13,6 +13,7 @@ from collections import defaultdict
 from calibre.constants import plugins
 from calibre.utils.date import parse_date, UNDEFINED_DATE, utc_tz
 from calibre.ebooks.metadata import author_to_author_sort
+from polyglot.builtins import range
 
 _c_speedup = plugins['speedup'][0].parse_date
 
@@ -32,7 +33,7 @@ def c_parse(val):
     else:
         try:
             ans = datetime(year, month, day, hour, minutes, seconds, tzinfo=utc_tz)
-            if tzsecs is not 0:
+            if tzsecs != 0:
                 ans -= timedelta(seconds=tzsecs)
         except OverflowError:
             ans = UNDEFINED_DATE
@@ -43,7 +44,7 @@ def c_parse(val):
         return UNDEFINED_DATE
 
 
-ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
+ONE_ONE, MANY_ONE, MANY_MANY = range(3)
 
 null = object()
 

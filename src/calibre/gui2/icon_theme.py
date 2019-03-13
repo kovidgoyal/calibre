@@ -14,7 +14,7 @@ from Queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
-from polyglot.builtins import reraise
+from polyglot.builtins import reraise, range
 
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
@@ -496,7 +496,7 @@ def get_covers(themes, callback, num_of_workers=8):
             else:
                 callback(metadata, cdata)
 
-    for w in xrange(num_of_workers):
+    for w in range(num_of_workers):
         t = Thread(name='IconThemeCover', target=run)
         t.daemon = True
         t.start()
@@ -703,7 +703,7 @@ class ChooseTheme(Dialog):
         get_covers(self.themes, self.cover_downloaded.emit)
 
     def __iter__(self):
-        for i in xrange(self.theme_list.count()):
+        for i in range(self.theme_list.count()):
             yield self.theme_list.item(i)
 
     def item_from_name(self, name):

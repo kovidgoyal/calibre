@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, operator
 from functools import partial
 from itertools import izip, imap
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, range
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
@@ -49,7 +49,7 @@ class TableRow(object):
         view = self.view()
         if isinstance(obj, slice):
             return [view._field_getters[c](self.book_id)
-                    for c in xrange(*obj.indices(len(view._field_getters)))]
+                    for c in range(*obj.indices(len(view._field_getters)))]
         else:
             return view._field_getters[obj](self.book_id)
 
@@ -57,7 +57,7 @@ class TableRow(object):
         return self.column_count
 
     def __iter__(self):
-        for i in xrange(self.column_count):
+        for i in range(self.column_count):
             yield self[i]
 
 

@@ -17,7 +17,7 @@ from PyQt5.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def add_fonts(parent):
@@ -268,7 +268,7 @@ class FontFamilyDialog(QDialog):
         q = icu_lower(unicode_type(self.search.text())).strip()
         if not q:
             return
-        r = (xrange(i-1, -1, -1) if backwards else xrange(i+1,
+        r = (range(i-1, -1, -1) if backwards else range(i+1,
             len(self.families)))
         for j in r:
             f = self.families[j]

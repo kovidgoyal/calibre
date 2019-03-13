@@ -3,7 +3,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
-from polyglot.builtins import codepoint_to_chr, map
+from polyglot.builtins import codepoint_to_chr, map, range
 from calibre.constants import plugins, preferred_encoding
 
 try:
@@ -28,7 +28,7 @@ def clean_ascii_chars(txt, charlist=None):
         return ''
     global _ascii_pat
     if _ascii_pat is None:
-        chars = set(xrange(32))
+        chars = set(range(32))
         chars.add(127)
         for x in (9, 10, 13):
             chars.remove(x)
