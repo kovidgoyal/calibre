@@ -387,8 +387,9 @@ winutil_strftime(PyObject *self, PyObject *args)
     return NULL;
 }
 
+static char winutil_doc[] = "Defines utility methods to interface with windows.";
 
-static PyMethodDef WinutilMethods[] = {
+static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
             "Get paths to common system folders. "
@@ -461,13 +462,33 @@ be a unicode string. Returns unicode strings."
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initwinutil(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&winutil_module)
+static struct PyModuleDef winutil_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "winutil",
+    /* m_doc      */ winutil_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ winutil_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("winutil", winutil_methods, winutil_doc)
+CALIBRE_MODINIT_FUNC initwinutil(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3("winutil", WinutilMethods,
-    "Defines utility methods to interface with windows."
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+
+    if (m == NULL) {
+        INITERROR;
+    }
 
     PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
     PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
@@ -491,4 +512,7 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
     PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
 
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

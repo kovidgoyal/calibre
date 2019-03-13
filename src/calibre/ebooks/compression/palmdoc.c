@@ -190,7 +190,9 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     return ans;
 }
 
-static PyMethodDef cPalmdocMethods[] = {
+static char cPalmdoc_doc[] = "Compress and decompress palmdoc strings.";
+
+static PyMethodDef cPalmdoc_methods[] = {
     {"decompress", cpalmdoc_decompress, METH_VARARGS,
     "decompress(bytestring) -> decompressed bytestring\n\n"
     		"Decompress a palmdoc compressed byte string. "
@@ -203,11 +205,34 @@ static PyMethodDef cPalmdocMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initcPalmdoc(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&cPalmdoc_module)
+static struct PyModuleDef cPalmdoc_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "cPalmdoc",
+    /* m_doc      */ cPalmdoc_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ cPalmdoc_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_cPalmdoc(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("cPalmdoc", cPalmdoc_methods, cPalmdoc_doc)
+CALIBRE_MODINIT_FUNC initcPalmdoc(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3("cPalmdoc", cPalmdocMethods,
-    "Compress and decompress palmdoc strings."
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
