@@ -118,7 +118,7 @@ static PyObject* get_devices(PyObject *self, PyObject *args) {
 static char libusb_doc[] = "Interface to libusb.";
 
 static PyMethodDef libusb_methods[] = {
-    {"get_devices", get_devices, METH_VARARGS,
+    {"get_devices", get_devices, METH_NOARGS,
         "get_devices()\n\nGet the list of USB devices on the system."
     },
 
