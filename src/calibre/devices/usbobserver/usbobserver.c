@@ -457,6 +457,8 @@ end:
     return ans;
 }
 
+static char usbobserver_doc[] = "USB interface glue for OSX.";
+
 static PyMethodDef usbobserver_methods[] = {
     {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS,
      "Get list of connected USB devices. Returns a list of tuples. Each tuple is of the form (vendor_id, product_id, bcd, manufacturer, product, serial number)."
@@ -483,7 +485,31 @@ static PyMethodDef usbobserver_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initusbobserver(void) {
-    (void) Py_InitModule("usbobserver", usbobserver_methods);
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&usbobserver_module)
+static struct PyModuleDef usbobserver_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "usbobserver",
+    /* m_doc      */ usbobserver_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ usbobserver_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_usbobserver(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("usbobserver", usbobserver_methods, usbobserver_doc)
+CALIBRE_MODINIT_FUNC initusbobserver(void) {
+#endif
+
+    PyObject *m = NULL;
+    m = INITMODULE;
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
