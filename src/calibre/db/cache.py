@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import unicode_type, zip, string_or_bytes
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -1076,7 +1076,7 @@ class Cache(object):
             bimap, simap = {}, {}
             sfield = self.fields[name + '_index']
             for k, v in book_id_to_val_map.iteritems():
-                if isinstance(v, basestring):
+                if isinstance(v, string_or_bytes):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
@@ -1298,7 +1298,7 @@ class Cache(object):
         # force_changes has no effect on cover manipulation
         try:
             cdata = mi.cover_data[1]
-            if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+            if cdata is None and isinstance(mi.cover, string_or_bytes) and mi.cover and os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:

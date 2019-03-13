@@ -23,6 +23,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
+from polyglot.builtins import string_or_bytes
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -938,7 +939,7 @@ class Device(DeviceConfig, DevicePlugin):
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
-            if isinstance(candidates, basestring):
+            if isinstance(candidates, string_or_bytes):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']

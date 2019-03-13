@@ -25,6 +25,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import string_or_bytes
 
 
 def get_filters():
@@ -436,7 +437,7 @@ class AddAction(InterfaceAction):
             self.gui.refresh_cover_browser()
 
     def __add_filesystem_book(self, paths, allow_device=True):
-        if isinstance(paths, basestring):
+        if isinstance(paths, string_or_bytes):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path,
             os.R_OK)]
@@ -591,7 +592,7 @@ class AddAction(InterfaceAction):
             self.gui.device_job_exception(job)
             return
         paths = job.result
-        ok_paths = [x for x in paths if isinstance(x, basestring)]
+        ok_paths = [x for x in paths if isinstance(x, string_or_bytes)]
         failed_paths = [x for x in paths if isinstance(x, tuple)]
         if failed_paths:
             if not ok_paths:

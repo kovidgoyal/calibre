@@ -18,7 +18,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -1022,7 +1022,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, basestring):
+        if isinstance(ret, string_or_bytes):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1214,7 +1214,7 @@ OptionRecommendation(name='search_replace',
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, basestring):
+            if isinstance(transform_css_rules, string_or_bytes):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

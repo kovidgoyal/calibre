@@ -7,6 +7,7 @@ __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
 import datetime
+from polyglot.builtins import string_or_bytes
 
 # Could make this the base class; will need to add 'publish'
 
@@ -32,7 +33,7 @@ class WriteXmlMixin:
 
 
 def _element(handler, name, obj, d={}):
-    if isinstance(obj, basestring) or obj is None:
+    if isinstance(obj, string_or_bytes) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
         handler.startElement(name, d)
@@ -373,7 +374,7 @@ class RSS2(WriteXmlMixin):
         _opt_element(handler, "lastBuildDate", lastBuildDate)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, string_or_bytes):
                 category = Category(category)
             category.publish(handler)
 
@@ -454,7 +455,7 @@ class RSSItem(WriteXmlMixin):
         _opt_element(handler, "author", self.author)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, string_or_bytes):
                 category = Category(category)
             category.publish(handler)
 

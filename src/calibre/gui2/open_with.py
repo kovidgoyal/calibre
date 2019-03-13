@@ -22,6 +22,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
+from polyglot.builtins import string_or_bytes
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -197,7 +198,7 @@ else:
 
     def entry_to_item(entry, parent):
         icon_path = entry.get('Icon') or I('blank.png')
-        if not isinstance(icon_path, basestring):
+        if not isinstance(icon_path, string_or_bytes):
             icon_path = I('blank.png')
         ans = QListWidgetItem(QIcon(icon_path), entry.get('Name') or _('Unknown'), parent)
         ans.setData(ENTRY_ROLE, entry)

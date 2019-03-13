@@ -14,6 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
+from polyglot.builtins import string_or_bytes
 
 
 class Book(Metadata):
@@ -291,7 +292,7 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, basestring) and isinstance(y, basestring):
+            if isinstance(x, string_or_bytes) and isinstance(y, string_or_bytes):
                 x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
             try:
                 c = cmp(x, y)

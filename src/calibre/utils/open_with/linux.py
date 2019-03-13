@@ -13,6 +13,7 @@ from calibre import walk, guess_type, prints, force_unicode
 from calibre.constants import filesystem_encoding, cache_dir
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
+from polyglot.builtins import string_or_bytes
 
 
 def parse_localized_key(key):
@@ -72,6 +73,7 @@ def parse_desktop_file(path):
                     ans[k] = v
     if 'Exec' in ans and 'MimeType' in ans and 'Name' in ans:
         return ans
+
 
 icon_data = None
 
@@ -197,7 +199,7 @@ def find_programs(extensions):
                     data['Icon'] = icon
                 else:
                     data.pop('Icon')
-            if not isinstance(data.get('Icon'), basestring):
+            if not isinstance(data.get('Icon'), string_or_bytes):
                 data.pop('Icon', None)
             for k in ('Name', 'GenericName', 'Comment'):
                 val = data.get(k)

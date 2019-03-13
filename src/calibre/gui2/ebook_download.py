@@ -19,6 +19,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 from calibre.web import get_download_filename_from_response
+from polyglot.builtins import string_or_bytes
 
 
 class DownloadInfo(MessageBox):
@@ -141,7 +142,7 @@ class EbookDownloadMixin(object):
 
     def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
         if tags:
-            if isinstance(tags, basestring):
+            if isinstance(tags, string_or_bytes):
                 tags = tags.split(',')
         start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser)
         self.status_bar.show_message(_('Downloading') + ' ' + filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore'), 3000)

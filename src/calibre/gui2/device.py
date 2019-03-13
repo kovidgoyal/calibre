@@ -34,7 +34,7 @@ from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 # }}}
 
 
@@ -471,7 +471,7 @@ class DeviceManager(Thread):  # {{{
         info = self.device.get_device_information(end_session=False)
         if len(info) < 5:
             info = tuple(list(info) + [{}])
-        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, basestring) else i
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, string_or_bytes) else i
                  for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()

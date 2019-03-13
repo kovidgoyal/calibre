@@ -10,7 +10,7 @@ import re, random, unicodedata
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
-from polyglot.builtins import map, zip
+from polyglot.builtins import map, zip, string_or_bytes
 from itertools import chain
 
 from PyQt5.Qt import (
@@ -275,7 +275,7 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, basestring):
+    if isinstance(fields, string_or_bytes):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}

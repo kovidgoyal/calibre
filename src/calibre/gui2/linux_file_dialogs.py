@@ -11,7 +11,7 @@ import sys
 import time
 from threading import Thread
 
-from polyglot.builtins import reraise, unicode_type
+from polyglot.builtins import reraise, unicode_type, string_or_bytes
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
@@ -68,7 +68,7 @@ def get_initial_dir(name, title, default_dir, no_save_dir):
         return ensure_dir(process_path(default_dir))
     key = dialog_name(name, title)
     saved = dynamic.get(key)
-    if not isinstance(saved, basestring):
+    if not isinstance(saved, string_or_bytes):
         saved = None
     if saved and os.path.isdir(saved):
         return ensure_dir(process_path(saved))

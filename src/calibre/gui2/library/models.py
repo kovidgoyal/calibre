@@ -30,7 +30,7 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -1282,7 +1282,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     vals = accessor(row)
                     if vals is None:
                         vals = ''
-                    if isinstance(vals, basestring):
+                    if isinstance(vals, string_or_bytes):
                         vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)

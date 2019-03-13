@@ -234,7 +234,7 @@ class OptionSet(object):
 
     def serialize_opt(self, val):
         if val is val is True or val is False or val is None or \
-           isinstance(val, (int, float, long, basestring)):
+           isinstance(val, (int, float, long, bytes, unicode_type)):
             return repr(val)
         pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)

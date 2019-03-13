@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
-from polyglot.builtins import map
+from polyglot.builtins import map, string_or_bytes
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
@@ -395,9 +395,9 @@ def merge_html(container, names, master):
 
         first_child = ''
         for first_child in children:
-            if not isinstance(first_child, basestring):
+            if not isinstance(first_child, string_or_bytes):
                 break
-        if isinstance(first_child, basestring):
+        if isinstance(first_child, string_or_bytes):
             # body contained only text, no tags
             first_child = body.makeelement(XHTML('p'))
             first_child.text, children[0] = children[0], first_child
@@ -429,7 +429,7 @@ def merge_html(container, names, master):
                 a.set('href', '#' + amap[q])
 
         for child in children:
-            if isinstance(child, basestring):
+            if isinstance(child, string_or_bytes):
                 add_text(master_body, child)
             else:
                 master_body.append(copy.deepcopy(child))

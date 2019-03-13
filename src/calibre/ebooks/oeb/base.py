@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -1055,7 +1055,7 @@ class Manifest(object):
                     mt = self.media_type.lower()
                 except Exception:
                     mt = 'application/octet-stream'
-                if not isinstance(data, basestring):
+                if not isinstance(data, string_or_bytes):
                     pass  # already parsed
                 elif mt in OEB_DOCS:
                     data = self._parse_xhtml(data)
@@ -1318,7 +1318,7 @@ class Spine(object):
         self.page_progression_direction = None
 
     def _linear(self, linear):
-        if isinstance(linear, basestring):
+        if isinstance(linear, string_or_bytes):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True

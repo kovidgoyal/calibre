@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from polyglot.builtins import string_or_bytes
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 
@@ -48,6 +49,7 @@ KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 def expand(name):
     prefix, name = name.partition(':')[::2]
     return '{%s}%s' % (NS_MAP[prefix], name)
+
 
 xpath_cache = {}
 
@@ -478,7 +480,7 @@ def metadata_to_xmp_packet(mi):
         'authors':('dc:creator', True), 'tags':('dc:subject', False), 'publisher':('dc:publisher', False),
     }.iteritems():
         val = mi.get(prop) or ()
-        if isinstance(val, basestring):
+        if isinstance(val, string_or_bytes):
             val = [val]
         create_sequence_property(dc, tag, val, ordered)
     if not mi.is_null('pubdate'):
@@ -636,10 +638,10 @@ def merge_xmp_packet(old, new):
 
     return serialize_xmp_packet(root)
 
+
 if __name__ == '__main__':
     from calibre.utils.podofo import get_xmp_metadata
     xmp_packet = get_xmp_metadata(sys.argv[-1])
     mi = metadata_from_xmp_packet(xmp_packet)
     np = metadata_to_xmp_packet(mi)
-    print (merge_xmp_packet(xmp_packet, np))
-
+    print(merge_xmp_packet(xmp_packet, np))

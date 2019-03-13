@@ -9,6 +9,7 @@ from threading import Thread
 from uuid import uuid4
 
 from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
+from polyglot.builtins import string_or_bytes
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -76,7 +77,7 @@ def serialize_file_types(file_types):
         buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
-        if isinstance(extensions, basestring):
+        if isinstance(extensions, string_or_bytes):
             extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)

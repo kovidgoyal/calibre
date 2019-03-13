@@ -11,7 +11,7 @@ from PyQt5.Qt import QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
 from calibre.utils.filenames import expanduser
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def select_initial_dir(q):
@@ -71,7 +71,7 @@ class FileDialog(QObject):
         else:
             initial_dir = dynamic.get(self.dialog_name,
                     expanduser(default_dir))
-        if not isinstance(initial_dir, basestring):
+        if not isinstance(initial_dir, string_or_bytes):
             initial_dir = expanduser(default_dir)
         if not initial_dir or (not os.path.exists(initial_dir) and not (
                 mode == QFileDialog.AnyFile and (no_save_dir or combine_file_and_saved_dir))):

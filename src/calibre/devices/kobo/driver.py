@@ -32,7 +32,7 @@ from calibre import prints, fsync
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
@@ -3543,14 +3543,14 @@ class KOBOTOUCH(KOBO):
             # a string, so looking for that.
             start_subclass_extra_options = OPT_MODIFY_CSS
             debugging_title = ''
-            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], basestring):
+            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], string_or_bytes):
                 debug_print("KoboTouch::migrate_old_settings - Don't have update_series option")
                 settings.update_series = config.get_option('update_series').default
                 settings.modify_css = config.get_option('modify_css').default
                 settings.support_newer_firmware = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
                 debugging_title = settings.extra_customization[OPT_MODIFY_CSS]
                 start_subclass_extra_options = OPT_MODIFY_CSS + 1
-            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], basestring):
+            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], string_or_bytes):
                 debug_print("KoboTouch::migrate_old_settings - Don't have modify_css option")
                 settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
                 settings.modify_css = config.get_option('modify_css').default
@@ -3565,7 +3565,7 @@ class KOBOTOUCH(KOBO):
                 debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
                 start_subclass_extra_options = OPT_DEBUGGING_TITLE + 1
 
-            settings.debugging_title = debugging_title if isinstance(debugging_title, basestring) else ''
+            settings.debugging_title = debugging_title if isinstance(debugging_title, string_or_bytes) else ''
             settings.update_device_metadata = settings.update_series
             settings.extra_customization = settings.extra_customization[start_subclass_extra_options:]
 

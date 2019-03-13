@@ -58,6 +58,7 @@ DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__
 from calibre import entity_to_unicode
+from polyglot.builtins import string_or_bytes, unicode_type
 
 
 class LrsError(Exception):
@@ -96,7 +97,7 @@ def ElementWithReading(tag, text, reading=False):
 
     if text is None:
         readingText = ""
-    elif isinstance(text, basestring):
+    elif isinstance(text, string_or_bytes):
         readingText = text
     else:
         # assumed to be a sequence of (name, sortas)
@@ -155,7 +156,7 @@ class Delegator(object):
 
             """
             for setting in d.getSettings():
-                if isinstance(setting, basestring):
+                if isinstance(setting, string_or_bytes):
                     setting = (d, setting)
                 delegates = \
                         self.delegatedSettingsDict.setdefault(setting[1], [])
@@ -293,7 +294,7 @@ class LrsContainer(object):
                     (content.__class__.__name__,
                     self.__class__.__name__))
 
-        if convertText and isinstance(content, basestring):
+        if convertText and isinstance(content, string_or_bytes):
             content = Text(content)
 
         content.setParent(self)
@@ -587,15 +588,15 @@ class Book(Delegator):
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
 
     def renderLrs(self, lrsFile, encoding="UTF-8"):
-        if isinstance(lrsFile, basestring):
+        if isinstance(lrsFile, string_or_bytes):
             lrsFile = codecs.open(lrsFile, "wb", encoding=encoding)
         self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()
 
     def renderLrf(self, lrfFile):
         self.appendReferencedObjects(self)
-        if isinstance(lrfFile, basestring):
-            lrfFile = file(lrfFile, "wb")
+        if isinstance(lrfFile, string_or_bytes):
+            lrfFile = open(lrfFile, "wb")
         lrfWriter = LrfWriter(self.sourceencoding)
 
         lrfWriter.optimizeTags = self.optimizeTags
@@ -1493,9 +1494,9 @@ class Paragraph(LrsContainer):
 
     def __init__(self, text=None):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
-                                     LrsSimpleChar1, basestring])
+                                     LrsSimpleChar1, bytes, unicode_type])
         if text is not None:
-            if isinstance(text, basestring):
+            if isinstance(text, string_or_bytes):
                 text = Text(text)
             self.append(text)
 
@@ -1528,7 +1529,7 @@ class Paragraph(LrsContainer):
 class LrsTextTag(LrsContainer):
 
     def __init__(self, text, validContents):
-        LrsContainer.__init__(self, [Text, basestring] + validContents)
+        LrsContainer.__init__(self, [Text, bytes, unicode_type] + validContents)
         if text is not None:
             self.append(text)
 
@@ -1792,7 +1793,7 @@ class Box(LrsSimpleChar1, LrsContainer):
     """
 
     def __init__(self, linetype="solid"):
-        LrsContainer.__init__(self, [Text, basestring])
+        LrsContainer.__init__(self, [Text, bytes, unicode_type])
         if linetype not in LINE_TYPE_ENCODING:
             raise LrsError(linetype + " is not a valid line type")
         self.linetype = linetype
@@ -1812,9 +1813,9 @@ class Box(LrsSimpleChar1, LrsContainer):
 class Span(LrsSimpleChar1, LrsContainer):
 
     def __init__(self, text=None, **attrs):
-        LrsContainer.__init__(self, [LrsSimpleChar1, Text, basestring])
+        LrsContainer.__init__(self, [LrsSimpleChar1, Text, bytes, unicode_type])
         if text is not None:
-            if isinstance(text, basestring):
+            if isinstance(text, string_or_bytes):
                 text = Text(text)
             self.append(text)
 
@@ -1956,7 +1957,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
     """
 
     def __init__(self, button, text=None):
-        LrsContainer.__init__(self, [basestring, Text, LrsSimpleChar1])
+        LrsContainer.__init__(self, [bytes, unicode_type, Text, LrsSimpleChar1])
         self.button = None
         if button is not None:
             self.setButton(button)

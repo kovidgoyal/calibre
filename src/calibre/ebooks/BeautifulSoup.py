@@ -89,7 +89,7 @@ import types
 import re
 import calibre.ebooks.sgmllib as sgmllib
 from htmlentitydefs import name2codepoint
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes
 
 #This hack makes Beautiful Soup able to parse XML with namespaces
 sgmllib.tagfind = re.compile('[a-zA-Z][-_.:a-zA-Z0-9]*')
@@ -177,7 +177,7 @@ class PageElement:
         return lastChild
 
     def insert(self, position, newChild):
-        if (isinstance(newChild, basestring)
+        if (isinstance(newChild, string_or_bytes)
             or isinstance(newChild, unicode_type)) \
             and not isinstance(newChild, NavigableString):
             newChild = NavigableString(newChild)
@@ -937,7 +937,7 @@ def isString(s):
     """Convenience method that works with all 2.x versions of Python
     to determine whether or not something is stringlike."""
     try:
-        return isinstance(s, unicode_type) or isinstance(s, basestring)
+        return isinstance(s, unicode_type) or isinstance(s, string_or_bytes)
     except NameError:
         return isinstance(s, str)
 

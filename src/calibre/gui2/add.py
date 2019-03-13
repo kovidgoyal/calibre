@@ -11,7 +11,7 @@ from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
 from io import BytesIO
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, string_or_bytes
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -33,7 +33,7 @@ from calibre.utils.ipc.pool import Pool, Failure
 
 
 def validate_source(source, parent=None):  # {{{
-    if isinstance(source, basestring):
+    if isinstance(source, string_or_bytes):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
@@ -173,7 +173,7 @@ class Adder(QObject):
             return tdir
 
         try:
-            if isinstance(self.source, basestring):
+            if isinstance(self.source, string_or_bytes):
                 find_files(self.source)
                 self.ignore_opf = True
             else:

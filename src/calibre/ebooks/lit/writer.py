@@ -31,7 +31,7 @@ import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes
 
 __all__ = ['LitWriter']
 
@@ -175,7 +175,7 @@ class ReBinary(object):
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, basestring):
+        if not isinstance(elem.tag, string_or_bytes):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)

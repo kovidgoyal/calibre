@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, cPickle, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, string_or_bytes
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -45,7 +45,7 @@ def fuzzy_title_patterns():
     if _fuzzy_title_patterns is None:
         from calibre.ebooks.metadata import get_title_sort_pat
         _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, string_or_bytes) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),

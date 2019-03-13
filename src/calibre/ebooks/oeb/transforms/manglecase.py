@@ -11,6 +11,7 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import CSS_MIME
 from calibre.ebooks.oeb.base import namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
+from polyglot.builtins import string_or_bytes
 
 CASE_MANGLER_CSS = """
 .calibre_lowercase {
@@ -95,7 +96,7 @@ class CaseMangler(object):
                 last = child
 
     def mangle_elem(self, elem, stylizer):
-        if not isinstance(elem.tag, basestring) or \
+        if not isinstance(elem.tag, string_or_bytes) or \
            namespace(elem.tag) != XHTML_NS:
             return
         children = list(elem)

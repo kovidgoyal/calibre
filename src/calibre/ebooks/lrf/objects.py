@@ -7,7 +7,7 @@ from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre.constants import ispy3
 from calibre import entity_to_unicode, prepare_string_for_xml
 from calibre.ebooks.lrf.tags import Tag
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 ruby_tags = {
         0xF575: ['rubyAlignAndAdjust', 'W'],
@@ -121,7 +121,7 @@ class LRFContentObject(LRFObject):
     def handle_tag(self, tag):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
-            if isinstance(action, basestring):
+            if isinstance(action, string_or_bytes):
                 func, args = action, tuple([])
             else:
                 func, args = action[0], (action[1],)
@@ -880,7 +880,7 @@ class Text(LRFStream):
                 self.add_text(stream.read(tag.word))
             elif tag.id in self.__class__.text_tags:  # A Text tag
                 action = self.__class__.text_tags[tag.id]
-                if isinstance(action, basestring):
+                if isinstance(action, string_or_bytes):
                     getattr(self, action)(tag, stream)
                 else:
                     getattr(self, action[0])(tag, action[1])
@@ -904,7 +904,7 @@ class Text(LRFStream):
         s = u''
         open_containers = collections.deque()
         for c in self.content:
-            if isinstance(c, basestring):
+            if isinstance(c, string_or_bytes):
                 s += prepare_string_for_xml(c).replace('\0', '')
             elif c is None:
                 if open_containers:
@@ -930,7 +930,7 @@ class Text(LRFStream):
         open_containers = collections.deque()
         in_p = False
         for c in self.content:
-            if isinstance(c, basestring):
+            if isinstance(c, string_or_bytes):
                 s += c
             elif c is None:
                 if c.name == 'P':

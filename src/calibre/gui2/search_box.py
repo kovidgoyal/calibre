@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
@@ -183,7 +183,7 @@ class SearchBox2(QComboBox):  # {{{
         self.setFocus(Qt.OtherFocusReason)
 
     def search_done(self, ok):
-        if isinstance(ok, basestring):
+        if isinstance(ok, string_or_bytes):
             self.setToolTip(ok)
             ok = False
         if not unicode_type(self.currentText()).strip():

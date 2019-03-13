@@ -24,11 +24,11 @@ from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NA
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
-    if isinstance(fill, basestring):
+    if isinstance(fill, string_or_bytes):
         fill = QColor(fill)
     sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:

@@ -17,6 +17,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             Italic, Sup, Sub, Bold, EmpLine, JumpButton, CharButton, Plot, \
             DropCaps, Footer, RuledLine
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import string_or_bytes
 
 
 class LrsParser(object):
@@ -95,7 +96,7 @@ class LrsParser(object):
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
             for item in contents:
-                if isinstance(item, basestring):
+                if isinstance(item, string_or_bytes):
                     p.append(item)
                 elif isinstance(item, NavigableString):
                     p.append(item.string)

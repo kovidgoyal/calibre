@@ -70,7 +70,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, string_or_bytes
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -1337,7 +1337,7 @@ class Boss(QObject):
 
     @in_thread_job
     def export_requested(self, name_or_names, path):
-        if isinstance(name_or_names, basestring):
+        if isinstance(name_or_names, string_or_bytes):
             return self.export_file(name_or_names, path)
         for name in name_or_names:
             dest = os.path.abspath(os.path.join(path, name))

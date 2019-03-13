@@ -16,7 +16,7 @@ from contextlib import closing
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class WorkerError(Exception):
@@ -164,7 +164,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
         args['close_fds'] = True
 
     exe = w.executable
-    cmd = [exe] if isinstance(exe, basestring) else exe
+    cmd = [exe] if isinstance(exe, string_or_bytes) else exe
     p = subprocess.Popen(cmd + ['--pipe-worker', command], **args)
     return p
 

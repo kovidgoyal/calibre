@@ -15,13 +15,14 @@ from lxml import etree
 from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import string_or_bytes
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
 
 def matching_rule(font, rules):
     ff = font['font-family']
-    if not isinstance(ff, basestring):
+    if not isinstance(ff, string_or_bytes):
         ff = tuple(ff)[0]
     family = icu_lower(ff)
     wt = font['font-weight']
@@ -31,7 +32,7 @@ def matching_rule(font, rules):
     for rule in rules:
         if rule['font-style'] == style and rule['font-stretch'] == stretch and rule['font-weight'] == wt:
             ff = rule['font-family']
-            if not isinstance(ff, basestring):
+            if not isinstance(ff, string_or_bytes):
                 ff = tuple(ff)[0]
             if icu_lower(ff) == family:
                 return rule
@@ -162,7 +163,7 @@ def do_embed(container, font, report):
 def embed_font(container, font, all_font_rules, report, warned):
     rule = matching_rule(font, all_font_rules)
     ff = font['font-family']
-    if not isinstance(ff, basestring):
+    if not isinstance(ff, string_or_bytes):
         ff = ff[0]
     if rule is None:
         from calibre.utils.fonts.scanner import font_scanner, NoFonts

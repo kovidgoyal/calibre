@@ -14,7 +14,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class Book(Book_):
@@ -297,7 +297,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, basestring) and isinstance(y, basestring):
+            if isinstance(x, string_or_bytes) and isinstance(y, string_or_bytes):
                 x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
             c = cmp(x, y)
             if c != 0:

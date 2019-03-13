@@ -11,7 +11,7 @@ from tempfile import SpooledTemporaryFile
 from calibre import sanitize_file_name2
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 try:
     import zlib  # We may need its compression method
@@ -747,7 +747,7 @@ class ZipFile:
         self.comment = ''
 
         # Check if we were passed a file-like object
-        if isinstance(file, basestring):
+        if isinstance(file, string_or_bytes):
             self._filePassed = 0
             self.filename = file
             modeDict = {'r' : 'rb', 'w': 'wb', 'a' : 'r+b'}

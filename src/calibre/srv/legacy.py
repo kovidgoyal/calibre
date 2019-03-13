@@ -2,29 +2,31 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from functools import partial
+from urllib import urlencode
+
 from lxml.html import tostring
 from lxml.html.builder import E as E_
-from urllib import urlencode
 
 from calibre import strftime
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string
-from calibre.srv.content import get, book_filename
-from calibre.srv.errors import HTTPRedirect, HTTPBadRequest
+from calibre.srv.content import book_filename, get
+from calibre.srv.errors import HTTPBadRequest, HTTPRedirect
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
+from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
+from polyglot.builtins import string_or_bytes
 
 # /mobile {{{
 
 
 def clean(x):
-    if isinstance(x, basestring):
+    if isinstance(x, string_or_bytes):
         x = clean_xml_chars(x)
     return x
 

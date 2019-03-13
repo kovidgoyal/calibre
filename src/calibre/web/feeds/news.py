@@ -31,7 +31,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to_data
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class LoginFailed(ValueError):
@@ -1612,7 +1612,7 @@ class BasicNewsRecipe(Recipe):
         feeds = self.get_feeds()
         parsed_feeds = []
         for obj in feeds:
-            if isinstance(obj, basestring):
+            if isinstance(obj, string_or_bytes):
                 title, url = None, obj
             else:
                 title, url = obj
@@ -1659,7 +1659,7 @@ class BasicNewsRecipe(Recipe):
         '''
         if tag is None:
             return ''
-        if isinstance(tag, basestring):
+        if isinstance(tag, string_or_bytes):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring

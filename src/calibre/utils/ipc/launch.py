@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 if iswindows:
     import win32process
@@ -186,7 +186,7 @@ class Worker(object):
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, basestring) else exe
+        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
         args = {
                 'env' : env,
                 'cwd' : _cwd,

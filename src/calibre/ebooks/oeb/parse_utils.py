@@ -14,7 +14,7 @@ from lxml import etree, html
 from calibre import xml_replace_entities, force_unicode
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -99,7 +99,7 @@ def html5_parse(data, max_nesting_depth=100):
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
-        if isinstance(x.tag, basestring) and not len(x):  # Leaf node
+        if isinstance(x.tag, string_or_bytes) and not len(x):  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
                 raise ValueError('HTML 5 parsing resulted in a tree with nesting'
@@ -310,7 +310,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         nroot = etree.Element(XHTML('html'),
             nsmap={None: XHTML_NS}, attrib=attrib)
         for elem in data.iterdescendants():
-            if isinstance(elem.tag, basestring) and \
+            if isinstance(elem.tag, string_or_bytes) and \
                 namespace(elem.tag) == ns:
                 elem.tag = XHTML(barename(elem.tag))
         for elem in data:

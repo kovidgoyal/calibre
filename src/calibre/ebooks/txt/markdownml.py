@@ -15,7 +15,7 @@ from functools import partial
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class MarkdownMLizer(OEB2HTML):
@@ -111,10 +111,10 @@ class MarkdownMLizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, string_or_bytes) \
            or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return ['']

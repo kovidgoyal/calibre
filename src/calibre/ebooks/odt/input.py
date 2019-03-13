@@ -19,7 +19,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class Extract(ODF2XHTML):
@@ -249,7 +249,7 @@ class Extract(ODF2XHTML):
         # first load the odf structure
         self.lines = []
         self._wfunc = self._wlines
-        if isinstance(odffile, basestring) \
+        if isinstance(odffile, string_or_bytes) \
                 or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = odLoad(odffile)
         else:

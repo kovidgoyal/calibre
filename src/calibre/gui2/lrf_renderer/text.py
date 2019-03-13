@@ -10,7 +10,7 @@ from PyQt5.Qt import (
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 WEIGHT_MAP = lambda wt : int((wt/10.)-1)
 NULL       = lambda a, b: a
@@ -223,7 +223,7 @@ class TextBlock(object):
         open_containers = collections.deque()
         self.in_para = False
         for i in tb.content:
-            if isinstance(i, basestring):
+            if isinstance(i, string_or_bytes):
                 self.process_text(i)
             elif i is None:
                 if len(open_containers) > 0:

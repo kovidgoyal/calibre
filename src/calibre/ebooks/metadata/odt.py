@@ -33,6 +33,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_is
 from calibre.utils.imghdr import identify
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import string_or_bytes
 
 whitespace = re.compile(r'\s+')
 
@@ -125,7 +126,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         if name == (OFFICENS,u'meta'):
             for k,v in self.addfields.items():
                 if len(v) > 0:
-                    if isinstance(k, basestring):
+                    if isinstance(k, string_or_bytes):
                         xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS,u'user-defined'),None,{(METANS,u'name'):k})
                         xml.sax.saxutils.XMLGenerator.characters(self, v)
                         xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS,u'user-defined'),None)
@@ -270,4 +271,3 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
                 else:
                     cover_data = (fmt, raw)
             mi.cover_data = cover_data
-

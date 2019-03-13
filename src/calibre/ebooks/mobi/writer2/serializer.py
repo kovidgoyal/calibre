@@ -18,7 +18,7 @@ from calibre.ebooks.mobi.utils import is_guide_ref_start
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace, prefixname, urlnormalize
 )
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class Buf(BytesIO):
@@ -310,7 +310,7 @@ class Serializer(object):
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buf = self.buf
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, string_or_bytes) \
             or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)

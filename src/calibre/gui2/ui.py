@@ -53,7 +53,7 @@ from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class Listener(Thread):  # {{{
@@ -615,7 +615,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
-        if isinstance(args, basestring):
+        if isinstance(args, string_or_bytes):
             args = [args]
         files = [os.path.abspath(p) for p in args if not os.path.isdir(p) and os.access(p, os.R_OK)]
         if files:

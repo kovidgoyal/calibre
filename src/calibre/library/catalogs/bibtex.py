@@ -15,6 +15,7 @@ from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import format_isbn
+from polyglot.builtins import string_or_bytes
 
 
 class BIBTEX(CatalogPlugin):
@@ -212,13 +213,13 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(u'year = "%s"' % item.year)
                     bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
 
-                elif field.startswith('#') and isinstance(item, basestring):
+                elif field.startswith('#') and isinstance(item, string_or_bytes):
                     bibtex_entry.append(u'custom_%s = "%s"' % (field[1:],
                         bibtexdict.utf8ToBibtex(item)))
 
-                elif isinstance(item, basestring):
+                elif isinstance(item, string_or_bytes):
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
-                        # 'author_sort', 'series', 'title_sort'] :
+                    # 'author_sort', 'series', 'title_sort'] :
                     bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
             bibtex_entry = u',\n    '.join(bibtex_entry)

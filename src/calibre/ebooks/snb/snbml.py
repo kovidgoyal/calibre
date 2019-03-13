@@ -12,7 +12,7 @@ import os
 import re
 
 from lxml import etree
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def ProcessFileName(fileName):
@@ -212,10 +212,10 @@ class SNBMLizer(object):
     def dump_text(self, subitems, elem, stylizer, end='', pre=False, li=''):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, string_or_bytes) \
            or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return ['']

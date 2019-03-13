@@ -20,7 +20,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class MetadataBackup(Thread):  # {{{
@@ -793,7 +793,7 @@ class ResultCache(SearchQueryParser):  # {{{
                         continue
 
                     if q == 'true' and matchkind == CONTAINS_MATCH:
-                        if isinstance(item[loc], basestring):
+                        if isinstance(item[loc], string_or_bytes):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])

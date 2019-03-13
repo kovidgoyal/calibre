@@ -35,7 +35,7 @@ from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -1125,7 +1125,7 @@ def open_url(qurl):
     # Qt 5 requires QApplication to be constructed before trying to use
     # QDesktopServices::openUrl()
     ensure_app()
-    if isinstance(qurl, basestring):
+    if isinstance(qurl, string_or_bytes):
         qurl = QUrl(qurl)
     with sanitize_env_vars():
         QDesktopServices.openUrl(qurl)

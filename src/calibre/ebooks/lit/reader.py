@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
 from calibre import plugins
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes
 
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
@@ -281,7 +281,7 @@ class UnBinary(object):
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
-                    if not attr or not isinstance(attr, basestring):
+                    if not attr or not isinstance(attr, string_or_bytes):
                         raise LitError(
                             'Unknown attribute %d in tag %s' % (oc, tag_name))
                     if attr.startswith('%'):

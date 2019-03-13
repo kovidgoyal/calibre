@@ -20,7 +20,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 BASE_TIME = None
 
@@ -243,7 +243,7 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-        if isinstance(ebook_dirs, basestring):
+        if isinstance(ebook_dirs, string_or_bytes):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)

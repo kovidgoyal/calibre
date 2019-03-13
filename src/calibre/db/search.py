@@ -19,7 +19,7 @@ from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -706,7 +706,7 @@ class Parser(SearchQueryParser):  # {{{
             if location in text_fields:
                 for val, book_ids in self.field_iter(location, current_candidates):
                     if val is not None:
-                        if isinstance(val, basestring):
+                        if isinstance(val, string_or_bytes):
                             val = (val,)
                         if _match(q, val, matchkind, use_primary_find_in_search=upf, case_sensitive=case_sensitive):
                             matches |= book_ids

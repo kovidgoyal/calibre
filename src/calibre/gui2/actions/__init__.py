@@ -15,7 +15,7 @@ from calibre import prints
 from calibre.constants import isosx
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def menu_action_unique_name(plugin, unique_name):
@@ -177,7 +177,7 @@ class InterfaceAction(QObject):
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, string_or_bytes) else
                     tuple(shortcut))
             if shortcut_name is None and spec[0]:
                 shortcut_name = unicode_type(spec[0])
@@ -249,7 +249,7 @@ class InterfaceAction(QObject):
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, string_or_bytes) else
                     tuple(shortcut))
         unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:

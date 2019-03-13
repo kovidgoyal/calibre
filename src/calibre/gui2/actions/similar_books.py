@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import string_or_bytes
 
 
 class SimilarBooksAction(InterfaceAction):
@@ -74,7 +75,7 @@ class SimilarBooksAction(InterfaceAction):
         if not val:
             return
 
-        if isinstance(val, basestring):
+        if isinstance(val, string_or_bytes):
             val = [val]
         search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
         if search:
