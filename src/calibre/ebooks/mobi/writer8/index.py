@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import unicode_type, zip, range
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
@@ -380,7 +380,7 @@ if __name__ == '__main__':
     # calibre and kindlegen and compare the output
     import os, subprocess
     os.chdir('/t')
-    paras = ['<p>%d</p>' % i for i in xrange(4000)]
+    paras = ['<p>%d</p>' % i for i in range(4000)]
     raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
 
     src = 'index.html'

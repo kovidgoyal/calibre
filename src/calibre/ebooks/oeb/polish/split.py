@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
-from polyglot.builtins import map, string_or_bytes
+from polyglot.builtins import map, string_or_bytes, range
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
@@ -286,7 +286,7 @@ def multisplit(container, name, xpath, before=True):
 
     current = name
     all_names = [name]
-    for i in xrange(len(nodes)):
+    for i in range(len(nodes)):
         current = split(container, current, '//*[@calibre-split-point="%d"]' % i, before=before)
         all_names.append(current)
 

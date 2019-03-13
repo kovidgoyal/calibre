@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def update_internal_links(mobi8_reader, log):
@@ -31,7 +31,7 @@ def update_internal_links(mobi8_reader, log):
     parts = []
     for part in mr.parts:
         srcpieces = posfid_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith(b'<'):
                 for m in posfid_index_pattern.finditer(tag):
@@ -69,7 +69,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
             re.IGNORECASE)
     within_tag_aid_position_pattern = re.compile(r'''\s[ac]id\s*=['"]([^'"]*)['"]''')
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = find_tag_with_aid_pattern.split(part)
         for j in range(len(srcpieces)):
@@ -95,7 +95,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
     within_tag_AmznPageBreak_position_pattern = re.compile(
             r'''\sdata-AmznPageBreak=['"]([^'"]*)['"]''')
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = find_tag_with_AmznPageBreak_pattern.split(part)
         for j in range(len(srcpieces)):
@@ -229,7 +229,7 @@ def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
     tag_pattern = re.compile(r'''(<[^>]*>)''')
     flow_pattern = re.compile(r'''['"]kindle:flow:([0-9|A-V]+)\?mime=([^'"]+)['"]''', re.IGNORECASE)
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
 
         # flow pattern
@@ -265,10 +265,10 @@ def insert_images_into_markup(parts, resource_map, log):
     style_pattern = re.compile(r'''(<[a-zA-Z0-9]+\s[^>]*style\s*=\s*[^>]*>)''',
             re.IGNORECASE)
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = img_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith('<im'):
                 for m in img_index_pattern.finditer(tag):
@@ -286,10 +286,10 @@ def insert_images_into_markup(parts, resource_map, log):
         parts[i] = part
 
     # Replace urls used in style attributes
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = style_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if 'kindle:embed' in tag:
                 for m in img_index_pattern.finditer(tag):
@@ -312,7 +312,7 @@ def insert_images_into_markup(parts, resource_map, log):
 def upshift_markup(parts):
     tag_pattern = re.compile(r'''(<(?:svg)[^>]*>)''', re.IGNORECASE)
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
 
         # tag pattern

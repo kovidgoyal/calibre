@@ -11,6 +11,7 @@ from struct import unpack_from, calcsize
 from collections import OrderedDict, namedtuple
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from polyglot.builtins import range
 
 
 class Unpackable(object):
@@ -41,7 +42,7 @@ class SimpleListTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             offset = data.unpack('H')
             self.append(self.child_class(raw, data.start_pos + offset))
         self.read_extra_footer(data)
@@ -66,7 +67,7 @@ class ListTable(OrderedDict):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             tag, coffset = data.unpack('4sH')
             self[tag] = self.child_class(raw, data.start_pos + coffset)
 
@@ -93,7 +94,7 @@ class IndexTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             self.append(data.unpack('H'))
 
     def read_extra_header(self, data):
@@ -167,6 +168,7 @@ def ExtensionSubstitution(raw, offset, subtable_map={}):
         raise UnsupportedFont('ExtensionSubstitution has unknown format: 0x%x'%subst_format)
     return subtable_map[extension_lookup_type](raw, offset+data.start_pos)
 
+
 CoverageRange = namedtuple('CoverageRange', 'start end start_coverage_index')
 
 
@@ -186,7 +188,7 @@ class Coverage(object):
         else:
             self.ranges = []
             ranges = data.unpack('%dH'%(3*count), single_special=False)
-            for i in xrange(count):
+            for i in range(count):
                 start, end, start_coverage_index = ranges[i*3:(i+1)*3]
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
 
@@ -249,4 +251,3 @@ class UnknownLookupSubTable(object):
                     items.append(read_item(data))
             coverage_to_items_map.append(items)
         return coverage_to_items_map
-

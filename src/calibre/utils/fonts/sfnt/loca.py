@@ -11,6 +11,7 @@ from struct import calcsize, unpack_from, pack
 from operator import itemgetter
 
 from calibre.utils.fonts.sfnt import UnknownTable
+from polyglot.builtins import range
 
 
 class LocaTable(UnknownTable):
@@ -46,7 +47,7 @@ class LocaTable(UnknownTable):
             self.offset_map[glyph_id+1] = offset + sz
         # Fix all zero entries to be the same as the previous entry, which
         # means that if the ith entry is zero, the i-1 glyph is not present.
-        for i in xrange(1, len(self.offset_map)):
+        for i in range(1, len(self.offset_map)):
             if self.offset_map[i] == 0:
                 self.offset_map[i] = self.offset_map[i-1]
 
@@ -59,9 +60,7 @@ class LocaTable(UnknownTable):
     def dump_glyphs(self, sfnt):
         if not hasattr(self, 'offset_map'):
             self.load_offsets(sfnt[b'head'], sfnt[b'maxp'])
-        for i in xrange(len(self.offset_map)-1):
+        for i in range(len(self.offset_map)-1):
             off, noff = self.offset_map[i], self.offset_map[i+1]
             if noff != off:
                 print('Glyph id:', i, 'size:', noff-off)
-
-

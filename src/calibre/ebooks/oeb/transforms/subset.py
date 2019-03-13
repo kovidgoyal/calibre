@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 from tinycss.fonts3 import parse_font_family
 
 
@@ -287,10 +287,10 @@ class SubsetFonts(object):
         elif fw == 500:
             q = [500, 400, 300, 200, 100, 600, 700, 800, 900]
         elif fw < 400:
-            q = [fw] + list(xrange(fw-100, -100, -100)) + list(xrange(fw+100,
+            q = [fw] + list(range(fw-100, -100, -100)) + list(range(fw+100,
                 100, 1000))
         else:
-            q = [fw] + list(xrange(fw+100, 100, 1000)) + list(xrange(fw-100,
+            q = [fw] + list(range(fw+100, 100, 1000)) + list(range(fw-100,
                 -100, -100))
         for wt in q:
             matches = [f for f in matching_set if f['weight'] == wt]

@@ -8,6 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from struct import unpack, pack
+from polyglot.builtins import range
 
 t1_operand_encoding = [None] * 256
 t1_operand_encoding[0:32] = (32) * ["do_operator"]
@@ -91,7 +92,7 @@ class ByteCode(dict):
         if len(nibbles) % 2:
             nibbles.append(0xf)
         d = bytearray([30])
-        for i in xrange(0, len(nibbles), 2):
+        for i in range(0, len(nibbles), 2):
             d.append(nibbles[i] << 4 | nibbles[i+1])
         return bytes(d)
 
@@ -164,7 +165,7 @@ class Dict(ByteCode):
     def handle_operator(self, operator, arg_type):
         if isinstance(arg_type, tuple):
             value = ()
-            for i in xrange(len(arg_type)-1, -1, -1):
+            for i in range(len(arg_type)-1, -1, -1):
                 arg = arg_type[i]
                 arghandler = getattr(self, 'arg_' + arg)
                 value = (arghandler(operator),) + value

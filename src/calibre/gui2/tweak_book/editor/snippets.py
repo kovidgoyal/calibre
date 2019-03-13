@@ -24,7 +24,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, range
 
 string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key_J
@@ -529,7 +529,7 @@ class EditSnippet(QWidget):
         self.template.setPlainText(snip.get('template') or '')
 
         ftypes = snip.get('syntaxes', ())
-        for i in xrange(self.types.count()):
+        for i in range(self.types.count()):
             i = self.types.item(i)
             ftype = i.data(Qt.UserRole)
             i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
@@ -544,7 +544,7 @@ class EditSnippet(QWidget):
 
         def fget(self):
             ftypes = []
-            for i in xrange(self.types.count()):
+            for i in range(self.types.count()):
                 i = self.types.item(i)
                 if i.checkState() == Qt.Checked:
                     ftypes.append(i.data(Qt.UserRole))
@@ -657,7 +657,7 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in xrange(self.snip_list.count())]
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in range(self.snip_list.count())]
         snippets(refresh=True)
         return Dialog.accept(self)
 

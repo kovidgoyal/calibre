@@ -14,6 +14,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
+from polyglot.builtins import range
 
 
 class CNCX(CNCX_):  # {{{
@@ -844,7 +845,7 @@ class Indexer(object):  # {{{
 
         deepest = max(i.depth for i in self.indices)
 
-        for i in xrange(self.number_of_text_records):
+        for i in range(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
             data = {'ends':[], 'completes':[], 'starts':[],
@@ -890,5 +891,3 @@ class Indexer(object):  # {{{
     # }}}
 
 # }}}
-
-

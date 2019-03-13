@@ -13,6 +13,7 @@ from PyQt5.Qt import (Qt, QTreeView, QSize, QMenu)
 from calibre.customize.ui import store_plugins
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.config.chooser.models import Matches
+from polyglot.builtins import range
 
 
 class ResultsView(QTreeView):
@@ -30,7 +31,7 @@ class ResultsView(QTreeView):
         for i in self._model.HTML_COLS:
             self.setItemDelegateForColumn(i, self.rt_delegate)
 
-        for i in xrange(self._model.columnCount()):
+        for i in range(self._model.columnCount()):
             self.resizeColumnToContents(i)
 
         self.model().sort(1, Qt.AscendingOrder)

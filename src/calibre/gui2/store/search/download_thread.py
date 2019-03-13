@@ -14,6 +14,7 @@ from Queue import Queue
 from calibre import browser
 from calibre.constants import DEBUG
 from calibre.utils.img import scale_image
+from polyglot.builtins import range
 
 
 class GenericDownloadThreadPool(object):
@@ -44,7 +45,7 @@ class GenericDownloadThreadPool(object):
         starts any threads necessary to fill the pool if it is
         not already full.
         '''
-        for i in xrange(self.thread_count - self.running_threads_count()):
+        for i in range(self.thread_count - self.running_threads_count()):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
             t.start()

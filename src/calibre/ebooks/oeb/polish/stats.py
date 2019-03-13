@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdec
 from calibre.utils.icu import ord_string, safe_chr
 from polyglot.builtins import unicode_type
 from tinycss.fonts3 import parse_font_family
+from polyglot.builtins import range
 
 
 def normalize_font_properties(font):
@@ -92,10 +93,10 @@ def get_matching_rules(rules, font):
     elif fw == 500:
         q = [500, 400, 300, 200, 100, 600, 700, 800, 900]
     elif fw < 400:
-        q = [fw] + list(xrange(fw-100, -100, -100)) + list(xrange(fw+100,
+        q = [fw] + list(range(fw-100, -100, -100)) + list(range(fw+100,
             100, 1000))
     else:
-        q = [fw] + list(xrange(fw+100, 100, 1000)) + list(xrange(fw-100,
+        q = [fw] + list(range(fw+100, 100, 1000)) + list(range(fw-100,
             -100, -100))
     for wt in q:
         m = [f for f in matches if f['weight'] == wt]

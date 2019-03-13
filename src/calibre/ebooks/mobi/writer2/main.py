@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
         align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
@@ -106,7 +106,7 @@ class MobiWriter(object):
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)
-            for i in xrange(self.last_text_record_idx + 1):
+            for i in range(self.last_text_record_idx + 1):
                 if i == 0:
                     continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
@@ -125,7 +125,7 @@ class MobiWriter(object):
 
         breaks = self.serializer.breaks
 
-        for i in xrange(1, self.last_text_record_idx+1):
+        for i in range(1, self.last_text_record_idx+1):
             offset = i * RECORD_SIZE
             pbreak = 0
             running = offset

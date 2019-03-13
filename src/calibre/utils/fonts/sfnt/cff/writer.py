@@ -11,6 +11,7 @@ from struct import pack
 from collections import OrderedDict
 
 from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
+from polyglot.builtins import range
 
 
 class Index(list):
@@ -131,7 +132,7 @@ class Subset(object):
         charsets.extend(cff.charset[1:])  # .notdef is not included
 
         endchar_operator = bytes(bytearray([14]))
-        for i in xrange(self.cff.num_glyphs):
+        for i in range(self.cff.num_glyphs):
             cname = self.cff.charset.safe_lookup(i)
             ok = cname in keep_charnames
             cs = self.cff.char_strings[i] if ok else endchar_operator
@@ -189,5 +190,3 @@ class Subset(object):
             self.raw += private_dict.raw
             if private_dict.subrs is not None:
                 self.raw += private_dict.subrs.raw
-
-

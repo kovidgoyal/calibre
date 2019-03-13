@@ -14,6 +14,7 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highlighter, SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_format
 from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
+from polyglot.builtins import range
 
 
 class QtHighlighter(QTextDocument):
@@ -59,7 +60,7 @@ class NullHighlighter(object):
         self.lines = text.splitlines()
 
     def copy_lines(self, lo, hi, cursor):
-        for i in xrange(lo, hi):
+        for i in range(lo, hi):
             cursor.insertText(self.lines[i])
             cursor.insertBlock()
 
@@ -101,7 +102,7 @@ class PygmentsHighlighter(object):
                     continue
 
     def copy_lines(self, lo, hi, cursor):
-        for i in xrange(lo, hi):
+        for i in range(lo, hi):
             for fmt, text in self.lines[i]:
                 cursor.insertText(text, fmt)
             cursor.setCharFormat(NULL_FMT)

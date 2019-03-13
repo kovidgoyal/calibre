@@ -15,6 +15,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import (CNCX, parse_indx_header,
         parse_tagx_section, parse_index_record, INDEX_HEADER_FIELDS)
 from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
+from polyglot.builtins import range
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
@@ -41,7 +42,7 @@ def read_variable_len_data(data, header):
         tagx_block_size = header['tagx_block_size'] = struct.unpack_from(b'>I', data, offset + 4)[0]
         header['tagx_block'] = data[offset:offset+tagx_block_size]
         offset = idxt_offset + 4
-        for i in xrange(header['count']):
+        for i in range(header['count']):
             p = struct.unpack_from(b'>H', data, offset)[0]
             offset += 2
             strlen = bytearray(data[p])[0]
@@ -77,7 +78,7 @@ def read_index(sections, idx, codec):
     read_variable_len_data(data, indx_header)
     index_headers = []
 
-    for i in xrange(idx + 1, idx + 1 + indx_count):
+    for i in range(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i].raw
         index_headers.append(parse_index_record(table, data, control_byte_count, tags, codec,

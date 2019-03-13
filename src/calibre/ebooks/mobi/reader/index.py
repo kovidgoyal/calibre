@@ -12,13 +12,14 @@ from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.utils import (decint, count_set_bits,
         decode_string)
+from polyglot.builtins import range
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
 INDEX_HEADER_FIELDS = (
             'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
             'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
-    ) + tuple('unknown%d'%i for i in xrange(27)) + ('ocnt', 'oentries',
+    ) + tuple('unknown%d'%i for i in range(27)) + ('ocnt', 'oentries',
             'ordt1', 'ordt2', 'tagx')
 
 
@@ -73,7 +74,7 @@ def parse_indx_header(data):
             # ascii character. If we cannot, we map to the ? char.
 
             parsed = bytearray(ans['oentries'])
-            for i in xrange(0, 2*ans['oentries'], 2):
+            for i in range(0, 2*ans['oentries'], 2):
                 parsed[i//2] = raw[i+1] if 0x20 < raw[i+1] < 0x7f else ord(b'?')
             ans['ordt_map'] = bytes(parsed).decode('ascii')
         else:
@@ -133,7 +134,7 @@ def parse_tagx_section(data):
     first_entry_offset, = struct.unpack_from(b'>L', data, 4)
     control_byte_count, = struct.unpack_from(b'>L', data, 8)
 
-    for i in xrange(12, first_entry_offset, 4):
+    for i in range(12, first_entry_offset, 4):
         vals = list(bytearray(data[i:i+4]))
         tags.append(TagX(*vals))
     return control_byte_count, tags
@@ -177,7 +178,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
         values = []
         if x.value_count is not None:
             # Read value_count * values_per_entry variable width values.
-            for _ in xrange(x.value_count * x.num_of_values):
+            for _ in range(x.value_count * x.num_of_values):
                 byts, consumed = decint(data)
                 data = data[consumed:]
                 values.append(byts)
@@ -220,7 +221,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
 
     # loop through to build up the IDXT position starts
     idx_positions= []
-    for j in xrange(entry_count):
+    for j in range(entry_count):
         pos, = struct.unpack_from(b'>H', data, idxt_pos + 4 + (2 * j))
         idx_positions.append(pos)
     # The last entry ends before the IDXT tag (but there might be zero fill
@@ -229,7 +230,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
 
     # For each entry in the IDXT build up the tag map and any associated
     # text
-    for j in xrange(entry_count):
+    for j in range(entry_count):
         start, end = idx_positions[j:j+2]
         rec = data[start:end]
         # Sometimes (in the guide table if the type attribute has non ascii
@@ -266,10 +267,9 @@ def read_index(sections, idx, codec):
     tag_section_start = indx_header['tagx']
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
-    for i in xrange(idx + 1, idx + 1 + indx_count):
+    for i in range(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i][0]
         parse_index_record(table, data, control_byte_count, tags, codec,
                 indx_header['ordt_map'])
     return table, cncx
-

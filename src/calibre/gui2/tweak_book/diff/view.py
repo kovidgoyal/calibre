@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import unicode_type, zip, range
 
 import regex
 from PyQt5.Qt import (
@@ -160,7 +160,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
@@ -612,7 +612,7 @@ class DiffSplit(QSplitter):  # {{{
             if size > 0:
                 c.beginEditBlock()
                 c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
-                for i in xrange(lines + 1):
+                for i in range(lines + 1):
                     c.insertBlock()
             change.extend((start, c.block().blockNumber()))
             c.insertBlock()
@@ -640,7 +640,7 @@ class DiffSplit(QSplitter):  # {{{
                 c.beginEditBlock()
                 c.movePosition(c.StartOfBlock)
                 if delta > 0:
-                    for _ in xrange(delta):
+                    for _ in range(delta):
                         c.insertBlock()
                 else:
                     c.movePosition(c.NextBlock, c.KeepAnchor, -delta)
@@ -747,7 +747,7 @@ class DiffSplit(QSplitter):  # {{{
     def do_insert(self, cursor, highlighter, line_number_map, lo, hi):
         start_block = cursor.block()
         highlighter.copy_lines(lo, hi, cursor)
-        for num, i in enumerate(xrange(start_block.blockNumber(), cursor.blockNumber())):
+        for num, i in enumerate(range(start_block.blockNumber(), cursor.blockNumber())):
             line_number_map[i] = lo + num + 1
         return start_block.blockNumber(), cursor.block().blockNumber()
 
@@ -806,10 +806,10 @@ class DiffSplit(QSplitter):  # {{{
         # search for the pair that matches best without being identical
         # (identical lines must be junk lines, & we don't want to synch up
         # on junk -- unless we have to)
-        for j in xrange(blo, bhi):
+        for j in range(blo, bhi):
             bj = b[j]
             cruncher.set_seq2(bj)
-            for i in xrange(alo, ahi):
+            for i in range(alo, ahi):
                 ai = a[i]
                 if ai == bj:
                     if eqi is None:

@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class TopazError(ValueError):
@@ -784,7 +784,7 @@ class MobiReader(object):
 
     def extract_text(self, offset=1):
         self.log.debug('Extracting text...')
-        text_sections = [self.text_section(i) for i in xrange(offset,
+        text_sections = [self.text_section(i) for i in range(offset,
             min(self.book_header.records + offset, len(self.sections)))]
         processed_records = list(range(offset-1, self.book_header.records +
             offset))
@@ -793,9 +793,9 @@ class MobiReader(object):
 
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in
-                xrange(self.book_header.huff_offset,
+                range(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
-            processed_records += list(xrange(self.book_header.huff_offset,
+            processed_records += list(range(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
             unpack = huff.unpack

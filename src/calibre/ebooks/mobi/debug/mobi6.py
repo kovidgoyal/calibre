@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class TagX(object):  # {{{
@@ -744,7 +744,7 @@ class MOBIFile(object):  # {{{
                 self.index_header.index_encoding)
             self.index_record = IndexRecord(self.records[pir+1:pir+1+numi],
                     self.index_header, self.cncx)
-            self.indexing_record_nums = set(xrange(pir,
+            self.indexing_record_nums = set(range(pir,
                 pir+1+numi+self.index_header.num_of_cncx_blocks))
         self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
@@ -754,17 +754,17 @@ class MOBIFile(object):  # {{{
             self.indexing_record_nums.add(sir)
             self.secondary_index_record = IndexRecord(
                     self.records[sir+1:sir+1+numi], self.secondary_index_header, self.cncx)
-            self.indexing_record_nums |= set(xrange(sir+1, sir+1+numi))
+            self.indexing_record_nums |= set(range(sir+1, sir+1+numi))
 
         ntr = self.mobi_header.number_of_text_records
         fii = self.mobi_header.first_image_index
         self.text_records = [TextRecord(r, self.records[r],
-            self.mobi_header.extra_data_flags, mf.decompress6) for r in xrange(1,
+            self.mobi_header.extra_data_flags, mf.decompress6) for r in range(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         self.font_records = []
         image_index = 0
-        for i in xrange(self.mobi_header.first_resource_record, min(self.mobi_header.last_resource_record, len(self.records))):
+        for i in range(self.mobi_header.first_resource_record, min(self.mobi_header.last_resource_record, len(self.records))):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
                 continue
             image_index += 1

@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
 from calibre.ebooks.oeb.parse_utils import html5_parse
+from polyglot.builtins import range
 
 
 def nonvoid_cdata_elements(test, parse_function):
@@ -214,7 +215,7 @@ def timing():
 
     for name, f in (('calibre', partial(parse, line_numbers=False)), ('html5lib', vanilla), ('calibre-old', html5_parse)):
         timings = []
-        for i in xrange(10):
+        for i in range(10):
             st = monotonic()
             f(raw)
             timings.append(monotonic() - st)
