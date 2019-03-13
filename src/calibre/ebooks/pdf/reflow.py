@@ -10,7 +10,7 @@ import sys, os
 
 from lxml import etree
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class Font(object):
@@ -623,7 +623,7 @@ class PDFDocument(object):
         self.opts, self.log = opts, log
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
-        idc = iter(xrange(sys.maxint))
+        idc = iter(range(sys.maxint))
 
         self.fonts = []
         self.font_map = {}

@@ -17,6 +17,7 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import range
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -167,7 +168,7 @@ class LoopTest(BaseTest):
         self.ae(buf.read(1000), bytes(buf.ba))
         self.ae(b'', buf.read(10))
         self.ae(write(b'a'*10), 10)
-        numbers = bytes(bytearray(xrange(10)))
+        numbers = bytes(bytearray(range(10)))
         set(numbers, 1, 3, READ)
         self.ae(buf.read(1), b'\x01')
         self.ae(buf.read(10), b'\x02')

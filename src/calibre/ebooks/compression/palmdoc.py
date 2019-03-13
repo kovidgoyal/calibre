@@ -9,6 +9,7 @@ from cStringIO import StringIO
 from struct import pack
 
 from calibre.constants import plugins
+from polyglot.builtins import range
 cPalmdoc = plugins['cPalmdoc'][0]
 if not cPalmdoc:
     raise RuntimeError(('Failed to load required cPalmdoc module: '
@@ -56,7 +57,7 @@ def py_compress_doc(data):
         if i > 10 and (ldata - i) > 10:
             chunk = ''
             match = -1
-            for j in xrange(10, 2, -1):
+            for j in range(10, 2, -1):
                 chunk = data[i:i+j]
                 try:
                     match = data.rindex(chunk, 0, i)
@@ -97,4 +98,3 @@ def py_compress_doc(data):
             out.write(''.join(binseq))
             i += len(binseq) - 1
     return out.getvalue()
-

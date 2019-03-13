@@ -13,6 +13,7 @@ from time import time
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
+from polyglot.builtins import range
 
 
 class ReadingTest(BaseTest):
@@ -198,18 +199,18 @@ class ReadingTest(BaseTest):
         ae([3, 2, 1], cache.multisort([('identifiers', True),
             ('title', True)]), 'Subsort failed')
         from calibre.ebooks.metadata.book.base import Metadata
-        for i in xrange(7):
+        for i in range(7):
             cache.create_book_entry(Metadata('title%d' % i), apply_import_tags=False)
         cache.create_custom_column('one', 'CC1', 'int', False)
         cache.create_custom_column('two', 'CC2', 'int', False)
         cache.create_custom_column('three', 'CC3', 'int', False)
         cache.close()
         cache = self.init_cache()
-        cache.set_field('#one', {(i+(5*m)):m for m in (0, 1) for i in xrange(1, 6)})
+        cache.set_field('#one', {(i+(5*m)):m for m in (0, 1) for i in range(1, 6)})
         cache.set_field('#two', {i+(m*3):m for m in (0, 1, 2) for i in (1, 2, 3)})
         cache.set_field('#two', {10:2})
-        cache.set_field('#three', {i:i for i in xrange(1, 11)})
-        ae(list(xrange(1, 11)), cache.multisort([('#one', True), ('#two', True)], ids_to_sort=sorted(cache.all_book_ids())))
+        cache.set_field('#three', {i:i for i in range(1, 11)})
+        ae(list(range(1, 11)), cache.multisort([('#one', True), ('#two', True)], ids_to_sort=sorted(cache.all_book_ids())))
         ae([4, 5, 1, 2, 3, 7,8, 9, 10, 6], cache.multisort([('#one', True), ('#two', False)], ids_to_sort=sorted(cache.all_book_ids())))
         ae([5, 4, 3, 2, 1, 10, 9, 8, 7, 6], cache.multisort([('#one', True), ('#two', False), ('#three', False)], ids_to_sort=sorted(cache.all_book_ids())))
     # }}}
@@ -220,7 +221,7 @@ class ReadingTest(BaseTest):
         old = LibraryDatabase2(self.library_path)
         old_metadata = {i:old.get_metadata(
             i, index_is_id=True, get_cover=True, cover_as_data=True) for i in
-                xrange(1, 4)}
+                range(1, 4)}
         for mi in old_metadata.itervalues():
             mi.format_metadata = dict(mi.format_metadata)
             if mi.formats:
@@ -231,7 +232,7 @@ class ReadingTest(BaseTest):
         cache = self.init_cache(self.library_path)
 
         new_metadata = {i:cache.get_metadata(
-            i, get_cover=True, cover_as_data=True) for i in xrange(1, 4)}
+            i, get_cover=True, cover_as_data=True) for i in range(1, 4)}
         cache = None
         for mi2, mi1 in zip(new_metadata.values(), old_metadata.values()):
             self.compare_metadata(mi1, mi2)
@@ -245,7 +246,7 @@ class ReadingTest(BaseTest):
         for d, l in ((json_dumps, json_loads), (msgpack_dumps, msgpack_loads)):
             fm2 = l(d(fm))
             self.assertEqual(fm_as_dict(fm), fm_as_dict(fm2))
-        for i in xrange(1, 4):
+        for i in range(1, 4):
             mi = cache.get_metadata(i, get_cover=True, cover_as_data=True)
             rmi = msgpack_loads(msgpack_dumps(mi))
             self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id'.split())

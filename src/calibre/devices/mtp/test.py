@@ -13,6 +13,7 @@ from calibre.constants import iswindows, islinux
 from calibre.utils.icu import lower
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
+from polyglot.builtins import range
 
 
 class ProgressCallback(object):
@@ -172,9 +173,9 @@ class TestDeviceInteraction(unittest.TestCase):
         gc.disable()
         try:
             start_mem = memory()
-            for i in xrange(repetitions):
+            for i in range(repetitions):
                 func(*args, **kwargs)
-            for i in xrange(3):
+            for i in range(3):
                 gc.collect()
             end_mem = memory()
         finally:
@@ -262,6 +263,6 @@ def tests():
 def run():
     unittest.TextTestRunner(verbosity=2).run(tests())
 
+
 if __name__ == '__main__':
     run()
-

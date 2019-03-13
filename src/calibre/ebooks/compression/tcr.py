@@ -5,6 +5,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from polyglot.builtins import range
 
 
 class TCRCompressor(object):
@@ -48,7 +49,7 @@ class TCRCompressor(object):
         Look for codes that do no not appear in the coded text and add them to
         the list of free codes.
         '''
-        for i in xrange(256):
+        for i in range(256):
             if i not in self.unused_codes:
                 if chr(i) not in self.coded_txt:
                     self.unused_codes.add(i)
@@ -104,7 +105,7 @@ class TCRCompressor(object):
 
         # Generate the code dictionary.
         code_dict = []
-        for i in xrange(0, 256):
+        for i in range(0, 256):
             if i in self.unused_codes:
                 code_dict.append(chr(0))
             else:
@@ -122,7 +123,7 @@ def decompress(stream):
 
     # Codes that the file contents are broken down into.
     entries = []
-    for i in xrange(256):
+    for i in range(256):
         entry_len = ord(stream.read(1))
         entries.append(stream.read(entry_len))
 

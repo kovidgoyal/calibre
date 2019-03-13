@@ -25,7 +25,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 pretty_print_opf = False
 
@@ -715,7 +715,7 @@ class OPF(object):  # {{{
     def create_manifest_item(self, href, media_type, append=False):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
-        for c in xrange(1, sys.maxint):
+        for c in range(1, sys.maxint):
             id = 'id%d'%c
             if id not in ids:
                 break

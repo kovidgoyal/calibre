@@ -14,6 +14,7 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import range
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -271,11 +272,11 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             # Test pipelining
             responses = []
-            for i in xrange(10):
+            for i in range(10):
                 conn._HTTPConnection__state = httplib._CS_IDLE
                 conn.request('GET', '/%d'%i)
                 responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
-            for i in xrange(10):
+            for i in range(10):
                 r = responses[i]
                 r.begin()
                 self.ae(r.read(), ('%d' % i).encode('ascii'))
@@ -426,7 +427,7 @@ class TestHTTP(BaseTest):
 
     def test_static_generation(self):  # {{{
         'Test static generation'
-        nums = list(map(str, xrange(10)))
+        nums = list(map(str, range(10)))
 
         def handler(conn):
             return conn.generate_static_output('test', nums.pop)
@@ -435,7 +436,7 @@ class TestHTTP(BaseTest):
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
             data = r.read()
-            for i in xrange(5):
+            for i in range(5):
                 conn.request('GET', '/an_etagged_path')
                 r = conn.getresponse()
                 self.assertEqual(data, r.read())

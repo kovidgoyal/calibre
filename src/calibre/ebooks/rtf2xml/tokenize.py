@@ -15,7 +15,7 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import codepoint_to_chr
+from polyglot.builtins import codepoint_to_chr, range
 
 
 class Tokenize:
@@ -44,7 +44,7 @@ class Tokenize:
         self.__uc_bin = False
 
     def __remove_uc_chars(self, startchar, token):
-        for i in xrange(startchar, len(token)):
+        for i in range(startchar, len(token)):
             if self.__uc_char:
                 self.__uc_char -= 1
             else:

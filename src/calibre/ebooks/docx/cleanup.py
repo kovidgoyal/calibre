@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from polyglot.builtins import range
 
 NBSP = '\xa0'
 
@@ -134,7 +135,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
 
     # Process dir attributes
     class_map = dict(styles.classes.itervalues())
-    parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
+    parents = ('p', 'div') + tuple('h%d' % i for i in range(1, 7))
     for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
         # Ensure that children of rtl parents that are not rtl have an
         # explicit dir set. Also, remove dir from children if it is the same as
