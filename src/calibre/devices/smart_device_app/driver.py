@@ -398,7 +398,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if isinstance(a, dict):
                         printable = {}
                         for k,v in a.iteritems():
-                            if isinstance(v, (str, unicode_type)) and len(v) > 50:
+                            if isinstance(v, (bytes, unicode_type)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
                                 printable[k] = v
@@ -666,7 +666,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if v:
                 v = json.loads(v, object_hook=from_json)
                 if print_debug_info and extra_debug:
-                        self._debug('receive after decode')  # , v)
+                    self._debug('receive after decode')  # , v)
                 return (self.reverse_opcodes[v[0]], v[1])
             self._debug('protocol error -- empty json string')
         except socket.timeout:
@@ -1155,7 +1155,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                       (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
                 self._debug('cover width', self.THUMBNAIL_WIDTH)
             elif hasattr(self, 'THUMBNAIL_WIDTH'):
-                    delattr(self, 'THUMBNAIL_WIDTH')
+                delattr(self, 'THUMBNAIL_WIDTH')
 
             self.is_read_sync_col = result.get('isReadSyncCol', None)
             self._debug('Device is_read sync col', self.is_read_sync_col)

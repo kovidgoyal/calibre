@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map, range
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
@@ -55,7 +55,7 @@ def split_txt(txt, epub_split_size_kb=0):
     result in the entire document being one giant
     paragraph. In this case the EPUB parser will not
     be able to determine where to split the file
-    to accomidate the EPUB file size limitation
+    to accommodate the EPUB file size limitation
     and will fail.
     '''
     # Takes care if there is no point to split
@@ -66,9 +66,12 @@ def split_txt(txt, epub_split_size_kb=0):
         # Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
         chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024)) + 2))
         # if there are chunks with a superior size then go and break
-        if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
-            txt = '\n\n'.join([split_string_separator(line, chunk_size)
-                for line in txt.split('\n\n')])
+        parts = txt.split(b'\n\n')
+        lengths = tuple(map(len, parts))
+        if lengths and max(lengths) > chunk_size:
+            txt = b'\n\n'.join([
+                split_string_separator(line, chunk_size) for line in parts
+            ])
     if isbytestring(txt):
         txt = txt.decode('utf-8')
 
@@ -227,7 +230,7 @@ def opf_writer(path, opf_name, manifest, spine, mi):
     opf = OPFCreator(path, mi)
     opf.create_manifest(manifest)
     opf.create_spine(spine)
-    with open(os.path.join(path, opf_name), 'wb') as opffile:
+    with lopen(os.path.join(path, opf_name), 'wb') as opffile:
         opf.render(opffile)
 
 
@@ -236,9 +239,16 @@ def split_string_separator(txt, size):
     Splits the text by putting \n\n at the point size.
     '''
     if len(txt) > size:
-        txt = ''.join([re.sub(type(u'')(r'\.(?P<ends>[^.]*)$'), r'.\n\n\g<ends>',
-            txt[i:i+size], 1) for i in
-            xrange(0, len(txt), size)])
+        size -= 2
+        txt = []
+        for part in (txt[i * size: (i + 1) * size] for i in range(0, len(txt), size)):
+            idx = part.rfind('.')
+            if idx == -1:
+                part += b'\n\n'
+            else:
+                part = part[:idx + 1] + b'\n\n' + part[idx:]
+            txt.append(part)
+        txt = b''.join(txt)
     return txt
 
 

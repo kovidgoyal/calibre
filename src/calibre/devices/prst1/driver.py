@@ -171,7 +171,7 @@ class PRST1(USBMS):
 
         with closing(sqlite.connect(dbpath)) as connection:
             # Replace undecodable characters in the db instead of erroring out
-            connection.text_factory = lambda x: unicode_type(x, "utf-8", "replace")
+            connection.text_factory = lambda x: x if isinstance(x, unicode_type) else x.decode('utf-8', 'replace')
 
             cursor = connection.cursor()
             # Query collections
@@ -758,7 +758,7 @@ class PRST1(USBMS):
 
         thumbnail_path = THUMBPATH%book.bookId
 
-        prefix = self._main_prefix if source_id is 0 else self._card_a_prefix
+        prefix = self._main_prefix if source_id == 0 else self._card_a_prefix
         thumbnail_file_path = os.path.join(prefix, *thumbnail_path.split('/'))
         thumbnail_dir_path = os.path.dirname(thumbnail_file_path)
         if not os.path.exists(thumbnail_dir_path):

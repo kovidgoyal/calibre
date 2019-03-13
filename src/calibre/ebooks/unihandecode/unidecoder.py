@@ -60,9 +60,9 @@ it under the same terms as Perl itself.
 '''
 
 import re
-from calibre.constants import ispy3
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
+from polyglot.builtins import unicode_type
 
 
 class Unidecoder(object):
@@ -95,8 +95,8 @@ class Unidecoder(object):
         Find what group character is a part of.
         '''
         # Code groups withing CODEPOINTS take the form 'xAB'
-        if not ispy3:
-            character = unicode(character)
+        if not isinstance(character, unicode_type):
+            character = unicode_type(character, "utf-8")
         return 'x%02x' % (ord(character) >> 8)
 
     def grouped_point(self, character):
@@ -104,6 +104,6 @@ class Unidecoder(object):
         Return the location the replacement character is in the list for a
         the group character is a part of.
         '''
-        if not ispy3:
-            character = unicode(character)
+        if not isinstance(character, unicode_type):
+            character = unicode_type(character, "utf-8")
         return ord(character) & 255

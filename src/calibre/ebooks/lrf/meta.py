@@ -196,8 +196,8 @@ class xml_field(object):
 
         if not val:
             val = u''
-        if isinstance(val, unicode_type):
-            val = unicode_type(val, 'utf-8')
+        if not isinstance(val, unicode_type):
+            val = val.decode('utf-8')
 
         elems = document.getElementsByTagName(self.tag_name)
         elem = None

@@ -253,8 +253,8 @@ def offload_worker(env={}, priority='normal', cwd=None):
 def compile_code(src):
     import re, io
     if not isinstance(src, unicode_type):
-        match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
-        enc = match.group(1) if match else 'utf-8'
+        match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
+        enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     # Python complains if there is a coding declaration in a unicode string
     src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src, flags=re.MULTILINE)

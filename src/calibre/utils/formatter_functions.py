@@ -132,7 +132,7 @@ class FormatterFunction(object):
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
         ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-        if isinstance(ret, (str, unicode_type)):
+        if isinstance(ret, (bytes, unicode_type)):
             return ret
         if isinstance(ret, list):
             return ','.join(ret)

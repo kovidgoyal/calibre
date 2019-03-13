@@ -11,6 +11,7 @@ import copy
 from functools import partial
 from polyglot.builtins import unicode_type, map
 
+from calibre.constants import ispy3
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key, collation_order
@@ -43,11 +44,19 @@ class Tag(object):
         self.search_expression = search_expression
         self.original_categories = None
 
-    def __unicode__(self):
+    @property
+    def string_representation(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
 
-    def __str__(self):
-        return unicode_type(self).encode('utf-8')
+    if ispy3:
+        def __str__(self):
+            return self.string_representation
+    else:
+        def __str__(self):
+            return self.string_representation.encode('utf-8')
+
+        def __unicode__(self):
+            return self.string_representation
 
     def __repr__(self):
         return str(self)

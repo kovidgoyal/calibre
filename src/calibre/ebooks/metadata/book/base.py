@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import copy, traceback
 
 from calibre import prints
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, ispy3
 from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
@@ -709,7 +709,7 @@ class Metadata(object):
 
         return (None, None, None, None)
 
-    def __unicode__(self):
+    def __unicode__representation__(self):
         '''
         A string representation of this object, suitable for printing to
         console
@@ -791,11 +791,17 @@ class Metadata(object):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)
 
-    def __str__(self):
-        return self.__unicode__().encode('utf-8')
+    if ispy3:
+        __str__ = __unicode__representation__
+    else:
+        __unicode__ = __unicode__representation__
+
+        def __str__(self):
+            return self.__unicode__().encode('utf-8')
 
     def __nonzero__(self):
         return bool(self.title or self.author or self.comments or self.tags)
+    __bool__ = __nonzero__
 
     # }}}
 

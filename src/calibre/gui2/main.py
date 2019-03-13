@@ -132,7 +132,7 @@ def get_default_library_path():
         fname = 'Calibre Library'
     if isinstance(fname, unicode_type):
         try:
-            fname = fname.encode(filesystem_encoding)
+            fname.encode(filesystem_encoding)
         except:
             fname = 'Calibre Library'
     x = os.path.expanduser('~'+os.sep+fname)

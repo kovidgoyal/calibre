@@ -202,7 +202,7 @@ class Route(object):
             raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
 
         def quoted(x):
-            if not isinstance(x, unicode_type) and not isinstance(x, bytes):
+            if not isinstance(x, (unicode_type, bytes)):
                 x = unicode_type(x)
             if isinstance(x, unicode_type):
                 x = x.encode('utf-8')

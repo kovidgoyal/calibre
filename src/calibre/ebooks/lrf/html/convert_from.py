@@ -55,11 +55,7 @@ def munge_paths(basepath, url):
     if not path:
         path = basepath
     elif not os.path.isabs(path):
-        if isinstance(path, unicode_type):
-            path = path.encode(sys.getfilesystemencoding())
         dn = os.path.dirname(basepath)
-        if isinstance(dn, unicode_type):
-            dn = dn.encode(sys.getfilesystemencoding())
         path = os.path.join(dn, path)
     return os.path.normpath(path), fragment
 
@@ -1480,11 +1476,6 @@ class HTMLConverter(object):
                         ext = os.path.splitext(path)[1]
                         if ext:
                             ext = ext[1:].lower()
-                        enc = sys.getfilesystemencoding()
-                        if not enc:
-                            enc = 'utf8'
-                        if isinstance(path, unicode_type):
-                            path = path.encode(enc, 'replace')
                         if os.access(path, os.R_OK) and os.path.isfile(path):
                             if ext in ['png', 'jpg', 'bmp', 'jpeg']:
                                 self.process_image(path, tag_css)
@@ -1811,8 +1802,6 @@ class HTMLConverter(object):
 
 
 def process_file(path, options, logger):
-    if not isinstance(path, unicode_type):
-        path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     dirpath = os.path.dirname(path)

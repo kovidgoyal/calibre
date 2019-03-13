@@ -13,7 +13,7 @@ from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
 
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.constants import (isosx, __appname__, preferred_encoding,
+from calibre.constants import (__appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs, error_dialog, open_url
 from calibre.gui2.library.views import BooksView, DeviceBooksView
@@ -323,11 +323,6 @@ class StatusBar(QStatusBar):  # {{{
     def show_message(self, msg, timeout=0, show_notification=True):
         self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification'] and show_notification:
-            if isosx and isinstance(msg, unicode_type):
-                try:
-                    msg = msg.encode(preferred_encoding)
-                except UnicodeEncodeError:
-                    msg = msg.encode('utf-8')
             self.notifier(msg)
 
     def clear_message(self):

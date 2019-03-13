@@ -25,6 +25,7 @@ if is_py3:
     zip = builtins.__dict__['zip']
     map = builtins.__dict__['map']
     filter = builtins.__dict__['filter']
+    range = builtins.__dict__['range']
 
     codepoint_to_chr = chr
     unicode_type = str
@@ -47,6 +48,7 @@ else:
 """)
 
     from future_builtins import zip, map, filter  # noqa
+    range = xrange
     import __builtin__ as builtins
 
     codepoint_to_chr = unichr

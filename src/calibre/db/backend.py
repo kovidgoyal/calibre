@@ -670,7 +670,7 @@ class DB(object):
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, unicode_type, bytes)):
+                if isinstance(x, (unicode_type, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
@@ -681,12 +681,16 @@ class DB(object):
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 x = x.lower()
                 if x == 'true':
                     x = True
@@ -707,7 +711,9 @@ class DB(object):
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 if x.lower() == 'none':
                     return None
             if d['datatype'] == 'int':
@@ -1083,7 +1089,7 @@ class DB(object):
 
     def dump_and_restore(self, callback=None, sql=None):
         import codecs
-        from calibre.utils.apsw_shell import Shell
+        from apsw import Shell
         from contextlib import closing
         if callback is None:
             callback = lambda x: x
@@ -1096,7 +1102,7 @@ class DB(object):
                     shell = Shell(db=self.conn, stdout=buf)
                     shell.process_command('.dump')
             else:
-                with open(fname, 'wb') as buf:
+                with lopen(fname, 'wb') as buf:
                     buf.write(sql if isinstance(sql, bytes) else sql.encode('utf-8'))
 
             with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:

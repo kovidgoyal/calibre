@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import json, re
 from functools import partial
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
@@ -131,7 +131,7 @@ class CustomColumns(object):
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, unicode_type, bytes)):
+                if isinstance(x, (unicode_type, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
@@ -142,12 +142,14 @@ class CustomColumns(object):
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 x = x.lower()
                 if x == 'true':
                     x = True
@@ -168,7 +170,9 @@ class CustomColumns(object):
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (str, unicode_type, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 if x.lower() == 'none':
                     return None
             if d['datatype'] == 'int':

@@ -43,7 +43,7 @@ class TableItem(QTableWidgetItem):
             # self is not None and other is None therefore self >= other
             return True
 
-        if isinstance(self.sort, (str, unicode_type)):
+        if isinstance(self.sort, (bytes, unicode_type)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
         else:
@@ -66,7 +66,7 @@ class TableItem(QTableWidgetItem):
             # self is not None therefore self > other
             return False
 
-        if isinstance(self.sort, (str, unicode_type)):
+        if isinstance(self.sort, (bytes, unicode_type)):
             l = sort_key(self.sort)
             r = sort_key(other.sort)
         else:

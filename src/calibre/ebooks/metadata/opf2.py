@@ -15,7 +15,7 @@ from urlparse import urlparse
 from lxml import etree
 
 from calibre.ebooks import escape_xpath_attr
-from calibre.constants import __appname__, __version__, filesystem_encoding
+from calibre.constants import __appname__, __version__, filesystem_encoding, ispy3
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
@@ -73,7 +73,7 @@ class Resource(object):  # {{{
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
-            if isinstance(path, str):
+            if isinstance(path, bytes):
                 path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:
@@ -112,8 +112,8 @@ class Resource(object):  # {{{
             rpath = os.path.relpath(self.path, basedir)
         except ValueError:  # On windows path and basedir could be on different drives
             rpath = self.path
-        if isinstance(rpath, unicode_type):
-            rpath = rpath.encode('utf-8')
+        if isinstance(rpath, bytes):
+            rpath = rpath.decode(filesystem_encoding)
         return rpath.replace(os.sep, '/')+frag
 
     def set_basedir(self, path):
@@ -203,11 +203,16 @@ class ManifestItem(Resource):  # {{{
             self.mime_type = val
         return property(fget=fget, fset=fset)
 
-    def __unicode__(self):
+    def __unicode__representation__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
 
-    def __str__(self):
-        return unicode_type(self).encode('utf-8')
+    if ispy3:
+        __str__ = __unicode__representation__
+    else:
+        __unicode__ = __unicode__representation__
+
+        def __str__(self):
+            return unicode_type(self).encode('utf-8')
 
     def __repr__(self):
         return unicode_type(self)

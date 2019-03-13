@@ -53,7 +53,7 @@ class SpineItem(unicode_type):
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
         obj = super(SpineItem, cls).__new__(cls, path)
-        with open(path, 'rb') as f:
+        with lopen(path, 'rb') as f:
             raw = f.read()
         if from_epub:
             # According to the spec, HTML in EPUB must be encoded in utf-8 or

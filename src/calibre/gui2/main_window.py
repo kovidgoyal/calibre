@@ -5,14 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import StringIO, traceback, sys, gc, weakref
+import traceback, sys, gc, weakref
+from io import BytesIO
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
-from calibre import prints
-from polyglot.builtins import unicode_type
+from calibre import prints, force_unicode
 
 
 def option_parser(usage='''\
@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
         if type is KeyboardInterrupt:
             return
         try:
-            sio = StringIO.StringIO()
+            sio = BytesIO()
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)
@@ -145,7 +145,8 @@ class MainWindow(QMainWindow):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
-            msg = '<b>%s</b>:'%type.__name__ + unicode_type(str(value), 'utf8', 'replace')
+            fe = force_unicode(fe)
+            msg = '<b>%s</b>:'%type.__name__ + force_unicode(value)
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:

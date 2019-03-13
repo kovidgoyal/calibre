@@ -201,7 +201,7 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
 
 
 def convert(v):
-    if isinstance(v, basestring):
+    if isinstance(v, (unicode_type, bytes)):
         return unicode_type(v)
     if isinstance(v, dbus.Struct):
         return tuple(convert(val) for val in v)
@@ -308,6 +308,7 @@ class MyApplication(Gtk.Application):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+
 
 app = MyApplication(application_id='com.calibre-ebook.test-gtk')
 signal.signal(signal.SIGINT, signal.SIG_DFL)

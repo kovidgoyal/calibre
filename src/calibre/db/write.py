@@ -88,6 +88,8 @@ def adapt_number(typ, x):
     if x is None:
         return None
     if isinstance(x, (unicode_type, bytes)):
+        if isinstance(x, bytes):
+            x = x.decode(preferred_encoding, 'replace')
         if not x or x.lower() == 'none':
             return None
     return typ(x)
@@ -95,6 +97,8 @@ def adapt_number(typ, x):
 
 def adapt_bool(x):
     if isinstance(x, (unicode_type, bytes)):
+        if isinstance(x, bytes):
+            x = x.decode(preferred_encoding, 'replace')
         x = x.lower()
         if x == 'true':
             x = True

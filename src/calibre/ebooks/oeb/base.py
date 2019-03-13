@@ -13,7 +13,7 @@ from urlparse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote
 
 from lxml import etree, html
-from calibre.constants import filesystem_encoding, __version__
+from calibre.constants import filesystem_encoding, __version__, ispy3
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
@@ -107,13 +107,35 @@ self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b
 'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
 'video', 'title', 'script', 'style'}
 
-_self_closing_pat = re.compile(
-    r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(self_closing_bad_tags)),
-    re.IGNORECASE)
+
+def as_string_type(pat, for_unicode):
+    if for_unicode:
+        if isinstance(pat, bytes):
+            pat = pat.decode('utf-8')
+    else:
+        if isinstance(pat, unicode_type):
+            pat = pat.encode('utf-8')
+    return pat
+
+
+def self_closing_pat(for_unicode):
+    attr = 'unicode_ans' if for_unicode else 'bytes_ans'
+    ans = getattr(self_closing_pat, attr, None)
+    if ans is None:
+        sub = '|'.join(self_closing_bad_tags)
+        template = r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'
+        pat = template % sub
+        pat = as_string_type(pat, for_unicode)
+        ans = re.compile(pat, flags=re.IGNORECASE)
+        setattr(self_closing_pat, attr, ans)
+    return ans
 
 
 def close_self_closing_tags(raw):
-    return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
+    for_unicode = isinstance(raw, unicode_type)
+    repl = as_string_type(r'<\g<tag>\g<arg>></\g<tag>>', for_unicode)
+    pat = self_closing_pat(for_unicode)
+    return pat.sub(repl, raw)
 
 
 def uuid_id():
@@ -745,11 +767,15 @@ class Metadata(object):
             return 'Item(term=%r, value=%r, attrib=%r)' \
                 % (barename(self.term), self.value, self.attrib)
 
-        def __str__(self):
-            return unicode_type(self.value).encode('ascii', 'xmlcharrefreplace')
+        if ispy3:
+            def __str__(self):
+                return as_unicode(self.value)
+        else:
+            def __str__(self):
+                return unicode_type(self.value).encode('ascii', 'xmlcharrefreplace')
 
-        def __unicode__(self):
-            return as_unicode(self.value)
+            def __unicode__(self):
+                return as_unicode(self.value)
 
         def to_opf1(self, dcmeta=None, xmeta=None, nsrmap={}):
             attrib = {}
@@ -1075,18 +1101,26 @@ class Manifest(object):
                     self._loader = loader2
                 self._data = None
 
-        def __str__(self):
-            return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
-
-        def __unicode__(self):
+        @property
+        def unicode_representation(self):
             data = self.data
             if isinstance(data, etree._Element):
                 return xml2unicode(data, pretty_print=self.oeb.pretty_print)
             if isinstance(data, unicode_type):
                 return data
             if hasattr(data, 'cssText'):
-                return data.cssText
+                return unicode_type(data.cssText, 'utf-8', 'replace')
             return unicode_type(data)
+
+        if ispy3:
+            def __str__(self):
+                return self.unicode_representation
+        else:
+            def __unicode__(self):
+                return self.unicode_representation
+
+            def __str__(self):
+                return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
 
         def __eq__(self, other):
             return id(self) == id(other)
@@ -1616,11 +1650,15 @@ class TOC(object):
             ans.extend(child.get_lines(lvl+1))
         return ans
 
-    def __str__(self):
-        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+    if ispy3:
+        def __str__(self):
+            return u'\n'.join(self.get_lines())
+    else:
+        def __unicode__(self):
+            return u'\n'.join(self.get_lines())
 
-    def __unicode__(self):
-        return u'\n'.join(self.get_lines())
+        def __str__(self):
+            return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
 
     def to_opf1(self, tour):
         for node in self.nodes:

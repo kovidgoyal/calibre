@@ -67,7 +67,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
-        if isinstance(query, (str, unicode_type)):
+        if isinstance(query, (bytes, unicode_type)):
             self.search_edit.setText(query)
         elif isinstance(query, dict):
             if 'author' in query:
@@ -233,7 +233,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('<', '')
         # Remove the prefix.
         for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
-            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, r'\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):

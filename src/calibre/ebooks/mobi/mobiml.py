@@ -229,7 +229,9 @@ class MobiMLizer(object):
                 while vspace > 0:
                     wrapper.addprevious(etree.Element(XHTML('br')))
                     vspace -= 1
-            if istate.halign != 'auto' and isinstance(istate.halign, (str, unicode_type)):
+            if istate.halign != 'auto' and isinstance(istate.halign, (bytes, unicode_type)):
+                if isinstance(istate.halign, bytes):
+                    istate.halign = istate.halign.decode('utf-8')
                 para.attrib['align'] = istate.halign
         istate.rendered = True
         pstate = bstate.istate
@@ -568,17 +570,17 @@ class MobiMLizer(object):
             self.opts.mobi_ignore_margins = False
 
         if (text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS or (
-            # We have an id but no text and no children, the id should still
-            # be added.
-            istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
-            len(elem)==0)):
-                if tag == 'li' and len(istates) > 1 and 'value' in elem.attrib:
-                    try:
-                        value = int(elem.attrib['value'])
-                        istates[-2].list_num = value - 1
-                    except:
-                        pass
-                self.mobimlize_content(tag, text, bstate, istates)
+                # We have an id but no text and no children, the id should still
+                # be added.
+                istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
+                len(elem)==0)):
+            if tag == 'li' and len(istates) > 1 and 'value' in elem.attrib:
+                try:
+                    value = int(elem.attrib['value'])
+                    istates[-2].list_num = value - 1
+                except:
+                    pass
+            self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
             self.mobimlize_elem(child, stylizer, bstate, istates)
             tail = None

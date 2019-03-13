@@ -30,8 +30,8 @@ user_functions = JSONConfig('editor-search-replace-functions')
 
 def compile_code(src, name='<string>'):
     if not isinstance(src, unicode_type):
-        match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
-        enc = match.group(1) if match else 'utf-8'
+        match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
+        enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     if not src or not src.strip():
         src = EMPTY_FUNC

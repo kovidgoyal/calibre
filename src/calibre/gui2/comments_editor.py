@@ -347,7 +347,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
                     return unicode_type(self.page().mainFrame().toHtml())
                 check = unicode_type(self.page().mainFrame().toPlainText()).strip()
                 raw = unicode_type(self.page().mainFrame().toHtml())
-                raw = xml_to_unicode_type(raw, strip_encoding_pats=True,
+                raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
                 raw = self.comments_pat.sub('', raw)
                 if not check and '<img' not in raw.lower():

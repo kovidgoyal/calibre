@@ -80,7 +80,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                     if primary_contains(query, t):
                         return True
                 elif query in t:
-                        return True
+                    return True
         except re.error:
             pass
     return False
@@ -149,7 +149,9 @@ class DateSearch(object):  # {{{
 
         if query == 'false':
             for v, book_ids in field_iter():
-                if isinstance(v, (str, unicode_type)):
+                if isinstance(v, (bytes, unicode_type)):
+                    if isinstance(v, bytes):
+                        v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
                 if v is None or v <= UNDEFINED_DATE:
                     matches |= book_ids
@@ -157,7 +159,9 @@ class DateSearch(object):  # {{{
 
         if query == 'true':
             for v, book_ids in field_iter():
-                if isinstance(v, (str, unicode_type)):
+                if isinstance(v, (bytes, unicode_type)):
+                    if isinstance(v, bytes):
+                        v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
                 if v is not None and v > UNDEFINED_DATE:
                     matches |= book_ids

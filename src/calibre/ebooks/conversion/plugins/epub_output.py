@@ -12,7 +12,6 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from calibre.constants import filesystem_encoding
 from polyglot.builtins import unicode_type
 
 block_level_tags = (
@@ -41,7 +40,7 @@ block_level_tags = (
       'pre',
       'table',
       'ul',
-      )
+)
 
 
 class EPUBOutput(OutputFormatPlugin):
@@ -326,13 +325,11 @@ class EPUBOutput(OutputFormatPlugin):
             fonts = []
             for uri in list(uris.keys()):
                 path = uris[uri]
-                if isinstance(path, unicode_type):
-                    path = path.encode(filesystem_encoding)
                 if not os.path.exists(path):
                     uris.pop(uri)
                     continue
                 self.log.debug('Encrypting font:', uri)
-                with open(path, 'r+b') as f:
+                with lopen(path, 'r+b') as f:
                     data = f.read(1024)
                     if len(data) >= 1024:
                         f.seek(0)

@@ -283,24 +283,29 @@ class MobiReader(object):
                     ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
         except AttributeError:
             pass
+
+        def write_as_utf8(path, data):
+            if isinstance(data, unicode_type):
+                data = data.encode('utf-8')
+            with lopen(path, 'wb') as f:
+                f.write(data)
+
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
         ncx = cStringIO.StringIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
-        opf.render(open(self.created_opf_path, 'wb'), ncx,
+        opf.render(lopen(self.created_opf_path, 'wb'), ncx,
             ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:
             ncx_path = os.path.join(os.path.dirname(htmlfile), 'toc.ncx')
-            open(ncx_path, 'wb').write(ncx)
+            write_as_utf8(ncx_path, ncx)
 
-        with open('styles.css', 'wb') as s:
-            s.write(self.base_css_rules + '\n\n')
-            for cls, rule in self.tag_css_rules.items():
-                if isinstance(rule, unicode_type):
-                    rule = rule.encode('utf-8')
-                s.write('.%s { %s }\n\n' % (cls, rule))
+        css = [self.base_css_rules, '\n\n']
+        for cls, rule in self.tag_css_rules.items():
+            css.append('.%s { %s }\n\n' % (cls, rule))
+        write_as_utf8('styles.css', ''.join(css))
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
@@ -310,7 +315,7 @@ class MobiReader(object):
                 ncx_manifest_entry)
             ncx = ncx.getvalue()
             if ncx:
-                open(os.path.splitext(htmlfile)[0] + '.ncx', 'wb').write(ncx)
+                write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)
 
     def read_embedded_metadata(self, root, elem, guide):
         raw = '<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
@@ -423,24 +428,25 @@ class MobiReader(object):
                     styles.append(style)
             if 'height' in attrib:
                 height = attrib.pop('height').strip()
-                if height and '<' not in height and '>' not in height and \
-                    re.search(r'\d+', height):
-                        if tag.tag in ('table', 'td', 'tr'):
-                            pass
-                        elif tag.tag == 'img':
-                            tag.set('height', height)
+                if (
+                        height and '<' not in height and '>' not in height and
+                        re.search(r'\d+', height)):
+                    if tag.tag in ('table', 'td', 'tr'):
+                        pass
+                    elif tag.tag == 'img':
+                        tag.set('height', height)
+                    else:
+                        if tag.tag == 'div' and not tag.text and \
+                                (not tag.tail or not tag.tail.strip()) and \
+                                not len(list(tag.iterdescendants())):
+                            # Paragraph spacer
+                            # Insert nbsp so that the element is never
+                            # discarded by a renderer
+                            tag.text = u'\u00a0'  # nbsp
+                            styles.append('height: %s' %
+                                    self.ensure_unit(height))
                         else:
-                            if tag.tag == 'div' and not tag.text and \
-                                    (not tag.tail or not tag.tail.strip()) and \
-                                    not len(list(tag.iterdescendants())):
-                                # Paragraph spacer
-                                # Insert nbsp so that the element is never
-                                # discarded by a renderer
-                                tag.text = u'\u00a0'  # nbsp
-                                styles.append('height: %s' %
-                                        self.ensure_unit(height))
-                            else:
-                                styles.append('margin-top: %s' % self.ensure_unit(height))
+                            styles.append('margin-top: %s' % self.ensure_unit(height))
             if 'width' in attrib:
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
@@ -837,11 +843,10 @@ class MobiReader(object):
             anchor = '<a id="filepos%d"></a>'
             if r > -1 and (r < l or l == end or l == -1):
                 p = self.mobi_html.rfind('<', 0, end + 1)
-                if pos < end and p > -1 and \
-                    not end_tag_re.match(self.mobi_html[p:r]) and \
-                    not self.mobi_html[p:r + 1].endswith('/>'):
-                        anchor = ' filepos-id="filepos%d"'
-                        end = r
+                if (pos < end and p > -1 and not end_tag_re.match(self.mobi_html[p:r]) and
+                        not self.mobi_html[p:r + 1].endswith('/>')):
+                    anchor = ' filepos-id="filepos%d"'
+                    end = r
                 else:
                     end = r + 1
             processed_html.write(self.mobi_html[pos:end] + (anchor % oend))

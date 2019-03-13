@@ -99,7 +99,7 @@ def html5_parse(data, max_nesting_depth=100):
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
-        if isinstance(x.tag, basestring) and len(x) is 0:  # Leaf node
+        if isinstance(x.tag, basestring) and not len(x):  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
                 raise ValueError('HTML 5 parsing resulted in a tree with nesting'
@@ -259,7 +259,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         nroot = etree.fromstring('<html></html>')
         has_body = False
         for child in list(data):
-            if isinstance(child.tag, (unicode_type, str)) and barename(child.tag) == 'body':
+            if isinstance(child.tag, (unicode_type, bytes)) and barename(child.tag) == 'body':
                 has_body = True
                 break
         parent = nroot

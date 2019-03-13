@@ -13,13 +13,15 @@ from polyglot.builtins import map, unicode_type
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import cache_dir, get_windows_number_formats, iswindows
+from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 
 from calibre.utils.localization import canonicalize_lang
 
 
 def force_to_bool(val):
-    if isinstance(val, (str, unicode_type)):
+    if isinstance(val, (bytes, unicode_type)):
+        if isinstance(val, bytes):
+            val = val.decode(preferred_encoding, 'replace')
         try:
             val = icu_lower(val)
             if not val:

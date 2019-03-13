@@ -115,7 +115,7 @@ def get_metadata(stream):
     if book_title:
         book_title = unicode_type(book_title)
     else:
-        book_title = force_unicode_type(os.path.splitext(
+        book_title = force_unicode(os.path.splitext(
             os.path.basename(getattr(stream, 'name',
                 _('Unknown'))))[0])
     mi = MetaInformation(book_title, authors)
