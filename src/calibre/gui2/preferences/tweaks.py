@@ -19,7 +19,7 @@ from calibre import isbytestring
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QStyledItemDelegate, QStyle, QStyleOptionViewItem,
@@ -282,7 +282,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         self.plugin_tweaks = d
 
     def universal_set(self):
-        return set(xrange(self.rowCount()))
+        return set(range(self.rowCount()))
 
     def get_matches(self, location, query, candidates=None):
         if candidates is None:

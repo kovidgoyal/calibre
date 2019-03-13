@@ -10,6 +10,7 @@ import os
 
 from lxml.html import tostring
 from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H2, STYLE)
+from polyglot.builtins import range
 
 
 def calculate_page_number(num, map_expression, evaljs):
@@ -49,7 +50,7 @@ def process_children(toc, table, level, pdf, pdf_page_number_map, evaljs):
 def toc_as_html(toc, pdf, opts, evaljs):
     pdf = pdf.engine.pdf
     indents = []
-    for i in xrange(1, 7):
+    for i in range(1, 7):
         indents.extend((i, 1.4*i))
     html = HTML(
         HEAD(

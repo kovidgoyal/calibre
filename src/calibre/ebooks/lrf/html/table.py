@@ -7,7 +7,7 @@ from calibre.ebooks.lrf.fonts import get_font
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
                                              CharButton, Plot, Paragraph, \
                                              LrsTextTag
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, range
 
 
 def ceil(num):
@@ -315,7 +315,7 @@ class Table(object):
         Return widths of columns + self.colpad
         '''
         rows, cols = self.number_or_rows(), self.number_of_columns()
-        widths = range(cols)
+        widths = list(range(cols))
         for c in range(cols):
             cellwidths = [0 for i in range(rows)]
             for r in range(rows):
@@ -325,8 +325,8 @@ class Table(object):
                     continue
             widths[c] = max(cellwidths)
 
-        min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
-        for i in xrange(len(widths)):
+        min_widths = [self.minimum_width(i)+10 for i in range(cols)]
+        for i in range(len(widths)):
             wp = self.width_percent(i)
             if wp >= 0.:
                 widths[i] = max(min_widths[i], ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad)))

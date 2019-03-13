@@ -21,6 +21,8 @@
 # *
 # */
 
+from polyglot.builtins import range
+
 
 class H2a (object):
 
@@ -79,7 +81,7 @@ class H2a (object):
         u"\u3063\u3058\u3085":"jju", u"\u3063\u3058\u3087":"jjo",
         u"\u3063\u3059":"ssu", u"\u3063\u305a":"zzu",
         u"\u3063\u305b":"sse", u"\u3063\u305e":"zze",
-        u"\u3063\u305d":"sso", u"\u3063\u305e":"zzo",
+        u"\u3063\u305d":"sso", u"\u3063\u305c":"zzo",
         u"\u3063\u305f":"tta", u"\u3063\u3060":"dda",
         u"\u3063\u3061":"tchi", u"\u3063\u3061\u3083":"tcha",
         u"\u3063\u3061\u3085":"tchu", u"\u3063\u3061\u3087":"tcho",
@@ -173,10 +175,9 @@ class H2a (object):
         Hstr = ""
         max_len = -1
         r = min(4, len(text)+1)
-        for x in xrange(r):
+        for x in range(r):
             if text[:x] in self.H2a_table:
                 if max_len < x:
                     max_len = x
                     Hstr = self.H2a_table[text[:x]]
         return (Hstr, max_len)
-

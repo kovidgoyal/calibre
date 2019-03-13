@@ -15,7 +15,7 @@ from PyQt5.Qt import (
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def texture_dir():
@@ -85,7 +85,7 @@ class TextureChooser(QDialog):
         self.update_remove_state()
 
         if initial:
-            existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+            existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -116,7 +116,7 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in xrange(self.images.count()))}
+        existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)

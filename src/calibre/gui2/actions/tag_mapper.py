@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map
+from polyglot.builtins import map, range
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
@@ -24,7 +24,7 @@ class TagMapAction(InterfaceAction):
         selected = True
         if not rows or len(rows) < 2:
             selected = False
-            rows = xrange(self.gui.library_view.model().rowCount(None))
+            rows = range(self.gui.library_view.model().rowCount(None))
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 

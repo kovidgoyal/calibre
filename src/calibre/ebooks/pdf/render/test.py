@@ -15,6 +15,7 @@ from PyQt5.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
 QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF
 
 from calibre.ebooks.pdf.render.engine import PdfDevice
+from polyglot.builtins import range
 
 
 def full(p, xmax, ymax):
@@ -25,7 +26,7 @@ def full(p, xmax, ymax):
     pp.addRect(0, 0, xmax, ymax)
     p.drawPath(pp)
     p.save()
-    for i in xrange(3):
+    for i in range(3):
         col = [0, 0, 0, 200]
         col[i] = 255
         p.setOpacity(0.3)

@@ -12,6 +12,7 @@ from PyQt5.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
 
 from calibre.customize.ui import enable_plugin
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from polyglot.builtins import range
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -78,7 +79,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def commit(self):
         devs = {}
-        for i in xrange(0, self.devices.count()):
+        for i in range(0, self.devices.count()):
             e = self.devices.item(i)
             dev, uid = e.data(Qt.UserRole)
             if dev not in devs:
@@ -89,7 +90,7 @@ class ConfigWidget(ConfigWidgetBase):
         for dev, bl in devs.iteritems():
             dev.set_user_blacklisted_devices(bl)
 
-        for i in xrange(self.device_plugins.count()):
+        for i in range(self.device_plugins.count()):
             e = self.device_plugins.item(i)
             dev = e.data(Qt.UserRole)
             if e.checkState() == Qt.Unchecked:
@@ -97,8 +98,8 @@ class ConfigWidget(ConfigWidgetBase):
 
         return True  # Restart required
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Sharing', 'Ignored Devices')
-

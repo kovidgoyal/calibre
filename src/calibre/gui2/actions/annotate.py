@@ -12,6 +12,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
+from polyglot.builtins import range
 
 
 class Updater(QThread):  # {{{
@@ -74,7 +75,7 @@ class FetchAnnotationsAction(InterfaceAction):
         def get_ids_from_selected_rows():
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) < 2:
-                rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
+                rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
             ids = map(self.gui.library_view.model().id, rows)
             return ids
 
@@ -160,5 +161,3 @@ class FetchAnnotationsAction(InterfaceAction):
                     _('Could not fetch annotations for some books. Click '
                         'show details to see which ones.'),
                     det_msg='\n'.join(entries), show=True)
-
-

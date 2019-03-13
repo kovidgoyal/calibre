@@ -30,7 +30,7 @@ from calibre.gui2 import gprefs, config, rating_font, empty_index
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
@@ -740,8 +740,8 @@ class GridView(QListView):
     @property
     def first_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.top(), (self.spacing()*2) + geom.top(), 5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.top(), (self.spacing()*2) + geom.top(), 5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     return ans
@@ -749,8 +749,8 @@ class GridView(QListView):
     @property
     def last_visible_row(self):
         geom = self.viewport().geometry()
-        for y in xrange(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
-            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
+            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     item_width = self.delegate.item_size.width() + 2*self.spacing()
@@ -760,7 +760,7 @@ class GridView(QListView):
         self.ignore_render_requests.clear()
         self.update_timer.stop()
         m = self.model()
-        for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
+        for r in range(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
     def start_view_animation(self, index):

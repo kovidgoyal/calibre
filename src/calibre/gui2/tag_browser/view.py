@@ -24,7 +24,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -723,7 +723,7 @@ class TagsView(QTreeView):  # {{{
         if not index.isValid():
             return
         self.expand(index)
-        for r in xrange(self.model().rowCount(index)):
+        for r in range(self.model().rowCount(index)):
             self.expand_node_and_descendants(index.child(r, 0))
 
     def collapse_menu_hovered(self, action):

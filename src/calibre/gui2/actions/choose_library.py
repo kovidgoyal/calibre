@@ -20,7 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def db_class():
@@ -593,7 +593,7 @@ class ChooseLibraryAction(InterfaceAction):
         import gc
         from calibre.utils.mem import memory
         ref = self.dbref
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         if ref() is not None:
             print('DB object alive:', ref())

@@ -30,7 +30,7 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, range
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -263,7 +263,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if alignment != 'left':
                 self.alignment_map[colname] = alignment
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
@@ -278,7 +278,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 old[colname] = font_type
             self.db.new_api.set_pref('styled_columns', old)
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
