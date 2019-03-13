@@ -437,18 +437,17 @@ def update_serialized_metadata(book, common_data=None):
     plugboard_cache = common_data
     from calibre.customize.ui import apply_null_metadata
     with apply_null_metadata:
+        fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
+        mi, cdata = read_serialized_metadata(book)
 
-            fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
-            mi, cdata = read_serialized_metadata(book)
+        def report_error(fmt, tb):
+            result.append((fmt, tb))
 
-            def report_error(fmt, tb):
-                result.append((fmt, tb))
-
-            for fmt, fmtpath in zip(fmts, book['fmts']):
-                try:
-                    with lopen(fmtpath, 'r+b') as stream:
-                        update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
-                except Exception:
-                    report_error(fmt, traceback.format_exc())
+        for fmt, fmtpath in zip(fmts, book['fmts']):
+            try:
+                with lopen(fmtpath, 'r+b') as stream:
+                    update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
+            except Exception:
+                report_error(fmt, traceback.format_exc())
 
     return result

@@ -121,8 +121,8 @@ def fixattrs(attrs):
 def onlywhite(line):
     """Return true if the line does only consist of whitespace characters."""
     for c in line:
-        if c is not ' ' and c is not '  ':
-            return c is ' '
+        if c != ' ' and c != '  ':
+            return c == ' '
     return line
 
 
@@ -136,7 +136,7 @@ def optwrap(text):
     newlines = 0
     for para in text.split("\n"):
         if len(para) > 0:
-            if para[0] is not ' ' and para[0] is not '-' and para[0] is not '*':
+            if para[0] != ' ' and para[0] != '-' and para[0] != '*':
                 for line in wrap(para, BODY_WIDTH):
                     result += line + "\n"
                 result += "\n"

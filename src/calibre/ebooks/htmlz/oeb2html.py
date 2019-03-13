@@ -272,7 +272,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             # as a page break and remove all other page break types that might be set.
             style_a = 'page-break-before: always; %s' % re.sub('page-break-[^:]+:[^;]+;?', '', style_a)
         # Remove unnecessary spaces.
-        style_a = re.sub('\s{2,}', ' ', style_a).strip()
+        style_a = re.sub(r'\s{2,}', ' ', style_a).strip()
         tags.append(tag)
 
         # Remove attributes we won't want.

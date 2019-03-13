@@ -264,6 +264,7 @@ class DOCX(object):
             except EnvironmentError:
                 pass
 
+
 if __name__ == '__main__':
     d = DOCX(sys.argv[-1], extract=False)
-    print (d.metadata)
+    print(d.metadata)

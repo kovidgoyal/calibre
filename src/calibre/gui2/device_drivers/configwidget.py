@@ -136,7 +136,11 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.columns.setCurrentRow(idx+1)
 
     def format_map(self):
-        formats = [unicode_type(self.columns.item(i).data(Qt.UserRole) or '') for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
+        formats = [
+                unicode_type(self.columns.item(i).data(Qt.UserRole) or '')
+                for i in range(self.columns.count())
+                if self.columns.item(i).checkState()==Qt.Checked
+        ]
         return formats
 
     def use_subdirs(self):

@@ -10,6 +10,7 @@ import os, re
 
 from polyglot.builtins import unicode_type
 
+
 def node_mountpoint(node):
 
     def de_mangle(raw):

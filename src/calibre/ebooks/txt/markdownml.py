@@ -77,8 +77,8 @@ class MarkdownMLizer(OEB2HTML):
         text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
 
         # Remove blank lines at beginning and end of document.
-        text = re.sub('^\s*', '', text)
-        text = re.sub('\s*$', '\n\n', text)
+        text = re.sub(r'^\s*', '', text)
+        text = re.sub(r'\s*$', '\n\n', text)
 
         return text
 

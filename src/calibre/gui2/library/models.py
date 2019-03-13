@@ -778,7 +778,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
-                    if val is 0:
+                    if val == 0:
                         return None
                     ans = u'%.1f' % (val * sz_mult)
                     return (u'<0.1' if ans == u'0.0' else ans)
@@ -1027,8 +1027,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return (self.headers[self.column_map[section]])
             return None
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
-                col = self.db.field_metadata['uuid']['rec_index']
-                return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
+            col = self.db.field_metadata['uuid']['rec_index']
+            return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
 
         if role == Qt.DisplayRole:  # orientation is vertical
             return (section+1)

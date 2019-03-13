@@ -85,10 +85,10 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, _('Item is blank'),
-                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.previous_text())
-                return
+            error_dialog(self, _('Item is blank'),
+                            _('An item cannot be set to nothing. Delete it instead.')).exec_()
+            item.setText(item.previous_text())
+            return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
             self.to_rename[id_] = unicode_type(item.text())

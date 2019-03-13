@@ -61,6 +61,7 @@ def substitute_entites(raw):
     from calibre import xml_entity_to_unicode
     return ENTITY_PATTERN.sub(xml_entity_to_unicode, raw)
 
+
 _CHARSET_ALIASES = {"macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis"}
 

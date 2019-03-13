@@ -302,7 +302,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 _('The search found no books, so the virtual library '
                 'will be empty. Do you really want to use that search?'),
                 default_yes=False):
-                return
+            return
 
         self.library_name = n
         self.library_search = v

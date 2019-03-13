@@ -168,5 +168,6 @@ def main(args=sys.argv, logger=None):
     logger.info(_('LRS written to ')+opts.out)
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())

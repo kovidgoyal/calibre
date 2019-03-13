@@ -329,7 +329,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
         from PyQt5.Qt import QImage, Qt
         names.sort(key=numeric_sort_key)
         for name in names:
-            m = re.search('(\d+)x\d+', name)
+            m = re.search(r'(\d+)x\d+', name)
             if m is not None and int(m.group(1)) >= size:
                 ans = QImage(os.path.join(iconset, name))
                 if not ans.isNull():

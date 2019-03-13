@@ -368,7 +368,9 @@ class EPUBInput(InputFormatPlugin):
         def add_from_li(li, parent):
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
-                text = etree.tostring(x, method='text', encoding=unicode_type, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+                text = etree.tostring(
+                    x, method='text', encoding=unicode_type, with_tail=False).strip() or ' '.join(
+                            x.xpath('descendant-or-self::*/@title')).strip()
                 href = x.get('href')
                 if href:
                     if href.startswith('#'):

@@ -106,6 +106,7 @@ class FormatsList(MutableBase, MutableSequence):
 
 # }}}
 
+
 # Lazy metadata getters {{{
 ga = object.__getattribute__
 sa = object.__setattr__
@@ -223,6 +224,7 @@ def has_cover_getter(dbref, book_id, cache):
         cache['has_cover'] = ret = _('Yes') if db.field_for('cover', book_id, default_value=False) else ''
         return ret
 
+
 fmt_custom = lambda x:list(x) if isinstance(x, tuple) else x
 
 
@@ -275,6 +277,7 @@ def user_categories_getter(proxy_metadata):
         book_id = ga(proxy_metadata, '_book_id')
         ret = cache['user_categories'] = db.user_categories_for_books((book_id,), {book_id:proxy_metadata})[book_id]
         return ret
+
 
 getters = {
     'title':simple_getter('title', _('Unknown')),

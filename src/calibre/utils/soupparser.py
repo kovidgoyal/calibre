@@ -118,7 +118,7 @@ except ImportError:
     from htmlentitydefs import name2codepoint
 import re
 
-handle_entities = re.compile("&(\w+);").sub
+handle_entities = re.compile(r"&(\w+);").sub
 
 
 def unescape(string):

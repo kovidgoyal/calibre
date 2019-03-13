@@ -59,11 +59,11 @@ def build_template_regexp(template):
 
     try:
         template = template.rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
     except:
         prints(u'Failed to parse template: %r'%template)
         template = u'{title} - {authors}'
-        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+        return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
 
 
 def create_upload_path(mdata, fname, template, sanitize,

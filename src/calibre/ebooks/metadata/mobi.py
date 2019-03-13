@@ -335,8 +335,8 @@ class MetadataUpdater(object):
                 self.original_exth_records.pop(rec[0])
 
         if self.type != "BOOKMOBI":
-                raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
-                                "\tThis is a %r file of type %r" % (self.type[0:4], self.type[4:8]))
+            raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
+                            "\tThis is a %r file of type %r" % (self.type[0:4], self.type[4:8]))
 
         recs = []
         added_501 = False

@@ -95,6 +95,7 @@ def read_indent(parent, dest, XPath, get):
         ans = _read_width(cs, get)
     setattr(dest, 'indent', ans)
 
+
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
 
 

@@ -169,6 +169,7 @@ class BlockingBusy(QDialog):
     def reject(self):
         pass  # Cannot cancel this dialog
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QTimer
     app = QApplication([])

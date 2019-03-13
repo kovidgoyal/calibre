@@ -20,6 +20,7 @@ def log(*args, **kw):
     print('DBusExport:', *args, **kw)
     kw['file'].flush()
 
+
 from calibre.ptempfile import PersistentTemporaryDirectory
 
 
@@ -59,6 +60,7 @@ class IconCache(object):
         # Touch the theme path: GTK icon loading system checks the mtime of the
         # dir to decide whether it should look for new icons in the theme dir.
         os.utime(self.icon_theme_path, None)
+
 
 _icon_cache = None
 

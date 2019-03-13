@@ -23,7 +23,10 @@ from polyglot.builtins import unicode_type
 
 def add_window_properties_for_menu(widget, object_path, bus):
     op = unicode_type(object_path)
-    set_X_window_properties(widget.effectiveWinId(), _UNITY_OBJECT_PATH=op, _GTK_UNIQUE_BUS_NAME=unicode_type(bus.get_unique_name()), _GTK_MENUBAR_OBJECT_PATH=op)
+    set_X_window_properties(
+            widget.effectiveWinId(), _UNITY_OBJECT_PATH=op,
+            _GTK_UNIQUE_BUS_NAME=unicode_type(bus.get_unique_name()),
+            _GTK_MENUBAR_OBJECT_PATH=op)
 
 
 class DBusMenu(QObject):

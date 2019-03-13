@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-src/calibre/gui2/tweak_book/preferences.py
+from polyglot.builtins import unicode_type
 
 
 # The search panel {{{

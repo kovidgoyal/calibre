@@ -436,10 +436,10 @@ class BooksView(QTableView):  # {{{
             m = ans.addMenu(_('Change text alignment for %s') % name)
             al = self._model.alignment_map.get(col, 'left')
             for x, t in (('left', _('Left')), ('right', _('Right')), ('center', _('Center'))):
-                    a = m.addAction(t, partial(handler, action='align_'+x))
-                    if al == x:
-                        a.setCheckable(True)
-                        a.setChecked(True)
+                a = m.addAction(t, partial(handler, action='align_'+x))
+                if al == x:
+                    a.setCheckable(True)
+                    a.setChecked(True)
             if not isinstance(view, DeviceBooksView):
                 col_font = self._model.styled_columns.get(col)
                 m = ans.addMenu(_('Change font style for %s') % name)

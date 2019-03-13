@@ -7,23 +7,24 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 
-from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar, QStyle,
-        QVBoxLayout, QWidget, QSplitter, QToolButton, QIcon, QPainter, QStyleOption)
+from PyQt5.Qt import (
+    QAction, QApplication, QFont, QIcon, QLabel, QMenu, QPainter, QSizePolicy,
+    QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
+    QToolButton, QVBoxLayout, QWidget
+)
 
+from calibre.constants import __appname__, get_version, isosx
+from calibre.customize.ui import find_plugin
+from calibre.gui2 import config, error_dialog, gprefs, is_widescreen, open_url
+from calibre.gui2.book_details import BookDetails
+from calibre.gui2.layout_menu import LayoutMenu
+from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.library.views import BooksView, DeviceBooksView
+from calibre.gui2.notify import get_notifier
+from calibre.gui2.tag_browser.ui import TagBrowserWidget
+from calibre.gui2.widgets import LayoutButton, Splitter
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.constants import (__appname__, preferred_encoding,
-    get_version)
-from calibre.gui2 import config, is_widescreen, gprefs, error_dialog, open_url
-from calibre.gui2.library.views import BooksView, DeviceBooksView
-from calibre.gui2.library.alternate_views import GridView
-from calibre.gui2.widgets import Splitter, LayoutButton
-from calibre.gui2.tag_browser.ui import TagBrowserWidget
-from calibre.gui2.book_details import BookDetails
-from calibre.gui2.notify import get_notifier
-from calibre.gui2.layout_menu import LayoutMenu
-from calibre.customize.ui import find_plugin
 from calibre.utils.localization import localize_website_link
 from polyglot.builtins import unicode_type
 

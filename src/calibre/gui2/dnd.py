@@ -28,6 +28,7 @@ def image_extensions():
         image_extensions.ans = [bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()]
     return image_extensions.ans
 
+
 # This is present for compatibility with old plugins, do not use
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
@@ -181,7 +182,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
             f = unicode_type(f)
             raw = data_as_string(f, md)
             prints(f, len(raw), repr(raw[:300]), '\n')
-        print ()
+        print()
     if has_firefox_ext(md, extensions):
         return True
     urls = urls_from_md(md)

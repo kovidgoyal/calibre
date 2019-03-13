@@ -309,9 +309,11 @@ class HeuristicProcessor(object):
                         if float(self.chapters_with_title) / float(hits) > .5:
                             title_req = True
                             strict_title = False
-                        self.log.debug(unicode_type(type_name)+" had "+unicode_type(hits)+" hits - "+unicode_type(self.chapters_no_title)+" chapters with no title, "+
-                                       unicode_type(self.chapters_with_title)+" chapters with titles, "+
-                                       unicode_type(float(self.chapters_with_title) / float(hits))+" percent. ")
+                        self.log.debug(
+                                unicode_type(type_name)+" had "+unicode_type(hits)+
+                                " hits - "+unicode_type(self.chapters_no_title)+" chapters with no title, "+
+                                unicode_type(self.chapters_with_title)+" chapters with titles, "+
+                                unicode_type(float(self.chapters_with_title) / float(hits))+" percent. ")
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                         elif self.min_chapters <= hits < max_chapters or self.min_chapters < 3 > hits:

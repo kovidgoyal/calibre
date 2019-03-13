@@ -843,7 +843,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 if heading_node.text_content().lower().find('version history') != -1:
                     div_node = spoiler_node.xpath('div')[0]
                     text = html.tostring(div_node, method='html', encoding=unicode_type)
-                    return re.sub('<div\s.*?>', '<div>', text)
+                    return re.sub(r'<div\s.*?>', '<div>', text)
             except:
                 if DEBUG:
                     prints('======= MobileRead Parse Error =======')

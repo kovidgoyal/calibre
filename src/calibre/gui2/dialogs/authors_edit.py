@@ -197,6 +197,7 @@ class AuthorsEdit(QDialog):
                     authors[la] = author
         self.author.setText('')
 
+
 if __name__ == '__main__':
     app = QApplication([])
     d = AuthorsEdit(['kovid goyal', 'divok layog', 'other author'], ['kovid goyal', 'other author'])

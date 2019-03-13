@@ -398,6 +398,7 @@ class FontScanner(Thread):
                 prints()
             prints()
 
+
 font_scanner = FontScanner()
 font_scanner.start()
 
@@ -406,6 +407,7 @@ def force_rescan():
     font_scanner.join()
     font_scanner.force_rescan()
     font_scanner.run()
+
 
 if __name__ == '__main__':
     font_scanner.dump_fonts()

@@ -19,7 +19,7 @@ publisher_pat = re.compile(r'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
 def get_document_info(stream):
     """
-    Extract the \info block from an RTF file.
+    Extract the \\info block from an RTF file.
     Return the info block as a string and the position in the file at which it
     starts.
     @param stream: File like object pointing to the RTF file.

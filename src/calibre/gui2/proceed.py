@@ -418,5 +418,6 @@ def main():
     QTimer.singleShot(10, doit)
     app.exec_()
 
+
 if __name__ == '__main__':
     main()
