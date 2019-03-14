@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, time, tempfile, errno, itertools
+import sys, os, time, tempfile, errno, itertools
 from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
@@ -22,6 +22,7 @@ from calibre import detect_ncpus as cpu_count
 from calibre.constants import iswindows, DEBUG, islinux
 from calibre.ptempfile import base_dir
 from polyglot.builtins import string_or_bytes
+from polyglot.pickle import pickle
 
 _counter = 0
 
@@ -212,7 +213,7 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(cPickle.dumps(self.listener.address, -1)),
+                'CALIBRE_WORKER_ADDRESS' : hexlify(pickle.dumps(self.listener.address, -1)),
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
@@ -281,7 +282,7 @@ class Server(Thread):
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
-                        job.result = cPickle.load(open(worker.rfile, 'rb'))
+                        job.result = pickle.load(open(worker.rfile, 'rb'))
                         os.remove(worker.rfile)
                     except:
                         pass

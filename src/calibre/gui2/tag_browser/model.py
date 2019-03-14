@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy, os
+import traceback, copy, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
@@ -24,6 +24,7 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
 from polyglot.builtins import range
+from polyglot.pickle import pickle
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -740,7 +741,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 data.append(d)
             else:
                 data.append(None)
-        raw = bytearray(cPickle.dumps(data, -1))
+        raw = bytearray(pickle.dumps(data, -1))
         ans = QMimeData()
         ans.setData('application/calibre+from_tag_browser', raw)
         return ans
@@ -765,7 +766,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not md.hasFormat('application/calibre+from_tag_browser'):
             return False
         data = str(md.data('application/calibre+from_tag_browser'))
-        src = cPickle.loads(data)
+        src = pickle.loads(data)
         for s in src:
             if s[0] != TagTreeItem.TAG:
                 return False

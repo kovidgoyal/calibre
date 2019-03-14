@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, cPickle, base64, datetime, json, plistlib
+import os, base64, datetime, json, plistlib
 from copy import deepcopy
 import optparse
 
@@ -17,6 +17,7 @@ from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
         read_raw_tweaks, read_tweaks, write_tweaks, tweaks, plugin_dir)
+from polyglot.pickle import pickle
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
@@ -218,7 +219,7 @@ class DynamicConfig(dict):
             with ExclusiveFile(self.file_path) as f:
                 raw = f.read()
                 try:
-                    d = cPickle.loads(raw) if raw.strip() else {}
+                    d = pickle.loads(raw) if raw.strip() else {}
                 except SystemError:
                     pass
                 except:
@@ -255,7 +256,7 @@ class DynamicConfig(dict):
             if not os.path.exists(self.file_path):
                 make_config_dir()
             with ExclusiveFile(self.file_path) as f:
-                raw = cPickle.dumps(self, -1)
+                raw = pickle.dumps(self, -1)
                 f.seek(0)
                 f.truncate()
                 f.write(raw)

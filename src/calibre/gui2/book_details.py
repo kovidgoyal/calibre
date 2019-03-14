@@ -2,7 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import cPickle
 import os
 import re
 from binascii import unhexlify
@@ -35,6 +34,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
 from polyglot.builtins import unicode_type
+from polyglot.pickle import pickle
 
 _css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
@@ -286,7 +286,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                                    lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             if data:
                 try:
-                    field, value, book_id = cPickle.loads(unhexlify(data))
+                    field, value, book_id = pickle.loads(unhexlify(data))
                 except Exception:
                     field = value = book_id = None
                 if field:

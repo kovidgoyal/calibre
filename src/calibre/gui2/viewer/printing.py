@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, subprocess, cPickle, sys
+import os, subprocess, sys
 from threading import Thread
 
 from PyQt5.Qt import (
@@ -22,6 +22,7 @@ from calibre.gui2.viewer.main import vprefs
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.filenames import expanduser
+from polyglot.pickle import pickle
 
 
 class PrintDialog(Dialog):
@@ -143,7 +144,7 @@ class DoPrint(Thread):
         try:
             with PersistentTemporaryFile('print-to-pdf-log.txt') as f:
                 p = self.worker = start_pipe_worker('from calibre.gui2.viewer.printing import do_print; do_print()', stdout=f, stderr=subprocess.STDOUT)
-                p.stdin.write(cPickle.dumps(self.data, -1)), p.stdin.flush(), p.stdin.close()
+                p.stdin.write(pickle.dumps(self.data, -1)), p.stdin.flush(), p.stdin.close()
                 rc = p.wait()
                 if rc != 0:
                     f.seek(0)
@@ -159,7 +160,7 @@ class DoPrint(Thread):
 
 def do_print():
     from calibre.customize.ui import plugin_for_input_format
-    data = cPickle.loads(sys.stdin.read())
+    data = pickle.loads(sys.stdin.read())
     ext = data['input'].lower().rpartition('.')[-1]
     input_plugin = plugin_for_input_format(ext)
     args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',

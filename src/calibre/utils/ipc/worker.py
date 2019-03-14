@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, sys, importlib
+import os, sys, importlib
 from multiprocessing.connection import Client
 from threading import Thread
 from Queue import Queue
@@ -18,6 +18,7 @@ from zipimport import ZipImportError
 from calibre import prints
 from calibre.constants import iswindows, isosx
 from calibre.utils.ipc import eintr_retry_call
+from polyglot.pickle import pickle
 
 PARALLEL_FUNCS = {
     'lrfviewer'    :
@@ -182,7 +183,7 @@ def main():
             print('Failed to run pipe worker with command:', sys.argv[-1])
             raise
         return
-    address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
+    address = pickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
     with closing(Client(address, authkey=key)) as conn:
@@ -198,7 +199,7 @@ def main():
 
         result = func(*args, **kwargs)
         if result is not None and os.path.exists(os.path.dirname(resultf)):
-            cPickle.dump(result, open(resultf, 'wb'), -1)
+            pickle.dump(result, open(resultf, 'wb'), -1)
 
         notifier.queue.put(None)
 

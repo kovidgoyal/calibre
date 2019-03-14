@@ -6,13 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii, cPickle
+import subprocess, os, sys, time, binascii
 from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.pickle import pickle
 
 if iswindows:
     import win32process
@@ -105,7 +106,7 @@ class Worker(object):
             except:
                 pass
         env[b'CALIBRE_WORKER'] = b'1'
-        td = binascii.hexlify(cPickle.dumps(base_dir()))
+        td = binascii.hexlify(pickle.dumps(base_dir()))
         env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
         env.update(self._env)
         return env
@@ -176,11 +177,11 @@ class Worker(object):
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+            env[b'ORIGWD'] = binascii.hexlify(pickle.dumps(
                 cwd or os.path.abspath(os.getcwdu())))
         except EnvironmentError:
             # cwd no longer exists
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+            env[b'ORIGWD'] = binascii.hexlify(pickle.dumps(
                 cwd or os.path.expanduser(u'~')))
 
         _cwd = cwd

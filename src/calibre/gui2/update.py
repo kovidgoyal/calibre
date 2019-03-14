@@ -1,8 +1,9 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, binascii, cPickle, ssl, json
+import re, binascii, ssl, json
 from polyglot.builtins import map, unicode_type
+from polyglot.pickle import pickle
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
@@ -194,7 +195,7 @@ class UpdateMixin(object):
         has_calibre_update = calibre_version != NO_CALIBRE_UPDATE
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
-        version_url = binascii.hexlify(cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
+        version_url = binascii.hexlify(pickle.dumps((calibre_version, number_of_plugin_updates), -1))
         calibre_version = u'.'.join(map(unicode_type, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
@@ -248,7 +249,7 @@ class UpdateMixin(object):
     def update_link_clicked(self, url):
         url = unicode_type(url)
         if url.startswith('update:'):
-            calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
+            calibre_version, number_of_plugin_updates = pickle.loads(binascii.unhexlify(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)
 
 

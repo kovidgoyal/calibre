@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cPickle, traceback
+import os, re, traceback
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
@@ -14,6 +14,7 @@ from copy import deepcopy
 from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE
 from polyglot.builtins import unicode_type
+from polyglot.pickle import pickle
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
@@ -196,7 +197,7 @@ class OptionSet(object):
         return ''
 
     def parse_string(self, src):
-        options = {'cPickle':cPickle}
+        options = {'cPickle':pickle}
         if src is not None:
             try:
                 if not isinstance(src, unicode_type):
@@ -236,8 +237,8 @@ class OptionSet(object):
         if val is val is True or val is False or val is None or \
            isinstance(val, (int, float, long, bytes, unicode_type)):
             return repr(val)
-        pickle = cPickle.dumps(val, -1)
-        return 'cPickle.loads(%s)'%repr(pickle)
+        pickled = pickle.dumps(val, -1)
+        return 'cPickle.loads(%s)'%repr(pickled)
 
     def serialize(self, opts):
         src = '# %s\n\n'%(self.description.replace('\n', '\n# '))

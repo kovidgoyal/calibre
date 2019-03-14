@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, shutil
+import shutil
 
 from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
 
@@ -29,6 +29,7 @@ from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
 from polyglot.builtins import unicode_type, range
+from polyglot.pickle import pickle
 
 
 class GroupModel(QAbstractListModel):
@@ -231,7 +232,7 @@ class Config(QDialog, Ui_Dialog):
     def recommendations(self):
         recs = [(k, v, OptionRecommendation.HIGH) for k, v in
                 self._recommendations.items()]
-        return cPickle.dumps(recs, -1)
+        return pickle.dumps(recs, -1)
 
     def show_group_help(self, index):
         widget = self._groups_model.widgets[index.row()]

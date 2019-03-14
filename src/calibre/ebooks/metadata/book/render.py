@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, cPickle
+import os
 from functools import partial
 from binascii import hexlify
 
@@ -21,6 +21,7 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
 from polyglot.builtins import unicode_type
+from polyglot.pickle import pickle
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')
 
@@ -79,7 +80,7 @@ def author_search_href(which, title=None, author=None):
 
 
 def item_data(field_name, value, book_id):
-    return hexlify(cPickle.dumps((field_name, value, book_id), -1))
+    return hexlify(pickle.dumps((field_name, value, book_id), -1))
 
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):

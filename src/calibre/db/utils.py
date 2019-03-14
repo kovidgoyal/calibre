@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys, re
+import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
 from polyglot.builtins import map, unicode_type, string_or_bytes
+from polyglot.pickle import pickle
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -229,7 +230,7 @@ class ThumbnailCache(object):
         if hasattr(self, 'items'):
             try:
                 with open(os.path.join(self.location, 'order'), 'wb') as f:
-                    f.write(cPickle.dumps(tuple(map(hash, self.items)), -1))
+                    f.write(pickle.dumps(tuple(map(hash, self.items)), -1))
             except EnvironmentError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
@@ -237,7 +238,7 @@ class ThumbnailCache(object):
         order = {}
         try:
             with open(os.path.join(self.location, 'order'), 'rb') as f:
-                order = cPickle.loads(f.read())
+                order = pickle.loads(f.read())
                 order = {k:i for i, k in enumerate(order)}
         except Exception as err:
             if getattr(err, 'errno', None) != errno.ENOENT:

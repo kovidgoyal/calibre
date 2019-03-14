@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, struct
+import os, struct
 from threading import Thread
 from Queue import Queue, Empty
 from multiprocessing.connection import arbitrary_address, Listener
@@ -17,10 +17,11 @@ from calibre import as_unicode, prints
 from calibre.constants import iswindows, DEBUG
 from calibre.utils.ipc import eintr_retry_call
 from polyglot.builtins import unicode_type
+from polyglot.pickle import pickle
 
 
 def _encode(msg):
-    raw = cPickle.dumps(msg, -1)
+    raw = pickle.dumps(msg, -1)
     size = len(raw)
     header = struct.pack('!Q', size)
     return header + raw
@@ -33,7 +34,7 @@ def _decode(raw):
     header, = struct.unpack('!Q', raw[:sz])
     if len(raw) != sz + header or header == 0:
         return 'invalid', None
-    return cPickle.loads(raw[sz:])
+    return pickle.loads(raw[sz:])
 
 
 class Writer(Thread):
