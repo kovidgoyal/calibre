@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys, re
+import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
 from polyglot.builtins import map, unicode_type, string_or_bytes
@@ -202,7 +202,7 @@ class ThumbnailCache(object):
         except EnvironmentError as err:
             self.log('Failed to read thumbnail cache dir:', as_unicode(err))
 
-        self.items = OrderedDict(sorted(items, key=lambda x:order.get(hash(x[0]), 0)))
+        self.items = OrderedDict(sorted(items, key=lambda x:order.get(x[0], 0)))
         self._apply_size()
 
     def _invalidate_sizes(self):
@@ -228,17 +228,20 @@ class ThumbnailCache(object):
     def _write_order(self):
         if hasattr(self, 'items'):
             try:
-                with open(os.path.join(self.location, 'order'), 'wb') as f:
-                    f.write(cPickle.dumps(tuple(map(hash, self.items)), -1))
+                data = '\n'.join(group_id + ' ' + unicode_type(book_id) for (group_id, book_id) in self.items)
+                with lopen(os.path.join(self.location, 'order'), 'wb') as f:
+                    f.write(data.encode('utf-8'))
             except EnvironmentError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
     def _read_order(self):
         order = {}
         try:
-            with open(os.path.join(self.location, 'order'), 'rb') as f:
-                order = cPickle.loads(f.read())
-                order = {k:i for i, k in enumerate(order)}
+            with lopen(os.path.join(self.location, 'order'), 'rb') as f:
+                for line in f.read().decode('utf-8').splitlines():
+                    parts = line.split(' ', 1)
+                    if len(parts) == 2:
+                        order[(parts[0], int(parts[1]))] = len(order)
         except Exception as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
                 self.log('Failed to load thumbnail cache order:', as_unicode(err))
