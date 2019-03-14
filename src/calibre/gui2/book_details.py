@@ -2,7 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import cPickle
 import os
 import re
 from binascii import unhexlify
@@ -34,6 +33,7 @@ from calibre.gui2.dnd import (
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
+from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type
 
 _css = None
@@ -286,7 +286,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                                    lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             if data:
                 try:
-                    field, value, book_id = cPickle.loads(unhexlify(data))
+                    field, value, book_id = json_loads(unhexlify(data))
                 except Exception:
                     field = value = book_id = None
                 if field:
