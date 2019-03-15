@@ -192,7 +192,7 @@ def icon_map():
         return _icon_map
 
 
-def categories_settings(query, db):
+def categories_settings(query, db, gst_container=GroupedSearchTerms):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
     partition_method = query.get('partition_method', 'first letter')
     if partition_method not in {'first letter', 'disable', 'partition'}:
@@ -214,7 +214,7 @@ def categories_settings(query, db):
     hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     return CategoriesSettings(
         dont_collapse, collapse_model, collapse_at, sort_by, template,
-        using_hierarchy, GroupedSearchTerms(db.pref('grouped_search_terms', {})),
+        using_hierarchy, gst_container(db.pref('grouped_search_terms', {})),
         hidden_categories, query.get('hide_empty_categories') == 'yes')
 
 

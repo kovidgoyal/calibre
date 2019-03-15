@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import cPickle
 import hashlib
 import random
 import shutil
@@ -29,6 +28,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key, numeric_sort_key
 from calibre.utils.localization import get_lang, lang_map_for_ui, localize_website_link
 from calibre.utils.search_query_parser import ParseException
+from calibre.utils.serialize import json_dumps
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
@@ -382,9 +382,9 @@ def tag_browser(ctx, rd):
               &collapse_at=25&dont_collapse=&hide_empty_categories=&vl=''
     '''
     db, library_id = get_library_data(ctx, rd)[:2]
-    opts = categories_settings(rd.query, db)
+    opts = categories_settings(rd.query, db, gst_container=tuple)
     vl = rd.query.get('vl') or ''
-    etag = cPickle.dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)], -1)
+    etag = json_dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)])
     etag = hashlib.sha1(etag).hexdigest()
 
     def generate():
