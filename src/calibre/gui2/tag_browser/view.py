@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, os, re
+import os, re
 from functools import partial
 from itertools import izip
 
@@ -24,6 +24,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
+from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type, range
 
 
@@ -751,8 +752,8 @@ class TagsView(QTreeView):  # {{{
             if fm_dest['kind'] == 'user':
                 if src_is_tb:
                     if event.dropAction() == Qt.MoveAction:
-                        data = str(event.mimeData().data('application/calibre+from_tag_browser'))
-                        src = cPickle.loads(data)
+                        data = bytes(event.mimeData().data('application/calibre+from_tag_browser'))
+                        src = json_loads(data)
                         for s in src:
                             if s[0] == TagTreeItem.TAG and \
                                     (not s[1].startswith('@') or s[2]):
