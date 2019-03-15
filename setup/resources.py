@@ -334,7 +334,7 @@ class Resources(Command):  # {{{
                 if f.endswith('.py'):
                     files.append(self.j(x[0], f))
         if self.newer(dest, files):
-            self.info('\tCreating ebook-convert-complete.pickle')
+            self.info('\tCreating ' + dest)
             complete = {}
             from calibre.ebooks.conversion.plumber import supported_input_formats
             complete['input_fmts'] = set(supported_input_formats())
