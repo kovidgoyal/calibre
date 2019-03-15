@@ -40,6 +40,10 @@ if is_py3:
     def iterkeys(d):
         return iter(d)
 
+    def environ_item(x):
+        if isinstance(x, bytes):
+            x = x.decode('utf-8')
+        return x
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -64,3 +68,8 @@ else:
 
     def itervalues(d):
         return d.itervalues()
+
+    def environ_item(x):
+        if isinstance(x, unicode_type):
+            x = x.encode('utf-8')
+        return x

@@ -17,7 +17,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.serialize import msgpack_loads, msgpack_dumps
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, environ_item
 
 
 class WorkerError(Exception):
@@ -131,9 +131,9 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 
     env = dict(env)
     env.update({
-        'CALIBRE_WORKER_ADDRESS': hexlify(msgpack_dumps(listener.address)),
-        'CALIBRE_WORKER_KEY': hexlify(auth_key),
-        'CALIBRE_SIMPLE_WORKER': 'calibre.utils.ipc.simple_worker:%s' % func,
+        'CALIBRE_WORKER_ADDRESS': environ_item(hexlify(msgpack_dumps(listener.address))),
+        'CALIBRE_WORKER_KEY': environ_item(hexlify(auth_key)),
+        'CALIBRE_SIMPLE_WORKER': environ_item('calibre.utils.ipc.simple_worker:%s' % func),
     })
 
     w = Worker(env)

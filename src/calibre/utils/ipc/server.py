@@ -27,7 +27,7 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre.utils.serialize import msgpack_dumps, pickle_loads
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, environ_item
 
 
 _counter = 0
@@ -219,9 +219,10 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(msgpack_dumps(self.listener.address)),
-                'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
-                'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
+                'CALIBRE_WORKER_ADDRESS' : environ_item(hexlify(msgpack_dumps(
+                    self.listener.address))),
+                'CALIBRE_WORKER_KEY' : environ_item(hexlify(self.auth_key)),
+                'CALIBRE_WORKER_RESULT' : environ_item(hexlify(rfile.encode('utf-8'))),
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
         if isinstance(cw, string_or_bytes):
