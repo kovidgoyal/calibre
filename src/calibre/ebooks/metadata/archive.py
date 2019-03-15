@@ -147,14 +147,22 @@ def get_comic_book_info(d, mi, series_index='volume'):
             pass
 
 
-def get_comic_metadata(stream, stream_type, series_index='volume'):
+def parse_comic_comment(comment, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     from calibre.ebooks.metadata import MetaInformation
-
-    comment = None
-
+    import json
     mi = MetaInformation(None, None)
+    m = json.loads(comment)
+    if isinstance(m, dict):
+        for cat in m:
+            if cat.startswith('ComicBookInfo'):
+                get_comic_book_info(m[cat], mi, series_index=series_index)
+                break
+    return mi
 
+
+def get_comic_metadata(stream, stream_type, series_index='volume'):
+    comment = None
     if stream_type == 'cbz':
         from calibre.utils.zipfile import ZipFile
         zf = ZipFile(stream)
@@ -163,12 +171,4 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
         from calibre.utils.unrar import comment as get_comment
         comment = get_comment(stream)
 
-    if comment:
-        import json
-        m = json.loads(comment)
-        if hasattr(m, 'iterkeys'):
-            for cat in m.iterkeys():
-                if cat.startswith('ComicBookInfo'):
-                    get_comic_book_info(m[cat], mi, series_index=series_index)
-                    break
-    return mi
+    return parse_comic_comment(comment or b'{}', series_index=series_index)
