@@ -105,10 +105,11 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
-            import cPickle, binascii
+            import binascii
+            from calibre.utils.serialize import msgpack_loads
             try:
-                td = cPickle.loads(binascii.unhexlify(td))
-            except:
+                td = msgpack_loads(binascii.unhexlify(td))
+            except Exception:
                 td = None
         if td and os.path.exists(td):
             _base_dir = td

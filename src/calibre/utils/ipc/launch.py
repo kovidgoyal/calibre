@@ -6,12 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii, cPickle
+import subprocess, os, sys, time, binascii
 from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from calibre.utils.serialize import msgpack_dumps
 from polyglot.builtins import unicode_type, string_or_bytes
 
 if iswindows:
@@ -104,9 +105,9 @@ class Worker(object):
                 env[key] = val
             except:
                 pass
-        env[b'CALIBRE_WORKER'] = b'1'
-        td = binascii.hexlify(cPickle.dumps(base_dir()))
-        env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
+        env[str('CALIBRE_WORKER')] = str('1')
+        td = binascii.hexlify(msgpack_dumps(base_dir())).decode('ascii')
+        env[b'CALIBRE_WORKER_TEMP_DIR'] = str(td)
         env.update(self._env)
         return env
 
@@ -176,13 +177,11 @@ class Worker(object):
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.abspath(os.getcwdu())))
+            origwd = cwd or os.path.abspath(os.getcwdu())
         except EnvironmentError:
             # cwd no longer exists
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.expanduser(u'~')))
-
+            origwd = cwd or os.path.expanduser(u'~')
+        env[str('ORIGWD')] = binascii.hexlify(msgpack_dumps(origwd))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
