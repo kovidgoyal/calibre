@@ -28,7 +28,7 @@ def join_with_timeout(q, timeout=2):
 def unpickle_binary_string(data):
     # Maintains compatibility with python's pickle module protocol version 2
     import struct
-    from pickle import PROTO, SHORT_BINSTRING, BINSTRING
+    PROTO, SHORT_BINSTRING, BINSTRING = b'\x80', b'U', b'T'
     if data.startswith(PROTO + b'\x02'):
         offset = 2
         which = data[offset]
@@ -47,6 +47,6 @@ def unpickle_binary_string(data):
 def pickle_binary_string(data):
     # Maintains compatibility with python's pickle module protocol version 2
     import struct
-    from pickle import PROTO, BINSTRING, STOP
+    PROTO, STOP, BINSTRING = b'\x80', b'.', b'T'
     data = bytes(data)
     return PROTO + b'\x02' + BINSTRING + struct.pack(b'<i', len(data)) + data + STOP
