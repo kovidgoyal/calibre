@@ -7,7 +7,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 from hashlib import sha1
 from functools import partial
 from threading import RLock, Lock
-from cPickle import dumps
 import errno, os, tempfile, shutil, time, json as jsonlib
 
 from calibre.constants import cache_dir, iswindows
@@ -17,6 +16,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_db
+from calibre.utils.serialize import json_dumps
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -49,7 +49,7 @@ def books_cache_dir():
 
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
-    raw = dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
+    raw = json_dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
     return sha1(raw).hexdigest().decode('ascii')
 
 
