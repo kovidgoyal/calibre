@@ -174,9 +174,10 @@ def repair_library(library_path):
 
 def windows_repair(library_path=None):
     from binascii import hexlify, unhexlify
-    import cPickle, subprocess
+    import subprocess
+    from calibre.utils.serialize import json_dumps, json_loads
     if library_path:
-        library_path = hexlify(cPickle.dumps(library_path, -1))
+        library_path = hexlify(json_dumps(library_path))
         winutil.prepare_for_restart()
         os.environ['CALIBRE_REPAIR_CORRUPTED_DB'] = library_path
         subprocess.Popen([sys.executable])
@@ -184,7 +185,7 @@ def windows_repair(library_path=None):
         try:
             app = Application([])
             from calibre.gui2.dialogs.restore_library import repair_library_at
-            library_path = cPickle.loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
+            library_path = json_loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
             done = repair_library_at(library_path, wait_time=4)
         except Exception:
             done = False
