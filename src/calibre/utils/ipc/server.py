@@ -1,27 +1,34 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import print_function, with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, time, tempfile, errno, itertools
-from math import ceil
-from threading import Thread, RLock
-from Queue import Queue, Empty
-from multiprocessing.connection import Listener, arbitrary_address
-from collections import deque
-from binascii import hexlify
 
+import errno
+import itertools
+import os
+import sys
+import tempfile
+import time
+from binascii import hexlify
+from collections import deque
+from math import ceil
+from multiprocessing.connection import Listener, arbitrary_address
+from Queue import Empty, Queue
+from threading import RLock, Thread
+
+from calibre import detect_ncpus as cpu_count
+from calibre.constants import DEBUG, islinux, iswindows
+from calibre.ptempfile import base_dir
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
-from calibre import detect_ncpus as cpu_count
-from calibre.constants import iswindows, DEBUG, islinux
-from calibre.ptempfile import base_dir
+from calibre.utils.serialize import msgpack_dumps, pickle_loads
 from polyglot.builtins import string_or_bytes
+
 
 _counter = 0
 
@@ -212,7 +219,7 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : hexlify(cPickle.dumps(self.listener.address, -1)),
+                'CALIBRE_WORKER_ADDRESS' : hexlify(msgpack_dumps(self.listener.address)),
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
@@ -281,7 +288,8 @@ class Server(Thread):
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
-                        job.result = cPickle.load(open(worker.rfile, 'rb'))
+                        with lopen(worker.rfile, 'rb') as f:
+                            job.result = pickle_loads(f.read())
                         os.remove(worker.rfile)
                     except:
                         pass
