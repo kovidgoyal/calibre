@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from polyglot.builtins import unicode_type
+from calibre.constants import ispy3
 
 
 MSGPACK_MIME = 'application/x-msgpack'
@@ -114,3 +115,24 @@ def msgpack_loads(dump):
 def json_loads(data):
     import json
     return json.loads(data, object_hook=json_decoder)
+
+
+if ispy3:
+
+    def pickle_dumps(data):
+        import pickle
+        return pickle.dumps(data, -1)
+
+    def pickle_loads(dump):
+        import pickle
+        return pickle.loads(dump, encoding='utf-8')
+
+else:
+
+    def pickle_dumps(data):
+        import cPickle as pickle
+        return pickle.dumps(data, -1)
+
+    def pickle_loads(dump):
+        import cPickle as pickle
+        return pickle.loads(dump)

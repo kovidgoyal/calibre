@@ -5,11 +5,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, cPickle, sre_constants
+import datetime, re, sre_constants
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
+from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
 from polyglot.builtins import unicode_type
 
@@ -1090,7 +1091,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if data:
-            return cPickle.loads(str(data))
+            return pickle_loads(bytes(data))
         return None
 
     def has_conversion_options(self, ids, format='PIPE'):
@@ -1166,7 +1167,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_tags(id, val.split(','), append=False)
 
     def set_conversion_options(self, id, format, options):
-        data = sqlite.Binary(cPickle.dumps(options, -1))
+        data = sqlite.Binary(pickle_dumps(options))
         oid = self.conn.get('SELECT id FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if oid:
             self.conn.execute('UPDATE conversion_options SET data=? WHERE id=?', (data, oid))
