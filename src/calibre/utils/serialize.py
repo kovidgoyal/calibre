@@ -43,6 +43,8 @@ def create_encoder(for_json=False):
                 return encoded(3, fm_as_dict(obj), ExtType)
             elif isinstance(obj, Tag):
                 return encoded(4, obj.as_dict(), ExtType)
+        if for_json and isinstance(obj, bytes):
+            return obj.decode('utf-8')
         raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
     return encoder
