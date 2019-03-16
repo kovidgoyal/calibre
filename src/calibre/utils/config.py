@@ -386,19 +386,23 @@ class XMLConfig(dict):
 def to_json(obj):
     if isinstance(obj, bytearray):
         return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj))}
+                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
         return {'__class__': 'datetime.datetime',
                 '__value__': isoformat(obj, as_utc=True)}
+    if hasattr(obj, 'toBase64'):
+        return {'__class__': 'bytearray',
+                '__value__': bytes(obj.toBase64()).decode('ascii')}
     raise TypeError(repr(obj) + ' is not JSON serializable')
 
 
 def from_json(obj):
-    if '__class__' in obj:
-        if obj['__class__'] == 'bytearray':
+    custom = obj.get('__class__')
+    if custom is not None:
+        if custom == 'bytearray':
             return bytearray(base64.standard_b64decode(obj['__value__']))
-        if obj['__class__'] == 'datetime.datetime':
+        if custom == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
             return parse_iso8601(obj['__value__'], assume_utc=True)
     return obj
