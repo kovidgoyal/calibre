@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, operator
+import weakref, operator, numbers
 from functools import partial
 from itertools import izip, imap
 from polyglot.builtins import map, unicode_type, range
@@ -98,7 +98,7 @@ class View(object):
                     'marked': self.get_marked,
                     'series_sort':self.get_series_sort,
                 }.get(col, self._get)
-            if isinstance(col, int):
+            if isinstance(col, numbers.Integral):
                 label = self.cache.backend.custom_column_num_map[col]['label']
                 label = (self.cache.backend.field_metadata.custom_field_prefix + label)
             if label.endswith('_index'):

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, re
+import json, re, numbers
 from functools import partial
 
 from calibre import prints, force_unicode
@@ -346,7 +346,7 @@ class CustomColumns(object):
         series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
                                                         (series,), all=False)
         if series_id is None:
-            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
         series_indices = self.conn.get('''

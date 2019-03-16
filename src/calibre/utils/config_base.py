@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cPickle, traceback
+import os, re, cPickle, traceback, numbers
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
@@ -37,7 +37,7 @@ class Option(object):
         if self.type is None and action is None and choices is None:
             if isinstance(default, float):
                 self.type = 'float'
-            elif isinstance(default, int) and not isinstance(default, bool):
+            elif isinstance(default, numbers.Integral) and not isinstance(default, bool):
                 self.type = 'int'
 
         self.choices  = choices
@@ -234,7 +234,7 @@ class OptionSet(object):
 
     def serialize_opt(self, val):
         if val is val is True or val is False or val is None or \
-           isinstance(val, (int, float, long, bytes, unicode_type)):
+           isinstance(val, (numbers.Number, bytes, unicode_type)):
             return repr(val)
         pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)

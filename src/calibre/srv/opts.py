@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, os
+import errno, os, numbers
 from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
@@ -248,7 +248,7 @@ def opts_to_parser(usage):
         else:
             name = '--' + opt.name.replace('_', '-')
             otype = 'string'
-            if isinstance(opt.default, (int, long, float)):
+            if isinstance(opt.default, numbers.Number):
                 otype = type(opt.default).__name__
             add_option(name, type=otype)
 
@@ -278,7 +278,7 @@ def parse_config_file(path=DEFAULT_CONFIG):
         val = rest
         if isinstance(opt.default, bool):
             val = val.lower() in ('true', 'yes', 'y')
-        elif isinstance(opt.default, (int, long, float)):
+        elif isinstance(opt.default, numbers.Number):
             try:
                 val = type(opt.default)(rest)
             except Exception:

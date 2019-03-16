@@ -8,7 +8,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os, re, logging, copy, unicodedata
+import os, re, logging, copy, unicodedata, numbers
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 from css_parser.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
@@ -527,7 +527,7 @@ class Style(object):
                     result = size
             else:
                 result = self._unit_convert(value, base=base, font=base)
-                if not isinstance(result, (int, float, long)):
+                if not isinstance(result, numbers.Number):
                     return base
                 if result < 0:
                     result = normalize_fontsize("smaller", base)
@@ -562,20 +562,20 @@ class Style(object):
                 ans = self._unit_convert(str(img_size) + 'px', base=base)
             else:
                 x = self._unit_convert(x, base=base)
-                if isinstance(x, (float, int, long)):
+                if isinstance(x, numbers.Number):
                     ans = x
         if ans is None:
             x = self._element.get(attr)
             if x is not None:
                 x = self._unit_convert(x + 'px', base=base)
-                if isinstance(x, (float, int, long)):
+                if isinstance(x, numbers.Number):
                     ans = x
         if ans is None:
             ans = self._unit_convert(str(img_size) + 'px', base=base)
         maa = self._style.get('max-' + attr)
         if maa is not None:
             x = self._unit_convert(maa, base=base)
-            if isinstance(x, (int, float, long)) and (ans is None or x < ans):
+            if isinstance(x, numbers.Number) and (ans is None or x < ans):
                 ans = x
         return ans
 

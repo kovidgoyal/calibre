@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib
+import hashlib, numbers
 from polyglot.builtins import map
 
 from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
@@ -56,7 +56,7 @@ class IndirectObjects(object):
 
     def __getitem__(self, o):
         try:
-            return self._map[id(self._list[o] if isinstance(o, int) else o)]
+            return self._map[id(self._list[o] if isinstance(o, numbers.Integral) else o)]
         except (KeyError, IndexError):
             raise KeyError('The object %r was not found'%o)
 
@@ -355,7 +355,7 @@ class PDFStream(object):
                 self.current_page.write_line()
             for x in op:
                 self.current_page.write(
-                (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
+                (fmtnum(x) if isinstance(x, numbers.Number) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
         if not path.ops:

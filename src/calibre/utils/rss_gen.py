@@ -6,7 +6,7 @@ __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
-import datetime
+import datetime, numbers
 from polyglot.builtins import string_or_bytes
 
 # Could make this the base class; will need to add 'publish'
@@ -166,12 +166,12 @@ class Image:
         _element(handler, "link", self.link)
 
         width = self.width
-        if isinstance(width, int):
+        if isinstance(width, numbers.Integral):
             width = IntElement("width", width)
         _opt_element(handler, "width", width)
 
         height = self.height
-        if isinstance(height, int):
+        if isinstance(height, numbers.Integral):
             height = IntElement("height", height)
         _opt_element(handler, "height", height)
 
@@ -385,7 +385,7 @@ class RSS2(WriteXmlMixin):
             self.cloud.publish(handler)
 
         ttl = self.ttl
-        if isinstance(self.ttl, int):
+        if isinstance(self.ttl, numbers.Integral):
             ttl = IntElement("ttl", ttl)
         _opt_element(handler, "tt", ttl)
 

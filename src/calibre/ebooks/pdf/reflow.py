@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, numbers
 
 from lxml import etree
 
@@ -222,7 +222,7 @@ class Box(list):
     def to_html(self):
         ans = ['<%s>'%self.tag]
         for elem in self:
-            if isinstance(elem, int):
+            if isinstance(elem, numbers.Integral):
                 ans.append('<a name="page_%d"/>'%elem)
             else:
                 ans.append(elem.to_html()+' ')
@@ -242,7 +242,7 @@ class ImageBox(Box):
         if len(self) > 0:
             ans.append('<br/>')
             for elem in self:
-                if isinstance(elem, int):
+                if isinstance(elem, numbers.Integral):
                     ans.append('<a name="page_%d"/>'%elem)
                 else:
                     ans.append(elem.to_html()+' ')

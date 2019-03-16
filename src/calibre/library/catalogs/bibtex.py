@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, os
+import re, codecs, os, numbers
 from collections import namedtuple
 from types import StringType, UnicodeType
 
@@ -143,7 +143,7 @@ class BIBTEX(CatalogPlugin):
             for field in fields:
                 if field.startswith('#'):
                     item = db.get_field(entry['id'],field,index_is_id=True)
-                    if isinstance(item, (bool, float, int)):
+                    if isinstance(item, (bool, numbers.Number)):
                         item = repr(item)
                 elif field == 'title_sort':
                     item = entry['sort']

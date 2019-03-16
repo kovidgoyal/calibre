@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import random
+import random, numbers
 from io import BytesIO
 from collections import OrderedDict
 from struct import pack
@@ -67,7 +67,7 @@ class Header(OrderedDict):
             positions[name] = buf.tell()
             if val is None:
                 raise ValueError('Dynamic field %r not set'%name)
-            if isinstance(val, (int, long)):
+            if isinstance(val, numbers.Integral):
                 fmt = b'H' if name in self.SHORT_FIELDS else b'I'
                 val = pack(b'>'+fmt, val)
             buf.write(val)
@@ -83,6 +83,3 @@ class Header(OrderedDict):
 
     def format_value(self, name, val):
         return val
-
-
-

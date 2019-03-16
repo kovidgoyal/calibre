@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 SPOOL_SIZE = 30*1024*1024
 
+import numbers
 from polyglot.builtins import range
 
 
@@ -16,7 +17,7 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
     from calibre.utils.config_base import tweaks
     from math import ceil, floor
     if not series_indices:
-        if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+        if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
             return float(tweaks['series_index_auto_increment'])
         return 1.0
     if unwrap:
@@ -38,7 +39,7 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
             if i not in series_indices:
                 return i
         return series_indices[-1] + 1
-    if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+    if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
         return float(tweaks['series_index_auto_increment'])
     return 1.0
 

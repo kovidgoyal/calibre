@@ -10,7 +10,7 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, numbers
 from struct import pack, unpack
 from cStringIO import StringIO
 
@@ -47,7 +47,7 @@ class StreamSlicer(object):
     def __getitem__(self, key):
         stream = self._stream
         base = self.start
-        if isinstance(key, (int, long)):
+        if isinstance(key, numbers.Integral):
             stream.seek(base + key)
             return stream.read(1)
         if isinstance(key, slice):
@@ -67,7 +67,7 @@ class StreamSlicer(object):
     def __setitem__(self, key, value):
         stream = self._stream
         base = self.start
-        if isinstance(key, (int, long)):
+        if isinstance(key, numbers.Integral):
             if len(value) != 1:
                 raise ValueError("key and value lengths must match")
             stream.seek(base + key)

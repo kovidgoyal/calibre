@@ -8,6 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import numbers
 from struct import pack
 from cStringIO import StringIO
 from collections import OrderedDict, defaultdict
@@ -166,7 +167,7 @@ class IndexEntry(object):
     @property
     def bytestring(self):
         buf = StringIO()
-        if isinstance(self.index, int):
+        if isinstance(self.index, numbers.Integral):
             buf.write(encode_number_as_hex(self.index))
         else:
             raw = bytearray(self.index.encode('ascii'))
@@ -188,7 +189,7 @@ class IndexEntry(object):
         for tag in self.tag_nums:
             attr = self.attr_for_tag(tag)
             val = getattr(self, attr)
-            if isinstance(val, int):
+            if isinstance(val, numbers.Integral):
                 val = [val]
             for x in val:
                 buf.write(encint(x))
@@ -602,7 +603,7 @@ class Indexer(object):  # {{{
 
         # The index of the last entry in the NCX
         idx = indices[-1].index
-        if isinstance(idx, int):
+        if isinstance(idx, numbers.Integral):
             idx = encode_number_as_hex(idx)
         else:
             idx = idx.encode('ascii')

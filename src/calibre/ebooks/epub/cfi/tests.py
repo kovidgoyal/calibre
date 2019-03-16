@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest
+import unittest, numbers
 from polyglot.builtins import map
 
 from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
@@ -29,7 +29,7 @@ class Tests(unittest.TestCase):
         p = parser()
 
         def step(x):
-            if isinstance(x, int):
+            if isinstance(x, numbers.Integral):
                 return {'num': x}
             return {'num':x[0], 'id':x[1]}
 

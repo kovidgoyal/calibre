@@ -1,7 +1,7 @@
 from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, collections, operator, copy, re
+import sys, collections, operator, copy, re, numbers
 
 from PyQt5.Qt import (
     Qt, QRectF, QFont, QColor, QPixmap, QGraphicsPixmapItem, QGraphicsItem,
@@ -451,7 +451,7 @@ class Line(QGraphicsItem):
         if self.length_in_space > 0:
             frac = 1 + float(delta)/self.length_in_space
             for i in range(len(self.tokens)):
-                if isinstance(self.tokens[i], (int, float)):
+                if isinstance(self.tokens[i], numbers.Number):
                     self.tokens[i] *= frac
             self.current_width = self.line_length
 
@@ -495,7 +495,7 @@ class Line(QGraphicsItem):
         painter.restore()
         painter.save()
         for tok in self.tokens:
-            if isinstance(tok, (int, float)):
+            if isinstance(tok, numbers.Number):
                 x += tok
             elif isinstance(tok, Word):
                 painter.setFont(tok.font)
@@ -559,7 +559,7 @@ class Line(QGraphicsItem):
     def __unicode__(self):
         s = u''
         for tok in self.tokens:
-            if isinstance(tok, (int, float)):
+            if isinstance(tok, numbers.Number):
                 s += ' '
             elif isinstance(tok, Word):
                 s += unicode_type(tok.string)

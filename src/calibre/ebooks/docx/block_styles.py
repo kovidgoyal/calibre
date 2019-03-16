@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from collections import OrderedDict
 
 
@@ -126,7 +127,7 @@ def border_to_css(edge, style, css):
     bs = getattr(style, 'border_%s_style' % edge)
     bc = getattr(style, 'border_%s_color' % edge)
     bw = getattr(style, 'border_%s_width' % edge)
-    if isinstance(bw, (float, int, long)):
+    if isinstance(bw, numbers.Number):
         # WebKit needs at least 1pt to render borders and 3pt to render double borders
         bw = max(bw, (3 if bs == 'double' else 1))
     if bs is not inherit and bs is not None:
@@ -134,7 +135,7 @@ def border_to_css(edge, style, css):
     if bc is not inherit and bc is not None:
         css['border-%s-color' % edge] = bc
     if bw is not inherit and bw is not None:
-        if isinstance(bw, (int, float, long)):
+        if isinstance(bw, numbers.Number):
             bw = '%.3gpt' % bw
         css['border-%s-width' % edge] = bw
 

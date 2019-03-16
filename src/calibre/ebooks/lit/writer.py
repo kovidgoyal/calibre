@@ -16,6 +16,7 @@ import re
 import copy
 import uuid
 import functools
+import numbers
 from urlparse import urldefrag
 from urllib import unquote as urlunquote
 from lxml import etree
@@ -162,7 +163,7 @@ class ReBinary(object):
 
     def write(self, *values):
         for value in values:
-            if isinstance(value, (int, long)):
+            if isinstance(value, numbers.Integral):
                 try:
                     value = codepoint_to_chr(value)
                 except OverflowError:

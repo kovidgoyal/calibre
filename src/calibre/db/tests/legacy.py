@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import inspect, time
+import inspect, time, numbers
 from io import BytesIO
 from repr import repr
 from functools import partial
@@ -109,7 +109,7 @@ class LegacyTest(BaseTest):
         def get_values(db):
             ans = {}
             for label, loc in db.FIELD_MAP.iteritems():
-                if isinstance(label, int):
+                if isinstance(label, numbers.Integral):
                     label = '#'+db.custom_column_num_map[label]['label']
                 label = type('')(label)
                 ans[label] = tuple(db.get_property(i, index_is_id=True, loc=loc)

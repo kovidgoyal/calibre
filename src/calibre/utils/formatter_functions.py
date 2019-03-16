@@ -12,7 +12,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback
+import inspect, re, traceback, numbers
 from math import trunc
 
 from calibre import human_readable
@@ -136,7 +136,7 @@ class FormatterFunction(object):
             return ret
         if isinstance(ret, list):
             return ','.join(ret)
-        if isinstance(ret, (int, float, bool)):
+        if isinstance(ret, (numbers.Number, bool)):
             return unicode_type(ret)
 
 

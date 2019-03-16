@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import print_function
 
-import re
+import re, numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread
@@ -773,7 +773,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 val = mi.format_field(field)[1]
             else:
                 val = mi.get(field, None)
-            if isinstance(val, (int, float, bool)):
+            if isinstance(val, (numbers.Number, bool)):
                 val = str(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list

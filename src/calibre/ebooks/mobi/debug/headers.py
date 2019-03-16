@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime, os
+import struct, datetime, os, numbers
 
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -598,7 +598,7 @@ class TextRecord(object):  # {{{
         self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
         for typ, val in self.trailing_data.iteritems():
-            if isinstance(typ, int):
+            if isinstance(typ, numbers.Integral):
                 print ('Record %d has unknown trailing data of type: %d : %r'%
                         (idx, typ, val))
 

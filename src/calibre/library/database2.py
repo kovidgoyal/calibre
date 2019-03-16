@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, types
+        json, uuid, hashlib, copy, types, numbers
 from collections import defaultdict, namedtuple
 import threading, random
 from itertools import repeat
@@ -2224,7 +2224,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             series_id = self.conn.get('SELECT id from series WHERE name=?',
                 (series,), all=False)
         if series_id is None:
-            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
         series_indices = self.conn.get(

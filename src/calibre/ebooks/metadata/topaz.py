@@ -5,7 +5,7 @@ __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import StringIO, sys
+import StringIO, sys, numbers
 from struct import pack
 
 from calibre.ebooks.metadata import MetaInformation
@@ -29,7 +29,7 @@ class StreamSlicer(object):
     def __getitem__(self, key):
         stream = self._stream
         base = self.start
-        if isinstance(key, (int, long)):
+        if isinstance(key, numbers.Integral):
             stream.seek(base + key)
             return stream.read(1)
         if isinstance(key, slice):
@@ -49,7 +49,7 @@ class StreamSlicer(object):
     def __setitem__(self, key, value):
         stream = self._stream
         base = self.start
-        if isinstance(key, (int, long)):
+        if isinstance(key, numbers.Integral):
             if len(value) != 1:
                 raise ValueError("key and value lengths must match")
             stream.seek(base + key)

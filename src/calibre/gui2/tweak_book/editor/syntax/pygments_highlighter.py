@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from functools import partial
 
 from PyQt5.Qt import QTextBlockUserData
@@ -48,7 +49,7 @@ def create_lexer(base_class):
                                     statestack.append(statestack[-1])
                                 else:
                                     statestack.append(state)
-                        elif isinstance(new_state, int):
+                        elif isinstance(new_state, numbers.Integral):
                             # pop
                             del statestack[new_state:]
                         elif new_state == '#push':

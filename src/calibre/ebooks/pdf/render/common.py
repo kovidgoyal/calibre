@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, zlib
+import codecs, zlib, numbers
 from io import BytesIO
 from datetime import datetime
 from binascii import hexlify
@@ -69,7 +69,7 @@ def serialize(o, stream):
     elif isinstance(o, bool):
         # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
-    elif isinstance(o, (int, long)):
+    elif isinstance(o, numbers.Integral):
         stream.write_raw(str(o).encode('ascii') if ispy3 else bytes(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)

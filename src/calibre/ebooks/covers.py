@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, random, unicodedata
+import re, random, unicodedata, numbers
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
@@ -167,7 +167,7 @@ class Block(object):
 
     @property
     def height(self):
-        return int(ceil(sum(l if isinstance(l, (int, float)) else l.boundingRect().height() for l in self.layouts)))
+        return int(ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts)))
 
     @dynamic_property
     def position(self):
@@ -181,7 +181,7 @@ class Block(object):
                 self.layouts[0].setPosition(QPointF(x, y))
                 y += self.layouts[0].boundingRect().height()
                 for l in self.layouts[1:]:
-                    if isinstance(l, (int, float)):
+                    if isinstance(l, numbers.Number):
                         y += l
                     else:
                         l.setPosition(QPointF(x, y))

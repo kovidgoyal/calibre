@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback, errno, time
+import functools, re, os, traceback, errno, time, numbers
 from collections import defaultdict, namedtuple
 from itertools import groupby
 
@@ -580,7 +580,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return data
 
     def get_book_info(self, index):
-        if isinstance(index, int):
+        if isinstance(index, numbers.Integral):
             index = self.index(index, 0)
         # If index is not valid returns None
         data = self.current_changed(index, None, False)
@@ -1649,7 +1649,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 return (authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
-                if not isinstance(size, (float, int)):
+                if not isinstance(size, numbers.Number):
                     size = 0
                 return (human_readable(size))
             elif cname == 'timestamp':

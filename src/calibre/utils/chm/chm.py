@@ -31,6 +31,7 @@ import struct
 import sys
 
 from calibre.constants import plugins
+from polyglot.builtins import long_type
 
 chmlib, chmlib_err = plugins['chmlib']
 if chmlib_err:
@@ -401,7 +402,7 @@ class CHMFile:
             if start == -1:
                 st = 0
             else:
-                st = long(start)
+                st = long_type(start)
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
         else:
             return (0, '')

@@ -30,6 +30,7 @@ if is_py3:
     codepoint_to_chr = chr
     unicode_type = str
     string_or_bytes = str, bytes
+    long_type = int
 
     def iteritems(d):
         return iter(d.items())
@@ -59,6 +60,7 @@ else:
     codepoint_to_chr = unichr
     unicode_type = unicode
     string_or_bytes = unicode, bytes
+    long_type = long
 
     def iteritems(d):
         return d.iteritems()

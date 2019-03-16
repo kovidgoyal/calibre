@@ -87,6 +87,7 @@ import socket
 import threading
 import select
 import traceback
+import numbers
 
 __all__ = ["Zeroconf", "ServiceInfo", "ServiceBrowser"]
 
@@ -1138,7 +1139,7 @@ class ServiceInfo(object):
                     suffix = ''
                 elif isinstance(value, str):
                     suffix = value
-                elif isinstance(value, int):
+                elif isinstance(value, numbers.Integral):
                     suffix = value and 'true' or 'false'
                 else:
                     suffix = ''

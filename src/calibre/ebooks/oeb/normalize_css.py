@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from polyglot.builtins import zip, string_or_bytes
 from functools import wraps
 
@@ -392,7 +393,7 @@ def test_normalization(return_tests=False):  # {{{
                 tuple('0 0 0 0'.split()) : '0',
             }.iteritems():
                 for prefix in ('margin', 'padding'):
-                    css = {'%s-%s' % (prefix, x) : str(y)+'pt' if isinstance(y, (int, float)) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
+                    css = {'%s-%s' % (prefix, x) : str(y)+'pt' if isinstance(y, numbers.Number) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
                     css = '; '.join(('%s:%s' % (k, v) for k, v in css.iteritems()))
                     style = parseStyle(css)
                     condense_rule(style)

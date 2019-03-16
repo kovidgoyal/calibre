@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import re, operator, math
+import re, operator, math, numbers
 from collections import defaultdict
 from xml.dom import SyntaxErr
 
@@ -28,7 +28,7 @@ STRIPNUM = re.compile(r'[-0-9]+$')
 
 
 def asfloat(value, default):
-    if not isinstance(value, (int, long, float)):
+    if not isinstance(value, numbers.Number):
         value = default
     return float(value)
 
@@ -378,7 +378,7 @@ class CSSFlattener(object):
         except:
             font_size = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
-        if tag == 'body' and isinstance(font_size, (int, float)):
+        if tag == 'body' and isinstance(font_size, numbers.Number):
             stylizer.body_font_size = font_size
         if 'align' in node.attrib:
             if tag != 'img':

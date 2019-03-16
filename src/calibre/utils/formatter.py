@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, string, traceback
+import re, string, traceback, numbers
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -271,7 +271,7 @@ class TemplateFormatter(string.Formatter):
 
     def format_field(self, val, fmt):
         # ensure we are dealing with a string.
-        if isinstance(val, (int, float)):
+        if isinstance(val, numbers.Number):
             if val:
                 val = unicode_type(val)
             else:

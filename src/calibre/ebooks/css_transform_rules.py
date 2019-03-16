@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from functools import partial
 from collections import OrderedDict
-import operator
+import operator, numbers
 
 from css_parser.css import Property, CSSRule
 
@@ -123,7 +123,7 @@ def unit_convert(value, unit, dpi=96.0, body_font_size=12):
 
 
 def parse_css_length_or_number(raw, default_unit=None):
-    if isinstance(raw, (int, long, float)):
+    if isinstance(raw, numbers.Number):
         return raw, default_unit
     try:
         return float(raw), default_unit

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap
+import textwrap, numbers
 
 from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
         QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel)
@@ -90,7 +90,7 @@ class ConfigWidget(QWidget):
     def create_widgets(self, opt):
         val = self.plugin.prefs[opt.name]
         if opt.type == 'number':
-            c = QSpinBox if isinstance(opt.default, int) else QDoubleSpinBox
+            c = QSpinBox if isinstance(opt.default, numbers.Integral) else QDoubleSpinBox
             widget = c(self)
             widget.setValue(val)
         elif opt.type == 'string':

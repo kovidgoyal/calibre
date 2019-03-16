@@ -2,7 +2,7 @@
 '''
 Defines the plugin system for conversions.
 '''
-import re, os, shutil
+import re, os, shutil, numbers
 
 from calibre import CurrentDir
 from calibre.customize import Plugin
@@ -80,7 +80,7 @@ class OptionRecommendation(object):
                                                     self.option.choices:
             raise ValueError('OpRec: %s: Recommended value not in choices'%
                              self.option.name)
-        if not (isinstance(self.recommended_value, (int, float, str, unicode_type)) or self.recommended_value is None):
+        if not (isinstance(self.recommended_value, (numbers.Number, bytes, unicode_type)) or self.recommended_value is None):
             raise ValueError('OpRec: %s:'%self.option.name + repr(
                 self.recommended_value) + ' is not a string or a number')
 

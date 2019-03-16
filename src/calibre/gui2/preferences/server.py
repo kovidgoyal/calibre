@@ -4,6 +4,7 @@
 
 import errno
 import json
+import numbers
 import os
 import sys
 import textwrap
@@ -267,9 +268,9 @@ class AdvancedTab(QWidget):
                 w = Choices
             elif isinstance(opt.default, bool):
                 w = Bool
-            elif isinstance(opt.default, (int, long)):
+            elif isinstance(opt.default, numbers.Integral):
                 w = Int
-            elif isinstance(opt.default, float):
+            elif isinstance(opt.default, numbers.Real):
                 w = Float
             else:
                 w = Text

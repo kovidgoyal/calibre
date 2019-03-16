@@ -141,7 +141,7 @@ class Route(object):
                     if '{' in default or '}' in default:
                         raise route_error('The characters {} are not allowed in default values')
                     default = self.defaults[name] = eval(default)
-                    if isinstance(default, (int, long, float)):
+                    if isinstance(default, numbers.Number):
                         self.type_checkers[name] = type(default)
                     if is_sponge and not isinstance(default, type('')):
                         raise route_error('Soak up path component must have a default value of string type')

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, os
+import json, os, numbers
 from polyglot.builtins import map
 from math import floor
 from collections import defaultdict
@@ -418,7 +418,7 @@ class PDFWriter(QObject):
             except Exception:
                 doc_margins = None
             if doc_margins and isinstance(doc_margins, dict):
-                doc_margins = {k:float(v) for k, v in doc_margins.iteritems() if isinstance(v, (float, int)) and k in {'right', 'top', 'left', 'bottom'}}
+                doc_margins = {k:float(v) for k, v in doc_margins.iteritems() if isinstance(v, numbers.Number) and k in {'right', 'top', 'left', 'bottom'}}
                 if doc_margins:
                     margin_top = margin_bottom = 0
                     page_margins = self.convert_page_margins(doc_margins)

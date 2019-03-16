@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Command line interface to conversion sub-system
 '''
 
-import sys, os
+import sys, os, numbers
 from optparse import OptionGroup, Option
 from collections import OrderedDict
 
@@ -91,9 +91,9 @@ def option_recommendation_to_cli_option(add_option, rec):
         attrs['action'] = 'store_false' if rec.recommended_value else \
                           'store_true'
     else:
-        if isinstance(rec.recommended_value, int):
+        if isinstance(rec.recommended_value, numbers.Integral):
             attrs['type'] = 'int'
-        if isinstance(rec.recommended_value, float):
+        if isinstance(rec.recommended_value, numbers.Real):
             attrs['type'] = 'float'
 
     if opt.long_switch == 'verbose':

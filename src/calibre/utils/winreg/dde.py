@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from ctypes import POINTER, WINFUNCTYPE, c_void_p, c_ulong, c_char_p, windll, byref
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR, UINT
 
@@ -87,9 +88,10 @@ def dde_error(instance):
 
 
 def default_errcheck(result, func, args):
-    if (isinstance(result, (int, long)) and result == 0) or (getattr(result, 'value', False) is None):
+    if (isinstance(result, numbers.Integral) and result == 0) or (getattr(result, 'value', False) is None):
         dde_error(args[0])
     return args
+
 
 null = object()
 
@@ -110,6 +112,7 @@ def cwrap(name, restype, *args, **kw):
     func=WINFUNCTYPE(*params)((name, kw.get('lib', user32)), paramflags)
     func.errcheck=kw.get('errcheck', default_errcheck)
     return func
+
 
 GetLastError = cwrap('DdeGetLastError', UINT, a('instance', DWORD), errcheck=no_errcheck)
 
@@ -146,6 +149,7 @@ def send_dde_command(service, topic, command):
     FreeDataHandle(res)
     Disconnect(conversation)
     Uninitialize(instance)
+
 
 if __name__ == '__main__':
     send_dde_command('WinWord', 'System', '[REM_DDE_Direct][FileOpen("C:/cygwin64/home/kovid/demo.docx")]')

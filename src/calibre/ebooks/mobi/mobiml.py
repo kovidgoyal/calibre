@@ -9,6 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
 import copy
 import re
+import numbers
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, urlnormalize
@@ -45,7 +46,7 @@ COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
 
 def asfloat(value):
-    if not isinstance(value, (int, long, float)):
+    if not isinstance(value, numbers.Number):
         return 0.0
     return float(value)
 
@@ -531,9 +532,9 @@ class MobiMLizer(object):
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
                 'text-bottom', 'top', 'bottom') or (
-                isinstance(valign, (float, int)) and abs(valign) != 0)
+                isinstance(valign, numbers.Number) and abs(valign) != 0)
         issup = valign in ('super', 'text-top', 'top') or (
-            isinstance(valign, (float, int)) and valign > 0)
+            isinstance(valign, numbers.Number) and valign > 0)
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)

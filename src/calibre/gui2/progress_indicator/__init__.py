@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
+import numbers
 from PyQt5.Qt import (
     Qt, QWidget, QSizePolicy, QSize, QRect, QConicalGradient, QPen, QBrush,
     QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget, QDialog, QStackedLayout
@@ -93,7 +94,7 @@ class ProgressSpinner(QWidget):
         return self._size_hint
 
     def setSizeHint(self, val):
-        if isinstance(val, int):
+        if isinstance(val, numbers.Integral):
             val = QSize(val, val)
         self._size_hint = val
         self.update()

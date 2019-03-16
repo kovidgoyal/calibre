@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import numbers
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -24,7 +25,7 @@ def c_parse(val):
     except (AttributeError, TypeError):
         # If a value like 2001 is stored in the column, apsw will return it as
         # an int
-        if isinstance(val, (int, float)):
+        if isinstance(val, numbers.Number):
             return datetime(int(val), 1, 3, tzinfo=utc_tz)
         if val is None:
             return UNDEFINED_DATE

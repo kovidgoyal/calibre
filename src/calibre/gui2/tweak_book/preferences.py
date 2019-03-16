@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from operator import attrgetter, methodcaller
 from collections import namedtuple
 from polyglot.builtins import map, unicode_type, range
@@ -50,8 +51,8 @@ class BasicSettings(QWidget):  # {{{
                 getter = getter or methodcaller('isChecked')
                 setter = setter or (lambda x, v: x.setChecked(v))
                 widget.toggled.connect(self.emit_changed)
-            elif isinstance(defval, (int, float)):
-                widget = (QSpinBox if isinstance(defval, int) else QDoubleSpinBox)(self)
+            elif isinstance(defval, numbers.Number):
+                widget = (QSpinBox if isinstance(defval, numbers.Integral) else QDoubleSpinBox)(self)
                 getter = getter or methodcaller('value')
                 setter = setter or (lambda x, v:x.setValue(v))
                 widget.valueChanged.connect(self.emit_changed)
