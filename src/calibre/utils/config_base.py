@@ -288,12 +288,6 @@ class Config(ConfigInterface):
                     traceback.print_exc()
         return self.option_set.parse_string(src)
 
-    def as_string(self):
-        if not os.path.exists(self.config_file_path):
-            return ''
-        with ExclusiveFile(self.config_file_path) as f:
-            return f.read().decode('utf-8')
-
     def set(self, name, val):
         if not self.option_set.has_option(name):
             raise ValueError('The option %s is not defined.'%name)
