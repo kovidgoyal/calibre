@@ -105,7 +105,19 @@ class CheckForUpdates(Thread):
 def version_key(calibre_version):
     if calibre_version.count('.') > 1:
         calibre_version = calibre_version.rpartition('.')[0]
-    return 'update to version %s' % calibre_version
+    return calibre_version
+
+
+def is_version_notified(calibre_version):
+    key = version_key(calibre_version)
+    done = dynamic.get('notified-version-updates') or set()
+    return key in done
+
+
+def save_version_notified(calibre_version):
+    done = dynamic.get('notified-version-updates') or set()
+    done.add(version_key(calibre_version))
+    dynamic.set('notified-version-updates', done)
 
 
 class UpdateNotification(QDialog):
@@ -150,7 +162,7 @@ class UpdateNotification(QDialog):
         self.l.addWidget(self.bb, 2, 0, 1, -1)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
-        dynamic.set(version_key(calibre_version), False)
+        save_version_notified(calibre_version)
 
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
@@ -215,7 +227,7 @@ class UpdateMixin(object):
         self.status_bar.update_label.setVisible(True)
 
         if has_calibre_update:
-            if (force or (config.get('new_version_notification') and dynamic.get(version_key(calibre_version), True))):
+            if (force or (config.get('new_version_notification') and not is_version_notified(calibre_version))):
                 if not no_show_popup:
                     self._update_notification__ = UpdateNotification(calibre_version,
                             number_of_plugin_updates, parent=self)
