@@ -205,11 +205,14 @@ class DynamicConfig(dict):
         dict.__init__(self, {})
         self.name = name
         self.defaults = {}
-        self.file_path = os.path.join(config_dir, name+'.pickle')
         self.refresh()
 
+    @property
+    def file_path(self):
+        return os.path.join(config_dir, self.name+'.pickle')
+
     def decouple(self, prefix):
-        self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
+        self.name = prefix + self.name
         self.refresh()
 
     def refresh(self, clear_current=True):
@@ -221,7 +224,7 @@ class DynamicConfig(dict):
                     d = cPickle.loads(raw) if raw.strip() else {}
                 except SystemError:
                     pass
-                except:
+                except Exception:
                     print('WARNING: Failed to unpickle stored config object, ignoring')
                     if DEBUG:
                         import traceback
@@ -251,14 +254,15 @@ class DynamicConfig(dict):
         self.__setitem__(key, val)
 
     def commit(self):
-        if hasattr(self, 'file_path') and self.file_path:
-            if not os.path.exists(self.file_path):
-                make_config_dir()
-            with ExclusiveFile(self.file_path) as f:
-                raw = cPickle.dumps(self, -1)
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
+        if not getattr(self, 'name', None):
+            return
+        if not os.path.exists(self.file_path):
+            make_config_dir()
+        raw = cPickle.dumps(self, -1)
+        with ExclusiveFile(self.file_path) as f:
+            f.seek(0)
+            f.truncate()
+            f.write(raw)
 
 
 dynamic = DynamicConfig()
