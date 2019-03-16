@@ -203,7 +203,7 @@ def to_json(obj):
                 '__value__': isoformat(obj, as_utc=True)}
     if isinstance(obj, (set, frozenset)):
         return {'__class__': 'set', '__value__': tuple(obj)}
-    if hasattr(obj, 'toBase64'):
+    if hasattr(obj, 'toBase64'):  # QByteArray
         return {'__class__': 'bytearray',
                 '__value__': bytes(obj.toBase64()).decode('ascii')}
     raise TypeError(repr(obj) + ' is not JSON serializable')
