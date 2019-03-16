@@ -1,4 +1,3 @@
-from __future__ import with_statement
 from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
@@ -7,16 +6,17 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, cPickle, base64, datetime, json, plistlib
+import os, base64, datetime, json, plistlib
 from copy import deepcopy
 import optparse
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        get_version, __author__, DEBUG, iswindows)
+        get_version, __author__, iswindows)
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
         read_raw_tweaks, read_tweaks, write_tweaks, tweaks, plugin_dir)
+from calibre.utils.serialize import pickle_loads
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
@@ -193,6 +193,46 @@ class OptionParser(optparse.OptionParser):
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 
+def to_json(obj):
+    if isinstance(obj, bytearray):
+        return {'__class__': 'bytearray',
+                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
+    if isinstance(obj, datetime.datetime):
+        from calibre.utils.date import isoformat
+        return {'__class__': 'datetime.datetime',
+                '__value__': isoformat(obj, as_utc=True)}
+    if isinstance(obj, (set, frozenset)):
+        return {'__class__': 'set', '__value__': tuple(obj)}
+    if hasattr(obj, 'toBase64'):
+        return {'__class__': 'bytearray',
+                '__value__': bytes(obj.toBase64()).decode('ascii')}
+    raise TypeError(repr(obj) + ' is not JSON serializable')
+
+
+def from_json(obj):
+    custom = obj.get('__class__')
+    if custom is not None:
+        if custom == 'bytearray':
+            return bytearray(base64.standard_b64decode(obj['__value__']))
+        if custom == 'datetime.datetime':
+            from calibre.utils.iso8601 import parse_iso8601
+            return parse_iso8601(obj['__value__'], assume_utc=True)
+        if custom == 'set':
+            return set(obj['__value__'])
+    return obj
+
+
+def json_dumps(obj):
+    ans = json.dumps(obj, indent=2, default=to_json, sort_keys=True, ensure_ascii=False)
+    if not isinstance(ans, bytes):
+        ans = ans.encode('utf-8')
+    return ans
+
+
+def json_loads(raw):
+    return json.loads(raw.decode('utf-8'), object_hook=from_json)
+
+
 class DynamicConfig(dict):
     '''
     A replacement for QSettings that supports dynamic config keys.
@@ -209,29 +249,43 @@ class DynamicConfig(dict):
 
     @property
     def file_path(self):
-        return os.path.join(config_dir, self.name+'.pickle')
+        return os.path.join(config_dir, self.name+'.pickle.json')
 
     def decouple(self, prefix):
         self.name = prefix + self.name
         self.refresh()
 
+    def read_old_serialized_representation(self):
+        from calibre.utils.shared_file import share_open
+        path = self.file_path.rpartition('.')[0]
+        try:
+            with share_open(path, 'rb') as f:
+                raw = f.read()
+        except EnvironmentError:
+            raw = b''
+        try:
+            d = pickle_loads(raw).copy()
+        except Exception:
+            d = {}
+        return d
+
     def refresh(self, clear_current=True):
         d = {}
-        if os.path.exists(self.file_path):
-            with ExclusiveFile(self.file_path) as f:
-                raw = f.read().strip()
-            try:
-                d = cPickle.loads(raw) if raw else {}
-            except SystemError:
-                pass
-            except Exception:
-                print('WARNING: Failed to unpickle stored config object, ignoring')
-                if DEBUG:
-                    import traceback
-                    traceback.print_exc()
-                d = {}
         if clear_current:
             self.clear()
+        if os.path.exists(self.file_path):
+            with ExclusiveFile(self.file_path) as f:
+                raw = f.read()
+            if raw:
+                try:
+                    d = json_loads(raw)
+                except Exception as err:
+                    print('Failed to de-serialize JSON representation of stored dynamic data for {} with error: {}'.format(
+                        self.name, err))
+            else:
+                d = self.read_old_serialized_representation()
+        else:
+            d = self.read_old_serialized_representation()
         self.update(d)
 
     def __getitem__(self, key):
@@ -258,7 +312,7 @@ class DynamicConfig(dict):
             return
         if not os.path.exists(self.file_path):
             make_config_dir()
-        raw = cPickle.dumps(self, -1)
+        raw = json_dumps(self)
         with ExclusiveFile(self.file_path) as f:
             f.seek(0)
             f.truncate()
@@ -387,40 +441,15 @@ class XMLConfig(dict):
         self.commit()
 
 
-def to_json(obj):
-    if isinstance(obj, bytearray):
-        return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
-    if isinstance(obj, datetime.datetime):
-        from calibre.utils.date import isoformat
-        return {'__class__': 'datetime.datetime',
-                '__value__': isoformat(obj, as_utc=True)}
-    if hasattr(obj, 'toBase64'):
-        return {'__class__': 'bytearray',
-                '__value__': bytes(obj.toBase64()).decode('ascii')}
-    raise TypeError(repr(obj) + ' is not JSON serializable')
-
-
-def from_json(obj):
-    custom = obj.get('__class__')
-    if custom is not None:
-        if custom == 'bytearray':
-            return bytearray(base64.standard_b64decode(obj['__value__']))
-        if custom == 'datetime.datetime':
-            from calibre.utils.iso8601 import parse_iso8601
-            return parse_iso8601(obj['__value__'], assume_utc=True)
-    return obj
-
-
 class JSONConfig(XMLConfig):
 
     EXTENSION = '.json'
 
     def raw_to_object(self, raw):
-        return json.loads(raw.decode('utf-8'), object_hook=from_json)
+        return json_loads(raw)
 
     def to_raw(self):
-        return json.dumps(self, indent=2, default=to_json, sort_keys=True)
+        return json_dumps(self)
 
     def __getitem__(self, key):
         try:
