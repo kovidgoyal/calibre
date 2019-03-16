@@ -103,6 +103,8 @@ class CheckForUpdates(Thread):
 
 
 def version_key(calibre_version):
+    if isinstance(calibre_version, bytes):
+        calibre_version = calibre_version.decode('utf-8')
     if calibre_version.count('.') > 1:
         calibre_version = calibre_version.rpartition('.')[0]
     return calibre_version
