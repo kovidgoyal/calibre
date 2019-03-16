@@ -219,17 +219,17 @@ class DynamicConfig(dict):
         d = {}
         if os.path.exists(self.file_path):
             with ExclusiveFile(self.file_path) as f:
-                raw = f.read()
-                try:
-                    d = cPickle.loads(raw) if raw.strip() else {}
-                except SystemError:
-                    pass
-                except Exception:
-                    print('WARNING: Failed to unpickle stored config object, ignoring')
-                    if DEBUG:
-                        import traceback
-                        traceback.print_exc()
-                    d = {}
+                raw = f.read().strip()
+            try:
+                d = cPickle.loads(raw) if raw else {}
+            except SystemError:
+                pass
+            except Exception:
+                print('WARNING: Failed to unpickle stored config object, ignoring')
+                if DEBUG:
+                    import traceback
+                    traceback.print_exc()
+                d = {}
         if clear_current:
             self.clear()
         self.update(d)
