@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,17 +7,22 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, base64, datetime, json, plistlib
-from copy import deepcopy
-import optparse
 
-from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        get_version, __author__, iswindows)
+import optparse
+import os
+import plistlib
+from copy import deepcopy
+
+from calibre.constants import (
+    CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
+)
+from calibre.utils.config_base import (
+    Config, ConfigInterface, ConfigProxy, Option, OptionSet, OptionValues,
+    StringConfig, json_dumps, json_loads, make_config_dir, plugin_dir, prefs,
+    read_raw_tweaks, read_tweaks, tweaks, write_tweaks
+)
 from calibre.utils.lock import ExclusiveFile
-from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
-        OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
-        read_raw_tweaks, read_tweaks, write_tweaks, tweaks, plugin_dir)
-from calibre.utils.serialize import pickle_loads
+
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
@@ -193,48 +199,6 @@ class OptionParser(optparse.OptionParser):
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 
-def to_json(obj):
-    if isinstance(obj, bytearray):
-        return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
-    if isinstance(obj, datetime.datetime):
-        from calibre.utils.date import isoformat
-        return {'__class__': 'datetime.datetime',
-                '__value__': isoformat(obj, as_utc=True)}
-    if isinstance(obj, (set, frozenset)):
-        return {'__class__': 'set', '__value__': tuple(obj)}
-    if isinstance(obj, bytes):
-        return obj.decode('utf-8')
-    if hasattr(obj, 'toBase64'):  # QByteArray
-        return {'__class__': 'bytearray',
-                '__value__': bytes(obj.toBase64()).decode('ascii')}
-    raise TypeError(repr(obj) + ' is not JSON serializable')
-
-
-def from_json(obj):
-    custom = obj.get('__class__')
-    if custom is not None:
-        if custom == 'bytearray':
-            return bytearray(base64.standard_b64decode(obj['__value__']))
-        if custom == 'datetime.datetime':
-            from calibre.utils.iso8601 import parse_iso8601
-            return parse_iso8601(obj['__value__'], assume_utc=True)
-        if custom == 'set':
-            return set(obj['__value__'])
-    return obj
-
-
-def json_dumps(obj):
-    ans = json.dumps(obj, indent=2, default=to_json, sort_keys=True, ensure_ascii=False)
-    if not isinstance(ans, bytes):
-        ans = ans.encode('utf-8')
-    return ans
-
-
-def json_loads(raw):
-    return json.loads(raw.decode('utf-8'), object_hook=from_json)
-
-
 class DynamicConfig(dict):
     '''
     A replacement for QSettings that supports dynamic config keys.
@@ -259,6 +223,7 @@ class DynamicConfig(dict):
 
     def read_old_serialized_representation(self):
         from calibre.utils.shared_file import share_open
+        from calibre.utils.serialize import pickle_loads
         path = self.file_path.rpartition('.')[0]
         try:
             with share_open(path, 'rb') as f:

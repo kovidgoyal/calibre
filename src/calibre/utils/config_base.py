@@ -18,6 +18,53 @@ from polyglot.builtins import unicode_type
 plugin_dir = os.path.join(config_dir, 'plugins')
 
 
+def to_json(obj):
+    import datetime
+    if isinstance(obj, bytearray):
+        import base64
+        return {'__class__': 'bytearray',
+                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
+    if isinstance(obj, datetime.datetime):
+        from calibre.utils.date import isoformat
+        return {'__class__': 'datetime.datetime',
+                '__value__': isoformat(obj, as_utc=True)}
+    if isinstance(obj, (set, frozenset)):
+        return {'__class__': 'set', '__value__': tuple(obj)}
+    if isinstance(obj, bytes):
+        return obj.decode('utf-8')
+    if hasattr(obj, 'toBase64'):  # QByteArray
+        return {'__class__': 'bytearray',
+                '__value__': bytes(obj.toBase64()).decode('ascii')}
+    raise TypeError(repr(obj) + ' is not JSON serializable')
+
+
+def from_json(obj):
+    custom = obj.get('__class__')
+    if custom is not None:
+        if custom == 'bytearray':
+            import base64
+            return bytearray(base64.standard_b64decode(obj['__value__']))
+        if custom == 'datetime.datetime':
+            from calibre.utils.iso8601 import parse_iso8601
+            return parse_iso8601(obj['__value__'], assume_utc=True)
+        if custom == 'set':
+            return set(obj['__value__'])
+    return obj
+
+
+def json_dumps(obj):
+    import json
+    ans = json.dumps(obj, indent=2, default=to_json, sort_keys=True, ensure_ascii=False)
+    if not isinstance(ans, bytes):
+        ans = ans.encode('utf-8')
+    return ans
+
+
+def json_loads(raw):
+    import json
+    return json.loads(raw.decode('utf-8'), object_hook=from_json)
+
+
 def make_config_dir():
     if not os.path.exists(plugin_dir):
         os.makedirs(plugin_dir, mode=CONFIG_DIR_MODE)
