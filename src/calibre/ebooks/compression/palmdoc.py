@@ -83,7 +83,7 @@ def py_compress_doc(data):
                 i += 1
                 continue
         if och == 0 or (och > 8 and och < 0x80):
-            out.write(ch)
+            out.write(ch.encode('utf-8'))
         else:
             j = i
             binseq = [ch]
@@ -95,6 +95,6 @@ def py_compress_doc(data):
                 binseq.append(ch)
                 j += 1
             out.write(pack('>B', len(binseq)))
-            out.write(''.join(binseq))
+            out.write(''.join(binseq).encode('utf-8'))
             i += len(binseq) - 1
     return out.getvalue()
