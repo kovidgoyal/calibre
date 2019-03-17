@@ -238,6 +238,7 @@ class DynamicConfig(dict):
 
     def refresh(self, clear_current=True):
         d = {}
+        migrate = False
         if clear_current:
             self.clear()
         if os.path.exists(self.file_path):
@@ -251,8 +252,16 @@ class DynamicConfig(dict):
                         self.name, err))
             else:
                 d = self.read_old_serialized_representation()
+                migrate = bool(d)
         else:
             d = self.read_old_serialized_representation()
+            migrate = bool(d)
+        if migrate and d:
+            raw = json_dumps(d)
+            with ExclusiveFile(self.file_path) as f:
+                f.seek(0), f.truncate()
+                f.write(raw)
+
         self.update(d)
 
     def __getitem__(self, key):
