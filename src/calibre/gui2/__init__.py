@@ -823,7 +823,9 @@ class Application(QApplication):
             args.extend(['-platformpluginpath', sys.extensions_location, '-platform', 'headless'])
         self.headless = headless
         qargs = [i.encode('utf-8') if isinstance(i, unicode_type) else i for i in args]
-        self.pi = plugins['progress_indicator'][0]
+        self.pi, pi_err = plugins['progress_indicator']
+        if pi_err:
+            raise RuntimeError('Failed to load the progress_indicator C extension, with error: {}'.format(pi_err))
         if not isosx and not headless:
             # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
             setup_hidpi()
