@@ -8,7 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urlparse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
 from polyglot.builtins import map, unicode_type
@@ -26,6 +25,7 @@ from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
+from polyglot.urllib import urlparse
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
 ns.prefix = 'calibre'

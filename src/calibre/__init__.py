@@ -320,7 +320,7 @@ def extract(path, dir):
 
 
 def get_proxies(debug=True):
-    from urllib import getproxies
+    from polyglot.urllib import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy or key == 'auto':
@@ -382,10 +382,10 @@ def get_proxy_info(proxy_scheme, proxy_string):
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
     '''
-    import urlparse
+    from polyglot.urllib import urlparse
     try:
         proxy_url = u'%s://%s'%(proxy_scheme, proxy_string)
-        urlinfo = urlparse.urlparse(proxy_url)
+        urlinfo = urlparse(proxy_url)
         ans = {
             u'scheme': urlinfo.scheme,
             u'hostname': urlinfo.hostname,

@@ -8,12 +8,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
 from polyglot.builtins import map, string_or_bytes, range
-from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
+from polyglot.urllib import urlparse
 
 
 class AbortError(ValueError):

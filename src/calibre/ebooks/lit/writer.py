@@ -17,8 +17,6 @@ import copy
 import uuid
 import functools
 import numbers
-from urlparse import urldefrag
-from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
@@ -33,6 +31,7 @@ from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
 from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range
+from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']
 
@@ -521,7 +520,7 @@ class LitWriter(object):
                     media_type = XHTML_MIME
                 elif media_type in OEB_STYLES:
                     media_type = CSS_MIME
-                href = urlunquote(item.href)
+                href = unquote(item.href)
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))

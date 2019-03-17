@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, base64, urllib2, subprocess, os, cookielib, time
+import httplib, base64, subprocess, os, cookielib, time
 from collections import namedtuple
 try:
     from distutils.spawn import find_executable
@@ -17,6 +17,8 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
+from polyglot.urllib import (build_opener, HTTPBasicAuthHandler,
+        HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError)
 
 REALM = 'calibre-test'
 
@@ -50,10 +52,10 @@ def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
 
 
 def urlopen(server, path='/closed', un='testuser', pw='testpw', method='digest'):
-    auth_handler = urllib2.HTTPBasicAuthHandler() if method == 'basic' else urllib2.HTTPDigestAuthHandler()
+    auth_handler = HTTPBasicAuthHandler() if method == 'basic' else HTTPDigestAuthHandler()
     url = 'http://localhost:%d%s' % (server.address[1], path)
     auth_handler.add_password(realm=REALM, uri=url, user=un, passwd=pw)
-    return urllib2.build_opener(auth_handler).open(url)
+    return build_opener(auth_handler).open(url)
 
 
 def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=REALM, cnonce=None, algorithm='MD5', body=b'', modify=lambda x:None):
@@ -276,26 +278,26 @@ class TestAuth(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, httplib.UNAUTHORIZED)
 
-            auth_handler = urllib2.HTTPDigestAuthHandler()
+            auth_handler = HTTPDigestAuthHandler()
             url = 'http://localhost:%d%s' % (server.address[1], '/android')
             auth_handler.add_password(realm=REALM, uri=url, user='testuser', passwd='testpw')
             cj = cookielib.CookieJar()
-            cookie_handler = urllib2.HTTPCookieProcessor(cj)
-            r = urllib2.build_opener(auth_handler, cookie_handler).open(url)
+            cookie_handler = HTTPCookieProcessor(cj)
+            r = build_opener(auth_handler, cookie_handler).open(url)
             self.ae(r.getcode(), httplib.OK)
             cookies = tuple(cj)
             self.ae(len(cookies), 1)
             cookie = cookies[0]
             self.assertIn(b':', cookie.value)
             self.ae(cookie.path, b'/android')
-            r = urllib2.build_opener(cookie_handler).open(url)
+            r = build_opener(cookie_handler).open(url)
             self.ae(r.getcode(), httplib.OK)
             self.ae(r.read(), b'android')
             # Test that a replay attack against a different URL does not work
             try:
-                urllib2.build_opener(cookie_handler).open(url+'2')
+                build_opener(cookie_handler).open(url+'2')
                 assert ('Replay attack succeeded')
-            except urllib2.HTTPError as e:
+            except HTTPError as e:
                 self.ae(e.code, httplib.UNAUTHORIZED)
 
     # }}}

@@ -7,8 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import posixpath, os, urllib, re
-from urlparse import urlparse
+import posixpath, os, re
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -21,6 +20,7 @@ from calibre import browser, as_unicode, prints
 from calibre.gui2 import error_dialog
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
+from polyglot.urllib import unquote, urlparse
 
 
 def image_extensions():
@@ -162,7 +162,7 @@ def path_from_qurl(qurl):
     raw = bytes(qurl.toEncoded(
         QUrl.PreferLocalFile | QUrl.RemoveScheme | QUrl.RemovePassword | QUrl.RemoveUserInfo |
         QUrl.RemovePort | QUrl.RemoveAuthority | QUrl.RemoveQuery | QUrl.RemoveFragment))
-    ans = urllib.unquote(raw).decode('utf-8', 'replace')
+    ans = unquote(raw).decode('utf-8', 'replace')
     if iswindows and ans.startswith('/'):
         ans = ans[1:]
     return ans
@@ -232,7 +232,7 @@ def dnd_get_image(md, image_exts=None):
     paths = [path_from_qurl(u) for u in urls]
     # First look for a local file
     images = [xi for xi in paths if
-            posixpath.splitext(urllib.unquote(xi))[1][1:].lower() in
+            posixpath.splitext(unquote(xi))[1][1:].lower() in
             image_exts]
     images = [xi for xi in images if os.path.exists(xi)]
     p = QPixmap()
@@ -278,7 +278,7 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
         if allow_all_extensions and ext and ext not in filter_exts:
             return True
         return ext in exts and ext not in filter_exts
-    local_files = [p for p in local_files if is_ok(urllib.unquote(p))]
+    local_files = [p for p in local_files if is_ok(unquote(p))]
     local_files = [x for x in local_files if os.path.exists(x)]
     if local_files:
         return local_files, None

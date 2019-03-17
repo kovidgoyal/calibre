@@ -13,13 +13,13 @@ Input plugin for HTML or OPF ebooks.
 '''
 
 import os, re, sys,  errno as gerrno
-from urlparse import urlparse, urlunparse
 
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
 from polyglot.builtins import unicode_type
+from polyglot.urllib import urlparse, urlunparse
 
 
 class Link(object):

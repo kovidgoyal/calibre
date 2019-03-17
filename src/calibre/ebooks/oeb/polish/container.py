@@ -17,7 +17,6 @@ from collections import defaultdict
 from polyglot.builtins import unicode_type, zip
 from io import BytesIO
 from itertools import count
-from urlparse import urlparse
 
 from css_parser import getUrls, replaceUrls
 from lxml import etree
@@ -55,6 +54,7 @@ from calibre.utils.filenames import hardlink_file, nlinks_file
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
+from polyglot.urllib import urlparse
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 

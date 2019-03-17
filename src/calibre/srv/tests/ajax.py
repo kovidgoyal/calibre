@@ -9,11 +9,11 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import httplib, zlib, json, base64, os
 from io import BytesIO
 from functools import partial
-from urllib import urlencode, quote
 from httplib import OK, NOT_FOUND, FORBIDDEN
 
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
+from polyglot.urllib import urlencode, quote
 
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):

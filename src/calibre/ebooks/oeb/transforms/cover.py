@@ -6,12 +6,12 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
-from urllib import unquote
 
 from lxml import etree
 from calibre import guess_type
 from calibre.utils.imghdr import identify
 from polyglot.builtins import unicode_type
+from polyglot.urllib import unquote
 
 
 class CoverManager(object):

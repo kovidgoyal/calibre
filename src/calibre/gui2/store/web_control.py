@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
 
 from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
@@ -20,6 +19,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import ascii_filename
 from calibre.web import get_download_filename
 from polyglot.builtins import unicode_type
+from polyglot.urllib import urlparse
 
 
 class NPWebView(QWebView):

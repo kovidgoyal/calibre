@@ -8,8 +8,6 @@ import httplib
 import json
 import os
 import sys
-from urllib import urlencode
-from urlparse import urlparse, urlunparse
 
 from calibre import browser, prints
 from calibre.constants import __appname__, __version__, iswindows
@@ -19,6 +17,7 @@ from calibre.utils.config import OptionParser, prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
+from polyglot.urllib import urlencode, urlparse, urlunparse
 
 COMMANDS = (
     'list', 'add', 'remove', 'add_format', 'remove_format', 'show_metadata',

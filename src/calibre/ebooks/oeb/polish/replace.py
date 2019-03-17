@@ -10,13 +10,13 @@ __docformat__ = 'restructuredtext en'
 import codecs, shutil, os, posixpath
 from polyglot.builtins import map
 from functools import partial
-from urlparse import urlparse, urlunparse
 from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name_unicode
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
+from polyglot.urllib import urlparse, urlunparse
 
 
 class LinkReplacer(object):

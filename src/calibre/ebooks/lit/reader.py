@@ -9,8 +9,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
 import io, struct, os, functools, re
-from urlparse import urldefrag
-from urllib import unquote as urlunquote
 
 from lxml import etree
 
@@ -22,6 +20,7 @@ from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
 from calibre import plugins
 from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range
+from polyglot.urllib import unquote as urlunquote, urldefrag
 
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']

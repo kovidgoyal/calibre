@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 import zlib
-from urllib import unquote as urlunquote
 
 from calibre import CurrentDir
 from calibre.ebooks.rb import HEADER
@@ -15,6 +14,7 @@ from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from polyglot.builtins import range
+from polyglot.urllib import unquote
 
 
 class RBToc(list):
@@ -64,7 +64,7 @@ class Reader(object):
 
         toc = RBToc()
         for i in range(pages):
-            name = urlunquote(self.stream.read(32).strip('\x00'))
+            name = unquote(self.stream.read(32).strip('\x00'))
             size, offset, flags = self.read_i32(), self.read_i32(), self.read_i32()
             toc.append(RBToc.Item(name=name, size=size, offset=offset, flags=flags))
 
