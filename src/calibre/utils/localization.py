@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import is_py3, unicode_type
 
 _available_translations = None
 
@@ -244,7 +244,10 @@ def set_translators():
         set_translators.lang = t.info().get('language')
     except Exception:
         pass
-    t.install(unicode=True, names=('ngettext',))
+    if is_py3:
+        t.install(names=('ngettext',))
+    else:
+        t.install(unicode=True, names=('ngettext',))
     # Now that we have installed a translator, we have to retranslate the help
     # for the global prefs object as it was instantiated in get_lang(), before
     # the translator was installed.
