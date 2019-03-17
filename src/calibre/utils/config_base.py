@@ -255,7 +255,7 @@ class OptionSet(object):
             exec(src, options)
         except Exception as err:
             try:
-                print('Failed to parse options string with error: {}'.format(err))
+                print('Failed to parse old style options string with error: {}'.format(err))
             except Exception:
                 pass
         return options
