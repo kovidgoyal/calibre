@@ -6,13 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cPickle, traceback, numbers
+import os, re, traceback, numbers
 from functools import partial
 from collections import defaultdict
 from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
-from calibre.constants import config_dir, CONFIG_DIR_MODE
+from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3
 from polyglot.builtins import unicode_type
 
 plugin_dir = os.path.join(config_dir, 'plugins')
@@ -242,18 +242,40 @@ class OptionSet(object):
             return match.group()
         return ''
 
-    def parse_string(self, src):
+    def parse_old_style(self, src):
+        if ispy3:
+            import pickle as cPickle
+        else:
+            import cPickle
         options = {'cPickle':cPickle}
-        if src is not None:
+        try:
+            if not isinstance(src, unicode_type):
+                src = src.decode('utf-8')
+            src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
+            exec(src, options)
+        except Exception as err:
             try:
-                if not isinstance(src, unicode_type):
-                    src = src.decode('utf-8')
-                src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
-                exec(src, options)
-            except:
-                print('Failed to parse options string:')
-                print(repr(src))
-                traceback.print_exc()
+                print('Failed to parse options string with error: {}'.format(err))
+            except Exception:
+                pass
+        return options
+
+    def parse_string(self, src):
+        options = {}
+        if src:
+            is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, unicode_type) and src.startswith(u'#'))
+            if is_old_style:
+                options = self.parse_old_style(src)
+            else:
+                try:
+                    options = json_loads(src)
+                    if not isinstance(options, dict):
+                        raise Exception('options is not a dictionary')
+                except Exception as err:
+                    try:
+                        print('Failed to parse options string with error: {}'.format(err))
+                    except Exception:
+                        pass
         opts = OptionValues()
         for pref in self.preferences:
             val = options.get(pref.name, pref.default)
@@ -264,33 +286,9 @@ class OptionSet(object):
 
         return opts
 
-    def render_group(self, name, desc, opts):
-        prefs = [pref for pref in self.preferences if pref.group == name]
-        lines = ['### Begin group: %s'%(name if name else 'DEFAULT')]
-        if desc:
-            lines += map(lambda x: '# '+x, desc.split('\n'))
-        lines.append(' ')
-        for pref in prefs:
-            lines.append('# '+pref.name.replace('_', ' '))
-            if pref.help:
-                lines += map(lambda x: '# ' + x, pref.help.split('\n'))
-            lines.append('%s = %s'%(pref.name,
-                            self.serialize_opt(getattr(opts, pref.name, pref.default))))
-            lines.append(' ')
-        return '\n'.join(lines)
-
-    def serialize_opt(self, val):
-        if val is val is True or val is False or val is None or \
-           isinstance(val, (numbers.Number, bytes, unicode_type)):
-            return repr(val)
-        pickle = cPickle.dumps(val, -1)
-        return 'cPickle.loads(%s)'%repr(pickle)
-
     def serialize(self, opts):
-        src = '# %s\n\n'%(self.description.replace('\n', '\n# '))
-        groups = [self.render_group(name, self.groups.get(name, ''), opts)
-                                        for name in [None] + self.group_list]
-        return src + '\n\n'.join(groups)
+        data = {pref.name: getattr(opts, pref.name, pref.default) for pref in self.preferences}
+        return json_dumps(data)
 
 
 class ConfigInterface(object):
@@ -322,18 +320,40 @@ class Config(ConfigInterface):
 
     def __init__(self, basename, description=''):
         ConfigInterface.__init__(self, description)
-        self.config_file_path = os.path.join(config_dir, basename+'.py')
+        self.filename_base = basename
+
+    @property
+    def config_file_path(self):
+        return os.path.join(config_dir, self.filename_base + '.py.json')
 
     def parse(self):
-        src = ''
-        if os.path.exists(self.config_file_path):
-            with ExclusiveFile(self.config_file_path) as f:
+        src = u''
+        migrate = False
+        path = self.config_file_path
+        if os.path.exists(path):
+            with ExclusiveFile(path) as f:
                 try:
                     src = f.read().decode('utf-8')
                 except ValueError:
-                    print("Failed to parse", self.config_file_path)
+                    print("Failed to parse", path)
                     traceback.print_exc()
-        return self.option_set.parse_string(src)
+        if not src:
+            path = path.rpartition('.')[0]
+            from calibre.utils.shared_file import share_open
+            try:
+                with share_open(path, 'rb') as f:
+                    src = f.read().decode('utf-8')
+            except Exception:
+                pass
+            else:
+                migrate = bool(src)
+        ans = self.option_set.parse_string(src)
+        if migrate:
+            new_src = self.option_set.serialize(ans)
+            with ExclusiveFile(self.config_file_path) as f:
+                f.seek(0), f.truncate()
+                f.write(new_src)
+        return ans
 
     def set(self, name, val):
         if not self.option_set.has_option(name):
@@ -344,8 +364,7 @@ class Config(ConfigInterface):
             src = f.read()
             opts = self.option_set.parse_string(src)
             setattr(opts, name, val)
-            footer = self.option_set.get_override_section(src)
-            src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
+            src = self.option_set.serialize(opts)
             f.seek(0)
             f.truncate()
             if isinstance(src, unicode_type):
@@ -360,7 +379,12 @@ class StringConfig(ConfigInterface):
 
     def __init__(self, src, description=''):
         ConfigInterface.__init__(self, description)
+        self.set_src(src)
+
+    def set_src(self, src):
         self.src = src
+        if isinstance(self.src, bytes):
+            self.src = self.src.decode('utf-8')
 
     def parse(self):
         return self.option_set.parse_string(self.src)
@@ -370,8 +394,7 @@ class StringConfig(ConfigInterface):
             raise ValueError('The option %s is not defined.'%name)
         opts = self.option_set.parse_string(self.src)
         setattr(opts, name, val)
-        footer = self.option_set.get_override_section(self.src)
-        self.src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
+        self.set_src(self.option_set.serialize(opts))
 
 
 class ConfigProxy(object):
