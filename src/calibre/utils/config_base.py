@@ -62,7 +62,9 @@ def json_dumps(obj):
 
 def json_loads(raw):
     import json
-    return json.loads(raw.decode('utf-8'), object_hook=from_json)
+    if isinstance(raw, bytes):
+        raw = raw.decode('utf-8')
+    return json.loads(raw, object_hook=from_json)
 
 
 def make_config_dir():
