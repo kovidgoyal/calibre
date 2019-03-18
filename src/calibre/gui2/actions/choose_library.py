@@ -195,6 +195,8 @@ class BackupStatus(QDialog):  # {{{
 
     def mark_all_dirty(self):
         db = self.db()
+        if db is None:
+            return
         db.new_api.mark_as_dirty(db.new_api.all_book_ids())
 
 # }}}
