@@ -18,9 +18,9 @@ if sys.version_info.major > 2:
             file=sys.stderr)
     raise SystemExit(1)
 
-import time, BaseHTTPServer, os, sys, re, SocketServer
+import time, os, sys, re, SocketServer
 from threading import Lock, local
-from SimpleHTTPServer import SimpleHTTPRequestHandler
+from polyglot.http_server import BaseHTTPServer, SimpleHTTPRequestHandler
 
 # Compiler {{{
 
