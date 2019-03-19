@@ -488,7 +488,9 @@ class TagsView(QTreeView):  # {{{
                 if len(n) > 45:
                     n = n[:45] + '...'
                 ans = "'" + n + "'"
-            return ans.replace('&', '&&')
+            if ans:
+                ans = ans.replace('&', '&&')
+            return ans
 
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
