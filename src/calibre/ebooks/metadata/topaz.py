@@ -12,6 +12,14 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre import force_unicode
 
 
+class StringIO(io.StringIO):
+
+    def write(self, x):
+        if isinstance(x, bytes):
+            x = x.decode('iso-8859-1')
+        return io.StringIO.write(self, x)
+
+
 class StreamSlicer(object):
 
     def __init__(self, stream, start=0, stop=None):
@@ -38,7 +46,7 @@ class StreamSlicer(object):
                 start, stop = stop, start
             size = stop - start
             if size <= 0:
-                return ""
+                return b""
             stream.seek(base + start)
             data = stream.read(size)
             if stride != 1:
@@ -87,7 +95,7 @@ class MetadataUpdater(object):
         self.data = StreamSlicer(stream)
 
         sig = self.data[:4]
-        if not sig.startswith('TPZ'):
+        if not sig.startswith(b'TPZ'):
             raise ValueError("'%s': Not a Topaz file" % getattr(stream, 'name', 'Unnamed stream'))
         offset = 4
 
@@ -102,7 +110,7 @@ class MetadataUpdater(object):
         # Second integrity test - metadata body
         md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
         md_offset += self.base
-        if self.data[md_offset+1:md_offset+9] != 'metadata':
+        if self.data[md_offset+1:md_offset+9] != b'metadata':
             raise ValueError("'%s': Damaged metadata record" % getattr(stream, 'name', 'Unnamed stream'))
 
     def book_length(self):
@@ -116,8 +124,9 @@ class MetadataUpdater(object):
     def decode_vwi(self,bytes):
         pos, val = 0, 0
         done = False
+        byts = bytearray(bytes)
         while pos < len(bytes) and not done:
-            b = ord(bytes[pos])
+            b = byts[pos]
             pos += 1
             if (b & 0x80) == 0:
                 done = True
@@ -194,12 +203,12 @@ class MetadataUpdater(object):
                 else:
                     return None
         dkey = self.topaz_headers[x]
-        dks = io.StringIO()
+        dks = StringIO()
         dks.write(self.encode_vwi(len(dkey['tag'])))
         offset += 1
         dks.write(dkey['tag'])
         offset += len('dkey')
-        dks.write(chr(0))
+        dks.write(u'\0')
         offset += 1
         dks.write(self.data[offset:offset + len_uncomp].decode('iso-8859-1'))
         return dks.getvalue().encode('iso-8859-1')
@@ -233,7 +242,7 @@ class MetadataUpdater(object):
         return topaz_headers, th_seq
 
     def generate_metadata_stream(self):
-        ms = StringIO.StringIO()
+        ms = StringIO()
         ms.write(self.encode_vwi(len(self.md_header['tag'])).encode('iso-8859-1'))
         ms.write(self.md_header['tag'])
         ms.write(chr(self.md_header['flags']))

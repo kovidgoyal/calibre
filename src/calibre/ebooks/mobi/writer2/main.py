@@ -282,7 +282,7 @@ class MobiWriter(object):
 
         # 0x4c - 0x4f : Language specifier
         record0.write(iana2mobi(
-            str(metadata.language[0])))
+            unicode_type(metadata.language[0])))
 
         # 0x50 - 0x57 : Input language and Output language
         record0.write(b'\0' * 8)

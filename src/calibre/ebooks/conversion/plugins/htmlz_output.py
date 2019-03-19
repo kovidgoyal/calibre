@@ -126,7 +126,7 @@ class HTMLZOutput(OutputFormatPlugin):
 
             # Metadata
             with open(os.path.join(tdir, u'metadata.opf'), 'wb') as mdataf:
-                opf = OPF(io.BytesIO(etree.tostring(oeb_book.metadata.to_opf1())))
+                opf = OPF(io.BytesIO(etree.tostring(oeb_book.metadata.to_opf1(), encoding='UTF-8')))
                 mi = opf.to_book_metadata()
                 if cover_path:
                     mi.cover = u'cover.jpg'

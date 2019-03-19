@@ -57,7 +57,7 @@ ZIP_DEFLATED = 8
 # The "end of central directory" structure, magic number, size, and indices
 # (section V.I in the format document)
 structEndArchive = "<4s4H2LH"
-stringEndArchive = "PK\005\006"
+stringEndArchive = b"PK\005\006"
 sizeEndCentDir = struct.calcsize(structEndArchive)
 
 _ECD_SIGNATURE = 0
@@ -76,7 +76,7 @@ _ECD_LOCATION = 9
 # The "central directory" structure, magic number, size, and indices
 # of entries in the structure (section V.F in the format document)
 structCentralDir = "<4s4B4HL2L5H2L"
-stringCentralDir = "PK\001\002"
+stringCentralDir = b"PK\001\002"
 sizeCentralDir = struct.calcsize(structCentralDir)
 
 # indexes of entries in the central directory structure
@@ -103,7 +103,7 @@ _CD_LOCAL_HEADER_OFFSET = 18
 # The "local file header" structure, magic number, size, and indices
 # (section V.A in the format document)
 structFileHeader = "<4s2B4HL2L2H"
-stringFileHeader = "PK\003\004"
+stringFileHeader = b"PK\003\004"
 sizeFileHeader = struct.calcsize(structFileHeader)
 
 _FH_SIGNATURE = 0
@@ -121,13 +121,13 @@ _FH_EXTRA_FIELD_LENGTH = 11
 
 # The "Zip64 end of central directory locator" structure, magic number, and size
 structEndArchive64Locator = "<4sLQL"
-stringEndArchive64Locator = "PK\x06\x07"
+stringEndArchive64Locator = b"PK\x06\x07"
 sizeEndCentDir64Locator = struct.calcsize(structEndArchive64Locator)
 
 # The "Zip64 end of central directory" record, magic number, size, and indices
 # (section V.G in the format document)
 structEndArchive64 = "<4sQ2H2L4Q"
-stringEndArchive64 = "PK\x06\x06"
+stringEndArchive64 = b"PK\x06\x06"
 sizeEndCentDir64 = struct.calcsize(structEndArchive64)
 
 _CD64_SIGNATURE = 0

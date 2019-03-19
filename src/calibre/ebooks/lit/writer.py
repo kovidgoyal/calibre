@@ -286,6 +286,8 @@ class ReBinary(object):
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
             data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
+            if isinstance(anchor, unicode_type):
+                anchor = anchor.encode('utf-8')
             data.write(anchor)
             data.write(pack('<I', offset))
         return data.getvalue()

@@ -56,7 +56,7 @@ class StreamSlicer(object):
                 start, stop = stop, start
             size = stop - start
             if size <= 0:
-                return ""
+                return b""
             stream.seek(base + start)
             data = stream.read(size)
             if stride != 1:
@@ -106,7 +106,7 @@ class MetadataUpdater(object):
         data = self.data = StreamSlicer(stream)
         self.type = data[60:68]
 
-        if self.type != "BOOKMOBI":
+        if self.type != b"BOOKMOBI":
             return
 
         self.nrecs, = unpack('>H', data[76:78])
@@ -245,9 +245,9 @@ class MetadataUpdater(object):
 
         if not exth:
             # Construct an empty EXTH block
-            pad = '\0' * 4
-            exth = ['EXTH', pack('>II', 12, 0), pad]
-            exth = ''.join(exth)
+            pad = b'\0' * 4
+            exth = [b'EXTH', pack('>II', 12, 0), pad]
+            exth = b''.join(exth)
 
         # Update drm_offset(0xa8), title_offset(0x54)
         if self.encryption_type != 0:
@@ -270,9 +270,9 @@ class MetadataUpdater(object):
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
-        pad = '\0' * (4 - trail)  # Always pad w/ at least 1 byte
+        pad = b'\0' * (4 - trail)  # Always pad w/ at least 1 byte
         new_record0.write(pad)
-        new_record0.write('\0'*(1024*8))
+        new_record0.write(b'\0'*(1024*8))
 
         # Rebuild the stream, update the pdbrecords pointers
         self.patchSection(0,new_record0.getvalue())
@@ -334,7 +334,7 @@ class MetadataUpdater(object):
             if rec[0] in self.original_exth_records:
                 self.original_exth_records.pop(rec[0])
 
-        if self.type != "BOOKMOBI":
+        if self.type != b"BOOKMOBI":
             raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
                             "\tThis is a %r file of type %r" % (self.type[0:4], self.type[4:8]))
 
@@ -382,9 +382,9 @@ class MetadataUpdater(object):
                 update_exth_record((501, b'PDOC'))
 
         if mi.pubdate:
-            update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
+            update_exth_record((106, unicode_type(mi.pubdate).encode(self.codec, 'replace')))
         elif mi.timestamp:
-            update_exth_record((106, str(mi.timestamp).encode(self.codec, 'replace')))
+            update_exth_record((106, unicode_type(mi.timestamp).encode(self.codec, 'replace')))
         elif self.timestamp:
             update_exth_record((106, self.timestamp))
         else:
@@ -429,9 +429,9 @@ class MetadataUpdater(object):
             exth.write(data)
         exth = exth.getvalue()
         trail = len(exth) % 4
-        pad = '\0' * (4 - trail)  # Always pad w/ at least 1 byte
-        exth = ['EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
-        exth = ''.join(exth)
+        pad = b'\0' * (4 - trail)  # Always pad w/ at least 1 byte
+        exth = [b'EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
+        exth = b''.join(exth)
 
         if getattr(self, 'exth', None) is None:
             raise MobiError('No existing EXTH record. Cannot update metadata.')
@@ -481,8 +481,8 @@ def get_metadata(stream):
     stream.seek(0)
     try:
         raw = stream.read(3)
-    except:
-        raw = ''
+    except Exception:
+        raw = b''
     stream.seek(0)
     if raw == b'TPZ':
         from calibre.ebooks.metadata.topaz import get_metadata
@@ -521,8 +521,8 @@ def get_metadata(stream):
     else:
         try:
             data  = mh.section_data(mh.first_image_index)
-        except:
-            data = ''
+        except Exception:
+            data = b''
     if data and what(None, data) in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
         try:
             mi.cover_data = ('jpg', save_cover_data_to(data))
