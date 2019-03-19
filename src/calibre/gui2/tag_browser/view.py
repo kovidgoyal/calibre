@@ -482,12 +482,13 @@ class TagsView(QTreeView):  # {{{
 
     def show_context_menu(self, point):
         def display_name(tag):
+            ans = tag.name
             if tag.category == 'search':
                 n = tag.name
                 if len(n) > 45:
                     n = n[:45] + '...'
-                return "'" + n + "'"
-            return tag.name
+                ans = "'" + n + "'"
+            return ans.replace('&', '&&')
 
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
