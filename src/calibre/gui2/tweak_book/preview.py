@@ -11,7 +11,6 @@ from bisect import bisect_right
 from base64 import b64encode
 from polyglot.builtins import map, unicode_type
 from threading import Thread
-from Queue import Queue, Empty
 from functools import partial
 
 from PyQt5.Qt import (
@@ -31,6 +30,7 @@ from calibre.gui2.viewer.config import config
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.urllib import urlparse
+from polyglot.queue import Queue, Empty
 
 shutdown = object()
 

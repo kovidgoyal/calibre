@@ -9,7 +9,6 @@ import httplib, os, weakref, socket
 from base64 import standard_b64encode
 from collections import deque
 from hashlib import sha1
-from Queue import Queue, Empty
 from struct import unpack_from, pack, error as struct_error
 from threading import Lock
 
@@ -19,6 +18,7 @@ from calibre.srv.loop import ServerLoop, HandleInterrupt, WRITE, READ, RDWR, Con
 from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from polyglot.queue import Queue, Empty
 speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError('Failed to load speedup module with error: ' + err)

@@ -9,7 +9,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import traceback, errno, os, time, shutil
 from collections import namedtuple, defaultdict
 from tempfile import SpooledTemporaryFile
-from Queue import Empty
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -26,6 +25,7 @@ from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.ipc.pool import Pool, Failure
 from calibre.library.save_to_disk import sanitize_args, get_path_components, find_plugboard, plugboard_save_to_disk_value
 from polyglot.builtins import unicode_type
+from polyglot.queue import Empty
 
 BookId = namedtuple('BookId', 'title authors')
 

@@ -9,7 +9,6 @@ import atexit, os, sys
 from math import ceil
 from unicodedata import normalize
 from threading import Thread, Lock
-from Queue import Queue
 from operator import itemgetter
 from collections import OrderedDict
 from itertools import islice
@@ -20,6 +19,7 @@ from polyglot.builtins import map, unicode_type, range
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
+from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'

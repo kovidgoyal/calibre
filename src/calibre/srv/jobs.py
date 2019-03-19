@@ -9,11 +9,11 @@ from itertools import count
 from collections import namedtuple, deque
 from functools import partial
 from threading import RLock, Thread, Event
-from Queue import Queue, Empty
 
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.monotonic import monotonic
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from polyglot.queue import Queue, Empty
 
 StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
 DoneEvent = namedtuple('DoneEvent', 'job_id')

@@ -17,7 +17,6 @@ from binascii import hexlify
 from collections import deque
 from math import ceil
 from multiprocessing.connection import Listener, arbitrary_address
-from Queue import Empty, Queue
 from threading import RLock, Thread
 
 from calibre import detect_ncpus as cpu_count
@@ -28,6 +27,7 @@ from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre.utils.serialize import msgpack_dumps, pickle_loads
 from polyglot.builtins import string_or_bytes, environ_item
+from polyglot.queue import Empty, Queue
 
 
 _counter = 0

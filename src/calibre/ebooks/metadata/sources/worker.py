@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from collections import Counter
 from io import BytesIO
-from Queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins
@@ -18,6 +17,7 @@ from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.date import as_utc
 from calibre.utils.logging import GUILog
+from polyglot.queue import Empty, Queue
 
 
 def merge_result(oldmi, newmi, ensure_fields=None):

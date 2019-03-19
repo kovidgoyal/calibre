@@ -11,7 +11,6 @@ import sqlite3 as sqlite, traceback, time, uuid, sys, os
 import repr as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
-from Queue import Queue
 from threading import RLock
 from datetime import datetime
 from functools import partial
@@ -23,6 +22,7 @@ from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import sort_key
 from calibre import prints
 from polyglot.builtins import unicode_type
+from polyglot.queue import Queue
 
 from dateutil.tz import tzoffset
 

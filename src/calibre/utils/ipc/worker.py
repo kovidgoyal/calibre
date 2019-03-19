@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import os, sys, importlib
 from multiprocessing.connection import Client
 from threading import Thread
-from Queue import Queue
 from contextlib import closing
 from binascii import unhexlify
 from zipimport import ZipImportError
@@ -19,6 +18,7 @@ from calibre import prints
 from calibre.constants import iswindows, isosx
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_loads, pickle_dumps
+from polyglot.queue import Queue
 
 PARALLEL_FUNCS = {
     'lrfviewer'    :

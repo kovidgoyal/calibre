@@ -10,7 +10,6 @@ import os, errno, json, importlib, math, httplib, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
 from polyglot.builtins import map
-from Queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
@@ -39,6 +38,7 @@ from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jp
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
+from polyglot.queue import Queue, Empty
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'

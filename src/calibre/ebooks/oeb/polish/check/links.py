@@ -9,7 +9,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import defaultdict
 from threading import Thread
-from Queue import Queue, Empty
 
 from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote, XHTML_MIME
@@ -21,6 +20,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, co
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 from polyglot.builtins import map, range
 from polyglot.urllib import urlparse
+from polyglot.queue import Queue, Empty
 
 
 class BadLink(BaseError):

@@ -9,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 import traceback, base64
 from contextlib import closing
 from threading import Thread
-from Queue import Queue
 
 from calibre import browser
 from calibre.constants import DEBUG
 from calibre.utils.img import scale_image
 from polyglot.builtins import range
+from polyglot.queue import Queue
 
 
 class GenericDownloadThreadPool(object):

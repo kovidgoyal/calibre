@@ -8,7 +8,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, subprocess, signal, time, errno, socket, ssl
 from threading import Thread, Lock
-from Queue import Queue, Empty
 
 from calibre.constants import islinux, iswindows, isosx
 from calibre.srv.http_response import create_http_handler
@@ -18,6 +17,7 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
+from polyglot.queue import Queue, Empty
 
 MAX_RETRIES = 10
 

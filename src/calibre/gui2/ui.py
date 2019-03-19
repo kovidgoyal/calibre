@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import collections, os, sys, textwrap, time, gc, errno, re
-from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 from io import BytesIO
@@ -54,6 +53,7 @@ from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.queue import Queue, Empty
 
 
 class Listener(Thread):  # {{{

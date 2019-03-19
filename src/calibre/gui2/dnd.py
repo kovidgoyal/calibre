@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import posixpath, os, re
 from threading import Thread
-from Queue import Queue, Empty
 
 from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
         QDialogButtonBox, QProgressBar, QTimer, QUrl, QImageReader
@@ -21,6 +20,7 @@ from calibre.gui2 import error_dialog
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
 from polyglot.urllib import unquote, urlparse
+from polyglot.queue import Queue, Empty
 
 
 def image_extensions():

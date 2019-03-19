@@ -9,11 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, time, tempfile, json
 from threading import Thread, RLock, Event
-from Queue import Queue
 
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog
 from calibre.ptempfile import base_dir
+from polyglot.queue import Queue
 
 
 class ThreadedJob(BaseJob):
@@ -245,5 +245,3 @@ class ThreadedJobServer(Thread):
                 queued_types.append(job.type)
                 ans.append(job)
         return ans
-
-
