@@ -6,11 +6,10 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
+import os, sys, shutil, glob, time, functools, traceback, re, \
         json, uuid, hashlib, copy, types, numbers
 from collections import defaultdict, namedtuple
 import threading, random
-from itertools import repeat
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -3653,59 +3652,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         x = self.FIELD_MAP['id']
         for i in iter(self):
             yield i[x]
-
-    def migrate_old(self, db, progress):
-        from PyQt5.QtCore import QCoreApplication
-        header = u'<p>Migrating old database to ebook library in %s<br><center>'%self.library_path
-        progress.setValue(0)
-        progress.setLabelText(header)
-        QCoreApplication.processEvents()
-        db.conn.row_factory = lambda cursor, row: tuple(row)
-        db.conn.text_factory = lambda x: unicode_type(x, 'utf-8', 'replace')
-        books = db.conn.get('SELECT id, title, sort, timestamp, series_index, author_sort, isbn FROM books ORDER BY id ASC')
-        progress.setAutoReset(False)
-        progress.setRange(0, len(books))
-
-        for book in books:
-            self.conn.execute('INSERT INTO books(id, title, sort, timestamp, series_index, author_sort, isbn) VALUES(?, ?, ?, ?, ?, ?, ?, ?);', book)
-
-        tables = '''
-authors  ratings      tags    series    books_tags_link
-comments               publishers
-books_authors_link     conversion_options
-books_publishers_link
-books_ratings_link
-books_series_link      feeds
-'''.split()
-        for table in tables:
-            rows = db.conn.get('SELECT * FROM %s ORDER BY id ASC'%table)
-            for row in rows:
-                self.conn.execute('INSERT INTO %s VALUES(%s)'%(table, ','.join(repeat('?', len(row)))), row)
-
-        self.conn.commit()
-        self.refresh('timestamp', True)
-        for i, book in enumerate(books):
-            progress.setLabelText(header+_(u'Copying <b>%s</b>')%book[1])
-            id = book[0]
-            self.set_path(id, True)
-            formats = db.formats(id, index_is_id=True)
-            if not formats:
-                formats = []
-            else:
-                formats = formats.split(',')
-            for format in formats:
-                data = db.format(id, format, index_is_id=True)
-                if data:
-                    self.add_format(id, format, cStringIO.StringIO(data), index_is_id=True)
-            cover = db.cover(id, index_is_id=True)
-            if cover:
-                self.set_cover(id, cover)
-            progress.setValue(i+1)
-        self.conn.commit()
-        progress.setLabelText(_('Compacting database'))
-        self.vacuum()
-        progress.reset()
-        return len(books)
 
     def find_books_in_directory(self, dirpath, single_book_per_directory):
         return find_books_in_directory(dirpath, single_book_per_directory)

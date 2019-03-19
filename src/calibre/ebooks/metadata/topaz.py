@@ -5,7 +5,7 @@ __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import StringIO, sys, numbers
+import io, sys, numbers
 from struct import pack
 
 from calibre.ebooks.metadata import MetaInformation
@@ -194,7 +194,7 @@ class MetadataUpdater(object):
                 else:
                     return None
         dkey = self.topaz_headers[x]
-        dks = StringIO.StringIO()
+        dks = io.StringIO()
         dks.write(self.encode_vwi(len(dkey['tag'])))
         offset += 1
         dks.write(dkey['tag'])
@@ -290,7 +290,7 @@ class MetadataUpdater(object):
         delta = updated_md_len - original_md_len
 
         # Copy the first 5 bytes of the file: sig + num_recs
-        ths = StringIO.StringIO()
+        ths = io.StringIO()
         ths.write(self.data[:5])
 
         # Rewrite the offsets for hdr_offsets > metadata offset
@@ -377,9 +377,8 @@ if __name__ == '__main__':
         print(get_metadata(open(sys.argv[1], 'rb')))
     else:
         # Test set_metadata()
-        import cStringIO
         data = open(sys.argv[1], 'rb')
-        stream = cStringIO.StringIO()
+        stream = io.BytesIO()
         stream.write(data.read())
         mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
         set_metadata(stream, mi)

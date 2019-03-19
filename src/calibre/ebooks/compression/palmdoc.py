@@ -5,7 +5,7 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cStringIO import StringIO
+import io
 from struct import pack
 
 from calibre.constants import plugins
@@ -50,7 +50,7 @@ def test():
 
 
 def py_compress_doc(data):
-    out = StringIO()
+    out = io.BytesIO()
     i = 0
     ldata = len(data)
     while i < ldata:
@@ -83,7 +83,7 @@ def py_compress_doc(data):
                 i += 1
                 continue
         if och == 0 or (och > 8 and och < 0x80):
-            out.write(ch)
+            out.write(ch.encode('utf-8'))
         else:
             j = i
             binseq = [ch]
@@ -95,6 +95,6 @@ def py_compress_doc(data):
                 binseq.append(ch)
                 j += 1
             out.write(pack('>B', len(binseq)))
-            out.write(''.join(binseq))
+            out.write(''.join(binseq).encode('utf-8'))
             i += len(binseq) - 1
     return out.getvalue()

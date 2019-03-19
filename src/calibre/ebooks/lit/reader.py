@@ -8,9 +8,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
-import struct, os, functools, re
+import io, struct, os, functools, re
 from urlparse import urldefrag
-from cStringIO import StringIO
 from urllib import unquote as urlunquote
 
 from lxml import etree
@@ -143,7 +142,7 @@ class UnBinary(object):
         self.is_html = map is HTML_MAP
         self.tag_atoms, self.attr_atoms = atoms
         self.dir = os.path.dirname(path)
-        buf = StringIO()
+        buf = io.BytesIO()
         self.binary_to_text(bin, buf)
         self.raw = buf.getvalue().lstrip()
         self.escape_reserved()
@@ -226,7 +225,7 @@ class UnBinary(object):
                 state = 'text' if oc == 0 else 'get attr'
                 if flags & FLAG_OPENING:
                     tag = oc
-                    buf.write('<')
+                    buf.write(b'<')
                     if not (flags & FLAG_CLOSING):
                         is_goingdown = True
                     if tag == 0x8000:
@@ -261,9 +260,9 @@ class UnBinary(object):
                     if not is_goingdown:
                         tag_name = None
                         dynamic_tag = 0
-                        buf.write(' />')
+                        buf.write(b' />')
                     else:
-                        buf.write('>')
+                        buf.write(b'>')
                         frame = (depth, tag_name, current_map,
                             dynamic_tag, errors, in_censorship, False,
                             'close tag', flags)
@@ -288,7 +287,7 @@ class UnBinary(object):
                         in_censorship = True
                         state = 'get value length'
                         continue
-                    buf.write(' ' + encode(attr) + '=')
+                    buf.write(b' ' + encode(attr) + b'=')
                     if attr in ['href', 'src']:
                         state = 'get href length'
                     else:
@@ -296,11 +295,11 @@ class UnBinary(object):
 
             elif state == 'get value length':
                 if not in_censorship:
-                    buf.write('"')
+                    buf.write(b'"')
                 count = oc - 1
                 if count == 0:
                     if not in_censorship:
-                        buf.write('"')
+                        buf.write(b'"')
                     in_censorship = False
                     state = 'get attr'
                     continue
@@ -313,7 +312,7 @@ class UnBinary(object):
             elif state == 'get value':
                 if count == 0xfffe:
                     if not in_censorship:
-                        buf.write('%s"' % (oc - 1))
+                        buf.write(encode('%s"' % (oc - 1)))
                     in_censorship = False
                     state = 'get attr'
                 elif count > 0:
@@ -326,7 +325,7 @@ class UnBinary(object):
                     count -= 1
                 if count == 0:
                     if not in_censorship:
-                        buf.write('"')
+                        buf.write(b'"')
                     in_censorship = False
                     state = 'get attr'
 
@@ -349,14 +348,14 @@ class UnBinary(object):
                 count = oc - 1
                 if count <= 0 or count > (len(bin) - self.cpos):
                     raise LitError('Invalid character count %d' % count)
-                buf.write(' ')
+                buf.write(b' ')
                 state = 'get custom attr'
 
             elif state == 'get custom attr':
                 buf.write(encode(c))
                 count -= 1
                 if count == 0:
-                    buf.write('=')
+                    buf.write(b'=')
                     state = 'get value length'
 
             elif state == 'get href length':

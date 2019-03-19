@@ -1,7 +1,7 @@
 from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import struct, array, zlib, cStringIO, collections, re
+import struct, array, zlib, io, collections, re
 
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre.constants import ispy3
@@ -98,7 +98,7 @@ class LRFContentObject(LRFObject):
     tag_map = {}
 
     def __init__(self, bytes, objects):
-        self.stream = bytes if hasattr(bytes, 'read') else cStringIO.StringIO(bytes)
+        self.stream = bytes if hasattr(bytes, 'read') else io.BytesIO(bytes)
         length = self.stream_size()
         self.objects = objects
         self._contents = []
@@ -601,7 +601,7 @@ class Block(LRFStream, TextCSS):
 
     def initialize(self):
         self.attrs = {}
-        stream = cStringIO.StringIO(self.stream)
+        stream = io.BytesIO(self.stream)
         tag = Tag(stream)
         if tag.id != 0xF503:
             raise LRFParseError("Bad block content")
@@ -836,7 +836,7 @@ class Text(LRFStream):
 
     def initialize(self):
         self.content = collections.deque()
-        stream = cStringIO.StringIO(self.stream)
+        stream = io.BytesIO(self.stream)
         length = len(self.stream)
         style = self.style.as_dict()
         current_style = style.copy()
@@ -1017,7 +1017,7 @@ class Canvas(LRFStream):
             if hasattr(self, attr):
                 self.attrs[attr] = getattr(self, attr)
         self._contents = []
-        stream = cStringIO.StringIO(self.stream)
+        stream = io.BytesIO(self.stream)
         while stream.tell() < len(self.stream):
             tag = Tag(stream)
             try:
@@ -1266,7 +1266,7 @@ class TocLabel(object):
 class TOCObject(LRFStream):
 
     def initialize(self):
-        stream = cStringIO.StringIO(self.stream)
+        stream = io.BytesIO(self.stream)
         c = struct.unpack("<H", stream.read(2))[0]
         stream.seek(4*(c+1))
         self._contents = []

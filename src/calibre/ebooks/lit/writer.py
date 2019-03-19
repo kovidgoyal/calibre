@@ -7,9 +7,9 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from cStringIO import StringIO
 from struct import pack
 from itertools import izip, count, chain
+import io
 import time
 import random
 import re
@@ -151,7 +151,7 @@ class ReBinary(object):
         self.logger = oeb.logger
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
-        self.buf = StringIO()
+        self.buf = io.BytesIO()
         self.anchors = []
         self.page_breaks = []
         self.is_html  = is_html = map is HTML_MAP
@@ -282,7 +282,7 @@ class ReBinary(object):
         if len(self.anchors) > 6:
             self.logger.warn("More than six anchors in file %r. "
                 "Some links may not work properly." % self.item.href)
-        data = StringIO()
+        data = io.BytesIO()
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
             data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
@@ -333,7 +333,7 @@ class LitWriter(object):
         self._oeb = oeb
         self._logger = oeb.logger
         self._stream = stream
-        self._sections = [StringIO() for i in range(4)]
+        self._sections = [io.BytesIO() for i in range(4)]
         self._directory = []
         self._meta = None
         self._litize_oeb()
@@ -403,7 +403,7 @@ class LitWriter(object):
         piece2_offset = self._tell()
         self._write('IFCM', pack('<IIIQQ',
             1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
-        cchunk = StringIO()
+        cchunk = io.BytesIO()
         last = 0
         for i, dcount in izip(count(), dcounts):
             cchunk.write(decint(last))
@@ -505,7 +505,7 @@ class LitWriter(object):
                 manifest['css'].append(item)
             elif item.media_type in LIT_IMAGES:
                 manifest['images'].append(item)
-        data = StringIO()
+        data = io.BytesIO()
         data.write(pack('<Bc', 1, '\\'))
         offset = 0
         for state in states:
@@ -533,9 +533,9 @@ class LitWriter(object):
         self._add_file('/manifest', data.getvalue())
 
     def _build_page_breaks(self):
-        pb1 = StringIO()
-        pb2 = StringIO()
-        pb3 = StringIO()
+        pb1 = io.BytesIO()
+        pb2 = io.BytesIO()
+        pb3 = io.BytesIO()
         pb3cur = 0
         bits = 0
         linear = []
@@ -591,7 +591,7 @@ class LitWriter(object):
         self._add_file('/Version', pack('<HH', 8, 1))
 
     def _build_namelist(self):
-        data = StringIO()
+        data = io.BytesIO()
         data.write(pack('<HH', 0x3c, len(self._sections)))
         names = ['Uncompressed', 'MSCompressed', 'EbEncryptDS',
                  'EbEncryptOnlyDS']
@@ -628,7 +628,7 @@ class LitWriter(object):
                     unlen = len(data)
                     lzx = Compressor(17)
                     data, rtable = lzx.compress(data, flush=True)
-                    rdata = StringIO()
+                    rdata = io.BytesIO()
                     rdata.write(pack('<IIIIQQQQ',
                         3, len(rtable), 8, 0x28, unlen, len(data), 0x8000, 0))
                     for uncomp, comp in rtable[:-1]:
@@ -673,7 +673,7 @@ class LitWriter(object):
         directory.sort(cmp=lambda x, y:
             cmp(x.name.lower(), y.name.lower()))
         qrn = 1 + (1 << 2)
-        dchunk = StringIO()
+        dchunk = io.BytesIO()
         dcount = 0
         quickref = []
         name = directory[0].name
@@ -685,7 +685,7 @@ class LitWriter(object):
             usedlen = dchunk.tell() + len(next) + (len(quickref) * 2) + 52
             if usedlen >= DCHUNK_SIZE:
                 ddata.append((dchunk.getvalue(), quickref, dcount, name))
-                dchunk = StringIO()
+                dchunk = io.BytesIO()
                 dcount = 0
                 quickref = []
                 name = en
@@ -700,9 +700,9 @@ class LitWriter(object):
         dcounts = []
         ichunk = None
         if len(ddata) > 1:
-            ichunk = StringIO()
+            ichunk = io.BytesIO()
         for cid, (content, quickref, dcount, name) in izip(count(), ddata):
-            dchunk = StringIO()
+            dchunk = io.BytesIO()
             prev = cid - 1 if cid > 0 else ULL_NEG1
             next = cid + 1 if cid < cidmax else ULL_NEG1
             rem = DCHUNK_SIZE - (len(content) + 50)

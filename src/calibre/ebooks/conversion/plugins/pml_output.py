@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO
+import os, io
 
 from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
@@ -65,12 +65,12 @@ class PMLOutput(OutputFormatPlugin):
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 if opts.full_image_depth:
-                    im = Image.open(cStringIO.StringIO(item.data))
+                    im = Image.open(io.BytesIO(item.data))
                 else:
-                    im = Image.open(cStringIO.StringIO(item.data)).convert('P')
+                    im = Image.open(io.BytesIO(item.data)).convert('P')
                     im.thumbnail((300,300), Image.ANTIALIAS)
 
-                data = cStringIO.StringIO()
+                data = io.BytesIO()
                 im.save(data, 'PNG')
                 data = data.getvalue()
 

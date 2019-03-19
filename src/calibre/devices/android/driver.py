@@ -4,9 +4,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import io
 import os
-
-import cStringIO
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
@@ -391,12 +390,12 @@ class WEBOS(USBMS):
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover = Image.open(io.BytesIO(coverdata[2]))
         else:
             coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (120,160), 'black')
-            im = Image.open(cStringIO.StringIO(coverdata))
+            im = Image.open(io.BytesIO(coverdata))
             im.thumbnail((120, 160), Image.ANTIALIAS)
 
             x, y = im.size
@@ -406,7 +405,7 @@ class WEBOS(USBMS):
             draw.text((1, 10), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
             draw.text((1, 140), metadata.get('authors', _('Unknown'))[0].encode('ascii', 'ignore'))
 
-        data = cStringIO.StringIO()
+        data = io.BytesIO()
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
@@ -416,12 +415,12 @@ class WEBOS(USBMS):
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover = Image.open(io.BytesIO(coverdata[2]))
         else:
             coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (52,69), 'black')
-            im = Image.open(cStringIO.StringIO(coverdata))
+            im = Image.open(io.BytesIO(coverdata))
             im.thumbnail((52, 69), Image.ANTIALIAS)
 
             x, y = im.size
@@ -429,7 +428,7 @@ class WEBOS(USBMS):
 
         cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
 
-        data = cStringIO.StringIO()
+        data = io.BytesIO()
         cover2.save(data, 'JPEG')
         coverdata = data.getvalue()
 

@@ -6,9 +6,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import io
 import os
-from cStringIO import StringIO
-
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
@@ -127,7 +126,7 @@ class HTMLZOutput(OutputFormatPlugin):
 
             # Metadata
             with open(os.path.join(tdir, u'metadata.opf'), 'wb') as mdataf:
-                opf = OPF(StringIO(etree.tostring(oeb_book.metadata.to_opf1())))
+                opf = OPF(io.BytesIO(etree.tostring(oeb_book.metadata.to_opf1())))
                 mi = opf.to_book_metadata()
                 if cover_path:
                     mi.cover = u'cover.jpg'

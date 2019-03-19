@@ -1,7 +1,7 @@
 """PyRSS2Gen - A Python library for generating RSS 2.0 feeds."""
 
 __name__ = "PyRSS2Gen"
-__version__ = (1, 0, 0)
+__version__ = (1, 1, 0)
 __author__ = "Andrew Dalke <dalke@dalkescientific.com>"
 
 _generator_name = __name__ + "-" + ".".join(map(str, __version__))
@@ -22,12 +22,8 @@ class WriteXmlMixin:
         handler.endDocument()
 
     def to_xml(self, encoding="iso-8859-1"):
-        try:
-            import cStringIO as StringIO
-            StringIO
-        except ImportError:
-            import StringIO
-        f = StringIO.StringIO()
+        import io
+        f = io.StringIO()
         self.write_xml(f, encoding)
         return f.getvalue()
 
@@ -387,7 +383,7 @@ class RSS2(WriteXmlMixin):
         ttl = self.ttl
         if isinstance(self.ttl, numbers.Integral):
             ttl = IntElement("ttl", ttl)
-        _opt_element(handler, "tt", ttl)
+        _opt_element(handler, "ttl", ttl)
 
         if self.image is not None:
             self.image.publish(handler)

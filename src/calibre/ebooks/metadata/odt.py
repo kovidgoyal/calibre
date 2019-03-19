@@ -21,9 +21,8 @@
 #
 from __future__ import division
 
-import zipfile, re
+import zipfile, re, io
 import xml.sax.saxutils
-from cStringIO import StringIO
 
 from odf.namespaces import OFFICENS, DCNS, METANS
 from odf.opendocument import load as odLoad
@@ -168,7 +167,7 @@ def get_metadata(stream, extract_cover=True):
     parser.setFeature(xml.sax.handler.feature_external_ges, False)
     parser.setContentHandler(odfs)
     content = zin.read('meta.xml')
-    parser.parse(StringIO(content))
+    parser.parse(io.BytesIO(content))
     data = odfs.seenfields
     mi = MetaInformation(None, [])
     if 'title' in data:

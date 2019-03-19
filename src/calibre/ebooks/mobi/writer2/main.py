@@ -7,8 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import random, time
-from cStringIO import StringIO
+import io, random, time
 from struct import pack
 
 from calibre.ebooks import normalize
@@ -130,7 +129,7 @@ class MobiWriter(object):
             pbreak = 0
             running = offset
 
-            buf = StringIO()
+            buf = io.BytesIO()
 
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 pbreak = (breaks.pop(0) - running) >> 3
@@ -163,7 +162,7 @@ class MobiWriter(object):
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
-        text = StringIO(text)
+        text = io.BytesIO(text)
         nrecords = 0
         records_size = 0
 
@@ -228,7 +227,7 @@ class MobiWriter(object):
         # EOF record
         self.records.append(b'\xE9\x8E\x0D\x0A')
 
-        record0 = StringIO()
+        record0 = io.BytesIO()
         # The MOBI Header
         record0.write(pack(b'>HHIHHHH',
             self.compression,  # compression type # compression type
