@@ -24,7 +24,7 @@ def html2text(html):
     import re
     if isinstance(html, bytes):
         from calibre.ebooks.chardet import xml_to_unicode
-        html = xml_to_unicode(html, strip_encoding_pats=True, resolve_entities=True)
+        html = xml_to_unicode(html, strip_encoding_pats=True, resolve_entities=True)[0]
     # replace <u> tags with <span> as <u> becomes emphasis in html2text
     html = re.sub(
             r'<\s*(?P<solidus>/?)\s*[uU]\b(?P<rest>[^>]*)>',
