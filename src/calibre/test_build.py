@@ -268,6 +268,10 @@ class BuildTest(unittest.TestCase):
         import readline
         del readline
 
+    def test_html2text(self):
+        import html2text
+        del html2text
+
     def test_markdown(self):
         from calibre.ebooks.txt.processor import create_markdown_object
         from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
