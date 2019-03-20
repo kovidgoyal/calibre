@@ -62,9 +62,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
-from urlparse import urlparse
 
 from calibre.utils.smartypants import smartyPants
+from polyglot.urllib import urlopen, urlparse
 
 
 def _normalize_newlines(string):
@@ -96,13 +96,8 @@ def getimagesize(url):
             return None
 
     try:
-        import urllib2
-    except ImportError:
-        return None
-
-    try:
         p = ImageFile.Parser()
-        f = urllib2.urlopen(url)
+        f = urlopen(url)
         while True:
             s = f.read(1024)
             if not s:

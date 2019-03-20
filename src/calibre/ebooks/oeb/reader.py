@@ -9,8 +9,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, uuid, copy, re, io
 from itertools import izip
-from urlparse import urldefrag, urlparse
-from urllib import unquote as urlunquote
 from collections import defaultdict
 
 from lxml import etree
@@ -31,6 +29,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre import guess_type, xml_replace_entities
 from polyglot.builtins import unicode_type
+from polyglot.urllib import unquote, urldefrag, urlparse
 
 __all__ = ['OEBReader']
 
@@ -632,7 +631,7 @@ class OEBReader(object):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = OEBWriter()
             writer(self.oeb, tdir)
-            path = os.path.join(tdir, urlunquote(hcover.href))
+            path = os.path.join(tdir, unquote(hcover.href))
             data = render_html_svg_workaround(path, self.logger)
             if not data:
                 data = ''

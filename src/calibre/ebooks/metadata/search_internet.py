@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from urllib import quote_plus
+from polyglot.urllib import quote_plus
 
 AUTHOR_SEARCHES = {
     'goodreads':

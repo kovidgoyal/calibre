@@ -9,8 +9,6 @@ and to Falstaff for pylrs.
 """
 import os, re, sys, copy, glob, tempfile
 from collections import deque
-from urllib import unquote
-from urlparse import urlparse
 from math import ceil, floor
 from functools import partial
 
@@ -37,6 +35,7 @@ from calibre.devices.interface import DevicePlugin as Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import unicode_type
+from polyglot.urllib import unquote, urlparse
 
 
 def update_css(ncss, ocss):

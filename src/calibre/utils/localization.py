@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import is_py3, unicode_type
 
 _available_translations = None
 
@@ -244,7 +244,10 @@ def set_translators():
         set_translators.lang = t.info().get('language')
     except Exception:
         pass
-    t.install(unicode=True, names=('ngettext',))
+    if is_py3:
+        t.install(names=('ngettext',))
+    else:
+        t.install(unicode=True, names=('ngettext',))
     # Now that we have installed a translator, we have to retranslate the help
     # for the global prefs object as it was instantiated in get_lang(), before
     # the translator was installed.
@@ -500,7 +503,7 @@ def localize_user_manual_link(url):
     stats = user_manual_stats()
     if stats.get(lc, 0) < 0.3:
         return url
-    from urlparse import urlparse, urlunparse
+    from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', '/generated/%s/' % lc, parts.path or '')
     path = '/%s%s' % (lc, path)
@@ -525,7 +528,7 @@ def localize_website_link(url):
     langs = website_languages()
     if lc == 'en' or lc not in langs:
         return url
-    from urlparse import urlparse, urlunparse
+    from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)
     path = '/{}{}'.format(lc, parts.path)
     parts = list(parts)

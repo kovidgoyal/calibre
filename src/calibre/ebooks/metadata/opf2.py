@@ -9,8 +9,6 @@ lxml based OPF parser.
 '''
 
 import re, sys, unittest, functools, os, uuid, glob, io, json, copy
-from urllib import unquote
-from urlparse import urlparse
 
 from lxml import etree
 
@@ -26,6 +24,7 @@ from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 from polyglot.builtins import unicode_type, range
+from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False
 

@@ -9,13 +9,11 @@ Provides abstraction for metadata reading.writing from a variety of ebook format
 """
 import os, sys, re
 
-from urlparse import urlparse
-
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
-
 from calibre.utils.config_base import tweaks
-
 from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.urllib import quote, unquote, urlparse
+
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
@@ -205,7 +203,6 @@ class Resource(object):
     '''
 
     def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
-        from urllib import unquote
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -243,7 +240,6 @@ class Resource(object):
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
-        from urllib import quote
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir

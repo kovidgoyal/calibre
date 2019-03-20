@@ -17,14 +17,13 @@ from functools import partial
 from io import BytesIO
 from multiprocessing.dummy import Pool
 from tempfile import NamedTemporaryFile
-from urllib2 import urlopen
-from urlparse import urlparse
 
 from calibre import as_unicode, sanitize_file_name2
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
+from polyglot.urllib import urlopen, urlparse
 
 
 def is_external(url):

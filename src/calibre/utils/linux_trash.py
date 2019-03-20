@@ -22,9 +22,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, stat
 import os.path as op
 from datetime import datetime
-from urllib import quote
 
 from polyglot.builtins import unicode_type
+from polyglot.urllib import quote
 
 FILES_DIR = 'files'
 INFO_DIR = 'info'

@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, time
-from Queue import Queue, Empty
 from threading import Event
 
 from calibre.customize.ui import all_metadata_plugins
@@ -16,6 +15,7 @@ from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log, get_cached_cover_urls
 from calibre.ebooks.metadata.sources.prefs import msprefs
+from polyglot.queue import Queue, Empty
 
 
 def isbn_test(isbn):

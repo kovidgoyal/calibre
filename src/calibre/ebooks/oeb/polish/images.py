@@ -7,10 +7,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os
 from functools import partial
 from threading import Thread, Event
-from Queue import Queue, Empty
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
 from polyglot.builtins import range
+from polyglot.queue import Queue, Empty
 
 
 class Worker(Thread):

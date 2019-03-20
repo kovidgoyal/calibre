@@ -27,6 +27,7 @@ from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter
+from polyglot.builtins import unicode_type
 
 # Download worker {{{
 
@@ -471,7 +472,7 @@ def identify(log, abort,  # {{{
         for r in presults:
             log('\n\n---')
             try:
-                log(type(u'')(r))
+                log(unicode_type(r))
             except TypeError:
                 log(repr(r))
         if plog:

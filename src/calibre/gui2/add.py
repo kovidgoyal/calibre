@@ -9,7 +9,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
-from Queue import Empty
 from io import BytesIO
 from polyglot.builtins import map, unicode_type, string_or_bytes
 
@@ -30,6 +29,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
 from calibre.utils.ipc.pool import Pool, Failure
+from polyglot.queue import Empty
 
 
 def validate_source(source, parent=None):  # {{{

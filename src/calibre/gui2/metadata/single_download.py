@@ -13,7 +13,6 @@ DEBUG_DIALOG = False
 import os, time
 from threading import Thread, Event
 from operator import attrgetter
-from Queue import Queue, Empty
 from io import BytesIO
 
 from PyQt5.Qt import (
@@ -41,6 +40,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import unicode_type, range
+from polyglot.queue import Queue, Empty
 # }}}
 
 

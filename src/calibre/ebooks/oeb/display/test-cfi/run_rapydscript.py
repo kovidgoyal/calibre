@@ -8,8 +8,9 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil, tempfile
-import SimpleHTTPServer
 import SocketServer
+
+from polyglot.http_server import SimpleHTTPRequestHandler
 
 
 def run_devel_server():
@@ -27,7 +28,7 @@ def run_devel_server():
     with lopen('cfi-test.pyj', 'rb') as f, lopen('cfi-test.js', 'wb') as js:
         js.write(compile_pyj(f.read()).encode('utf-8'))
     PORT = 8000
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+    Handler = SimpleHTTPRequestHandler
     httpd = SocketServer.TCPServer(("", PORT), Handler)
     print('Serving CFI test at http://localhost:%d' % PORT)
     try:
@@ -37,4 +38,3 @@ def run_devel_server():
 
 if __name__ == '__main__':
     run_devel_server()
-

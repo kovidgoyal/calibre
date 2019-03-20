@@ -9,7 +9,6 @@ import shutil
 import sys
 import tempfile
 from functools import partial, wraps
-from urlparse import urlparse
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
@@ -71,6 +70,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.urllib import urlparse
 
 _diff_dialogs = []
 last_used_transform_rules = []

@@ -15,7 +15,6 @@ import re
 
 from functools import partial
 from lxml import html
-from urlparse import urldefrag
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import (
@@ -23,6 +22,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 

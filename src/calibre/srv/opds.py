@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import hashlib, binascii
 from functools import partial
 from collections import OrderedDict, namedtuple
-from urllib import urlencode
 
 from lxml import etree, html
 from lxml.builder import ElementMaker
@@ -28,6 +27,7 @@ from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
 from polyglot.builtins import unicode_type
+from polyglot.urllib import urlencode
 
 
 def hexlify(x):

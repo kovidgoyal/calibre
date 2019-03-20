@@ -9,8 +9,6 @@ __docformat__ = 'restructuredtext en'
 import os, re, logging
 from collections import defaultdict
 from itertools import count
-from urlparse import urldefrag, urlparse, urlunparse, urljoin
-from urllib import unquote
 
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__, ispy3
@@ -23,6 +21,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import unicode_type, string_or_bytes, range
+from polyglot.urllib import unquote, urldefrag, urljoin, urlparse, urlunparse
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'

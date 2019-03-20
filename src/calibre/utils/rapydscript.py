@@ -14,7 +14,6 @@ import subprocess
 import sys
 from functools import partial
 from io import BytesIO
-from Queue import Empty, Queue
 from threading import Thread, local
 
 from calibre import force_unicode
@@ -24,6 +23,7 @@ from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
 from polyglot.builtins import range
+from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 

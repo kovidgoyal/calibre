@@ -12,7 +12,6 @@ from io import BytesIO
 from threading import Lock
 from polyglot.builtins import map
 from functools import partial
-from urllib import quote
 
 from calibre import fit_image, sanitize_file_name_unicode
 from calibre.constants import config_dir, iswindows
@@ -30,6 +29,7 @@ from calibre.utils.date import timestampfromdt
 from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.shared_file import share_open
+from polyglot.urllib import quote
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']

@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import struct, re, os
 from collections import namedtuple
 from itertools import repeat, izip
-from urlparse import urldefrag
 from uuid import uuid4
 
 from lxml import etree
@@ -26,6 +25,7 @@ from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 from polyglot.builtins import range
+from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
     'num type filename start end aid')

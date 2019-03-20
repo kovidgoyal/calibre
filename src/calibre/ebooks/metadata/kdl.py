@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, urllib, urlparse, socket
+import re, socket
 
 from mechanize import URLError
 
@@ -15,6 +15,7 @@ from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.urllib import parse_qs, quote_plus
 
 URL = \
 "http://ww2.kdl.org/libcat/WhatsNext.asp?AuthorLastName={0}&AuthorFirstName=&SeriesName=&BookTitle={1}&CategoryID=0&cmdSearch=Search&Search=1&grouping="
@@ -32,7 +33,7 @@ def get_series(title, authors, timeout=60):
     if isinstance(title, unicode_type):
         title = title.encode('utf-8')
 
-    title = urllib.quote_plus(title)
+    title = quote_plus(title)
 
     author = authors[0].strip()
     if not author:
@@ -64,7 +65,7 @@ def get_series(title, authors, timeout=60):
     if a is None:
         return mi
     href = a['href'].partition('?')[-1]
-    data = urlparse.parse_qs(href)
+    data = parse_qs(href)
     series = data.get('SeriesName', [])
     if not series:
         return mi

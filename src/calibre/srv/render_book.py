@@ -10,8 +10,6 @@ from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
 from polyglot.builtins import map, unicode_type
-from urlparse import urlparse
-from urllib import quote
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
@@ -30,6 +28,7 @@ from calibre.ebooks.oeb.polish.toc import get_toc, get_landmarks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.logging import default_log
+from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
 

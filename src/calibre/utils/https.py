@@ -11,6 +11,7 @@ from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
+from polyglot.urllib import urlsplit
 has_ssl_verify = hasattr(ssl, 'create_default_context') and hasattr(ssl, '_create_unverified_context')
 
 
@@ -25,11 +26,9 @@ class HTTPError(ValueError):
 
 
 if ispy3:
-    from urllib.parse import urlparse
     import http.client as httplib
 else:
     import httplib
-    from urlparse import urlsplit as urlparse
 
 if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
@@ -175,7 +174,7 @@ def get_https_resource_securely(
     cert_file = None
     if cacerts is not None:
         cert_file = P(cacerts, allow_user_override=False)
-    p = urlparse(url)
+    p = urlsplit(url)
     if p.scheme != 'https':
         raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
 

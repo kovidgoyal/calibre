@@ -9,7 +9,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys
 from threading import Thread
 from collections import namedtuple
-from Queue import Queue
 
 from calibre import detect_ncpus, as_unicode, prints
 from calibre.constants import iswindows, DEBUG
@@ -17,6 +16,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads, pickle_dumps, pickle_loads
+from polyglot.queue import Queue
 
 Job = namedtuple('Job', 'id module func args kwargs')
 Result = namedtuple('Result', 'value err traceback')

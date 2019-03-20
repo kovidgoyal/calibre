@@ -8,7 +8,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys
 from threading import Thread, Event, RLock
-from Queue import Queue
 from contextlib import closing
 from collections import namedtuple
 
@@ -17,6 +16,7 @@ from calibre.gui2.tweak_book.completion.basic import Request
 from calibre.gui2.tweak_book.completion.utils import DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_loads, msgpack_dumps
+from polyglot.queue import Queue
 
 COMPLETION_REQUEST = 'completion request'
 CLEAR_REQUEST = 'clear request'

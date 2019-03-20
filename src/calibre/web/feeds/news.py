@@ -7,7 +7,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys, io
+import os, time, traceback, re, sys, io
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -32,6 +32,7 @@ from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.urllib import urlparse, urlsplit
 
 
 class LoginFailed(ValueError):
@@ -652,7 +653,7 @@ class BasicNewsRecipe(Recipe):
                         download an article.
         '''
         try:
-            parts = urlparse.urlparse(url)
+            parts = urlparse(url)
         except Exception:
             self.log.error('Failed to parse url: %r, ignoring' % url)
             return frozenset()
@@ -1092,7 +1093,7 @@ class BasicNewsRecipe(Recipe):
             if feed.image_url in self.image_map:
                 feed.image_url = self.image_map[feed.image_url]
             else:
-                bn = urlparse.urlsplit(feed.image_url).path
+                bn = urlsplit(feed.image_url).path
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:

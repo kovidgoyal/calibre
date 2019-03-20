@@ -10,7 +10,6 @@ from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
-from urllib import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
@@ -24,6 +23,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
 from polyglot.builtins import range
+from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
 

@@ -9,7 +9,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import itertools, operator, os, math
 from types import MethodType
 from threading import Event, Thread
-from Queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
@@ -31,6 +30,7 @@ from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
 from polyglot.builtins import unicode_type, range
+from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'

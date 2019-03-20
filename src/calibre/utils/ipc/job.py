@@ -9,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 _count = 0
 
 import time, io
-from Queue import Queue, Empty
 
 from calibre import prints
 from calibre.constants import DEBUG
+from polyglot.queue import Queue, Empty
 
 
 class BaseJob(object):

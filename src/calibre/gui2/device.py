@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, io, re, sys, weakref
+import os, traceback, time, io, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt5.Qt import (
@@ -35,6 +35,7 @@ from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot import queue
 # }}}
 
 
@@ -153,8 +154,8 @@ class DeviceManager(Thread):  # {{{
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.allow_connect_slot = allow_connect_slot
-        self.jobs           = Queue.Queue(0)
-        self.job_steps      = Queue.Queue(0)
+        self.jobs           = queue.Queue(0)
+        self.job_steps      = queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
         self.reported_errors = set([])
@@ -163,7 +164,7 @@ class DeviceManager(Thread):  # {{{
         self.connected_device = None
         self.connected_device_kind = None
         self.ejected_devices  = set([])
-        self.mount_connection_requests = Queue.Queue(0)
+        self.mount_connection_requests = queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_only_once_seen = set()
         self.after_callback_feedback_slot = after_callback_feedback_slot
@@ -241,7 +242,7 @@ class DeviceManager(Thread):  # {{{
             try:
                 job = self.jobs.get_nowait()
                 job.abort(Exception(_('Device no longer connected.')))
-            except Queue.Empty:
+            except queue.Empty:
                 break
         try:
             self.connected_device.post_yank_cleanup()
@@ -358,13 +359,13 @@ class DeviceManager(Thread):  # {{{
         if not self.job_steps.empty():
             try:
                 return self.job_steps.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 pass
 
         if not self.jobs.empty():
             try:
                 return self.jobs.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 pass
 
     def run_startup(self, dev):
@@ -391,7 +392,7 @@ class DeviceManager(Thread):  # {{{
                 try:
                     (kls,device_kind, folder_path) = \
                                 self.mount_connection_requests.get_nowait()
-                except Queue.Empty:
+                except queue.Empty:
                     break
             if kls is not None:
                 try:

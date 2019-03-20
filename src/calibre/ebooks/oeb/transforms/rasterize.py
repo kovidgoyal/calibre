@@ -7,7 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
-from urlparse import urldefrag
 
 from PyQt5.Qt import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
@@ -19,6 +18,7 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
+from polyglot.urllib import urldefrag
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
 KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}

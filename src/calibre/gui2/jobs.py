@@ -8,7 +8,6 @@ Job management.
 '''
 
 import re, time
-from Queue import Empty, Queue
 
 from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
@@ -31,6 +30,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
 from polyglot.builtins import unicode_type, range
+from polyglot.queue import Empty, Queue
 
 
 class AdaptSQP(SearchQueryParser):

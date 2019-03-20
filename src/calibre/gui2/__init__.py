@@ -3,7 +3,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import glob
 import os
-import Queue
 import signal
 import sys
 import threading
@@ -36,6 +35,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
 from polyglot.builtins import unicode_type, string_or_bytes, range
+from polyglot import queue
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -502,7 +502,7 @@ class FunctionDispatcher(QObject):
         if not queued:
             typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
-        self.q = Queue.Queue()
+        self.q = queue.Queue()
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):

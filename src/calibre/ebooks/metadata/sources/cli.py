@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
 from calibre.ebooks.metadata.sources.update import patch_plugins
+from polyglot.builtins import unicode_type
 
 
 def option_parser():
@@ -99,7 +100,7 @@ def main(args=sys.argv):
     log = buf.getvalue()
 
     result = (metadata_to_opf(result) if opts.opf else
-                    type(u'')(result).encode('utf-8'))
+                    unicode_type(result).encode('utf-8'))
 
     if opts.verbose:
         print (log, file=sys.stderr)
