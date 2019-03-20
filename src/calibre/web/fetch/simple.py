@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
-from __future__ import with_statement, print_function
+from __future__ import print_function, with_statement
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -7,25 +8,35 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, re, time, threading, traceback
-from httplib import responses
-from base64 import b64decode
 
-from html5_parser.soup import set_soup_module, parse
+
+import os
+import re
+import socket
+import sys
+import threading
+import time
+import traceback
+from base64 import b64decode
+from httplib import responses
+
+from html5_parser.soup import parse, set_soup_module
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
-from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
-from calibre.utils.logging import Log
+from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
+from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
 from polyglot.builtins import unicode_type
-from polyglot.urllib import (quote, URLError, url2pathname, urljoin,
-        urlparse, urlsplit, urlunsplit)
+from polyglot.urllib import (
+    URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
+    urlunsplit
+)
 
 
 class AbortArticle(Exception):

@@ -235,6 +235,7 @@ class MessageWriter(object):
         return ReadOnlyFileBuffer(create_frame(fin, opcode, raw, self.mask))
 # }}}
 
+
 conn_id = 0
 
 
@@ -561,6 +562,7 @@ def run_echo_server():
     s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))
     with HandleInterrupt(s.wakeup):
         s.serve_forever()
+
 
 if __name__ == '__main__':
     # import cProfile

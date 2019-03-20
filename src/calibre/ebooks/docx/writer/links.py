@@ -42,7 +42,7 @@ class TOCItem(object):
             r = makeelement(p, 'w:r')
             makeelement(r, 'w:fldChar', w_fldCharType='begin')
             r = makeelement(p, 'w:r')
-            makeelement(r, 'w:instrText').text = ' TOC \h '
+            makeelement(r, 'w:instrText').text = r' TOC \h '
             r[0].set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
             r = makeelement(p, 'w:r')
             makeelement(r, 'w:fldChar', w_fldCharType='separate')

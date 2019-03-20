@@ -136,6 +136,7 @@ class DeleteService(Thread):
             finally:
                 shutil.rmtree(tdir)
 
+
 __ds = None
 
 

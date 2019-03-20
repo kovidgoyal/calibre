@@ -5,6 +5,6 @@
 from polyglot.builtins import is_py3
 
 if is_py3:
-    from queue import *  # noqa
+    from queue import Queue, Empty, Full, PriorityQueue, LifoQueue  # noqa
 else:
-    from Queue import *  # noqa
+    from Queue import Queue, Empty, Full, PriorityQueue, LifoQueue  # noqa
