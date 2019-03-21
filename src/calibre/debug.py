@@ -248,7 +248,8 @@ def run_script(path, args):
     g = globals()
     g['__name__'] = '__main__'
     g['__file__'] = ef
-    execfile(ef, g)
+    with open(ef, 'rb') as f:
+        exec(compile(f.read(), ef, 'exec'), g)
 
 
 def inspect_mobi(path):

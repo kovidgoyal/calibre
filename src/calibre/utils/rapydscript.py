@@ -203,7 +203,8 @@ def compile_srv():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
-    execfile(iconf, g)
+    with open(iconf, 'rb') as f:
+        exec(compile(f.read(), iconf, 'exec'), g)
     icons = g['merge']().encode('utf-8')
     with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read()
