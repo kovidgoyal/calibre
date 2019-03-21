@@ -64,7 +64,7 @@ class Coffee(Command):  # {{{
         for src in self.COFFEE_DIRS:
             for f in glob.glob(self.j(self.SRC, __appname__, src,
                 '*.coffee')):
-                bn = os.path.basename(f).rpartition('.')[0]
+                bn = self.b(f).rpartition('.')[0]
                 arcname = src.replace('/', '.') + '.' + bn + '.js'
                 try:
                     with open(f, 'rb') as fs:
@@ -300,7 +300,7 @@ class Resources(Command):  # {{{
 
         dest = self.j(self.RESOURCES, 'scripts.calibre_msgpack')
         if self.newer(dest, self.j(self.SRC, 'calibre', 'linux.py')):
-            self.info('\tCreating ' + os.path.basename(dest))
+            self.info('\tCreating ' + self.b(dest))
             with open(dest, 'wb') as f:
                 f.write(msgpack_dumps(scripts))
 
@@ -325,7 +325,7 @@ class Resources(Command):  # {{{
             with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
                 for n in sorted(files, key=self.b):
                     with open(n, 'rb') as f:
-                        zf.writestr(os.path.basename(n), f.read())
+                        zf.writestr(self.b(n), f.read())
 
         dest = self.j(self.RESOURCES, 'ebook-convert-complete.calibre_msgpack')
         files = []
@@ -334,7 +334,7 @@ class Resources(Command):  # {{{
                 if f.endswith('.py'):
                     files.append(self.j(x[0], f))
         if self.newer(dest, files):
-            self.info('\tCreating ' + dest)
+            self.info('\tCreating ' + self.b(dest))
             complete = {}
             from calibre.ebooks.conversion.plumber import supported_input_formats
             complete['input_fmts'] = set(supported_input_formats())
