@@ -8,10 +8,9 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, re
-from itertools import izip
 
 from calibre.constants import iswindows
-from polyglot.builtins import range
+from polyglot.builtins import range, zip
 
 if iswindows:
     import ctypes.wintypes
@@ -31,7 +30,7 @@ def fmt(code):
 
 
 RATTRIBUTES = dict(
-        izip(range(1, 9), (
+        zip(range(1, 9), (
             'bold',
             'dark',
             '',
@@ -46,7 +45,7 @@ ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
-        izip(range(41, 48), (
+        zip(range(41, 48), (
             'red',
             'green',
             'yellow',
@@ -59,7 +58,7 @@ RBACKGROUNDS = dict(
 BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
 
 RCOLORS = dict(
-        izip(range(31, 38), (
+        zip(range(31, 38), (
             'red',
             'green',
             'yellow',
@@ -170,10 +169,10 @@ class Detect(object):
                         # to use raster fonts (the default). In this case
                         # rather than failing, write an informative error
                         # message and the asciized version of the text.
-                        print ('Non-ASCII text detected. You must set your Console\'s font to'
+                        print('Non-ASCII text detected. You must set your Console\'s font to'
                                ' Lucida Console or Consolas or some other TrueType font to see this text', file=self.stream, end=' -- ')
                         from calibre.utils.filenames import ascii_text
-                        print (ascii_text(t + text), file=self.stream, end='')
+                        print(ascii_text(t + text), file=self.stream, end='')
                         continue
                     if not ignore_errors:
                         raise ctypes.WinError(err)

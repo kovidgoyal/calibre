@@ -7,13 +7,17 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, os, numbers
-from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 from functools import partial
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
+from polyglot.builtins import is_py3
+if is_py3:
+    from itertools import zip_longest
+else:
+    from itertools import izip_longest as zip_longest
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
@@ -193,7 +197,7 @@ options = []
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 for shortdoc, name, default, doc in grouper(4, raw_options):

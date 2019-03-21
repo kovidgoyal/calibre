@@ -8,8 +8,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil, tempfile
-import SocketServer
 
+from polyglot import socketserver
 from polyglot.http_server import SimpleHTTPRequestHandler
 
 
@@ -29,7 +29,7 @@ def run_devel_server():
         js.write(compile_pyj(f.read()).encode('utf-8'))
     PORT = 8000
     Handler = SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("", PORT), Handler)
+    httpd = socketserver.TCPServer(("", PORT), Handler)
     print('Serving CFI test at http://localhost:%d' % PORT)
     try:
         httpd.serve_forever()

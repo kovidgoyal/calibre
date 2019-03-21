@@ -9,7 +9,6 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, struct, textwrap
-from itertools import izip
 
 from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.containers import ContainerHeader
@@ -20,6 +19,7 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
+from polyglot.builtins import zip
 
 
 class FDST(object):
@@ -36,7 +36,7 @@ class FDST(object):
         if rest:
             raise ValueError('FDST record has trailing data: '
                     '%s'%format_bytes(rest))
-        self.sections = tuple(izip(secs[::2], secs[1::2]))
+        self.sections = tuple(zip(secs[::2], secs[1::2]))
 
     def __str__(self):
         ans = ['FDST record']
@@ -96,14 +96,14 @@ class MOBIFile(object):
         self.read_tbs()
 
     def print_header(self, f=sys.stdout):
-        print (str(self.mf.palmdb).encode('utf-8'), file=f)
-        print (file=f)
-        print ('Record headers:', file=f)
+        print(str(self.mf.palmdb).encode('utf-8'), file=f)
+        print(file=f)
+        print('Record headers:', file=f)
         for i, r in enumerate(self.mf.records):
-            print ('%6d. %s'%(i, r.header), file=f)
+            print('%6d. %s'%(i, r.header), file=f)
 
-        print (file=f)
-        print (str(self.mf.mobi8_header).encode('utf-8'), file=f)
+        print(file=f)
+        print(str(self.mf.mobi8_header).encode('utf-8'), file=f)
 
     def read_fdst(self):
         self.fdst = None
@@ -202,7 +202,7 @@ class MOBIFile(object):
                         resource_index = len(container.resources)
             elif sig == b'\xa0\xa0\xa0\xa0' and len(payload) == 4:
                 if container is None:
-                    print ('Found an end of container record with no container, ignoring')
+                    print('Found an end of container record with no container, ignoring')
                 else:
                     container.resources.append(None)
                 continue
@@ -287,7 +287,7 @@ class MOBIFile(object):
             except:
                 calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
-                print ('WARNING: TBS mismatch for record %d'%i)
+                print('WARNING: TBS mismatch for record %d'%i)
                 desc.append('WARNING: TBS mismatch!')
                 desc.append('Calculated sequences: %r'%calculated_sequences)
             desc.append('')
@@ -340,5 +340,3 @@ def inspect_mobi(mobi_file, ddir):
         part.dump(os.path.join(ddir, 'files'))
 
     f.dump_flows(os.path.join(ddir, 'flows'))
-
-

@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, textwrap, unicodedata
-from itertools import izip
 from collections import OrderedDict
 
 from PyQt5.Qt import (
@@ -28,7 +27,7 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, zip
 
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -78,7 +77,7 @@ class InsertTag(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.tag)
+            print(d.tag)
 
 # }}}
 
@@ -348,7 +347,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in izip(prefixes, results.iteritems()))
+                for prefix, (text, positions) in zip(prefixes, results.iteritems()))
         else:
             self.results = ()
             self.current_result = -1
@@ -476,7 +475,7 @@ class QuickOpen(Dialog):
         items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
-        print (d.selected_result)
+        print(d.selected_result)
 
 # }}}
 
@@ -1038,7 +1037,7 @@ class FilterCSS(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.filtered_properties)
+            print(d.filtered_properties)
 
 # }}}
 

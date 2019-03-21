@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, tempfile, os
 from functools import partial
-from itertools import izip
 
 from calibre.constants import islinux, isbsd
 from calibre.customize.conversion import (InputFormatPlugin,
@@ -17,7 +16,7 @@ from calibre.customize.conversion import (InputFormatPlugin,
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, zip
 
 
 def sanitize_file_name(x):
@@ -216,7 +215,7 @@ class HTMLInput(InputFormatPlugin):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)

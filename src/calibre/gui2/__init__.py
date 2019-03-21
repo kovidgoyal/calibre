@@ -1288,7 +1288,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
         if force_compile or not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
             if not summary:
                 info('\tCompiling form', form)
-            buf = io.BytesIO()
+            buf = io.StringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')
@@ -1298,7 +1298,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
             dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
 
-            open(compiled_form, 'wb').write(dat)
+            open(compiled_form, 'w').write(dat)
             num += 1
     if num:
         info('Compiled %d forms' % num)

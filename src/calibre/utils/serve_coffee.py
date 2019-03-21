@@ -13,14 +13,11 @@ A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
 import sys, traceback, io
-if sys.version_info.major > 2:
-    print('This script is not Python 3 compatible. Run it with Python 2',
-            file=sys.stderr)
-    raise SystemExit(1)
-
-import time, os, sys, re, SocketServer
+import time, os, sys, re
 from threading import Lock, local
-from polyglot.http_server import BaseHTTPServer, SimpleHTTPRequestHandler
+
+from polyglot import socketserver
+from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
 
 # Compiler {{{
 
@@ -255,7 +252,7 @@ class Handler(HTTPRequestHandler):  # {{{
 # }}}
 
 
-class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
+class Server(socketserver.ThreadingMixIn, HTTPServer):  # {{{
     daemon_threads = True
 
     def handle_error(self, request, client_address):
@@ -264,10 +261,10 @@ class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
         The default is to print a traceback and continue.
 
         """
-        print ('-'*40)
-        print ('Exception happened during processing of request', request)
+        print('-'*40)
+        print('Exception happened during processing of request', request)
         traceback.print_exc()  # XXX But this goes to stderr!
-        print ('-'*40)
+        print('-'*40)
 # }}}
 
 
@@ -323,9 +320,9 @@ def main():
                 from pygments.lexers import JavascriptLexer
                 from pygments.formatters import TerminalFormatter
                 from pygments import highlight
-                print (highlight(ans, JavascriptLexer(), TerminalFormatter()))
+                print(highlight(ans, JavascriptLexer(), TerminalFormatter()))
             else:
-                print (ans.encode(sys.stdout.encoding or 'utf-8'))
+                print(ans.encode(sys.stdout.encoding or 'utf-8'))
     else:
         serve(port=args.port, host=args.host)
 

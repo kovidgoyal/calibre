@@ -4,9 +4,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
-
 from calibre.customize import Plugin as _Plugin
+from polyglot.builtins import zip
 
 FONT_SIZES = [('xx-small', 1),
               ('x-small',  None),
@@ -31,7 +30,7 @@ class Plugin(_Plugin):
         fsizes = list(self.fsizes)
         self.fkey = list(self.fsizes)
         self.fsizes = []
-        for (name, num), size in izip(FONT_SIZES, fsizes):
+        for (name, num), size in zip(FONT_SIZES, fsizes):
             self.fsizes.append((name, num, float(size)))
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)

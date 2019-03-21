@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import itertools, time, traceback, locale
-from itertools import repeat, izip, imap
+import time, traceback, locale
+from itertools import repeat
 from datetime import timedelta
 from threading import Thread
 
@@ -20,7 +20,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import map, unicode_type, string_or_bytes, zip
 
 
 class MetadataBackup(Thread):  # {{{
@@ -863,7 +863,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 self.search_restriction_book_count = len(self._map)
             return list(self._map)
         matches = self.parse(q)
-        tmap = list(itertools.repeat(False, len(self._data)))
+        tmap = list(repeat(False, len(self._data)))
         for x in matches:
             tmap[x] = True
         rv = [x for x in self._map if tmap[x]]
@@ -917,7 +917,7 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode_type,
+            self.marked_ids_dict = dict(zip(id_dict.iterkeys(), map(unicode_type,
                 id_dict.itervalues())))
 
         # Set the values in the cache
@@ -1039,7 +1039,7 @@ class ResultCache(SearchQueryParser):  # {{{
         db.initialize_template_cache()
 
         temp = db.conn.get('SELECT * FROM meta2')
-        self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
+        self._data = list(repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
             self._data[r[0]] = CacheRow(db, self.composites, r,
                                         self.series_col, self.series_sort_col)
@@ -1099,7 +1099,7 @@ class ResultCache(SearchQueryParser):  # {{{
         if only_ids is None:
             self._map.sort(key=keyg)
 
-            tmap = list(itertools.repeat(False, len(self._data)))
+            tmap = list(repeat(False, len(self._data)))
             for x in self._map_filtered:
                 tmap[x] = True
             self._map_filtered = [x for x in self._map if tmap[x]]
