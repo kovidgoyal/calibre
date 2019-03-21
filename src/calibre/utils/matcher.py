@@ -13,8 +13,7 @@ from operator import itemgetter
 from collections import OrderedDict
 from itertools import islice
 
-from itertools import izip
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import map, unicode_type, range, zip
 
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
@@ -270,7 +269,7 @@ class CScorer(object):
 
     def __call__(self, query):
         scores, positions = self.m.calculate_scores(query)
-        for score, pos in izip(scores, positions):
+        for score, pos in zip(scores, positions):
             yield score, pos
 
 

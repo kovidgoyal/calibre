@@ -7,13 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, sys, inspect, re, time, numbers, json as jsonlib, textwrap
-from itertools import izip
 from operator import attrgetter
 
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, zip
 from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))
@@ -171,7 +170,7 @@ class Route(object):
     def matches(self, path):
         args_map = self.defaults.copy()
         num = 0
-        for component, (name, matched) in izip(path, self.matchers):
+        for component, (name, matched) in zip(path, self.matchers):
             num += 1
             if matched is True:
                 args_map[name] = component

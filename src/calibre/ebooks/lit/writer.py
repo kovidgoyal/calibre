@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from struct import pack
-from itertools import izip, count, chain
+from itertools import count, chain
 import io
 import time
 import random
@@ -30,7 +30,7 @@ import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, zip
 from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']
@@ -406,7 +406,7 @@ class LitWriter(object):
             1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
         cchunk = io.BytesIO()
         last = 0
-        for i, dcount in izip(count(), dcounts):
+        for i, dcount in zip(count(), dcounts):
             cchunk.write(decint(last))
             cchunk.write(decint(dcount))
             cchunk.write(decint(i))
@@ -702,7 +702,7 @@ class LitWriter(object):
         ichunk = None
         if len(ddata) > 1:
             ichunk = io.BytesIO()
-        for cid, (content, quickref, dcount, name) in izip(count(), ddata):
+        for cid, (content, quickref, dcount, name) in zip(count(), ddata):
             dchunk = io.BytesIO()
             prev = cid - 1 if cid > 0 else ULL_NEG1
             next = cid + 1 if cid < cidmax else ULL_NEG1

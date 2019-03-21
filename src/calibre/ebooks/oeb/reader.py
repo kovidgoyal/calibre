@@ -8,7 +8,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, uuid, copy, re, io
-from itertools import izip
 from collections import defaultdict
 
 from lxml import etree
@@ -28,7 +27,7 @@ from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre import guess_type, xml_replace_entities
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, zip
 from polyglot.urllib import unquote, urldefrag, urlparse
 
 __all__ = ['OEBReader']
@@ -541,7 +540,7 @@ class OEBReader(object):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)

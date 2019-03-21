@@ -8,10 +8,9 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, re
-from itertools import izip
 
 from calibre.constants import iswindows
-from polyglot.builtins import range
+from polyglot.builtins import range, zip
 
 if iswindows:
     import ctypes.wintypes
@@ -31,7 +30,7 @@ def fmt(code):
 
 
 RATTRIBUTES = dict(
-        izip(range(1, 9), (
+        zip(range(1, 9), (
             'bold',
             'dark',
             '',
@@ -46,7 +45,7 @@ ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
-        izip(range(41, 48), (
+        zip(range(41, 48), (
             'red',
             'green',
             'yellow',
@@ -59,7 +58,7 @@ RBACKGROUNDS = dict(
 BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
 
 RCOLORS = dict(
-        izip(range(31, 38), (
+        zip(range(31, 38), (
             'red',
             'green',
             'yellow',

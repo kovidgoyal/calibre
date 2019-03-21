@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback, posixpath, importlib, os
 from io import BytesIO
-from itertools import izip
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
@@ -18,7 +17,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, zip
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -421,7 +420,7 @@ class MTP_DEVICE(BASE):
 
         routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
 
-        for infile, fname, mi in izip(files, names, metadata):
+        for infile, fname, mi in zip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)
             if path and self.is_folder_ignored(storage, path):
                 raise MTPInvalidSendPathError('/'.join(path))
@@ -456,7 +455,7 @@ class MTP_DEVICE(BASE):
 
         i, total = 0, len(mtp_files)
         self.report_progress(0, _('Adding books to device metadata listing...'))
-        for x, mi in izip(mtp_files, metadata):
+        for x, mi in zip(mtp_files, metadata):
             mtp_file, bl_idx = x
             bl = booklists[bl_idx]
             book = Book(mtp_file.storage_id, '/'.join(mtp_file.mtp_relpath),

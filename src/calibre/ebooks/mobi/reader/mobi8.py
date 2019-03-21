@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import struct, re, os
 from collections import namedtuple
-from itertools import repeat, izip
+from itertools import repeat
 from uuid import uuid4
 
 from lxml import etree
@@ -24,7 +24,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import range
+from polyglot.builtins import range, zip
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
@@ -125,7 +125,7 @@ class Mobi8Reader(object):
             sec_start, num_sections = struct.unpack_from(b'>LL', header, 4)
             secs = struct.unpack_from(b'>%dL' % (num_sections*2),
                     header, sec_start)
-            self.flow_table = tuple(izip(secs[::2], secs[1::2]))
+            self.flow_table = tuple(zip(secs[::2], secs[1::2]))
 
         self.files = []
         if self.header.skelidx != NULL_INDEX:

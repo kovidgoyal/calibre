@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 from functools import partial
-from itertools import izip
 
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
@@ -25,7 +24,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, zip
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -229,7 +228,7 @@ class TagsView(QTreeView):  # {{{
                     expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.category_key] = dict(izip(names, states))
+            state_map[category.category_key] = dict(zip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):

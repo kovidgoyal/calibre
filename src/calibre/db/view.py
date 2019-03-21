@@ -9,8 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, operator, numbers
 from functools import partial
-from itertools import izip, imap
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import map, unicode_type, range, zip
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
@@ -374,7 +373,7 @@ class View(object):
             self.marked_ids = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode_type,
+            self.marked_ids = dict(zip(id_dict.iterkeys(), map(unicode_type,
                 id_dict.itervalues())))
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
