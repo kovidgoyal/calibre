@@ -349,7 +349,7 @@ class Table(object):
             nc = self.rows[r].cell_iterator()
             try:
                 while True:
-                    cell = nc.next()
+                    cell = next(nc)
                     cellmatrix[r][rowpos[r]] = cell
                     rowpos[r] += cell.colspan
                     for k in range(1, cell.rowspan):

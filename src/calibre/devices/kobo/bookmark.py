@@ -62,7 +62,7 @@ class Bookmark():  # {{{
                 kepub_chapter_data = ('{0}-%'.format(row[1]), )
                 cursor2.execute(kepub_chapter_query, kepub_chapter_data)
                 try:
-                    kepub_chapter = cursor2.next()
+                    kepub_chapter = next(cursor2)
                     chapter_title = kepub_chapter[0]
                     current_chapter = kepub_chapter[1]
                 except StopIteration:

@@ -125,10 +125,10 @@ class SNBOutput(OutputFormatPlugin):
             if oeb_book.toc.count() == 0:
                 log.warn('This SNB file has no Table of Contents. '
                     'Creating a default TOC')
-                first = iter(oeb_book.spine).next()
+                first = next(iter(oeb_book.spine))
                 oeb_book.toc.add(_('Start page'), first.href)
             else:
-                first = iter(oeb_book.spine).next()
+                first = next(iter(oeb_book.spine))
                 if oeb_book.toc[0].href != first.href:
                     # The pages before the fist item in toc will be stored as
                     # "Cover Pages".

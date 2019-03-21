@@ -85,8 +85,8 @@ class DetectStructure(object):
             for item in oeb.spine:
                 for elem in pb_xpath(item.data):
                     try:
-                        prev = elem.itersiblings(tag=etree.Element,
-                                preceding=True).next()
+                        prev = next(elem.itersiblings(tag=etree.Element,
+                                preceding=True))
                         if (barename(elem.tag) in {'h1', 'h2'} and barename(
                                 prev.tag) in {'h1', 'h2'} and (not prev.tail or
                                     not prev.tail.split())):

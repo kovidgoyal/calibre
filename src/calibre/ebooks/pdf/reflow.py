@@ -40,7 +40,7 @@ class Image(Element):
     def __init__(self, img, opts, log, idc):
         Element.__init__(self)
         self.opts, self.log = opts, log
-        self.id = idc.next()
+        self.id = next(idc)
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
           map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
               'iheight')))
@@ -61,7 +61,7 @@ class Text(Element):
 
     def __init__(self, text, font_map, opts, log, idc):
         Element.__init__(self)
-        self.id = idc.next()
+        self.id = next(idc)
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.top, self.left, self.width, self.height = map(float, map(text.get,

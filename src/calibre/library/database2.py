@@ -3498,9 +3498,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ids = []
         postimport = []
         for path in paths:
-            mi = metadata.next()
+            mi = next(metadata)
             self._add_newbook_tag(mi)
-            format = formats.next()
+            format = next(formats)
             if not add_duplicates and self.has_book(mi):
                 duplicates.append((path, format, mi))
                 continue

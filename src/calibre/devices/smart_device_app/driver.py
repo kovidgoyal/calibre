@@ -1471,7 +1471,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
+            mdata, fname = next(metadata), next(names)
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
             self._debug('lpath', lpath)
             if not hasattr(infile, 'read'):
@@ -1497,7 +1497,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for i, location in enumerate(locations):
             self.report_progress((i + 1) / float(len(locations)),
                                  _('Adding books to device metadata listing...'))
-            info = metadata.next()
+            info = next(metadata)
             lpath = location[0]
             length = location[1]
             lpath = self._strip_prefix(lpath)

@@ -411,7 +411,7 @@ class DeviceManager(Thread):  # {{{
 
             do_sleep = True
             while True:
-                job = self.next()
+                job = next(self)
                 if job is not None:
                     do_sleep = False
                     self.current_job = job
@@ -1494,8 +1494,8 @@ class DeviceMixin(object):  # {{{
 
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in _files:
-            mi = imetadata.next()
-            id = ids.next()
+            mi = next(imetadata)
+            id = next(ids)
             if f is None:
                 bad.append(mi.title)
             else:

@@ -332,7 +332,7 @@ class PageElement:
         g = generator()
         while True:
             try:
-                i = g.next()
+                i = next(g)
             except StopIteration:
                 break
             if i:

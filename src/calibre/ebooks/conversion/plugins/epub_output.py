@@ -218,7 +218,7 @@ class EPUBOutput(OutputFormatPlugin):
         if self.oeb.toc.count() == 0:
             self.log.warn('This EPUB file has no Table of Contents. '
                     'Creating a default TOC')
-            first = iter(self.oeb.spine).next()
+            first = next(iter(self.oeb.spine))
             self.oeb.toc.add(_('Start'), first.href)
 
         from calibre.ebooks.oeb.base import OPF
@@ -422,7 +422,7 @@ class EPUBOutput(OutputFormatPlugin):
                     if br.getparent() is None:
                         continue
                     try:
-                        prior = br.itersiblings(preceding=True).next()
+                        prior = next(br.itersiblings(preceding=True))
                         priortag = barename(prior.tag)
                         priortext = prior.tail
                     except:

@@ -46,7 +46,7 @@ from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
 Differences in semantics from pysqlite:
 
     1. execute/executemany operate in autocommit mode
-    2. There is no fetchone() method on cursor objects, instead use next()
+    2. There is no fetchone() method on cursor objects, instead use next(cursor)
     3. There is no executescript
 
 '''
@@ -120,7 +120,7 @@ class DBPrefs(dict):  # {{{
             raw = self.to_raw(val)
             with self.db.conn:
                 try:
-                    dbraw = self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)).next()
+                    dbraw = next(self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)))
                 except StopIteration:
                     dbraw = None
                 if dbraw is None or dbraw[1] != raw:
@@ -271,7 +271,7 @@ class Connection(apsw.Connection):  # {{{
         self.execute('pragma cache_size=-5000')
         self.execute('pragma temp_store=2')
 
-        encoding = self.execute('pragma encoding').next()[0]
+        encoding = next(self.execute('pragma encoding'))[0]
         self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
@@ -306,7 +306,7 @@ class Connection(apsw.Connection):  # {{{
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 
@@ -875,7 +875,7 @@ class DB(object):
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 

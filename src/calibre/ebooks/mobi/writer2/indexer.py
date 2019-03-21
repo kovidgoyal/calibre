@@ -455,7 +455,7 @@ class Indexer(object):  # {{{
             self.is_periodical else 'book'))
         self.is_flat_periodical = False
         if self.is_periodical:
-            periodical_node = iter(oeb.toc).next()
+            periodical_node = next(iter(oeb.toc))
             sections = tuple(periodical_node)
             self.is_flat_periodical = len(sections) == 1
 
@@ -681,7 +681,7 @@ class Indexer(object):  # {{{
     # }}}
 
     def create_periodical_index(self):  # {{{
-        periodical_node = iter(self.oeb.toc).next()
+        periodical_node = next(iter(self.oeb.toc))
         periodical_node_offset = self.serializer.body_start_offset
         periodical_node_size = (self.serializer.body_end_offset -
                 periodical_node_offset)

@@ -1782,7 +1782,7 @@ class PageList(object):
         for page in self.pages:
             id = page.id or uuid_id()
             type = page.type
-            value = str(values[type].next())
+            value = str(next(values[type]))
             attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}
             if page.klass:
                 attrib['class'] = page.klass

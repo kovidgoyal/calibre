@@ -185,7 +185,7 @@ class KOBO(USBMS):
         cursor = connection.cursor()
         cursor.execute('SELECT version FROM dbversion')
         try:
-            result = cursor.next()
+            result = next(cursor)
             dbversion = result['version']
         except StopIteration:
             dbversion = 0
@@ -572,7 +572,7 @@ class KOBO(USBMS):
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
-            info = metadata.next()
+            info = next(metadata)
             debug_print("KoboTouch::add_books_to_metadata - info=%s" % info)
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
@@ -790,7 +790,7 @@ class KOBO(USBMS):
         t = (ContentID,)
         cursor.execute('select DateLastRead, ReadStatus  from Content where BookID is Null and ContentID = ?', t)
         try:
-            result = cursor.next()
+            result = next(cursor)
             datelastread = result['DateLastRead']
             current_ReadStatus = result['ReadStatus']
         except StopIteration:
@@ -1020,7 +1020,7 @@ class KOBO(USBMS):
                     t = (ContentID,)
                     cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
                     try:
-                        result = cursor.next()
+                        result = next(cursor)
 #                        debug_print("ImageId: ", result[0])
                         ImageID = result[0]
                     except StopIteration:
@@ -2649,7 +2649,7 @@ class KOBOTOUCH(KOBO):
                 t = (ContentID,)
                 cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
                 try:
-                    result = cursor.next()
+                    result = next(cursor)
                     ImageID = result[0]
                 except StopIteration:
                     ImageID = self.imageid_from_contentid(ContentID)
@@ -2752,7 +2752,7 @@ class KOBOTOUCH(KOBO):
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
         try:
-            result = cursor.next()
+            result = next(cursor)
         except StopIteration:
             result = None
 
@@ -2860,7 +2860,7 @@ class KOBOTOUCH(KOBO):
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
         try:
-            result = cursor.next()
+            result = next(cursor)
         except StopIteration:
             result = None
 
@@ -2909,7 +2909,7 @@ class KOBOTOUCH(KOBO):
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
         try:
-            result = cursor.next()
+            result = next(cursor)
         except StopIteration:
             result = None
 

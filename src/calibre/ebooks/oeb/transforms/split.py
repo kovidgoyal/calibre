@@ -243,7 +243,7 @@ class FlowSplitter(object):
 
         self.trees = [orig_tree]
         while ordered_ids:
-            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            pb_id, (pattern, before) = next(ordered_ids.iteritems())
             del ordered_ids[pb_id]
             for i in range(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]

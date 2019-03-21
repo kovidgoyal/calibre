@@ -705,8 +705,8 @@ class XMLCache(object):
                     child.text = '\n'+'\t'*(level+1)
                     for gc in child:
                         gc.tail = '\n'+'\t'*(level+1)
-                    child.iterchildren(reversed=True).next().tail = '\n'+'\t'*level
-            root.iterchildren(reversed=True).next().tail = '\n'+'\t'*(level-1)
+                    next(child.iterchildren(reversed=True)).tail = '\n'+'\t'*level
+            next(root.iterchildren(reversed=True)).tail = '\n'+'\t'*(level-1)
 
     def move_playlists_to_bottom(self):
         for root in self.record_roots.values():
@@ -799,4 +799,3 @@ class XMLCache(object):
                 self.namespaces[i] = ns
 
     # }}}
-

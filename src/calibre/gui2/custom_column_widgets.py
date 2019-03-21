@@ -837,7 +837,7 @@ class BulkBase(Base):
                 break
         ans = None
         if len(values) == 1:
-            ans = iter(values).next()
+            ans = next(iter(values))
         if isinstance(ans, frozenset):
             ans = list(ans)
         return ans

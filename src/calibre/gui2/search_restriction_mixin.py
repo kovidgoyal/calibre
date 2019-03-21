@@ -255,7 +255,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 if not self.editing:
-                    self.vl_name.lineEdit().setText(d.names.next())
+                    self.vl_name.lineEdit().setText(next(d.names))
                     self.vl_name.lineEdit().setCursorPosition(0)
                 self.vl_text.setText(d.match_type.join(search))
                 self.vl_text.setCursorPosition(0)

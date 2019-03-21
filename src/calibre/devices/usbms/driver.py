@@ -311,7 +311,7 @@ class USBMS(CLI, Device):
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
+            mdata, fname = next(metadata), next(names)
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
@@ -350,7 +350,7 @@ class USBMS(CLI, Device):
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
-            info = metadata.next()
+            info = next(metadata)
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             # Extract the correct prefix from the pathname. To do this correctly,
