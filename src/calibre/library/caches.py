@@ -1000,7 +1000,7 @@ class ResultCache(SearchQueryParser):  # {{{
             except IndexError:
                 return None
         try:
-            return map(self.row, ids)
+            return list(map(self.row, ids))
         except ValueError:
             pass
         return None

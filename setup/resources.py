@@ -145,7 +145,7 @@ class Kakasi(Command):  # {{{
         if self.newer(dest, src):
             self.info('\tGenerating Kanwadict')
 
-            for line in open(src, "r"):
+            for line in open(src, "rb"):
                 self.parsekdict(line)
             self.kanwaout(dest)
 
@@ -167,8 +167,8 @@ class Kakasi(Command):  # {{{
 
     def mkitaiji(self, src, dst):
         dic = {}
-        for line in open(src, "r"):
-            line = line.strip()
+        for line in open(src, "rb"):
+            line = line.decode('utf-8').strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
@@ -181,8 +181,8 @@ class Kakasi(Command):  # {{{
 
     def mkkanadict(self, src, dst):
         dic = {}
-        for line in open(src, "r"):
-            line = line.strip()
+        for line in open(src, "rb"):
+            line = line.decode('utf-8').strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
@@ -194,7 +194,7 @@ class Kakasi(Command):  # {{{
             f.write(msgpack_dumps(dic))
 
     def parsekdict(self, line):
-        line = line.strip()
+        line = line.decode('utf-8').strip()
         if line.startswith(';;'):  # skip comment
             return
         (yomi, kanji) = line.split(' ')

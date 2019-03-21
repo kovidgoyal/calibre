@@ -11,7 +11,7 @@ import os, sys, re
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, range
 from polyglot.urllib import quote, unquote, urlparse
 
 

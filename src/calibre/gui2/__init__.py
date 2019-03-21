@@ -1283,12 +1283,19 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
     # the qt5 migration
     force_compile = check_for_migration and not gprefs.get('migrated_forms_to_qt5', False)
 
+    class PolyglotStringIO(io.StringIO):
+
+        def write(self, x):
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            io.StringIO.write(self, x)
+
     for form in forms:
         compiled_form = form_to_compiled_form(form)
         if force_compile or not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
             if not summary:
                 info('\tCompiling form', form)
-            buf = io.StringIO()
+            buf = PolyglotStringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')
@@ -1297,8 +1304,9 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
-
-            open(compiled_form, 'w').write(dat)
+            if not isinstance(dat, bytes):
+                dat = dat.encode('utf-8')
+            open(compiled_form, 'wb').write(dat)
             num += 1
     if num:
         info('Compiled %d forms' % num)
