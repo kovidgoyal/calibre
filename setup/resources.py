@@ -168,7 +168,7 @@ class Kakasi(Command):  # {{{
     def mkitaiji(self, src, dst):
         dic = {}
         for line in open(src, "r"):
-            line = line.decode("utf-8").strip()
+            line = line.strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
@@ -182,7 +182,7 @@ class Kakasi(Command):  # {{{
     def mkkanadict(self, src, dst):
         dic = {}
         for line in open(src, "r"):
-            line = line.decode("utf-8").strip()
+            line = line.strip()
             if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
@@ -194,7 +194,7 @@ class Kakasi(Command):  # {{{
             f.write(msgpack_dumps(dic))
 
     def parsekdict(self, line):
-        line = line.decode("utf-8").strip()
+        line = line.strip()
         if line.startswith(';;'):  # skip comment
             return
         (yomi, kanji) = line.split(' ')
