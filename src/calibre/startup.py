@@ -10,7 +10,7 @@ Perform various initialization tasks.
 import locale, sys
 
 # Default translation is NOOP
-from polyglot.builtins import builtins, unicode_type
+from polyglot.builtins import builtins, is_py3, unicode_type
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
@@ -125,7 +125,9 @@ if not _run_once:
             pass
 
     # local_open() opens a file that wont be inherited by child processes
-    if iswindows:
+    if is_py3:
+        local_open = open  # PEP 446
+    elif iswindows:
         def local_open(name, mode='r', bufsize=-1):
             mode += 'N'
             return open(name, mode, bufsize)
@@ -223,6 +225,8 @@ def test_lopen():
             if win32api.GetHandleInformation(msvcrt.get_osfhandle(f.fileno())) & 0b1:
                 raise SystemExit('File handle is inheritable!')
     else:
+        import fcntl
+
         def assert_not_inheritable(f):
             if not fcntl.fcntl(f, fcntl.F_GETFD) & fcntl.FD_CLOEXEC:
                 raise SystemExit('File handle is inheritable!')
@@ -238,14 +242,14 @@ def test_lopen():
 
         print('O_CREAT tested')
         with copen(n, 'w+b') as f:
-            f.write('two')
+            f.write(b'two')
         with copen(n, 'r') as f:
             if f.read() == 'two':
                 print('O_TRUNC tested')
             else:
                 raise Exception('O_TRUNC failed')
         with copen(n, 'ab') as f:
-            f.write('three')
+            f.write(b'three')
         with copen(n, 'r+') as f:
             if f.read() == 'twothree':
                 print('O_APPEND tested')
