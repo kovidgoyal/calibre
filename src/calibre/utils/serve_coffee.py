@@ -261,10 +261,10 @@ class Server(socketserver.ThreadingMixIn, HTTPServer):  # {{{
         The default is to print a traceback and continue.
 
         """
-        print ('-'*40)
-        print ('Exception happened during processing of request', request)
+        print('-'*40)
+        print('Exception happened during processing of request', request)
         traceback.print_exc()  # XXX But this goes to stderr!
-        print ('-'*40)
+        print('-'*40)
 # }}}
 
 
@@ -320,9 +320,9 @@ def main():
                 from pygments.lexers import JavascriptLexer
                 from pygments.formatters import TerminalFormatter
                 from pygments import highlight
-                print (highlight(ans, JavascriptLexer(), TerminalFormatter()))
+                print(highlight(ans, JavascriptLexer(), TerminalFormatter()))
             else:
-                print (ans.encode(sys.stdout.encoding or 'utf-8'))
+                print(ans.encode(sys.stdout.encoding or 'utf-8'))
     else:
         serve(port=args.port, host=args.host)
 

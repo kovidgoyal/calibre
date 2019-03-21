@@ -77,7 +77,7 @@ class InsertTag(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.tag)
+            print(d.tag)
 
 # }}}
 
@@ -475,7 +475,7 @@ class QuickOpen(Dialog):
         items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
-        print (d.selected_result)
+        print(d.selected_result)
 
 # }}}
 
@@ -1037,7 +1037,7 @@ class FilterCSS(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.filtered_properties)
+            print(d.filtered_properties)
 
 # }}}
 

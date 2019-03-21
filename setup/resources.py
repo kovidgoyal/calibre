@@ -90,12 +90,12 @@ class Coffee(Command):  # {{{
         updated = {}
         for arcname in todo:
             name = arcname.rpartition('.')[0]
-            print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
+            print('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', name))
             src, sig = src_files[arcname]
             js, errors = compile_coffeescript(open(src, 'rb').read(), filename=src)
             if errors:
-                print ('\n\tCompilation of %s failed'%name)
+                print('\n\tCompilation of %s failed'%name)
                 for line in errors:
                     print(line, file=sys.stderr)
                 if ignore_errors:
@@ -105,8 +105,8 @@ class Coffee(Command):  # {{{
             else:
                 if opts.show_js:
                     self.show_js(js)
-                    print ('#'*80)
-                    print ('#'*80)
+                    print('#'*80)
+                    print('#'*80)
             zi = zipfile.ZipInfo()
             zi.filename = arcname
             zi.date_time = time.localtime()[:6]

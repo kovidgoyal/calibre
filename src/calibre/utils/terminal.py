@@ -169,10 +169,10 @@ class Detect(object):
                         # to use raster fonts (the default). In this case
                         # rather than failing, write an informative error
                         # message and the asciized version of the text.
-                        print ('Non-ASCII text detected. You must set your Console\'s font to'
+                        print('Non-ASCII text detected. You must set your Console\'s font to'
                                ' Lucida Console or Consolas or some other TrueType font to see this text', file=self.stream, end=' -- ')
                         from calibre.utils.filenames import ascii_text
-                        print (ascii_text(t + text), file=self.stream, end='')
+                        print(ascii_text(t + text), file=self.stream, end='')
                         continue
                     if not ignore_errors:
                         raise ctypes.WinError(err)

@@ -96,14 +96,14 @@ class MOBIFile(object):
         self.read_tbs()
 
     def print_header(self, f=sys.stdout):
-        print (str(self.mf.palmdb).encode('utf-8'), file=f)
-        print (file=f)
-        print ('Record headers:', file=f)
+        print(str(self.mf.palmdb).encode('utf-8'), file=f)
+        print(file=f)
+        print('Record headers:', file=f)
         for i, r in enumerate(self.mf.records):
-            print ('%6d. %s'%(i, r.header), file=f)
+            print('%6d. %s'%(i, r.header), file=f)
 
-        print (file=f)
-        print (str(self.mf.mobi8_header).encode('utf-8'), file=f)
+        print(file=f)
+        print(str(self.mf.mobi8_header).encode('utf-8'), file=f)
 
     def read_fdst(self):
         self.fdst = None
@@ -202,7 +202,7 @@ class MOBIFile(object):
                         resource_index = len(container.resources)
             elif sig == b'\xa0\xa0\xa0\xa0' and len(payload) == 4:
                 if container is None:
-                    print ('Found an end of container record with no container, ignoring')
+                    print('Found an end of container record with no container, ignoring')
                 else:
                     container.resources.append(None)
                 continue
@@ -287,7 +287,7 @@ class MOBIFile(object):
             except:
                 calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
-                print ('WARNING: TBS mismatch for record %d'%i)
+                print('WARNING: TBS mismatch for record %d'%i)
                 desc.append('WARNING: TBS mismatch!')
                 desc.append('Calculated sequences: %r'%calculated_sequences)
             desc.append('')

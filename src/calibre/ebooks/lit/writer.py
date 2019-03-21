@@ -510,8 +510,7 @@ class LitWriter(object):
         data.write(pack('<Bc', 1, '\\'))
         offset = 0
         for state in states:
-            items = manifest[state]
-            items.sort()
+            items = sorted(manifest[state])
             data.write(pack('<I', len(items)))
             for item in items:
                 id, media_type = item.id, item.media_type
