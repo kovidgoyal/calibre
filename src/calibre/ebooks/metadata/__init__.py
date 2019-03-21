@@ -135,7 +135,7 @@ def get_title_sort_pat(lang=None):
 
 
 _ignore_starts = u'\'"'+u''.join(codepoint_to_chr(x) for x in
-        range(0x2018, 0x201e)+[0x2032, 0x2033])
+        list(range(0x2018, 0x201e))+[0x2032, 0x2033])
 
 
 def title_sort(title, order=None, lang=None):
