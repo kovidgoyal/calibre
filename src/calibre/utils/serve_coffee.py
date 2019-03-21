@@ -13,14 +13,11 @@ A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
 import sys, traceback, io
-if sys.version_info.major > 2:
-    print('This script is not Python 3 compatible. Run it with Python 2',
-            file=sys.stderr)
-    raise SystemExit(1)
-
-import time, os, sys, re, SocketServer
+import time, os, sys, re
 from threading import Lock, local
-from polyglot.http_server import BaseHTTPServer, SimpleHTTPRequestHandler
+
+from polyglot import socketserver
+from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
 
 # Compiler {{{
 
@@ -255,7 +252,7 @@ class Handler(HTTPRequestHandler):  # {{{
 # }}}
 
 
-class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
+class Server(socketserver.ThreadingMixIn, HTTPServer):  # {{{
     daemon_threads = True
 
     def handle_error(self, request, client_address):
