@@ -12,8 +12,7 @@ Utilities to help with developing coffeescript based apps.
 A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
-import sys, traceback, io
-import time, os, sys, re
+import sys, traceback, io, time, os, re
 from threading import Lock, local
 
 from polyglot import socketserver

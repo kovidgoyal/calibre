@@ -239,7 +239,7 @@ class FontManager(object):
         if name not in STANDARD_FONTS:
             raise ValueError('%s is not a standard font'%name)
         if name not in self.std_map:
-                self.std_map[name] = self.objects.add(Dictionary({
+            self.std_map[name] = self.objects.add(Dictionary({
                 'Type':Name('Font'),
                 'Subtype':Name('Type1'),
                 'BaseFont':Name(name)
