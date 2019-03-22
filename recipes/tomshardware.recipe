@@ -57,8 +57,8 @@ class Tomshardware(BasicNewsRecipe):
     def cleanup_image_tags(self, soup):
         for item in soup.findAll('img'):
             for attrib in ['height', 'width', 'border', 'align']:
-                if item.has_key(attrib):  # noqa
-                    del item[attrib]
+                item[attrib] = ''
+                del item[attrib]
         return soup
 
     def preprocess_html(self, soup):

@@ -55,8 +55,8 @@ class NotSafeForWork(BasicNewsRecipe):
     def get_feeds(self):
         self.feeds = []
         soup = self.index_to_soup(self.SETTINGS)
-        for item in soup.findAll('input', attrs={'type': 'text'}):
-            if item.has_key('value') and item['value'].startswith('https://www.nsfwcorp.com/feed/'):  # noqa
+        for item in soup.findAll('input', value=True, attrs={'type': 'text'}):
+            if item['value'].startswith('https://www.nsfwcorp.com/feed/'):
                 self.feeds.append(item['value'])
                 return self.feeds
         return self.feeds

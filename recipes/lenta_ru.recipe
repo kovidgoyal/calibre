@@ -60,14 +60,9 @@ class LentaRURecipe(BasicNewsRecipe):
             if not feedData:
                 raise NotImplementedError
             self.log("parse_index: Feed loaded successfully.")
-            if feedData.feed.has_key('title'):  # noqa
-                self.title = feedData.feed.title
-                self.log("parse_index: Title updated to: ", self.title)
-            if feedData.feed.has_key('image'):  # noqa
-                self.log("HAS IMAGE!!!!")
 
             def get_virtual_feed_articles(feed):
-                if feeds.has_key(feed):  # noqa
+                if feed in feeds:
                     return feeds[feed][1]
                 self.log("Adding new feed: ", feed)
                 articles = []
@@ -84,7 +79,7 @@ class LentaRURecipe(BasicNewsRecipe):
                     continue
                 article = {'title': title, 'url': link, 'description': item.get(
                     'description', ''), 'date': item.get('date', ''), 'content': ''}
-                if not item.has_key('tags'):  # noqa
+                if not item.get('tags'):
                     get_virtual_feed_articles('_default').append(article)
                     continue
                 for tag in item.tags:
@@ -101,7 +96,7 @@ class LentaRURecipe(BasicNewsRecipe):
             # Select sorted feeds first of all
             result = []
             for feedName in self.sortOrder:
-                if (not feeds.has_key(feedName)):  # noqa
+                if (not feeds.get(feedName)):
                     continue
                 result.append(feeds[feedName])
                 del feeds[feedName]

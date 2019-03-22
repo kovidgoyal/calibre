@@ -86,8 +86,8 @@ class Pobjeda(BasicNewsRecipe):
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('div', attrs={'class': 'vijest'}):
                 description = self.tag_to_string(item.h2)
-                atag = item.h1.find('a')
-                if atag and atag.has_key('href'):  # noqa
+                atag = item.h1.find('a', href=True)
+                if atag is not None:
                     url = self.INDEX + '/' + atag['href']
                     title = self.tag_to_string(atag)
                     date = strftime(self.timefmt)

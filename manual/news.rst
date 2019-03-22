@@ -217,7 +217,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                         description = self.tag_to_string(summary, use_alt=False)
 
                     feed = key if key is not None else 'Uncategorized'
-                    if not articles.has_key(feed):
+                    if feed not in articles:
                         articles[feed] = []
                     if not 'podcasts' in url:
                         articles[feed].append(
@@ -225,7 +225,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                                        description=description,
                                        content=''))
            ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
-           ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+           ans = [(key, articles[key]) for key in ans if key in articles]
            return ans
 
        def preprocess_html(self, soup):

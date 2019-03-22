@@ -42,11 +42,10 @@ class MoneyControlRecipe(BasicNewsRecipe):
             h1.append(self.tag_to_string(headline))
             freshSoup.body.append(h1)
 
-        for p in soup.findAll('p'):
-            if p.has_key('class'):
-                if p['class'] == 'MsoNormal':
-                    # We have some weird pagebreak marker here; it will not find all of them however
-                    continue
+        for p in soup.findAll('p', attrs={'class': true}):
+            if p['class'] == 'MsoNormal':
+                # We have some weird pagebreak marker here; it will not find all of them however
+                continue
 
             para = Tag(freshSoup, 'p')
             # Convert to string; this will loose all formatting but also all illegal markup

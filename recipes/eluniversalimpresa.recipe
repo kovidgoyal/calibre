@@ -31,7 +31,7 @@ class ElUniversalImpresaRecipe(BasicNewsRecipe):
 
         table = soup.find('table', attrs={'width': '500'})
         articles = []
-        for td in table.findAll(lambda tag: tag.name == 'td' and tag.has_key('class') and tag['class'] == 'arnegro12'):  # noqa
+        for td in table.findAll('td', attrs={'class': 'arnegro12'}):
             a = td.a
             a.extract()
             title = self.tag_to_string(a)
@@ -79,8 +79,8 @@ class ElUniversalImpresaRecipe(BasicNewsRecipe):
         tag = soup.find('font', attrs={'color': '#0F046A'})
         if tag:
             for attr in ['color', 'face', 'helvetica,', 'sans-serif', 'size']:
-                if tag.has_key(attr):  # noqa
-                    del tag[attr]
+                tag[attr] = ''
+                del tag[attr]
             tag.name = 'h1'
 
         return soup

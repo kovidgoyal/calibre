@@ -55,8 +55,8 @@ class DnevnikCro(BasicNewsRecipe):
         for item in soup.body.findAll(name=['table', 'td', 'tr', 'th', 'caption', 'thead', 'tfoot', 'tbody', 'colgroup', 'col']):
             item.name = 'div'
             for attrib in attribs:
-                if item.has_key(attrib):  # noqa
-                    del item[attrib]
+                item[attrib] = ''
+                del item[attrib]
 
         mlang = Tag(soup, 'meta', [
                     ("http-equiv", "Content-Language"), ("content", self.lang)])

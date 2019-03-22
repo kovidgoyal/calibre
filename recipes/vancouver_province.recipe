@@ -299,7 +299,7 @@ class CanWestPaper(BasicNewsRecipe):
                         else:
                             description = self.tag_to_string(dtag, False)
                         print("DESCRIPTION: " + description)
-                    if not articles.has_key(key):  # noqa
+                    if key not in articles:
                         articles[key] = []
                     articles[key].append(dict(
                         title=title, url=url, date='', description=description, author='', content=''))
@@ -323,5 +323,5 @@ class CanWestPaper(BasicNewsRecipe):
 
         for (k, url) in self.postmedia_index_pages:
             parse_web_index(k, url)
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]  # noqa
+        ans = [(key, articles[key]) for key in ans if key in articles]
         return ans

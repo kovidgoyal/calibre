@@ -45,7 +45,7 @@ class TheAge(BasicNewsRecipe):
 
             # Make sure to skip: <a href="/">TheAge</a>
 
-            elif section and tag.has_key('href') and len(tag['href'].strip()) > 1:  # noqa
+            elif section and tag.get('href'):
                 url = tag['href'].strip()
                 if url.startswith('/'):
                     url = 'http://www.theage.com.au' + url
@@ -105,7 +105,7 @@ class TheAge(BasicNewsRecipe):
 
                 # Filter out what's left of the text-mode navigation stuff
 
-                if re.match('((\s)|(\&nbsp\;))*\[[\|\s*]*\]((\s)|(\&nbsp\;))*$', contents):
+                if re.match(r'((\s)|(\&nbsp\;))*\[[\|\s*]*\]((\s)|(\&nbsp\;))*$', contents):
                     p.extract()
                     continue
 

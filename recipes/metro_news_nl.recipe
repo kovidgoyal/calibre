@@ -133,7 +133,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 class MerryPreProcess():
 
     def optimizePicture(self, soup):
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             try:
                 iurl = tag['src']
                 img = Image()

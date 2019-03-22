@@ -64,7 +64,7 @@ class DeGentenaarOnline(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('span'):
             item.name = 'div'
-            if item.has_key('id') and item['id'] == 'lblArticleTitle':  # noqa
+            if item.get('id') == 'lblArticleTitle':
                 item.name = 'h3'
 
         soup.html['lang'] = self.lang

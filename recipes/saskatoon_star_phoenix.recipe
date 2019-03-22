@@ -190,7 +190,7 @@ class CanWestPaper(BasicNewsRecipe):
         # Find each instance of class="sectiontitle", class="featurecontent"
         for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
             if divtag['class'].startswith('section_title'):
-                    # div contains section title
+                # div contains section title
                 if not divtag.h3:
                     continue
                 key = self.tag_to_string(divtag.h3, False)
@@ -215,10 +215,10 @@ class CanWestPaper(BasicNewsRecipe):
             autag = divtag.find('h4')
             if autag:
                 author = self.tag_to_string(autag, False)
-            if not articles.has_key(key):  # noqa
+            if key not in articles:
                 articles[key] = []
             articles[key].append(dict(title=title, url=url, date=pubdate,
                                       description=description, author=author, content=''))
 
-        ans = [(k, articles[k]) for k in ans if articles.has_key(k)]  # noqa
+        ans = [(k, articles[k]) for k in ans if k in articles]
         return ans

@@ -112,7 +112,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         for div in soup.findAll('div', attrs={'class': re.compile(self.author_reg_exp, re.IGNORECASE)}):
             div.extract()
             for auth in div.findAll('a'):
-                if (auth.has_key('class') and auth['class'] == 'cm-source-image'):  # noqa
+                if auth.get('class') == 'cm-source-image':
                     continue
                 names = names + comma + auth.contents[0]
                 comma = ', '

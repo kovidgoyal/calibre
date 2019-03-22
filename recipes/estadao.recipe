@@ -88,7 +88,7 @@ class Estadao(BasicNewsRecipe):
     def postprocess_html(self, soup, first):
         # process all the images. assumes that the new html has the correct
         # path
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             iurl = tag['src']
             img = Image()
             img.open(iurl)

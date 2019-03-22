@@ -81,7 +81,7 @@ class SZmobil(BasicNewsRecipe):
                 if itt['href'].startswith('article.php?id='):
                     article_url = itt['href']
                     article_id = int(
-                        re.search("id=(\d*)&etag=", itt['href']).group(1))
+                        re.search(r"id=(\d*)&etag=", itt['href']).group(1))
 
                     # first check if link is a special article in section
                     # "Meinungsseite"
@@ -104,7 +104,7 @@ class SZmobil(BasicNewsRecipe):
                         # just another link ("mehr") to an article
                         continue
 
-                    if itt.has_key('id'):  # noqa
+                    if itt.get('id') is not None:
                         shorttitles[article_id] = article_name
                     else:
                         articles.append(
@@ -118,7 +118,7 @@ class SZmobil(BasicNewsRecipe):
                 # pubdate = strftime('')
                 pubdate = strftime('[%a, %d %b]')
                 description = ''
-                if shorttitles.has_key(article_id):  # noqa
+                if shorttitles.get(article_id) is not None:
                     description = shorttitles[article_id]
                 # we do not want the flag ("Impressum")
                 if "HERAUSGEGEBEN VOM" in description:

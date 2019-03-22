@@ -201,8 +201,7 @@ class Newsweek(BasicNewsRecipe):
             self.DATE = matches.group(0)
 
         # cover
-        img = main_section.find(lambda tag: tag.name == 'img' and tag.has_key(  # noqa
-            'alt') and tag.has_key('title'))
+        img = main_section.find('img', src=True, alt=True, title=True)
         self.cover_url = img['src']
         feeds = []
         articles = {}
@@ -233,7 +232,7 @@ class Newsweek(BasicNewsRecipe):
                 if article is None:
                     continue
 
-                if articles.has_key(section):  # noqa
+                if section in articles:
                     articles[section].append(article)
                 else:
                     articles[section] = [article]

@@ -81,8 +81,8 @@ class Dzieje(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and not a['href'].startswith('http'):  # noqa
+        for a in soup('a', href=True):
+            if not a['href'].startswith('http'):
                 a['href'] = self.index + a['href']
         self.append_page(soup, soup.body)
         return soup
