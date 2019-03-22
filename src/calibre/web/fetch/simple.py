@@ -20,11 +20,9 @@ import traceback
 from base64 import b64decode
 from httplib import responses
 
-from html5_parser.soup import parse, set_soup_module
-
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
@@ -82,18 +80,15 @@ def basename(url):
 
 
 def save_soup(soup, target):
-    ns = BeautifulSoup('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
-    nm = ns.find('meta')
-    metas = soup.findAll('meta', content=True)
-    added = False
-    for meta in metas:
-        if 'charset' in meta.get('content', '').lower():
-            meta.replaceWith(nm)
-            added = True
-    if not added:
-        head = soup.find('head')
-        if head is not None:
-            head.insert(0, nm)
+    for meta in soup.findAll('meta', content=True):
+        if 'charset' in meta['content'].lower():
+            meta.extract()
+    for meta in soup.findAll('meta', charset=True):
+        meta.extract()
+    head = soup.find('head')
+    if head is not None:
+        nm = soup.new_tag('meta', charset='utf-8')
+        head.insert(0, nm)
 
     selfdir = os.path.dirname(target)
 
@@ -191,18 +186,17 @@ class RecursiveFetcher(object):
         usrc = self.preprocess_raw_html(usrc, url)
         for pat, repl in nmassage:
             usrc = pat.sub(repl, usrc)
-        set_soup_module(sys.modules[BeautifulSoup.__module__])
-        soup = parse(usrc, return_root=False)
+        soup = BeautifulSoup(usrc)
 
         replace = self.prepreprocess_html_ext(soup)
         if replace is not None:
             replace = xml_to_unicode(replace, self.verbose, strip_encoding_pats=True)[0]
             for pat, repl in nmassage:
                 replace = pat.sub(repl, replace)
-            soup = parse(replace, return_root=False)
+            soup = BeautifulSoup(replace)
 
         if self.keep_only_tags:
-            body = Tag(soup, 'body')
+            body = soup.new_tag('body')
             try:
                 if isinstance(self.keep_only_tags, dict):
                     self.keep_only_tags = [self.keep_only_tags]
@@ -334,13 +328,19 @@ class RecursiveFetcher(object):
         diskpath = unicode_path(os.path.join(self.current_dir, 'stylesheets'))
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
-        for c, tag in enumerate(soup.findAll(lambda tag: tag.name.lower()in ['link', 'style'] and tag.has_key('type') and tag['type'].lower() == 'text/css')):  # noqa
-            if tag.has_key('href'):  # noqa
+        for c, tag in enumerate(soup.findAll(name=['link', 'style'])):
+            try:
+                mtype = tag['type']
+            except KeyError:
+                mtype = 'text/css' if tag.name.lower() == 'style' else ''
+            if mtype.lower() != 'text/css':
+                continue
+            if tag.has_attr('href'):
                 iurl = tag['href']
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
                 with self.stylemap_lock:
-                    if self.stylemap.has_key(iurl):  # noqa
+                    if iurl in self.stylemap:
                         tag['href'] = self.stylemap[iurl]
                         continue
                 try:
@@ -363,7 +363,7 @@ class RecursiveFetcher(object):
                         if not urlsplit(iurl).scheme:
                             iurl = urljoin(baseurl, iurl, False)
                         with self.stylemap_lock:
-                            if self.stylemap.has_key(iurl):  # noqa
+                            if iurl in self.stylemap:
                                 ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
                                 continue
                         try:
@@ -387,7 +387,7 @@ class RecursiveFetcher(object):
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
         c = 0
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             iurl = tag['src']
             if iurl.startswith('data:image/'):
                 try:
@@ -401,7 +401,7 @@ class RecursiveFetcher(object):
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
                 with self.imagemap_lock:
-                    if self.imagemap.has_key(iurl):  # noqa
+                    if iurl in self.imagemap:
                         tag['src'] = self.imagemap[iurl]
                         continue
                 try:
@@ -479,12 +479,12 @@ class RecursiveFetcher(object):
         tag[key] = path+suffix
 
     def process_return_links(self, soup, baseurl):
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='a' and tag.has_key('href')):  # noqa
+        for tag in soup.findAll('a', href=True):
             iurl = self.absurl(baseurl, tag, 'href')
             if not iurl:
                 continue
             nurl = self.normurl(iurl)
-            if self.filemap.has_key(nurl):  # noqa
+            if nurl in self.filemap:
                 self.localize_link(tag, 'href', self.filemap[nurl])
 
     def process_links(self, soup, baseurl, recursion_level, into_dir='links'):
@@ -506,7 +506,7 @@ class RecursiveFetcher(object):
                 if not iurl:
                     continue
                 nurl = self.normurl(iurl)
-                if self.filemap.has_key(nurl):  # noqa
+                if nurl in self.filemap:
                     self.localize_link(tag, 'href', self.filemap[nurl])
                     continue
                 if self.files > self.max_files:
