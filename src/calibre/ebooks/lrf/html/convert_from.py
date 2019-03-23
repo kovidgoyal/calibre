@@ -40,7 +40,7 @@ from polyglot.urllib import unquote, urlparse
 
 def update_css(ncss, ocss):
     for key in ncss.keys():
-        if ocss.has_key(key):  # noqa
+        if key in ocss:
             ocss[key].update(ncss[key])
         else:
             ocss[key] = ncss[key]
@@ -310,7 +310,7 @@ class HTMLConverter(object):
         return bool(re.search('<H2[^><]*id=BookTitle', raw))
 
     def preprocess(self, raw):
-        nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage = []
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
 
         if not self.book_designer and self.is_book_designer(raw):
@@ -326,18 +326,11 @@ class HTMLConverter(object):
             nmassage.extend(HTMLConverter.PDFTOHTML)
         if self.book_designer:
             nmassage.extend(HTMLConverter.BOOK_DESIGNER)
-        try:
-            soup = BeautifulSoup(raw,
-                         convertEntities=BeautifulSoup.XHTML_ENTITIES,
-                         markupMassage=nmassage)
-        except ConversionError as err:
-            if 'Failed to coerce to unicode' in str(err):
-                raw = unicode_type(raw, 'utf8', 'replace')
-                soup = BeautifulSoup(raw,
-                         convertEntities=BeautifulSoup.XHTML_ENTITIES,
-                         markupMassage=nmassage)
-            else:
-                raise
+        if isinstance(raw, bytes):
+            raw = xml_to_unicode(raw, replace_entities=True)[0]
+        for pat, repl in nmassage:
+            raw = pat.sub(repl, raw)
+        soup = BeautifulSoup(raw)
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.log.info(_('\tBaen file detected. Re-parsing...'))
@@ -367,7 +360,7 @@ class HTMLConverter(object):
         self.css = HTMLConverter.CSS.copy()
         self.pseudo_css = self.override_pcss.copy()
         for selector in self.override_css:
-            if self.css.has_key(selector):  # noqa
+            if selector in self.css:
                 self.css[selector].update(self.override_css[selector])
             else:
                 self.css[selector] = self.override_css[selector]
@@ -468,25 +461,28 @@ class HTMLConverter(object):
         tagname = tag.name.lower()
         if parent_css:
             merge_parent_css(prop, parent_css)
-        if tag.has_key("align"):  # noqa
+        if tag.has_attr("align"):
             al = tag['align'].lower()
             if al in ('left', 'right', 'center', 'justify'):
                 prop["text-align"] = al
-        if self.css.has_key(tagname):  # noqa
+        if tagname in self.css:
             prop.update(self.css[tagname])
-        if self.pseudo_css.has_key(tagname):  # noqa
+        if tagname in self.pseudo_css:
             pprop.update(self.pseudo_css[tagname])
-        if tag.has_key("class"):  # noqa
-            cls = tag["class"].lower()
+        if tag.has_attr("class"):
+            cls = tag['class']
+            if isinstance(cls, list):
+                cls = ' '.join(cls)
+            cls = cls.lower()
             for cls in cls.split():
                 for classname in ["."+cls, tagname+"."+cls]:
-                    if self.css.has_key(classname):  # noqa
+                    if classname in self.css:
                         prop.update(self.css[classname])
-                    if self.pseudo_css.has_key(classname):  # noqa
+                    if classname in self.pseudo_css:
                         pprop.update(self.pseudo_css[classname])
-        if tag.has_key('id') and self.css.has_key(tag['id']):  # noqa
+        if tag.has_attr('id') and tag['id'] in self.css:
             prop.update(self.css[tag['id']])
-        if tag.has_key("style"):  # noqa
+        if tag.has_attr("style"):
             prop.update(self.parse_style_properties(tag["style"]))
         return prop, pprop
 
@@ -576,7 +572,7 @@ class HTMLConverter(object):
 
     def get_text(self, tag, limit=None):
         css = self.tag_css(tag)[0]
-        if (css.has_key('display') and css['display'].lower() == 'none') or (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):  # noqa
+        if ('display' in css and css['display'].lower() == 'none') or ('visibility' in css and css['visibility'].lower() == 'hidden'):
             return ''
         text, alt_text = u'', u''
         for c in tag.contents:
@@ -587,7 +583,7 @@ class HTMLConverter(object):
             if isinstance(c, NavigableString):
                 text += unicode_type(c)
             elif isinstance(c, Tag):
-                if c.name.lower() == 'img' and c.has_key('alt'):  # noqa
+                if c.name.lower() == 'img' and c.has_attr('alt'):
                     alt_text += c['alt']
                     continue
                 text += self.get_text(c)
@@ -699,7 +695,7 @@ class HTMLConverter(object):
                                          headheight=0, headsep=0, footspace=0,
                                          footheight=0,
                                          textheight=pheight)
-            if not self.images.has_key(path):  # noqa
+            if path not in self.images:
                 self.images[path] = ImageStream(path)
             im = PILImage.open(path)
             width, height = im.size
@@ -731,14 +727,14 @@ class HTMLConverter(object):
                 print(ptag, type(ptag))
 
     def get_alignment(self, css):
-        val = css['text-align'].lower() if css.has_key('text-align') else None  # noqa
+        val = css['text-align'].lower() if 'text-align' in css else None
         align = 'head'
         if val is not None:
             if val in ["right", "foot"]:
                 align = "foot"
             elif val == "center":
                 align = "center"
-        if css.has_key('float'):  # noqa
+        if 'float' in css:
             val = css['float'].lower()
             if val == 'left':
                 align = 'head'
@@ -785,7 +781,7 @@ class HTMLConverter(object):
             return
         src = src.replace('\r\n', '\n').replace('\r', '\n')
 
-        if pseudo_css.has_key('first-letter') and len(src) > 1:  # noqa
+        if 'first-letter' in pseudo_css and len(src) > 1:
             src = src.lstrip()
             f = src[0]
             next = 1
@@ -798,7 +794,7 @@ class HTMLConverter(object):
             ncss.update(pseudo_css.pop('first-letter'))
             self.add_text(f, ncss, {}, force_span_use)
 
-        collapse_whitespace = not css.has_key('white-space') or css['white-space'] != 'pre'  # noqa
+        collapse_whitespace = 'white-space' not in css or css['white-space'] != 'pre'
         if self.process_alignment(css) and collapse_whitespace:
             # Dont want leading blanks in a new paragraph
             src = src.lstrip()
@@ -836,8 +832,8 @@ class HTMLConverter(object):
             if key in ['italic', 'bi']:
                 already_italic = False
                 for fonts in self.fonts.values():
-                    it = fonts['italic'][1] if fonts.has_key('italic') else ''  # noqa
-                    bi = fonts['bi'][1] if fonts.has_key('bi') else ''  # noqa
+                    it = fonts['italic'][1] if 'italic' in fonts else ''
+                    bi = fonts['bi'][1] if 'bi' in fonts else ''
                     if fp['fontfacename'] in (it, bi):
                         already_italic = True
                         break
@@ -855,7 +851,7 @@ class HTMLConverter(object):
                 attrs['textcolor'] = lrs_color(css['color'])
             attrs.update(fp)
             elem = Span(text=src, **attrs) if (attrs or force_span_use) else src
-            if css.has_key('text-decoration'):  # noqa
+            if 'text-decoration' in css:
                 dec = css['text-decoration'].lower()
                 linepos = 'after' if dec == 'underline' else 'before' if dec == 'overline' else None
                 if linepos is not None:
@@ -915,9 +911,9 @@ class HTMLConverter(object):
                 fmt = 'JPEG'
             return fmt
         original_path = path
-        if self.rotated_images.has_key(path):  # noqa
+        if path in self.rotated_images:
             path = self.rotated_images[path].name
-        if self.scaled_images.has_key(path):  # noqa
+        if path in self.scaled_images:
             path = self.scaled_images[path].name
 
         try:
@@ -965,7 +961,7 @@ class HTMLConverter(object):
                 scale = True
             if scale:
                 path = scale_image(width, height)
-            if not self.images.has_key(path):  # noqa
+            if path not in self.images:
                 self.images[path] = ImageStream(path)
             im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
                                xsize=width, ysize=height)
@@ -998,7 +994,7 @@ class HTMLConverter(object):
         if not path:
             return
 
-        if not self.images.has_key(path):  # noqa
+        if path not in self.images:
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
             except LrsError as err:
@@ -1052,7 +1048,7 @@ class HTMLConverter(object):
                 end_page = True
             tag_css.pop('page-break-after')
         if (self.force_page_break_attr[0].match(tagname) and
-           tag.has_key(self.force_page_break_attr[1]) and  # noqa
+           tag.has_attr(self.force_page_break_attr[1]) and
            self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])) or \
            self.force_page_break.match(tagname):
             self.end_page()
@@ -1072,12 +1068,12 @@ class HTMLConverter(object):
 
         def get(what):
             src = [None for i in range(4)]
-            if tag_css.has_key(what):  # noqa
+            if what in tag_css:
                 msrc = tag_css[what].split()
                 for i in range(min(len(msrc), len(src))):
                     src[i] = msrc[i]
             for i, c in enumerate(('-top', '-right', '-bottom', '-left')):
-                if tag_css.has_key(what+c):  # noqa
+                if what + c in tag_css:
                     src[i] = tag_css[what+c]
             return src
 
@@ -1257,7 +1253,7 @@ class HTMLConverter(object):
             css['font-variant'] = variant
 
         key = font_key(family, style, weight)
-        if self.fonts[family].has_key(key):  # noqa
+        if key in self.fonts[family]:
             t['fontfacename'] = self.fonts[family][key][1]
         else:
             t['fontfacename'] = self.fonts[family]['normal'][1]
@@ -1315,7 +1311,7 @@ class HTMLConverter(object):
 
     def text_properties(self, tag_css):
         indent = self.book.defaultTextStyle.attrs['parindent']
-        if tag_css.has_key('text-indent'):  # noqa
+        if 'text-indent' in tag_css:
             bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
             if 'em' in tag_css['text-indent']:
                 bl = '10pt'
@@ -1328,7 +1324,7 @@ class HTMLConverter(object):
         fp = self.font_properties(tag_css)[0]
         fp['parindent'] = indent
 
-        if tag_css.has_key('line-height'):  # noqa
+        if 'line-height' in tag_css:
             bls, ls = int(self.book.defaultTextStyle.attrs['baselineskip']), \
                       int(self.book.defaultTextStyle.attrs['linespace'])
             try:  # See if line-height is a unitless number
@@ -1358,7 +1354,7 @@ class HTMLConverter(object):
 
         def fill_out_properties(props, default):
             for key in default.keys():
-                if not props.has_key(key):  # noqa
+                if key not in props:
                     props[key] = default[key]
 
         fill_out_properties(block_properties, self.book.defaultBlockStyle.attrs)
@@ -1397,7 +1393,7 @@ class HTMLConverter(object):
 
     def process_anchor(self, tag, tag_css, tag_pseudo_css):
         if not self.in_table:  # Anchors in tables are handled separately
-            key = 'name' if tag.has_key('name') else 'id'  # noqa
+            key = 'name' if tag.has_attr('name') else 'id'
             name = tag[key].replace('#', '')
             previous = self.current_block
             self.process_children(tag, tag_css, tag_pseudo_css)
@@ -1451,7 +1447,7 @@ class HTMLConverter(object):
         if not self.disable_chapter_detection and \
            (self.chapter_attr[0].match(tagname) and
             (self.chapter_attr[1].lower() == 'none' or
-             (tag.has_key(self.chapter_attr[1]) and  # noqa
+             (tag.has_attr(self.chapter_attr[1]) and
               self.chapter_attr[2].match(tag[self.chapter_attr[1]])))):
             self.log.debug('Detected chapter %s'%tagname)
             self.end_page()
@@ -1467,7 +1463,7 @@ class HTMLConverter(object):
             if tagname in ["title", "script", "meta", 'del', 'frameset']:
                 pass
             elif tagname == 'a' and self.link_levels >= 0:
-                if tag.has_key('href') and not self.link_exclude.match(tag['href']):  # noqa
+                if tag.has_attr('href') and not self.link_exclude.match(tag['href']):
                     if urlparse(tag['href'])[0] not in ('', 'file'):
                         self.process_children(tag, tag_css, tag_pseudo_css)
                     else:
@@ -1484,19 +1480,19 @@ class HTMLConverter(object):
                                     text = "Link"
                                 self.add_text(text, tag_css, {}, force_span_use=True)
                                 self.links.append(self.create_link(self.current_para.contents, tag))
-                                if tag.has_key('id') or tag.has_key('name'):  # noqa
-                                    key = 'name' if tag.has_key('name') else 'id'  # noqa
+                                if tag.has_attr('id') or tag.has_attr('name'):
+                                    key = 'name' if tag.has_attr('name') else 'id'
                                     self.targets[self.target_prefix+tag[key]] = self.current_block
                                     self.current_block.must_append = True
                         else:
                             self.log.debug('Could not follow link to '+tag['href'])
                             self.process_children(tag, tag_css, tag_pseudo_css)
-                elif tag.has_key('name') or tag.has_key('id'):  # noqa
+                elif tag.has_attr('name') or tag.has_attr('id'):
                     self.process_anchor(tag, tag_css, tag_pseudo_css)
                 else:
                     self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'img':
-                if tag.has_key('src'):  # noqa
+                if tag.has_attr('src'):
                     path = munge_paths(self.target_prefix, tag['src'])[0]
                     if not os.path.exists(path):
                         path = path.replace('&', '%26')  # convertlit replaces & with %26
@@ -1507,7 +1503,7 @@ class HTMLConverter(object):
                             height = int(tag['height'])
                         except:
                             pass
-                        dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'  # noqa
+                        dropcaps = tag.get('class') in ('libprs500_dropcaps', ['libprs500_dropcaps'])
                         self.process_image(path, tag_css, width, height,
                                            dropcaps=dropcaps, rescale=True)
                     elif not urlparse(tag['src'])[0]:
@@ -1521,7 +1517,7 @@ class HTMLConverter(object):
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
-                elif (tag.has_key('type') and tag['type'] in ("text/css", "text/x-oeb1-css") and tag.has_key('href')):  # noqa
+                elif (tag.has_attr('type') and tag['type'] in ("text/css", "text/x-oeb1-css") and tag.has_attr('href')):
                     path = munge_paths(self.target_prefix, tag['href'])[0]
                     try:
                         f = open(path, 'rb')
@@ -1649,8 +1645,8 @@ class HTMLConverter(object):
             elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                 new_block = self.process_block(tag, tag_css)
 
-                if (self.anchor_ids and tag.has_key('id')) or (self.book_designer and tag.has_key('class') and tag['class']=='title'):  # noqa
-                    if not tag.has_key('id'):  # noqa
+                if (self.anchor_ids and tag.has_attr('id')) or (self.book_designer and tag.get('class') in ('title', ['title'])):
+                    if not tag.has_attr('id'):
                         tag['id'] = __appname__+'_id_'+str(self.id_counter)
                         self.id_counter += 1
 
@@ -1659,7 +1655,7 @@ class HTMLConverter(object):
                         self.end_current_block()
                     self.current_block.must_append = True
                     self.targets[tkey] = self.current_block
-                    if (self.book_designer and tag.has_key('class') and tag['class']=='title'):  # noqa
+                    if (self.book_designer and tag.get('class') in ('title', ['title'])):
                         self.extra_toc_entries.append((self.get_text(tag, 100), self.current_block))
 
                 src = self.get_text(tag, limit=1000)
@@ -1698,9 +1694,9 @@ class HTMLConverter(object):
             elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite', 'sup', 'sub']:
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'font':
-                if tag.has_key('face'):  # noqa
+                if tag.has_attr('face'):
                     tag_css['font-family'] = tag['face']
-                if tag.has_key('color'):  # noqa
+                if tag.has_attr('color'):
                     tag_css['color'] = tag['color']
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname in ['br']:

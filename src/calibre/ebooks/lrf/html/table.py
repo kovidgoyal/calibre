@@ -76,12 +76,12 @@ class Cell(object):
         self.css  = css
         self.text_blocks = []
         self.pwidth = -1.
-        if tag.has_key('width') and '%' in tag['width']:  # noqa
+        if tag.has_attr('width') and '%' in tag['width']:
             try:
                 self.pwidth = float(tag['width'].replace('%', ''))
             except ValueError:
                 pass
-        if css.has_key('width') and '%' in css['width']:  # noqa
+        if 'width' in css and '%' in css['width']:
             try:
                 self.pwidth = float(css['width'].replace('%', ''))
             except ValueError:
@@ -90,8 +90,8 @@ class Cell(object):
             self.pwidth = -1
         self.rowspan = self.colspan = 1
         try:
-            self.colspan = int(tag['colspan']) if tag.has_key('colspan') else 1  # noqa
-            self.rowspan = int(tag['rowspan']) if tag.has_key('rowspan') else 1  # noqa
+            self.colspan = int(tag['colspan']) if tag.has_attr('colspan') else 1
+            self.rowspan = int(tag['rowspan']) if tag.has_attr('rowspan') else 1
         except:
             pass
 
@@ -220,7 +220,7 @@ class Row(object):
             ccss = conv.tag_css(cell, css)[0]
             self.cells.append(Cell(conv, cell, ccss))
         for a in row.findAll(id=True) + row.findAll(name=True):
-            name = a['name'] if a.has_key('name') else a['id'] if a.has_key('id') else None  # noqa
+            name = a['name'] if a.has_attr('name') else a['id'] if a.has_attr('id') else None
             if name is not None:
                 self.targets.append(name.replace('#', ''))
 
