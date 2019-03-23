@@ -63,7 +63,7 @@ class JoopRecipe(BasicNewsRecipe):
         for section in sections:
             articles = []
             h2 = div.find(lambda tag: tag.name ==
-                          'h2' and tag.renderContents() == section)
+                          'h2' and tag.renderContents().decode('utf-8') == section)
             if h2:
                 ul = h2.findNextSibling('ul', 'linklist')
                 if ul:

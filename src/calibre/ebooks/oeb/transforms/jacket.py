@@ -340,8 +340,7 @@ def render_jacket(mi, output_profile,
             if hr_tag is not None:
                 hr_tag.extract()
 
-        return strip_encoding_declarations(
-                soup.renderContents('utf-8').decode('utf-8'))
+        return strip_encoding_declarations(soup.decode_contents())
 
     from calibre.ebooks.oeb.base import RECOVER_PARSER
 

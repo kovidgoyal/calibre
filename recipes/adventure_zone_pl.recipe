@@ -28,10 +28,10 @@ class Adventure_zone(BasicNewsRecipe):
     def skip_ad_pages(self, soup):
         skip_tag = soup.body.find(attrs={'class':'subject'})
         skip_tag = skip_tag.findAll(name='a', href=True)
-        title = soup.title.renderContents().lower()
+        title = soup.title.renderContents().decode('utf-8').lower()
         if self._is_linked_text(title):
             for r in skip_tag:
-                word = r.renderContents()
+                word = r.renderContents().decode('utf-8')
                 if not word:
                     continue
                 word = word.lower()

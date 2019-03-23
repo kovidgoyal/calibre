@@ -76,7 +76,7 @@ class NrcNextRecipe(BasicNewsRecipe):
                     # In this feed/page articles can be written by more than one author.
                     # It is nice to see their names in the titles.
                     flag = post.find('h2', attrs={'class': 'vlag'})
-                    author = flag.contents[0].renderContents()
+                    author = flag.contents[0].renderContents().decode('utf-8')
                     completeTitle = u''.join([author, u': ', title])
                 else:
                     completeTitle = title

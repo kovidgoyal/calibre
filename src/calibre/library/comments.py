@@ -131,7 +131,7 @@ def comments_to_html(comments):
     for t in result.findAll(text=True):
         t.replaceWith(prepare_string_for_xml(unicode_type(t)))
 
-    return result.renderContents(encoding=None)
+    return result.decode_contents()
 
 
 def markdown(val):

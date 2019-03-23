@@ -5,35 +5,31 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Compile a LRS file into a LRF file.
 '''
 
-import sys, os, logging
+import logging
+import os
+import sys
 
 from calibre import setup_cli_handlers
-from calibre.utils.config import OptionParser
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
-                                           CData, Tag
-from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
-            BlockStyle, ImageStream, Font, StyleDefault, BookSetting, Header, \
-            Image, ImageBlock, Page, TextBlock, Canvas, Paragraph, CR, Span, \
-            Italic, Sup, Sub, Bold, EmpLine, JumpButton, CharButton, Plot, \
-            DropCaps, Footer, RuledLine
+from calibre.ebooks.BeautifulSoup import (
+    BeautifulStoneSoup, CData, NavigableString, Tag
+)
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.lrf.pylrs.pylrs import (
+    CR, BlockStyle, Bold, Book, BookSetting, Canvas, CharButton, DropCaps, EmpLine,
+    Font, Footer, Header, Image, ImageBlock, ImageStream, Italic, JumpButton, Page,
+    PageStyle, Paragraph, Plot, RuledLine, Span, StyleDefault, Sub, Sup, TextBlock,
+    TextStyle
+)
+from calibre.utils.config import OptionParser
 from polyglot.builtins import string_or_bytes
 
 
 class LrsParser(object):
 
-    SELF_CLOSING_TAGS = [i.lower() for i in ['CR', 'Plot', 'NoBR', 'Space',
-                         'PutObj', 'RuledLine',
-                         'Plot', 'SetDefault', 'BookSetting', 'RegistFont',
-                         'PageStyle', 'TextStyle', 'BlockStyle', 'JumpTo',
-                         'ImageStream', 'Image']]
-
     def __init__(self, stream, logger):
         self.logger = logger
         src = stream.read()
-        self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0],
-                       convertEntities=BeautifulStoneSoup.XML_ENTITIES,
-                       selfClosingTags=self.SELF_CLOSING_TAGS)
+        self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0])
         self.objects = {}
         for obj in self.soup.findAll(objid=True):
             self.objects[obj['objid']] = obj

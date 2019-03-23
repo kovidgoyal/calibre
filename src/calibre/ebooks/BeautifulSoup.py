@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import bs4
 from bs4 import (  # noqa
     CData, Comment, Declaration, NavigableString, ProcessingInstruction, Tag,
     __version__
@@ -27,3 +28,7 @@ def parse_html(markup):
 
 def BeautifulSoup(markup='', *a, **kw):
     return parse_html(markup)
+
+
+def BeautifulStoneSoup(markup='', *a, **kw):
+    return bs4.BeautifulSoup(markup, 'xml')

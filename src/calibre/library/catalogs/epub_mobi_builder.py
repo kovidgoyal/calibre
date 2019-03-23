@@ -9,7 +9,7 @@ from copy import deepcopy
 from xml.sax.saxutils import escape
 
 from calibre import (
-    prepare_string_for_xml, strftime, force_unicode, isbytestring, replace_entities, as_unicode)
+    prepare_string_for_xml, strftime, force_unicode, isbytestring, replace_entities, as_unicode, xml_replace_entities)
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -27,6 +27,9 @@ from calibre.utils.img import scale_image
 from calibre.utils.zipfile import ZipFile
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from polyglot.builtins import unicode_type
+
+
+NBSP = u'\u00a0'
 
 
 class Formatter(TemplateFormatter):
@@ -112,7 +115,7 @@ class CatalogBuilder(object):
         if self.generate_for_kindle_mobi:
             return '&#x25b7;'
         else:
-            return '&nbsp;'
+            return NBSP
 
     def __init__(self, db, _opts, plugin,
                     report_progress=DummyReporter(),
@@ -1326,7 +1329,7 @@ class CatalogBuilder(object):
         """
         # Kindle TOC descriptions won't render certain characters
         # Fix up
-        massaged = unicode_type(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
+        massaged = xml_replace_entities(unicode_type(description))
 
         # Replace '&' with '&#38;'
         massaged = re.sub("&", "&#38;", massaged)
@@ -1354,7 +1357,7 @@ class CatalogBuilder(object):
         if self.opts.fmt == 'mobi':
             codeTag = soup.new_tag("code")
             if prefix_char is None:
-                codeTag.insert(0, NavigableString('&nbsp;'))
+                codeTag.insert(0, NavigableString(NBSP))
             else:
                 codeTag.insert(0, NavigableString(prefix_char))
             return codeTag
@@ -1362,7 +1365,7 @@ class CatalogBuilder(object):
             spanTag = soup.new_tag("span")
             spanTag['class'] = "prefix"
             if prefix_char is None:
-                prefix_char = "&nbsp;"
+                prefix_char = NBSP
             spanTag.insert(0, NavigableString(prefix_char))
             return spanTag
 
@@ -2711,7 +2714,7 @@ class CatalogBuilder(object):
                 if i < len(book['genres']) - 1:
                     genresTag.insert(gtc, NavigableString(' &middot; '))
                     gtc += 1
-            genres = genresTag.renderContents()
+            genres = genresTag.decode_contents()
 
         # Formats
         formats = []
@@ -2793,7 +2796,7 @@ class CatalogBuilder(object):
         if publisher == ' ':
             publisherTag = body.find('td', attrs={'class': 'publisher'})
             if publisherTag:
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                publisherTag.contents[0].replaceWith(NBSP)
 
         if not genres:
             genresTag = body.find('p', attrs={'class': 'genres'})
@@ -2808,12 +2811,12 @@ class CatalogBuilder(object):
         if note_content == '':
             tdTag = body.find('td', attrs={'class': 'notes'})
             if tdTag:
-                tdTag.contents[0].replaceWith('&nbsp;')
+                tdTag.contents[0].replaceWith(NBSP)
 
         emptyTags = body.findAll('td', attrs={'class': 'empty'})
         for mt in emptyTags:
             newEmptyTag = soup.new_tag('td')
-            newEmptyTag.insert(0, '\xa0')
+            newEmptyTag.insert(0, NBSP)
             mt.replaceWith(newEmptyTag)
 
         return soup
@@ -2974,7 +2977,7 @@ class CatalogBuilder(object):
             <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" version="2005-1" xml:lang="en">
             </ncx>
         '''
-        soup = BeautifulStoneSoup(header, selfClosingTags=['content', 'calibre:meta-img'])
+        soup = BeautifulStoneSoup(header)
 
         ncx = soup.find('ncx')
         navMapTag = soup.new_tag('navMap')
@@ -4033,7 +4036,7 @@ class CatalogBuilder(object):
             </package>
             '''.replace('LANG', lang)
         # Add the supplied metadata tags
-        soup = BeautifulStoneSoup(header, selfClosingTags=['item', 'itemref', 'meta', 'reference'])
+        soup = BeautifulStoneSoup(header)
         metadata = soup.find('metadata')
         mtc = 0
 
@@ -4171,8 +4174,11 @@ class CatalogBuilder(object):
             guide.insert(0, referenceTag)
 
         # Write the OPF file
-        outfile = open("%s/%s.opf" % (self.catalog_path, self.opts.basename), 'w')
-        outfile.write(soup.prettify())
+        output = soup.prettify(encoding='utf-8')
+        if isinstance(output, unicode_type):
+            output = output.encode('utf-8')
+        with lopen("%s/%s.opf" % (self.catalog_path, self.opts.basename), 'wb') as outfile:
+            outfile.write(output)
 
     def generate_rating_string(self, book):
         """ Generate rating string for Descriptions.
@@ -4657,7 +4663,7 @@ class CatalogBuilder(object):
             elem.extract()
 
         # Reconstruct comments w/o <div>s
-        comments = soup.renderContents(None)
+        comments = soup.decode_contents()
 
         # Convert \n\n to <p>s
         if re.search('\n\n', comments):
@@ -4669,7 +4675,7 @@ class CatalogBuilder(object):
                 pTag.insert(0, p)
                 soup.insert(tsc, pTag)
                 tsc += 1
-            comments = soup.renderContents(None)
+            comments = soup.decode_contents()
 
         # Convert solo returns to <br />
         comments = re.sub('[\r\n]', '<br />', comments)
@@ -4726,7 +4732,7 @@ class CatalogBuilder(object):
             result.insert(rtc, elem)
             rtc += 1
 
-        return result.renderContents(encoding=None)
+        return result.decode_contents()
 
     def merge_comments(self, record):
         """ Merge comments with custom column content.
@@ -4954,6 +4960,9 @@ class CatalogBuilder(object):
         """
 
         self.update_progress_full_step(_("Saving NCX"))
+        ncx = self.ncx_soup.prettify(encoding='utf-8')
+        if isinstance(ncx, unicode_type):
+            ncx = ncx.encode('utf-8')
 
-        outfile = open("%s/%s.ncx" % (self.catalog_path, self.opts.basename), 'w')
-        outfile.write(self.ncx_soup.prettify())
+        with lopen("%s/%s.ncx" % (self.catalog_path, self.opts.basename), 'wb') as outfile:
+            outfile.write(ncx)
