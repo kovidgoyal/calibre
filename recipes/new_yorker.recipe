@@ -23,6 +23,13 @@ def absurl(x):
     return x
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class NewYorker(BasicNewsRecipe):
 
     title = u'New Yorker Magazine'
@@ -114,12 +121,12 @@ class NewYorker(BasicNewsRecipe):
             title = soup.find('meta', itemprop='name')
             if title:
                 if self.featured_image:
-                    img = Tag(soup, 'img')
+                    img = new_tag(soup, 'img')
                     img['src'] = self.featured_image
-                    div = Tag(soup, 'div')
+                    div = new_tag(soup, 'div')
                     div.append(img)
                     body.insert(0, div)
-                h1 = Tag(soup, 'h1')
+                h1 = new_tag(soup, 'h1')
                 h1.append(title.get('content'))
                 body.insert(0, h1)
         for attr in 'srcset data-src-mobile'.split():

@@ -12,6 +12,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     now = datetime.datetime.now()
     title = 'The AJC'
@@ -118,7 +125,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                 comma = ', '
         article.author = names
         if len(names) > 0:
-            tag = Tag(soup, 'div', [('class', 'cm-story-author')])
+            tag = new_tag(soup, 'div', [('class', 'cm-story-author')])
             tag.append("by: ")
             tag.append(names)
             meta = soup.find('div', attrs={'class': 'cm-story-meta'})

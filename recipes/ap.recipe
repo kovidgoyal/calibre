@@ -17,6 +17,13 @@ def classes(classes):
     )
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class AssociatedPress(BasicNewsRecipe):
 
     title = u'Associated Press'
@@ -76,7 +83,7 @@ class AssociatedPress(BasicNewsRecipe):
     def preprocess_html(self, soup, *a):
         for meta in soup.findAll('meta', attrs=dict(name="twitter:image:alt")):
             for div in soup.findAll(**classes('LeadFeature')):
-                img = Tag(soup, 'img')
+                img = new_tag(soup, 'img')
                 img['src'] = meta['content']
                 div.insert(0, img)
         return soup

@@ -11,6 +11,13 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class CanWestPaper(BasicNewsRecipe):
 
     postmedia_index_pages = [
@@ -231,21 +238,21 @@ class CanWestPaper(BasicNewsRecipe):
         pgall = soup.find('div', attrs={'id': 'storyphoto'})
         if pgall is not None:  # photo gallery perhaps
             if (soup.find('div', attrs={'id': 'storycontent'}) is None):
-                allpics = Tag(soup, 'div')
+                allpics = new_tag(soup, 'div')
                 first_img = pgall.find('div', 'storyimage')
                 if first_img is not None:
                     first_img.extract()
                     tlist = pgall.find('div', attrs={'id': 'relatedthumbs'})
                     if tlist is not None:
                         for atag in tlist.findAll('a'):
-                            img = Tag(soup, 'img')
+                            img = new_tag(soup, 'img')
                             srcpre, sep, srcpost = atag.img[
                                 'src'].partition('?')
                             img['src'] = srcpre
-                            pdesc = Tag(soup, 'p')
+                            pdesc = new_tag(soup, 'p')
                             pdesc.insert(0, atag.img['alt'])
                             pdesc['class'] = 'photocaption'
-                            div = Tag(soup, 'div')
+                            div = new_tag(soup, 'div')
                             div.insert(0, pdesc)
                             div.insert(0, img)
                             allpics.append(div)

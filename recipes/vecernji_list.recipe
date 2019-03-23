@@ -12,6 +12,13 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class VecernjiList(BasicNewsRecipe):
     title = 'Vecernji List'
     __author__ = 'Darko Miletic'
@@ -48,9 +55,9 @@ class VecernjiList(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
 
-        mlang = Tag(soup, 'meta', [
+        mlang = new_tag(soup, 'meta', [
                     ("http-equiv", "Content-Language"), ("content", self.lang)])
-        mcharset = Tag(soup, 'meta', [
+        mcharset = new_tag(soup, 'meta', [
                        ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)

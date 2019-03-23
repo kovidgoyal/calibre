@@ -10,6 +10,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class LentaRURecipe(BasicNewsRecipe):
     title = u'Lenta.ru: \u041d\u043e\u0432\u043e\u0441\u0442\u0438'
     __author__ = 'Nikolai Kotchetkov'
@@ -113,7 +120,7 @@ class LentaRURecipe(BasicNewsRecipe):
 
     def postprocess_html(self, soup, first_fetch):
 
-        contents = Tag(soup, 'div')
+        contents = new_tag(soup, 'div')
 
         # Extract tags with given attributes
         extractElements = {'div': [{'id': 'readers-block'}]}
@@ -155,13 +162,13 @@ class LentaRURecipe(BasicNewsRecipe):
         # Place article picture after date
         pic = soup.find('img')
         if pic:
-            picDiv = Tag(soup, 'div')
+            picDiv = new_tag(soup, 'div')
             picDiv['style'] = 'width: 100%; text-align: center;'
             pic.extract()
             picDiv.insert(0, pic)
             title = pic.get('title', None)
             if title:
-                titleDiv = Tag(soup, 'div')
+                titleDiv = new_tag(soup, 'div')
                 titleDiv['style'] = 'font-size: 0.5em;'
                 titleDiv.insert(0, title)
                 picDiv.insert(1, titleDiv)

@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class VrijNederlandRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -73,7 +80,7 @@ class VrijNederlandRecipe(BasicNewsRecipe):
         # altogether
         theirHead = soup.head
         theirHead.extract()
-        myHead = Tag(soup, 'head')
+        myHead = new_tag(soup, 'head')
         soup.insert(0, myHead)
 
         return soup

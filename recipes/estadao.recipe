@@ -6,6 +6,13 @@ from calibre.utils.magick import Image, PixelWand
 from urllib2 import Request, urlopen, URLError
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class Estadao(BasicNewsRecipe):
     THUMBALIZR_API = ''  # ---->Get your at http://www.thumbalizr.com/ and put here
     LANGUAGE = 'pt_br'
@@ -76,11 +83,11 @@ class Estadao(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         if not soup.find(attrs={'http-equiv': 'Content-Language'}):
-            meta0 = Tag(soup, 'meta', [
+            meta0 = new_tag(soup, 'meta', [
                         ("http-equiv", "Content-Language"), ("content", self.LANGHTM)])
             soup.head.insert(0, meta0)
         if not soup.find(attrs={'http-equiv': 'Content-Type'}):
-            meta1 = Tag(soup, 'meta', [
+            meta1 = new_tag(soup, 'meta', [
                         ("http-equiv", "Content-Type"), ("content", "text/html; charset=" + self.ENCHTM)])
             soup.head.insert(0, meta1)
         return soup

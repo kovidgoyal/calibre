@@ -9,6 +9,13 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class VedomostiRecipe(BasicNewsRecipe):
     title = u'Ведомости'
     __author__ = 'Nikolai Kotchetkov'
@@ -145,7 +152,7 @@ class VedomostiRecipe(BasicNewsRecipe):
         if newstop:
             img = newstop.find('img')
             if img:
-                imgDiv = Tag(soup, 'div')
+                imgDiv = new_tag(soup, 'div')
                 imgDiv['class'] = 'article_img'
 
                 if img.get('width'):

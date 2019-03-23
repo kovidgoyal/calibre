@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class FokkeEnSukkeRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -79,7 +86,7 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
         if img:
             title = img['alt']
 
-        tag = Tag(soup, 'div', [('class', 'title')])
+        tag = new_tag(soup, 'div', [('class', 'title')])
         tag.insert(0, title)
         cartoon.insert(0, tag)
 

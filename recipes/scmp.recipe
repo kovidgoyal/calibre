@@ -12,6 +12,13 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class SCMP(BasicNewsRecipe):
     title = 'South China Morning Post'
     __author__ = 'llam'
@@ -71,7 +78,7 @@ class SCMP(BasicNewsRecipe):
             wrapper = soup.find(**classes('image-wrapper__placeholder'))
             if wrapper is not None:
                 p = wrapper.parent
-                img = Tag(soup, 'img')
+                img = new_tag(soup, 'img')
                 img['src'] = meta['content']
                 p.append(img)
                 wrapper.extract()

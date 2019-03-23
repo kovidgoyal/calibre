@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class NrcNextRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -100,20 +107,20 @@ class NrcNextRecipe(BasicNewsRecipe):
             if tag:
                 h2 = tag.find('h2', 'vlag')
                 if h2:
-                    new_h2 = Tag(soup, 'h2', attrs=[('class', 'vlag')])
+                    new_h2 = new_tag(soup, 'h2', attrs=[('class', 'vlag')])
                     new_h2.append(self.tag_to_string(h2))
                     h2.replaceWith(new_h2)
                 else:
                     h2 = tag.find('h2')
                     if h2:
-                        new_h2 = Tag(soup, 'h2', attrs=[
+                        new_h2 = new_tag(soup, 'h2', attrs=[
                                      ('class', 'sub_title')])
                         new_h2.append(self.tag_to_string(h2))
                         h2.replaceWith(new_h2)
 
                 h1 = tag.find('h1')
                 if h1:
-                    new_h1 = Tag(soup, 'h1')
+                    new_h1 = new_tag(soup, 'h1')
                     new_h1.append(self.tag_to_string(h1))
                     h1.replaceWith(new_h1)
 

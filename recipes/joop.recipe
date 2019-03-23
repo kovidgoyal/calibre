@@ -3,6 +3,13 @@ from calibre.ebooks.BeautifulSoup import Tag
 import re
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class JoopRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -89,7 +96,7 @@ class JoopRecipe(BasicNewsRecipe):
             span = h2.find('span', 'info')
             if span:
                 txt = span.find(text=True)
-            div = Tag(soup, 'div', attrs=[('class', 'joop_date')])
+            div = new_tag(soup, 'div', attrs=[('class', 'joop_date')])
             div.append(txt)
             h2.replaceWith(div)
 
