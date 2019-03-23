@@ -1194,7 +1194,7 @@ class KOBO(USBMS):
 
     def generate_annotation_html(self, bookmark):
         import calendar
-        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
         # Returns <div class="user_annotations"> ... </div>
         # last_read_location = bookmark.last_read_location
         # timestamp = bookmark.timestamp
@@ -1218,11 +1218,11 @@ class KOBO(USBMS):
         # debug_print("Percent read: ", percent_read)
         ka_soup = BeautifulSoup()
         dtc = 0
-        divTag = Tag(ka_soup,'div')
+        divTag = ka_soup.new_tag('div')
         divTag['class'] = 'user_annotations'
 
         # Add the last-read location
-        spanTag = Tag(ka_soup, 'span')
+        spanTag = ka_soup.new_tag('span')
         spanTag['style'] = 'font-weight:normal'
         if bookmark.book_format == 'epub':
             spanTag.insert(0,BeautifulSoup(
@@ -1239,7 +1239,7 @@ class KOBO(USBMS):
 
         divTag.insert(dtc, spanTag)
         dtc += 1
-        divTag.insert(dtc, Tag(ka_soup,'br'))
+        divTag.insert(dtc, ka_soup.new_tag('br'))
         dtc += 1
 
         if bookmark.user_notes:
@@ -1301,7 +1301,6 @@ class KOBO(USBMS):
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
-        from calibre.ebooks.BeautifulSoup import Tag
         bm = annotation
         ignore_tags = {'Catalog', 'Clippings'}
 
@@ -1320,7 +1319,7 @@ class KOBO(USBMS):
                 if set(mi.tags).intersection(ignore_tags):
                     return
                 if mi.comments:
-                    hrTag = Tag(user_notes_soup,'hr')
+                    hrTag = user_notes_soup.new_tag('hr')
                     hrTag['class'] = 'annotations_divider'
                     user_notes_soup.insert(0, hrTag)
 

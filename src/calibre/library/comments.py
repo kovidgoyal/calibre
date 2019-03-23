@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.constants import preferred_encoding
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
 from calibre.utils.html2text import html2text
@@ -95,20 +95,20 @@ def comments_to_html(comments):
 
     all_tokens = list(soup.contents)
     for token in all_tokens:
-        if type(token) is NavigableString:
+        if isinstance(token, NavigableString):
             if not open_pTag:
-                pTag = Tag(result,'p')
+                pTag = result.new_tag('p')
                 open_pTag = True
                 ptc = 0
             pTag.insert(ptc,prepare_string_for_xml(token))
             ptc += 1
-        elif type(token) in (CData, Comment, Declaration,
-                ProcessingInstruction):
+        elif isinstance(token,  (CData, Comment, Declaration,
+                ProcessingInstruction)):
             continue
         elif token.name in ['br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a',
                 'hr']:
             if not open_pTag:
-                pTag = Tag(result,'p')
+                pTag = result.new_tag('p')
                 open_pTag = True
                 ptc = 0
             pTag.insert(ptc, token)
