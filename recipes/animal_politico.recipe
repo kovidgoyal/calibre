@@ -41,7 +41,7 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
                              'description': article_desc,
                              'url': article_url})
             # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
+            if ''.join(entry['class']).find('last') != -1:
                 break
 
         return articles
@@ -86,7 +86,7 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
                              'description': article_desc,
                              'url': article_url})
             # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
+            if ''.join(entry['class']).find('last') != -1:
                 break
 
         return articles

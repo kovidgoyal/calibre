@@ -128,13 +128,16 @@ class TheAtlantic(BasicNewsRecipe):
             feeds = []
             for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
                 for h2 in div.findAll('h2', attrs={'class': True}):
-                    if 'section-name' in h2['class'].split():
+                    cls = h2['class']
+                    if hasattr(cls, 'split'):
+                        cls = cls.split()
+                    if 'section-name' in cls:
                         if current_articles:
                             feeds.append((current_section, current_articles))
                         current_articles = []
                         current_section = self.tag_to_string(h2)
                         self.log('\nFound section:', current_section)
-                    elif 'hed' in h2['class'].split():
+                    elif 'hed' in cls:
                         title = self.tag_to_string(h2)
                         a = h2.findParent('a', href=True)
                         url = a['href']

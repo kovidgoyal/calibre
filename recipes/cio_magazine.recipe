@@ -102,13 +102,13 @@ class CIO_Magazine(BasicNewsRecipe):
         for div in soup.findAll(True,
                                 attrs={'class': ['heading', 'issue_item']}):
 
-            if div['class'] == 'heading':
+            if ''.join(div['class']) == 'heading':
                 key = string.capwords(self.tag_to_string(div.span))
                 print("Key: ", key)  # Esto es para depurar
                 articles[key] = []
                 feeds.append(key)
 
-            elif div['class'] == 'issue_item':
+            elif ''.join(div['class']) == 'issue_item':
                 a = div.find('a', href=True)
                 if not a:
                     continue

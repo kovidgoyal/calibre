@@ -151,7 +151,7 @@ class LentaRURecipe(BasicNewsRecipe):
             for date in dates:
                 for string in date:
                     parent = date.parent
-                    if (parent and isinstance(parent, Tag) and 'div' == parent.name and 'dt' == parent['class']):
+                    if (parent and isinstance(parent, Tag) and 'div' == parent.name and 'dt' == ''.join(parent['class'])):
                         # Date div found
                         parent.extract()
                         parent[

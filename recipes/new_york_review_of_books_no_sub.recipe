@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def find_header(tag):
-    return tag.name == 'header' and tag.parent['class'] == 'article'
+    return tag.name == 'header' and ''.join(tag.parent['class']) == 'article'
 
 
 def absurl(url):

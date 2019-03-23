@@ -280,7 +280,7 @@ class CanWestPaper(BasicNewsRecipe):
                     if dtag is not None:
                         stag = dtag.span
                         if stag is not None:
-                            if stag['class'] != 'timestamp':
+                            if ''.join(stag['class']) != 'timestamp':
                                 description = self.tag_to_string(stag, False)
                         else:
                             description = self.tag_to_string(dtag, False)

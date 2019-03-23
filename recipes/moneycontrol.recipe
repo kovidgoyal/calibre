@@ -51,7 +51,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
             freshSoup.body.append(h1)
 
         for p in soup.findAll('p', attrs={'class': true}):
-            if p['class'] == 'MsoNormal':
+            if ''.join(p['class']) == 'MsoNormal':
                 # We have some weird pagebreak marker here; it will not find all of them however
                 continue
 

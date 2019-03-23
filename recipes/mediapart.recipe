@@ -60,7 +60,7 @@ class Mediapart(BasicNewsRecipe):
             try:
                 title = article.find('h3', recursive=False)
 
-                if title is None or title['class'] == 'title-specific':
+                if title is None or ''.join(title['class']) == 'title-specific':
                     continue
 
                 # print "found fil ",title

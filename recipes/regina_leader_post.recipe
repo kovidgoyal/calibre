@@ -180,7 +180,7 @@ class CanWestPaper(BasicNewsRecipe):
 
         # Find each instance of class="sectiontitle", class="featurecontent"
         for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
-            if divtag['class'].startswith('section_title'):
+            if 'section_title' in ''.join(divtag['class']):
                 # div contains section title
                 if not divtag.h3:
                     continue

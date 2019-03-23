@@ -198,12 +198,12 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
            for div in soup.findAll(True,
                 attrs={'class':['section-headline', 'story', 'story headline']}):
 
-                if div['class'] == 'section-headline':
+                if ''.join(div['class']) == 'section-headline':
                     key = string.capwords(feed_title(div))
                     articles[key] = []
                     ans.append(key)
 
-                elif div['class'] in ['story', 'story headline']:
+                elif ''.join(div['class']) in ['story', 'story headline']:
                     a = div.find('a', href=True)
                     if not a:
                         continue
