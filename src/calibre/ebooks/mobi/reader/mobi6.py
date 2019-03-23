@@ -11,7 +11,7 @@ import shutil, os, re, struct, textwrap, cStringIO
 from lxml import html, etree
 
 from calibre import (xml_entity_to_unicode, entity_to_unicode)
-from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
@@ -184,30 +184,32 @@ class MobiReader(object):
         self.cleanup_html()
 
         self.log.debug('Parsing HTML...')
-        self.processed_html = clean_ascii_chars(self.processed_html)
+        self.processed_html = clean_xml_chars(self.processed_html)
         try:
             root = html.fromstring(self.processed_html)
             if len(root.xpath('//html')) > 5:
                 root = html.fromstring(self.processed_html.replace('\x0c',
                     '').replace('\x14', ''))
-        except:
+        except Exception:
             self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
             self.processed_html = self.remove_random_bytes(self.processed_html)
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
-            from calibre.utils.soupparser import fromstring
-            self.log.warning('Malformed markup, parsing using BeautifulSoup')
+            from html5_parser import parse
+            from calibre.ebooks.chardet import strip_encoding_declarations
+            self.log.warning('Malformed markup, parsing using html5-parser')
+            self.processed_html = strip_encoding_declarations(self.processed_html)
             try:
-                root = fromstring(self.processed_html)
+                root = parse(self.processed_html, maybe_xhtml=False, keep_doctype=False, sanitize_names=True)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
-                root = fromstring(self.processed_html)
+                root = parse(self.processed_html, maybe_xhtml=False, keep_doctype=False, sanitize_names=True)
             if len(root.xpath('body/descendant::*')) < 1:
                 # There are probably stray </html>s in the markup
                 self.processed_html = self.processed_html.replace('</html>',
                         '')
-                root = fromstring(self.processed_html)
+                root = parse(self.processed_html, maybe_xhtml=False, keep_doctype=False, sanitize_names=True)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')

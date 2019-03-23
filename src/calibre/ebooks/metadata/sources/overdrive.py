@@ -26,7 +26,7 @@ base_url = 'https://search.overdrive.com/'
 class OverDrive(Source):
 
     name = 'Overdrive'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Overdrive\'s Content Reserve')
 
@@ -401,9 +401,9 @@ class OverDrive(Source):
                     cover_url)
 
     def get_book_detail(self, br, metadata_url, mi, ovrdrv_id, log):
+        from html5_parser import parse
         from lxml import html
         from calibre.ebooks.chardet import xml_to_unicode
-        from calibre.utils.soupparser import fromstring
         from calibre.library.comments import sanitize_comments_html
 
         try:
@@ -415,9 +415,10 @@ class OverDrive(Source):
             raise
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
+
         try:
-            root = fromstring(raw)
-        except:
+            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        except Exception:
             return False
 
         pub_date = root.xpath("//div/label[@id='ctl00_ContentPlaceHolder1_lblPubDate']/text()")

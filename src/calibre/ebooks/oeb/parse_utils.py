@@ -107,12 +107,8 @@ def html5_parse(data, max_nesting_depth=100):
     return data
 
 
-def _html4_parse(data, prefer_soup=False):
-    if prefer_soup:
-        from calibre.utils.soupparser import fromstring
-        data = fromstring(data)
-    else:
-        data = html.fromstring(data)
+def _html4_parse(data):
+    data = html.fromstring(data)
     data.attrib.pop('xmlns', None)
     for elem in data.iter(tag=etree.Comment):
         if elem.text:

@@ -24,7 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
 from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING, secure_web_page
 from calibre.gui2.widgets import LineEditECM
-from calibre.utils.soupparser import fromstring
+from html5_parser import parse
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
@@ -355,8 +355,8 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
 
                 try:
                     root = html.fromstring(raw)
-                except:
-                    root = fromstring(raw)
+                except Exception:
+                    root = parse(raw, maybe_xhtml=False, sanitize_names=True)
 
                 elems = []
                 for body in root.xpath('//body'):
