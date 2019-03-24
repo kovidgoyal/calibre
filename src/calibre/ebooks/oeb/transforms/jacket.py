@@ -15,7 +15,6 @@ from lxml import etree
 
 from calibre import guess_type, strftime
 from calibre.constants import iswindows
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
 from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.date import is_date_undefined, as_local_time
@@ -205,6 +204,34 @@ class Tags(unicode_type):
         return t
 
 
+def postprocess_jacket(root, output_profile, has_data):
+    # Post-process the generated html to strip out empty header items
+
+    def extract(tag):
+        parent = tag.getparent()
+        idx = parent.index(tag)
+        parent.remove(tag)
+        if tag.tail:
+            if idx == 0:
+                parent.text = (parent.text or '') + tag.tail
+            else:
+                if idx >= len(parent):
+                    idx = -1
+                parent[-1].tail = (parent[-1].tail or '') + tag.tail
+
+    def extract_class(cls):
+        for tag in root.xpath('//*[@class="_"]'.replace('_', cls)):
+            extract(tag)
+
+    for key in 'series rating tags'.split():
+        if not has_data[key]:
+            extract_class('cbj_' + key)
+    if not has_data['pubdate']:
+        extract_class('cbj_pubdata')
+    if output_profile.short_name != 'kindle':
+        extract_class('cbj_kindle_banner_hr')
+
+
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
         alt_publisher='', rescale_fonts=False, alt_authors=None):
@@ -256,6 +283,7 @@ def render_jacket(mi, output_profile,
         author = ''
     mi.authors = orig
     author = escape(author)
+    has_data = {}
 
     def generate_html(comments):
         args = dict(xmlns=XHTML_NS,
@@ -315,32 +343,12 @@ def render_jacket(mi, output_profile,
 
         formatter = SafeFormatter()
         generated_html = formatter.format(template, **args)
+        has_data['series'] = bool(series)
+        has_data['tags'] = bool(tags)
+        has_data['rating'] = bool(rating)
+        has_data['pubdate'] = bool(pubdate)
 
-        # Post-process the generated html to strip out empty header items
-
-        soup = BeautifulSoup(generated_html)
-        if not series:
-            series_tag = soup.find(attrs={'class':'cbj_series'})
-            if series_tag is not None:
-                series_tag.extract()
-        if not rating:
-            rating_tag = soup.find(attrs={'class':'cbj_rating'})
-            if rating_tag is not None:
-                rating_tag.extract()
-        if not tags:
-            tags_tag = soup.find(attrs={'class':'cbj_tags'})
-            if tags_tag is not None:
-                tags_tag.extract()
-        if not pubdate:
-            pubdate_tag = soup.find(attrs={'class':'cbj_pubdata'})
-            if pubdate_tag is not None:
-                pubdate_tag.extract()
-        if output_profile.short_name != 'kindle':
-            hr_tag = soup.find('hr', attrs={'class':'cbj_kindle_banner_hr'})
-            if hr_tag is not None:
-                hr_tag.extract()
-
-        return strip_encoding_declarations(soup.decode_contents())
+        return strip_encoding_declarations(generated_html)
 
     from calibre.ebooks.oeb.base import RECOVER_PARSER
 
@@ -369,6 +377,7 @@ def render_jacket(mi, output_profile,
             for child in body:
                 fw.append(child)
             body.append(fw)
+    postprocess_jacket(root, output_profile, has_data)
     from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
     pretty_html_tree(None, root)
     return root
