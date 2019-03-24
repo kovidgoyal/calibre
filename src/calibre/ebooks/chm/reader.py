@@ -144,7 +144,7 @@ class CHMReader(CHMFile):
             import shutil
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
-            with open(lpath, 'r+b') as f:
+            with lopen(lpath, 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
                 if isinstance(data, unicode_type):
@@ -262,7 +262,7 @@ class CHMReader(CHMFile):
             pass
         # do not prettify, it would reformat the <pre> tags!
         try:
-            ans = str(soup)
+            ans = soup.decode_contents()
             self.re_encoded_files.add(os.path.abspath(htmlpath))
             return ans
         except RuntimeError:
