@@ -44,7 +44,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         articles = []
         soup = self.index_to_soup(self.INDEX)
         cover_item = soup.find('p', attrs={'class': 'cover'})
-        dates = str(soup.find('span', attrs={'class': 'coverdate'}))
+        dates = type(u'')(soup.find('span', attrs={'class': 'coverdate'}))
         newdates = re.sub(r'\<.*\>', '', re.split('<br />', dates)[1])
         self.timefmt = ' [%s]' % newdates
         lrbtitle = self.title
