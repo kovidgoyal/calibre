@@ -119,8 +119,13 @@ class Jacket(Base):
         except:
             title = _('Unknown')
 
+        try:
+            authors = list(map(unicode_type, self.oeb.metadata.creator))
+        except:
+            authors = [_('Unknown')]
+
         root = render_jacket(mi, self.opts.output_profile,
-                alt_title=title, alt_tags=tags,
+                alt_title=title, alt_tags=tags, alt_authors=authors,
                 alt_comments=comments, rescale_fonts=True)
         id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
 
@@ -202,7 +207,7 @@ class Tags(unicode_type):
 
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
-        alt_publisher=(''), rescale_fonts=False):
+        alt_publisher='', rescale_fonts=False, alt_authors=None):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 
@@ -210,7 +215,7 @@ def render_jacket(mi, output_profile,
     css = re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
 
     try:
-        title_str = mi.title if mi.title else alt_title
+        title_str = alt_title if mi.is_null('title') else mi.title
     except:
         title_str = _('Unknown')
     title_str = escape(title_str)
@@ -218,7 +223,7 @@ def render_jacket(mi, output_profile,
 
     series = Series(mi.series, mi.series_index)
     try:
-        publisher = mi.publisher if mi.publisher else alt_publisher
+        publisher = mi.publisher if not mi.is_null('publisher') else alt_publisher
     except:
         publisher = ''
     publisher = escape(publisher)
@@ -242,10 +247,14 @@ def render_jacket(mi, output_profile,
     if comments:
         comments = comments_to_html(comments)
 
+    orig = mi.authors
+    if mi.is_null('authors'):
+        mi.authors = list(alt_authors or (_('Unknown'),))
     try:
         author = mi.format_authors()
     except:
         author = ''
+    mi.authors = orig
     author = escape(author)
 
     def generate_html(comments):
