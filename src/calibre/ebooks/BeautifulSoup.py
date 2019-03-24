@@ -26,6 +26,13 @@ def parse_html(markup):
     return parse(markup, return_root=False)
 
 
+def prettify(soup):
+    ans = soup.prettify()
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans
+
+
 def BeautifulSoup(markup='', *a, **kw):
     return parse_html(markup)
 

@@ -13,7 +13,7 @@ from calibre import (
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString, prettify
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
@@ -1621,9 +1621,8 @@ class CatalogBuilder(object):
 
         # Write the generated file to content_dir
         outfile_spec = "%s/ByAlphaAuthor.html" % (self.content_dir)
-        outfile = open(outfile_spec, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile_spec, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append("content/ByAlphaAuthor.html")
 
     def generate_html_by_date_added(self):
@@ -1885,9 +1884,8 @@ class CatalogBuilder(object):
 
         # Write the generated file to content_dir
         outfile_spec = "%s/ByDateAdded.html" % (self.content_dir)
-        outfile = open(outfile_spec, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile_spec, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_2.append("content/ByDateAdded.html")
 
     def generate_html_by_date_read(self):
@@ -2062,9 +2060,8 @@ class CatalogBuilder(object):
 
         # Write the generated file to content_dir
         outfile_spec = "%s/ByDateRead.html" % (self.content_dir)
-        outfile = open(outfile_spec, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile_spec, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_2.append("content/ByDateRead.html")
 
     def generate_html_by_genres(self):
@@ -2309,9 +2306,8 @@ class CatalogBuilder(object):
             dtc += 1
 
         # Write the generated file to content_dir
-        outfile = open(outfile, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
 
         if len(books) > 1:
             titles_spanned = [(books[0]['author'], books[0]['title']), (books[-1]['author'], books[-1]['title'])]
@@ -2469,9 +2465,8 @@ class CatalogBuilder(object):
 
         # Write the generated file to content_dir
         outfile_spec = "%s/BySeries.html" % (self.content_dir)
-        outfile = open(outfile_spec, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile_spec, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append("content/BySeries.html")
 
     def generate_html_by_title(self):
@@ -2624,9 +2619,8 @@ class CatalogBuilder(object):
 
         # Write the volume to content_dir
         outfile_spec = "%s/ByAlphaTitle.html" % (self.content_dir)
-        outfile = open(outfile_spec, 'w')
-        outfile.write(soup.prettify())
-        outfile.close()
+        with open(outfile_spec, 'wb') as outfile:
+            outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append("content/ByAlphaTitle.html")
 
     def generate_html_description_header(self, book):
@@ -2845,9 +2839,8 @@ class CatalogBuilder(object):
             soup = self.generate_html_description_header(title)
 
             # Write the book entry to content_dir
-            outfile = open("%s/book_%d.html" % (self.content_dir, int(title['id'])), 'w')
-            outfile.write(soup.prettify())
-            outfile.close()
+            with open("%s/book_%d.html" % (self.content_dir, int(title['id'])), 'wb') as outfile:
+                outfile.write(prettify(soup).encode('utf-8'))
 
     def generate_html_empty_header(self, title):
         """ Return a boilerplate HTML header.

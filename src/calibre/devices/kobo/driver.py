@@ -1299,6 +1299,7 @@ class KOBO(USBMS):
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
+        from calibre.ebooks.BeautifulSoup import prettify
         bm = annotation
         ignore_tags = {'Catalog', 'Clippings'}
 
@@ -1321,9 +1322,9 @@ class KOBO(USBMS):
                     hrTag['class'] = 'annotations_divider'
                     user_notes_soup.insert(0, hrTag)
 
-                mi.comments += unicode_type(user_notes_soup.prettify())
+                mi.comments += prettify(user_notes_soup)
             else:
-                mi.comments = unicode_type(user_notes_soup.prettify())
+                mi.comments = prettify(user_notes_soup)
             # Update library comments
             db.set_comment(db_id, mi.comments)
 
