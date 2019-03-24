@@ -213,20 +213,17 @@ class KINDLE(USBMS):
         divTag['class'] = 'user_annotations'
 
         # Add the last-read location
-        spanTag = ka_soup.new_tag('span')
-        spanTag['style'] = 'font-weight:bold'
         if bookmark.book_format == 'pdf':
-            spanTag.insert(0,BeautifulSoup(
-                _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
+            markup = _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
-                    pr=percent_read)))
+                    pr=percent_read)
         else:
-            spanTag.insert(0,BeautifulSoup(
-                _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
+            markup = _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
                     time=strftime(u'%x', timestamp.timetuple()),
                     loc=last_read_location,
-                    pr=percent_read)))
+                    pr=percent_read)
+        spanTag = BeautifulSoup('<span style="font-weight:bold">' + markup + '</span>').find('span')
 
         divTag.insert(dtc, spanTag)
         dtc += 1
@@ -261,7 +258,8 @@ class KINDLE(USBMS):
                                     typ=user_notes[location]['type']))
 
             for annotation in annotations:
-                divTag.insert(dtc, BeautifulSoup(annotation))
+                annot = BeautifulSoup('<span>' + annotations + '</span>').find('span')
+                divTag.insert(dtc, annot)
                 dtc += 1
 
         ka_soup.insert(0,divTag)

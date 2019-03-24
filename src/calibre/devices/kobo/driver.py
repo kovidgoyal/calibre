@@ -1222,20 +1222,17 @@ class KOBO(USBMS):
         divTag['class'] = 'user_annotations'
 
         # Add the last-read location
-        spanTag = ka_soup.new_tag('span')
-        spanTag['style'] = 'font-weight:normal'
         if bookmark.book_format == 'epub':
-            spanTag.insert(0,BeautifulSoup(
-                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
+            markup = _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
-                    pr=percent_read)))
+                    pr=percent_read)
         else:
-            spanTag.insert(0,BeautifulSoup(
-                _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
+            markup = _("<hr /><b>Book last read:</b> %(time)s<br /><b>Percentage read:</b> %(pr)d%%<hr />") % dict(
                     time=last_read,
                     # loc=last_read_location,
-                    pr=percent_read)))
+                    pr=percent_read)
+        spanTag = BeautifulSoup('<span style="font-weight:normal">' + markup + '</span>').find('span')
 
         divTag.insert(dtc, spanTag)
         dtc += 1
@@ -1294,7 +1291,8 @@ class KOBO(USBMS):
                               annotation=user_notes[location]['annotation']))
 
             for annotation in annotations:
-                divTag.insert(dtc, BeautifulSoup(annotation))
+                annot = BeautifulSoup('<span>' + annotations + '</span>').find('span')
+                divTag.insert(dtc, annot)
                 dtc += 1
 
         ka_soup.insert(0,divTag)
