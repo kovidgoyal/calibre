@@ -10,7 +10,6 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 from polyglot.builtins import unicode_type
@@ -27,6 +26,26 @@ NSMAP = {
 E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
 
 C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
+
+
+def parse_html_toc(data):
+    from html5_parser import parse
+    from calibre.utils.cleantext import clean_xml_chars
+    from lxml import etree
+    if isinstance(data, bytes):
+        data = xml_to_unicode(data, strip_encoding_pats=True, resolve_entities=True)[0]
+    root = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
+    for a in root.xpath('//*[@href and local-name()="a"]'):
+        purl = urlparse(unquote(a.get('href')))
+        href, fragment = purl[2], purl[5]
+        if not fragment:
+            fragment = None
+        else:
+            fragment = fragment.strip()
+        href = href.strip()
+
+        txt = etree.tostring(a, method='text', encoding='unicode')
+        yield href, fragment, txt
 
 
 class TOC(list):
@@ -217,19 +236,7 @@ class TOC(list):
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        for a in soup.findAll('a'):
-            if not a.has_key('href'):  # noqa
-                continue
-            purl = urlparse(unquote(a['href']))
-            href, fragment = purl[2], purl[5]
-            if not fragment:
-                fragment = None
-            else:
-                fragment = fragment.strip()
-            href = href.strip()
-
-            txt = ''.join([unicode_type(s).strip() for s in a.findAll(text=True)])
+        for href, fragment, txt in parse_html_toc(lopen(toc, 'rb').read()):
             add = True
             for i in self.flat():
                 if i.href == href and i.fragment == fragment:
