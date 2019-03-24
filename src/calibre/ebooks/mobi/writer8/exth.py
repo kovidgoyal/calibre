@@ -15,7 +15,7 @@ from calibre.constants import iswindows, isosx
 from calibre.ebooks.mobi.utils import (utf8_text, to_base)
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.ebooks.metadata import authors_to_sort_string
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 EXTH_CODES = {
     'creator': 100,
@@ -163,7 +163,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     else:
         # Pretend to be kindlegen 1.2
         vals = {204:201, 205:1, 206:2, 207:33307}
-    for code, val in vals.iteritems():
+    for code, val in iteritems(vals):
         exth.write(pack(b'>III', code, 12, val))
         nrecs += 1
     if be_kindlegen2:

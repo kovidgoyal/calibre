@@ -23,7 +23,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -404,7 +404,7 @@ class Device(DeviceConfig, DevicePlugin):
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = usbobserver.get_mounted_filesystems()
-        drives = {k: mount_map.get(v) for k, v in drives.iteritems()}
+        drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
         if DEBUG:
             print()
             from pprint import pprint

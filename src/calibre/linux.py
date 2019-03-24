@@ -13,6 +13,7 @@ from calibre.constants import islinux, isbsd
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
+from polyglot.builtins import iteritems
 
 
 entry_points = {
@@ -70,7 +71,7 @@ class PreserveMIMEDefaults(object):
                 self.initial_values[x] = None
 
     def __exit__(self, *args):
-        for path, val in self.initial_values.iteritems():
+        for path, val in iteritems(self.initial_values):
             if val is None:
                 try:
                     os.remove(path)
@@ -416,13 +417,13 @@ _ebook_edit() {
         f.write('\n_calibredb_cmds() {\n  local commands; commands=(\n')
         f.write('    {-h,--help}":Show help"\n')
         f.write('    "--version:Show version"\n')
-        for command, desc in descs.iteritems():
+        for command, desc in iteritems(descs):
             f.write('    "%s:%s"\n'%(
                 command, desc.replace(':', '\\:').replace('"', '\'')))
         f.write('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
-        for command, parser in parsers.iteritems():
+        for command, parser in iteritems(parsers):
             exts = []
             if command == 'catalog':
                 exts = [x.lower() for x in available_catalog_formats()]
@@ -477,7 +478,7 @@ _ebook_edit() {
                 self.do_calibredb(f)
                 self.do_ebook_edit(f)
                 f.write('case $service in\n')
-                for c, txt in self.commands.iteritems():
+                for c, txt in iteritems(self.commands):
                     if isinstance(txt, type(u'')):
                         txt = txt.encode('utf-8')
                     if isinstance(c, type(u'')):
@@ -1101,7 +1102,7 @@ def write_appdata(key, entry, base, translators):
     description = E.description()
     for para in entry['description']:
         description.append(E.p(para))
-        for lang, t in translators.iteritems():
+        for lang, t in iteritems(translators):
             tp = t.ugettext(para)
             if tp != para:
                 description.append(E.p(tp))
@@ -1118,7 +1119,7 @@ def write_appdata(key, entry, base, translators):
         screenshots,
         type='desktop'
     )
-    for lang, t in translators.iteritems():
+    for lang, t in iteritems(translators):
         tp = t.ugettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))

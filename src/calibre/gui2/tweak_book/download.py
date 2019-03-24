@@ -15,7 +15,7 @@ from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.ebooks.oeb.polish.download import get_external_resources, download_external_resources, replace_resources
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, range
 
 
 class ChooseResources(QWidget):
@@ -50,7 +50,7 @@ class ChooseResources(QWidget):
         self.items.clear()
         self.original_resources = resources
         dc = 0
-        for url, matches in resources.iteritems():
+        for url, matches in iteritems(resources):
             text = url
             num = len(matches)
             if text.startswith('data:'):
@@ -180,7 +180,7 @@ class DownloadResources(Dialog):
         else:
             replacements, failures = ret
             if failures:
-                tb = ['{}\n\t{}\n'.format(url, err) for url, err in failures.iteritems()]
+                tb = ['{}\n\t{}\n'.format(url, err) for url, err in iteritems(failures)]
                 if not replacements:
                     error_dialog(self, _('Download failed'), _(
                         'Failed to download external resources, click "Show Details" for more information.'),

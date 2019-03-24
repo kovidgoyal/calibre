@@ -39,7 +39,7 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range
 
 try:
     from PyQt5 import sip
@@ -264,29 +264,29 @@ class FileList(QTreeWidget):
 
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
-        s['expanded'] = {c for c, item in self.categories.iteritems() if item.isExpanded()}
+        s['expanded'] = {c for c, item in iteritems(self.categories) if item.isExpanded()}
         s['selected'] = {unicode_type(i.data(0, NAME_ROLE) or '') for i in self.selectedItems()}
         return s
 
     def set_state(self, state):
-        for category, item in self.categories.iteritems():
+        for category, item in iteritems(self.categories):
             item.setExpanded(category in state['expanded'])
         self.verticalScrollBar().setValue(state['pos'])
-        for parent in self.categories.itervalues():
+        for parent in itervalues(self.categories):
             for c in (parent.child(i) for i in range(parent.childCount())):
                 name = unicode_type(c.data(0, NAME_ROLE) or '')
                 if name in state['selected']:
                     c.setSelected(True)
 
     def item_from_name(self, name):
-        for parent in self.categories.itervalues():
+        for parent in itervalues(self.categories):
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 if q == name:
                     return c
 
     def select_name(self, name, set_as_current_index=False):
-        for parent in self.categories.itervalues():
+        for parent in itervalues(self.categories):
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q == name)
@@ -296,7 +296,7 @@ class FileList(QTreeWidget):
                         self.setCurrentItem(c)
 
     def select_names(self, names, current_name=None):
-        for parent in self.categories.itervalues():
+        for parent in itervalues(self.categories):
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q in names)
@@ -355,7 +355,7 @@ class FileList(QTreeWidget):
         cover_page_name = get_cover_page_name(container)
         cover_image_name = get_raster_cover_name(container)
         manifested_names = set()
-        for names in container.manifest_type_map.itervalues():
+        for names in itervalues(container.manifest_type_map):
             manifested_names |= set(names)
 
         def get_category(name, mt):
@@ -481,7 +481,7 @@ class FileList(QTreeWidget):
                 continue
             processed[name] = create_item(name)
 
-        for name, c in self.categories.iteritems():
+        for name, c in iteritems(self.categories):
             c.setExpanded(True)
             if name != 'text':
                 c.sortChildren(1, Qt.AscendingOrder)
@@ -496,7 +496,7 @@ class FileList(QTreeWidget):
 
     def show_context_menu(self, point):
         item = self.itemAt(point)
-        if item is None or item in set(self.categories.itervalues()):
+        if item is None or item in set(itervalues(self.categories)):
             return
         m = QMenu(self)
         sel = self.selectedItems()
@@ -542,7 +542,7 @@ class FileList(QTreeWidget):
         for item in sel:
             selected_map[unicode_type(item.data(0, CATEGORY_ROLE) or '')].append(unicode_type(item.data(0, NAME_ROLE) or ''))
 
-        for items in selected_map.itervalues():
+        for items in itervalues(selected_map):
             items.sort(key=self.index_of_name)
 
         if selected_map['text']:
@@ -557,7 +557,7 @@ class FileList(QTreeWidget):
             m.popup(self.mapToGlobal(point))
 
     def index_of_name(self, name):
-        for category, parent in self.categories.iteritems():
+        for category, parent in iteritems(self.categories):
             for i in range(parent.childCount()):
                 item = parent.child(i)
                 if unicode_type(item.data(0, NAME_ROLE) or '') == name:
@@ -682,7 +682,7 @@ class FileList(QTreeWidget):
         for i, (name, remove) in enumerate(spine_removals):
             if remove:
                 removals.append(self.categories['text'].child(i))
-        for category, parent in self.categories.iteritems():
+        for category, parent in iteritems(self.categories):
             if category != 'text':
                 for i in range(parent.childCount()):
                     child = parent.child(i)
@@ -770,7 +770,7 @@ class FileList(QTreeWidget):
 
     @property
     def all_files(self):
-        return (category.child(i) for category in self.categories.itervalues() for i in range(category.childCount()))
+        return (category.child(i) for category in itervalues(self.categories) for i in range(category.childCount()))
 
     @property
     def searchable_names(self):
@@ -1012,7 +1012,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).iteritems() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
+        self.forwarded_signals = {k for k, o in iteritems(vars(self.file_list.__class__)) if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
         for x in ('delete_done', 'select_name', 'select_names', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
         self.setFocusProxy(self.file_list)

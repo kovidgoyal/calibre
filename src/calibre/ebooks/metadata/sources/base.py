@@ -14,6 +14,7 @@ from calibre.customize import Plugin
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.author_mapper import cap_author_token
 from calibre.utils.localization import canonicalize_lang, get_lang
+from polyglot.builtins import iteritems
 
 
 def create_log(ostream=None):
@@ -65,7 +66,7 @@ class InternalMetadataCompareKeyGen(object):
     def __init__(self, mi, source_plugin, title, authors, identifiers):
         same_identifier = 2
         idents = mi.get_identifiers()
-        for k, v in identifiers.iteritems():
+        for k, v in iteritems(identifiers):
             if idents.get(k) == v:
                 same_identifier = 1
                 break
@@ -280,7 +281,7 @@ class Source(Plugin):
 
     def get_related_isbns(self, id_):
         with self.cache_lock:
-            for isbn, q in self._isbn_to_identifier_cache.iteritems():
+            for isbn, q in iteritems(self._isbn_to_identifier_cache):
                 if q == id_:
                     yield isbn
 

@@ -25,7 +25,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import choose_dir, error_dialog
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -492,7 +492,7 @@ class KindlePage(QWizardPage, KindleUI):
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
-        for x, ac in opts.accounts.iteritems():
+        for x, ac in iteritems(opts.accounts):
             default = ac[2]
             if x.strip().endswith('@kindle.com'):
                 accs.append((x, default))
@@ -871,7 +871,7 @@ class Wizard(QWizard):
         self.resize(600, 520)
 
     def set_button_texts(self):
-        for but, text in self.BUTTON_TEXTS.iteritems():
+        for but, text in iteritems(self.BUTTON_TEXTS):
             self.setButtonText(getattr(self, but+'Button'), _(text))
 
     def retranslate(self):

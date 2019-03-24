@@ -14,7 +14,7 @@ from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 is_wide_build = sys.maxunicode >= 0x10ffff
 
@@ -86,7 +86,7 @@ class SyntaxHighlighter(object):
         return bool(self.requests)
 
     def apply_theme(self, theme):
-        self.theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
+        self.theme = {k:highlight_to_char_format(v) for k, v in iteritems(theme)}
         self.create_formats()
         self.rehighlight()
 

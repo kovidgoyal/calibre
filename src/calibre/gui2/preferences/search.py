@@ -14,7 +14,7 @@ from calibre.gui2 import config, error_dialog, gprefs
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.library.caches import set_use_primary_find_in_search
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -64,7 +64,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "a particular item, or to have hierarchical categories (categories "
     "that contain categories)."))
         self.gst = db.prefs.get('grouped_search_terms', {}).copy()
-        self.orig_gst_keys = self.gst.keys()
+        self.orig_gst_keys = list(self.gst.keys())
 
         fl = []
         for f in db.all_field_keys():
@@ -249,7 +249,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.do_search()
 
     def clear_histories(self, *args):
-        for key, val in config.defaults.iteritems():
+        for key, val in iteritems(config.defaults):
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()

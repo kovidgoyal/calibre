@@ -14,7 +14,7 @@ from calibre import prints
 from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.boss import get_boss
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 class Tool(object):
@@ -120,7 +120,7 @@ def load_plugin_tools(plugin):
         import traceback
         traceback.print_exc()
     else:
-        for x in vars(main).itervalues():
+        for x in itervalues(vars(main)):
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
                 ans = x()
                 ans.plugin = plugin

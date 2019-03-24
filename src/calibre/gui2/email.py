@@ -28,7 +28,7 @@ from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.icu import primary_sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 class Worker(Thread):
@@ -321,7 +321,7 @@ class EmailMixin(object):  # {{{
 
         for to, fmts, subject in recipients:
             rfmts = set(fmts)
-            ok_ids = {book_id for book_id, bfmts in db_fmt_map.iteritems() if bfmts.intersection(rfmts)}
+            ok_ids = {book_id for book_id, bfmts in iteritems(db_fmt_map) if bfmts.intersection(rfmts)}
             convert_ids = ids - ok_ids
             self.send_by_mail(to, fmts, delete_from_library, subject=subject, send_ids=ok_ids, do_auto_convert=False)
             if not rfmts.intersection(ofmts):
@@ -336,20 +336,20 @@ class EmailMixin(object):  # {{{
                 auto_convert_map[outfmt].append((to, subject, ok_ids))
 
         if auto_convert_map:
-            titles = {book_id for x in auto_convert_map.itervalues() for data in x for book_id in data[2]}
+            titles = {book_id for x in itervalues(auto_convert_map) for data in x for book_id in data[2]}
             titles = {db.title(book_id, index_is_id=True) for book_id in titles}
             if self.auto_convert_question(
                 _('Auto convert the following books before sending via email?'), list(titles)):
-                for ofmt, data in auto_convert_map.iteritems():
+                for ofmt, data in iteritems(auto_convert_map):
                     ids = {bid for x in data for bid in x[2]}
                     data = [(to, subject) for to, subject, x in data]
                     self.iactions['Convert Books'].auto_convert_multiple_mail(ids, data, ofmt, delete_from_library)
 
         if bad_recipients:
             det_msg = []
-            titles = {book_id for x in bad_recipients.itervalues() for book_id in x[0]}
+            titles = {book_id for x in itervalues(bad_recipients) for book_id in x[0]}
             titles = {book_id:db.title(book_id, index_is_id=True) for book_id in titles}
-            for to, (ids, nooutput) in bad_recipients.iteritems():
+            for to, (ids, nooutput) in iteritems(bad_recipients):
                 msg = _('This recipient has no valid formats defined') if nooutput else \
                         _('These books have no suitable input formats for conversion')
                 det_msg.append('%s - %s' % (to, msg))

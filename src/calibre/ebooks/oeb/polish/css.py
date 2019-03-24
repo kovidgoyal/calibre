@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 def filter_used_rules(rules, log, select):
@@ -64,7 +64,7 @@ def merge_identical_selectors(sheet):
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         selector_map[rule.selectorText].append(rule)
     remove = []
-    for rule_group in selector_map.itervalues():
+    for rule_group in itervalues(selector_map):
         if len(rule_group) > 1:
             for i in range(1, len(rule_group)):
                 merge_declarations(rule_group[0].style, rule_group[i].style)
@@ -89,23 +89,23 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
             return container.parsed(name)
         except TypeError:
             pass
-    sheets = {name:safe_parse(name) for name, mt in container.mime_map.iteritems() if mt in OEB_STYLES}
-    sheets = {k:v for k, v in sheets.iteritems() if v is not None}
+    sheets = {name:safe_parse(name) for name, mt in iteritems(container.mime_map) if mt in OEB_STYLES}
+    sheets = {k:v for k, v in iteritems(sheets) if v is not None}
     num_merged = 0
     if merge_rules:
-        for name, sheet in sheets.iteritems():
+        for name, sheet in iteritems(sheets):
             num = merge_identical_selectors(sheet)
             if num:
                 container.dirty(name)
                 num_merged += num
     import_map = {name:get_imported_sheets(name, container, sheets) for name in sheets}
     if remove_unused_classes:
-        class_map = {name:{icu_lower(x) for x in classes_in_rule_list(sheet.cssRules)} for name, sheet in sheets.iteritems()}
-    style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in sheets.iteritems()}
+        class_map = {name:{icu_lower(x) for x in classes_in_rule_list(sheet.cssRules)} for name, sheet in iteritems(sheets)}
+    style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in iteritems(sheets)}
 
     num_of_removed_rules = num_of_removed_classes = 0
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt not in OEB_DOCS:
             continue
         root = container.parsed(name)
@@ -162,7 +162,7 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
                     num_of_removed_classes += len(original_classes) - len(classes)
                     container.dirty(name)
 
-    for name, sheet in sheets.iteritems():
+    for name, sheet in iteritems(sheets):
         unused_rules = style_rules[name]
         if unused_rules:
             num_of_removed_rules += len(unused_rules)
@@ -226,7 +226,7 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
     if not names:
         types = OEB_STYLES | OEB_DOCS
         names = []
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in types:
                 names.append(name)
 

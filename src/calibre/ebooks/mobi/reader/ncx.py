@@ -13,6 +13,7 @@ from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
+from polyglot.builtins import iteritems, iterkeys
 
 tag_fieldname_map = {
         1:  ['pos',0],
@@ -56,13 +57,13 @@ def read_ncx(sections, index, codec):
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
-        for num, x in enumerate(table.iteritems()):
+        for num, x in enumerate(iteritems(table)):
             text, tag_map = x
             entry = default_entry.copy()
             entry['name'] = text
             entry['num'] = num
 
-            for tag in tag_fieldname_map.iterkeys():
+            for tag in iterkeys(tag_fieldname_map):
                 fieldname, i = tag_fieldname_map[tag]
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]
@@ -71,9 +72,9 @@ def read_ncx(sections, index, codec):
                         # offset
                         fieldvalue = tuple(tag_map[tag])
                     entry[fieldname] = fieldvalue
-                    for which, name in {3:'text', 5:'kind', 70:'description',
+                    for which, name in iteritems({3:'text', 5:'kind', 70:'description',
                             71:'author', 72:'image_caption',
-                            73:'image_attribution'}.iteritems():
+                            73:'image_attribution'}):
                         if tag == which:
                             entry[name] = cncx.get(fieldvalue,
                                     default_entry[name])
@@ -100,4 +101,3 @@ def build_toc(index_entries):
         item.play_order = i
 
     return ans
-

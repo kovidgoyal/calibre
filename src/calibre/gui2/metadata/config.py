@@ -14,7 +14,7 @@ from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class FieldsModel(FM):  # {{{
@@ -48,7 +48,7 @@ class FieldsModel(FM):  # {{{
     def commit(self):
         ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in self.overrides.iteritems() if v ==
+        changed = {k for k, v in iteritems(self.overrides) if v ==
             Qt.Unchecked}
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 
@@ -101,7 +101,7 @@ class ConfigWidget(QWidget):
             widget.setChecked(bool(val))
         elif opt.type == 'choices':
             widget = QComboBox(self)
-            items = list(opt.choices.iteritems())
+            items = list(iteritems(opt.choices))
             items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))

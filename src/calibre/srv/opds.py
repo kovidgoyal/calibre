@@ -26,7 +26,7 @@ from calibre import force_unicode
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import urlencode
 
 
@@ -301,7 +301,7 @@ class TopLevel(Feed):  # {{{
             categories]
         for x in subcatalogs:
             self.root.append(x)
-        for library_id, library_name in sorted(request_context.library_map.iteritems(), key=lambda item: sort_key(item[1])):
+        for library_id, library_name in sorted(iteritems(request_context.library_map), key=lambda item: sort_key(item[1])):
             id_ = 'calibre-library:' + library_id
             self.root.append(E.entry(
                 TITLE(_('Library:') + ' ' + library_name),

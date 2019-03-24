@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os
 
 from calibre import config_dir
-from polyglot.builtins import builtins
+from polyglot.builtins import builtins, itervalues
 
 
 class PathResolver(object):
@@ -147,7 +147,7 @@ def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
 
     lang = lang_name(lang)
 
-    js = '\n\n'.join(hp_cache.itervalues())
+    js = '\n\n'.join(itervalues(hp_cache))
     return js, lang
 
 

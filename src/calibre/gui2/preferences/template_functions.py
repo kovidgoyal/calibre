@@ -16,7 +16,7 @@ from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import (formatter_functions,
                         compile_user_function, compile_user_template_functions,
                         load_user_template_functions)
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -223,7 +223,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         # formatter_functions().reset_to_builtins()
         pref_value = []
-        for name, cls in self.funcs.iteritems():
+        for name, cls in iteritems(self.funcs):
             if name not in self.builtins:
                 pref_value.append((cls.name, cls.doc, cls.arg_count, cls.program_text))
         self.db.new_api.set_pref('user_template_functions', pref_value)

@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
@@ -72,7 +72,7 @@ def read_available_plugins(raise_error=False):
             raise
         traceback.print_exc()
         return
-    for plugin in raw.itervalues():
+    for plugin in itervalues(raw):
         try:
             display_plugin = DisplayPlugin(plugin)
             get_installed_plugin_status(display_plugin)

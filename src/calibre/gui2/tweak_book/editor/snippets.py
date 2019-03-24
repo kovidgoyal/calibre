@@ -24,7 +24,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import codepoint_to_chr, unicode_type, range
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, unicode_type, range
 
 string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key_J
@@ -98,7 +98,7 @@ def escape_funcs():
         escapem = {('\\' + x):codepoint_to_chr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         escape = lambda x: escape_pat.sub(lambda m: escapem[m.group()], x.replace(r'\\', '\x01'))
-        unescapem = {v:k[1] for k, v in escapem.iteritems()}
+        unescapem = {v:k[1] for k, v in iteritems(escapem)}
         unescape_pat = re.compile('|'.join(unescapem))
         unescape = lambda x:unescape_pat.sub(lambda m:unescapem[m.group()], x)
     return escape, unescape
@@ -177,7 +177,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], type('')):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(_snippets.iteritems(), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
+        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 # Editor integration {{{
@@ -352,7 +352,7 @@ def expand_template(editor, trigger, template):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.itervalues()]
+    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in itervalues(tab_stops)]
 
     tl = Template(editor_tab_stops)
     if tl.has_tab_stops:
@@ -699,7 +699,7 @@ class UserSnippets(Dialog):
     def change_builtin(self):
         d = QDialog(self)
         lw = QListWidget(d)
-        for (trigger, syntaxes), snip in builtin_snippets.iteritems():
+        for (trigger, syntaxes), snip in iteritems(builtin_snippets):
             snip = copy.deepcopy(snip)
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)

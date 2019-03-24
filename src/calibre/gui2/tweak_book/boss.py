@@ -69,7 +69,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -185,11 +185,11 @@ class Boss(QObject):
             dictionaries.initialize(force=True)  # Reread user dictionaries
         if p.toolbars_changed:
             self.gui.populate_toolbars()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if hasattr(ed, 'populate_toolbars'):
                     ed.populate_toolbars()
         if orig_size != tprefs['toolbar_icon_size']:
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if hasattr(ed, 'bars'):
                     for bar in ed.bars:
                         bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
@@ -199,12 +199,12 @@ class Boss(QObject):
             self.gui.apply_settings()
             self.refresh_file_list()
         if ret == p.Accepted or p.dictionaries_changed:
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
         if orig_spell != tprefs['inline_spell_check']:
             from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
             refresh_spell_check_status()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 try:
                     ed.editor.highlighter.rehighlight()
                 except AttributeError:
@@ -387,7 +387,7 @@ class Boss(QObject):
 
     def update_editors_from_container(self, container=None, names=None):
         c = container or current_container()
-        for name, ed in tuple(editors.iteritems()):
+        for name, ed in tuple(iteritems(editors)):
             if c.has_name(name):
                 if names is None or name in names:
                     ed.replace_data(c.raw_data(name))
@@ -505,7 +505,7 @@ class Boss(QObject):
         if files:
             folder_map = get_recommended_folders(current_container(), files)
             files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
-                     for x, folder in folder_map.iteritems()}
+                     for x, folder in iteritems(folder_map)}
             self.add_savepoint(_('Before Add files'))
             c = current_container()
             for path in sorted(files, key=numeric_sort_key):
@@ -712,7 +712,7 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.set_modified()
-        for oldname, newname in name_map.iteritems():
+        for oldname, newname in iteritems(name_map):
             if oldname in editors:
                 editors[newname] = ed = editors.pop(oldname)
                 ed.change_document_name(newname)
@@ -721,7 +721,7 @@ class Boss(QObject):
                 self.gui.preview.current_name = newname
         self.apply_container_update_to_gui()
         if from_filelist:
-            self.gui.file_list.select_names(frozenset(name_map.itervalues()), current_name=name_map.get(from_filelist))
+            self.gui.file_list.select_names(frozenset(itervalues(name_map)), current_name=name_map.get(from_filelist))
             self.gui.file_list.file_list.setFocus(Qt.PopupFocusReason)
 
     # }}}
@@ -1052,7 +1052,7 @@ class Boss(QObject):
 
     def word_ignored(self, word, locale):
         if tprefs['inline_spell_check']:
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 try:
                     ed.editor.recheck_word(word, locale)
                 except AttributeError:
@@ -1115,7 +1115,7 @@ class Boss(QObject):
         actions on the current container '''
         changed = False
         with BusyCursor():
-            for name, ed in editors.iteritems():
+            for name, ed in iteritems(editors):
                 if not ed.is_synced_to_container:
                     self.commit_editor_to_container(name)
                     ed.is_synced_to_container = True
@@ -1125,7 +1125,7 @@ class Boss(QObject):
     def save_book(self):
         ' Save the book. Saving is performed in the background '
         c = current_container()
-        for name, ed in editors.iteritems():
+        for name, ed in iteritems(editors):
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, c)
                 ed.is_modified = False
@@ -1169,7 +1169,7 @@ class Boss(QObject):
             path += '.' + ext.lower()
         tdir = self.mkdtemp(prefix='save-copy-')
         container = clone_container(c, tdir)
-        for name, ed in editors.iteritems():
+        for name, ed in iteritems(editors):
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, container)
 
@@ -1361,7 +1361,7 @@ class Boss(QObject):
             name:container.get_file_path_for_processing(name, allow_modification=False)
             for name in names
         }
-        md.setUrls(list(map(QUrl.fromLocalFile, url_map.values())))
+        md.setUrls(list(map(QUrl.fromLocalFile, list(url_map.values()))))
         import json
         md.setData(FILE_COPY_MIME, json.dumps({
             name: (url_map[name], container.mime_map.get(name)) for name in names
@@ -1564,7 +1564,7 @@ class Boss(QObject):
         if not self.ensure_book(_('No book is currently open. You must first open a book to edit.')):
             return
         c = current_container()
-        files = [name for name, mime in c.mime_map.iteritems() if c.exists(name) and syntax_from_mime(name, mime) is not None]
+        files = [name for name, mime in iteritems(c.mime_map) if c.exists(name) and syntax_from_mime(name, mime) is not None]
         d = QuickOpen(files, parent=self.gui)
         if d.exec_() == d.Accepted and d.selected_result is not None:
             self.edit_file_requested(d.selected_result, None, c.mime_map[d.selected_result])
@@ -1597,7 +1597,7 @@ class Boss(QObject):
 
     def editor_data_changed(self, editor):
         self.gui.preview.start_refresh_timer()
-        for name, ed in editors.iteritems():
+        for name, ed in iteritems(editors):
             if ed is editor:
                 self.gui.toc_view.start_refresh_timer(name)
                 break
@@ -1776,7 +1776,7 @@ class Boss(QObject):
                 order = [k for k in order[extra:] if k in mem]
                 mem = {k:mem[k] for k in order}
             mem[c.path_to_ebook] = {
-                'editors':{name:ed.current_editing_state for name, ed in editors.iteritems()},
+                'editors':{name:ed.current_editing_state for name, ed in iteritems(editors)},
                 'currently_editing':self.currently_editing,
                 'tab_order':self.gui.central.tab_order,
             }

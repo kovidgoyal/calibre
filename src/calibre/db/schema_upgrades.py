@@ -11,7 +11,7 @@ import os
 
 from calibre import prints
 from calibre.utils.date import isoformat, DEFAULT_DATE
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iterkeys, itervalues, unicode_type
 
 
 class SchemaUpgrade(object):
@@ -299,7 +299,7 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -375,7 +375,7 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -596,7 +596,7 @@ class SchemaUpgrade(object):
                     custom_recipe_filename)
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                existing = frozenset(map(int, iterkeys(custom_recipes)))
                 if id_ in existing:
                     id_ = max(existing) + 1000
                 id_ = str(id_)

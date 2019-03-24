@@ -20,7 +20,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 class FormatsConfig(QWidget):  # {{{
@@ -177,7 +177,7 @@ class IgnoredDevices(QWidget):  # {{{
         l.addWidget(f)
 
         devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in
-                devs.iteritems()]
+                iteritems(devs)]
         for dev, x in sorted(devs, key=lambda x:x[1][1], reverse=True):
             name = x[0]
             name = '%s [%s]'%(name, dev)

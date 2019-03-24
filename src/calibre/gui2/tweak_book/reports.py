@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from polyglot.builtins import map, range
+from polyglot.builtins import iteritems, map, range
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -1439,7 +1439,7 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
+            for x, t in sorted(iteritems(timing), key=itemgetter(1)):
                 print ('Time for %6s data: %.3f seconds' % (x, t))
         self.reports(data)
 

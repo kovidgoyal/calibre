@@ -17,6 +17,8 @@ from tinycss.page3 import CSSPage3Parser
 from tinycss.fonts3 import CSSFonts3Parser
 from tinycss.media3 import CSSMedia3Parser
 
+from polyglot.builtins import iterkeys
+
 
 PARSER_MODULES = {
     'page3': CSSPage3Parser,
@@ -47,5 +49,5 @@ def make_parser(*features, **kwargs):
 
 def make_full_parser(**kwargs):
     ''' A parser that parses all supported CSS 3 modules in addition to CSS 2.1 '''
-    features = tuple(PARSER_MODULES.iterkeys())
+    features = tuple(iterkeys(PARSER_MODULES))
     return make_parser(*features, **kwargs)

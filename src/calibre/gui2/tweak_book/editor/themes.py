@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, iterkeys, unicode_type, range
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -37,8 +37,8 @@ SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'62626
 SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa
 m = {'base%d'%n:'base%02d'%n for n in range(1, 4)}
 m.update({'base%02d'%n:'base%d'%n for n in range(1, 4)})
-SLL = {m.get(k, k) : v for k, v in SLD.iteritems()}
-SLLX = {m.get(k, k) : v for k, v in SLDX.iteritems()}
+SLL = {m.get(k, k) : v for k, v in iteritems(SLD)}
+SLLX = {m.get(k, k) : v for k, v in iteritems(SLDX)}
 SOLARIZED = \
     '''
     CursorLine   bg={base02}
@@ -238,7 +238,7 @@ def read_theme(raw):
     return ans
 
 
-THEMES = {k:read_theme(raw) for k, raw in THEMES.iteritems()}
+THEMES = {k:read_theme(raw) for k, raw in iteritems(THEMES)}
 
 
 def u(x):
@@ -260,7 +260,7 @@ def to_highlight(data):
 
 def read_custom_theme(data):
     dt = THEMES[default_theme()].copy()
-    dt.update({k:to_highlight(v) for k, v in data.iteritems()})
+    dt.update({k:to_highlight(v) for k, v in iteritems(data)})
     return dt
 
 
@@ -309,11 +309,11 @@ def theme_format(theme, name):
 
 
 def custom_theme_names():
-    return tuple(tprefs['custom_themes'].iterkeys())
+    return tuple(iterkeys(tprefs['custom_themes']))
 
 
 def builtin_theme_names():
-    return tuple(THEMES.iterkeys())
+    return tuple(iterkeys(THEMES))
 
 
 def all_theme_names():
@@ -611,13 +611,13 @@ class ThemeEditor(Dialog):
 
     def update_theme(self, name):
         data = tprefs['custom_themes'][name]
-        extra = set(data.iterkeys()) - set(THEMES[default_theme()].iterkeys())
-        missing = set(THEMES[default_theme()].iterkeys()) - set(data.iterkeys())
+        extra = set(iterkeys(data)) - set(iterkeys(THEMES[default_theme()]))
+        missing = set(iterkeys(THEMES[default_theme()])) - set(iterkeys(data))
         for k in extra:
             data.pop(k)
         for k in missing:
             data[k] = dict(THEMES[default_theme()][k]._asdict())
-            for nk, nv in data[k].iteritems():
+            for nk, nv in iteritems(data[k]):
                 if isinstance(nv, QBrush):
                     data[k][nk] = unicode_type(nv.color().name())
         if extra or missing:
@@ -663,8 +663,8 @@ class ThemeEditor(Dialog):
             name = '*' + d.theme_name
             base = unicode_type(d.base.currentText())
             theme = {}
-            for key, val in THEMES[base].iteritems():
-                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().iteritems()}
+            for key, val in iteritems(THEMES[base]):
+                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in iteritems(val._asdict())}
             tprefs['custom_themes'][name] = theme
             tprefs['custom_themes'] = tprefs['custom_themes']
             t = self.theme

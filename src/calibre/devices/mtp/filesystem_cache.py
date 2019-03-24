@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref, sys, json
 from collections import deque
 from operator import attrgetter
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import itervalues, map, unicode_type
 from datetime import datetime
 
 from calibre import human_readable, prints, force_unicode
@@ -201,7 +201,7 @@ class FilesystemCache(object):
         for entry in entries:
             FileOrFolder(entry, self)
 
-        for item in self.id_map.itervalues():
+        for item in itervalues(self.id_map):
             try:
                 p = item.parent
             except KeyError:
@@ -227,7 +227,7 @@ class FilesystemCache(object):
                 return e
 
     def iterebooks(self, storage_id):
-        for x in self.id_map.itervalues():
+        for x in itervalues(self.id_map):
             if x.storage_id == storage_id and x.is_ebook:
                 if x.parent_id == storage_id and x.name.lower().endswith('.txt'):
                     continue  # Ignore .txt files in the root

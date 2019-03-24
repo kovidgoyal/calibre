@@ -14,6 +14,7 @@ from calibre import prints, isbytestring
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
+from polyglot.builtins import iteritems
 
 
 class WinFonts(object):
@@ -171,7 +172,7 @@ def test():
 
     for family in families:
         prints(family + ':')
-        for font, data in w.fonts_for_family(family).iteritems():
+        for font, data in iteritems(w.fonts_for_family(family)):
             prints('  ', font, data[0], data[1], len(data[2]))
         print ()
 

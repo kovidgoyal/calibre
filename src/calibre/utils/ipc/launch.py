@@ -13,7 +13,7 @@ from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 if iswindows:
     import win32process
@@ -156,7 +156,7 @@ class Worker(object):
         self.gui = gui
         self.job_name = job_name
         # Windows cannot handle unicode env vars
-        for k, v in env.iteritems():
+        for k, v in iteritems(env):
             try:
                 if isinstance(k, unicode_type):
                     k = k.encode('ascii')

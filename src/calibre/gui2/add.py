@@ -10,7 +10,7 @@ import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
 from io import BytesIO
-from polyglot.builtins import map, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -435,7 +435,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in fmap.iteritems():
+        for fmt, path in iteritems(fmap):
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':

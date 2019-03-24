@@ -13,11 +13,10 @@ from operator import itemgetter
 from collections import OrderedDict
 from itertools import islice
 
-from polyglot.builtins import map, unicode_type, range, zip
-
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -309,7 +308,7 @@ def test(return_tests=False):
         def test_non_bmp(self):
             raw = '_\U0001f431-'
             m = Matcher([raw], scorer=CScorer)
-            positions = next(m(raw).itervalues())
+            positions = next(itervalues(m(raw)))
             self.assertEqual(
                 positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3))
             )
@@ -355,7 +354,7 @@ def main(basedir=None, query=None):
                 break
             if not query:
                 break
-        for path, positions in islice(m(query).iteritems(), 0, 10):
+        for path, positions in islice(iteritems(m(query)), 0, 10):
             positions = list(positions)
             p = 0
             while positions:

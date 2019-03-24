@@ -29,6 +29,7 @@ from calibre.utils.icu import sort_key, numeric_sort_key
 from calibre.utils.localization import get_lang, lang_map_for_ui, localize_website_link
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
+from polyglot.builtins import iteritems, itervalues
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
@@ -195,7 +196,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(
             ((sanitize_sort_field_name(db.field_metadata, k), v)
-             for k, v in sf.iteritems()),
+             for k, v in iteritems(sf)),
             key=lambda field_name: sort_key(field_name[1])
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
@@ -396,7 +397,7 @@ def tag_browser(ctx, rd):
 def all_lang_names():
     ans = getattr(all_lang_names, 'ans', None)
     if ans is None:
-        ans = all_lang_names.ans = tuple(sorted(lang_map_for_ui().itervalues(), key=numeric_sort_key))
+        ans = all_lang_names.ans = tuple(sorted(itervalues(lang_map_for_ui()), key=numeric_sort_key))
     return ans
 
 

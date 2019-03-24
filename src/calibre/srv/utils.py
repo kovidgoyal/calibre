@@ -12,7 +12,6 @@ from contextlib import closing
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from polyglot.builtins import map, unicode_type, range
 from binascii import hexlify, unhexlify
 
 from calibre import prints
@@ -23,6 +22,7 @@ from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
+from polyglot.builtins import iteritems, map, unicode_type, range
 from polyglot.urllib import parse_qs, quote as urlquote
 
 HTTP1  = 'HTTP/1.0'
@@ -47,12 +47,12 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
+        for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
             dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in ld.iteritems():
+        for key, values in iteritems(ld):
             for val in values:
                 self[key] = val
 
@@ -98,7 +98,7 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in iteritems(self)) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):

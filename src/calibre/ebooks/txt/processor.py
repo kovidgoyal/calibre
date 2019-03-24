@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
-from polyglot.builtins import unicode_type, map, range, long_type
+from polyglot.builtins import iteritems, unicode_type, map, range, long_type
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
@@ -147,7 +147,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
     m = md.Meta
-    for k, v in {'date':'pubdate', 'summary':'comments'}.iteritems():
+    for k, v in iteritems({'date':'pubdate', 'summary':'comments'}):
         if v not in m and k in m:
             m[v] = m.pop(k)
     for k in 'title authors series tags pubdate comments publisher rating'.split():

@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range
 from tinycss.fonts3 import parse_font_family
 
 
@@ -152,7 +152,7 @@ class SubsetFonts(object):
             else:
                 fonts[item.href] = font
 
-        for font in fonts.itervalues():
+        for font in itervalues(fonts):
             if not font['chars']:
                 self.log('The font %s is unused. Removing it.'%font['src'])
                 remove(font)
@@ -171,8 +171,8 @@ class SubsetFonts(object):
                 totals[1] += sz
             else:
                 font['item'].data = raw
-                nlen = sum(new_stats.itervalues())
-                olen = sum(old_stats.itervalues())
+                nlen = sum(itervalues(new_stats))
+                olen = sum(itervalues(old_stats))
                 self.log('Decreased the font %s to %.1f%% of its original size'%
                         (font['src'], nlen/olen *100))
                 totals[0] += nlen
@@ -208,7 +208,7 @@ class SubsetFonts(object):
                 if rule.type != rule.STYLE_RULE:
                     continue
                 props = {k:v for k,v in
-                        get_font_properties(rule).iteritems() if v}
+                        iteritems(get_font_properties(rule)) if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:

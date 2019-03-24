@@ -9,7 +9,7 @@ from functools import partial
 from threading import Thread, Event
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, range
 from polyglot.queue import Queue, Empty
 
 
@@ -93,7 +93,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     queue.join()
     before_total = after_total = 0
     changed = False
-    for name, (ok, res) in results.iteritems():
+    for name, (ok, res) in iteritems(results):
         name = force_unicode(name, filesystem_encoding)
         if ok:
             before, after = res

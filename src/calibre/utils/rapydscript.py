@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import range
+from polyglot.builtins import itervalues, range
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -59,7 +59,7 @@ tls = local()
 
 
 def to_dict(obj):
-    return dict(zip(obj.keys(), obj.values()))
+    return dict(zip(list(obj.keys()), list(obj.values())))
 
 
 def compiler():
@@ -184,9 +184,9 @@ def create_manifest(html):
     import hashlib
     from calibre.library.field_metadata import category_icon_map
     h = hashlib.sha256(html)
-    for ci in category_icon_map.itervalues():
+    for ci in itervalues(category_icon_map):
         h.update(I(ci, data=True))
-    icons = {'icon/' + x for x in category_icon_map.itervalues()}
+    icons = {'icon/' + x for x in itervalues(category_icon_map)}
     icons.add('favicon.png')
     h.update(I('lt.png', data=True))
     manifest = '\n'.join(sorted(icons))

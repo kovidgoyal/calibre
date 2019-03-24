@@ -31,7 +31,7 @@ from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -133,7 +133,7 @@ class KF8Writer(object):
             if item.media_type in XML_DOCS:
                 root = self.data(item)
                 for tag in XPath('//h:img|//svg:image')(root):
-                    for attr, ref in tag.attrib.iteritems():
+                    for attr, ref in iteritems(tag.attrib):
                         if attr.split('}')[-1].lower() in {'src', 'href'}:
                             tag.attrib[attr] = pointer(item, ref)
 
@@ -206,7 +206,7 @@ class KF8Writer(object):
                 extract(tag)
                 inlines[raw].append(repl)
 
-        for raw, elems in inlines.iteritems():
+        for raw, elems in iteritems(inlines):
             idx = to_ref(len(self.flows))
             self.flows.append(raw)
             for link in elems:
@@ -320,7 +320,7 @@ class KF8Writer(object):
 
     def chunk_it_up(self):
         placeholder_map = {}
-        for placeholder, x in self.link_map.iteritems():
+        for placeholder, x in iteritems(self.link_map):
             href, frag = x
             aid = self.id_map.get(x, None)
             if aid is None:

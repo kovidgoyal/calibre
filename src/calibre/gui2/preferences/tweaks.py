@@ -19,7 +19,7 @@ from calibre import isbytestring
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, iterkeys, unicode_type, range
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QStyledItemDelegate, QStyle, QStyleOptionViewItem,
@@ -96,7 +96,7 @@ class Tweak(object):  # {{{
         for line in self.doc.splitlines():
             if line:
                 ans.append('# ' + line)
-        for key, val in self.default_values.iteritems():
+        for key, val in iteritems(self.default_values):
             val = self.custom_values.get(key, val)
             ans.append('%s = %r'%(key, val))
         ans = '\n'.join(ans)
@@ -110,7 +110,7 @@ class Tweak(object):  # {{{
 
     @property
     def is_customized(self):
-        for x, val in self.default_values.iteritems():
+        for x, val in iteritems(self.default_values):
             if self.custom_values.get(x, val) != val:
                 return True
         return False
@@ -118,7 +118,7 @@ class Tweak(object):  # {{{
     @property
     def edit_text(self):
         ans = ['# %s'%self.name]
-        for x, val in self.default_values.iteritems():
+        for x, val in iteritems(self.default_values):
             val = self.custom_values.get(x, val)
             ans.append('%s = %r'%(x, val))
         return '\n\n'.join(ans)
@@ -161,7 +161,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             if tweak.is_customized:
                 tt = '<p>'+_('This tweak has been customized')
                 tt += '<pre>'
-                for varn, val in tweak.custom_values.iteritems():
+                for varn, val in iteritems(tweak.custom_values):
                     tt += '%s = %r\n\n'%(varn, val)
             return textwrap.fill(tt)
         if role == Qt.UserRole:
@@ -188,8 +188,8 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             pos += 1
 
         self.tweaks.sort()
-        default_keys = set(dl.iterkeys())
-        custom_keys = set(l.iterkeys())
+        default_keys = set(iterkeys(dl))
+        custom_keys = set(iterkeys(l))
 
         self.plugin_tweaks = {}
         for key in custom_keys - default_keys:
@@ -264,14 +264,14 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         if self.plugin_tweaks:
             ans.extend(['', '',
                 '# The following are tweaks for installed plugins', ''])
-            for key, val in self.plugin_tweaks.iteritems():
+            for key, val in iteritems(self.plugin_tweaks):
                 ans.extend(['%s = %r'%(key, val), '', ''])
         return '\n'.join(ans)
 
     @property
     def plugin_tweaks_string(self):
         ans = []
-        for key, val in self.plugin_tweaks.iteritems():
+        for key, val in iteritems(self.plugin_tweaks):
             ans.extend(['%s = %r'%(key, val), '', ''])
         ans = '\n'.join(ans)
         if isbytestring(ans):

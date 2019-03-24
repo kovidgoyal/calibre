@@ -11,11 +11,12 @@ import os
 
 import calibre
 from calibre.utils.resources import compiled_coffeescript, load_hyphenator_dicts
+from polyglot.builtins import iteritems
 
 
 class JavaScriptLoader(object):
 
-    JS = {x:('viewer/%s.js'%x if y is None else y) for x, y in {
+    JS = {x:('viewer/%s.js'%x if y is None else y) for x, y in iteritems({
 
             'bookmarks':None,
             'referencing':None,
@@ -25,7 +26,7 @@ class JavaScriptLoader(object):
             'hyphenator':'viewer/hyphenate/Hyphenator.js',
             'images':None
 
-        }.iteritems()}
+        })}
 
     CS = {
             'cfi':'ebooks.oeb.display.cfi',

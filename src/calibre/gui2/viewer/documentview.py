@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import math, json
 from base64 import b64encode
 from functools import partial
-from polyglot.builtins import map, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, QPainter, QPalette, QBrush,
@@ -259,7 +259,7 @@ class Document(QWebPage):  # {{{
         if not isinstance(self.anchor_positions, dict):
             # Some weird javascript error happened
             self.anchor_positions = {}
-        return {k:tuple(v) for k, v in self.anchor_positions.iteritems()}
+        return {k:tuple(v) for k, v in iteritems(self.anchor_positions)}
 
     def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:

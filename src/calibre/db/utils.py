@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import map, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, string_or_bytes
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -208,7 +208,7 @@ class ThumbnailCache(object):
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in self.items.iteritems() if size != entry.thumbnail_size)
+            remove = (key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
@@ -365,7 +365,7 @@ class ThumbnailCache(object):
                 pass
             if not hasattr(self, 'total_size'):
                 self._load_index()
-            for entry in self.items.itervalues():
+            for entry in itervalues(self.items):
                 self._do_delete(entry.path)
             self.total_size = 0
             self.items = OrderedDict()

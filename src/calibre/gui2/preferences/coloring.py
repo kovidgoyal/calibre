@@ -26,7 +26,7 @@ from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template, color_row_key)
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import lower
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 all_columns_string = _('All columns')
 
@@ -172,7 +172,7 @@ class ConditionEditor(QWidget):  # {{{
     def current_val(self):
         ans = unicode_type(self.value_box.text()).strip()
         if self.current_col == 'languages':
-            rmap = {lower(v):k for k, v in lang_map().iteritems()}
+            rmap = {lower(v):k for k, v in iteritems(lang_map())}
             ans = rmap.get(lower(ans), ans)
         return ans
 

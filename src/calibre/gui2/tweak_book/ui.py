@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from functools import partial
 from itertools import product
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range
 
 from PyQt5.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
@@ -107,7 +107,7 @@ class Central(QStackedWidget):  # {{{
     @property
     def tab_order(self):
         ans = []
-        rmap = {v:k for k, v in editors.iteritems()}
+        rmap = {v:k for k, v in iteritems(editors)}
         for i in range(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
@@ -166,7 +166,7 @@ class Central(QStackedWidget):  # {{{
     def save_state(self):
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
-        for ed in editors.itervalues():
+        for ed in itervalues(editors):
             ed.save_state()
         if self.current_editor is not None:
             self.current_editor.save_state()  # Ensure the current editor saves it state last

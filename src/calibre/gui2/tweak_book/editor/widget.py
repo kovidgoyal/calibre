@@ -24,7 +24,7 @@ from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NA
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
@@ -346,7 +346,7 @@ class Editor(QMainWindow):
     def toolbar_floated(self, floating):
         if not floating:
             self.save_state()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if ed is not self:
                     ed.restore_state()
 

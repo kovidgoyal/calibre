@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import builtins, codepoint_to_chr, unicode_type, range
+from polyglot.builtins import (builtins, codepoint_to_chr, iteritems,
+        itervalues, unicode_type, range)
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
@@ -706,7 +707,7 @@ def remove_bracketed_text(src,
     counts = Counter()
     buf = []
     src = force_unicode(src)
-    rmap = dict([(v, k) for k, v in brackets.iteritems()])
+    rmap = dict([(v, k) for k, v in iteritems(brackets)])
     for char in src:
         if char in brackets:
             counts[char] += 1
@@ -714,7 +715,7 @@ def remove_bracketed_text(src,
             idx = rmap[char]
             if counts[idx] > 0:
                 counts[idx] -= 1
-        elif sum(counts.itervalues()) < 1:
+        elif sum(itervalues(counts)) < 1:
             buf.append(char)
     return u''.join(buf)
 

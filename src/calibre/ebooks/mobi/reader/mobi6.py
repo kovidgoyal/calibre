@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 class TopazError(ValueError):
@@ -498,7 +498,7 @@ class MobiReader(object):
                 try:
                     float(sz)
                 except ValueError:
-                    if sz in size_map.keys():
+                    if sz in list(size_map.keys()):
                         attrib['size'] = size_map[sz]
             elif tag.tag == 'img':
                 recindex = None
@@ -892,7 +892,7 @@ class MobiReader(object):
 
 
 def test_mbp_regex():
-    for raw, m in {
+    for raw, m in iteritems({
         '<mbp:pagebreak></mbp:pagebreak>':'',
         '<mbp:pagebreak xxx></mbp:pagebreak>yyy':' xxxyyy',
         '<mbp:pagebreak> </mbp:pagebreak>':'',
@@ -903,7 +903,7 @@ def test_mbp_regex():
         '</mbp:pagebreak>':'',
         '</mbp:pagebreak sdf>':' sdf',
         '</mbp:pagebreak><mbp:pagebreak></mbp:pagebreak>xxx':'xxx',
-        }.iteritems():
+        }):
         ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
         if ans != m:
             raise Exception('%r != %r for %r'%(ans, m, raw))

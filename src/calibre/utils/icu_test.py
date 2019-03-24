@@ -10,7 +10,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 @contextmanager
@@ -66,7 +66,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -100,7 +100,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))

@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-from polyglot.builtins import range
+from polyglot.builtins import iterkeys, itervalues, range
 
 NBSP = '\xa0'
 
@@ -54,7 +54,7 @@ def merge_run(run):
 def liftable(css):
     # A <span> is liftable if all its styling would work just as well if it is
     # specified on the parent element.
-    prefixes = {x.partition('-')[0] for x in css.iterkeys()}
+    prefixes = {x.partition('-')[0] for x in iterkeys(css)}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
 
@@ -134,7 +134,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                 current_run = [span]
 
     # Process dir attributes
-    class_map = dict(styles.classes.itervalues())
+    class_map = dict(itervalues(styles.classes))
     parents = ('p', 'div') + tuple('h%d' % i for i in range(1, 7))
     for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
         # Ensure that children of rtl parents that are not rtl have an

@@ -20,7 +20,8 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
-from polyglot.builtins import map, unicode_type, string_or_bytes, zip
+from polyglot.builtins import (iteritems, iterkeys, itervalues, map,
+        unicode_type, string_or_bytes, zip)
 
 
 class MetadataBackup(Thread):  # {{{
@@ -774,7 +775,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     q = canonicalize_lang(query)
                     if q is None:
                         lm = lang_map()
-                        rm = {v.lower():k for k,v in lm.iteritems()}
+                        rm = {v.lower():k for k,v in iteritems(lm)}
                         q = rm.get(query, query)
                 else:
                     q = query
@@ -917,15 +918,15 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(zip(id_dict.iterkeys(), map(unicode_type,
-                id_dict.itervalues())))
+            self.marked_ids_dict = dict(zip(iterkeys(id_dict), map(unicode_type,
+                itervalues(id_dict))))
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']
         for r in self.iterall():
             r[marked_col] = None
 
-        for id_, val in self.marked_ids_dict.iteritems():
+        for id_, val in iteritems(self.marked_ids_dict):
             try:
                 self._data[id_][marked_col] = val
             except:
@@ -1052,7 +1053,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 item.extend((None, None))
 
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in self.marked_ids_dict.iteritems():
+        for id_,val in iteritems(self.marked_ids_dict):
             try:
                 self._data[id_][marked_col] = val
             except:

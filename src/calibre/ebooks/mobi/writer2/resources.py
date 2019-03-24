@@ -16,7 +16,7 @@ from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
 
@@ -149,7 +149,7 @@ class Resources(object):
 
     def serialize(self, records, used_images):
         used_image_indices = self.used_image_indices | {
-                v-1 for k, v in self.item_map.iteritems() if k in used_images}
+                v-1 for k, v in iteritems(self.item_map) if k in used_images}
         for i in self.image_indices-used_image_indices:
             self.records[i] = PLACEHOLDER_GIF
         records.extend(self.records)

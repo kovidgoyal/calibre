@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, re
 
 from calibre.constants import iswindows
+from polyglot.builtins import iteritems
 
 
 class DeviceDefaults(object):
@@ -47,7 +48,7 @@ class DeviceDefaults(object):
         for rule in self.rules:
             tests = rule[0]
             matches = True
-            for k, v in tests.iteritems():
+            for k, v in iteritems(tests):
                 if k == 'vendor' and v != vid:
                     matches = False
                     break

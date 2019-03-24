@@ -2,7 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,8 +22,8 @@ from calibre.utils.icu import sort_key, lower, strcmp, collation_order, primary_
 from calibre.library.field_metadata import category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
-from polyglot.builtins import range
 from calibre.utils.serialize import json_dumps, json_loads
+from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
 
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
@@ -307,7 +306,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.node_map = {}
         self.category_nodes = []
         self.category_custom_icons = {}
-        for k, v in self.prefs['tags_browser_category_icons'].iteritems():
+        for k, v in iteritems(self.prefs['tags_browser_category_icons']):
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
@@ -387,7 +386,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
-        for node in self.node_map.itervalues():
+        for node in itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
@@ -1102,7 +1101,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.use_position_based_index_on_next_recount = True
                 return True
 
-            for c in sorted(user_cats.keys(), key=sort_key):
+            for c in sorted(list(user_cats.keys()), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \

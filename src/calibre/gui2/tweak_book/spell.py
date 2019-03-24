@@ -37,7 +37,7 @@ from calibre.spell.import_from import import_from_oxt
 from calibre.spell.break_iterator import split_into_words
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 LANG = 0
 COUNTRY = 1
@@ -707,7 +707,7 @@ class WordsModel(QAbstractTableModel):
         self.endResetModel()
 
     def update_counts(self, emit_signal=True):
-        self.counts = (len([None for w, recognized in self.spell_map.iteritems() if not recognized]), len(self.words))
+        self.counts = (len([None for w, recognized in iteritems(self.spell_map) if not recognized]), len(self.words))
         if emit_signal:
             self.counts_changed.emit()
 
@@ -1342,7 +1342,7 @@ def find_next(word, locations, current_editor, current_editor_name,
 
     if current_editor_name not in files:
         current_editor_name = None
-        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.iteritems()]
+        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in iteritems(files)]
     else:
         # Re-order the list of locations to search so that we search in the
         # current editor first

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
-from polyglot.builtins import is_py3, unicode_type
+from polyglot.builtins import is_py3, iteritems, unicode_type
 
 _available_translations = None
 
@@ -429,7 +429,7 @@ def lang_map():
     translate = _
     global _lang_map
     if _lang_map is None:
-        _lang_map = {k:translate(v) for k, v in iso639['by_3t'].iteritems()}
+        _lang_map = {k:translate(v) for k, v in iteritems(iso639['by_3t'])}
     return _lang_map
 
 
@@ -453,7 +453,7 @@ def langnames_to_langcodes(names):
     translate = _
     ans = {}
     names = set(names)
-    for k, v in iso639['by_3t'].iteritems():
+    for k, v in iteritems(iso639['by_3t']):
         tv = translate(v)
         if tv in names:
             names.remove(tv)

@@ -13,7 +13,7 @@ from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 def from_headings(body, log, namespace):
@@ -25,7 +25,7 @@ def from_headings(body, log, namespace):
     level_prev = {i+1:None for i in range(len(xpaths))}
     level_prev[0] = tocroot
     level_item_map = {i+1:frozenset(xp(body)) for i, xp in enumerate(xpaths)}
-    item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+    item_level_map = {e:i for i, elems in iteritems(level_item_map) for e in elems}
 
     idcount = count()
 

@@ -12,7 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def get_tools():
@@ -153,9 +153,9 @@ def get_metadata(stream, cover=True):
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in mi.get_identifiers():
-            for k, v in info.iteritems():
+            for k, v in iteritems(info):
                 if k != 'xmp_metadata':
                     val = check_func(v)
                     if val:

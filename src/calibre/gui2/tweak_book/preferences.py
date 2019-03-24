@@ -9,7 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import numbers
 from operator import attrgetter, methodcaller
 from collections import namedtuple
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import (
+        iteritems, iterkeys, itervalues, map, unicode_type, range)
 from itertools import product
 from copy import copy, deepcopy
 
@@ -72,7 +73,7 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged[int].connect(self.emit_changed)
-        for key, human in sorted(choices.iteritems(), key=lambda key_human: key_human[1] or key_human[0]):
+        for key, human in sorted(iteritems(choices), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
         def getter(w):
@@ -134,7 +135,7 @@ class BasicSettings(QWidget):  # {{{
                         prefs[name] = cv
 
     def restore_defaults(self):
-        for setting in self.settings.itervalues():
+        for setting in itervalues(self.settings):
             setting.setter(setting.widget, self.default_value(setting.name))
 
     def initial_value(self, name):
@@ -263,7 +264,7 @@ class EditorSettings(BasicSettings):
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
         s.widget.clear()
-        for key, human in sorted(choices.iteritems(), key=lambda key_human1: key_human1[1] or key_human1[0]):
+        for key, human in sorted(iteritems(choices), key=lambda key_human1: key_human1[1] or key_human1[0]):
             s.widget.addItem(human or key, key)
         s.setter(s.widget, current_val)
         if d.theme_name:
@@ -489,7 +490,7 @@ class ToolbarSettings(QWidget):
             ans.setToolTip(ac.toolTip())
             return ans
 
-        for key, ac in sorted(all_items.iteritems(), key=lambda k_ac: unicode_type(k_ac[1].text())):
+        for key, ac in sorted(iteritems(all_items), key=lambda k_ac: unicode_type(k_ac[1].text())):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:
@@ -593,7 +594,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.l = l = QVBoxLayout(self)
 
         self.syntaxes = s = QComboBox(self)
-        s.addItems(sorted(DEFAULT_TEMPLATES.iterkeys()))
+        s.addItems(sorted(iterkeys(DEFAULT_TEMPLATES)))
         s.setCurrentIndex(s.findText('html'))
         h = QHBoxLayout()
         l.addLayout(h)

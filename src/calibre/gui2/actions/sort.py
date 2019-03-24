@@ -10,6 +10,7 @@ from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from polyglot.builtins import iteritems
 
 
 class SortAction(QAction):
@@ -61,7 +62,7 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
+        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:

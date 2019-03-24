@@ -19,6 +19,7 @@ from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
+from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -170,7 +171,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
                 raise HTTPBadRequest('Cover data must be either JPEG or PNG')
         dirtied |= db.set_cover({book_id: cdata})
 
-    for field, value in changes.iteritems():
+    for field, value in iteritems(changes):
         dirtied |= db.set_field(field, {book_id: value})
     ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     all_ids = dirtied if all_dirtied else (dirtied & loaded_book_ids)

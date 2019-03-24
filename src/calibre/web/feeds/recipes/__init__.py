@@ -9,7 +9,7 @@ from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import unicode_type, codepoint_to_chr, range
+from polyglot.builtins import itervalues, unicode_type, codepoint_to_chr, range
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)
@@ -51,7 +51,7 @@ def compile_recipe(src):
     }
     exec(src, namespace)
 
-    for x in namespace.itervalues():
+    for x in itervalues(namespace):
         if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not
                 in basic_recipes):
             return x

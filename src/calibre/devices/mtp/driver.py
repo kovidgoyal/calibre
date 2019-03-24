@@ -17,7 +17,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -276,7 +276,7 @@ class MTP_DEVICE(BASE):
             book.path = mtp_file.mtp_id_path
 
         # Remove books in the cache that no longer exist
-        for idx in sorted(relpath_cache.itervalues(), reverse=True):
+        for idx in sorted(itervalues(relpath_cache), reverse=True):
             del bl[idx]
             need_sync = True
 
@@ -546,7 +546,7 @@ class MTP_DEVICE(BASE):
     def get_user_blacklisted_devices(self):
         bl = frozenset(self.prefs['blacklist'])
         ans = {}
-        for dev, x in self.prefs['history'].iteritems():
+        for dev, x in iteritems(self.prefs['history']):
             name = x[0]
             if dev in bl:
                 ans[dev] = name

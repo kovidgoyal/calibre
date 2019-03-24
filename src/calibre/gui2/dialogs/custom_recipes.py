@@ -21,7 +21,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 def is_basic_recipe(src):
@@ -70,7 +70,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
 
     def replace_many_by_title(self, scriptmap):
         script_urn_map = {}
-        for title, script in scriptmap.iteritems():
+        for title, script in iteritems(scriptmap):
             urn = None
             for x in self.recipe_model.custom_recipe_collection:
                 if x.get('title', False) == title:
@@ -650,7 +650,7 @@ class CustomRecipes(Dialog):
         if replace_recipes:
             self.recipe_list.replace_many_by_title(replace_recipes)
         if failed_recipes:
-            det_msg = '\n'.join('%s\n%s\n' % (title, tb) for title, tb in failed_recipes.iteritems())
+            det_msg = '\n'.join('%s\n%s\n' % (title, tb) for title, tb in iteritems(failed_recipes))
             error_dialog(self, _('Failed to create recipes'), _(
                 'Failed to create some recipes, click "Show details" for details'), show=True,
                          det_msg=det_msg)

@@ -33,6 +33,7 @@ from email.utils import parsedate
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
+from polyglot.builtins import iteritems, itervalues
 # }}}
 
 USER_AGENT = 'calibre mirror'
@@ -292,7 +293,7 @@ def get_plugin_info(raw, check_for_qt5=False):
             metadata = names[inits[0]]
         else:
             # Legacy plugin
-            for name, val in names.iteritems():
+            for name, val in iteritems(names):
                 if name.endswith('plugin.py'):
                     metadata = val
                     break
@@ -331,7 +332,7 @@ def update_plugin_from_entry(plugin, entry):
 
 
 def fetch_plugin(old_index, entry):
-    lm_map = {plugin['thread_id']:plugin for plugin in old_index.itervalues()}
+    lm_map = {plugin['thread_id']:plugin for plugin in itervalues(old_index)}
     raw = read(entry.url)
     url, name = parse_plugin_zip_url(raw)
     if url is None:
@@ -403,7 +404,7 @@ def fetch_plugins(old_index):
             log('Failed to get plugin', entry.name, 'at', datetime.utcnow().isoformat(), 'with error:')
             log(plugin)
     # Move staged files
-    for plugin in ans.itervalues():
+    for plugin in itervalues(ans):
         if plugin['file'].startswith('staging_'):
             src = plugin['file']
             plugin['file'] = src.partition('_')[-1]
@@ -411,7 +412,7 @@ def fetch_plugins(old_index):
     raw = bz2.compress(json.dumps(ans, sort_keys=True, indent=4, separators=(',', ': ')))
     atomic_write(raw, PLUGINS)
     # Cleanup any extra .zip files
-    all_plugin_files = {p['file'] for p in ans.itervalues()}
+    all_plugin_files = {p['file'] for p in itervalues(ans)}
     extra = set(glob.glob('*.zip')) - all_plugin_files
     for x in extra:
         os.unlink(x)
@@ -498,7 +499,7 @@ h1 { text-align: center }
         name, count = x
         return '<tr><td>%s</td><td>%s</td></tr>\n' % (escape(name), count)
 
-    pstats = map(plugin_stats, sorted(stats.iteritems(), reverse=True, key=lambda x:x[1]))
+    pstats = map(plugin_stats, sorted(iteritems(stats), reverse=True, key=lambda x:x[1]))
     stats = '''\
 <!DOCTYPE html>
 <html>

@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
+from polyglot.builtins import iteritems
 
 
 class Field(object):
@@ -222,7 +223,7 @@ class Fields(object):
     def polish_markup(self, object_map):
         if not self.index_fields:
             return
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(object_map)}
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 

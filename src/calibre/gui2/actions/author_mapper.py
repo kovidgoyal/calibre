@@ -4,11 +4,10 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, map, range
 
 
 class AuthorMapAction(InterfaceAction):
@@ -54,7 +53,7 @@ class AuthorMapAction(InterfaceAction):
             author_map = db.all_field_for('authors', book_ids)
             changed_author_map = {}
             changed_author_sort_map = {}
-            for book_id, authors in author_map.iteritems():
+            for book_id, authors in iteritems(author_map):
                 authors = list(authors)
                 new_authors = map_authors(authors, rules)
                 if authors != new_authors:

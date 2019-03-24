@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import unicode_type, string_or_bytes, range
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range
 from polyglot.urllib import unquote, urldefrag, urljoin, urlparse, urlunparse
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
@@ -1479,7 +1479,7 @@ class Guide(object):
         return self.refs.pop(type, None)
 
     def remove_by_href(self, href):
-        remove = [r for r, i in self.refs.iteritems() if i.href == href]
+        remove = [r for r, i in iteritems(self.refs) if i.href == href]
         for r in remove:
             self.remove(r)
 

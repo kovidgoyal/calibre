@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, tprefs, editors
 from calibre.gui2.tweak_book.editor.canvas import Canvas
+from polyglot.builtins import itervalues
 
 
 class ResizeDialog(QDialog):  # {{{
@@ -300,7 +301,7 @@ class Editor(QMainWindow):
     def toolbar_floated(self, floating):
         if not floating:
             self.save_state()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if ed is not self:
                     ed.restore_state()
 

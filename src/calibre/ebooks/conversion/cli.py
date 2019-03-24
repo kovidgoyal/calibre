@@ -17,6 +17,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
 from calibre.ebooks.conversion import ConversionUserFeedBack
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import iteritems
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -254,7 +255,7 @@ def add_pipeline_options(parser, plumber):
 
               ))
 
-    for group, (desc, options) in groups.iteritems():
+    for group, (desc, options) in iteritems(groups):
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)

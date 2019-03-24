@@ -23,7 +23,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False
@@ -977,7 +977,7 @@ class OPF(object):  # {{{
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
             found_scheme = False
-            for attr, val in x.attrib.iteritems():
+            for attr, val in iteritems(x.attrib):
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
                     val = etree.tostring(x, with_tail=False, encoding=unicode_type,
@@ -1010,7 +1010,7 @@ class OPF(object):  # {{{
                     self.metadata):
             xid = x.get('id', None)
             is_package_identifier = uuid_id is not None and uuid_id == xid
-            typ = {val for attr, val in x.attrib.iteritems() if attr.endswith('scheme')}
+            typ = {val for attr, val in iteritems(x.attrib) if attr.endswith('scheme')}
             if is_package_identifier:
                 typ = tuple(typ)
                 if typ and typ[0].lower() in identifiers:
@@ -1019,7 +1019,7 @@ class OPF(object):  # {{{
             if typ and not (typ & {'calibre', 'uuid'}):
                 x.getparent().remove(x)
 
-        for typ, val in identifiers.iteritems():
+        for typ, val in iteritems(identifiers):
             attrib = {'{%s}scheme'%self.NAMESPACES['opf']: typ.upper()}
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), unicode_type(val))
@@ -1155,7 +1155,7 @@ class OPF(object):  # {{{
     def page_progression_direction(self):
         spine = self.XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
         if spine:
-            for k, v in spine[0].attrib.iteritems():
+            for k, v in iteritems(spine[0].attrib):
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
                     return v
 
@@ -1525,7 +1525,7 @@ class OPFCreator(Metadata):
             a(DC_ELEM('description', self.comments))
         if self.publisher:
             a(DC_ELEM('publisher', self.publisher))
-        for key, val in self.get_identifiers().iteritems():
+        for key, val in iteritems(self.get_identifiers()):
             a(DC_ELEM('identifier', val, opf_attrs={'scheme':icu_upper(key)}))
         if self.rights:
             a(DC_ELEM('rights', self.rights))
@@ -1651,7 +1651,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         try:
             elem = metadata.makeelement(tag, attrib=attrib)
         except ValueError:
-            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in attrib.iteritems()})
+            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in iteritems(attrib)})
         elem.tail = '\n'+(' '*8)
         if text:
             try:
@@ -1672,7 +1672,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         factory(DC('description'), clean_ascii_chars(mi.comments))
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
-    for key, val in mi.get_identifiers().iteritems():
+    for key, val in iteritems(mi.get_identifiers()):
         factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)

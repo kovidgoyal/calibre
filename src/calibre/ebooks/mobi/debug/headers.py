@@ -14,7 +14,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.utils import get_trailing_data
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, range
 
 # PalmDB {{{
 
@@ -597,7 +597,7 @@ class TextRecord(object):  # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
         self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
-        for typ, val in self.trailing_data.iteritems():
+        for typ, val in iteritems(self.trailing_data):
             if isinstance(typ, numbers.Integral):
                 print ('Record %d has unknown trailing data of type: %d : %r'%
                         (idx, typ, val))
@@ -609,7 +609,7 @@ class TextRecord(object):  # {{{
         with open(os.path.join(folder, name+'.txt'), 'wb') as f:
             f.write(self.raw)
         with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:
-            for k, v in self.trailing_data.iteritems():
+            for k, v in iteritems(self.trailing_data):
                 raw = '%s : %r\n\n'%(k, v)
                 f.write(raw.encode('utf-8'))
 

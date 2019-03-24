@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import replace_entities, isbytestring
 from calibre.utils.date import parse_date, is_date_undefined
+from polyglot.builtins import iteritems, itervalues
 
 
 def get_metadata(stream):
@@ -60,7 +61,7 @@ attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'
 
 def parse_meta_tags(src):
     rmap = {}
-    for field, names in META_NAMES.iteritems():
+    for field, names in iteritems(META_NAMES):
         for name in names:
             rmap[name.lower()] = field
     all_names = '|'.join(rmap)
@@ -89,8 +90,8 @@ def parse_meta_tags(src):
 
 
 def parse_comment_tags(src):
-    all_names = '|'.join(COMMENT_NAMES.itervalues())
-    rmap = {v:k for k, v in COMMENT_NAMES.iteritems()}
+    all_names = '|'.join(itervalues(COMMENT_NAMES))
+    rmap = {v:k for k, v in iteritems(COMMENT_NAMES)}
     ans = {}
     for match in re.finditer(r'''<!--\s*(?P<name>%s)\s*=\s*%s''' % (all_names, attr_pat), src):
         field = rmap[match.group('name')]
