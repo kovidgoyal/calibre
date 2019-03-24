@@ -93,7 +93,7 @@ def serialize_builtin_recipes():
             try:
                 recipe_class = compile_recipe(stream.read())
             except:
-                print ('Failed to compile: %s'%f)
+                print('Failed to compile: %s'%f)
                 raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class

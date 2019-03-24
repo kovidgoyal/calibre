@@ -68,6 +68,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         from calibre.utils.config import config_dir
         open_local_file(config_dir)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])

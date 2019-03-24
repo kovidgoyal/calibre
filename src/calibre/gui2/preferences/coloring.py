@@ -1130,8 +1130,8 @@ if __name__ == '__main__':
         kind, col, r = d.rule
 
         print('Column to be colored:', col)
-        print ('Template:')
-        print (r.template)
+        print('Template:')
+        print(r.template)
     else:
         d = EditRules()
         d.resize(QSize(800, 600))

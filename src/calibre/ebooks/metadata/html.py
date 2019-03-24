@@ -67,10 +67,10 @@ def parse_meta_tags(src):
     all_names = '|'.join(rmap)
     ans = {}
     npat = r'''name\s*=\s*['"]{0,1}(?P<name>%s)['"]{0,1}''' % all_names
-    cpat = 'content\s*=\s*%s' % attr_pat
+    cpat = r'content\s*=\s*%s' % attr_pat
     for pat in (
-        '<meta\s+%s\s+%s' % (npat, cpat),
-        '<meta\s+%s\s+%s' % (cpat, npat),
+        r'<meta\s+%s\s+%s' % (npat, cpat),
+        r'<meta\s+%s\s+%s' % (cpat, npat),
     ):
         for match in re.finditer(pat, src, flags=re.IGNORECASE):
             x = match.group('name').lower()

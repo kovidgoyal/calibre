@@ -196,7 +196,7 @@ def run_plugins_on_postimport(db, book_id, fmt):
             try:
                 plugin.postimport(book_id, fmt, db)
             except:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -211,7 +211,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
             try:
                 plugin.postadd(book_id, fmt_map, db)
             except Exception:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -728,7 +728,7 @@ def initialize_plugins(perf=False):
     sys.stdout, sys.stderr = ostdout, ostderr
     if perf:
         for x in sorted(times, key=lambda x:times[x]):
-            print ('%50s: %.3f'%(x, times[x]))
+            print('%50s: %.3f'%(x, times[x]))
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

@@ -50,7 +50,7 @@ class JavaScriptLoader(object):
                 compile_coffeescript
             except:
                 self._dynamic_coffeescript = False
-                print ('WARNING: Failed to load serve_coffee, not compiling '
+                print('WARNING: Failed to load serve_coffee, not compiling '
                         'coffeescript dynamically.')
 
         self._cache = {}

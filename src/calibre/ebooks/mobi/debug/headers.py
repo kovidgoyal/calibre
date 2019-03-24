@@ -599,7 +599,7 @@ class TextRecord(object):  # {{{
 
         for typ, val in iteritems(self.trailing_data):
             if isinstance(typ, numbers.Integral):
-                print ('Record %d has unknown trailing data of type: %d : %r'%
+                print('Record %d has unknown trailing data of type: %d : %r'%
                         (idx, typ, val))
 
         self.idx = idx

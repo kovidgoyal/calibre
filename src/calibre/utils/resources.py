@@ -98,7 +98,7 @@ def _compile_coffeescript(name):
         cs, errors = compile_coffeescript(f.read(), src)
         if errors:
             for line in errors:
-                print (line)
+                print(line)
             raise Exception('Failed to compile coffeescript'
                     ': %s'%src)
         return cs

@@ -65,5 +65,6 @@ def import_book_as_epub(srcpath, destpath, log=default_log):
             for name in c.name_path_map:
                 zf.writestr(name, c.raw_data(name, decode=False))
 
+
 if __name__ == '__main__':
     import_book_as_epub(sys.argv[-2], sys.argv[-1])

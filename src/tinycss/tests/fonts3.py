@@ -11,6 +11,7 @@ from tinycss.tests import BaseTest
 
 from polyglot.builtins import iteritems
 
+
 class TestFonts3(BaseTest):
 
     def test_font_face(self):

@@ -374,10 +374,10 @@ def parallel_fetch(old_index, entry):
 
 
 def log(*args, **kwargs):
-    print (*args, **kwargs)
+    print(*args, **kwargs)
     with open('log', 'a') as f:
         kwargs['file'] = f
-        print (*args, **kwargs)
+        print(*args, **kwargs)
 
 
 def atomic_write(raw, name):
@@ -682,7 +682,7 @@ def test_parse():  # {{{
     new_entries = tuple(parse_index(raw))
     for i, entry in enumerate(old_entries):
         if entry != new_entries[i]:
-            print ('The new entry: %s != %s' % (new_entries[i], entry))
+            print('The new entry: %s != %s' % (new_entries[i], entry))
             raise SystemExit(1)
     pool = ThreadPool(processes=20)
     urls = [e.url for e in new_entries]
@@ -699,7 +699,7 @@ def test_parse():  # {{{
                 break
         new_url, aname = parse_plugin_zip_url(raw)
         if new_url != full_url:
-            print ('new url (%s): %s != %s for plugin at: %s' % (aname, new_url, full_url, url))
+            print('new url (%s): %s != %s for plugin at: %s' % (aname, new_url, full_url, url))
             raise SystemExit(1)
 
 # }}}

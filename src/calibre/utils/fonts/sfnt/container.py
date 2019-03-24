@@ -167,6 +167,7 @@ def test_roundtrip(ff=None):
         raise ValueError('Roundtripping failed, size different (%d vs. %d)'%
                          (len(data), len(rd)))
 
+
 if __name__ == '__main__':
     import sys
     test_roundtrip(sys.argv[-1])

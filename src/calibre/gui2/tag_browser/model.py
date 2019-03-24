@@ -374,7 +374,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def rebuild_node_tree(self, state_map={}):
         if self._build_in_progress:
-            print ('Tag browser build already in progress')
+            print('Tag browser build already in progress')
             traceback.print_stack()
             return
         # traceback.print_stack()
@@ -474,7 +474,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         intermediate_nodes = {}
 
         if data is None:
-            print ('_create_node_tree: no data!')
+            print('_create_node_tree: no data!')
             traceback.print_stack()
             return
 
@@ -1011,7 +1011,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if not isinstance(order, dict):
                 raise TypeError()
         except:
-            print ('Tweak tag_browser_category_order is not valid. Ignored')
+            print('Tweak tag_browser_category_order is not valid. Ignored')
             order = {'*': 100}
         defvalue = order.get('*', 100)
         self.row_map = sorted(self.categories, key=lambda x: order.get(x, defvalue))
@@ -1031,7 +1031,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         Here to trap usages of refresh in the old architecture. Can eventually
         be removed.
         '''
-        print ('TagsModel: refresh called!')
+        print('TagsModel: refresh called!')
         traceback.print_stack()
         return False
 

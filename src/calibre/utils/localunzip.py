@@ -316,5 +316,6 @@ class LocalZipFile(object):
             shutil.copyfileobj(temp, zipstream)
             zipstream.flush()
 
+
 if __name__ == '__main__':
     extractall(sys.argv[-1])

@@ -144,5 +144,6 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
             num += 1
     return num
 
+
 if __name__ == '__main__':
     import_from_libreoffice_source_tree(sys.argv[-1])

@@ -39,6 +39,7 @@ class Field(object):
         self.instructions = ''.join(self.buf)
         del self.buf
 
+
 WORD, FLAG = 0, 1
 scanner = re.Scanner([
     (r'\\\S{1}', lambda s, t: (t, FLAG)),  # A flag of the form \x
@@ -76,6 +77,7 @@ def parser(name, field_map, default_field_name=None):
     parse.__name__ = str('parse_' + name)
 
     return parse
+
 
 parse_hyperlink = parser('hyperlink',
     'l:anchor m:image-map n:target o:title t:target', 'url')
@@ -256,6 +258,7 @@ def test_parse_fields(return_tests=False):
     if return_tests:
         return suite
     unittest.TextTestRunner(verbosity=4).run(suite)
+
 
 if __name__ == '__main__':
     test_parse_fields()

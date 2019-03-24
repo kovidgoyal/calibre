@@ -37,6 +37,7 @@ def alphabet(val, lower=True):
     x = string.ascii_lowercase if lower else string.ascii_uppercase
     return x[(abs(val - 1)) % len(x)]
 
+
 alphabet_map = {
     'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
     'lower-roman':lambda x:roman(x).lower(), 'upper-roman':roman,

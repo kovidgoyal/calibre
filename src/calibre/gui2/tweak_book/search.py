@@ -569,8 +569,7 @@ class SearchesModel(QAbstractListModel):
     def dropMimeData(self, data, action, row, column, parent):
         if parent.isValid() or action != Qt.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
             return False
-        rows = map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(','))
-        rows.sort()
+        rows = sorted(map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(',')))
         moved_searches = [self.searches[self.filtered_searches[r]] for r in rows]
         moved_searches_q = {id(s) for s in moved_searches}
         insert_at = max(0, min(row, len(self.filtered_searches)))

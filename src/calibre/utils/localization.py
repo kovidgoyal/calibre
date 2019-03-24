@@ -189,7 +189,7 @@ def load_po(path):
     try:
         make(path, buf)
     except Exception:
-        print (('Failed to compile translations file: %s, ignoring') % path)
+        print(('Failed to compile translations file: %s, ignoring') % path)
         buf = None
     else:
         buf = io.BytesIO(buf.getvalue())

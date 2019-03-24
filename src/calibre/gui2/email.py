@@ -506,4 +506,4 @@ class EmailMixin(object):  # {{{
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])  # noqa
-    print (select_recipients())
+    print(select_recipients())

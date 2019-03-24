@@ -489,12 +489,12 @@ def test():
 def main():
     import sys, os
     for f in sys.argv[1:]:
-        print (os.path.basename(f))
+        print(os.path.basename(f))
         raw = open(f, 'rb').read()
-        print (get_font_names(raw))
+        print(get_font_names(raw))
         characs = get_font_characteristics(raw)
-        print (characs)
-        print (panose_to_css_generic_family(characs[5]))
+        print(characs)
+        print(panose_to_css_generic_family(characs[5]))
         verify_checksums(raw)
         remove_embed_restriction(raw)
 

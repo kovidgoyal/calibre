@@ -1530,7 +1530,7 @@ def test_roundtrip():
     ebook3 = get_container(p.name)
     diff = ebook3.compare_to(ebook2)
     if diff is not None:
-        print (diff)
+        print(diff)
 
 
 if __name__ == '__main__':

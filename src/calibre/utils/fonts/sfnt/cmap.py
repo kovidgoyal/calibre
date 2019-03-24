@@ -208,8 +208,7 @@ class CmapTable(UnknownTable):
         if self.bmp_table is None:
             raise UnsupportedFont('This font has no Windows BMP cmap subtable.'
                     ' Most likely a special purpose font.')
-        chars = list(set(chars))
-        chars.sort()
+        chars = sorted(set(chars))
         ans = OrderedDict()
         for i, glyph_id in enumerate(self.bmp_table.get_glyph_ids(chars)):
             if glyph_id > 0:
@@ -230,8 +229,7 @@ class CmapTable(UnknownTable):
     def set_character_map(self, cmap):
         self.version, self.num_tables = 0, 1
         fmt = b'>7H'
-        codes = list(iterkeys(cmap))
-        codes.sort()
+        codes = sorted(iterkeys(cmap))
 
         if not codes:
             start_code = [0xffff]

@@ -27,6 +27,7 @@ xpath_cache = OrderedDict()
 # Test that the string is not empty and does not contain whitespace
 is_non_whitespace = re.compile(r'^[^ \t\r\n\f]+$').match
 
+
 def get_parsed_selector(raw):
     try:
         return parse_cache[raw]
@@ -35,6 +36,7 @@ def get_parsed_selector(raw):
         if len(parse_cache) > PARSE_CACHE_SIZE:
             parse_cache.pop(next(iter(parse_cache)))
         return ans
+
 
 def get_compiled_xpath(expr):
     try:
@@ -45,11 +47,15 @@ def get_compiled_xpath(expr):
             xpath_cache.pop(next(iter(xpath_cache)))
         return ans
 
+
 class AlwaysIn(object):
 
     def __contains__(self, x):
         return True
+
+
 always_in = AlwaysIn()
+
 
 def trace_wrapper(func):
     @wraps(func)
@@ -58,6 +64,7 @@ def trace_wrapper(func):
         print('Called:', func.__name__, 'with args:', targs, kwargs or '')
         return func(*args, **kwargs)
     return trace
+
 
 def normalize_language_tag(tag):
     """Return a list of normalized combinations for a `BCP 47` language tag.
@@ -80,8 +87,10 @@ def normalize_language_tag(tag):
             taglist.add('-'.join(base_tag + tags))
     return taglist
 
+
 INAPPROPRIATE_PSEUDO_CLASSES = frozenset([
     'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'])
+
 
 class Select(object):
 
@@ -325,6 +334,7 @@ class Select(object):
 
 # Combinators {{{
 
+
 def select_combinedselector(cache, combined):
     """Translate a combined selector."""
     combinator = cache.combinator_mapping[combined.combinator]
@@ -334,6 +344,7 @@ def select_combinedselector(cache, combined):
     for item in cache.dispatch_map[combinator](cache, cache.iterparsedselector(combined.selector), right):
         yield item
 
+
 def select_descendant(cache, left, right):
     """right is a child, grand-child or further descendant of left"""
     right = always_in if right is None else frozenset(right)
@@ -342,6 +353,7 @@ def select_descendant(cache, left, right):
             if descendant in right:
                 yield descendant
 
+
 def select_child(cache, left, right):
     """right is an immediate child of left"""
     right = always_in if right is None else frozenset(right)
@@ -349,6 +361,7 @@ def select_child(cache, left, right):
         for child in cache.iterchildren(parent):
             if child in right:
                 yield child
+
 
 def select_direct_adjacent(cache, left, right):
     """right is a sibling immediately after left"""
@@ -359,6 +372,7 @@ def select_direct_adjacent(cache, left, right):
                 yield sibling
             break
 
+
 def select_indirect_adjacent(cache, left, right):
     """right is a sibling after left, immediately or not"""
     right = always_in if right is None else frozenset(right)
@@ -367,6 +381,7 @@ def select_indirect_adjacent(cache, left, right):
             if sibling in right:
                 yield sibling
 # }}}
+
 
 def select_element(cache, selector):
     """A type or universal selector."""
@@ -378,6 +393,7 @@ def select_element(cache, selector):
         for elem in cache.element_map[ascii_lower(element)]:
             yield elem
 
+
 def select_hash(cache, selector):
     'An id selector'
     items = cache.id_map[ascii_lower(selector.id)]
@@ -386,6 +402,7 @@ def select_hash(cache, selector):
             if elem in items:
                 yield elem
 
+
 def select_class(cache, selector):
     'A class selector'
     items = cache.class_map[ascii_lower(selector.class_name)]
@@ -393,6 +410,7 @@ def select_class(cache, selector):
         for elem in cache.iterparsedselector(selector.selector):
             if elem in items:
                 yield elem
+
 
 def select_negation(cache, selector):
     'Implement :not()'
@@ -403,6 +421,7 @@ def select_negation(cache, selector):
 
 # Attribute selectors {{{
 
+
 def select_attrib(cache, selector):
     operator = cache.attribute_operator_mapping[selector.operator]
     items = frozenset(cache.dispatch_map[operator](cache, ascii_lower(selector.attrib), selector.value))
@@ -410,19 +429,23 @@ def select_attrib(cache, selector):
         if item in items:
             yield item
 
+
 def select_exists(cache, attrib, value=None):
     for elem_set in itervalues(cache.attrib_map[attrib]):
         for elem in elem_set:
             yield elem
 
+
 def select_equals(cache, attrib, value):
     for elem in cache.attrib_map[attrib][value]:
         yield elem
+
 
 def select_includes(cache, attrib, value):
     if is_non_whitespace(value):
         for elem in cache.attrib_space_map[attrib][value]:
             yield elem
+
 
 def select_dashmatch(cache, attrib, value):
     if value:
@@ -431,6 +454,7 @@ def select_dashmatch(cache, attrib, value):
                 for elem in elem_set:
                     yield elem
 
+
 def select_prefixmatch(cache, attrib, value):
     if value:
         for val, elem_set in iteritems(cache.attrib_map[attrib]):
@@ -438,12 +462,14 @@ def select_prefixmatch(cache, attrib, value):
                 for elem in elem_set:
                     yield elem
 
+
 def select_suffixmatch(cache, attrib, value):
     if value:
         for val, elem_set in iteritems(cache.attrib_map[attrib]):
             if val.endswith(value):
                 for elem in elem_set:
                     yield elem
+
 
 def select_substringmatch(cache, attrib, value):
     if value:
@@ -455,6 +481,7 @@ def select_substringmatch(cache, attrib, value):
 # }}}
 
 # Function selectors {{{
+
 
 def select_function(cache, function):
     """Select with a functional pseudo-class."""
@@ -474,6 +501,7 @@ def select_function(cache, function):
             if func(cache, function, item):
                 yield item
 
+
 def select_lang(cache, function):
     ' Implement :lang() '
     if function.argument_types() not in (['STRING'], ['IDENT']):
@@ -487,6 +515,7 @@ def select_lang(cache, function):
                 for elem in elem_set:
                     yield elem
 
+
 def select_nth_child(cache, function, elem):
     ' Implement :nth-child() '
     a, b = function.parsed_arguments
@@ -498,6 +527,7 @@ def select_nth_child(cache, function, elem):
         return num == b
     n = (num - b) / a
     return n.is_integer() and n > -1
+
 
 def select_nth_last_child(cache, function, elem):
     ' Implement :nth-last-child() '
@@ -511,6 +541,7 @@ def select_nth_last_child(cache, function, elem):
     n = (num - b) / a
     return n.is_integer() and n > -1
 
+
 def select_nth_of_type(cache, function, elem):
     ' Implement :nth-of-type() '
     a, b = function.parsed_arguments
@@ -522,6 +553,7 @@ def select_nth_of_type(cache, function, elem):
         return num == b
     n = (num - b) / a
     return n.is_integer() and n > -1
+
 
 def select_nth_last_of_type(cache, function, elem):
     ' Implement :nth-last-of-type() '
@@ -538,6 +570,7 @@ def select_nth_last_of_type(cache, function, elem):
 # }}}
 
 # Pseudo elements {{{
+
 
 def select_pseudo(cache, pseudo):
     try:
@@ -565,50 +598,71 @@ def select_pseudo(cache, pseudo):
         if func(cache, item):
             yield item
 
+
 def select_first_child(cache, elem):
     try:
         return cache.sibling_count(elem) == 0
     except ValueError:
         return False
+
+
 select_first_child.is_pseudo = True
+
 
 def select_last_child(cache, elem):
     try:
         return cache.sibling_count(elem, before=False) == 0
     except ValueError:
         return False
+
+
 select_last_child.is_pseudo = True
+
 
 def select_only_child(cache, elem):
     try:
         return cache.all_sibling_count(elem) == 0
     except ValueError:
         return False
+
+
 select_only_child.is_pseudo = True
+
 
 def select_first_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, same_type=True) == 0
     except ValueError:
         return False
+
+
 select_first_of_type.is_pseudo = True
+
 
 def select_last_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, before=False, same_type=True) == 0
     except ValueError:
         return False
+
+
 select_last_of_type.is_pseudo = True
+
 
 def select_only_of_type(cache, elem):
     try:
         return cache.all_sibling_count(elem, same_type=True) == 0
     except ValueError:
         return False
+
+
 select_only_of_type.is_pseudo = True
+
 
 def select_empty(cache, elem):
     return cache.is_empty(elem)
+
+
 select_empty.is_pseudo = True
 
 # }}}

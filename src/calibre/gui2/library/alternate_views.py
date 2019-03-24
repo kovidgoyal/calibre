@@ -957,7 +957,7 @@ class GridView(QListView):
                 # rendered, but this is better than a deadlock
                 join_with_timeout(self.delegate.render_queue)
             except RuntimeError:
-                print ('Cover rendering thread is stuck!')
+                print('Cover rendering thread is stuck!')
             finally:
                 self.ignore_render_requests.clear()
         else:

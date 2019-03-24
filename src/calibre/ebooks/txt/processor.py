@@ -121,7 +121,7 @@ def create_markdown_object(extensions):
             if hasattr(module, 'makeExtension'):
                 return module.makeExtension(**configs)
             for name, x in vars(module).items():
-                if type(x) is type and issubclass(x, Extension) and x is not Extension:
+                if isinstance(x, type) and issubclass(x, Extension) and x is not Extension:
                     return x(**configs)
             raise ImportError('No extension class in {}'.format(ext_name))
 

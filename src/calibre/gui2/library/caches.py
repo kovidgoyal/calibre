@@ -46,7 +46,7 @@ class CoverCache(dict):
 
     def _pop(self, book_id):
         val = self.items.pop(book_id, None)
-        if type(val) is QPixmap and current_thread() is not self.gui_thread:
+        if isinstance(val, QPixmap) and current_thread() is not self.gui_thread:
             self.pixmap_staging.append(val)
 
     def __getitem__(self, key):
@@ -55,7 +55,7 @@ class CoverCache(dict):
             self.clear_staging()
             ans = self.items.pop(key, False)  # pop() so that item is moved to the top
             if ans is not False:
-                if type(ans) is QImage:
+                if isinstance(ans, QImage):
                     # Convert to QPixmap, since rendering QPixmap is much
                     # faster
                     ans = QPixmap.fromImage(ans)
@@ -73,7 +73,7 @@ class CoverCache(dict):
     def clear(self):
         with self.lock:
             if current_thread() is not self.gui_thread:
-                pixmaps = (x for x in itervalues(self.items) if type(x) is QPixmap)
+                pixmaps = (x for x in itervalues(self.items) if isinstance(x, QPixmap))
                 self.pixmap_staging.extend(pixmaps)
             self.items.clear()
 

@@ -399,7 +399,7 @@ def run_main(func):
 
 
 def test_write():
-    print ('Printing to stdout in worker')
+    print('Printing to stdout in worker')
 
 
 def test():
@@ -408,8 +408,8 @@ def test():
         while not p.results.empty():
             r = p.results.get()
             if not ignore_fail and r.is_terminal_failure:
-                print (r.result.err)
-                print (r.result.traceback)
+                print(r.result.err)
+                print(r.result.traceback)
                 raise SystemExit(1)
             ans[r.id] = r.result
         return ans
@@ -487,4 +487,4 @@ def test():
         p(i, 'import time;\ndef x(i):\n time.sleep(10000)', 'x', i)
     p.shutdown(), p.join()
 
-    print ('Tests all passed!')
+    print('Tests all passed!')

@@ -652,7 +652,7 @@ class PostInstall:
         print('\n'+'_'*20, 'WARNING','_'*20)
         prints(*args, **kwargs)
         print('_'*50)
-        print ('\n')
+        print('\n')
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
 

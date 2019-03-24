@@ -12,6 +12,7 @@ class Bookmark():  # {{{
     A simple class fetching bookmark data
     kobo-specific
     '''
+
     def __init__(self, db_connection, contentid, path, id, book_format, bookmark_extension):
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension

@@ -105,7 +105,7 @@ class CNCX(object):  # {{{
                     except:
                         byts = raw[pos:]
                         r = format_bytes(byts)
-                        print ('CNCX entry at offset %d has unknown format %s'%(
+                        print('CNCX entry at offset %d has unknown format %s'%(
                             pos+record_offset, r))
                         self.records[pos+record_offset] = r
                         pos = len(raw)
@@ -216,7 +216,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
     header = parse_indx_header(data)
     idxt_pos = header['start']
     if data[idxt_pos:idxt_pos+4] != b'IDXT':
-        print ('WARNING: Invalid INDX record')
+        print('WARNING: Invalid INDX record')
     entry_count = header['count']
 
     # loop through to build up the IDXT position starts

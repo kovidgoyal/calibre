@@ -142,6 +142,7 @@ class dbus_property(object):
     def setter(self, fset):
         return self._copy(fset=fset)
 
+
 _logger = logging.getLogger('dbus.service')
 
 

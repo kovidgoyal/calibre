@@ -132,6 +132,7 @@ class ReverseChainSingleSubstitution(UnknownLookupSubTable):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
         return {self.substitutes[i] for i in itervalues(gid_index_map)}
 
+
 subtable_map = {
         1: SingleSubstitution,
         2: MultipleSubstitution,

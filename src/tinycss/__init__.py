@@ -47,6 +47,7 @@ def make_parser(*features, **kwargs):
         parser_class = CSS21Parser
     return parser_class(**kwargs)
 
+
 def make_full_parser(**kwargs):
     ''' A parser that parses all supported CSS 3 modules in addition to CSS 2.1 '''
     features = tuple(iterkeys(PARSER_MODULES))

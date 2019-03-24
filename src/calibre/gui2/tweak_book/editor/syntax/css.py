@@ -269,6 +269,7 @@ def in_string(state, text, i, formats, user_data):
     state.parse = (NORMAL if state.blocks < 1 else IN_CONTENT)
     return [(pos - i + len(q), formats['string'])]
 
+
 state_map = {
     NORMAL:normal,
     IN_COMMENT_NORMAL: comment,

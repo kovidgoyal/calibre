@@ -39,4 +39,6 @@ def points_for_word(w):
         ans = plugins['unicode_names'][0].codepoints_for_word(w.encode('utf-8')) | html_entities().get(w, set())
         points_for_word.cache[w] = ans
     return ans
+
+
 points_for_word.cache = {}  # noqa
