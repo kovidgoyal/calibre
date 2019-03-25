@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, numbers
+from itertools import count
 
 from lxml import etree
 
@@ -623,7 +624,7 @@ class PDFDocument(object):
         self.opts, self.log = opts, log
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
-        idc = iter(range(sys.maxint))
+        idc = count()
 
         self.fonts = []
         self.font_map = {}

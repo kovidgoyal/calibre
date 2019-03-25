@@ -193,6 +193,7 @@ def prints(*args, **kwargs):
     Returns the number of bytes written.
     '''
     file = kwargs.get('file', sys.stdout)
+    file = getattr(file, 'buffer', file)
     sep  = bytes(kwargs.get('sep', ' '))
     end  = bytes(kwargs.get('end', '\n'))
     enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding

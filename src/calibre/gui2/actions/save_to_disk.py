@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, numbers
 from functools import partial
-from polyglot.builtins itervalues, import map
+from polyglot.builtins import itervalues, map
 
 
 from calibre.utils.config import prefs

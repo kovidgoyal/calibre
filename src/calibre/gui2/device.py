@@ -355,7 +355,7 @@ class DeviceManager(Thread):  # {{{
                 # anything besides set a flag that the right thread will see.
                 self.connected_device.unmount_device()
 
-    def next(self):
+    def next_job(self):
         if not self.job_steps.empty():
             try:
                 return self.job_steps.get_nowait()
@@ -411,7 +411,7 @@ class DeviceManager(Thread):  # {{{
 
             do_sleep = True
             while True:
-                job = next(self)
+                job = self.next_job()
                 if job is not None:
                     do_sleep = False
                     self.current_job = job

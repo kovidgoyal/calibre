@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
-from polyglot.builtins import iteritems, map, range
+from polyglot.builtins import iteritems, map, range, itervalues
 from polyglot.urllib import urlparse
 from polyglot.queue import Queue, Empty
 
