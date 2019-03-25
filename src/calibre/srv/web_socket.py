@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import httplib, os, weakref, socket
+import os, weakref, socket
 from base64 import standard_b64encode
 from collections import deque
 from hashlib import sha1
@@ -19,6 +19,7 @@ from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.queue import Queue, Empty
+from polyglot import http_client
 speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError('Failed to load speedup module with error: ' + err)
@@ -286,9 +287,9 @@ class WebSocketConnection(HTTPConnection):
         except Exception:
             ver_ok = False
         if not ver_ok:
-            return self.simple_response(httplib.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
+            return self.simple_response(http_client.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
         if self.method != 'GET':
-            return self.simple_response(httplib.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
+            return self.simple_response(http_client.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
 
         response = HANDSHAKE_STR % standard_b64encode(sha1(key + GUID_STR).digest())
         self.optimize_for_sending_packet()

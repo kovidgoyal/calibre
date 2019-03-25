@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, httplib, bz2, shutil, sys
+import os, errno, json, importlib, math, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
 from threading import Thread, Event
@@ -35,8 +35,9 @@ from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jp
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
-from polyglot.queue import Queue, Empty
 from polyglot.builtins import iteritems, map, range, reraise
+from polyglot import http_client
+from polyglot.queue import Queue, Empty
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
@@ -439,7 +440,7 @@ def download_cover(cover_url, etag=None, cached=b''):
         etag = response.getheader('ETag', None) or None
         return cached, etag
     except HTTPError as e:
-        if etag and e.code == httplib.NOT_MODIFIED:
+        if etag and e.code == http_client.NOT_MODIFIED:
             return cached, etag
         raise
 

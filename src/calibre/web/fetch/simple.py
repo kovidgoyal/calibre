@@ -18,7 +18,6 @@ import threading
 import time
 import traceback
 from base64 import b64decode
-from httplib import responses
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -31,6 +30,7 @@ from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
 from polyglot.builtins import unicode_type
+from polyglot.http_client import responses
 from polyglot.urllib import (
     URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
     urlunsplit

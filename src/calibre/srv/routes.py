@@ -6,13 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, sys, inspect, re, time, numbers, json as jsonlib, textwrap
+import sys, inspect, re, time, numbers, json as jsonlib, textwrap
 from operator import attrgetter
 
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
 from polyglot.builtins import iteritems, itervalues, unicode_type, range, zip
+from polyglot import http_client
 from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))
@@ -297,7 +298,7 @@ class Router(object):
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
-            raise HTTPSimpleResponse(httplib.METHOD_NOT_ALLOWED)
+            raise HTTPSimpleResponse(http_client.METHOD_NOT_ALLOWED)
 
         self.read_cookies(data)
 
