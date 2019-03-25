@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 
@@ -323,7 +323,7 @@ def metadata_from_xmp_packet(raw_bytes):
                     identifiers[scheme] = val
 
     # Check Dublin Core for recognizable identifier types
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in identifiers:
             val = check_func(first_simple('//dc:identifier', root))
             if val:
@@ -407,7 +407,7 @@ def create_identifiers(xmp, identifiers):
     xmp.append(xmpid)
     bag = xmpid.makeelement(expand('rdf:Bag'))
     xmpid.append(bag)
-    for scheme, value in identifiers.iteritems():
+    for scheme, value in iteritems(identifiers):
         li = bag.makeelement(expand('rdf:li'))
         li.set(expand('rdf:parseType'), 'Resource')
         bag.append(li)
@@ -443,7 +443,7 @@ def create_user_metadata(calibre, all_user_metadata):
     calibre.append(s)
     bag = s.makeelement(expand('rdf:Bag'))
     s.append(bag)
-    for name, fm in all_user_metadata.iteritems():
+    for name, fm in iteritems(all_user_metadata):
         try:
             fm = copy.copy(fm)
             encode_is_multiple(fm)
@@ -473,12 +473,12 @@ def metadata_to_xmp_packet(mi):
     dc = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('dc'))
     dc.set(expand('rdf:about'), '')
     rdf.append(dc)
-    for prop, tag in {'title':'dc:title', 'comments':'dc:description'}.iteritems():
+    for prop, tag in iteritems({'title':'dc:title', 'comments':'dc:description'}):
         val = mi.get(prop) or ''
         create_alt_property(dc, tag, val)
-    for prop, (tag, ordered) in {
+    for prop, (tag, ordered) in iteritems({
         'authors':('dc:creator', True), 'tags':('dc:subject', False), 'publisher':('dc:publisher', False),
-    }.iteritems():
+    }):
         val = mi.get(prop) or ()
         if isinstance(val, string_or_bytes):
             val = [val]
@@ -502,9 +502,9 @@ def metadata_to_xmp_packet(mi):
     identifiers = mi.get_identifiers()
     if identifiers:
         create_identifiers(xmp, identifiers)
-        for scheme, val in identifiers.iteritems():
+        for scheme, val in iteritems(identifiers):
             if scheme in {'isbn', 'doi'}:
-                for prefix, parent in extra_ids.iteritems():
+                for prefix, parent in iteritems(extra_ids):
                     ie = parent.makeelement(expand('%s:%s'%(prefix, scheme)))
                     ie.text = val
                     parent.append(ie)
@@ -552,7 +552,7 @@ def find_used_namespaces(elem):
 
 def find_preferred_prefix(namespace, elems):
     for elem in elems:
-        ans = {v:k for k, v in elem.nsmap.iteritems()}.get(namespace, None)
+        ans = {v:k for k, v in iteritems(elem.nsmap)}.get(namespace, None)
         if ans is not None:
             return ans
         return find_preferred_prefix(namespace, elem.iterchildren(etree.Element))
@@ -564,7 +564,7 @@ def find_nsmap(elems):
         used_namespaces |= find_used_namespaces(elem)
     ans = {}
     used_namespaces -= {NS_MAP['xml'], NS_MAP['x'], None, NS_MAP['rdf']}
-    rmap = {v:k for k, v in NS_MAP.iteritems()}
+    rmap = {v:k for k, v in iteritems(NS_MAP)}
     i = 0
     for ns in used_namespaces:
         if ns in rmap:

@@ -248,7 +248,8 @@ def run_script(path, args):
     g = globals()
     g['__name__'] = '__main__'
     g['__file__'] = ef
-    execfile(ef, g)
+    with open(ef, 'rb') as f:
+        exec(compile(f.read(), ef, 'exec'), g)
 
 
 def inspect_mobi(path):
@@ -346,7 +347,7 @@ def main(args=sys.argv):
             elif ext in {'mobi', 'azw', 'azw3'}:
                 inspect_mobi(path)
             else:
-                print ('Cannot dump unknown filetype: %s' % path)
+                print('Cannot dump unknown filetype: %s' % path)
     elif len(args) >= 2 and os.path.exists(os.path.join(args[1], '__main__.py')):
         sys.path.insert(0, args[1])
         run_script(os.path.join(args[1], '__main__.py'), args[2:])

@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import iteritems
 
 border_style_map = {
         'single' : 'solid',
@@ -145,7 +146,7 @@ class RTFInput(InputFormatPlugin):
 
     def convert_images(self, imap):
         self.default_img = None
-        for count, val in imap.iteritems():
+        for count, val in iteritems(imap):
             try:
                 imap[count] = self.convert_image(val)
             except:
@@ -210,7 +211,7 @@ class RTFInput(InputFormatPlugin):
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
 
-        for cls, val in border_styles.iteritems():
+        for cls, val in iteritems(border_styles):
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
         with open(u'styles.css', 'ab') as f:

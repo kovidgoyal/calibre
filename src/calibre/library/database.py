@@ -1337,10 +1337,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
         for path in paths:
-            mi = metadata.next()
-            format = formats.next()
+            mi = next(metadata)
+            format = next(formats)
             try:
-                uri = uris.next()
+                uri = next(uris)
             except StopIteration:
                 uri = None
             if not add_duplicates and self.has_book(mi):

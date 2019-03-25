@@ -14,7 +14,7 @@ from lxml import etree, html
 from calibre import xml_replace_entities, force_unicode
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -144,8 +144,8 @@ def clean_word_doc(data, log):
 
 
 def ensure_namespace_prefixes(node, nsmap):
-    namespace_uris = frozenset(nsmap.itervalues())
-    fnsmap = {k:v for k, v in node.nsmap.iteritems() if v not in namespace_uris}
+    namespace_uris = frozenset(itervalues(nsmap))
+    fnsmap = {k:v for k, v in iteritems(node.nsmap) if v not in namespace_uris}
     fnsmap.update(nsmap)
     if fnsmap != dict(node.nsmap):
         node = clone_element(node, nsmap=fnsmap, in_context=False)
@@ -201,7 +201,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     val = val[1:-1]
                 user_entities[match.group(1)] = val
             if user_entities:
-                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
                 data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
     if preprocessor is not None:
@@ -241,7 +241,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         for x in data.iterdescendants():
             try:
                 x.tag = x.tag.lower()
-                for key, val in list(x.attrib.iteritems()):
+                for key, val in list(iteritems(x.attrib)):
                     del x.attrib[key]
                     key = key.lower()
                     x.attrib[key] = val

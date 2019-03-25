@@ -12,7 +12,7 @@ from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.utils import (decint, count_set_bits,
         decode_string)
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, range
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
@@ -105,7 +105,7 @@ class CNCX(object):  # {{{
                     except:
                         byts = raw[pos:]
                         r = format_bytes(byts)
-                        print ('CNCX entry at offset %d has unknown format %s'%(
+                        print('CNCX entry at offset %d has unknown format %s'%(
                             pos+record_offset, r))
                         self.records[pos+record_offset] = r
                         pos = len(raw)
@@ -123,7 +123,7 @@ class CNCX(object):  # {{{
     __nonzero__ = __bool__
 
     def iteritems(self):
-        return self.records.iteritems()
+        return iteritems(self.records)
 # }}}
 
 
@@ -216,7 +216,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
     header = parse_indx_header(data)
     idxt_pos = header['start']
     if data[idxt_pos:idxt_pos+4] != b'IDXT':
-        print ('WARNING: Invalid INDX record')
+        print('WARNING: Invalid INDX record')
     entry_count = header['count']
 
     # loop through to build up the IDXT position starts

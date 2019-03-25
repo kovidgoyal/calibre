@@ -17,6 +17,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
+from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import (build_opener, HTTPBasicAuthHandler,
         HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError)
 
@@ -45,7 +46,7 @@ def android2(ctx, data):
 
 def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
-    return Router(globals().itervalues(), auth_controller=AuthController(
+    return Router(itervalues(globals()), auth_controller=AuthController(
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
         ban_time_in_minutes=ban_for, ban_after=ban_after,
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
@@ -141,7 +142,7 @@ class TestAuth(BaseTest):
 
             def library_info(username=None):
                 lmap, defaultlib = ctx.library_info(Data(username))
-                lmap = {k:os.path.basename(v) for k, v in lmap.iteritems()}
+                lmap = {k:os.path.basename(v) for k, v in iteritems(lmap)}
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')

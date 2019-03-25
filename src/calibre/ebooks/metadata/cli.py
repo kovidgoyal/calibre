@@ -16,7 +16,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
 from calibre.utils.date import parse_date
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 USAGE=_('%prog ebook_file [options]\n') + \
 _('''
@@ -150,7 +150,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
         if val:
             orig = mi.get_identifiers()
             orig.update(val)
-            val = {k:v for k, v in orig.iteritems() if k and v}
+            val = {k:v for k, v in iteritems(orig) if k and v}
             mi.set_identifiers(val)
 
     if getattr(opts, 'cover', None) is not None:

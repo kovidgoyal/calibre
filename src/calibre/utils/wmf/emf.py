@@ -11,6 +11,7 @@ from struct import unpack_from
 from collections import namedtuple
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
+from polyglot.builtins import iteritems
 
 # Record types {{{
 # See: http://msdn.microsoft.com/en-us/library/cc231166.aspx
@@ -26,7 +27,7 @@ RECORD_TYPES = {
     'EOF' : 0xe,
     'HEADER' : 0x1,
 }
-RECORD_RMAP = {v:k for k, v in RECORD_TYPES.iteritems()}
+RECORD_RMAP = {v:k for k, v in iteritems(RECORD_TYPES)}
 
 # See http://msdn.microsoft.com/en-us/library/cc230601.aspx
 StretchDiBits = namedtuple(
@@ -42,7 +43,7 @@ class EMF(object):
         self.pos = 0
         self.found_eof = False
         self.verbose = verbose
-        self.func_map = {v:getattr(self, 'handle_%s' % (k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in RECORD_TYPES.iteritems()}
+        self.func_map = {v:getattr(self, 'handle_%s' % (k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in iteritems(RECORD_TYPES)}
         self.bitmaps = []
         while self.pos < len(raw) and not self.found_eof:
             self.read_record(raw)
@@ -94,4 +95,3 @@ if __name__ == '__main__':
     emf = EMF(raw, verbose=4)
     open('/t/test.bmp', 'wb').write(emf.bitmaps[0])
     open('/t/test.png', 'wb').write(emf.to_png())
-

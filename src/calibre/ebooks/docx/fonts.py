@@ -14,7 +14,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.utils import panose_to_css_generic_family, is_truetype_font
 from calibre.utils.icu import ord_string
-from polyglot.builtins import codepoint_to_chr, range
+from polyglot.builtins import codepoint_to_chr, iteritems, range
 
 Embed = namedtuple('Embed', 'name key subsetted')
 
@@ -172,7 +172,7 @@ class Fonts(object):
                         d['font-weight'] = 'bold'
                     if 'Italic' in variant:
                         d['font-style'] = 'italic'
-                    d = ['%s: %s' % (k, v) for k, v in d.iteritems()]
+                    d = ['%s: %s' % (k, v) for k, v in iteritems(d)]
                     d = ';\n\t'.join(d)
                     defs.append('@font-face {\n\t%s\n}\n' % d)
         return '\n'.join(defs)

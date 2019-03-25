@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time, threading, traceback
 from functools import wraps, partial
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, zip
 from itertools import chain
 
 from calibre import as_unicode, prints, force_unicode
@@ -107,7 +107,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
         # Get device data for detected devices. If there is an error, we will
         # try again for that device the next time this method is called.
-        for dev in tuple(self.detected_devices.iterkeys()):
+        for dev in tuple(iterkeys(self.detected_devices)):
             data = self.detected_devices.get(dev, None)
             if data is None or data is False:
                 try:
@@ -130,7 +130,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     self.currently_connected_pnp_id in self.detected_devices
                     else None)
 
-        for dev, data in self.detected_devices.iteritems():
+        for dev, data in iteritems(self.detected_devices):
             if dev in self.blacklisted_devices or dev in self.ejected_devices:
                 # Ignore blacklisted and ejected devices
                 continue
@@ -267,10 +267,10 @@ class MTP_DEVICE(MTPDeviceBase):
                 self._currently_getting_sid = unicode_type(storage_id)
                 id_map = self.dev.get_filesystem(storage_id, partial(
                         self._filesystem_callback, {}))
-                for x in id_map.itervalues():
+                for x in itervalues(id_map):
                     x['storage_id'] = storage_id
                 all_storage.append(storage)
-                items.append(id_map.itervalues())
+                items.append(itervalues(id_map))
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
             debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
                 time.time()-st, len(self._filesystem_cache)))

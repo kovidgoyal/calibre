@@ -25,6 +25,7 @@ from calibre.utils.fonts.sfnt.cmap import CmapTable
 from calibre.utils.fonts.sfnt.kern import KernTable
 from calibre.utils.fonts.sfnt.gsub import GSUBTable
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
+from polyglot.builtins import iterkeys
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 
@@ -83,7 +84,7 @@ class Sfnt(object):
 
     def __iter__(self):
         '''Iterate over the table tags in order.'''
-        for x in sorted(self.tables.iterkeys()):
+        for x in sorted(iterkeys(self.tables)):
             yield x
         # Although the optimal order is not alphabetical, the OTF spec says
         # they should be alphabetical, so we stick with that. See
@@ -166,7 +167,7 @@ def test_roundtrip(ff=None):
         raise ValueError('Roundtripping failed, size different (%d vs. %d)'%
                          (len(data), len(rd)))
 
+
 if __name__ == '__main__':
     import sys
     test_roundtrip(sys.argv[-1])
-

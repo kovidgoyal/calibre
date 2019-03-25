@@ -17,7 +17,7 @@ from lxml import etree
 from calibre.ebooks.oeb.base import XHTML_NS, extract
 from calibre.constants import ispy3
 from calibre.ebooks.mobi.utils import to_base
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 CHUNK_SIZE = 8192
 
@@ -214,7 +214,7 @@ class Chunker(object):
 
     def remove_namespaces(self, root):
         lang = None
-        for attr, val in root.attrib.iteritems():
+        for attr, val in iteritems(root.attrib):
             if attr.rpartition('}')[-1] == 'lang':
                 lang = val
 
@@ -248,11 +248,11 @@ class Chunker(object):
                 tn = tag.tag
                 if tn is not None:
                     tn = tn.rpartition('}')[-1]
-                attrib = {k.rpartition('}')[-1]:v for k, v in tag.attrib.iteritems()}
+                attrib = {k.rpartition('}')[-1]:v for k, v in iteritems(tag.attrib)}
                 try:
                     elem = nroot.makeelement(tn, attrib=attrib)
                 except ValueError:
-                    attrib = {k:v for k, v in attrib.iteritems() if ':' not in k}
+                    attrib = {k:v for k, v in iteritems(attrib) if ':' not in k}
                     elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text
             elem.tail = tag.tail
@@ -402,7 +402,7 @@ class Chunker(object):
             return bytes(':off:'.join((pos, fid)))
 
         placeholder_map = {bytes(k):to_placeholder(v) for k, v in
-                self.placeholder_map.iteritems()}
+                iteritems(self.placeholder_map)}
 
         # Now update the links
         def sub(match):

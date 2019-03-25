@@ -10,11 +10,13 @@ from datetime import datetime
 
 from setup import download_securely
 
+from polyglot.builtins import filter
+
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def filter_ans(ans):
-    return filter(None, (x.strip() for x in ans))
+    return list(filter(None, (x.strip() for x in ans)))
 
 
 def common_user_agents():

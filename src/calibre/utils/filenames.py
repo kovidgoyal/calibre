@@ -14,7 +14,7 @@ from calibre.constants import (
     filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
 )
 from calibre.utils.localization import get_udc
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, range
 
 
 def ascii_text(orig):
@@ -369,7 +369,7 @@ class WindowsAtomicFolderMove(object):
         names = os.listdir(path)
         name_to_fileid = {x:windows_get_fileid(os.path.join(path, x)) for x in names}
         fileid_to_names = defaultdict(set)
-        for name, fileid in name_to_fileid.iteritems():
+        for name, fileid in iteritems(name_to_fileid):
             fileid_to_names[fileid].add(name)
 
         for x in names:
@@ -419,7 +419,7 @@ class WindowsAtomicFolderMove(object):
     def copy_path_to(self, path, dest):
         import win32file
         handle = None
-        for p, h in self.handle_map.iteritems():
+        for p, h in iteritems(self.handle_map):
             if samefile_windows(path, p):
                 handle = h
                 break
@@ -448,26 +448,26 @@ class WindowsAtomicFolderMove(object):
     def release_file(self, path):
         ' Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path '
         key = None
-        for p, h in self.handle_map.iteritems():
+        for p, h in iteritems(self.handle_map):
             if samefile_windows(path, p):
                 key = (p, h)
                 break
         if key is not None:
             import win32file
             win32file.CloseHandle(key[1])
-            remove = [f for f, h in self.handle_map.iteritems() if h is key[1]]
+            remove = [f for f, h in iteritems(self.handle_map) if h is key[1]]
             for x in remove:
                 self.handle_map.pop(x)
 
     def close_handles(self):
         import win32file
-        for h in self.handle_map.itervalues():
+        for h in itervalues(self.handle_map):
             win32file.CloseHandle(h)
         self.handle_map = {}
 
     def delete_originals(self):
         import win32file
-        for path in self.handle_map.iterkeys():
+        for path in iterkeys(self.handle_map):
             win32file.DeleteFile(path)
         self.close_handles()
 

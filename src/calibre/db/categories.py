@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 from functools import partial
-from polyglot.builtins import unicode_type, map
+from polyglot.builtins import iteritems, iterkeys, unicode_type, map
 
 from calibre.constants import ispy3
 from calibre.ebooks.metadata import author_to_author_sort
@@ -75,7 +75,7 @@ class Tag(object):
 
 
 def find_categories(field_metadata):
-    for category, cat in field_metadata.iteritems():
+    for category, cat in iteritems(field_metadata):
         if (cat['is_category'] and cat['kind'] not in {'user', 'search'}):
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
         elif (cat['datatype'] == 'composite' and
@@ -215,11 +215,11 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
         # do the verification in the category loop much faster, at the cost of
         # temporarily duplicating the categories lists.
         taglist = {}
-        for c, items in categories.iteritems():
+        for c, items in iteritems(categories):
             taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
 
         # Add the category values to the user categories
-        for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
+        for user_cat in sorted(iterkeys(user_categories), key=sort_key):
             items = []
             names_seen = {}
             user_cat_is_gst = user_cat in gst

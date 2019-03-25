@@ -16,6 +16,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads, pickle_dumps, pickle_loads
+from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Queue
 
 Job = namedtuple('Job', 'id module func args kwargs')
@@ -281,7 +282,7 @@ class Pool(Thread):
     def terminal_error(self):
         if self.shutting_down:
             return
-        for worker, job in self.busy_workers.iteritems():
+        for worker, job in iteritems(self.busy_workers):
             self.results.put(WorkerResult(job.id, Result(None, None, None), True, worker))
             self.tracker.task_done()
         while self.pending_jobs:
@@ -398,7 +399,7 @@ def run_main(func):
 
 
 def test_write():
-    print ('Printing to stdout in worker')
+    print('Printing to stdout in worker')
 
 
 def test():
@@ -407,8 +408,8 @@ def test():
         while not p.results.empty():
             r = p.results.get()
             if not ignore_fail and r.is_terminal_failure:
-                print (r.result.err)
-                print (r.result.traceback)
+                print(r.result.err)
+                print(r.result.traceback)
                 raise SystemExit(1)
             ans[r.id] = r.result
         return ans
@@ -420,7 +421,7 @@ def test():
         p(i, 'def x(i):\n return 2*i', 'x', i)
         expected_results[i] = 2 * i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in get_results(p).iteritems()}
+    results = {k:v.value for k, v in iteritems(get_results(p))}
     if results != expected_results:
         raise SystemExit('%r != %r' % (expected_results, results))
     p.shutdown(), p.join()
@@ -434,7 +435,7 @@ def test():
         p(i, 'def x(i, common_data=None):\n return common_data + i', 'x', i)
         expected_results[i] = 7 + i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in get_results(p).iteritems()}
+    results = {k:v.value for k, v in iteritems(get_results(p))}
     if results != expected_results:
         raise SystemExit('%r != %r' % (expected_results, results))
     p.shutdown(), p.join()
@@ -456,7 +457,7 @@ def test():
         p(i, 'def x(i):\n return 1/0', 'x', i)
     p.wait_for_tasks(30)
     c = 0
-    for r in get_results(p).itervalues():
+    for r in itervalues(get_results(p)):
         c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit('Unexpected result: %s' % r)
@@ -486,4 +487,4 @@ def test():
         p(i, 'import time;\ndef x(i):\n time.sleep(10000)', 'x', i)
     p.shutdown(), p.join()
 
-    print ('Tests all passed!')
+    print('Tests all passed!')

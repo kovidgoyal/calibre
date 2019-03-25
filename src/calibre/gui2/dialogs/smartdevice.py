@@ -10,7 +10,7 @@ from PyQt5.Qt import (QDialog, QLineEdit, Qt)
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 def _cmp_ipaddr(l, r):
@@ -30,7 +30,7 @@ def _cmp_ipaddr(l, r):
 
 def get_all_ip_addresses():
     ipaddrs = list()
-    for iface in get_all_ips().itervalues():
+    for iface in itervalues(get_all_ips()):
         for addrs in iface:
             if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
                 ipaddrs.append(addrs['addr'])

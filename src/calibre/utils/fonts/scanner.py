@@ -16,7 +16,7 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 class NoFonts(ValueError):
@@ -154,14 +154,14 @@ def path_significance(path, folders):
 
 def build_families(cached_fonts, folders, family_attr='font-family'):
     families = defaultdict(list)
-    for f in cached_fonts.itervalues():
+    for f in itervalues(cached_fonts):
         if not f:
             continue
         lf = icu_lower(f.get(family_attr) or '')
         if lf:
             families[lf].append(f)
 
-    for fonts in families.itervalues():
+    for fonts in itervalues(families):
         # Look for duplicate font files and choose the copy that is from a
         # more significant font directory (prefer user directories over
         # system directories).
@@ -186,7 +186,7 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
 
     font_family_map = dict.copy(families)
     font_families = tuple(sorted((f[0]['font-family'] for f in
-            font_family_map.itervalues()), key=sort_key))
+            itervalues(font_family_map)), key=sort_key))
     return font_family_map, font_families
 # }}}
 

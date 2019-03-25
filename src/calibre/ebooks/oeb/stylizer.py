@@ -20,7 +20,7 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from tinycss.media3 import CSSMedia3Parser
 
 css_parser_log.setLevel(logging.WARN)
@@ -753,7 +753,7 @@ class Style(object):
             self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
-        items = sorted(self._style.iteritems())
+        items = sorted(iteritems(self._style))
         return '; '.join("%s: %s" % (key, val) for key, val in items)
 
     def cssdict(self):
@@ -762,12 +762,12 @@ class Style(object):
     def pseudo_classes(self, filter_css):
         if filter_css:
             css = copy.deepcopy(self._pseudo_classes)
-            for psel, cssdict in css.iteritems():
+            for psel, cssdict in iteritems(css):
                 for k in filter_css:
                     cssdict.pop(k, None)
         else:
             css = self._pseudo_classes
-        return {k:v for k, v in css.iteritems() if v}
+        return {k:v for k, v in iteritems(css) if v}
 
     @property
     def is_hidden(self):

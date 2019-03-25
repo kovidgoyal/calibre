@@ -39,7 +39,7 @@ from calibre import force_unicode
 from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range
 from polyglot.queue import Queue, Empty
 # }}}
 
@@ -509,7 +509,7 @@ class IdentifyWidget(QWidget):  # {{{
             parts.append('authors:'+authors_to_string(authors))
             simple_desc += _('Authors: %s ') % authors_to_string(authors)
         if identifiers:
-            x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
+            x = ', '.join('%s:%s'%(k, v) for k, v in iteritems(identifiers))
             parts.append(x)
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: %s' % identifiers['isbn']
@@ -689,7 +689,7 @@ class CoversModel(QAbstractListModel):  # {{{
 
     def plugin_for_index(self, index):
         row = index.row() if hasattr(index, 'row') else index
-        for k, v in self.plugin_map.iteritems():
+        for k, v in iteritems(self.plugin_map):
             if row in v:
                 return k
 
@@ -750,7 +750,7 @@ class CoversModel(QAbstractListModel):  # {{{
             if pmap.isNull():
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
-            for rows in self.plugin_map.itervalues():
+            for rows in itervalues(self.plugin_map):
                 for i in range(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1
@@ -760,7 +760,7 @@ class CoversModel(QAbstractListModel):  # {{{
         else:
             # single cover plugin
             idx = None
-            for plugin, rows in self.plugin_map.iteritems():
+            for plugin, rows in iteritems(self.plugin_map):
                 if plugin.name == plugin_name:
                     idx = rows[0]
                     break

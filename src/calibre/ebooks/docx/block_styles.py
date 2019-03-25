@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import numbers
 from collections import OrderedDict
+from polyglot.builtins import iteritems
 
 
 class Inherit:
@@ -115,11 +116,11 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
-            for prop, val in read_single_border(border, edge, XPath, get).iteritems():
+            for prop, val in iteritems(read_single_border(border, edge, XPath, get)):
                 if val is not None:
                     vals[prop % edge] = val
 
-    for key, val in vals.iteritems():
+    for key, val in iteritems(vals):
         setattr(dest, key, val)
 
 

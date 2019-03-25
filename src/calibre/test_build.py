@@ -2,7 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,7 +12,10 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 '''
 
 import os, ctypes, sys, unittest, time
+
 from calibre.constants import plugins, iswindows, islinux, isosx
+from polyglot.builtins import iteritems, map, unicode_type
+
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -136,7 +138,7 @@ class BuildTest(unittest.TestCase):
         d = winutil.localeconv()
         au(d['thousands_sep'], 'localeconv')
         au(d['decimal_point'], 'localeconv')
-        for k, v in d.iteritems():
+        for k, v in iteritems(d):
             au(v, k)
         for k in os.environ.keys():
             au(winutil.getenv(unicode_type(k)), 'getenv-' + k)

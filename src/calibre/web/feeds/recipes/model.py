@@ -19,7 +19,7 @@ from calibre.web.feeds.recipes.collection import \
         update_custom_recipes, add_custom_recipe, add_custom_recipes, \
         remove_custom_recipe, get_custom_recipe, get_builtin_recipe
 from calibre.utils.search_query_parser import ParseException
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class NewsTreeItem(object):
@@ -182,7 +182,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
 
     def update_custom_recipes(self, script_urn_map):
         script_ids = []
-        for urn, title_script in script_urn_map.iteritems():
+        for urn, title_script in iteritems(script_urn_map):
             id_ = int(urn[len('custom:'):])
             (title, script) = title_script
             script_ids.append((id_, title, script))

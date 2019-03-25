@@ -23,7 +23,7 @@ from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 class FormatterFunctions(object):
@@ -64,7 +64,7 @@ class FormatterFunctions(object):
         self._register_functions()
 
     def _register_functions(self):
-        for compiled_funcs in self._functions_from_library.itervalues():
+        for compiled_funcs in itervalues(self._functions_from_library):
             for cls in compiled_funcs:
                 f = self._functions.get(cls.name, None)
                 replace = False
@@ -94,7 +94,7 @@ class FormatterFunctions(object):
 
     def get_builtins_and_aliases(self):
         res = {}
-        for f in self._builtins.itervalues():
+        for f in itervalues(self._builtins):
             res[f.name] = f
             for a in f.aliases:
                 res[a] = f
@@ -838,7 +838,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+            return ','.join(k.upper()+':'+str(v['size']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -857,7 +857,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+            return ','.join(k.upper()+':'+str(v['path']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -1534,7 +1534,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals_):
         if hasattr(mi, '_proxy_metadata'):
-            cats = set(k for k, v in mi._proxy_metadata.user_categories.iteritems() if v)
+            cats = set(k for k, v in iteritems(mi._proxy_metadata.user_categories) if v)
             cats = sorted(cats, key=sort_key)
             return ', '.join(cats)
         return _('This function can be used only in the GUI')
@@ -1685,7 +1685,7 @@ def load_user_template_functions(library_uuid, funcs, precompiled_user_functions
         compiled_funcs = precompiled_user_functions
     else:
         compiled_funcs = compile_user_template_functions(funcs)
-    formatter_functions().register_functions(library_uuid, compiled_funcs.values())
+    formatter_functions().register_functions(library_uuid, list(compiled_funcs.values()))
 
 
 def unload_user_template_functions(library_uuid):

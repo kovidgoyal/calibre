@@ -30,7 +30,7 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
-from polyglot.builtins import unicode_type, string_or_bytes, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -307,7 +307,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if db:
             style_map = {'bold': self.bold_font, 'bi': self.bi_font, 'italic': self.italic_font}
-            self.styled_columns = {k: style_map.get(v, None) for k, v in db.new_api.pref('styled_columns', {}).iteritems()}
+            self.styled_columns = {k: style_map.get(v, None) for k, v in iteritems(db.new_api.pref('styled_columns', {}))}
         self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
@@ -509,7 +509,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self._sort(label, order, reset)
 
     def sort_by_named_field(self, field, order, reset=True):
-        if field in self.db.field_metadata.keys():
+        if field in list(self.db.field_metadata.keys()):
             self._sort(field, order, reset)
 
     def _sort(self, label, order, reset):
@@ -879,7 +879,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     ans += '.5'
                 return _('%s stars') % ans
             return f
-        for f, allow_half in rating_fields.iteritems():
+        for f, allow_half in iteritems(rating_fields):
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
@@ -1400,7 +1400,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
 
         path = getattr(item, 'path', None)
-        for items in self.marked_for_deletion.itervalues():
+        for items in itervalues(self.marked_for_deletion):
             for x in items:
                 if x is item or (path and path == getattr(x, 'path', None)):
                     return True

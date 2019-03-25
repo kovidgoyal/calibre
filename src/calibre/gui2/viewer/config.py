@@ -22,7 +22,7 @@ from calibre.gui2 import min_available_height, error_dialog
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, iterkeys, unicode_type
 
 
 def config(defaults=None):
@@ -213,7 +213,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('load', 'delete'):
             m = getattr(self, '%s_theme_button'%x).menu()
             m.clear()
-            for x in self.themes.iterkeys():
+            for x in iterkeys(self.themes):
                 title = x[len('theme_'):]
                 ac = m.addAction(title)
                 ac.theme_id = x
@@ -243,7 +243,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
         def fset(self, wl):
             self.dictionary_list.clear()
-            for langcode, url in sorted(wl.iteritems(), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
+            for langcode, url in sorted(iteritems(wl), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
                 i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
                 i.setData(Qt.UserRole, (langcode, url))
         return property(fget=fget, fset=fset)

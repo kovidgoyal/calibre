@@ -9,6 +9,7 @@ from functools import partial
 
 from calibre import prints
 from calibre.constants import preferred_encoding
+from polyglot.builtins import iteritems
 
 # Manage users CLI {{{
 
@@ -137,7 +138,7 @@ def manage_users_cli(path=None):
             prints(
                 _('{} has the following additional per-library restrictions:')
                 .format(username))
-            for k, v in r['library_restrictions'].iteritems():
+            for k, v in iteritems(r['library_restrictions']):
                 prints(k + ':', v)
         else:
             prints(_('{} has no additional per-library restrictions').format(username))

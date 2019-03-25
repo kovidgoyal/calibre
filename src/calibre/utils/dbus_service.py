@@ -25,6 +25,7 @@
 #
 
 from __future__ import absolute_import
+from polyglot.builtins import itervalues
 
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'
@@ -140,6 +141,7 @@ class dbus_property(object):
 
     def setter(self, fset):
         return self._copy(fset=fset)
+
 
 _logger = logging.getLogger('dbus.service')
 
@@ -518,7 +520,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("Name %s on object interface %s is not a property" % (property_name, interface_name))
             return prop
         else:
-            for interface in interfaces.itervalues():
+            for interface in itervalues(interfaces):
                 prop = interface.get(property_name)
                 if prop and isinstance(prop, dbus_property):
                     return prop
@@ -558,7 +560,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("No interface %s on object" % interface_name)
             ifaces = [iface]
         else:
-            ifaces = interfaces.values()
+            ifaces = list(interfaces.values())
         properties = {}
         for iface in ifaces:
             for name, prop in iface.items():

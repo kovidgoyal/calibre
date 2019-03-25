@@ -21,7 +21,7 @@ from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -80,23 +80,23 @@ class Name(unicode_type):
 def complete_names(names_data, data_conn):
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
-        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
+        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in iteritems(mime_map))
         names_cache['text_link'] = frozenset(n for n in all_names if n.in_spine)
         names_cache['stylesheet'] = frozenset(n for n in all_names if n.mime_type in OEB_STYLES)
         names_cache['image'] = frozenset(n for n in all_names if n.mime_type.startswith('image/'))
         names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
         names_cache['css_resource'] = names_cache['image'] | names_cache['font']
         names_cache['descriptions'] = d = {}
-        for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.iteritems():
+        for x, desc in iteritems({'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}):
             for n in names_cache[x]:
                 d[n] = desc
     names_type, base, root = names_data
     quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
-    items = tuple(sorted(frozenset(nmap.itervalues()), key=numeric_sort_key))
+    items = tuple(sorted(frozenset(itervalues(nmap)), key=numeric_sort_key))
     d = names_cache['descriptions'].get
-    descriptions = {href:d(name) for name, href in nmap.iteritems()}
+    descriptions = {href:d(name) for name, href in iteritems(nmap)}
     return items, descriptions, {}
 
 
@@ -184,5 +184,5 @@ class HandleDataRequest(QObject):
 
 handle_data_request = HandleDataRequest()
 
-control_funcs = {name:func for name, func in globals().iteritems() if getattr(func, 'function_type', None) == 'control'}
-data_funcs = {name:func for name, func in globals().iteritems() if getattr(func, 'function_type', None) == 'data'}
+control_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'control'}
+data_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'data'}

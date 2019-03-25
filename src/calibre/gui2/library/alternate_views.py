@@ -29,7 +29,7 @@ from calibre.gui2 import gprefs, config, rating_font, empty_index
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import itervalues, unicode_type, range
 from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
@@ -327,7 +327,7 @@ class AlternateViews(object):
             view.setFocus(Qt.OtherFocusReason)
 
     def set_database(self, db, stage=0):
-        for view in self.views.itervalues():
+        for view in itervalues(self.views):
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
 
@@ -356,7 +356,7 @@ class AlternateViews(object):
         self.current_view.select_rows(rows)
 
     def set_context_menu(self, menu):
-        for view in self.views.itervalues():
+        for view in itervalues(self.views):
             if view is not self.main_view:
                 view.set_context_menu(menu)
 
@@ -957,7 +957,7 @@ class GridView(QListView):
                 # rendered, but this is better than a deadlock
                 join_with_timeout(self.delegate.render_queue)
             except RuntimeError:
-                print ('Cover rendering thread is stuck!')
+                print('Cover rendering thread is stuck!')
             finally:
                 self.ignore_render_requests.clear()
         else:

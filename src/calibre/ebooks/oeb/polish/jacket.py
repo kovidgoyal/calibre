@@ -98,7 +98,7 @@ def add_or_replace_jacket(container):
     if not found:
         # Insert new jacket into spine
         index = 0
-        sp = container.abspath_to_name(container.spine_items.next())
+        sp = container.abspath_to_name(next(container.spine_items))
         if sp == find_cover_page(container):
             index = 1
         itemref = container.opf.makeelement(OPF('itemref'),

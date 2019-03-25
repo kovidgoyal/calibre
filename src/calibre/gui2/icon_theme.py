@@ -9,11 +9,8 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, json, importlib, math, httplib, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
-from polyglot.builtins import map
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
-
-from polyglot.builtins import reraise, range
 
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
@@ -39,6 +36,7 @@ from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
 from polyglot.queue import Queue, Empty
+from polyglot.builtins import iteritems, iterkeys, map, range, reraise
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
@@ -191,7 +189,7 @@ def create_cover(report, icons=(), cols=5, size=120, padding=16):
 def verify_theme(report):
     must_use_qt()
     report.bad = bad = {}
-    for name, path in report.name_map.iteritems():
+    for name, path in iteritems(report.name_map):
         reader = QImageReader(os.path.join(report.path, path))
         img = reader.read()
         if img.isNull():
@@ -364,7 +362,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map.iterkeys()))))
+    errors = tuple(filter(None, pool.map(optimize, tuple(iterkeys(report.name_map)))))
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return

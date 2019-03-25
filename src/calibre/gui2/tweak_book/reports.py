@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from polyglot.builtins import map, range
+from polyglot.builtins import iteritems, map, range
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -1338,7 +1338,7 @@ class ReportsWidget(QWidget):
             self.stack.widget(i)(data)
             if DEBUG:
                 category = self.reports.item(i).data(Qt.DisplayRole)
-                print ('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
+                print('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
 
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
@@ -1439,8 +1439,8 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
-                print ('Time for %6s data: %.3f seconds' % (x, t))
+            for x, t in sorted(iteritems(timing), key=itemgetter(1)):
+                print('Time for %6s data: %.3f seconds' % (x, t))
         self.reports(data)
 
     def accept(self):

@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.toc import TOC as MTOC
 from calibre.gui2 import error_dialog
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
+from polyglot.builtins import iteritems
 
 
 class Delegate(QStyledItemDelegate):
@@ -211,7 +212,7 @@ class TOCItem(QStandardItem):
         # to count a partial line as being visible.
 
         # We only care about y position
-        anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
+        anchor_map = {k:v[1] for k, v in iteritems(anchor_map)}
 
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
             # The position at which this anchor is present in the document
@@ -358,10 +359,10 @@ class TOC(QStandardItemModel):
 
         if in_paged_mode:
             start = viewport_rect[0]
-            anchor_map = {k:v[0] for k, v in anchor_map.iteritems()}
+            anchor_map = {k:v[0] for k, v in iteritems(anchor_map)}
         else:
             start = viewport_rect[1]
-            anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
+            anchor_map = {k:v[1] for k, v in iteritems(anchor_map)}
 
         for item in items:
             if found:

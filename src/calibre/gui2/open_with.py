@@ -22,7 +22,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
-from polyglot.builtins import string_or_bytes, range
+from polyglot.builtins import iteritems, string_or_bytes, range
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -431,12 +431,12 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         gui = get_gui()
     if gui is None:
         return
-    for unique_name, action in registered_shortcuts.iteritems():
+    for unique_name, action in iteritems(registered_shortcuts):
         gui.keyboard.unregister_shortcut(unique_name)
         gui.removeAction(action)
     registered_shortcuts.clear()
 
-    for filetype, applications in oprefs['entries'].iteritems():
+    for filetype, applications in iteritems(oprefs['entries']):
         for application in applications:
             text = entry_to_icon_text(application, only_text=True)
             t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()

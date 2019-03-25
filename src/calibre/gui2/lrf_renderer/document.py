@@ -521,10 +521,9 @@ class Document(QGraphicsScene):
         self.next_match()
 
     def next_match(self):
-        page_num = self.last_search.next()[0]
+        page_num = next(self.last_search)[0]
         if self.current_page == page_num:
             self.update()
         else:
             self.add_to_history()
             self.show_page(page_num)
-

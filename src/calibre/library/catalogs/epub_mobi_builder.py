@@ -4616,7 +4616,9 @@ class CatalogBuilder(object):
         """
 
         templates = {}
-        execfile(P('catalog/section_list_templates.py'), templates)
+        ef = P('catalog/section_list_templates.py')
+        with open(ef, 'rb')) as f:
+            exec(compile(f.read(), ef, 'exec'), templates)
         for name, template in templates.iteritems():
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))

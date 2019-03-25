@@ -17,6 +17,7 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import iterkeys, itervalues
 from polyglot.queue import Queue, Empty
 
 MAX_RETRIES = 10
@@ -75,7 +76,7 @@ if islinux:
 
         def loop(self):
             while True:
-                r = select.select([self.srv_sock] + list(self.fd_map.iterkeys()), [], [])[0]
+                r = select.select([self.srv_sock] + list(iterkeys(self.fd_map)), [], [])[0]
                 modified = set()
                 for fd in r:
                     if fd is self.srv_sock:
@@ -345,14 +346,14 @@ class ReloadHandler(DummyHandler):
 
     def notify_reload(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('reload')
 
     def ping(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('ping')

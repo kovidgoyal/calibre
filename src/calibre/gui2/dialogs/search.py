@@ -19,7 +19,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
@@ -174,7 +174,7 @@ def create_date_tab(self, db):
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
+    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in iteritems(db.field_metadata) if v.get('datatype', None) == 'datetime']
     for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)

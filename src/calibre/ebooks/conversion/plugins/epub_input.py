@@ -18,7 +18,7 @@ def decrypt_font_data(key, data, algorithm):
     crypt_len = 1024 if is_adobe else 1040
     crypt = bytearray(data[:crypt_len])
     key = cycle(iter(bytearray(key)))
-    decrypt = bytes(bytearray(x^key.next() for x in crypt))
+    decrypt = bytes(bytearray(x^next(key) for x in crypt))
     return decrypt + data[crypt_len:]
 
 

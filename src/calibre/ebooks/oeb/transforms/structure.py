@@ -13,7 +13,7 @@ from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 from polyglot.urllib import urlparse
 
 
@@ -85,8 +85,8 @@ class DetectStructure(object):
             for item in oeb.spine:
                 for elem in pb_xpath(item.data):
                     try:
-                        prev = elem.itersiblings(tag=etree.Element,
-                                preceding=True).next()
+                        prev = next(elem.itersiblings(tag=etree.Element,
+                                preceding=True))
                         if (barename(elem.tag) in {'h1', 'h2'} and barename(
                                 prev.tag) in {'h1', 'h2'} and (not prev.tail or
                                     not prev.tail.split())):
@@ -271,8 +271,8 @@ class DetectStructure(object):
                 return []
 
         for document in self.oeb.spine:
-            previous_level1 = list(added.itervalues())[-1] if added else None
-            previous_level2 = list(added2.itervalues())[-1] if added2 else None
+            previous_level1 = list(itervalues(added))[-1] if added else None
+            previous_level2 = list(itervalues(added2))[-1] if added2 else None
 
             level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
             for elem in find_matches(level1_toc, document.data):

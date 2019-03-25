@@ -26,7 +26,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre import force_unicode
 from calibre.utils.localization import get_lang, canonicalize_lang
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 def convert_day_time_schedule(val):
@@ -314,7 +314,7 @@ class SchedulerDialog(QDialog):
         g.addWidget(spw, 2, 0, 1, 2)
         self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
         vt.addWidget(la)
-        for b, c in self.SCHEDULE_TYPES.iteritems():
+        for b, c in iteritems(self.SCHEDULE_TYPES):
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
             b.setToolTip(textwrap.dedent(c.HELP))

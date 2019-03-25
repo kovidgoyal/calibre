@@ -19,6 +19,8 @@ from struct import calcsize, unpack, pack
 from collections import namedtuple, OrderedDict
 from tempfile import SpooledTemporaryFile
 
+from polyglot.builtins import itervalues
+
 HEADER_SIG = 0x04034b50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
 local_header_fmt = b'<L5HL2L2H'
@@ -283,7 +285,7 @@ class LocalZipFile(object):
         from calibre.utils.zipfile import ZipFile, ZipInfo
         replacements = {name:datastream}
         replacements.update(extra_replacements)
-        names = frozenset(replacements.keys())
+        names = frozenset(list(replacements.keys()))
         found = set()
 
         def rbytes(name):
@@ -294,7 +296,7 @@ class LocalZipFile(object):
 
         with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
             ztemp = ZipFile(temp, 'w')
-            for offset, header in self.file_info.itervalues():
+            for offset, header in itervalues(self.file_info):
                 if header.filename in names:
                     zi = ZipInfo(header.filename)
                     zi.compress_type = header.compression_method
@@ -314,6 +316,6 @@ class LocalZipFile(object):
             shutil.copyfileobj(temp, zipstream)
             zipstream.flush()
 
+
 if __name__ == '__main__':
     extractall(sys.argv[-1])
-

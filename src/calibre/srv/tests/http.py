@@ -14,7 +14,7 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import range
+from polyglot.builtins import iteritems, range
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -29,7 +29,7 @@ class TestHTTP(BaseTest):
             p = HTTPHeaderParser()
             p.push(*lines)
             self.assertTrue(p.finished)
-            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in kwargs.iteritems()}, name + ' failed')
+            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in iteritems(kwargs)}, name + ' failed')
 
         test('Continuation line parsing',
              'a: one',

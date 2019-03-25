@@ -22,7 +22,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, iterkeys, unicode_type
 
 
 def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
@@ -103,7 +103,7 @@ class AllFonts(QAbstractTableModel):
 
     def do_sort(self):
         reverse = not self.sorted_on[1]
-        self.items = sorted(self.font_data.iterkeys(), key=sort_key, reverse=reverse)
+        self.items = sorted(iterkeys(self.font_data), key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.get, reverse=reverse)
 
@@ -315,7 +315,7 @@ class ManageFonts(Dialog):
         fonts = self.get_selected_data()
         if not fonts:
             return
-        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.iteritems() if embedded}, self)
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
         if d.exec_() != d.Accepted:
             return
         changed = False

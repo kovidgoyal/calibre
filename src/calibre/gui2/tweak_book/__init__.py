@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import string
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, map
 
 from calibre.utils.config import JSONConfig
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
@@ -118,7 +118,7 @@ dictionaries = Dictionaries()
 
 
 def editor_name(editor):
-    for n, ed in editors.iteritems():
+    for n, ed in iteritems(editors):
         if ed is editor:
             return n
 

@@ -10,7 +10,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import error_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class Item(object):
@@ -69,7 +69,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                           ]
         category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
-        for key,cc in self.db.custom_field_metadata().iteritems():
+        for key,cc in iteritems(self.db.custom_field_metadata()):
             if cc['datatype'] in ['text', 'series', 'enumeration']:
                 self.category_labels.append(key)
                 self.category_icons.append(cc_icon)

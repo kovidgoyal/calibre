@@ -8,7 +8,6 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json, os, numbers
-from polyglot.builtins import map
 from math import floor
 from collections import defaultdict
 
@@ -25,7 +24,7 @@ from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.resources import load_hyphenator_dicts
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, map, unicode_type
 
 
 def get_page_size(opts, for_comic=False):  # {{{
@@ -418,7 +417,7 @@ class PDFWriter(QObject):
             except Exception:
                 doc_margins = None
             if doc_margins and isinstance(doc_margins, dict):
-                doc_margins = {k:float(v) for k, v in doc_margins.iteritems() if isinstance(v, numbers.Number) and k in {'right', 'top', 'left', 'bottom'}}
+                doc_margins = {k:float(v) for k, v in iteritems(doc_margins) if isinstance(v, numbers.Number) and k in {'right', 'top', 'left', 'bottom'}}
                 if doc_margins:
                     margin_top = margin_bottom = 0
                     page_margins = self.convert_page_margins(doc_margins)
@@ -439,7 +438,7 @@ class PDFWriter(QObject):
 
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
-        for val in amap['anchors'].itervalues():
+        for val in itervalues(amap['anchors']):
             if isinstance(val, dict) and 'column' in val:
                 val['column'] = int(val['column'])
         for href, val in amap['links']:

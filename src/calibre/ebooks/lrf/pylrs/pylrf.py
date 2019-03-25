@@ -10,6 +10,7 @@ import codecs
 import os
 
 from pylrfopt import tagListOptimizer
+from polyglot.builtins import iteritems
 
 PYLRF_VERSION = "1.0"
 
@@ -526,7 +527,7 @@ class LrfObject(object):
         # belongs somewhere, so here it is.
         #
         composites = {}
-        for name, value in tagDict.iteritems():
+        for name, value in iteritems(tagDict):
             if name == 'rubyAlignAndAdjust':
                 continue
             if name in {
@@ -651,7 +652,7 @@ class LrfWriter(object):
         return self.sourceEncoding
 
     def toUnicode(self, string):
-        if type(string) is str:
+        if isinstance(string, str):
             string = string.decode(self.sourceEncoding)
 
         return string

@@ -10,7 +10,7 @@ INFO  = 1
 WARN  = 2
 ERROR = 3
 
-import sys, traceback, cStringIO
+import sys, traceback, io
 from functools import partial
 from threading import Lock
 
@@ -22,7 +22,7 @@ class Stream(object):
 
     def __init__(self, stream=None):
         if stream is None:
-            stream = cStringIO.StringIO()
+            stream = io.BytesIO()
         self.stream = stream
         self._prints = partial(prints, safe_encode=True, file=stream)
 

@@ -13,6 +13,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
+from polyglot.builtins import iteritems
 
 
 def get_cache():
@@ -42,7 +43,7 @@ def build_book(src, dest, args=()):
 
 
 def add_resources(raw, rmap):
-    for placeholder, path in rmap.iteritems():
+    for placeholder, path in iteritems(rmap):
         fname = os.path.basename(path)
         shutil.copy2(path, '.')
         raw = raw.replace(placeholder, fname)
@@ -88,6 +89,7 @@ def get_split_book(fmt='epub'):
             os.remove(x)
     return ans
 
+
 devnull = DevNull()
 
 
@@ -110,4 +112,3 @@ class BaseTest(unittest.TestCase):
                 dest = container.href_to_name(link, name)
                 if dest:
                     self.assertTrue(container.exists(dest), 'The link %s in %s does not exist' % (link, name))
-

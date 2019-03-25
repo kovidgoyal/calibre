@@ -25,7 +25,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import string_or_bytes, range
+from polyglot.builtins import iteritems, string_or_bytes, range
 
 
 def get_filters():
@@ -188,7 +188,7 @@ class AddAction(InterfaceAction):
         fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in paths}
 
         for id_ in ids:
-            for fmt, fpath in fmt_map.iteritems():
+            for fmt, fpath in iteritems(fmt_map):
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)

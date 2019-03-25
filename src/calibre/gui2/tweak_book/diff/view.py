@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import unicode_type, zip, range
+from polyglot.builtins import iteritems, unicode_type, zip, range
 
 import regex
 from PyQt5.Qt import (
@@ -652,12 +652,12 @@ class DiffSplit(QSplitter):  # {{{
                     return x if x <= top else x + delta
                 lnm = LineNumberMap()
                 lnm.max_width = v.line_number_map.max_width
-                for x, val in v.line_number_map.iteritems():
+                for x, val in iteritems(v.line_number_map):
                     dict.__setitem__(lnm, mapnum(x), val)
                 v.line_number_map = lnm
                 v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
-                v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
+                v.images = OrderedDict((mapnum(x), v) for x, v in iteritems(v.images))
             v.viewport().update()
 
     def get_lines_for_image(self, img, view):

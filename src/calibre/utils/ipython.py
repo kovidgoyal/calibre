@@ -214,7 +214,8 @@ def ipython(user_ns=None):
     c = Config()
     user_conf = os.path.expanduser('~/.ipython/profile_default/ipython_config.py')
     if os.path.exists(user_conf):
-        execfile(user_conf, {'get_config': lambda: c})
+        with open(user_conf, 'rb') as f:
+            exec(compile(f.read(), user_conf, 'exec'), {'get_config': lambda: c})
     c.TerminalInteractiveShell.prompts_class = CustomPrompt
     c.InteractiveShellApp.exec_lines = [
         'from __future__ import division, absolute_import, unicode_literals, print_function',

@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
@@ -12,6 +11,7 @@ import shutil, re, os
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
 from calibre.ebooks.oeb.polish.replace import replace_links, get_recommended_folders
 from calibre.utils.imghdr import identify
+from polyglot.builtins import iteritems
 
 
 def set_azw3_cover(container, cover_path, report, options=None):
@@ -135,7 +135,7 @@ def find_cover_image2(container, strict=False):
 
     # First look for a guide item with type == 'cover'
     guide_type_map = container.guide_type_map
-    for ref_type, name in guide_type_map.iteritems():
+    for ref_type, name in iteritems(guide_type_map):
         if ref_type.lower() == 'cover' and is_raster_image(mm.get(name, None)):
             return name
 
@@ -144,7 +144,7 @@ def find_cover_image2(container, strict=False):
 
     # Find the largest image from all possible guide cover items
     largest_cover = (None, 0)
-    for ref_type, name in guide_type_map.iteritems():
+    for ref_type, name in iteritems(guide_type_map):
         if ref_type.lower() in COVER_TYPES and is_raster_image(mm.get(name, None)):
             path = container.name_path_map.get(name, None)
             if path:
@@ -188,7 +188,7 @@ def get_guides(container):
 
 
 def mark_as_cover_epub(container, name):
-    mmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+    mmap = {v:k for k, v in iteritems(container.manifest_id_map)}
     if name not in mmap:
         raise ValueError('Cannot mark %s as cover as it is not in manifest' % name)
     mid = mmap[name]
@@ -257,7 +257,7 @@ def find_cover_page(container):
     mm = container.mime_map
     if ver.major < 3:
         guide_type_map = container.guide_type_map
-        for ref_type, name in guide_type_map.iteritems():
+        for ref_type, name in iteritems(guide_type_map):
             if ref_type.lower() == 'cover' and mm.get(name, '').lower() in OEB_DOCS:
                 return name
     else:
@@ -341,7 +341,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
 
     if existing_image:
         raster_cover = existing_image
-        manifest_id = {v:k for k, v in container.manifest_id_map.iteritems()}[existing_image]
+        manifest_id = {v:k for k, v in iteritems(container.manifest_id_map)}[existing_image]
         raster_cover_item = container.opf_xpath('//opf:manifest/*[@id="%s"]' % manifest_id)[0]
     else:
         folder = recommended_folders[cname]
@@ -503,9 +503,9 @@ def set_epub_cover(container, cover_path, report, options=None):
     report(_('Cover updated') if updated else _('Cover inserted'))
 
     # Replace links to the old cover image/cover page
-    link_sub = {s:d for s, d in {
+    link_sub = {s:d for s, d in iteritems({
         cover_page:titlepage, wrapped_image:raster_cover,
-        cover_image:raster_cover, extra_cover_page:titlepage}.iteritems()
+        cover_image:raster_cover, extra_cover_page:titlepage})
         if s is not None and s != d}
     if link_sub:
         replace_links(container, link_sub, frag_map=lambda x, y:None)

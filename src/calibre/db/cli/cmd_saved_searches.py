@@ -9,6 +9,7 @@ version = 0  # change this if you change signature of implementation()
 
 from calibre import prints
 from calibre.srv.changes import saved_searches
+from polyglot.builtins import iteritems
 
 
 def implementation(db, notify_changes, action, *args):
@@ -56,7 +57,7 @@ Syntax for removing:
 def main(opts, args, dbctx):
     args = args or ['list']
     if args[0] == 'list':
-        for name, value in dbctx.run('saved_searches', 'list').iteritems():
+        for name, value in iteritems(dbctx.run('saved_searches', 'list')):
             prints(_('Name:'), name)
             prints(_('Search string:'), value)
             print()

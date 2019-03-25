@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
+from polyglot.builtins import iteritems
 
 
 class Field(object):
@@ -37,6 +38,7 @@ class Field(object):
     def finalize(self):
         self.instructions = ''.join(self.buf)
         del self.buf
+
 
 WORD, FLAG = 0, 1
 scanner = re.Scanner([
@@ -75,6 +77,7 @@ def parser(name, field_map, default_field_name=None):
     parse.__name__ = str('parse_' + name)
 
     return parse
+
 
 parse_hyperlink = parser('hyperlink',
     'l:anchor m:image-map n:target o:title t:target', 'url')
@@ -222,7 +225,7 @@ class Fields(object):
     def polish_markup(self, object_map):
         if not self.index_fields:
             return
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(object_map)}
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 
@@ -255,6 +258,7 @@ def test_parse_fields(return_tests=False):
     if return_tests:
         return suite
     unittest.TextTestRunner(verbosity=4).run(suite)
+
 
 if __name__ == '__main__':
     test_parse_fields()

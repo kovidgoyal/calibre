@@ -41,7 +41,7 @@ from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.db import SPOOL_SIZE
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 OK_COLOR = 'rgba(0, 255, 0, 12%)'
 ERR_COLOR = 'rgba(255, 0, 0, 12%)'
@@ -1594,7 +1594,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                     v = check_isbn(k)
                     if v is not None:
                         val[k] = v
-            ids = sorted(val.iteritems(), key=keygen)
+            ids = sorted(iteritems(val), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
             # Use selectAll + insert instead of setText so that undo works
             self.selectAll(), self.insert(txt.strip())

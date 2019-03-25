@@ -20,7 +20,7 @@ from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
         urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -243,7 +243,7 @@ class FlowSplitter(object):
 
         self.trees = [orig_tree]
         while ordered_ids:
-            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            pb_id, (pattern, before) = next(iteritems(ordered_ids))
             del ordered_ids[pb_id]
             for i in range(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]

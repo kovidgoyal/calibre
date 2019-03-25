@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os, textwrap
 from threading import Thread
 from functools import partial
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import iteritems, map, unicode_type, range
 
 from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog, QCheckBox,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
@@ -469,7 +469,7 @@ class TreeWidget(QTreeWidget):  # {{{
             # For order to be be preserved when moving by drag and drop, we
             # have to ensure that selectedIndexes returns an ordered list of
             # indexes.
-            sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iteritems())}
+            sort_map = {self.indexFromItem(item):i for i, item in enumerate(iteritems(self))}
             ans = sorted(ans, key=lambda x:sort_map.get(x, -1))
         return ans
 
@@ -615,7 +615,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
     def bulk_rename(self):
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
-        sort_map = {item:i for i, item in enumerate(self.iteritems())}
+        sort_map = {item:i for i, item in enumerate(iteritems(self))}
         items = sorted(self.selectedItems(), key=lambda x:sort_map.get(x, -1))
         settings = get_bulk_rename_settings(self, len(items), prefix=_('Chapter '), msg=_(
             'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
@@ -784,7 +784,7 @@ class TOCView(QWidget):  # {{{
         found = True
         while found:
             found = False
-            for item in self.iteritems():
+            for item in iteritems(self):
                 if item.childCount() > 0:
                     self._flatten_item(item)
                     found = True

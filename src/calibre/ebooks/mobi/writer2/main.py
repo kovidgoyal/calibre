@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
         align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
@@ -425,10 +425,10 @@ class MobiWriter(object):
             extra_data_flags |= 0b10
         header_fields['extra_data_flags'] = extra_data_flags
 
-        for k, v in {'last_text_record':'last_text_record_idx',
+        for k, v in iteritems({'last_text_record':'last_text_record_idx',
                 'first_non_text_record':'first_non_text_record_idx',
                 'ncx_index':'primary_index_record_idx',
-                }.iteritems():
+                }):
             header_fields[k] = getattr(self, v)
         if header_fields['ncx_index'] is None:
             header_fields['ncx_index'] = NULL_INDEX

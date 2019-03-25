@@ -13,7 +13,7 @@ from PyQt5.Qt import Qt
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.ebooks.conversion.config import OPTIONS
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class LookAndFeelWidget(Widget, Ui_Form):
@@ -59,7 +59,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return ans
         if g is self.opt_filter_css:
             ans = set()
-            for key, item in self.FILTER_CSS.iteritems():
+            for key, item in iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if w.isChecked():
                     ans = ans.union(item)
@@ -86,7 +86,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             if not val:
                 val = ''
             items = frozenset([x.strip().lower() for x in val.split(',')])
-            for key, vals in self.FILTER_CSS.iteritems():
+            for key, vals in iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if not vals - items:
                     items = items - vals

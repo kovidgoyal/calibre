@@ -13,14 +13,14 @@ import csv
 import unittest
 from cStringIO import StringIO
 
-
 from calibre.db.cli.cmd_check_library import _print_check_library_results
+from polyglot.builtins import iteritems
 
 
 class Checker(object):
 
     def __init__(self, kw):
-        for k, v in kw.iteritems():
+        for k, v in iteritems(kw):
             setattr(self, k, v)
 
 

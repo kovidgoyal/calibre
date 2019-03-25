@@ -13,7 +13,7 @@ from functools import partial
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
-from polyglot.builtins import is_py3
+from polyglot.builtins import itervalues, is_py3
 if is_py3:
     from itertools import zip_longest
 else:
@@ -215,7 +215,7 @@ class Options(object):
     __slots__ = tuple(name for name in options)
 
     def __init__(self, **kwargs):
-        for opt in options.itervalues():
+        for opt in itervalues(options):
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
 
@@ -242,7 +242,7 @@ def boolean_option(add_option, opt):
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser
     parser =  OptionParser(usage)
-    for opt in options.itervalues():
+    for opt in itervalues(options):
         add_option = partial(parser.add_option, dest=opt.name, help=opt_to_cli_help(opt), default=opt.default)
         if opt.default is True or opt.default is False:
             boolean_option(add_option, opt)

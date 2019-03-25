@@ -13,7 +13,7 @@ from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
 
-from polyglot.builtins import reraise, map, is_py3
+from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3
 
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__, plugins
@@ -419,7 +419,7 @@ class HTTPConnection(HTTPRequest):
         if self.close_after_response and self.response_protocol is HTTP11:
             buf.append("Connection: close")
         if extra_headers is not None:
-            for h, v in extra_headers.iteritems():
+            for h, v in iteritems(extra_headers):
                 buf.append('%s: %s' % (h, v))
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
@@ -510,9 +510,9 @@ class HTTPConnection(HTTPRequest):
             outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
         buf = [HTTP11 + (' %d ' % data.status_code) + httplib.responses[data.status_code]]
-        for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
+        for header, value in sorted(iteritems(outheaders), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
-        for morsel in data.outcookie.itervalues():
+        for morsel in itervalues(data.outcookie):
             morsel['version'] = '1'
             x = morsel.output()
             if isinstance(x, bytes):

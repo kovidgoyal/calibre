@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import itertools, operator
 from functools import partial
-from polyglot.builtins import map, unicode_type, range
+from polyglot.builtins import iteritems, map, unicode_type, range
 from collections import OrderedDict
 
 from PyQt5.Qt import (
@@ -194,7 +194,7 @@ class PreserveViewState(object):  # {{{
                 'vscroll', 'hscroll')}
 
         def fset(self, state):
-            for k, v in state.iteritems():
+            for k, v in iteritems(state):
                 setattr(self, k, v)
             self.__exit__()
         return property(fget=fget, fset=fset)
@@ -465,7 +465,7 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in hidden_cols.iteritems()]
+            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
@@ -576,7 +576,7 @@ class BooksView(QTableView):  # {{{
                 return
 
         for n,d in reversed(fields):
-            if n in self._model.db.field_metadata.keys():
+            if n in list(self._model.db.field_metadata.keys()):
                 sh.insert(0, (n, d))
         sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]

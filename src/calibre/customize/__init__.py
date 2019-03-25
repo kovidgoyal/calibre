@@ -212,7 +212,7 @@ class Plugin(object):  # {{{
         For example to load an image::
 
             pixmap = QPixmap()
-            pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
+            next(pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues())
             icon = QIcon(pixmap)
 
         :param names: List of paths to resources in the ZIP file using / as separator

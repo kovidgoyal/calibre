@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.transforms.subset import get_font_properties, find_font_
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.ebooks.oeb.polish.embed import font_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def font_families_from_style(style):
@@ -138,7 +138,7 @@ class EmbedFonts(object):
                 if rule.type != rule.STYLE_RULE:
                     continue
                 props = {k:v for k,v in
-                        get_font_properties(rule).iteritems() if v}
+                        iteritems(get_font_properties(rule)) if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:

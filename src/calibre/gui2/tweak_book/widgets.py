@@ -27,7 +27,7 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import iteritems, unicode_type, zip
 
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -347,7 +347,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in zip(prefixes, results.iteritems()))
+                for prefix, (text, positions) in zip(prefixes, iteritems(results)))
         else:
             self.results = ()
             self.current_result = -1
@@ -551,7 +551,7 @@ class NamesModel(QAbstractListModel):
         if not query:
             self.items = tuple((text, None) for text in self.names)
         else:
-            self.items = tuple(self.matcher(query).iteritems())
+            self.items = tuple(iteritems(self.matcher(query)))
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
@@ -820,7 +820,7 @@ class InsertSemantics(Dialog):
             'text': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in self.known_type_map.iteritems()]
+        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
@@ -830,7 +830,7 @@ class InsertSemantics(Dialog):
 
         self.tl = tl = QFormLayout()
         self.semantic_type = QComboBox(self)
-        for key, val in self.all_types.iteritems():
+        for key, val in iteritems(self.all_types):
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
@@ -946,13 +946,13 @@ class InsertSemantics(Dialog):
 
     @property
     def changed_type_map(self):
-        return {k:v for k, v in self.final_type_map.iteritems() if v != self.original_type_map.get(k, None)}
+        return {k:v for k, v in iteritems(self.final_type_map) if v != self.original_type_map.get(k, None)}
 
     def apply_changes(self, container):
         from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
         from calibre.translations.dynamic import translate
         lang = get_book_language(container)
-        for item_type, (name, frag) in self.changed_type_map.iteritems():
+        for item_type, (name, frag) in iteritems(self.changed_type_map):
             title = self.known_type_map[item_type]
             if lang:
                 title = translate(lang, title)
@@ -1093,7 +1093,7 @@ class AddCover(Dialog):
     @property
     def image_names(self):
         img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
-        for name, mt in self.container.mime_map.iteritems():
+        for name, mt in iteritems(self.container.mime_map):
             if mt.lower() in img_types:
                 yield name
 

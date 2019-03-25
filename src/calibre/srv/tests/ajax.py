@@ -13,6 +13,7 @@ from httplib import OK, NOT_FOUND, FORBIDDEN
 
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
+from polyglot.builtins import iterkeys
 from polyglot.urllib import urlencode, quote
 
 
@@ -45,12 +46,12 @@ class ContentTest(LibraryBaseTest):
             self.ae(request('/%s?id_is_uuid=true' % db.field_for('uuid', 1))[1], onedata)
 
             r, data = request('s')
-            self.ae(set(data.iterkeys()), set(map(str, db.all_book_ids())))
+            self.ae(set(iterkeys(data)), set(map(str, db.all_book_ids())))
             r, zdata = request('s', headers={'Accept-Encoding':'gzip'})
             self.ae(r.getheader('Content-Encoding'), 'gzip')
             self.ae(json.loads(zlib.decompress(zdata, 16+zlib.MAX_WBITS)), data)
             r, data = request('s?ids=1,2')
-            self.ae(set(data.iterkeys()), {'1', '2'})
+            self.ae(set(iterkeys(data)), {'1', '2'})
 
     # }}}
 

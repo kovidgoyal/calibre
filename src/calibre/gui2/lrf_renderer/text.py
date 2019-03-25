@@ -532,12 +532,12 @@ class Line(QGraphicsItem):
         matches = []
         try:
             while True:
-                word = words.next()
+                word = next(words)
                 word.highlight = False
                 if tokens[0] in unicode_type(word.string).lower():
                     matches.append(word)
                     for c in range(1, len(tokens)):
-                        word = words.next()
+                        word = next(words)
                         print(tokens[c], word.string)
                         if tokens[c] not in unicode_type(word.string):
                             return None

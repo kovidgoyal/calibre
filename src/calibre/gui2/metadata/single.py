@@ -31,6 +31,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
 from calibre.library.comments import merge_comments as merge_two_comments
+from polyglot.builtins import iteritems
 
 BASE_TITLE = _('Edit Metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
@@ -555,7 +556,7 @@ class MetadataSingleDialogBase(QDialog):
         if self.metadata_before_fetch is None:
             return error_dialog(self, _('No downloaded metadata'), _(
                 'There is no downloaded metadata to undo'), show=True)
-        for field, val in self.metadata_before_fetch.iteritems():
+        for field, val in iteritems(self.metadata_before_fetch):
             getattr(self, field).current_val = val
         self.metadata_before_fetch = None
 
@@ -710,7 +711,7 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.button(self.button_box.Ok).setDefault(True)
         self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
-        for w, state in self.comments_edit_state_at_apply.iteritems():
+        for w, state in iteritems(self.comments_edit_state_at_apply):
             if state == 'code':
                 w.tab = 'code'
 

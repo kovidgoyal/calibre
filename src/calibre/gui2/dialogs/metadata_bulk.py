@@ -32,7 +32,7 @@ from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -241,8 +241,8 @@ class MyBlockingBusy(QDialog):  # {{{
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
-            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
-            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            new_title_map = {bid:new_title(authors) for bid, authors in iteritems(authors_map)}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in iteritems(title_map)}
             self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
@@ -252,7 +252,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_title_case and not args.do_swap_ta:
             self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.iteritems()})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in iteritems(title_map)})
             self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
@@ -392,7 +392,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + (i * args.series_increment)
-                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    next_num = _get_next_series_num_for_list(sorted(itervalues(sval)), unwrap=False)
                     sval[bid] = next_num
                     return next_num
 
@@ -443,7 +443,7 @@ class MyBlockingBusy(QDialog):  # {{{
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
                 self.progress_update.emit(0)
-                for field, book_id_val_map in self.sr_calls.iteritems():
+                for field, book_id_val_map in iteritems(self.sr_calls):
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
                 self.progress_finished_cur_step.emit()
@@ -781,7 +781,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
+                    val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -959,7 +959,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
+                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -1269,7 +1269,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(0)
 
-        if item_name in self.queries.keys():
+        if item_name in list(self.queries.keys()):
             del(self.queries[item_name])
             self.queries.commit()
 
@@ -1291,7 +1291,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                         _("You must provide a name."), show=True)
         new = True
         name = unicode_type(name)
-        if name in self.queries.keys():
+        if name in list(self.queries.keys()):
             if not question_dialog(self, _("Save search/replace"),
                     _("That saved search/replace already exists and will be overwritten. "
                         "Are you sure?")):

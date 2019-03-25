@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.fonts.sfnt.subset import subset
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import get_font_names
+from polyglot.builtins import iteritems, itervalues
 
 
 def remove_font_face_rules(container, sheet, remove_names, base):
@@ -35,7 +36,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 
 def iter_subsettable_fonts(container):
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
             yield name, mt
 
@@ -75,8 +76,8 @@ def subset_all_fonts(container, font_stats, report):
 
             for w in warnings:
                 container.log.warn(w)
-            olen = sum(old_sizes.itervalues())
-            nlen = sum(new_sizes.itervalues())
+            olen = sum(itervalues(old_sizes))
+            nlen = sum(itervalues(new_sizes))
             total_new += len(nraw)
             if nlen == olen:
                 report(_('The font %s was already subset')%font_name)
@@ -91,7 +92,7 @@ def subset_all_fonts(container, font_stats, report):
         changed = True
 
     if remove:
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if remove_font_face_rules(container, sheet, remove, name):

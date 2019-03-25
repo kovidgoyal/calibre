@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, weakref, shutil, textwrap
 from collections import OrderedDict
 from functools import partial
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import iteritems, itervalues, map, unicode_type
 
 from PyQt5.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
@@ -92,7 +92,7 @@ class Polish(QDialog):  # {{{
             ('upgrade_book', _('&Upgrade book internals')),
         ])
         prefs = gprefs.get('polishing_settings', {})
-        for name, text in self.all_actions.iteritems():
+        for name, text in iteritems(self.all_actions):
             count += 1
             x = QCheckBox(text, self)
             x.setChecked(prefs.get(name, False))
@@ -241,7 +241,7 @@ class Polish(QDialog):  # {{{
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
         self.jobs = []
         if len(self.book_id_map) <= 5:
-            for i, (book_id, formats) in enumerate(self.book_id_map.iteritems()):
+            for i, (book_id, formats) in enumerate(iteritems(self.book_id_map)):
                 self.do_book(i+1, book_id, formats)
         else:
             self.queue = [(i+1, id_) for i, id_ in enumerate(self.book_id_map)]
@@ -452,7 +452,7 @@ class PolishAction(InterfaceAction):
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
         ans = self.get_supported_books(ans)
-        for fmts in ans.itervalues():
+        for fmts in itervalues(ans):
             for x in fmts:
                 if x.startswith('ORIGINAL_'):
                     from calibre.gui2.dialogs.confirm_delete import confirm
@@ -481,7 +481,7 @@ class PolishAction(InterfaceAction):
                   ' formats. Convert to one of those formats before polishing.')
                          %_(' or ').join(sorted(SUPPORTED)), show=True)
         ans = OrderedDict(ans)
-        for fmts in ans.itervalues():
+        for fmts in itervalues(ans):
             for x in SUPPORTED:
                 if ('ORIGINAL_'+x) in fmts:
                     fmts.discard(x)

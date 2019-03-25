@@ -19,7 +19,7 @@ except ImportError:
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
-from polyglot.builtins import unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 class RevealBar(QWidget):  # {{{
@@ -238,7 +238,7 @@ class ToolBar(QToolBar):  # {{{
     def check_iactions_for_drag(self, event, md, func):
         if self.added_actions:
             pos = event.pos()
-            for iac in self.gui.iactions.itervalues():
+            for iac in itervalues(self.gui.iactions):
                 if iac.accepts_drops:
                     aa = iac.qaction
                     w = self.widgetForAction(aa)

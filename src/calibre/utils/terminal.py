@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, sys, re
 
 from calibre.constants import iswindows
-from polyglot.builtins import range, zip
+from polyglot.builtins import iteritems, range, zip
 
 if iswindows:
     import ctypes.wintypes
@@ -41,7 +41,7 @@ RATTRIBUTES = dict(
             'concealed'
             )
         ))
-ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
+ATTRIBUTES = {v:fmt(k) for k, v in iteritems(RATTRIBUTES)}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
@@ -55,7 +55,7 @@ RBACKGROUNDS = dict(
             'white'
             ),
     ))
-BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
+BACKGROUNDS = {v:fmt(k) for k, v in iteritems(RBACKGROUNDS)}
 
 RCOLORS = dict(
         zip(range(31, 38), (
@@ -68,7 +68,7 @@ RCOLORS = dict(
             'white',
             ),
         ))
-COLORS = {v:fmt(k) for k, v in RCOLORS.iteritems()}
+COLORS = {v:fmt(k) for k, v in iteritems(RCOLORS)}
 
 RESET = fmt(0)
 

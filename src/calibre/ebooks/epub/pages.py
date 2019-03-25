@@ -32,7 +32,7 @@ def filter_name(name):
 def build_name_for(expr):
     if not expr:
         counter = count(1)
-        return lambda elem: str(counter.next())
+        return lambda elem: str(next(counter))
     selector = XPath(expr, namespaces=NSMAP)
 
     def name_for(elem):
@@ -55,7 +55,7 @@ def add_page_map(opfpath, opts):
             name = name_for(elem)
             id = elem.get('id', None)
             if id is None:
-                id = elem.attrib['id'] = idgen.next()
+                id = elem.attrib['id'] = next(idgen)
             href = '#'.join((item.href, id))
             oeb.pages.add(name, href)
     writer = None  # DirWriter(version='2.0', page_map=True)
