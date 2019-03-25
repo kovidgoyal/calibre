@@ -293,7 +293,7 @@ class Worker(Thread):  # Get details {{{
             'chs': ('Chinese', u'中文', u'简体中文'),
         }
         self.lang_map = {}
-        for code, names in lm.iteritems():
+        for code, names in lm.items():
             for name in names:
                 self.lang_map[name] = code
 
@@ -313,7 +313,7 @@ class Worker(Thread):  # Get details {{{
         if not self.months:
             return raw
         ans = raw.lower()
-        for i, vals in self.months.iteritems():
+        for i, vals in self.months.items():
             for x in vals:
                 ans = ans.replace(x, self.english_months[i])
         ans = ans.replace(' de ', ' ')
@@ -746,7 +746,7 @@ class Worker(Thread):  # Get details {{{
                     mwidth = 0
                     try:
                         url = None
-                        for iurl, (width, height) in idata.iteritems():
+                        for iurl, (width, height) in idata.items():
                             if width > mwidth:
                                 mwidth = width
                                 url = iurl
@@ -949,7 +949,7 @@ class Amazon(Source):
         self.touched_fields = frozenset(tf)
 
     def get_domain_and_asin(self, identifiers, extra_domains=()):
-        for key, val in identifiers.iteritems():
+        for key, val in identifiers.items():
             key = key.lower()
             if key in ('amazon', 'asin'):
                 return 'com', val
@@ -1118,7 +1118,7 @@ class Amazon(Source):
             encode_to = 'latin1'
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
                                                                    'ignore')) for x, y in
-                          q.iteritems()])
+                          q.items()])
         url = 'https://www.amazon.%s/s/?' % self.get_website_domain(
             domain) + urlencode(encoded_q)
         return url, domain

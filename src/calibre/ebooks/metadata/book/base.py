@@ -422,7 +422,7 @@ class Metadata(object):
             m = dict(metadata)
             # Copying the elements should not be necessary. The objects referenced
             # in the dict should not change. Of course, they can be replaced.
-            # for k,v in metadata.iteritems():
+            # for k,v in iteritems(metadata):
             #     m[k] = copy.copy(v)
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:

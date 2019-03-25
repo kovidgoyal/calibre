@@ -881,7 +881,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         css_styles = {}
         for name in self.stylestack:
             styles = self.styledict.get(name)
-            css2 = tuple(self.cs.convert_styles(styles).iteritems())
+            css2 = tuple(self.cs.convert_styles(styles).items())
             if css2 in css_styles:
                 css_styles[css2].append(name)
             else:
@@ -902,7 +902,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 if k not in ignore:
                     yield k, v
 
-        for css2, names in css_styles.iteritems():
+        for css2, names in css_styles.items():
             self.writeout("%s {\n" % ', '.join(names))
             for style, val in filter_margins(css2):
                 self.writeout("\t%s: %s;\n" % (style, val))

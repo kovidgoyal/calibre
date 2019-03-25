@@ -126,7 +126,7 @@ class LentaRURecipe(BasicNewsRecipe):
         extractElements = {'div': [{'id': 'readers-block'}]}
 
         # Remove all elements that were not extracted before
-        for tag, attrs in extractElements.iteritems():
+        for tag, attrs in extractElements.items():
             for attr in attrs:
                 garbage = soup.findAll(tag, attr)
                 if garbage:

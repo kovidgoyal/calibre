@@ -117,7 +117,7 @@ class Pocket(BasicNewsRecipe):
             self.user_error(
                 "Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
 
-        for pocket_article in pocket_feed.iteritems():
+        for pocket_article in pocket_feed.items():
             self.articles.append({
                 'item_id':      pocket_article[0],
                 'title':        pocket_article[1]['resolved_title'],
@@ -163,7 +163,7 @@ class Pocket(BasicNewsRecipe):
             for img in article['images']:
                 imgdiv = '<div id="RIL_IMG_{0}" class="RIL_IMG"></div>'.format(
                     article['images'][img]['image_id'])
-                imgtag = '<img src="{0}" \>'.format(
+                imgtag = r'<img src="{0}" \>'.format(
                     article['images'][img]['src'])
                 tmpbody = tmpbody.replace(imgdiv, imgtag)
 

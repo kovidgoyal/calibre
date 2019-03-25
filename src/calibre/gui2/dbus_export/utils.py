@@ -12,7 +12,7 @@ import dbus
 
 from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 
 def log(*args, **kw):
@@ -110,7 +110,7 @@ def key_sequence_to_dbus_shortcut(qks):
         if key == -1 or key == Qt.Key_unknown:
             continue
         items = []
-        for mod, name in {Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}.iteritems():
+        for mod, name in iteritems({Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}):
             if key & mod == mod:
                 items.append(name)
         key &= int(~(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier | Qt.KeypadModifier))
@@ -146,7 +146,7 @@ def set_X_window_properties(win_id, **properties):
     conn = xcb.connect()
     atoms = {name:conn.core.InternAtom(False, len(name), name) for name in properties}
     utf8_string_atom = None
-    for name, val in properties.iteritems():
+    for name, val in iteritems(properties):
         atom = atoms[name].reply().atom
         type_atom = xcb.xproto.Atom.STRING
         if isinstance(val, unicode_type):

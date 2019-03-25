@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, iteritems
 
 
 class TagX(object):  # {{{
@@ -306,7 +306,7 @@ class IndexEntry(object):  # {{{
         except ValueError:
             self.index = ident
         self.tags = [Tag(tag_type, vals, cncx) for tag_type, vals in
-                entry.iteritems()]
+                iteritems(entry)]
 
     @property
     def label(self):
@@ -402,7 +402,7 @@ class IndexRecord(object):  # {{{
 
         self.indices = []
 
-        for ident, entry in table.iteritems():
+        for ident, entry in iteritems(table):
             self.indices.append(IndexEntry(ident, entry, cncx))
 
     def get_parent(self, index):
@@ -473,7 +473,7 @@ class CNCX(object):  # {{{
 
     def __str__(self):
         ans = ['*'*20 + ' cncx (%d strings) '%len(self.records)+ '*'*20]
-        for k, v in self.records.iteritems():
+        for k, v in iteritems(self.records):
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
 
@@ -571,18 +571,18 @@ class TBSIndexing(object):  # {{{
 
     def __str__(self):
         ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
-        for r, dat in self.record_indices.iteritems():
+        for r, dat in iteritems(self.record_indices):
             ans += self.dump_record(r, dat)[-1]
         return '\n'.join(ans)
 
     def dump(self, bdir):
         types = defaultdict(list)
-        for r, dat in self.record_indices.iteritems():
+        for r, dat in iteritems(self.record_indices):
             tbs_type, strings = self.dump_record(r, dat)
             if tbs_type == 0:
                 continue
             types[tbs_type] += strings
-        for typ, strings in types.iteritems():
+        for typ, strings in iteritems(types):
             with open(os.path.join(bdir, 'tbs_type_%d.txt'%typ), 'wb') as f:
                 f.write('\n'.join(strings))
 
@@ -609,7 +609,7 @@ class TBSIndexing(object):  # {{{
             return bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
-            return str({bin4(k):v for k, v in extra.iteritems()})
+            return str({bin4(k):v for k, v in iteritems(extra)})
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)

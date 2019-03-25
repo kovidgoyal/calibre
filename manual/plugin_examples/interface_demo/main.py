@@ -17,6 +17,7 @@ from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
 from calibre_plugins.interface_demo.config import prefs
 
+
 class DemoDialog(QDialog):
 
     def __init__(self, gui, icon, do_user_config):
@@ -97,7 +98,7 @@ class DemoDialog(QDialog):
         ''' View the most recently added book '''
         most_recent = most_recent_id = None
         db = self.db.new_api
-        for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).iteritems():
+        for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).items():
             if most_recent is None or timestamp > most_recent:
                 most_recent = timestamp
                 most_recent_id = book_id
@@ -152,4 +153,3 @@ class DemoDialog(QDialog):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
-

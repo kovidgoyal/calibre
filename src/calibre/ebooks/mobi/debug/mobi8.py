@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
-from polyglot.builtins import zip
+from polyglot.builtins import zip, iteritems
 
 
 class FDST(object):
@@ -274,7 +274,7 @@ class MOBIFile(object):
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
-                extra = {bin(k):v for k, v in extra.iteritems()}
+                extra = {bin(k):v for k, v in iteritems(extra)}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
                 desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))

@@ -201,7 +201,7 @@ class JSError(Exception):
                 if fn:
                     msg = type('')(fn) + ':' + msg
                 Exception.__init__(self, msg)
-                for k, v in e.iteritems():
+                for k, v in e.items():
                     if k != 'message':
                         setattr(self, k, v)
                     else:
@@ -230,7 +230,7 @@ contexts = {}
 def create_context(base_dirs, *args):
     data = to_python(args[0]) if args else {}
     ctx = Context(base_dirs=base_dirs)
-    for k, val in data.iteritems():
+    for k, val in data.items():
         setattr(ctx.g, k, val)
     key = id(ctx)
     contexts[key] = ctx
@@ -280,7 +280,7 @@ class Context(object):
         if (!String.prototype.trim) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+                var rtrim = /^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$/g;
                 String.prototype.trim = function() {
                 return this.replace(rtrim, '');
                 };
@@ -289,7 +289,7 @@ class Context(object):
         if (!String.prototype.trimLeft) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /^[\s\uFEFF\xA0]+/g;
+                var rtrim = /^[\\s\uFEFF\xA0]+/g;
                 String.prototype.trimLeft = function() {
                 return this.replace(rtrim, '');
                 };
@@ -298,7 +298,7 @@ class Context(object):
         if (!String.prototype.trimRight) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /[\s\uFEFF\xA0]+$/g;
+                var rtrim = /[\\s\uFEFF\xA0]+$/g;
                 String.prototype.trimRight = function() {
                 return this.replace(rtrim, '');
                 };

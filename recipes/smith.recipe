@@ -39,7 +39,7 @@ class Smithsonian(BasicNewsRecipe):
 
         # Find date
         date = re.sub(
-            '.*\:\W*', "", self.tag_to_string(div.find('h1')).strip())
+            r'.*\:\W*', "", self.tag_to_string(div.find('h1')).strip())
         self.timefmt = u' [%s]' % date
 
         # Find cover
@@ -66,5 +66,5 @@ class Smithsonian(BasicNewsRecipe):
                 self.log('\t', url)
                 articles.append(
                     {'title': title, 'url': url, 'description': desc})
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in feeds.items()]
         return ans

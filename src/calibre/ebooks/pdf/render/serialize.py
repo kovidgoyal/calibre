@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import hashlib, numbers
-from polyglot.builtins import map
+from polyglot.builtins import map, iteritems
 
 from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
@@ -119,24 +119,24 @@ class Page(Stream):
         r = Dictionary()
         if self.opacities:
             extgs = Dictionary()
-            for opref, name in self.opacities.iteritems():
+            for opref, name in iteritems(self.opacities):
                 extgs[name] = opref
             r['ExtGState'] = extgs
         if self.fonts:
             fonts = Dictionary()
-            for ref, name in self.fonts.iteritems():
+            for ref, name in iteritems(self.fonts):
                 fonts[name] = ref
             r['Font'] = fonts
         if self.xobjects:
             xobjects = Dictionary()
-            for ref, name in self.xobjects.iteritems():
+            for ref, name in iteritems(self.xobjects):
                 xobjects[name] = ref
             r['XObject'] = xobjects
         if self.patterns:
             r['ColorSpace'] = Dictionary({'PCSp':Array(
                 [Name('Pattern'), Name('DeviceRGB')])})
             patterns = Dictionary()
-            for ref, name in self.patterns.iteritems():
+            for ref, name in iteritems(self.patterns):
                 patterns[name] = ref
             r['Pattern'] = patterns
         if r:

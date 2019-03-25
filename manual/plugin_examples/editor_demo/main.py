@@ -78,7 +78,7 @@ class DemoTool(Tool):
 
         # Iterate over all style declarations in the book, this means css
         # stylesheets, <style> tags and style="" attributes
-        for name, media_type in container.mime_map.iteritems():
+        for name, media_type in container.mime_map.items():
             if media_type in OEB_STYLES:
                 # A stylesheet. Parsed stylesheets are css_parser CSSStylesheet
                 # objects.

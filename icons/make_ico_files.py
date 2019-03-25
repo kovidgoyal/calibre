@@ -17,7 +17,7 @@ sources = {'library':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg
 if sys.argv[-1] == 'only-logo':
     sources = {'library':sources['library']}
 
-for name, src in sources.iteritems():
+for name, src in sources.items():
     os.mkdir('ico_temp')
     try:
         names = []

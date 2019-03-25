@@ -11,7 +11,7 @@ from struct import unpack_from, calcsize
 from collections import OrderedDict, namedtuple
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import range
+from polyglot.builtins import range, iteritems
 
 
 class Unpackable(object):
@@ -82,7 +82,7 @@ class ListTable(OrderedDict):
     def dump(self, prefix=''):
         print (prefix, self.__class__.__name__, sep='')
         prefix += '  '
-        for tag, child in self.iteritems():
+        for tag, child in iteritems(self):
             print (prefix, tag, sep='')
             child.dump(prefix=prefix+'  ')
 

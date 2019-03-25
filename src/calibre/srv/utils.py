@@ -15,7 +15,7 @@ from operator import itemgetter
 from binascii import hexlify, unhexlify
 
 from calibre import prints
-from calibre.constants import iswindows
+from calibre.constants import iswindows, ispy3
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
@@ -57,7 +57,8 @@ class MultiDict(dict):  # {{{
                 self[key] = val
 
     def items(self, duplicates=True):
-        for k, v in dict.iteritems(self):
+        f = dict.items if ispy3 else dict.iteritems
+        for k, v in f(self):
             if duplicates:
                 for x in v:
                     yield k, x

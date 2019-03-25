@@ -42,7 +42,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 NBSP = u'\u00a0'
 
@@ -2675,7 +2675,7 @@ class CatalogBuilder(object):
                         title_str=title_str,
                         xmlns=XHTML_NS,
                         )
-            for k, v in args.iteritems():
+            for k, v in iteritems(args):
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
@@ -4617,9 +4617,9 @@ class CatalogBuilder(object):
 
         templates = {}
         ef = P('catalog/section_list_templates.py')
-        with open(ef, 'rb')) as f:
+        with open(ef, 'rb') as f:
             exec(compile(f.read(), ef, 'exec'), templates)
-        for name, template in templates.iteritems():
+        for name, template in iteritems(templates):
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))
 

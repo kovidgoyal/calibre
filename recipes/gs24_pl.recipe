@@ -36,7 +36,7 @@ class AdvancedUserRecipe1322322819(BasicNewsRecipe):
         s = s.group(1)
         replacements = {"0B": ".", "0C": "/",
                         "0H": ",", "0I": "_", "0D": "?", "0F": "="}
-        for (a, b) in replacements.iteritems():
+        for (a, b) in replacements.items():
             s = string.replace(s, a, b)
         s = string.replace(s, "0A", "0")
         return "http://" + s

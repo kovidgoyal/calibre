@@ -15,7 +15,7 @@ from pprint import pformat
 
 from gi.repository import Gtk, Gdk, GdkX11  # noqa
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 UI_INFO = """
 <ui>
@@ -208,7 +208,7 @@ def convert(v):
     if isinstance(v, list):
         return [convert(val) for val in v]
     if isinstance(v, dict):
-        return {convert(k):convert(val) for k, val in v.iteritems()}
+        return {convert(k):convert(val) for k, val in iteritems(v)}
     if isinstance(v, dbus.Boolean):
         return bool(v)
     if isinstance(v, (dbus.UInt32, dbus.UInt16)):
@@ -233,10 +233,10 @@ class MyApplication(Gtk.Application):
         conn = xcb.Connection()
         atoms = conn.core.ListProperties(win_id).reply().atoms
         atom_names = {atom:conn.core.GetAtomNameUnchecked(atom) for atom in atoms}
-        atom_names = {k:bytes(a.reply().name.buf()) for k, a in atom_names.iteritems()}
-        property_names = {name:atom for atom, name in atom_names.iteritems() if
+        atom_names = {k:bytes(a.reply().name.buf()) for k, a in iteritems(atom_names)}
+        property_names = {name:atom for atom, name in iteritems(atom_names) if
             name.startswith('_GTK') or name.startswith('_UNITY') or name.startswith('_GNOME')}
-        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in property_names.iteritems()}
+        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in iteritems(property_names)}
 
         type_atom_cache = {}
 
@@ -256,7 +256,7 @@ class MyApplication(Gtk.Application):
                                         property_reply.value.buf()))
 
             return None
-        props = {name:get_property_value(r.reply()) for name, r in replies.iteritems()}
+        props = {name:get_property_value(r.reply()) for name, r in iteritems(replies)}
         ans = ['\nX Window properties:']
         for name in sorted(props):
             ans.append('%s: %r' % (name, props[name]))
@@ -277,7 +277,7 @@ class MyApplication(Gtk.Application):
             print ('Subscription group:', item[0])
             print ('Menu number:', item[1])
             for menu_item in item[2]:
-                menu_item = {unicode_type(k):convert(v) for k, v in menu_item.iteritems()}
+                menu_item = {unicode_type(k):convert(v) for k, v in iteritems(menu_item)}
                 if ':submenu' in menu_item:
                     groups.add(menu_item[':submenu'][0])
                 if ':section' in menu_item:

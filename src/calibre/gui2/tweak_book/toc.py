@@ -181,13 +181,13 @@ class TOCViewer(QWidget):
         menu.addAction(self.refresh_action)
         menu.exec_(self.view.mapToGlobal(pos))
 
-    def iteritems(self, parent=None):
+    def iter_items(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
-            for gc in self.iteritems(parent=child):
+            for gc in self.iter_items(parent=child):
                 yield gc
 
     def emit_navigate(self, *args):

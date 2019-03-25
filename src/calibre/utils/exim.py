@@ -13,6 +13,7 @@ from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
+from polyglot.builtins import iteritems
 
 
 # Export {{{
@@ -175,11 +176,11 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
     if library_paths is None:
         library_paths = all_known_libraries()
     dbmap = dbmap or {}
-    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in dbmap.iteritems()}
+    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in iteritems(dbmap)}
     exporter = Exporter(destdir)
     exporter.metadata['libraries'] = libraries = {}
     total = len(library_paths) + 1
-    for i, (lpath, count) in enumerate(library_paths.iteritems()):
+    for i, (lpath, count) in enumerate(iteritems(library_paths)):
         if abort is not None and abort.is_set():
             return
         if progress1 is not None:
@@ -264,7 +265,7 @@ class Importer(object):
             raise ValueError('The last part of this exported data set is missing')
         if len(nums) != nums[-1]:
             raise ValueError('There are some parts of the exported data set missing')
-        self.part_map = {num:path for num, (path, is_last) in part_map.iteritems()}
+        self.part_map = {num:path for num, (path, is_last) in iteritems(part_map)}
         msf = struct.calcsize(Exporter.MDATA_SZ_FMT)
         offset = tail_size + msf
         with self.part(nums[-1]) as f:
@@ -323,7 +324,7 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
     config_location = os.path.abspath(os.path.realpath(config_location))
     total = len(library_path_map) + 1
     library_usage_stats = Counter()
-    for i, (library_key, dest) in enumerate(library_path_map.iteritems()):
+    for i, (library_key, dest) in enumerate(iteritems(library_path_map)):
         if abort is not None and abort.is_set():
             return
         if progress1 is not None:
@@ -394,7 +395,7 @@ def run_exporter(export_dir=None, args=None):
             os.makedirs(export_dir)
         if os.listdir(export_dir):
             raise SystemExit('%s is not empty' % export_dir)
-        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in all_known_libraries().iteritems()}
+        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in iteritems(all_known_libraries())}
         if 'all' in args[1:]:
             libraries = set(all_libraries)
         else:
@@ -416,7 +417,7 @@ def run_exporter(export_dir=None, args=None):
     if os.listdir(export_dir):
         raise SystemExit('%s is not empty' % export_dir)
     library_paths = {}
-    for lpath, lus in all_known_libraries().iteritems():
+    for lpath, lus in iteritems(all_known_libraries()):
         if raw_input('Export the library %s [y/n]: ' % lpath).strip().lower() == b'y':
             library_paths[lpath] = lus
     if library_paths:

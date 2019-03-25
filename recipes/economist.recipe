@@ -259,7 +259,7 @@ class Economist(BasicNewsRecipe):
                     feeds[section_title] = []
                 feeds[section_title] += articles
 
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in feeds.items()]
         return ans
 
     def eco_find_image_tables(self, soup):
