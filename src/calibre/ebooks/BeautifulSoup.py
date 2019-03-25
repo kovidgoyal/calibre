@@ -6,8 +6,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bs4
 from bs4 import (  # noqa
-    CData, Comment, Declaration, NavigableString, ProcessingInstruction, Tag,
-    __version__
+    CData, Comment, Declaration, NavigableString, ProcessingInstruction,
+    SoupStrainer, Tag, __version__
 )
 
 from polyglot.builtins import unicode_type
