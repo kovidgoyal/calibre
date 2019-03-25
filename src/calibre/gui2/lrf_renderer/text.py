@@ -8,7 +8,6 @@ from PyQt5.Qt import (
     QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
 from polyglot.builtins import unicode_type, string_or_bytes
 
@@ -164,8 +163,13 @@ class TextBlock(object):
         pass
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
-    XML_ENTITIES = dict(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))
-    XML_ENTITIES["quot"] = '"'
+    XML_ENTITIES = {
+            "apos" : "'",
+            "quot" : '"',
+            "amp" : "&",
+            "lt" : "<",
+            "gt" : ">"
+    }
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,
                  opts, ruby_tags, link_activated):
