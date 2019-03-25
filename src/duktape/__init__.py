@@ -366,7 +366,7 @@ def test_build():
 
     def load_tests(loader, suite, pattern):
         from duktape import tests
-        for x in vars(tests).itervalues():
+        for x in vars(tests).values():
             if isinstance(x, type) and issubclass(x, unittest.TestCase):
                 tests = loader.loadTestsFromTestCase(x)
                 suite.addTests(tests)

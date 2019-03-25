@@ -15,13 +15,13 @@ from functools import partial
 from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
-from polyglot.builtins import unicode_type, range, iteritems
+from polyglot.builtins import unicode_type, range, iteritems, itervalues
 
 # TrueType outlines {{{
 
 
 def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
-    unresolved_glyphs = set(character_map.itervalues()) | extra_glyphs
+    unresolved_glyphs = set(itervalues(character_map)) | extra_glyphs
     unresolved_glyphs.add(0)  # We always want the .notdef glyph
     resolved_glyphs = {}
 
@@ -155,7 +155,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
         gsub = sfnt[b'GSUB']
         try:
             gsub.decompile()
-            extra_glyphs = gsub.all_substitutions(character_map.itervalues())
+            extra_glyphs = gsub.all_substitutions(itervalues(character_map))
         except UnsupportedFont as e:
             warn('Usupported GSUB table: %s'%e)
         except Exception as e:
@@ -176,7 +176,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
     if b'kern' in sfnt:
         try:
-            sfnt[b'kern'].restrict_to_glyphs(frozenset(character_map.itervalues()))
+            sfnt[b'kern'].restrict_to_glyphs(frozenset(itervalues(character_map)))
         except UnsupportedFont as e:
             warn('kern table unsupported, ignoring: %s'%e)
         except Exception as e:
@@ -215,8 +215,8 @@ def print_stats(old_stats, new_stats):
     prints('Table', ' ', '%10s'%'Size', '  ', 'Percent', '   ', '%10s'%'New Size',
             ' New Percent')
     prints('='*80)
-    old_total = sum(old_stats.itervalues())
-    new_total = sum(new_stats.itervalues())
+    old_total = sum(itervalues(old_stats))
+    new_total = sum(itervalues(new_stats))
     tables = sorted(old_stats, key=lambda x:old_stats[x],
             reverse=True)
     for table in tables:
@@ -351,7 +351,7 @@ def all():
                 print ('Failed!')
                 failed.append((font['full_name'], font['path'], unicode_type(e)))
             else:
-                averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues()) * 100)
+                averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
                 print ('Reduced to:', '%.1f'%averages[-1] , '%')
     if unsupported:
         print ('\n\nUnsupported:')

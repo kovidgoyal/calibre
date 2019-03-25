@@ -121,7 +121,7 @@ def register():
             key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
 
             with Key('FileAssociations', root=key) as fak, Key('MimeAssociations', root=key) as mak:
-                # previous_associations = set(fak.itervalues())
+                # previous_associations = set(fak.values())
                 for ext, prog_id in iteritems(prog_id_map):
                     mt = ext_map[ext]
                     fak.set('.' + ext, prog_id)
@@ -207,7 +207,7 @@ def get_prog_id_map(base, key_path):
         desc = k.get_mui_string('ApplicationDescription')
         if desc is None:
             return desc, ans
-        for ext, prog_id in k.itervalues(sub_key='FileAssociations', get_data=True):
+        for ext, prog_id in k.values(sub_key='FileAssociations', get_data=True):
             ans[ext[1:].lower()] = prog_id
     return desc, ans
 
@@ -275,7 +275,7 @@ def find_programs(extensions):
                 continue
             raise
         with k:
-            for name, key_path in k.itervalues(get_data=True):
+            for name, key_path in k.values(get_data=True):
                 try:
                     app_desc, prog_id_map = get_prog_id_map(base, key_path)
                 except Exception:

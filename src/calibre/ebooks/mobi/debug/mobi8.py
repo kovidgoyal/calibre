@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
-from polyglot.builtins import zip, iteritems
+from polyglot.builtins import zip, iteritems, itervalues
 
 
 class FDST(object):
@@ -256,7 +256,7 @@ class MOBIFile(object):
             desc = ['Record #%d'%i]
             for s, strand in enumerate(strands):
                 desc.append('Strand %d'%s)
-                for entries in strand.itervalues():
+                for entries in itervalues(strand):
                     for e in entries:
                         desc.append(
                         ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(

@@ -20,7 +20,7 @@ from calibre.ebooks.pdf.render.common import inch, A4, fmtnum
 from calibre.ebooks.pdf.render.graphics import convert_path, Graphics
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
-from polyglot.builtins import codepoint_to_chr
+from polyglot.builtins import codepoint_to_chr, itervalues
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
@@ -340,7 +340,7 @@ class PdfEngine(QPaintEngine):
         self.pdf.links.add_outline(toc)
 
     def add_links(self, current_item, start_page, links, anchors):
-        for pos in anchors.itervalues():
+        for pos in itervalues(anchors):
             pos['left'], pos['top'] = self.pdf_system.map(pos['left'], pos['top'])
         for link in links:
             pos = link[1]

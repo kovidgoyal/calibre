@@ -67,7 +67,8 @@ class MultiDict(dict):  # {{{
     iteritems = items
 
     def values(self, duplicates=True):
-        for v in dict.itervalues(self):
+        f = dict.values if ispy3 else dict.itervalues
+        for v in f(self):
             if duplicates:
                 for x in v:
                     yield x

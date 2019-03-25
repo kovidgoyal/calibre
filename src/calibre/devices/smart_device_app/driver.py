@@ -37,7 +37,7 @@ from calibre.utils.filenames import ascii_filename as sanitize, shorten_componen
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import unicode_type, iteritems
+from polyglot.builtins import unicode_type, iteritems, itervalues
 from polyglot import queue
 
 
@@ -758,7 +758,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            for b in self.device_book_cache.itervalues():
+            for b in itervalues(self.device_book_cache):
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue

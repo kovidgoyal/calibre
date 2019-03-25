@@ -278,7 +278,7 @@ class InterfaceAction(QObject):
         For example to load an image::
 
             pixmap = QPixmap()
-            next(pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues()))
+            next(pixmap.loadFromData(self.load_resources(['images/icon.png']).values()))
             icon = QIcon(pixmap)
 
         :param names: List of paths to resources in the ZIP file using / as separator

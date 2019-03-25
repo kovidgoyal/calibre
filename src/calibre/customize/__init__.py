@@ -212,7 +212,7 @@ class Plugin(object):  # {{{
         For example to load an image::
 
             pixmap = QPixmap()
-            next(pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues())
+            next(pixmap.loadFromData(self.load_resources(['images/icon.png']).values())
             icon = QIcon(pixmap)
 
         :param names: List of paths to resources in the ZIP file using / as separator
@@ -744,7 +744,7 @@ class ViewerPlugin(Plugin):  # {{{
             def load_fonts():
                 from PyQt5.Qt import QFontDatabase
                 font_data = get_resources(['myfont1.ttf', 'myfont2.ttf'])
-                for raw in font_data.itervalues():
+                for raw in font_data.values():
                     QFontDatabase.addApplicationFontFromData(raw)
         '''
         pass
