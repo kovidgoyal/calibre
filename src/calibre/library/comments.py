@@ -1,17 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import print_function
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import print_function, unicode_literals
 
 import re
 
-from calibre.constants import preferred_encoding
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, \
-        CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
+from calibre.constants import preferred_encoding
+from calibre.ebooks.BeautifulSoup import (
+    BeautifulSoup, CData, Comment, Declaration, NavigableString,
+    ProcessingInstruction
+)
 from calibre.utils.html2text import html2text
 from polyglot.builtins import unicode_type
 
@@ -88,23 +88,23 @@ def comments_to_html(comments):
     # Convert two hyphens to emdash
     comments = comments.replace('--', '&mdash;')
 
-    soup = BeautifulSoup(comments)
-    result = BeautifulSoup()
+    soup = BeautifulSoup('<div>' + comments + '</div>').find('div')
+    result = BeautifulSoup('<div>')
+    container = result.find('div')
     rtc = 0
     open_pTag = False
 
     all_tokens = list(soup.contents)
     for token in all_tokens:
+        if isinstance(token,  (CData, Comment, Declaration, ProcessingInstruction)):
+            continue
         if isinstance(token, NavigableString):
             if not open_pTag:
                 pTag = result.new_tag('p')
                 open_pTag = True
                 ptc = 0
-            pTag.insert(ptc,prepare_string_for_xml(token))
+            pTag.insert(ptc, token)
             ptc += 1
-        elif isinstance(token,  (CData, Comment, Declaration,
-                ProcessingInstruction)):
-            continue
         elif token.name in ['br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a',
                 'hr']:
             if not open_pTag:
@@ -115,23 +115,20 @@ def comments_to_html(comments):
             ptc += 1
         else:
             if open_pTag:
-                result.insert(rtc, pTag)
+                container.insert(rtc, pTag)
                 rtc += 1
                 open_pTag = False
                 ptc = 0
-            result.insert(rtc, token)
+            container.insert(rtc, token)
             rtc += 1
 
     if open_pTag:
-        result.insert(rtc, pTag)
+        container.insert(rtc, pTag)
 
-    for p in result.findAll('p'):
+    for p in container.findAll('p'):
         p['class'] = 'description'
 
-    for t in result.findAll(text=True):
-        t.replaceWith(prepare_string_for_xml(unicode_type(t)))
-
-    return result.decode_contents()
+    return container.decode_contents()
 
 
 def markdown(val):
@@ -155,21 +152,23 @@ def sanitize_comments_html(html):
     return html
 
 
-def test():
-    for pat, val in [
-            ('lineone\n\nlinetwo',
-                '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
-            ('a <b>b&c</b>\nf', '<p class="description">a <b>b&amp;c;</b><br />f</p>'),
-            ('a <?xml asd> b\n\ncd', '<p class="description">a  b</p><p class="description">cd</p>'),
+def find_tests():
+    import unittest
+
+    class Test(unittest.TestCase):
+
+        def test_comments_to_html(self):
+            for pat, val in [
+                    (b'lineone\n\nlinetwo',
+                        '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
+
+                    ('a <b>b&c</b>\nf',
+                        '<p class="description">a <b>b&amp;c</b><br></br>f</p>'),
+
+                    ('a <?xml asd> b\n\ncd',
+                        '<p class="description">a  b</p><p class="description">cd</p>'),
             ]:
-        print()
-        print('Testing: %r'%pat)
-        cval = comments_to_html(pat)
-        print('Value: %r'%cval)
-        if comments_to_html(pat) != val:
-            print('FAILED')
-            break
+                cval = comments_to_html(pat)
+                self.assertEqual(cval, val)
 
-
-if __name__ == '__main__':
-    test()
+    return unittest.defaultTestLoader.loadTestsFromTestCase(Test)
