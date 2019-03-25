@@ -123,9 +123,9 @@ class OEBReader(object):
                     opf = etree.fromstring(data)
                     self.logger.warn('OPF contains invalid tours section')
                 except etree.XMLSyntaxError:
+                    self.logger.warn('OPF contains invalid markup, trying to parse it anyway')
                     from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
                     opf = etree.fromstring(data, parser=RECOVER_PARSER)
-                    self.logger.warn('OPF contains invalid markup, trying to parse it anyway')
 
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
