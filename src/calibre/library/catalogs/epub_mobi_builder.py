@@ -1,33 +1,48 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2010, Greg Riker
 
 from __future__ import print_function
-__license__   = 'GPL v3'
-__copyright__ = '2010, Greg Riker'
 
-import datetime, os, platform, re, shutil, time, unicodedata, zlib
+import datetime
+import os
+import platform
+import re
+import shutil
+import time
+import unicodedata
+import zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
 from calibre import (
-    prepare_string_for_xml, strftime, force_unicode, isbytestring, replace_entities, as_unicode, xml_replace_entities)
-from calibre.constants import isosx, cache_dir
+    as_unicode, force_unicode, isbytestring, replace_entities, strftime,
+    xml_replace_entities
+)
+from calibre.constants import cache_dir, isosx
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString, prettify
+from calibre.ebooks.BeautifulSoup import (
+    BeautifulSoup, BeautifulStoneSoup, NavigableString, prettify
+)
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
-                                     InvalidGenresSourceFieldException
+from calibre.library.catalogs import (
+    AuthorSortMismatchException, EmptyCatalogException,
+    InvalidGenresSourceFieldException
+)
+from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.date import format_date, is_date_undefined, now as nowf, as_local_time
+from calibre.utils.date import (
+    as_local_time, format_date, is_date_undefined, now as nowf
+)
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
-from calibre.utils.zipfile import ZipFile
 from calibre.utils.localization import get_lang, lang_as_iso639_1
+from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import unicode_type
-
 
 NBSP = u'\u00a0'
 
@@ -953,7 +968,7 @@ class CatalogBuilder(object):
                 if ad_offset >= 0:
                     record['comments'] = record['comments'][:ad_offset]
 
-                this_title['description'] = self.massage_comments(record['comments'])
+                this_title['description'] = comments_to_html(record['comments'])
 
                 # Create short description
                 paras = BeautifulSoup(this_title['description']).findAll('p')
@@ -4016,17 +4031,17 @@ class CatalogBuilder(object):
         if lang_as_iso639_1(lang):
             lang = lang_as_iso639_1(lang)
 
-        header = '''
-            <?xml version="1.0" encoding="UTF-8"?>
-            <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
-                <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf"
-                        xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <dc:language>LANG</dc:language>
-                </metadata>
-                <manifest></manifest>
-                <spine toc="ncx"></spine>
-                <guide></guide>
-            </package>
+        header = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf"
+            xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <dc:language>LANG</dc:language>
+    </metadata>
+    <manifest></manifest>
+    <spine toc="ncx"></spine>
+    <guide></guide>
+</package>
             '''.replace('LANG', lang)
         # Add the supplied metadata tags
         soup = BeautifulStoneSoup(header)
@@ -4171,7 +4186,7 @@ class CatalogBuilder(object):
         if isinstance(output, unicode_type):
             output = output.encode('utf-8')
         with lopen("%s/%s.opf" % (self.catalog_path, self.opts.basename), 'wb') as outfile:
-            outfile.write(output)
+            outfile.write(output.strip())
 
     def generate_rating_string(self, book):
         """ Generate rating string for Descriptions.
@@ -4606,127 +4621,6 @@ class CatalogBuilder(object):
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))
 
-    def massage_comments(self, comments):
-        """ Massage comments to somewhat consistent format.
-
-        Convert random comment text to normalized, xml-legal block of <p>s
-        'plain text' returns as
-        <p>plain text</p>
-
-        'plain text with <i>minimal</i> <b>markup</b>' returns as
-        <p>plain text with <i>minimal</i> <b>markup</b></p>
-
-        '<p>pre-formatted text</p> returns untouched
-
-        'A line of text\n\nFollowed by a line of text' returns as
-        <p>A line of text</p>
-        <p>Followed by a line of text</p>
-
-        'A line of text.\nA second line of text.\rA third line of text' returns as
-        <p>A line of text.<br />A second line of text.<br />A third line of text.</p>
-
-        '...end of a paragraph.Somehow the break was lost...' returns as
-        <p>...end of a paragraph.</p>
-        <p>Somehow the break was lost...</p>
-
-        Deprecated HTML returns as HTML via BeautifulSoup()
-
-        Args:
-         comments (str): comments from metadata, possibly HTML
-
-        Return:
-         result (BeautifulSoup): massaged comments in HTML form
-        """
-
-        # Hackish - ignoring sentences ending or beginning in numbers to avoid
-        # confusion with decimal points.
-
-        # Explode lost CRs to \n\n
-        for lost_cr in re.finditer('([a-z])([\\.\\?!])([A-Z])', comments):
-            comments = comments.replace(lost_cr.group(),
-                                        '%s%s\n\n%s' % (lost_cr.group(1),
-                                                        lost_cr.group(2),
-                                                        lost_cr.group(3)))
-        # Extract pre-built elements - annotations, etc.
-        if not isinstance(comments, unicode_type):
-            comments = comments.decode('utf-8', 'replace')
-        soup = BeautifulSoup(comments)
-        elems = soup.findAll('div')
-        for elem in elems:
-            elem.extract()
-
-        # Reconstruct comments w/o <div>s
-        comments = soup.decode_contents()
-
-        # Convert \n\n to <p>s
-        if re.search('\n\n', comments):
-            soup = BeautifulSoup()
-            split_ps = comments.split(u'\n\n')
-            tsc = 0
-            for p in split_ps:
-                pTag = soup.new_tag('p')
-                pTag.insert(0, p)
-                soup.insert(tsc, pTag)
-                tsc += 1
-            comments = soup.decode_contents()
-
-        # Convert solo returns to <br />
-        comments = re.sub('[\r\n]', '<br />', comments)
-
-        # Convert two hypens to emdash
-        comments = re.sub('--', '&mdash;', comments)
-        soup = BeautifulSoup(comments)
-        result = BeautifulSoup()
-        rtc = 0
-        open_pTag = False
-
-        all_tokens = list(soup.contents)
-        for token in all_tokens:
-            if type(token) is NavigableString:
-                if not open_pTag:
-                    pTag = result.new_tag('p')
-                    open_pTag = True
-                    ptc = 0
-                pTag.insert(ptc, prepare_string_for_xml(token))
-                ptc += 1
-
-            elif token.name in ['br', 'b', 'i', 'em']:
-                if not open_pTag:
-                    pTag = result.new_tag('p')
-                    open_pTag = True
-                    ptc = 0
-                pTag.insert(ptc, token)
-                ptc += 1
-
-            else:
-                if open_pTag:
-                    result.insert(rtc, pTag)
-                    rtc += 1
-                    open_pTag = False
-                    ptc = 0
-                # Clean up NavigableStrings for xml
-                sub_tokens = list(token.contents)
-                for sub_token in sub_tokens:
-                    if type(sub_token) is NavigableString:
-                        sub_token.replaceWith(prepare_string_for_xml(sub_token))
-                result.insert(rtc, token)
-                rtc += 1
-
-        if open_pTag:
-            result.insert(rtc, pTag)
-            rtc += 1
-
-        paras = result.findAll('p')
-        for p in paras:
-            p['class'] = 'description'
-
-        # Add back <div> elems initially removed
-        for elem in elems:
-            result.insert(rtc, elem)
-            rtc += 1
-
-        return result.decode_contents()
-
     def merge_comments(self, record):
         """ Merge comments with custom column content.
 
@@ -4958,4 +4852,4 @@ class CatalogBuilder(object):
             ncx = ncx.encode('utf-8')
 
         with lopen("%s/%s.ncx" % (self.catalog_path, self.opts.basename), 'wb') as outfile:
-            outfile.write(ncx)
+            outfile.write(ncx.strip())
