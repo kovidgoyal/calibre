@@ -42,7 +42,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import unicode_type, iteritems, exec_path
+from polyglot.builtins import unicode_type, iteritems
 
 NBSP = u'\u00a0'
 
@@ -4615,11 +4615,15 @@ class CatalogBuilder(object):
          (strs): section templates added to local namespace
         """
 
-        templates = {}
-        exec_path(P('catalog/section_list_templates.py'), templates)
-        for name, template in iteritems(templates):
-            if name.startswith('by_') and name.endswith('_template'):
-                setattr(self, name, force_unicode(template, 'utf-8'))
+        for line in P('catalog/section_list_templates.conf', data=True).decode('utf-8').splitlines():
+            line = line.lstrip()
+            if line.startswith('#'):
+                continue
+            if line.startswith('by_'):
+                key, val = line.split(' ', 1)
+                key, val = key.strip(), val.strip()
+                if key.endswith('_template'):
+                    setattr(self, key, val)
 
     def merge_comments(self, record):
         """ Merge comments with custom column content.
