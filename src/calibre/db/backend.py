@@ -12,7 +12,7 @@ import os, shutil, uuid, json, glob, time, hashlib, errno, sys
 from functools import partial
 
 import apsw
-from polyglot.builtins import (iteritems, iterkeys, itervalues,
+from polyglot.builtins import (iteritems, itervalues,
         unicode_type, reraise, string_or_bytes)
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
@@ -223,7 +223,7 @@ def SortedConcatenate(sep=','):
     def finalize(ctxt):
         if len(ctxt) == 0:
             return None
-        return sep.join(map(ctxt.get, sorted(iterkeys(ctxt))))
+        return sep.join(map(ctxt.get, sorted(ctxt)))
 
     return ({}, step, finalize)
 
@@ -248,7 +248,7 @@ def AumSortedConcatenate():
             ctxt[ndx] = ':::'.join((author, sort, link))
 
     def finalize(ctxt):
-        keys = list(iterkeys(ctxt))
+        keys = list(ctxt)
         l = len(keys)
         if l == 0:
             return None
@@ -734,7 +734,7 @@ class DB(object):
         }
 
         # Create Tag Browser categories for custom columns
-        for k in sorted(iterkeys(self.custom_column_label_map)):
+        for k in sorted(self.custom_column_label_map):
             v = self.custom_column_label_map[k]
             if v['normalized']:
                 is_category = True

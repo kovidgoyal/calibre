@@ -13,7 +13,7 @@ from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase, create_backend, set_global_state
 from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, iterkeys, itervalues
+from polyglot.builtins import iteritems, itervalues
 
 
 def canonicalize_path(p):
@@ -121,7 +121,7 @@ class LibraryBroker(object):
 
     @property
     def default_library(self):
-        return next(iterkeys(self.lmap))
+        return next(iter(self.lmap))
 
     @property
     def library_map(self):

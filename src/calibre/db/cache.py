@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -170,7 +170,7 @@ class Cache(object):
         # Reconstruct the user categories, putting them into field_metadata
         fm = self.field_metadata
         fm.remove_dynamic_categories()
-        for user_cat in sorted(iterkeys(self._pref('user_categories', {})), key=sort_key):
+        for user_cat in sorted(self._pref('user_categories', {}), key=sort_key):
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
             while cat_name:
                 try:
@@ -181,7 +181,7 @@ class Cache(object):
 
         # add grouped search term user categories
         muc = frozenset(self._pref('grouped_search_make_user_categories', []))
-        for cat in sorted(iterkeys(self._pref('grouped_search_terms', {})), key=sort_key):
+        for cat in sorted(self._pref('grouped_search_terms', {}), key=sort_key):
             if cat in muc:
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
@@ -1117,7 +1117,7 @@ class Cache(object):
     @read_api
     def get_a_dirtied_book(self):
         if self.dirtied_cache:
-            return random.choice(tuple(iterkeys(self.dirtied_cache)))
+            return random.choice(tuple(self.dirtied_cache))
         return None
 
     @read_api
@@ -1339,7 +1339,7 @@ class Cache(object):
 
                 user_mi = mi.get_all_user_metadata(make_copy=False)
                 fm = self.field_metadata
-                for key in iterkeys(user_mi):
+                for key in user_mi:
                     if (key in fm and user_mi[key]['datatype'] == fm[key]['datatype'] and (
                         user_mi[key]['datatype'] != 'text' or (
                             user_mi[key]['is_multiple'] == fm[key]['is_multiple']))):
@@ -1458,7 +1458,7 @@ class Cache(object):
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
-        self._update_last_modified(tuple(iterkeys(formats_map)))
+        self._update_last_modified(tuple(formats_map))
 
     @read_api
     def get_next_series_num_for(self, series, field='series', current_indices=False):

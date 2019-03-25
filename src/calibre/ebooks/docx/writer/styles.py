@@ -15,7 +15,7 @@ from lxml import etree
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.localization import lang_as_iso639_1
-from polyglot.builtins import iteritems, iterkeys, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
@@ -721,7 +721,7 @@ class StylesManager(object):
                     heading_styles.append(style)
                 style.id = style.name = val
             style.seq = i
-        self.combined_styles = sorted(iterkeys(counts), key=attrgetter('seq'))
+        self.combined_styles = sorted(counts, key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]
 
         descendant_style_map = {}

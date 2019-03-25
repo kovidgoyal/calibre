@@ -14,8 +14,8 @@ from functools import partial
 from calibre import as_unicode
 from calibre.customize import (Plugin, numeric_version, platform,
         InvalidPlugin, PluginNotFound)
-from polyglot.builtins import (itervalues, iterkeys, map,
-        string_or_bytes, unicode_type)
+from polyglot.builtins import (itervalues, map, string_or_bytes,
+        unicode_type)
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths
@@ -281,7 +281,7 @@ class PluginLoader(object):
 
         # Legacy plugins
         if '__init__' not in names:
-            for name in list(iterkeys(names)):
+            for name in tuple(names):
                 if '.' not in name and name.endswith('plugin'):
                     names['__init__'] = names[name]
                     break

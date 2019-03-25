@@ -15,7 +15,7 @@ from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import ParseException
-from polyglot.builtins import iterkeys, itervalues
+from polyglot.builtins import itervalues
 
 
 class Context(object):
@@ -67,7 +67,7 @@ class Context(object):
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
-        library_id = library_id or next(iterkeys(allowed_libraries))
+        library_id = library_id or next(iter(allowed_libraries))
         if library_id in allowed_libraries:
             return self.library_broker.get(library_id)
         raise HTTPForbidden('The user {} is not allowed to access the library {}'.format(request_data.username, library_id))
@@ -79,7 +79,7 @@ class Context(object):
         allowed_libraries = self.library_broker.allowed_libraries(lf)
         if not allowed_libraries:
             raise HTTPForbidden('The user {} is not allowed to access any libraries on this server'.format(request_data.username))
-        return dict(allowed_libraries), next(iterkeys(allowed_libraries))
+        return dict(allowed_libraries), next(iter(allowed_libraries))
 
     def restriction_for(self, request_data, db):
         return self.user_manager.library_restriction(request_data.username, path_for_db(db))

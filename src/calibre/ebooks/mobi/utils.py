@@ -14,7 +14,7 @@ from io import BytesIO
 from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
-from polyglot.builtins import iterkeys, unicode_type, range
+from polyglot.builtins import unicode_type, range
 from tinycss.color3 import parse_color_string
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
@@ -589,7 +589,7 @@ class CNCX(object):  # {{{
         offset = 0
         buf = BytesIO()
         RECORD_LIMIT = 0x10000 - 1024  # kindlegen appears to use 1024, PDB limit is 0x10000
-        for key in iterkeys(self.strings):
+        for key in self.strings:
             utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
             l = len(utf8)
             sz_bytes = encint(l)

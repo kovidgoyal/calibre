@@ -14,7 +14,7 @@ from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins, preferred_encoding
 from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
-from polyglot.builtins import iterkeys, unicode_type
+from polyglot.builtins import unicode_type
 
 _utc_tz = utc_tz
 _local_tz = local_tz
@@ -478,7 +478,7 @@ def replace_months(datestr, clang):
     else:
         return datestr
 
-    for k in iterkeys(dictoen):
+    for k in dictoen:
         tmp = re.sub(k, dictoen[k], datestr)
         if tmp != datestr:
             break

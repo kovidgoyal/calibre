@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time, threading, traceback
 from functools import wraps, partial
-from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip
 from itertools import chain
 
 from calibre import as_unicode, prints, force_unicode
@@ -107,7 +107,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
         # Get device data for detected devices. If there is an error, we will
         # try again for that device the next time this method is called.
-        for dev in tuple(iterkeys(self.detected_devices)):
+        for dev in tuple(self.detected_devices):
             data = self.detected_devices.get(dev, None)
             if data is None or data is False:
                 try:

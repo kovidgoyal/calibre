@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-from polyglot.builtins import iterkeys, itervalues, range
+from polyglot.builtins import itervalues, range
 
 NBSP = '\xa0'
 
@@ -54,7 +54,7 @@ def merge_run(run):
 def liftable(css):
     # A <span> is liftable if all its styling would work just as well if it is
     # specified on the parent element.
-    prefixes = {x.partition('-')[0] for x in iterkeys(css)}
+    prefixes = {x.partition('-')[0] for x in css}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
 

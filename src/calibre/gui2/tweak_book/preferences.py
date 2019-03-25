@@ -10,7 +10,7 @@ import numbers
 from operator import attrgetter, methodcaller
 from collections import namedtuple
 from polyglot.builtins import (
-        iteritems, iterkeys, itervalues, map, unicode_type, range)
+        iteritems, itervalues, map, unicode_type, range)
 from itertools import product
 from copy import copy, deepcopy
 
@@ -594,7 +594,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.l = l = QVBoxLayout(self)
 
         self.syntaxes = s = QComboBox(self)
-        s.addItems(sorted(iterkeys(DEFAULT_TEMPLATES)))
+        s.addItems(sorted(DEFAULT_TEMPLATES))
         s.setCurrentIndex(s.findText('html'))
         h = QHBoxLayout()
         l.addLayout(h)

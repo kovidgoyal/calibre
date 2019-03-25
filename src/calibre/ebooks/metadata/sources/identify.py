@@ -27,7 +27,7 @@ from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter
-from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 # Download worker {{{
 
@@ -439,7 +439,7 @@ def identify(log, abort,  # {{{
         pass
 
     sort_kwargs = dict(kwargs)
-    for k in list(iterkeys(sort_kwargs)):
+    for k in list(sort_kwargs):
         if k not in ('title', 'authors', 'identifiers'):
             sort_kwargs.pop(k)
 

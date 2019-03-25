@@ -217,7 +217,7 @@ def print_stats(old_stats, new_stats):
     prints('='*80)
     old_total = sum(old_stats.itervalues())
     new_total = sum(new_stats.itervalues())
-    tables = sorted(old_stats.iterkeys(), key=lambda x:old_stats[x],
+    tables = sorted(old_stats, key=lambda x:old_stats[x],
             reverse=True)
     for table in tables:
         osz = old_stats[table]

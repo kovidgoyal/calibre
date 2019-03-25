@@ -91,7 +91,7 @@ class GoogleImages(Source):
                 continue
             if 'ou' in data:
                 ans[data['ou']] = True
-        return list(ans.iterkeys())
+        return list(ans)
 
 
 def test():

@@ -17,7 +17,7 @@ from lxml import etree
 
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iterkeys, unicode_type
+from polyglot.builtins import unicode_type
 
 Group = namedtuple('Group', 'title feeds')
 
@@ -49,7 +49,7 @@ def import_opml(raw, preserve_groups=True):
                         break
         groups[parent].append((title, url))
 
-    for title in sorted(iterkeys(groups), key=sort_key):
+    for title in sorted(groups, key=sort_key):
         yield Group(title, uniq(groups[title], kmap=itemgetter(1)))
 
 

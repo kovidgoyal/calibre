@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes
 from itertools import cycle
 
 from calibre import force_unicode
@@ -83,7 +83,7 @@ def book_to_json(ctx, rd, db, book_id,
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in iterkeys(mi.format_metadata))
+        fmts = set(x.lower() for x in mi.format_metadata)
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:

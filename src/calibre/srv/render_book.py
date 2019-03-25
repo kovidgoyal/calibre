@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.polish.toc import get_toc, get_landmarks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.logging import default_log
-from polyglot.builtins import iteritems, iterkeys, map, unicode_type
+from polyglot.builtins import iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -416,7 +416,7 @@ def map_epub_type(epub_type, attribs, elem):
         roles = OrderedDict([(k, True) for k in role.split()]) if role else OrderedDict()
         if val not in roles:
             roles[val] = True
-        role = ' '.join(iterkeys(roles))
+        role = ' '.join(roles)
         if in_attribs is None:
             attribs.append(['role', role])
         else:

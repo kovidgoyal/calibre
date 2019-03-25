@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, iterkeys, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -674,7 +674,7 @@ class CSSFlattener(object):
             self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
         items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x:numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
-        psels = sorted(iterkeys(pseudo_styles), key=lambda x :
+        psels = sorted(pseudo_styles, key=lambda x :
                 {'hover':1, 'active':2}.get(x, 0))
         for psel in psels:
             styles = pseudo_styles[psel]

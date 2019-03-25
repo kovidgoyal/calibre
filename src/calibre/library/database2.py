@@ -47,7 +47,7 @@ from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.db.categories import Tag, CATEGORY_SORTS
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
-from polyglot.builtins import iteritems, iterkeys, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
@@ -1798,7 +1798,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # First, build the maps. We need a category->items map and an
         # item -> (item_id, sort_val) map to use in the books loop
-        for category in iterkeys(tb_cats):
+        for category in tb_cats:
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
                     or category in ['news', 'formats'] or cat.get('is_csp',
@@ -1854,7 +1854,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             md.append((category, cat['rec_index'],
                        cat['is_multiple'].get('cache_to_list', None), False))
 
-        for category in iterkeys(tb_cats):
+        for category in tb_cats:
             cat = tb_cats[category]
             if cat['datatype'] == 'composite' and \
                                 cat['display'].get('make_category', False):
@@ -1959,7 +1959,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # and building the Tag instances.
         categories = {}
         tag_class = Tag
-        for category in iterkeys(tb_cats):
+        for category in tb_cats:
             if category not in tcategories:
                 continue
             cat = tb_cats[category]
@@ -2373,7 +2373,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_identifiers(id, identifiers, notify=False, commit=False)
 
         user_mi = mi.get_all_user_metadata(make_copy=False)
-        for key in iterkeys(user_mi):
+        for key in user_mi:
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype'] and \
                     (user_mi[key]['datatype'] != 'text' or

@@ -13,7 +13,7 @@ from threading import Lock
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
         isnetbsd)
-from polyglot.builtins import iterkeys, range
+from polyglot.builtins import range
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
@@ -77,7 +77,7 @@ class LibUSBScanner(object):
             dev = USBDevice(*dev)
             dev.busnum, dev.devnum = fingerprint[:2]
             ans.add(dev)
-        extra = set(iterkeys(self.libusb.cache)) - seen
+        extra = set(self.libusb.cache) - seen
         for x in extra:
             self.libusb.cache.pop(x, None)
         return ans

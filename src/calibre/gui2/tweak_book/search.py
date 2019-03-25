@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-from polyglot.builtins import iteritems, iterkeys, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 
 # The search panel {{{
@@ -1220,7 +1220,7 @@ class SavedSearches(QWidget):
                 return err()
             searches = []
             for item in obj['searches']:
-                if not isinstance(item, dict) or not set(iterkeys(item)).issuperset(needed_keys):
+                if not isinstance(item, dict) or not set(item).issuperset(needed_keys):
                     return err
                 searches.append({k:item[k] for k in needed_keys})
 

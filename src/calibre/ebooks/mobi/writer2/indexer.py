@@ -14,7 +14,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
-from polyglot.builtins import filter, iteritems, iterkeys, itervalues, map, range
+from polyglot.builtins import filter, iteritems, itervalues, map, range
 
 
 class CNCX(CNCX_):  # {{{
@@ -317,7 +317,7 @@ class TBS(object):  # {{{
             if first_node is not None and first_node.depth > 0:
                 parent_section_index = (first_node.index if first_node.depth == 1 else first_node.parent_index)
             else:
-                parent_section_index = max(iterkeys(self.section_map))
+                parent_section_index = max(iter(self.section_map))
 
         else:
             # Non terminal record

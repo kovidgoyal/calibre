@@ -19,7 +19,7 @@ from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
-from polyglot.builtins import iteritems, iterkeys, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -445,7 +445,7 @@ class SavedSearchQueries(object):  # {{{
             db._set_pref(self.opt_name, smap)
 
     def names(self):
-        return sorted(iterkeys(self.queries), key=sort_key)
+        return sorted(self.queries, key=sort_key)
 # }}}
 
 

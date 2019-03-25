@@ -19,7 +19,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.localization import calibre_langcode_to_name
-from polyglot.builtins import iteritems, iterkeys
+from polyglot.builtins import iteritems
 
 
 def bool_sort_key(bools_are_tristate):
@@ -184,7 +184,7 @@ class OneToOneField(Field):
         return {item_id}
 
     def __iter__(self):
-        return iterkeys(self.table.book_col_map)
+        return iter(self.table.book_col_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         bcmg = self.table.book_col_map.get
@@ -456,7 +456,7 @@ class ManyToOneField(Field):
         return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
-        return iterkeys(self.table.id_map)
+        return iter(self.table.id_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
@@ -507,7 +507,7 @@ class ManyToManyField(Field):
         return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
-        return iterkeys(self.table.id_map)
+        return iter(self.table.id_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
@@ -561,7 +561,7 @@ class IdentifiersField(ManyToManyField):
         'Sort by identifier keys'
         bcmg = self.table.book_col_map.get
         dv = {self._default_sort_key:None}
-        return lambda book_id: tuple(sorted(iterkeys(bcmg(book_id, dv))))
+        return lambda book_id: tuple(sorted(bcmg(book_id, dv)))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=()):
         bcm = self.table.book_col_map

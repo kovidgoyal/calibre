@@ -20,7 +20,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
-from polyglot.builtins import (iteritems, iterkeys, itervalues, map,
+from polyglot.builtins import (iteritems, itervalues, map,
         unicode_type, string_or_bytes, zip)
 
 
@@ -918,7 +918,7 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(zip(iterkeys(id_dict), map(unicode_type,
+            self.marked_ids_dict = dict(zip(iter(id_dict), map(unicode_type,
                 itervalues(id_dict))))
 
         # Set the values in the cache

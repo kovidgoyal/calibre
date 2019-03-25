@@ -8,6 +8,11 @@ import sys
 
 is_py3 = sys.version_info.major >= 3
 
+
+def iterkeys(d):
+    return iter(d)
+
+
 if is_py3:
     def reraise(tp, value, tb=None):
         try:
@@ -38,9 +43,6 @@ if is_py3:
     def itervalues(d):
         return iter(d.values())
 
-    def iterkeys(d):
-        return iter(d)
-
     def environ_item(x):
         if isinstance(x, bytes):
             x = x.decode('utf-8')
@@ -64,9 +66,6 @@ else:
 
     def iteritems(d):
         return d.iteritems()
-
-    def iterkeys(d):
-        return d.iterkeys()
 
     def itervalues(d):
         return d.itervalues()

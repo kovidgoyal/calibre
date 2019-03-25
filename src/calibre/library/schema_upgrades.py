@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.utils.date import isoformat, DEFAULT_DATE
-from polyglot.builtins import iterkeys, itervalues, unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 class SchemaUpgrade(object):
@@ -590,7 +590,7 @@ class SchemaUpgrade(object):
                     custom_recipe_filename
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, iterkeys(custom_recipes)))
+                existing = frozenset(map(int, custom_recipes))
                 if id_ in existing:
                     id_ = max(existing) + 1000
                 id_ = str(id_)

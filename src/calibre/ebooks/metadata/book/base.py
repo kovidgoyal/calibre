@@ -14,7 +14,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, iterkeys, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -137,7 +137,7 @@ class Metadata(object):
             return object.__getattribute__(self, field)
         except AttributeError:
             pass
-        if field in iterkeys(_data['user_metadata']):
+        if field in _data['user_metadata']:
             d = _data['user_metadata'][field]
             val = d['#value#']
             if d['datatype'] != 'composite':
@@ -180,7 +180,7 @@ class Metadata(object):
             if val and val.lower() != 'und':
                 langs = [val]
             _data['languages'] = langs
-        elif field in iterkeys(_data['user_metadata']):
+        elif field in _data['user_metadata']:
             _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
         else:
@@ -190,7 +190,7 @@ class Metadata(object):
             self.__dict__[field] = val
 
     def __iter__(self):
-        return iterkeys(object.__getattribute__(self, '_data'))
+        return iter(object.__getattribute__(self, '_data'))
 
     def has_key(self, key):
         return key in object.__getattribute__(self, '_data')
@@ -219,7 +219,7 @@ class Metadata(object):
 
     def get_extra(self, field, default=None):
         _data = object.__getattribute__(self, '_data')
-        if field in iterkeys(_data['user_metadata']):
+        if field in _data['user_metadata']:
             try:
                 return _data['user_metadata'][field]['#extra#']
             except:
@@ -287,14 +287,14 @@ class Metadata(object):
         '''
         return a list of the custom fields in this book
         '''
-        return iterkeys(object.__getattribute__(self, '_data')['user_metadata'])
+        return iter(object.__getattribute__(self, '_data')['user_metadata'])
 
     def all_field_keys(self):
         '''
         All field keys known by this instance, even if their value is None
         '''
         _data = object.__getattribute__(self, '_data')
-        return frozenset(ALL_METADATA_FIELDS.union(iterkeys(_data['user_metadata'])))
+        return frozenset(ALL_METADATA_FIELDS.union(frozenset(_data['user_metadata'])))
 
     def metadata_for_field(self, key):
         '''
@@ -320,7 +320,7 @@ class Metadata(object):
             v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
-        for attr in iterkeys(_data['user_metadata']):
+        for attr in _data['user_metadata']:
             v = self.get(attr, None)
             if v is not None:
                 result[attr] = v

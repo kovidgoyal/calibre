@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.polish.jacket import (
     replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.ebooks.oeb.polish.css import remove_unused_css
 from calibre.utils.logging import Log
-from polyglot.builtins import iteritems, iterkeys
+from polyglot.builtins import iteritems
 
 ALL_OPTS = {
     'embed': False,
@@ -264,7 +264,7 @@ def gui_polish(data):
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)
-    O = namedtuple('Options', ' '.join(iterkeys(ALL_OPTS)))
+    O = namedtuple('Options', ' '.join(ALL_OPTS))
     opts = O(**opts)
     log = Log(level=Log.DEBUG)
     report = []
@@ -279,7 +279,7 @@ def gui_polish(data):
 def tweak_polish(container, actions, customization=None):
     opts = ALL_OPTS.copy()
     opts.update(actions)
-    O = namedtuple('Options', ' '.join(iterkeys(ALL_OPTS)))
+    O = namedtuple('Options', ' '.join(ALL_OPTS))
     opts = O(**opts)
     report = []
     changed = polish_one(container, opts, report.append, customization=customization)
@@ -335,7 +335,7 @@ def main(args=None):
     for k, v in iteritems(popts):
         popts[k] = getattr(opts, k, None)
 
-    O = namedtuple('Options', ' '.join(iterkeys(popts)))
+    O = namedtuple('Options', ' '.join(popts))
     popts = O(**popts)
     report = []
     if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):

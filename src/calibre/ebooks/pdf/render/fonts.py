@@ -11,7 +11,7 @@ import re
 from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from polyglot.builtins import iteritems, iterkeys, map, zip
+from polyglot.builtins import iteritems, map, zip
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
@@ -204,7 +204,7 @@ class Font(object):
         widths = {g:w for g, w in iteritems(widths) if w != most_common}
 
         groups = Array()
-        for k, g in groupby(enumerate(iterkeys(widths)), lambda i_x:i_x[0]-i_x[1]):
+        for k, g in groupby(enumerate(widths), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(itemgetter(1), g))
             gwidths = [widths[g] for g in group]
             if len(set(gwidths)) == 1 and len(group) > 1:

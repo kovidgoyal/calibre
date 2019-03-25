@@ -14,7 +14,7 @@ from operator import itemgetter
 
 from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, iterkeys, range
+from polyglot.builtins import iteritems, range
 
 # Utils {{{
 
@@ -316,9 +316,9 @@ class LegacyTest(BaseTest):
         db = self.init_old()
         cache = ndb.new_api
         tmap = cache.get_id_map('tags')
-        t = next(iterkeys(tmap))
+        t = next(iter(tmap))
         pmap = cache.get_id_map('publisher')
-        p = next(iterkeys(pmap))
+        p = next(iter(pmap))
         run_funcs(self, db, ndb, (
             ('delete_tag_using_id', t),
             ('delete_publisher_using_id', p),

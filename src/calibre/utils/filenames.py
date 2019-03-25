@@ -14,7 +14,7 @@ from calibre.constants import (
     filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
 )
 from calibre.utils.localization import get_udc
-from polyglot.builtins import iteritems, iterkeys, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range
 
 
 def ascii_text(orig):
@@ -467,7 +467,7 @@ class WindowsAtomicFolderMove(object):
 
     def delete_originals(self):
         import win32file
-        for path in iterkeys(self.handle_map):
+        for path in self.handle_map:
             win32file.DeleteFile(path)
         self.close_handles()
 

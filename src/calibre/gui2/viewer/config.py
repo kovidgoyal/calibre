@@ -22,7 +22,7 @@ from calibre.gui2 import min_available_height, error_dialog
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-from polyglot.builtins import iteritems, iterkeys, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def config(defaults=None):
@@ -213,7 +213,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('load', 'delete'):
             m = getattr(self, '%s_theme_button'%x).menu()
             m.clear()
-            for x in iterkeys(self.themes):
+            for x in self.themes:
                 title = x[len('theme_'):]
                 ac = m.addAction(title)
                 ac.theme_id = x

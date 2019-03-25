@@ -24,7 +24,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import iterkeys, range, zip
+from polyglot.builtins import range, zip
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
@@ -134,7 +134,7 @@ class Mobi8Reader(object):
             File = namedtuple('File',
                 'file_number name divtbl_count start_position length')
 
-            for i, text in enumerate(iterkeys(table)):
+            for i, text in enumerate(table):
                 tag_map = table[text]
                 self.files.append(File(i, text, tag_map[1][0],
                     tag_map[6][0], tag_map[6][1]))
@@ -143,7 +143,7 @@ class Mobi8Reader(object):
         if self.header.dividx != NULL_INDEX:
             table, cncx = read_index(self.kf8_sections, self.header.dividx,
                     self.header.codec)
-            for i, text in enumerate(iterkeys(table)):
+            for i, text in enumerate(table):
                 tag_map = table[text]
                 toc_text = cncx[tag_map[2][0]]
                 self.elems.append(Elem(int(text), toc_text, tag_map[3][0],
@@ -156,7 +156,7 @@ class Mobi8Reader(object):
             Item = namedtuple('Item',
                 'type title pos_fid')
 
-            for i, ref_type in enumerate(iterkeys(table)):
+            for i, ref_type in enumerate(table):
                 tag_map = table[ref_type]
                 # ref_type, ref_title, div/frag number
                 title = cncx[tag_map[1][0]]

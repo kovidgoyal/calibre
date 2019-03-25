@@ -16,7 +16,7 @@ from collections import OrderedDict
 from calibre.utils.fonts.utils import read_bmp_prefix
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import iterkeys, range
+from polyglot.builtins import range
 
 
 def split_range(start_code, end_code, cmap):  # {{{
@@ -229,7 +229,7 @@ class CmapTable(UnknownTable):
     def set_character_map(self, cmap):
         self.version, self.num_tables = 0, 1
         fmt = b'>7H'
-        codes = sorted(iterkeys(cmap))
+        codes = sorted(cmap)
 
         if not codes:
             start_code = [0xffff]

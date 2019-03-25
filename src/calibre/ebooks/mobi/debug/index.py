@@ -15,7 +15,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import (CNCX, parse_indx_header,
         parse_tagx_section, parse_index_record, INDEX_HEADER_FIELDS)
 from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
-from polyglot.builtins import iteritems, iterkeys, range
+from polyglot.builtins import iteritems, range
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
@@ -140,11 +140,11 @@ class SKELIndex(Index):
         self.records = []
 
         if self.table is not None:
-            for i, text in enumerate(iterkeys(self.table)):
+            for i, text in enumerate(self.table):
                 tag_map = self.table[text]
-                if set(iterkeys(tag_map)) != {1, 6}:
+                if set(tag_map) != {1, 6}:
                     raise ValueError('SKEL Index has unknown tags: %s'%
-                            (set(iterkeys(tag_map))-{1,6}))
+                            (set(tag_map)-{1,6}))
                 self.records.append(File(
                     i,  # file_number
                     text,  # name
@@ -161,11 +161,11 @@ class SECTIndex(Index):
         self.records = []
 
         if self.table is not None:
-            for i, text in enumerate(iterkeys(self.table)):
+            for i, text in enumerate(self.table):
                 tag_map = self.table[text]
-                if set(iterkeys(tag_map)) != {2, 3, 4, 6}:
+                if set(tag_map) != {2, 3, 4, 6}:
                     raise ValueError('Chunk Index has unknown tags: %s'%
-                            (set(iterkeys(tag_map))-{2, 3, 4, 6}))
+                            (set(tag_map)-{2, 3, 4, 6}))
 
                 toc_text = self.cncx[tag_map[2][0]]
                 self.records.append(Elem(
@@ -186,9 +186,9 @@ class GuideIndex(Index):
         self.records = []
 
         if self.table is not None:
-            for i, text in enumerate(iterkeys(self.table)):
+            for i, text in enumerate(self.table):
                 tag_map = self.table[text]
-                if set(iterkeys(tag_map)) not in ({1, 6}, {1, 2, 3}):
+                if set(tag_map) not in ({1, 6}, {1, 2, 3}):
                     raise ValueError('Guide Index has unknown tags: %s'%
                             tag_map)
 
@@ -217,7 +217,7 @@ class NCXIndex(Index):
                 entry['name'] = text
                 entry['num'] = num
 
-                for tag in iterkeys(tag_fieldname_map):
+                for tag in tag_fieldname_map:
                     fieldname, i = tag_fieldname_map[tag]
                     if tag in tag_map:
                         fieldvalue = tag_map[tag][i]

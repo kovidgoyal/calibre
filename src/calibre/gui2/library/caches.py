@@ -12,7 +12,7 @@ from collections import OrderedDict
 from PyQt5.Qt import QImage, QPixmap
 
 from calibre.db.utils import ThumbnailCache as TC
-from polyglot.builtins import interkeys, itervalues
+from polyglot.builtins import itervalues
 
 
 class ThumbnailCache(TC):
@@ -68,7 +68,7 @@ class CoverCache(dict):
             self._pop(key)  # pop() so that item is moved to the top
             self.items[key] = val
             if len(self.items) > self.limit:
-                del self.items[next(iterkeys(self.items))]
+                del self.items[next(iter(self.items))]
 
     def clear(self):
         with self.lock:
@@ -85,6 +85,6 @@ class CoverCache(dict):
             self.limit = limit
             if len(self.items) > self.limit:
                 extra = len(self.items) - self.limit
-                remove = tuple(iterkeys(self))[:extra]
+                remove = tuple(self)[:extra]
                 for k in remove:
                     self._pop(k)

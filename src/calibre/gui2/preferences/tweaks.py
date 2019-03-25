@@ -19,7 +19,7 @@ from calibre import isbytestring
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
-from polyglot.builtins import iteritems, iterkeys, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QStyledItemDelegate, QStyle, QStyleOptionViewItem,
@@ -188,8 +188,8 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             pos += 1
 
         self.tweaks.sort()
-        default_keys = set(iterkeys(dl))
-        custom_keys = set(iterkeys(l))
+        default_keys = set(dl)
+        custom_keys = set(l)
 
         self.plugin_tweaks = {}
         for key in custom_keys - default_keys:

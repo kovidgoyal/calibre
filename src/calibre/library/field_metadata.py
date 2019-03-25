@@ -7,7 +7,7 @@ import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import iteritems, iterkeys, itervalues
+from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -509,7 +509,7 @@ class FieldMetadata(object):
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
-        return [k for k in iterkeys(self._tb_cats) if self.is_ignorable_field(k)]
+        return [k for k in self._tb_cats if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
         try:

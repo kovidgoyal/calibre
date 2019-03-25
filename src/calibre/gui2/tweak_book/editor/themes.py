@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
-from polyglot.builtins import iteritems, iterkeys, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -310,11 +310,11 @@ def theme_format(theme, name):
 
 
 def custom_theme_names():
-    return tuple(iterkeys(tprefs['custom_themes']))
+    return tuple(tprefs['custom_themes'])
 
 
 def builtin_theme_names():
-    return tuple(iterkeys(THEMES))
+    return tuple(THEMES)
 
 
 def all_theme_names():
@@ -612,8 +612,8 @@ class ThemeEditor(Dialog):
 
     def update_theme(self, name):
         data = tprefs['custom_themes'][name]
-        extra = set(iterkeys(data)) - set(iterkeys(THEMES[default_theme()]))
-        missing = set(iterkeys(THEMES[default_theme()])) - set(iterkeys(data))
+        extra = set(data) - set(THEMES[default_theme()])
+        missing = set(THEMES[default_theme()]) - set(data)
         for k in extra:
             data.pop(k)
         for k in missing:

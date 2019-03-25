@@ -13,7 +13,7 @@ from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
-from polyglot.builtins import iteritems, iterkeys
+from polyglot.builtins import iteritems
 
 tag_fieldname_map = {
         1:  ['pos',0],
@@ -63,7 +63,7 @@ def read_ncx(sections, index, codec):
             entry['name'] = text
             entry['num'] = num
 
-            for tag in iterkeys(tag_fieldname_map):
+            for tag in tag_fieldname_map:
                 fieldname, i = tag_fieldname_map[tag]
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]

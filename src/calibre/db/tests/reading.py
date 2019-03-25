@@ -13,7 +13,7 @@ from time import time
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, iterkeys, itervalues, range
+from polyglot.builtins import iteritems, itervalues, range
 
 
 class ReadingTest(BaseTest):
@@ -439,7 +439,7 @@ class ReadingTest(BaseTest):
         'Test getting the author sort for authors from the db'
         cache = self.init_cache()
         table = cache.fields['authors'].table
-        table.set_sort_names({next(iterkeys(table.id_map)): 'Fake Sort'}, cache.backend)
+        table.set_sort_names({next(iter(table.id_map)): 'Fake Sort'}, cache.backend)
 
         authors = tuple(itervalues(table.id_map))
         nval = cache.author_sort_from_authors(authors)

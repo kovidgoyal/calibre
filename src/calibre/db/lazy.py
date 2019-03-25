@@ -15,7 +15,7 @@ from copy import deepcopy
 from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
-from polyglot.builtins import iterkeys, unicode_type
+from polyglot.builtins import unicode_type
 
 # Lazy format metadata retrieval {{{
 '''
@@ -393,7 +393,7 @@ class ProxyMetadata(Metadata):
 
     def all_field_keys(self):
         um = ga(self, '_user_metadata')
-        return frozenset(ALL_METADATA_FIELDS.union(iterkeys(um)))
+        return frozenset(ALL_METADATA_FIELDS.union(frozenset(um)))
 
     @property
     def _proxy_metadata(self):

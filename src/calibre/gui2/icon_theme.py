@@ -36,7 +36,7 @@ from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
 from polyglot.queue import Queue, Empty
-from polyglot.builtins import iteritems, iterkeys, map, range, reraise
+from polyglot.builtins import iteritems, map, range, reraise
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
@@ -362,7 +362,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple(filter(None, pool.map(optimize, tuple(iterkeys(report.name_map)))))
+    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map))))
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return

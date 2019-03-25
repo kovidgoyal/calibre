@@ -14,7 +14,7 @@ from binascii import hexlify
 
 from calibre.constants import plugins, ispy3
 from calibre.utils.logging import default_log
-from polyglot.builtins import iteritems, iterkeys, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 pdf_float = plugins['speedup'][0].pdf_float
 
@@ -146,7 +146,7 @@ class Dictionary(dict):
 
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
-        sorted_keys = sorted(iterkeys(self),
+        sorted_keys = sorted(self,
                              key=lambda x:({'Type':'1', 'Subtype':'2'}.get(
                                  x, x)+x))
         for k in sorted_keys:

@@ -16,8 +16,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
-from polyglot.builtins import iteritems, iterkeys
-i
+from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -249,7 +248,7 @@ class Restore(Thread):
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
-        for author in iterkeys(self.authors_links):
+        for author in self.authors_links:
             link, ign = self.authors_links[author]
             db.conn.execute('UPDATE authors SET link=? WHERE name=?',
                             (link, author.replace(',', '|')))

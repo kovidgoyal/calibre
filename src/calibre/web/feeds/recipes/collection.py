@@ -18,7 +18,7 @@ from calibre.constants import numeric_version
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
-from polyglot.builtins import iteritems, iterkeys, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -164,7 +164,7 @@ def add_custom_recipes(script_map):
     from calibre.web.feeds.recipes import custom_recipes, \
             custom_recipe_filename
     id_ = 1000
-    keys = tuple(map(int, iterkeys(custom_recipes)))
+    keys = tuple(map(int, custom_recipes))
     if keys:
         id_ = max(keys)+1
     bdir = os.path.dirname(custom_recipes.file_path)
