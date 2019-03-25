@@ -652,7 +652,7 @@ class LrfWriter(object):
         return self.sourceEncoding
 
     def toUnicode(self, string):
-        if isinstance(string, str):
+        if isinstance(string, bytes):
             string = string.decode(self.sourceEncoding)
 
         return string
