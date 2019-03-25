@@ -9,7 +9,7 @@ __docformat__ = "restructuredtext en"
 
 import os, time, traceback, re, sys, io
 from collections import defaultdict
-from contextlib import nested, closing
+from contextlib import closing
 
 
 from calibre import (browser, __appname__, iswindows, force_unicode,
@@ -1097,7 +1097,7 @@ class BasicNewsRecipe(Recipe):
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            with nested(open(img, 'wb'), closing(self.browser.open(feed.image_url))) as (fi, r):
+                            with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url)) as r:
                                 fi.write(r.read())
                             self.image_counter += 1
                             feed.image_url = img
@@ -1346,7 +1346,7 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
         else:
-            with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
+            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu)) as r:
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
         self.prepare_masthead_image(mpath, outfile)
@@ -1564,7 +1564,7 @@ class BasicNewsRecipe(Recipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)
 
     def article_downloaded(self, request, result):
