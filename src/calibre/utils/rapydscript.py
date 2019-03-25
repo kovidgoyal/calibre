@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import itervalues, range
+from polyglot.builtins import itervalues, range, exec_path
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -203,8 +203,7 @@ def compile_srv():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
-    with open(iconf, 'rb') as f:
-        exec(compile(f.read(), iconf, 'exec'), g)
+    exec_path(iconf, g)
     icons = g['merge']().encode('utf-8')
     with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read()

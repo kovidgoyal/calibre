@@ -47,6 +47,14 @@ if is_py3:
         if isinstance(x, bytes):
             x = x.decode('utf-8')
         return x
+
+    def exec_path(path, ctx=None):
+        ctx = ctx or {}
+        with open(path, 'rb') as f:
+            code = f.read()
+        code = compile(code, f.name, 'exec')
+        exec(code, ctx)
+
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -63,6 +71,7 @@ else:
     unicode_type = unicode
     string_or_bytes = unicode, bytes
     long_type = long
+    exec_path = execfile
 
     def iteritems(d):
         return d.iteritems()

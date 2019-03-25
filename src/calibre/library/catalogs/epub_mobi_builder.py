@@ -42,7 +42,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import unicode_type, iteritems
+from polyglot.builtins import unicode_type, iteritems, exec_path
 
 NBSP = u'\u00a0'
 
@@ -4616,9 +4616,7 @@ class CatalogBuilder(object):
         """
 
         templates = {}
-        ef = P('catalog/section_list_templates.py')
-        with open(ef, 'rb') as f:
-            exec(compile(f.read(), ef, 'exec'), templates)
+        exec_path(P('catalog/section_list_templates.py'), templates)
         for name, template in iteritems(templates):
             if name.startswith('by_') and name.endswith('_template'):
                 setattr(self, name, force_unicode(template, 'utf-8'))
