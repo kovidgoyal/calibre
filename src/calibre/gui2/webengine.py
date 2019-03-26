@@ -12,6 +12,7 @@ from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngin
 from calibre import prints
 from calibre.utils.monotonic import monotonic
 from calibre.utils.rapydscript import special_title
+from polyglot.builtins import iteritems
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):
@@ -77,10 +78,10 @@ class Bridge(QObject):
 
     def __init__(self, page):
         QObject.__init__(self, page)
-        self._signals = json.dumps(tuple({k for k, v in self.__class__.__dict__.iteritems() if isinstance(v, pyqtSignal)}))
+        self._signals = json.dumps(tuple({k for k, v in iteritems(self.__class__.__dict__) if isinstance(v, pyqtSignal)}))
         self._signals_registered = False
         page.titleChanged.connect(self._title_changed)
-        for k, v in self.__class__.__dict__.iteritems():
+        for k, v in iteritems(self.__class__.__dict__):
             if isinstance(v, to_js):
                 v.name = k
 
@@ -98,7 +99,7 @@ class Bridge(QObject):
 
     def _register_signals(self):
         self._signals_registered = True
-        for k, v in self.__class__.__dict__.iteritems():
+        for k, v in iteritems(self.__class__.__dict__):
             if isinstance(v, to_js):
                 setattr(self, k, to_js_bound(self, k))
         self.page.runJavaScript('python_comm._register_signals(' + self._signals + ')', QWebEngineScript.ApplicationWorld)

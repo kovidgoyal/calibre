@@ -37,7 +37,7 @@ from calibre.gui2.webengine import (
 )
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
 
@@ -206,7 +206,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def check_for_parse(self):
         remove = []
-        for name, requests in self.requests.iteritems():
+        for name, requests in iteritems(self.requests):
             data = parse_worker.get_data(name)
             if data is not None:
                 if not isinstance(data, bytes):

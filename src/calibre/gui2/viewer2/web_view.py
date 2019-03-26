@@ -25,6 +25,7 @@ from calibre.gui2.webengine import (
     secure_webengine, to_js
 )
 from calibre.utils.config import JSONConfig
+from polyglot.builtins import iteritems
 
 try:
     from PyQt5 import sip
@@ -301,7 +302,7 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        for func, args in self.pending_bridge_ready_actions.iteritems():
+        for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
     def start_book_load(self):
