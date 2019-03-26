@@ -9,7 +9,7 @@ from functools import partial
 
 from calibre import prints
 from calibre.constants import preferred_encoding
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, raw_input
 
 # Manage users CLI {{{
 
@@ -21,7 +21,10 @@ def manage_users_cli(path=None):
 
     def get_input(prompt):
         prints(prompt, end=' ')
-        return raw_input().decode(enc)
+        ans = raw_input()
+        if isinstance(ans, bytes):
+            ans = ans.decode(enc)
+        return ans
 
     def choice(
         question=_('What do you want to do?'), choices=(), default=None, banner=''):

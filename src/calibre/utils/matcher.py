@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip, raw_input
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -335,13 +335,20 @@ else:
         return string[pos:pos + chs]
 
 
+def input_unicode(prompt):
+    ans = raw_input(prompt)
+    if isinstance(ans, bytes):
+        ans = ans.decode(sys.stdin.encoding)
+    return ans
+
+
 def main(basedir=None, query=None):
     from calibre import prints
     from calibre.utils.terminal import ColoredStream
     if basedir is None:
         try:
-            basedir = raw_input('Enter directory to scan [%s]: ' % os.getcwdu()
-                                ).decode(sys.stdin.encoding).strip() or os.getcwdu()
+            basedir = input_unicode('Enter directory to scan [%s]: ' % os.getcwdu()
+                                ).strip() or os.getcwdu()
         except (EOFError, KeyboardInterrupt):
             return
     m = FilesystemMatcher(basedir)
@@ -349,7 +356,7 @@ def main(basedir=None, query=None):
     while True:
         if query is None:
             try:
-                query = raw_input('Enter query: ').decode(sys.stdin.encoding)
+                query = input_unicode('Enter query: ')
             except (EOFError, KeyboardInterrupt):
                 break
             if not query:

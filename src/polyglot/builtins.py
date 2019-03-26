@@ -36,6 +36,7 @@ if is_py3:
     unicode_type = str
     string_or_bytes = str, bytes
     long_type = int
+    raw_input = input
 
     def iteritems(d):
         return iter(d.items())
@@ -72,6 +73,7 @@ else:
     string_or_bytes = unicode, bytes
     long_type = long
     exec_path = execfile
+    raw_input = builtins['raw_input']
 
     def iteritems(d):
         return d.iteritems()

@@ -11,6 +11,7 @@
 #                                                                       #
 #########################################################################
 import sys, os
+from polyglot.builtins import raw_input
 # , codecs
 
 

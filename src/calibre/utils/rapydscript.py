@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import itervalues, range, exec_path
+from polyglot.builtins import itervalues, range, exec_path, raw_input
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'

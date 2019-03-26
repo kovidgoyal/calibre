@@ -9,11 +9,11 @@ from binascii import hexlify
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows, filesystem_encoding
+from calibre.constants import config_dir, iswindows
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, raw_input
 
 
 # Export {{{
@@ -386,6 +386,13 @@ def cli_report(*args, **kw):
         pass
 
 
+def input_unicode(prompt):
+    ans = raw_input(prompt)
+    if isinstance(ans, bytes):
+        ans = ans.decode(sys.stdin.encoding)
+    return ans
+
+
 def run_exporter(export_dir=None, args=None):
     if args:
         if len(args) < 2:
@@ -407,9 +414,8 @@ def run_exporter(export_dir=None, args=None):
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=libraries)
         return
 
-    export_dir = export_dir or raw_input(
-            'Enter path to an empty folder (all exported data will be saved inside it): ').decode(
-                    filesystem_encoding).rstrip('\r')
+    export_dir = export_dir or input_unicode(
+        'Enter path to an empty folder (all exported data will be saved inside it): ').rstrip('\r')
     if not os.path.exists(export_dir):
         os.makedirs(export_dir)
     if not os.path.isdir(export_dir):
@@ -418,7 +424,7 @@ def run_exporter(export_dir=None, args=None):
         raise SystemExit('%s is not empty' % export_dir)
     library_paths = {}
     for lpath, lus in iteritems(all_known_libraries()):
-        if raw_input('Export the library %s [y/n]: ' % lpath).strip().lower() == b'y':
+        if input_unicode('Export the library %s [y/n]: ' % lpath).strip().lower() == 'y':
             library_paths[lpath] = lus
     if library_paths:
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)
@@ -427,7 +433,7 @@ def run_exporter(export_dir=None, args=None):
 
 
 def run_importer():
-    export_dir = raw_input('Enter path to folder containing previously exported data: ').decode(filesystem_encoding).rstrip('\r')
+    export_dir = input_unicode('Enter path to folder containing previously exported data: ').rstrip('\r')
     if not os.path.isdir(export_dir):
         raise SystemExit('%s is not a folder' % export_dir)
     try:
@@ -435,7 +441,7 @@ def run_importer():
     except ValueError as err:
         raise SystemExit(err.message)
 
-    import_dir = raw_input('Enter path to an empty folder (all libraries will be created inside this folder): ').decode(filesystem_encoding).rstrip('\r')
+    import_dir = input_unicode('Enter path to an empty folder (all libraries will be created inside this folder): ').rstrip('\r')
     if not os.path.exists(import_dir):
         os.makedirs(import_dir)
     if not os.path.isdir(import_dir):

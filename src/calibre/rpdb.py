@@ -11,7 +11,7 @@ import pdb, socket, inspect, sys, select, os, atexit, time
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 from calibre.constants import cache_dir
-from polyglot.builtins import range
+from polyglot.builtins import range, raw_input
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -121,6 +121,8 @@ def cli(port=4444):
     p = pdb.Pdb()
     readline.set_completer(p.complete)
     readline.parse_and_bind("tab: complete")
+    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
     try:
         while True:
@@ -133,15 +135,19 @@ def cli(port=4444):
             recvd = recvd[:-len(PROMPT)]
             if recvd.startswith(QUESTION):
                 recvd = recvd[len(QUESTION):]
-                sys.stdout.write(recvd)
-                raw = sys.stdin.readline() or b'n'
+                stdout.write(recvd)
+                raw = stdin.readline() or b'n'
             else:
-                sys.stdout.write(recvd)
+                stdout.write(recvd)
                 raw = b''
                 try:
-                    raw = raw_input(PROMPT) + b'\n'
+                    raw = raw_input(PROMPT.decode('utf-8'))
                 except (EOFError, KeyboardInterrupt):
                     pass
+                else:
+                    if not isinstance(raw, bytes):
+                        raw = raw.encode('utf-8')
+                    raw += b'\n'
                 if not raw:
                     raw = b'quit\n'
             eintr_retry_call(sock.send, raw)

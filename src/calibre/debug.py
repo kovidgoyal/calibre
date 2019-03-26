@@ -11,7 +11,7 @@ import sys, os, functools
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
-from polyglot.builtins import exec_path
+from polyglot.builtins import exec_path, raw_input
 
 
 def get_debug_executable():
