@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import base64, subprocess, os, cookielib, time
+import base64, subprocess, os, time
 from collections import namedtuple
 try:
     from distutils.spawn import find_executable
@@ -19,6 +19,7 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
 from polyglot.builtins import iteritems, itervalues
 from polyglot import http_client
+from polyglot.http_cookie import CookieJar
 from polyglot.urllib import (build_opener, HTTPBasicAuthHandler,
         HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError)
 
@@ -283,7 +284,7 @@ class TestAuth(BaseTest):
             auth_handler = HTTPDigestAuthHandler()
             url = 'http://localhost:%d%s' % (server.address[1], '/android')
             auth_handler.add_password(realm=REALM, uri=url, user='testuser', passwd='testpw')
-            cj = cookielib.CookieJar()
+            cj = CookieJar()
             cookie_handler = HTTPCookieProcessor(cj)
             r = build_opener(auth_handler, cookie_handler).open(url)
             self.ae(r.getcode(), http_client.OK)

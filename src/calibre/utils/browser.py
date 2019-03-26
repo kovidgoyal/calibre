@@ -6,11 +6,11 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy, ssl
-from cookielib import CookieJar, Cookie
 
 from mechanize import Browser as B, HTTPSHandler
 
 from polyglot import http_client
+from polyglot.http_cookie import CookieJar, Cookie
 
 
 class ModernHTTPSHandler(HTTPSHandler):
