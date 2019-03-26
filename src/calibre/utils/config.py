@@ -19,7 +19,7 @@ from calibre.constants import (
 from calibre.utils.config_base import (
     Config, ConfigInterface, ConfigProxy, Option, OptionSet, OptionValues,
     StringConfig, json_dumps, json_loads, make_config_dir, plugin_dir, prefs,
-    read_raw_tweaks, read_tweaks, tweaks, write_tweaks, from_json, to_json
+    tweaks, from_json, to_json
 )
 from calibre.utils.lock import ExclusiveFile
 
@@ -30,9 +30,8 @@ optparse._ = _
 
 if False:
     # Make pyflakes happy
-    Config, ConfigProxy, Option, OptionValues, StringConfig
-    OptionSet, ConfigInterface, read_tweaks, write_tweaks
-    read_raw_tweaks, tweaks, plugin_dir, prefs, from_json, to_json
+    Config, ConfigProxy, Option, OptionValues, StringConfig, OptionSet,
+    ConfigInterface, tweaks, plugin_dir, prefs, from_json, to_json
 
 
 def check_config_write_access():
