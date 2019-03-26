@@ -240,8 +240,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>371</width>
-            <height>312</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -414,8 +414,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>395</width>
-            <height>212</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -516,8 +516,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>349</width>
-            <height>76</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -689,7 +689,7 @@ QToolBox::tab:hover {
                    <number>1</number>
                   </property>
                   <property name="maximum">
-                   <number>100</number>
+                   <number>1000</number>
                   </property>
                   <property name="singleStep">
                    <number>5</number>
@@ -718,7 +718,7 @@ QToolBox::tab:hover {
                    <number>1</number>
                   </property>
                   <property name="maximum">
-                   <number>100</number>
+                   <number>1000</number>
                   </property>
                   <property name="singleStep">
                    <number>5</number>
@@ -737,8 +737,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>505</width>
-            <height>304</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
