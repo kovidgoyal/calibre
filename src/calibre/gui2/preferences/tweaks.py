@@ -1,41 +1,33 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import print_function
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
 
-from functools import partial
 import textwrap
 from collections import OrderedDict
-
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
-from calibre.gui2.search_box import SearchBox2
-from calibre.gui2 import error_dialog, info_dialog
-from calibre.utils.config_base import read_custom_tweaks, write_custom_tweaks, exec_tweaks, default_tweaks_raw
-from calibre.gui2.widgets import PythonHighlighter
-from calibre import isbytestring
-from calibre.utils.icu import lower
-from calibre.utils.search_query_parser import (ParseException,
-        SearchQueryParser)
-from polyglot.builtins import iteritems, unicode_type, range, map
+from functools import partial
 
 from PyQt5.Qt import (
-    QAbstractListModel, Qt, QStyledItemDelegate, QStyle, QStyleOptionViewItem,
-    QFont, QDialogButtonBox, QDialog, QApplication, QVBoxLayout,
-    QPlainTextEdit, QLabel, QModelIndex, QMenu, QIcon, QListView, QGridLayout,
-    QSizePolicy, QGroupBox, QWidget, QPushButton, QSplitter, pyqtSignal)
+    QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
+    QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit,
+    QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate,
+    QStyleOptionViewItem, Qt, QVBoxLayout, QWidget, pyqtSignal
+)
+
+from calibre import isbytestring
+from calibre.gui2 import error_dialog, info_dialog
+from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
+from calibre.gui2.search_box import SearchBox2
+from calibre.gui2.widgets import PythonHighlighter
+from calibre.utils.config_base import (
+    default_tweaks_raw, exec_tweaks, normalize_tweak, read_custom_tweaks,
+    write_custom_tweaks
+)
+from calibre.utils.icu import lower
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from polyglot.builtins import iteritems, range, unicode_type
 
 ROOT = QModelIndex()
-
-
-def normalize(val):
-    if isinstance(val, (list, tuple)):
-        return tuple(map(normalize, val))
-    if isinstance(val, dict):
-        return {k: normalize(v) for k, v in iteritems(val)}
-    return val
 
 
 def format_doc(doc):
@@ -120,7 +112,7 @@ class Tweak(object):  # {{{
     def is_customized(self):
         for x, val in iteritems(self.default_values):
             cval = self.custom_values.get(x, val)
-            if normalize(cval) != normalize(val):
+            if normalize_tweak(cval) != normalize_tweak(val):
                 return True
         return False
 

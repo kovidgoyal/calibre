@@ -539,9 +539,24 @@ def make_unicode(obj):
     return obj
 
 
+def normalize_tweak(val):
+    if isinstance(val, (list, tuple)):
+        return tuple(map(normalize_tweak, val))
+    if isinstance(val, dict):
+        return {k: normalize_tweak(v) for k, v in iteritems(val)}
+    return val
+
+
 def write_custom_tweaks(tweaks_dict):
     make_config_dir()
-    raw = json_dumps(make_unicode(tweaks_dict))
+    tweaks_dict = make_unicode(tweaks_dict)
+    changed_tweaks = {}
+    default_tweaks = exec_tweaks(default_tweaks_raw())
+    for key, cval in iteritems(tweaks_dict):
+        if key in default_tweaks and normalize_tweak(cval) == normalize_tweak(default_tweaks[key]):
+            continue
+        changed_tweaks[key] = cval
+    raw = json_dumps(changed_tweaks)
     with open(tweaks_file(), 'wb') as f:
         f.write(raw)
 
