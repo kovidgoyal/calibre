@@ -99,7 +99,7 @@ class BuildTest(unittest.TestCase):
         from calibre.utils.cleantext import test_clean_xml_chars
         test_clean_xml_chars()
         from lxml import etree
-        raw = '<a/>'
+        raw = b'<a/>'
         root = etree.fromstring(raw)
         self.assertEqual(etree.tostring(root), raw)
 
