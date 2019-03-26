@@ -73,7 +73,7 @@ else:
     string_or_bytes = unicode, bytes
     long_type = long
     exec_path = execfile
-    raw_input = builtins['raw_input']
+    raw_input = builtins.raw_input
 
     def iteritems(d):
         return d.iteritems()
