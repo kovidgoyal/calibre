@@ -73,6 +73,27 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
+    def test_imports(self):
+        import importlib
+        exclude = ['dbus_export.demo', 'dbus_export.gtk',  'upstream']
+        if not iswindows:
+            exclude.extend(['iphlpapi', 'windows', 'winreg', 'winusb'])
+        if not isosx:
+            exclude.append('osx')
+        if not islinux:
+            exclude.extend(['dbus', 'linux'])
+        for root, dirs, files in os.walk('src/calibre'):
+            for dir in dirs:
+                if not os.path.isfile(os.path.join(root, dir, '__init__.py')):
+                    dirs.remove(dir)
+            for file in files:
+                file, ext = os.path.splitext(file)
+                if ext != '.py':
+                    continue
+                name = '.'.join(root.split(os.path.sep)[1:] + [file])
+                if not any(x for x in exclude if x in name):
+                    importlib.import_module(name)
+
     def test_plugins(self):
         exclusions = set()
         if is_ci:
