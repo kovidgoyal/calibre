@@ -254,7 +254,7 @@ class BuildTest(unittest.TestCase):
 
     def test_netifaces(self):
         import netifaces
-        self.assertGreaterEqual(netifaces.interfaces(), 1, 'netifaces could find no network interfaces')
+        self.assertGreaterEqual(len(netifaces.interfaces()), 1, 'netifaces could find no network interfaces')
 
     def test_psutil(self):
         import psutil
