@@ -82,7 +82,9 @@ class BuildTest(unittest.TestCase):
             exclude.append('osx')
         if not islinux:
             exclude.extend(['dbus', 'linux'])
-        for root, dirs, files in os.walk('src/calibre'):
+        base = os.path.dirname(__file__)
+        trimpath = len(os.path.dirname(base)) + 1
+        for root, dirs, files in os.walk(base):
             for dir in dirs:
                 if not os.path.isfile(os.path.join(root, dir, '__init__.py')):
                     dirs.remove(dir)
@@ -90,7 +92,7 @@ class BuildTest(unittest.TestCase):
                 file, ext = os.path.splitext(file)
                 if ext != '.py':
                     continue
-                name = '.'.join(root.split(os.path.sep)[1:] + [file])
+                name = '.'.join(root[trimpath:].split(os.path.sep) + [file])
                 if not any(x for x in exclude if x in name):
                     importlib.import_module(name)
 
