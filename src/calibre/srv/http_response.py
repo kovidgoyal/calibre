@@ -29,7 +29,7 @@ from calibre.utils.monotonic import monotonic
 from polyglot import http_client, reprlib
 
 Range = namedtuple('Range', 'start stop size')
-MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
+MULTIPART_SEPARATOR = uuid.uuid4().hex
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
 if is_py3:
     import zlib
