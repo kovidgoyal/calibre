@@ -9,7 +9,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import errno, socket, select, os, time
 from Cookie import SimpleCookie
 from contextlib import closing
-import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
 from binascii import hexlify, unhexlify
@@ -23,6 +22,7 @@ from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
 from polyglot.builtins import iteritems, map, unicode_type, range
+from polyglot import reprlib
 from polyglot.urllib import parse_qs, quote as urlquote
 
 HTTP1  = 'HTTP/1.0'

@@ -240,7 +240,7 @@ def prints(*args, **kwargs):
             file.write(arg)
             count += len(arg)
         except:
-            import repr as reprlib
+            from polyglot import reprlib
             arg = reprlib.repr(arg)
             file.write(arg)
             count += len(arg)

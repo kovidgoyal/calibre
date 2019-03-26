@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, hashlib, uuid, struct, repr as reprlib
+import os, hashlib, uuid, struct
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat
@@ -26,7 +26,7 @@ from calibre.srv.utils import (
     sort_q_values, get_translator_for_lang, Cookie, fast_now_strftime)
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
-from polyglot import http_client
+from polyglot import http_client, reprlib
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')

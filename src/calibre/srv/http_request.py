@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, repr as reprlib
+import re
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 
 from calibre import as_unicode, force_unicode
@@ -14,7 +14,7 @@ from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import Connection, READ, WRITE
 from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
-from polyglot import http_client
+from polyglot import http_client, reprlib
 from polyglot.urllib import unquote
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
