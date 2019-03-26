@@ -16,6 +16,11 @@ isunix = islinux or isosx or isbsd or ishaiku
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
 
+def init_symbol_name(name):
+    prefix = 'PyInit_' if sys.version_info.major > 2 else 'init'
+    return prefix + name
+
+
 def absolutize(paths):
     return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
 
@@ -330,7 +335,7 @@ class Build(Command):
             cmd = [linker]
             if iswindows:
                 cmd += self.env.ldflags + ext.ldflags + elib + xlib + \
-                    ['/EXPORT:init'+ext.name] + objects + ext.extra_objs + ['/OUT:'+dest]
+                    ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
             self.info('\n\n', ' '.join(cmd), '\n\n')
@@ -486,7 +491,7 @@ class Build(Command):
             # Ensure that only the init symbol is exported
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
-                f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+                f.write(('{ global: %s; local: *; };' % init_symbol_name(sip['target'])).encode('utf-8'))
         if ext.qt_private_headers:
             qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
             pro += '\nQT += ' + qph
