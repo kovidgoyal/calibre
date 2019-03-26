@@ -14,10 +14,11 @@ from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswin
 isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
+ispy3 = sys.version_info.major > 2
 
 
 def init_symbol_name(name):
-    prefix = 'PyInit_' if sys.version_info.major > 2 else 'init'
+    prefix = 'PyInit_' if ispy3 else 'init'
     return prefix + name
 
 
@@ -44,7 +45,7 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
-            return_type = 'PyObject*' if sys.version_info >= (3,) else 'void'
+            return_type = 'PyObject*' if ispy3 else 'void'
             extern_decl = 'extern "C"' if self.needs_cxx else ''
 
             self.cflags.append(
@@ -268,7 +269,7 @@ class Build(Command):
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
-            if ext.needs_py2 and sys.version_info >= (3,):
+            if ext.needs_py2 and ispy3:
                 continue
             if ext.error:
                 if ext.optional:
