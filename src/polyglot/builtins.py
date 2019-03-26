@@ -27,10 +27,10 @@ if is_py3:
 
     import builtins
 
-    zip = builtins.__dict__['zip']
-    map = builtins.__dict__['map']
-    filter = builtins.__dict__['filter']
-    range = builtins.__dict__['range']
+    zip = builtins.zip
+    map = builtins.map
+    filter = builtins.filter
+    range = builtins.range
 
     codepoint_to_chr = chr
     unicode_type = str
