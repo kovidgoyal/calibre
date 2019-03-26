@@ -168,7 +168,6 @@ class Plugins(collections.Mapping):
                 'icu',
                 'speedup',
                 'unicode_names',
-                'zlib2',
                 'html',
                 'freetype',
                 'imageops',
@@ -184,6 +183,7 @@ class Plugins(collections.Mapping):
         if not ispy3:
             plugins.extend([
                 'monotonic',
+                'zlib2',
             ])
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
