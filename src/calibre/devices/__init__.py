@@ -8,7 +8,7 @@ Device drivers.
 
 import sys, time, pprint
 from functools import partial
-from StringIO import StringIO
+from io import BytesIO
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
@@ -77,7 +77,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     oldo, olde = sys.stdout, sys.stderr
 
     if buf is None:
-        buf = StringIO()
+        buf = BytesIO()
     sys.stdout = sys.stderr = buf
     out = partial(prints, file=buf)
 
