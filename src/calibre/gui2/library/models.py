@@ -323,7 +323,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return 100000
             return self.db.field_metadata[name]['rec_index']
 
-        self.column_map.sort(cmp=lambda x,y: cmp(col_idx(x), col_idx(y)))
+        self.column_map.sort(key=lambda x: col_idx(x))
         for col in self.column_map:
             if col in self.orig_headers:
                 self.headers[col] = self.orig_headers[col]

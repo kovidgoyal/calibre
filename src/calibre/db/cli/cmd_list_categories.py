@@ -149,9 +149,7 @@ def main(opts, args, dbctx):
         (not report_on or k in report_on)
     ]
 
-    categories.sort(
-        cmp=lambda x, y: cmp(x if x[0] != '#' else x[1:], y if y[0] != '#' else y[1:])
-    )
+    categories.sort(key=lambda x: x if x[0] != '#' else x[1:])
 
     def fmtr(v):
         v = v or 0

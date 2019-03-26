@@ -32,7 +32,7 @@ def get_metadata(stream):
                 except:
                     pass
                 break
-    covers.sort(cmp=lambda x, y:cmp(len(x[0]), len(y[0])), reverse=True)
+    covers.sort(key=lambda x: len(x[0]), reverse=True)
     idx = 0
     if len(covers) > 1:
         if covers[1][1] == covers[0][1]+'-standard':

@@ -670,8 +670,7 @@ class LitWriter(object):
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
-        directory.sort(cmp=lambda x, y:
-            cmp(x.name.lower(), y.name.lower()))
+        directory.sort(key=lambda x: x.name.lower())
         qrn = 1 + (1 << 2)
         dchunk = io.BytesIO()
         dcount = 0

@@ -727,9 +727,9 @@ def initialize_plugins(perf=False):
     # ipython
     sys.stdout, sys.stderr = ostdout, ostderr
     if perf:
-        for x in sorted(times, key=lambda x:times[x]):
+        for x in sorted(times, key=lambda x: times[x]):
             print('%50s: %.3f'%(x, times[x]))
-    _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
+    _initialized_plugins.sort(key=lambda x: x.priority, reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
 

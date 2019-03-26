@@ -93,7 +93,7 @@ class Catalog(QDialog, Ui_Dialog):
                 else:
                     info("No dynamic tab resources found for %s" % name)
 
-        self.widgets = sorted(self.widgets, cmp=lambda x,y:cmp(x.TITLE, y.TITLE))
+        self.widgets = sorted(self.widgets, key=lambda x: x.TITLE)
 
         # Generate a sorted list of installed catalog formats/sync_enabled pairs
         fmts = sorted([x[0] for x in self.fmts])

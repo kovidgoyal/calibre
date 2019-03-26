@@ -537,7 +537,7 @@ class Device(DeviceConfig, DevicePlugin):
             if sz > 0:
                 nodes.append((x.split('/')[-1], sz))
 
-        nodes.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        nodes.sort(key=lambda x: x[1])
         if not nodes:
             return node
         return nodes[-1][0]

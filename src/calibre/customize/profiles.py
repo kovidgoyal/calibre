@@ -233,7 +233,7 @@ input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
         IRexDR1000Input, IRexDR800Input, NookInput]
 
-input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
+input_profiles.sort(key=lambda x: x.name.lower())
 
 # }}}
 
@@ -870,4 +870,4 @@ output_profiles = [
     KindlePaperWhite3Output, KindleOasisOutput
 ]
 
-output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
+output_profiles.sort(key=lambda x: x.name.lower())

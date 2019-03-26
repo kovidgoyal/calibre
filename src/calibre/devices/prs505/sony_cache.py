@@ -321,7 +321,7 @@ class XMLCache(object):
             # Only rebase ids of nodes that are immediate children of the
             # record root (that way playlist/itemnodes are unaffected
             items = root.xpath('child::*[@id]')
-            items.sort(cmp=lambda x,y:cmp(int(x.get('id')), int(y.get('id'))))
+            items.sort(key=lambda x: int(x.get('id')))
             idmap = {}
             for i, item in enumerate(items):
                 old = int(item.get('id'))

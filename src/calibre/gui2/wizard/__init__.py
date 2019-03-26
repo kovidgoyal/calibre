@@ -427,7 +427,7 @@ def get_manufacturers():
 
 def get_devices_of(manufacturer):
     ans = [d for d in get_devices() if d.manufacturer == manufacturer]
-    return sorted(ans, cmp=lambda x,y:cmp(x.name, y.name))
+    return sorted(ans, key=lambda x: x.name)
 
 
 class ManufacturerModel(QAbstractListModel):
@@ -682,7 +682,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
-        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        items.sort(key=lambda x: x[1])
         for item in items:
             self.language.addItem(item[1], (item[0]))
         self.language.blockSignals(False)
