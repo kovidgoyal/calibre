@@ -188,7 +188,7 @@ class TextBlock(object):
         self.font_loader, self.logger, self.opts = font_loader, logger, opts
         self.in_link = False
         self.link_activated = link_activated
-        self.max_y = self.bs.blockheight if (respect_max_y or self.bs.blockrule.lower() in ('vert-fixed', 'block-fixed')) else sys.maxint
+        self.max_y = self.bs.blockheight if (respect_max_y or self.bs.blockrule.lower() in ('vert-fixed', 'block-fixed')) else sys.maxsize
         self.height = 0
         self.peek_index = -1
 
@@ -373,7 +373,7 @@ class Line(QGraphicsItem):
             self.children = self.childItems
 
     def start_link(self, refobj, slot):
-        self.current_link = [self.current_width, sys.maxint, refobj, slot]
+        self.current_link = [self.current_width, sys.maxsize, refobj, slot]
 
     def end_link(self):
         if self.current_link is not None:

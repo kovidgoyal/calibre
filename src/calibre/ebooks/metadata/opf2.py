@@ -714,7 +714,7 @@ class OPF(object):  # {{{
     def create_manifest_item(self, href, media_type, append=False):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
-        for c in range(1, sys.maxint):
+        for c in range(1, sys.maxsize):
             id = 'id%d'%c
             if id not in ids:
                 break

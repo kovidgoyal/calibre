@@ -55,7 +55,7 @@ class LRFOptions(object):
         self.ignore_colors = False
         from calibre.ebooks.lrf import PRS500_PROFILE
         self.profile = PRS500_PROFILE
-        self.link_levels = sys.maxint
+        self.link_levels = sys.maxsize
         self.link_exclude = '@'
         self.no_links_in_toc = True
         self.disable_chapter_detection = True

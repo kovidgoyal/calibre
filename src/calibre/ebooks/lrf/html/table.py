@@ -154,7 +154,7 @@ class Cell(object):
                 mwidth = width
         return parindent + mwidth + 2
 
-    def text_block_size(self, tb, maxwidth=sys.maxint, debug=False):
+    def text_block_size(self, tb, maxwidth=sys.maxsize, debug=False):
         ts = tb.textStyle.attrs
         default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
@@ -200,7 +200,7 @@ class Cell(object):
         return right+3+max(parindent, 10), bottom
 
     def text_block_preferred_width(self, tb, debug=False):
-        return self.text_block_size(tb, sys.maxint, debug=debug)[0]
+        return self.text_block_size(tb, sys.maxsize, debug=debug)[0]
 
     def preferred_width(self, debug=False):
         return ceil(max([self.text_block_preferred_width(i, debug=debug) for i in self.text_blocks]))

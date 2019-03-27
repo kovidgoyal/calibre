@@ -66,7 +66,7 @@ class Plugin(object):  # {{{
     #: When more than one plugin exists for a filetype,
     #: the plugins are run in order of decreasing priority.
     #: Plugins with higher priority will be run first.
-    #: The highest possible priority is ``sys.maxint``.
+    #: The highest possible priority is ``sys.maxsize``.
     #: Default priority is 1.
     priority = 1
 

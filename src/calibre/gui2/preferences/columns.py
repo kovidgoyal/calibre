@@ -249,7 +249,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             hidden_cols.remove('ondevice')
 
         def col_pos(x):
-            return config_cols.index(x) if x in config_cols else sys.maxint
+            return config_cols.index(x) if x in config_cols else sys.maxsize
         positions = {}
         for i, col in enumerate((sorted(model.column_map, key=col_pos))):
             positions[col] = i

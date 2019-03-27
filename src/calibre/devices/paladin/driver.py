@@ -350,7 +350,7 @@ class PALADIN(USBMS):
                 values (?,?,?,?,?,?,?,?)
                 '''
                 t = (title, author, book.get('comments', None), int(time.time() * 1000),
-                        book.get('series', None), book.get('series_index', sys.maxint), lpath,
+                        book.get('series', None), book.get('series_index', sys.maxsize), lpath,
                         book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = connection.last_insert_rowid()

@@ -273,10 +273,10 @@ class KTCollectionsBookList(CollectionsBookList):
                         if is_series:
                             if doing_dc:
                                 collections[cat_name][lpath] = \
-                                    (book, book.get('series_index', sys.maxint), tsval)
+                                    (book, book.get('series_index', sys.maxsize), tsval)
                             else:
                                 collections[cat_name][lpath] = \
-                                    (book, book.get(attr+'_index', sys.maxint), tsval)
+                                    (book, book.get(attr+'_index', sys.maxsize), tsval)
                         else:
                             collections[cat_name][lpath] = (book, tsval, tsval)
                         if show_debug:

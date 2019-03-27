@@ -92,8 +92,8 @@ class LinearGradientPattern(Dictionary):
             page_rect = tuple(map(inv.map, (
                 QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
                 QPointF(pixel_page_width, pixel_page_height))))
-            maxx = maxy = -sys.maxint-1
-            minx = miny = sys.maxint
+            maxx = maxy = -sys.maxsize-1
+            minx = miny = sys.maxsize
 
             for p in page_rect:
                 minx, maxx = min(minx, p.x()), max(maxx, p.x())

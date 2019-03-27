@@ -58,7 +58,7 @@ def next_tag_boundary(block, offset, forward=True, max_lines=10000):
                 if not forward and boundary.offset < offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
-        offset = -1 if forward else sys.maxint
+        offset = -1 if forward else sys.maxsize
         max_lines -= 1
     return None, None
 
@@ -74,11 +74,11 @@ def next_attr_boundary(block, offset, forward=True):
                 if not forward and boundary.offset <= offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
-        offset = -1 if forward else sys.maxint
+        offset = -1 if forward else sys.maxsize
     return None, None
 
 
-def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
+def find_closest_containing_tag(block, offset, max_tags=sys.maxsize):
     ''' Find the closest containing tag. To find it, we search for the first
     opening tag that does not have a matching closing tag before the specified
     position. Search through at most max_tags. '''
@@ -180,7 +180,7 @@ def find_end_of_attribute(block, offset):
     return block, boundary.offset
 
 
-def find_closing_tag(tag, max_tags=sys.maxint):
+def find_closing_tag(tag, max_tags=sys.maxsize):
     ''' Find the closing tag corresponding to the specified tag. To find it we
     search for the first closing tag after the specified tag that does not
     match a previous opening tag. Search through at most max_tags. '''
@@ -491,7 +491,7 @@ class Smarts(NullSmarts):
                             if boundary.is_start and not boundary.closing and boundary.offset <= offset:
                                 start_block, start_offset = block, boundary.offset
                                 break
-                    block, offset = block.previous(), sys.maxint
+                    block, offset = block.previous(), sys.maxsize
             end_block = None
             if start_block is not None:
                 end_block, boundary = next_tag_boundary(start_block, start_offset)

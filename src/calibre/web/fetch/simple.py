@@ -596,7 +596,7 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example https://google.
     parser.add_option('-r', '--max-recursions', default=1,
                       help=_('Maximum number of levels to recurse i.e. depth of links to follow. Default %default'),
                       type='int', dest='max_recursions')
-    parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
+    parser.add_option('-n', '--max-files', default=sys.maxsize, type='int', dest='max_files',
                       help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'))
     parser.add_option('--delay', default=0, dest='delay', type='float',
                       help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))

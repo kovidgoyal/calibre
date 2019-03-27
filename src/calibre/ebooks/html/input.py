@@ -190,7 +190,7 @@ def depth_first(root, flat, visited=set([])):
                         visited.add(hf)
 
 
-def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None):
+def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None):
     '''
     Recursively traverse all links in the HTML file.
 

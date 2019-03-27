@@ -387,7 +387,7 @@ class PdfDevice(QPaintDevice):  # {{{
         if m == self.PdmDepth:
             return 32
         if m == self.PdmNumColors:
-            return sys.maxint
+            return sys.maxsize
         if m == self.PdmWidthMM:
             return int(round(self.body_width * 0.35277777777778))
         if m == self.PdmHeightMM:

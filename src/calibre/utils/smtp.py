@@ -98,7 +98,7 @@ def get_mx(host, verbose=0):
     if verbose:
         print('Find mail exchanger for', host)
     answers = list(dns.resolver.query(host, 'MX'))
-    answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxint)))
+    answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxsize)))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 

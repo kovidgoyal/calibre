@@ -172,7 +172,7 @@ class Column(object):
         self.elements.sort(key=lambda x: x.bottom)
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
-        self.left, self.right = sys.maxint, 0
+        self.left, self.right = sys.maxsize, 0
         for x in self:
             self.left = min(self.left, x.left)
             self.right = max(self.right, x.right)

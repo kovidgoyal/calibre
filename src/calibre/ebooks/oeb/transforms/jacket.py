@@ -143,7 +143,7 @@ class Jacket(Base):
     def remove_existing_jacket(self):
         for x in self.oeb.spine[:4]:
             if XPath(JACKET_XPATH)(x.data):
-                self.remove_images(x, limit=sys.maxint)
+                self.remove_images(x, limit=sys.maxsize)
                 self.oeb.manifest.remove(x)
                 self.log('Removed existing jacket')
                 break
