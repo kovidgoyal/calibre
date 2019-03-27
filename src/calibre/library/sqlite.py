@@ -8,7 +8,6 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
-import repr as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from threading import RLock
@@ -22,6 +21,7 @@ from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import sort_key
 from calibre import prints
 from polyglot.builtins import unicode_type
+from polyglot import reprlib
 from polyglot.queue import Queue
 
 from dateutil.tz import tzoffset

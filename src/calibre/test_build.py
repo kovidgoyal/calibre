@@ -73,6 +73,29 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
+    def test_imports(self):
+        import importlib
+        exclude = ['dbus_export.demo', 'dbus_export.gtk',  'upstream']
+        if not iswindows:
+            exclude.extend(['iphlpapi', 'windows', 'winreg', 'winusb'])
+        if not isosx:
+            exclude.append('osx')
+        if not islinux:
+            exclude.extend(['dbus', 'linux'])
+        base = os.path.dirname(__file__)
+        trimpath = len(os.path.dirname(base)) + 1
+        for root, dirs, files in os.walk(base):
+            for dir in dirs:
+                if not os.path.isfile(os.path.join(root, dir, '__init__.py')):
+                    dirs.remove(dir)
+            for file in files:
+                file, ext = os.path.splitext(file)
+                if ext != '.py':
+                    continue
+                name = '.'.join(root[trimpath:].split(os.path.sep) + [file])
+                if not any(x for x in exclude if x in name):
+                    importlib.import_module(name)
+
     def test_plugins(self):
         exclusions = set()
         if is_ci:
@@ -99,7 +122,7 @@ class BuildTest(unittest.TestCase):
         from calibre.utils.cleantext import test_clean_xml_chars
         test_clean_xml_chars()
         from lxml import etree
-        raw = '<a/>'
+        raw = b'<a/>'
         root = etree.fromstring(raw)
         self.assertEqual(etree.tostring(root), raw)
 
@@ -175,7 +198,7 @@ class BuildTest(unittest.TestCase):
         # it should just work because the hard-coded paths of the Qt
         # installation should work. If they do not, then it is a distro
         # problem.
-        fmts = set(map(unicode_type, QImageReader.supportedImageFormats()))
+        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = P('images/blank.png', allow_user_override=False, data=True)
@@ -254,7 +277,7 @@ class BuildTest(unittest.TestCase):
 
     def test_netifaces(self):
         import netifaces
-        self.assertGreaterEqual(netifaces.interfaces(), 1, 'netifaces could find no network interfaces')
+        self.assertGreaterEqual(len(netifaces.interfaces()), 1, 'netifaces could find no network interfaces')
 
     def test_psutil(self):
         import psutil

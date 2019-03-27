@@ -41,8 +41,7 @@ def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
 
 def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     mi = MetaInformation(None, None)
-    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
-                                     METADATA_PRIORITIES[path_to_ext(y)]))
+    formats.sort(key=lambda x: METADATA_PRIORITIES[path_to_ext(x)])
     extensions = list(map(path_to_ext, formats))
     if 'opf' in extensions:
         opf = formats[extensions.index('opf')]
@@ -241,4 +240,3 @@ def forked_read_metadata(path, tdir):
     opf = metadata_to_opf(mi, default_lang='und')
     with lopen(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
         f.write(opf)
-

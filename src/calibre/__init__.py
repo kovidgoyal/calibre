@@ -240,7 +240,7 @@ def prints(*args, **kwargs):
             file.write(arg)
             count += len(arg)
         except:
-            import repr as reprlib
+            from polyglot import reprlib
             arg = reprlib.repr(arg)
             file.write(arg)
             count += len(arg)
@@ -614,7 +614,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         return check(html5_entities[ent])
     except KeyError:
         pass
-    from htmlentitydefs import name2codepoint
+    from polyglot.html_entities import name2codepoint
     try:
         return check(my_unichr(name2codepoint[ent]))
     except KeyError:

@@ -54,7 +54,7 @@ def builtin_dictionaries():
     if _builtins is None:
         dics = []
         for lc in glob.glob(os.path.join(P('dictionaries', allow_user_override=False), '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = list(filter(None, open(lc, 'rb').read().decode('utf-8').splitlines()))
             locale = locales[0]
             base = os.path.dirname(lc)
             dics.append(Dictionary(
@@ -69,7 +69,7 @@ def custom_dictionaries(reread=False):
     if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = list(filter(None, open(lc, 'rb').read().decode('utf-8').splitlines()))
             try:
                 name, locale, locales = locales[0], locales[1], locales[1:]
             except IndexError:

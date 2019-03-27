@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs, os, numbers
 from collections import namedtuple
-from types import StringType, UnicodeType
 
 from calibre import (strftime)
 from calibre.customize import CatalogPlugin
@@ -15,7 +14,7 @@ from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import format_isbn
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, unicode_type
 
 
 class BIBTEX(CatalogPlugin):
@@ -351,7 +350,7 @@ class BIBTEX(CatalogPlugin):
             bibtexc.ascii_bibtex = True
 
         # Check citation choice and go to default in case of bad CLI
-        if isinstance(opts.impcit, (StringType, UnicodeType)) :
+        if isinstance(opts.impcit, (str, unicode_type)) :
             if opts.impcit == 'False' :
                 citation_bibtex= False
             elif opts.impcit == 'True' :

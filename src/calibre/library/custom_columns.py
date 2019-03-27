@@ -216,7 +216,7 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x:x.lower())
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -243,7 +243,7 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x: x.lower())
         if data['datatype'] != 'series':
             return (ans, None)
         ign,lt = self.custom_table_names(data['num'])

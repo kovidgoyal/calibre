@@ -69,7 +69,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         state = self.columns_state(defaults)
         self.hidden_cols = state['hidden_columns']
         positions = state['column_positions']
-        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
+        colmap.sort(key=lambda x: positions[x])
         self.opt_columns.clear()
 
         db = model.db
@@ -248,12 +248,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if 'ondevice' in hidden_cols:
             hidden_cols.remove('ondevice')
 
-        def col_pos(x, y):
-            xidx = config_cols.index(x) if x in config_cols else sys.maxint
-            yidx = config_cols.index(y) if y in config_cols else sys.maxint
-            return cmp(xidx, yidx)
+        def col_pos(x):
+            return config_cols.index(x) if x in config_cols else sys.maxint
         positions = {}
-        for i, col in enumerate((sorted(model.column_map, cmp=col_pos))):
+        for i, col in enumerate((sorted(model.column_map, key=col_pos))):
             positions[col] = i
         state = {'hidden_columns': hidden_cols, 'column_positions':positions}
         self.gui.library_view.apply_state(state)

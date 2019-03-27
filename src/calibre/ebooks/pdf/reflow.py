@@ -169,7 +169,7 @@ class Column(object):
         self._post_add()
 
     def _post_add(self):
-        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.elements.sort(key=lambda x: x.bottom)
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
         self.left, self.right = sys.maxint, 0
@@ -260,7 +260,7 @@ class Region(object):
 
     def add(self, columns):
         if not self.columns:
-            for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
+            for x in sorted(columns, key=lambda x: x.left):
                 self.columns.append(x)
         else:
             for i in range(len(columns)):
@@ -458,7 +458,7 @@ class Page(object):
         self.elements = list(self.texts)
         for img in page.xpath('descendant::img'):
             self.elements.append(Image(img, self.opts, self.log, idc))
-        self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
+        self.elements.sort(key=lambda x: x.top)
 
     def coalesce_fragments(self):
 
@@ -580,7 +580,7 @@ class Page(object):
 
     def sort_into_columns(self, elem, neighbors):
         neighbors.add(elem)
-        neighbors = sorted(neighbors, cmp=lambda x,y:cmp(x.left, y.left))
+        neighbors = sorted(neighbors, key=lambda x: x.left)
         if self.opts.verbose > 3:
             self.log.debug('Neighbors:', [x.to_html() for x in neighbors])
         columns = [Column()]
@@ -595,7 +595,7 @@ class Page(object):
             if not added:
                 columns.append(Column())
                 columns[-1].add(x)
-                columns.sort(cmp=lambda x,y:cmp(x.left, y.left))
+                columns.sort(key=lambda x: x.left)
         return columns
 
     def find_elements_in_row_of(self, x):

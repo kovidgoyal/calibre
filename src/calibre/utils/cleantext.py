@@ -2,8 +2,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, htmlentitydefs
+import re
 from polyglot.builtins import codepoint_to_chr, map, range
+from polyglot.html_entities import name2codepoint
 from calibre.constants import plugins, preferred_encoding
 
 try:
@@ -80,7 +81,7 @@ def unescape(text, rm=False, rchar=u''):
         else:
             # named entity
             try:
-                text = codepoint_to_chr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = codepoint_to_chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

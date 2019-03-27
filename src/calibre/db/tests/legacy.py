@@ -8,13 +8,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect, time, numbers
 from io import BytesIO
-from repr import repr
 from functools import partial
 from operator import itemgetter
 
 from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
 from polyglot.builtins import iteritems, range
+from polyglot import reprlib
 
 # Utils {{{
 
@@ -32,7 +32,7 @@ class ET(object):
         oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
         newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
         test.assertEqual(oldres, newres, 'Equivalence test for %s with args: %s and kwargs: %s failed' % (
-            self.func_name, repr(self.args), repr(self.kwargs)))
+            self.func_name, reprlib.repr(self.args), reprlib.repr(self.kwargs)))
         self.retval = newres
         return newres
 

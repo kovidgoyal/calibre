@@ -995,8 +995,7 @@ def develop():  # {{{
     drive_letters = set()
     pprint(usb_devices)
     print()
-    devplugins = list(sorted(device_plugins(), cmp=lambda
-            x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+    devplugins = list(sorted(device_plugins(), key=lambda x: x.__class__.__name__))
     for dev in devplugins:
         dev.startup()
     for dev in devplugins:

@@ -34,17 +34,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.db = gui.library_view.model().db
 
     def initialize(self):
-        def field_cmp(x, y):
-            if x.startswith('#'):
-                if y.startswith('#'):
-                    return cmp(x.lower(), y.lower())
-                else:
-                    return 1
-            elif y.startswith('#'):
-                return -1
-            else:
-                return cmp(x.lower(), y.lower())
-
         ConfigWidgetBase.initialize(self)
 
         self.current_plugboards = copy.deepcopy(self.db.prefs.get('plugboards',{}))
@@ -73,7 +62,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if n not in self.disabled_devices:
                 self.disabled_devices.append(n)
 
-        self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
+        self.devices.sort(key=lambda x: x.lower())
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
         self.device_to_formats_map[plugboard_content_server_value] = \

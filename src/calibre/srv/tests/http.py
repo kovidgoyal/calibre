@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, hashlib, zlib, string, time, os
+import hashlib, zlib, string, time, os
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -15,6 +15,7 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, range
+from polyglot import http_client
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -94,7 +95,7 @@ class TestHTTP(BaseTest):
             def test(al, q):
                 conn.request('GET', '/', headers={'Accept-Language': al})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
+                self.ae(r.status, http_client.OK)
                 q += get_translator(q)[-1].ugettext('Unknown')
                 self.ae(r.read(), q)
 
@@ -136,7 +137,7 @@ class TestHTTP(BaseTest):
 
         def raw_send(conn, raw):
             conn.send(raw)
-            conn._HTTPConnection__state = httplib._CS_REQ_SENT
+            conn._HTTPConnection__state = http_client._CS_REQ_SENT
             return conn.getresponse()
 
         base_timeout = 0.5 if is_ci else 0.1
@@ -144,31 +145,31 @@ class TestHTTP(BaseTest):
         with TestServer(handler, timeout=base_timeout, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             conn = server.connect()
             r = raw_send(conn, b'hello\n')
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
             self.ae(r.read(), b'HTTP requires CRLF line terminators')
 
             r = raw_send(conn, b'\r\nGET /index.html HTTP/1.1\r\n\r\n')
-            self.ae(r.status, httplib.NOT_FOUND), self.ae(r.read(), b'Requested resource not found')
+            self.ae(r.status, http_client.NOT_FOUND), self.ae(r.read(), b'Requested resource not found')
 
             r = raw_send(conn, b'\r\n\r\nGET /index.html HTTP/1.1\r\n\r\n')
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
             self.ae(r.read(), b'Multiple leading empty lines not allowed')
 
             r = raw_send(conn, b'hello world\r\n')
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
             self.ae(r.read(), b'Malformed Request-Line')
 
             r = raw_send(conn, b'x' * 200)
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
             self.ae(r.read(), b'')
 
             r = raw_send(conn, b'XXX /index.html HTTP/1.1\r\n\r\n')
-            self.ae(r.status, httplib.BAD_REQUEST), self.ae(r.read(), b'Unknown HTTP method')
+            self.ae(r.status, http_client.BAD_REQUEST), self.ae(r.read(), b'Unknown HTTP method')
 
             # Test 404
             conn.request('HEAD', '/moose')
             r = conn.getresponse()
-            self.ae(r.status, httplib.NOT_FOUND)
+            self.ae(r.status, http_client.NOT_FOUND)
             self.assertIsNotNone(r.getheader('Date', None))
             self.ae(r.getheader('Content-Length'), str(len(body)))
             self.ae(r.getheader('Content-Type'), 'text/plain; charset=UTF-8')
@@ -176,7 +177,7 @@ class TestHTTP(BaseTest):
             self.ae(r.read(), '')
             conn.request('GET', '/choose')
             r = conn.getresponse()
-            self.ae(r.status, httplib.NOT_FOUND)
+            self.ae(r.status, http_client.NOT_FOUND)
             self.ae(r.read(), b'Requested resource not found')
 
             # Test 500
@@ -186,7 +187,7 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/test/')
             r = conn.getresponse()
-            self.ae(r.status, httplib.INTERNAL_SERVER_ERROR)
+            self.ae(r.status, http_client.INTERNAL_SERVER_ERROR)
             server.loop.log.filter_level = orig
 
             # Test 301
@@ -196,7 +197,7 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/')
             r = conn.getresponse()
-            self.ae(r.status, httplib.MOVED_PERMANENTLY)
+            self.ae(r.status, http_client.MOVED_PERMANENTLY)
             self.ae(r.getheader('Location'), '/somewhere-else')
             self.ae('', r.read())
 
@@ -206,26 +207,26 @@ class TestHTTP(BaseTest):
             # Test simple GET
             conn.request('GET', '/test/')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.read(), b'test')
 
             # Test TRACE
             lines = ['TRACE /xxx HTTP/1.1', 'Test: value', 'Xyz: abc, def', '', '']
             r = raw_send(conn, ('\r\n'.join(lines)).encode('ascii'))
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.read().decode('utf-8'), '\n'.join(lines[:-2]))
 
             # Test POST with simple body
             conn.request('POST', '/test', 'body')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.read(), b'testbody')
 
             # Test POST with chunked transfer encoding
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'4\r\nbody\r\na\r\n1234567890\r\n0\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.read(), b'testbody1234567890')
 
             # Test various incorrect input
@@ -233,39 +234,39 @@ class TestHTTP(BaseTest):
 
             conn.request('GET', '/test' + ('a' * 200))
             r = conn.getresponse()
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
 
             conn = server.connect()
             conn.request('GET', '/test', ('a' * 200))
             r = conn.getresponse()
-            self.ae(r.status, httplib.REQUEST_ENTITY_TOO_LARGE)
+            self.ae(r.status, http_client.REQUEST_ENTITY_TOO_LARGE)
 
             conn = server.connect()
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'x\r\nbody\r\n0\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.BAD_REQUEST)
+            self.ae(r.status, http_client.BAD_REQUEST)
             self.assertIn(b'not a valid chunk size', r.read())
 
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'4\r\nbody\r\n200\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.REQUEST_ENTITY_TOO_LARGE)
+            self.ae(r.status, http_client.REQUEST_ENTITY_TOO_LARGE)
             conn.request('POST', '/test', body='a'*200)
             r = conn.getresponse()
-            self.ae(r.status, httplib.REQUEST_ENTITY_TOO_LARGE)
+            self.ae(r.status, http_client.REQUEST_ENTITY_TOO_LARGE)
 
             conn = server.connect()
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'3\r\nbody\r\n0\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.BAD_REQUEST), self.ae(r.read(), b'Chunk does not have trailing CRLF')
+            self.ae(r.status, http_client.BAD_REQUEST), self.ae(r.read(), b'Chunk does not have trailing CRLF')
 
             conn = server.connect(timeout=base_timeout * 5)
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'30\r\nbody\r\n0\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.REQUEST_TIMEOUT)
+            self.ae(r.status, http_client.REQUEST_TIMEOUT)
             self.assertIn(b'', r.read())
 
             server.log.filter_level = orig_level
@@ -273,14 +274,14 @@ class TestHTTP(BaseTest):
             # Test pipelining
             responses = []
             for i in range(10):
-                conn._HTTPConnection__state = httplib._CS_IDLE
+                conn._HTTPConnection__state = http_client._CS_IDLE
                 conn.request('GET', '/%d'%i)
                 responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
             for i in range(10):
                 r = responses[i]
                 r.begin()
                 self.ae(r.read(), ('%d' % i).encode('ascii'))
-            conn._HTTPConnection__state = httplib._CS_IDLE
+            conn._HTTPConnection__state = http_client._CS_IDLE
 
             # Test closing
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
@@ -319,12 +320,12 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK), self.ae(r.read(), b'an_etagged_path')
+            self.ae(r.status, http_client.OK), self.ae(r.read(), b'an_etagged_path')
             etag = r.getheader('ETag')
             self.ae(etag, '"%s"' % hashlib.sha1('an_etagged_path').hexdigest())
             conn.request('GET', '/an_etagged_path', headers={'If-None-Match':etag})
             r = conn.getresponse()
-            self.ae(r.status, httplib.NOT_MODIFIED)
+            self.ae(r.status, http_client.NOT_MODIFIED)
             self.ae(r.read(), b'')
 
             # Test gzip
@@ -334,7 +335,7 @@ class TestHTTP(BaseTest):
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
             self.ae(str(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
-            self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
+            self.ae(r.status, http_client.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
 
             # Test dynamic etagged content
             num_calls = [0]
@@ -346,13 +347,13 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK), self.ae(r.read(), b'data')
+            self.ae(r.status, http_client.OK), self.ae(r.read(), b'data')
             etag = r.getheader('ETag')
             self.ae(etag, b'"xxx"')
             self.ae(r.getheader('Content-Length'), '4')
             conn.request('GET', '/an_etagged_path', headers={'If-None-Match':etag})
             r = conn.getresponse()
-            self.ae(r.status, httplib.NOT_MODIFIED)
+            self.ae(r.status, http_client.NOT_MODIFIED)
             self.ae(r.read(), b'')
             self.ae(num_calls[0], 1)
 
@@ -368,11 +369,11 @@ class TestHTTP(BaseTest):
                 self.ae(r.getheader('Content-Type'), guess_type(f.name)[0])
                 self.ae(type('')(r.getheader('Accept-Ranges')), 'bytes')
                 self.ae(int(r.getheader('Content-Length')), len(fdata))
-                self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
+                self.ae(r.status, http_client.OK), self.ae(r.read(), fdata)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=2-25'})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.PARTIAL_CONTENT)
+                self.ae(r.status, http_client.PARTIAL_CONTENT)
                 self.ae(type('')(r.getheader('Accept-Ranges')), 'bytes')
                 self.ae(type('')(r.getheader('Content-Range')), 'bytes 2-25/%d' % len(fdata))
                 self.ae(int(r.getheader('Content-Length')), 24)
@@ -380,27 +381,27 @@ class TestHTTP(BaseTest):
 
                 conn.request('GET', '/test', headers={'Range':'bytes=100000-'})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.REQUESTED_RANGE_NOT_SATISFIABLE)
+                self.ae(r.status, http_client.REQUESTED_RANGE_NOT_SATISFIABLE)
                 self.ae(type('')(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata[25:51])
+                self.ae(r.status, http_client.PARTIAL_CONTENT), self.ae(r.read(), fdata[25:51])
                 self.ae(int(r.getheader('Content-Length')), 26)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=0-1000000'})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata)
+                self.ae(r.status, http_client.PARTIAL_CONTENT), self.ae(r.read(), fdata)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':'"nomatch"'})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
+                self.ae(r.status, http_client.OK), self.ae(r.read(), fdata)
                 self.assertFalse(r.getheader('Content-Range'))
                 self.ae(int(r.getheader('Content-Length')), len(fdata))
 
                 conn.request('GET', '/test', headers={'Range':'bytes=0-25,26-50'})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.PARTIAL_CONTENT)
+                self.ae(r.status, http_client.PARTIAL_CONTENT)
                 clen = int(r.getheader('Content-Length'))
                 data = r.read()
                 self.ae(clen, len(data))
@@ -415,7 +416,7 @@ class TestHTTP(BaseTest):
                 conn = server.connect(timeout=1)
                 conn.request('GET', '/test')
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
+                self.ae(r.status, http_client.OK)
                 rdata = r.read()
                 self.ae(len(data), len(rdata))
                 self.ae(hashlib.sha1(data).hexdigest(), hashlib.sha1(rdata).hexdigest())

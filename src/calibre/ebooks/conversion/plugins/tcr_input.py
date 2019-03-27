@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from cStringIO import StringIO
+from io import BytesIO
 
 from calibre.customize.conversion import InputFormatPlugin
 
@@ -24,7 +24,7 @@ class TCRInput(InputFormatPlugin):
         raw_txt = decompress(stream)
 
         log.info('Converting text to OEB...')
-        stream = StringIO(raw_txt)
+        stream = BytesIO(raw_txt)
 
         from calibre.customize.ui import plugin_for_input_format
 

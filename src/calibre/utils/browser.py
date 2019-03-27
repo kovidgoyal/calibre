@@ -5,10 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, httplib, ssl
-from cookielib import CookieJar, Cookie
+import copy, ssl
 
 from mechanize import Browser as B, HTTPSHandler
+
+from polyglot import http_client
+from polyglot.http_cookie import CookieJar, Cookie
 
 
 class ModernHTTPSHandler(HTTPSHandler):
@@ -24,7 +26,7 @@ class ModernHTTPSHandler(HTTPSHandler):
 
         def conn_factory(hostport, **kw):
             kw['context'] = self.ssl_context
-            return httplib.HTTPSConnection(hostport, **kw)
+            return http_client.HTTPSConnection(hostport, **kw)
         return self.do_open(conn_factory, req)
 
 
