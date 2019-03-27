@@ -1268,12 +1268,8 @@ class Manifest(object):
         return elem
 
     def to_opf2(self, parent=None):
-
-        def sort(x, y):
-            return cmp(x.href, y.href)
-
         elem = element(parent, OPF('manifest'))
-        for item in sorted(self.items, cmp=sort):
+        for item in sorted(self.items, key=lambda x: x.href):
             media_type = item.media_type
             if media_type in OEB_DOCS:
                 media_type = XHTML_MIME

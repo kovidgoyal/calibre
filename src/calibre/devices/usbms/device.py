@@ -358,7 +358,7 @@ class Device(DeviceConfig, DevicePlugin):
                 g['p'] = 0
             return map(int, (g.get('m'), g.get('p')))
 
-        def dcmp(x, y):
+        def cmp_key(x):
             '''
             Sorting based on the following scheme:
                 - disks without partitions are first
@@ -367,18 +367,11 @@ class Device(DeviceConfig, DevicePlugin):
                   disk number, then on partition number
             '''
             x = x.rpartition('/')[-1]
-            y = y.rpartition('/')[-1]
-            x, y = nums(x), nums(y)
-            if x[1] == 0 and y[1] > 0:
-                return cmp(1, 2)
-            if x[1] > 0 and y[1] == 0:
-                return cmp(2, 1)
-            ans = cmp(x[0], y[0])
-            if ans == 0:
-                ans = cmp(x[1], y[1])
-            return ans
+            disk_num, part_num = nums(x)
+            has_part = 1 if part_num > 0 else 0
+            return has_part, disk_num, part_num
 
-        matches.sort(cmp=dcmp)
+        matches.sort(key=cmp_key)
         drives = {'main':matches[0]}
         if len(matches) > 1:
             drives['carda'] = matches[1]
@@ -711,14 +704,7 @@ class Device(DeviceConfig, DevicePlugin):
             except dbus.exceptions.DBusException as e:
                 continue
 
-        def ocmp(x,y):
-            if x['node'] < y['node']:
-                return -1
-            if x['node'] > y['node']:
-                return 1
-            return 0
-
-        vols.sort(cmp=ocmp)
+        vols.sort(key=lambda x: x['node'])
 
         if verbose:
             print("FBSD:	", vols)

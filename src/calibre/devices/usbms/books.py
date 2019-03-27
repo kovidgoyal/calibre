@@ -5,6 +5,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, time, sys
+from functools import cmp_to_key
 
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -14,7 +15,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, iteritems, itervalues
 
 
 class Book(Metadata):
@@ -306,9 +307,8 @@ class CollectionsBookList(BookList):
             except TypeError:
                 return 0
 
-        for category, lpaths in collections.items():
-            books = lpaths.values()
-            books.sort(cmp=none_cmp)
+        for category, lpaths in iteritems(collections):
+            books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         return result
 
