@@ -430,9 +430,12 @@ class Graphics(object):
         pdf.current_page.write('%d j '%join)
 
         # Dash pattern
-        ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
-              Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
-        if ps:
+        if pen.style() == Qt.CustomDashLine:
+            pdf.serialize(Array(pen.dashPattern()))
+            pdf.current_page.write(' %d d ' % pen.dashOffset())
+        else:
+            ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
+                  Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
             pdf.serialize(Array(ps))
             pdf.current_page.write(' 0 d ')
 
