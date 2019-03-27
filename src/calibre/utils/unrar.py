@@ -127,8 +127,9 @@ def test_basic():
 
     def do_test(stream):
         c = comment(stream)
-        if c != 'some comment\n':
-            raise ValueError('Comment not read: %r != %r' % (c, b'some comment\n'))
+        expected = 'some comment\n'
+        if c != expected:
+            raise ValueError('Comment not read: %r != %r' % (c, expected))
         if set(names(stream)) != {
             '1/sub-one', 'one.txt', '2/sub-two.txt', '诶比屁.txt', 'Füße.txt',
             'uncompressed', 'max-compressed'}:

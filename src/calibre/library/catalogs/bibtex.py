@@ -14,7 +14,7 @@ from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import format_isbn
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes
 
 
 class BIBTEX(CatalogPlugin):
@@ -350,7 +350,7 @@ class BIBTEX(CatalogPlugin):
             bibtexc.ascii_bibtex = True
 
         # Check citation choice and go to default in case of bad CLI
-        if isinstance(opts.impcit, (str, unicode_type)) :
+        if isinstance(opts.impcit, string_or_bytes) :
             if opts.impcit == 'False' :
                 citation_bibtex= False
             elif opts.impcit == 'True' :
@@ -362,7 +362,7 @@ class BIBTEX(CatalogPlugin):
             citation_bibtex= opts.impcit
 
         # Check add file entry and go to default in case of bad CLI
-        if isinstance(opts.addfiles, (StringType, UnicodeType)) :
+        if isinstance(opts.addfiles, string_or_bytes) :
             if opts.addfiles == 'False' :
                 addfiles_bibtex = False
             elif opts.addfiles == 'True' :

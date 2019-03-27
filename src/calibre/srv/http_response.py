@@ -30,6 +30,8 @@ from polyglot import http_client, reprlib
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex
+if isinstance(MULTIPART_SEPARATOR, bytes):
+    MULTIPART_SEPARATOR = MULTIPART_SEPARATOR.decode('ascii')
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
 if is_py3:
     import zlib
@@ -450,7 +452,10 @@ class HTTPConnection(HTTPRequest):
 
     def send_range_not_satisfiable(self, content_length):
         buf = [
-            '%s %d %s' % (self.response_protocol, http_client.REQUESTED_RANGE_NOT_SATISFIABLE, http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            '%s %d %s' % (
+                self.response_protocol,
+                http_client.REQUESTED_RANGE_NOT_SATISFIABLE,
+                http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
             "Date: " + http_date(),
             "Content-Range: bytes */%d" % content_length,
         ]
