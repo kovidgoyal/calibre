@@ -1264,8 +1264,9 @@ def form_to_compiled_form(form):
 
 
 def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
-    import re, io
+    import re
     from PyQt5.uic import compileUi
+    from polyglot.io import PolyglotStringIO
     forms = find_forms(srcdir)
     if info is None:
         from calibre import prints
@@ -1283,13 +1284,6 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
     # Ensure that people running from source have all their forms rebuilt for
     # the qt5 migration
     force_compile = check_for_migration and not gprefs.get('migrated_forms_to_qt5', False)
-
-    class PolyglotStringIO(io.StringIO):
-
-        def write(self, x):
-            if isinstance(x, bytes):
-                x = x.decode('utf-8')
-            io.StringIO.write(self, x)
 
     for form in forms:
         compiled_form = form_to_compiled_form(form)
