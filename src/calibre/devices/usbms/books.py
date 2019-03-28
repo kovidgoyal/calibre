@@ -15,7 +15,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import string_or_bytes, iteritems, itervalues
+from polyglot.builtins import string_or_bytes, iteritems, itervalues, cmp
 
 
 class Book(Metadata):

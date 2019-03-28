@@ -13,7 +13,7 @@ from functools import partial
 
 import apsw
 from polyglot.builtins import (iteritems, itervalues,
-        unicode_type, reraise, string_or_bytes)
+        unicode_type, reraise, string_or_bytes, cmp)
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,

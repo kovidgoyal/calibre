@@ -15,7 +15,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import unicode_type, string_or_bytes, iteritems, itervalues
+from polyglot.builtins import unicode_type, string_or_bytes, iteritems, itervalues, cmp
 
 
 class Book(Book_):

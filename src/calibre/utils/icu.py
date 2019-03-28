@@ -16,9 +16,10 @@ import codecs
 
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, cmp
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+cmp
 
 _none = u''
 _none2 = b''

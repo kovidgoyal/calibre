@@ -20,7 +20,7 @@ from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import sort_key
 from calibre import prints
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, cmp
 from polyglot import reprlib
 from polyglot.queue import Queue
 

@@ -10,7 +10,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, cmp
 
 
 @contextmanager

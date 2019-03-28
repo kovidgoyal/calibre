@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import sys, struct, zlib, bz2, os
 
 from calibre import guess_type
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, cmp
 
 
 class FileStream:
