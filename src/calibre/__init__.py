@@ -520,13 +520,6 @@ relpath = os.path.relpath
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 
 
-def english_sort(x, y):
-    '''
-    Comapare two english phrases ignoring starting prepositions.
-    '''
-    return cmp(_spat.sub('', x), _spat.sub('', y))
-
-
 def walk(dir):
     ''' A nice interface to os.walk '''
     for record in os.walk(dir):
