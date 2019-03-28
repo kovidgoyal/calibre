@@ -187,12 +187,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
+            m.addSeparator()
+            ca = m.addAction(_("Show books by author in book list"))
+            ca.triggered.connect(self.search)
         else:
             ca = m.addAction(_('Copy to author'))
             ca.triggered.connect(self.copy_aus_to_au)
         m.addSeparator()
         m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
+
+    def search(self):
+        from calibre.gui2.ui import get_gui
+        row = self.context_item.row()
+        get_gui().search.set_search_string(self.table.item(row, 0).text())
 
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
