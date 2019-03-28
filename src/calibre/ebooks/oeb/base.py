@@ -6,11 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, logging
+import os, re, logging, sys, numbers
 from collections import defaultdict
 from itertools import count
+from operator import attrgetter
 
 from lxml import etree, html
+from calibre import force_unicode
 from calibre.constants import filesystem_encoding, __version__, ispy3
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
@@ -20,8 +22,9 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues
 from polyglot.urllib import unquote, urldefrag, urljoin, urlparse, urlunparse
+from calibre.utils.icu import numeric_sort_key
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -935,8 +938,6 @@ class Manifest(object):
             have a :attr:`spine_position` of `None`.
         """
 
-        NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
-
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
             if href:
@@ -1122,24 +1123,18 @@ class Manifest(object):
                 return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
 
         def __eq__(self, other):
-            return id(self) == id(other)
+            return self is other
 
         def __ne__(self, other):
-            return not self.__eq__(other)
+            return self is not other
 
-        def __cmp__(self, other):
-            result = cmp(self.spine_position, other.spine_position)
-            if result != 0:
-                return result
-            smatch = self.NUM_RE.search(self.href)
-            sref = smatch.group(1) if smatch else self.href
-            snum = float(smatch.group(2)) if smatch else 0.0
-            skey = (sref, snum, self.id)
-            omatch = self.NUM_RE.search(other.href)
-            oref = omatch.group(1) if omatch else other.href
-            onum = float(omatch.group(2)) if omatch else 0.0
-            okey = (oref, onum, other.id)
-            return cmp(skey, okey)
+        @property
+        def sort_key(self):
+            href = self.href
+            if isinstance(href, bytes):
+                href = force_unicode(href)
+            sp = self.spine_position if isinstance(self.spine_position, numbers.Number) else sys.maxsize
+            return sp, (self.media_type or '').lower(), numeric_sort_key(href), self.id
 
         def relhref(self, href):
             """Convert the URL provided in :param:`href` from a book-absolute
@@ -1269,7 +1264,7 @@ class Manifest(object):
 
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
-        for item in sorted(self.items, key=lambda x: x.href):
+        for item in sorted(self.items, key=attrgetter('sort_key')):
             media_type = item.media_type
             if media_type in OEB_DOCS:
                 media_type = XHTML_MIME
@@ -1417,9 +1412,9 @@ class Guide(object):
                          ('notes', __('Notes')),
                          ('preface', __('Preface')),
                          ('text', __('Main text'))]
-        TYPES = set(t for t, _ in _TYPES_TITLES)  # noqa
         TITLES = dict(_TYPES_TITLES)
-        ORDER = dict((t, i) for i, (t, _) in enumerate(_TYPES_TITLES))  # noqa
+        TYPES = frozenset(TITLES)
+        ORDER = {t: i for i, (t, _) in enumerate(_TYPES_TITLES)}
 
         def __init__(self, oeb, type, title, href):
             self.oeb = oeb
@@ -1437,17 +1432,6 @@ class Guide(object):
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
-
-        @dynamic_property
-        def _order(self):
-            def fget(self):
-                return self.ORDER.get(self.type, self.type)
-            return property(fget=fget)
-
-        def __cmp__(self, other):
-            if not isinstance(other, Guide.Reference):
-                return NotImplemented
-            return cmp(self._order, other._order)
 
         @dynamic_property
         def item(self):
@@ -1485,7 +1469,7 @@ class Guide(object):
     __iter__ = iterkeys
 
     def values(self):
-        return sorted(self.refs.values())
+        return sorted(itervalues(self.refs), key=lambda ref: ref.ORDER.get(ref.type, 10000))
 
     def items(self):
         for type, ref in self.refs.items():
