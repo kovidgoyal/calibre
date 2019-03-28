@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -956,14 +956,14 @@ class Cache(object):
 
         class SortKey(object):
 
-            __slots__ = ('book_id', 'sort_key')
+            __slots__ = 'book_id', 'sort_key'
 
             def __init__(self, book_id):
                 self.book_id = book_id
                 # Calculate only the first sub-sort key since that will always be used
                 self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
 
-            def __cmp__(self, other):
+            def compare_to_other(self, other):
                 for i, (order, self_key, other_key) in enumerate(zip(orders, self.sort_key, other.sort_key)):
                     if self_key is Lazy:
                         self_key = self.sort_key[i] = sort_key_funcs[i](self.book_id)
@@ -973,6 +973,24 @@ class Cache(object):
                     if ans != 0:
                         return ans * order
                 return 0
+
+            def __eq__(self, other):
+                return self.compare_to_other(other) == 0
+
+            def __ne__(self, other):
+                return self.compare_to_other(other) != 0
+
+            def __lt__(self, other):
+                return self.compare_to_other(other) < 0
+
+            def __le__(self, other):
+                return self.compare_to_other(other) <= 0
+
+            def __gt__(self, other):
+                return self.compare_to_other(other) > 0
+
+            def __ge__(self, other):
+                return self.compare_to_other(other) >= 0
 
         return sorted(ids_to_sort, key=SortKey)
 

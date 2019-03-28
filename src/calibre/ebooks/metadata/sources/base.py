@@ -8,13 +8,14 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, threading
+from functools import total_ordering
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.author_mapper import cap_author_token
 from calibre.utils.localization import canonicalize_lang, get_lang
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, cmp
 
 
 def create_log(ostream=None):
@@ -41,6 +42,7 @@ def cleanup_title(s):
     return s.strip()
 
 
+@total_ordering
 class InternalMetadataCompareKeyGen(object):
 
     '''
@@ -86,21 +88,38 @@ class InternalMetadataCompareKeyGen(object):
                 source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
         self.base = (same_identifier, has_cover, all_fields, language, exact_title)
-        self.comments_len = len(mi.comments.strip() if mi.comments else '')
-        self.extra = (getattr(mi, 'source_relevance', 0), )
+        self.comments_len = len((mi.comments or '').strip())
+        self.extra = getattr(mi, 'source_relevance', 0)
 
-    def __cmp__(self, other):
-        result = cmp(self.base, other.base)
-        if result == 0:
-            # Now prefer results with the longer comments, within 10%
-            cx, cy = self.comments_len, other.comments_len
+    def compare_to_other(self, other):
+        a = cmp(self.base, other.base)
+        if a != 0:
+            return a
+        cx, cy = self.comments_len, other.comments_len
+        if cx and cy:
             t = (cx + cy) / 20
             delta = cy - cx
             if abs(delta) > t:
-                result = delta
-            else:
-                result = cmp(self.extra, other.extra)
-        return result
+                return -1 if delta < 0 else 1
+        return cmp(self.extra, other.extra)
+
+    def __eq__(self, other):
+        return self.compare_to_other(other) == 0
+
+    def __ne__(self, other):
+        return self.compare_to_other(other) != 0
+
+    def __lt__(self, other):
+        return self.compare_to_other(other) < 0
+
+    def __le__(self, other):
+        return self.compare_to_other(other) <= 0
+
+    def __gt__(self, other):
+        return self.compare_to_other(other) > 0
+
+    def __ge__(self, other):
+        return self.compare_to_other(other) >= 0
 
 # }}}
 

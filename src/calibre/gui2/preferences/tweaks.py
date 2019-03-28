@@ -6,6 +6,7 @@
 import textwrap
 from collections import OrderedDict
 from functools import partial
+from operator import attrgetter
 
 from PyQt5.Qt import (
     QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
@@ -104,9 +105,9 @@ class Tweak(object):  # {{{
             ans = ans.encode('utf-8')
         return ans
 
-    def __cmp__(self, other):
-        return -1 * cmp(self.is_customized,
-                            getattr(other, 'is_customized', False))
+    @property
+    def sort_key(self):
+        return 0 if self.is_customized else 1
 
     @property
     def is_customized(self):
@@ -190,7 +191,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
                 pos = self.read_tweak(lines, pos, default_tweaks, custom_tweaks)
             pos += 1
 
-        self.tweaks.sort()
+        self.tweaks.sort(key=attrgetter('sort_key'))
         default_keys = set(default_tweaks)
         custom_keys = set(custom_tweaks)
 

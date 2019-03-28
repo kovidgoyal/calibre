@@ -1113,12 +1113,30 @@ class SortKey(object):
     def __init__(self, orders, values):
         self.orders, self.values = orders, values
 
-    def __cmp__(self, other):
+    def compare_to_other(self, other):
         for i, ascending in enumerate(self.orders):
             ans = cmp(self.values[i], other.values[i])
             if ans != 0:
                 return ans * ascending
         return 0
+
+    def __eq__(self, other):
+        return self.compare_to_other(other) == 0
+
+    def __ne__(self, other):
+        return self.compare_to_other(other) != 0
+
+    def __lt__(self, other):
+        return self.compare_to_other(other) < 0
+
+    def __le__(self, other):
+        return self.compare_to_other(other) <= 0
+
+    def __gt__(self, other):
+        return self.compare_to_other(other) > 0
+
+    def __ge__(self, other):
+        return self.compare_to_other(other) >= 0
 
 
 class SortKeyGenerator(object):

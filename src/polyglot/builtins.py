@@ -56,6 +56,9 @@ if is_py3:
         code = compile(code, f.name, 'exec')
         exec(code, ctx)
 
+    def cmp(a, b):
+        return (a > b) - (a < b)
+
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -74,6 +77,7 @@ else:
     long_type = long
     exec_path = execfile
     raw_input = builtins.raw_input
+    cmp = builtins.cmp
 
     def iteritems(d):
         return d.iteritems()
