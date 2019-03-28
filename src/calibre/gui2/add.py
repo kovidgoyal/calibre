@@ -89,6 +89,7 @@ class Adder(QObject):
         self.report = []
         self.items = []
         self.added_book_ids = set()
+        self.merged_formats_added_to = set()
         self.merged_books = set()
         self.added_duplicate_info = set()
         self.pd.show()
@@ -383,6 +384,7 @@ class Adder(QObject):
             ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
             self.add_formats(identical_book_id, paths, mi, replace=replace)
+            self.merged_formats_added_to.add(identical_book_id)
         if gprefs['automerge'] == 'new record':
             incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
             if incoming_fmts.intersection(seen_fmts):
@@ -490,7 +492,7 @@ class Adder(QObject):
 
         if gprefs['manual_add_auto_convert'] and self.added_book_ids and self.parent() is not None:
             self.parent().iactions['Convert Books'].auto_convert_auto_add(
-                self.added_book_ids)
+                self.added_book_ids | self.merged_formats_added_to)
 
         try:
             if callable(self.callback):
