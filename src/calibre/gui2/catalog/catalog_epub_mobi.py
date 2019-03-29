@@ -498,12 +498,6 @@ class PluginWidget(QWidget,Ui_Form):
         elif self.merge_after.isChecked():
             checked = 'after'
         include_hr = self.include_hr.isChecked()
-        opts_dict['merge_comments_rule'] = "%s:%s:%s" % \
-            (self.merge_source_field_name, checked, include_hr)
-
-        opts_dict['header_note_source_field'] = self.header_note_source_field_name
-
-        opts_dict['genre_source_field'] = self.genre_source_field_name
 
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
@@ -525,6 +519,13 @@ class PluginWidget(QWidget,Ui_Form):
         if cs != _('Tags') and cs and cs in self.genre_source_fields:
             genre_source_spec = self.genre_source_fields[cs]
             self.genre_source_field_name = genre_source_spec['field']
+
+        opts_dict['merge_comments_rule'] = "%s:%s:%s" % \
+            (self.merge_source_field_name, checked, include_hr)
+
+        opts_dict['header_note_source_field'] = self.header_note_source_field_name
+
+        opts_dict['genre_source_field'] = self.genre_source_field_name
 
         # Fix up exclude_genre regex if blank. Assume blank = no exclusions
         if opts_dict['exclude_genre'] == '':
