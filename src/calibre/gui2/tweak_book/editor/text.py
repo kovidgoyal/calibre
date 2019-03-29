@@ -262,7 +262,7 @@ class TextEdit(PlainTextEdit):
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
+        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
         self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
@@ -685,7 +685,7 @@ class TextEdit(PlainTextEdit):
                     painter.setFont(f)
                     self.last_current_lnum = (top, bottom - top)
                 painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignRight, str(num + 1))
+                              Qt.AlignRight, unicode_type(num + 1))
                 if current == num:
                     painter.restore()
             block = block.next()

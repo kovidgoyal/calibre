@@ -20,6 +20,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
+from polyglot.builtins import unicode_type
 
 OPF_TEMPLATE = '''
 <package xmlns="http://www.idpf.org/2007/opf" version="{ver}" prefix="calibre: %s" unique-identifier="uid">
@@ -78,7 +79,7 @@ class Structure(BaseTest):
 
     def create_epub(self, *args, **kw):
         n = next(counter)
-        ep = os.path.join(self.tdir, str(n) + 'book.epub')
+        ep = os.path.join(self.tdir, unicode_type(n) + 'book.epub')
         with open(ep, 'wb') as f:
             f.write(create_epub(*args, **kw).getvalue())
         c = get_container(ep, tdir=os.path.join(self.tdir, 'container%d' % n), tweak_mode=True)

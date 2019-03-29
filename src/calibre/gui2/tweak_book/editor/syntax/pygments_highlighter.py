@@ -93,7 +93,9 @@ def create_lexer(base_class):
         state.pygments_stack = statestack
         return formats
 
-    return type(str('Qt'+base_class.__name__), (base_class,), {
+    name_type = type(base_class.__name__)
+
+    return type(name_type('Qt'+base_class.__name__), (base_class,), {
         'get_tokens_unprocessed': get_tokens_unprocessed,
         'lex_a_line':lex_a_line,
     })
@@ -144,7 +146,8 @@ def create_formats(highlighter):
 
 
 def create_highlighter(name, lexer_class):
-    return type(str(name), (SyntaxHighlighter,), {
+    name_type = type(lexer_class.__name__)
+    return type(name_type(name), (SyntaxHighlighter,), {
         'state_map': {NORMAL:create_lexer(lexer_class)().lex_a_line},
         'create_formats_func': create_formats,
         'user_data_factory': PygmentsUserData,
