@@ -505,6 +505,27 @@ class PluginWidget(QWidget,Ui_Form):
 
         opts_dict['genre_source_field'] = self.genre_source_field_name
 
+        # Init self.merge_source_field_name
+        self.merge_source_field_name = ''
+        cs = unicode_type(self.merge_source_field.currentText())
+        if cs and cs in self.merge_source_fields:
+            merge_source_spec = self.merge_source_fields[cs]
+            self.merge_source_field_name = merge_source_spec['field']
+
+        # Init self.header_note_source_field_name
+        self.header_note_source_field_name = ''
+        cs = unicode_type(self.header_note_source_field.currentText())
+        if cs and cs in self.header_note_source_fields:
+            header_note_source_spec = self.header_note_source_fields[cs]
+            self.header_note_source_field_name = header_note_source_spec['field']
+
+        # Init self.genre_source_field_name
+        self.genre_source_field_name = _('Tags')
+        cs = unicode_type(self.genre_source_field.currentText())
+        if cs != _('Tags') and cs and cs in self.genre_source_fields:
+            genre_source_spec = self.genre_source_fields[cs]
+            self.genre_source_field_name = genre_source_spec['field']
+
         # Fix up exclude_genre regex if blank. Assume blank = no exclusions
         if opts_dict['exclude_genre'] == '':
             opts_dict['exclude_genre'] = 'a^'
