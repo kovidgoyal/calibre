@@ -666,8 +666,25 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except Exception:
                 import traceback
                 traceback.print_exc()
+        elif msg.startswith('web-store:'):
+            import json
+            try:
+                data = json.loads(msg[len('web-store:'):])
+            except ValueError:
+                prints('Failed to decode message from other instance: %r' % msg)
+            path = data['path']
+            if data['tags']:
+                before = self.current_db.new_api.all_book_ids()
+            self.iactions['Add Books'].add_filesystem_book([path], allow_device=False)
+            if data['tags']:
+                db = self.current_db.new_api
+                after = self.current_db.new_api.all_book_ids()
+                for book_id in after - before:
+                    tags = list(db.field_for('tags', book_id))
+                    tags += list(data['tags'])
+                    self.current_db.new_api.set_field('tags', {book_id: tags})
         else:
-            print(msg)
+            prints(u'Ignoring unknown message from other instance: %r' % msg[:20])
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
