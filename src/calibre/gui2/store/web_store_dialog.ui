@@ -82,14 +82,9 @@
   </layout>
  </widget>
  <customwidgets>
-       <customwidget>
-           <class>QWebView</class>
-           <extends>QWidget</extends>
-           <header>PyQt5/QtWebKitWidgets</header>
-       </customwidget>
   <customwidget>
    <class>NPWebView</class>
-   <extends>QWebView</extends>
+   <extends>QWidget</extends>
    <header>calibre/gui2/store/web_control.h</header>
   </customwidget>
  </customwidgets>
