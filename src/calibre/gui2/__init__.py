@@ -16,9 +16,9 @@ from threading import Lock, RLock
 from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QCoreApplication, QDateTime,
     QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo,
-    QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QObject,
-    QSettings, QSocketNotifier, QStringListModel, Qt, QThread, QTimer, QTranslator,
-    QUrl, pyqtSignal
+    QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale,
+    QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal
 )
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 
@@ -38,9 +38,10 @@ from calibre.utils.config import Config, ConfigProxy, JSONConfig, dynamic
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
-from polyglot.builtins import (iteritems, itervalues, unicode_type,
-        string_or_bytes, range, map)
 from polyglot import queue
+from polyglot.builtins import (
+    iteritems, itervalues, range, string_or_bytes, unicode_type, map
+)
 
 try:
     NO_URL_FORMATTING = QUrl.None_
@@ -817,6 +818,7 @@ class Application(QApplication):
     shutdown_signal_received = pyqtSignal()
 
     def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+        QNetworkProxyFactory.setUseSystemConfiguration(True)
         if iswindows:
             self.windows_app_uid = None
             if windows_app_uid:
