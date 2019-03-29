@@ -43,6 +43,7 @@ FAKE_PROTOCOL, FAKE_HOST = 'clbr', 'internal.invalid'
 VIEWER_APP_UID = 'com.calibre-ebook.viewer'
 EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
 MAIN_APP_UID = 'com.calibre-ebook.main-gui'
+STORE_DIALOG_APP_UID = 'com.calibre-ebook.store-dialog'
 try:
     preferred_encoding = locale.getpreferredencoding()
     codecs.lookup(preferred_encoding)
